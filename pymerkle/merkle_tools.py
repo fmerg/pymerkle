@@ -212,17 +212,20 @@ class merkle_tree(object):
         Encrypts data of the provided log-file into the merkle-tree
 
         More specifically, updates the tree by successively updating
-        with each line of the log-file provided
+        with each line of the log-file provided.
 
         :param log_file : <str> relative path of the log-file under enryption, specified
                                 with respect to the tree's root directory `logs_dir`
         """
-        with open(os.path.join(self.logs_dir, log_file), 'rb') as file:
-            # ~ NOTE: File should be opened in binary mode so that its content remains
-            # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-            # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-            for line in file:
-                self.update(record=line)
+        try:
+            with open(os.path.join(self.logs_dir, log_file), 'rb') as file:
+                # ~ NOTE: File should be opened in binary mode so that its content remains
+                # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                for line in file:
+                    self.update(record=line)
+        except FileNotFoundError:
+            print('\n * Requested log file does not exist\n')
 
 # ------------------------ Audit proof functionalities ------------------------
 
