@@ -322,12 +322,12 @@ class merkle_tree(object):
         :returns             : <proofs.consistency_proof> proof content in nice format with validation parameters
         """
 
-        # Calculate proof
-        consistency_path = self._consistency_path(
-            sublength=sublength)
+        # Calculate path
+        consistency_path = self._consistency_path(sublength=sublength)
 
         # Return proof nice formatted along with validation parameters
-        if consistency_path is not None:
+        if consistency_path is not None and\
+           consistency_path[0] is not -1:  # Excludes zero leaves case
             proof_index, left_path, full_path = consistency_path
 
             # Inclusion test
@@ -353,7 +353,7 @@ class merkle_tree(object):
                 proof_index=None,
                 proof_path=None)
 
-        # Handles incompatibility case
+        # Handles incompatibility case (includes the zero leaves case)
         failure_message = 'Sutree provided by Client was incompatible'
         print('\n * WARNING: {}\n'.format(failure_message))
         return proof(

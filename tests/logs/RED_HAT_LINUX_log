@@ -1,0 +1,5 @@
+Mar 12 12:01:02 server4 snort: alert_multiple_requests: ACTIVE
+Mar 12 12:01:02 server4 snort: telnet_decode arguments:
+Mar 12 12:01:02 server4 snort: snort startup succeeded
+Mar 12 12:01:02 server4 snort: Ports to decode telnet on: 21 23 25 119
+Mar 12 12:01:03 server4 snort: Snort initialization completed successfully

@@ -117,6 +117,7 @@ class validation_receipt(object):
                 \n\
                 \n    proof-id       : {proof_id}\
                 \n    proof-provider : {proof_provider}\
+                \n\
                 \n    result         : {result}\
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\

@@ -14,6 +14,8 @@ with open(os.path.join(current_dir, 'logs/short_APACHE_log'), 'rb') as log_file:
     for line in log_file:
         records.append(line)
 
+# Generate trees for all combinations of hash and encoding types
+# (including both security modes for each)
 trees = []
 for security in (True, False):
     for hash_type in HASH_TYPES:
@@ -30,16 +32,17 @@ for security in (True, False):
 @pytest.mark.parametrize("tree", trees)
 def test_encrypt_log(tree):
 
-    # Update clone tree from records successively
-    test_tree = merkle_tree(
+    clone_tree = merkle_tree(
         hash_type=tree.hash_type,
         encoding=tree.encoding,
         security=tree.security)
-    for record in records:
-        test_tree.update(record)
 
-    # Update second tree directly from file
+    # Update clone tree from records successively
+    for record in records:
+        clone_tree.update(record)
+
+    # Update original tree directly from file
     tree.encrypt_log('short_APACHE_log')
 
     # Compare hashes
-    assert tree.root_hash() == test_tree.root_hash()
+    assert tree.root_hash() == clone_tree.root_hash()
