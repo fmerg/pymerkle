@@ -22,7 +22,7 @@ This repository holds the following Python modules:
 
 - `log_proofs.py` containing functionalities for performing [Log proofs](<(http://www.certificate-transparency.org/log-proofs-work)>)
   on merkle trees
-- `merkle_tools.py` containing classes `merkle_tree`, `node` and the latter's subclass `leaf`
+- `tree_tools.py` containing classes `merkle_tree`, `node` and the latter's subclass `leaf`
 - `hash_tools.py` employing the _SHA256_ algorithm to produce hashes of bytestring or string sequences paired according to specification
 - `utils.py` containing utilities of general character
 - `testing.py` containing functions for testing performance and correctness of code
@@ -36,7 +36,7 @@ This repository holds the following Python modules:
 │   ├── hash_tools.py
 │   ├── __init__.py
 │   ├── log_proofs.py
-│   ├── merkle_tools.py
+│   ├── tree_tools.py
 │   ├── node_tools.py
 │   └── utils.py
 ├── README.md

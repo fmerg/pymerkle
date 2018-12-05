@@ -1,9 +1,10 @@
-from .proof_tools import validate_proof
-from .merkle_tools import merkle_tree
+from .tree_tools import merkle_tree
+from .validation_tools import validate_proof, proof_validator
 
 __version__ = "0.0.1"
 __all__ = (
     'merkle_tree',
-    'validate_proof')
+    'validate_proof',
+    'proof_validator')
 
 name = "pymerkle"  # Just for verifying correct installation

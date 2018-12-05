@@ -31,7 +31,7 @@ for security in (True, False):
                         hash_type=hash_type,
                         encoding=encoding,
                         security=security,
-                        logs_dir=os.path.join(current_dir, 'logs'))
+                        log_dir=os.path.join(current_dir, 'logs'))
                 )
             )
 

@@ -50,8 +50,8 @@ class hash_machine(object):
         # Plays role only if hash and endoding types are SHA256 resp. UTF-8
         self.SECURITY = security
         if self.SECURITY and self.HASH == hashlib.sha256 and self.ENCODING == 'utf_8':
-            # Security prefices will be prepended before hashing for defence against
-            # second-preimage attack
+            # ~ Security prefices will be prepended before hashing for defence against
+            # ~ second-preimage attack
             self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
     @staticmethod
@@ -87,8 +87,8 @@ class hash_machine(object):
 
     def security_mode_activated(self):
         """
-        Returns True iff genuine security standards are activated, i.e., `self.security` is True
-        along with hash and ecoding types of the machine being SHA256, resp. UTF-8
+        Returns True iff genuine security standards are activated, i.e., `self.SECURITY` is True
+        along with hash and ecoding types of the machine being SHA256, resp. UTF-8~
 
         returns : <bool>
         """
@@ -98,7 +98,7 @@ class hash_machine(object):
 
     def hash(self, first, second=None):
         """
-        Core hashing functionality
+        Core hashing function (single or double argument)
 
         Returns the hash of the object occuring by concatenation of arguments in the given order;
         if only one argument is passed in, then the hash of this argument is returned

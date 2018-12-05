@@ -13,11 +13,11 @@ class merkle_tree(object):
 
     def __init__(
             self,
+            *records,
             hash_type='sha256',
             encoding='utf-8',
             security=True,
-            logs_dir=os.path.abspath(os.sep),
-            *records,
+            log_dir=os.path.abspath(os.sep),
             leaves=None,
             nodes=None,
             root=None):
@@ -26,7 +26,7 @@ class merkle_tree(object):
 
         May be called in either of the following two ways:
 
-        :param hash_type: <str>  hash algorith configuration. Must be among the hard-coded strings contained in the
+        :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
                                  hash_tools.HASH_TYPES global variable (upper- or mixed-case with '-' instead of '_'
                                  allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
         :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
@@ -37,7 +37,7 @@ class merkle_tree(object):
                                  hash and ecoding types (SHA256, resp. UTF-8)
         :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
                                  usually empty at construction
-        :param logs_dir : <str>  directory with respect to which relative paths of the log-files are specified, whose
+        :param log_dir  : <str>  directory with respect to which relative paths of the log-files are specified, whose
                                  content will be encrypted in the merkle-tree; defaults to the root directory of the
                                  operating system if unspecified
         :param leaves   : <None>
@@ -49,7 +49,7 @@ class merkle_tree(object):
         :param hash_type : <str>              see above
         :param encoding  : <str>              see above
         :param security  : <bool>             see above
-        :param logs_dir  : <str>              see above
+        :param log_dir   : <str>              see above
         :param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
         :param nodes     : <set [of <node>]>  initial nodes of the tree under construction
         :param root      : <node>             root of the tree under construction
@@ -72,7 +72,7 @@ class merkle_tree(object):
         self.multi_hash = self.machine.multi_hash
 
         # Logs directory configuration
-        self.logs_dir = logs_dir
+        self.log_dir = log_dir
 
         # Must be here initialized, so that consistency proof works in some
         # edge cases
@@ -209,16 +209,14 @@ class merkle_tree(object):
 
     def encrypt_log(self, log_file):
         """
-        Encrypts data of the provided log-file into the merkle-tree
-
-        More specifically, updates the tree by successively updating
-        with each line of the log-file provided.
+        Encrypts data of the provided log-file into the merkle-tree: updates the tree by
+        successively updating it with each line of the log-file provided.
 
         :param log_file : <str> relative path of the log-file under enryption, specified
-                                with respect to the tree's root directory `logs_dir`
+                                with respect to the tree's root directory `log_dir`
         """
         try:
-            with open(os.path.join(self.logs_dir, log_file), 'rb') as file:
+            with open(os.path.join(self.log_dir, log_file), 'rb') as file:
                 # ~ NOTE: File should be opened in binary mode so that its content remains
                 # ~ bytes and no decoding is thus needed during hashing (otherwise byte
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
@@ -497,7 +495,7 @@ class merkle_tree(object):
         :returns      : <node> or None if `start` is out of range
         """
         subroot = None
-        failure_message = 'Required subroot undefinable'
+        failure_message = 'Required subroot is undefinable'
 
         # Detect candidate subroot
         try:
