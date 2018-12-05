@@ -1,7 +1,6 @@
 import uuid
 import time
 import json
-from .hash_tools import hash_machine
 from .utils import get_with_sign, order_of_magnitude
 
 
@@ -82,8 +81,8 @@ class proof(object):
             proof_path=stringify_proof(
                 signed_hashes=self.body['proof_path']),
             status='UNVALIDATED' if self.header['status'] is None
-                    else 'VALID' if self.header['status'] is True
-                    else 'NON VALID')
+            else 'VALID' if self.header['status'] is True
+            else 'NON VALID')
 
 # ------------------------------ JSON formatting -------------------------
 

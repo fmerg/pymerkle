@@ -46,6 +46,7 @@ def validate_proof(target_hash, proof):
 
 # -------------------------------- Classes --------------------------------
 
+
 class proof_validator(object):
     def __init__(self, validations_dir=os.path.abspath(os.sep)):
         """
@@ -70,14 +71,18 @@ class proof_validator(object):
         """
         validated = validate_proof(target_hash=target_hash, proof=proof)
 
-        receipt =  validation_receipt(
-            proof_id = proof.header['id'],
-            proof_provider = proof.header['provider'],
-            result = validated
+        receipt = validation_receipt(
+            proof_id=proof.header['id'],
+            proof_provider=proof.header['provider'],
+            result=validated
         )
 
         with open(os.path.join(self.validations_dir, 'test.json'), 'w') as output_file:
-            json.dump(receipt.JSONserialize(), output_file, sort_keys=True, indent=4)
+            json.dump(
+                receipt.JSONserialize(),
+                output_file,
+                sort_keys=True,
+                indent=4)
 
         return receipt
 
@@ -92,7 +97,7 @@ class validation_receipt(object):
         :param result         : <bool> validation output; True iff proof was found to be valid
         """
         self.header = {
-            'id': str(uuid.uuid1()), # Time based validation id
+            'id': str(uuid.uuid1()),  # Time based validation id
             'timestamp': int(time.time()),
             'validation_moment': time.ctime(),
         }
