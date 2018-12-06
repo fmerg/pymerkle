@@ -1,7 +1,9 @@
-pymerkle: A Python library for constructing Merkle Trees and
-performing Log Proofs
+pymerkle: A Python library for constructing Merkle Trees capable of providing audit and consistency proofs
 =======================================================
 
+## Work in progress
+
+<!--
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -27,7 +29,6 @@ This repository holds the following Python modules:
 - `utils.py` containing utilities of general character
 - `testing.py` containing functions for testing performance and correctness of code
 - the standard module making the repository into a Python package
-
 ```
 .
 ├── LICENSE
@@ -59,12 +60,13 @@ This repository holds the following Python modules:
 5 directories, 24 files
 
 ```
-
+-->
+<!--
 Contrary to other implementations, the construction here given neither enforces an even number of leaves to the tree nor promotes lonely leafs up to the next level; the tree rather remains at any stage a _balanced_ binary tree. Algorithms for updating the tree and returning appropriate proof hashes rely heavily on this balanced structure along with additively decomposing the leaves number in decreasing powers of 2 (cf. [Explanation](#explanation) below).
 
-<!--
 -->
 
+<!--
 The package is not currently supported by any kind of interface. Code can be only low-level
 tested from inside the Python interpreter (cf. [Example](#example) below).
 
@@ -97,7 +99,6 @@ tests.py ............................................................... [  0%]
 ```
 
 ## Example
-<!--
 ```
 .../pymerkle$ python3.6
 Python 3.6.4 (default, Mar 12 2018, 16:20:37)
@@ -517,7 +518,6 @@ remains essentially the same, worsening only by ~7.6%:
 | :--------------------------------- | :------------------------ |
 | 10<sup>5</sup> to 2 10<sup>5</sup> | 0.0002324860215187072     |
 | 10<sup>6</sup> to 2 10<sup>6</sup> | 0.0002501586573123932     |
--->
 ## Explanation
 
 ### tree structure
@@ -529,3 +529,4 @@ remains essentially the same, worsening only by ~7.6%:
 ### Consistency Proof
 
 ## Documentation
+-->
