@@ -1,6 +1,6 @@
 import pytest
 import os
-from pymerkle import merkle_tree, validate_proof, proof_validator, hash_tools
+from pymerkle import merkle_tree, validate_proof, hash_tools
 
 HASH_TYPES = hash_tools.HASH_TYPES
 ENCODINGS = ['utf_7',
@@ -11,11 +11,11 @@ ENCODINGS = ['utf_7',
 # Directory containing this script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# First log size
+# Store first log size
 with open(os.path.join(current_dir, 'logs/short_APACHE_log')) as first_log_file:
     first_log_size = sum(1 for line in first_log_file)
 
-# Second log size
+# Store second log size
 with open(os.path.join(current_dir, 'logs/RED_HAT_LINUX_log')) as second_log_file:
     second_log_size = sum(1 for line in second_log_file)
 
@@ -96,7 +96,7 @@ def test_audit_proof_validation_for_non_empty_tree(
         target_hash=target_hash,
         proof=audit_proof) is expected
 
-# --------------------- Test Consistency proof validation ---------------------
+# --------------------- Test consistency proof validation ---------------------
 
 
 consistency_proofs = []
@@ -165,7 +165,6 @@ for bool_1 in (
             len(consistency_proofs))])
 def test_consistency_proof_validation_for_non_empty_tree(
         consistency_proof, target_hash, expected):
-    # assert 0 == 0
     assert validate_proof(
         target_hash=target_hash,
         proof=consistency_proof) is expected

@@ -35,16 +35,28 @@ This repository holds the following Python modules:
 │   ├── encodings.py
 │   ├── hash_tools.py
 │   ├── __init__.py
-│   ├── log_proofs.py
-│   ├── tree_tools.py
 │   ├── node_tools.py
-│   └── utils.py
+│   ├── proof_tools.py
+│   ├── tree_tools.py
+│   ├── utils.py
+│   └── validation_tools.py
 ├── README.md
+├── run_tests.sh
 ├── setup.py
 └── tests
     ├── __init__.py
-    ├── test_hash_tools.py
-    └── test_proofs.py
+    ├── logs
+    │   ├── large_APACHE_log
+    │   ├── RED_HAT_LINUX_log
+    │   └── short_APACHE_log
+    ├── test_hash_machine.py
+    ├── test_log_encryption.py
+    ├── test_tree_structure.py
+    ├── test_validate_proof.py
+    └── validator_database
+        └── test.json
+
+5 directories, 24 files
 
 ```
 

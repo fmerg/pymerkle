@@ -17,7 +17,7 @@ class merkle_tree(object):
             hash_type='sha256',
             encoding='utf-8',
             security=True,
-            log_dir=os.path.abspath(os.sep),
+            log_dir=os.getcwd(),
             leaves=None,
             nodes=None,
             root=None):
@@ -38,8 +38,8 @@ class merkle_tree(object):
         :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
                                  usually empty at construction
         :param log_dir  : <str>  directory with respect to which relative paths of the log-files are specified, whose
-                                 content will be encrypted in the merkle-tree; defaults to the root directory of the
-                                 operating system if unspecified
+                                 content will be encrypted in the merkle-tree; defaults to the current working
+                                 directory if unspecified
         :param leaves   : <None>
         :param nodes    : <None>
         :param root     : <None>
@@ -72,6 +72,8 @@ class merkle_tree(object):
         self.multi_hash = self.machine.multi_hash
 
         # Logs directory configuration
+        if not os.path.isdir(log_dir):
+            os.mkdir(log_dir)
         self.log_dir = log_dir
 
         # Must be here initialized, so that consistency proof works in some
@@ -229,8 +231,8 @@ class merkle_tree(object):
 
     def audit_proof(self, index):
         """
-        Returns audit proof appropriately formatted along with its validation parameters, so that it
-        be insertible as the second argument to the proof_tools.validate() method
+        Returns audit proof appropriately formatted along with its validation parameters (so that it
+        be insertible as the second argument to the  validation_tools.validate_proof() method)
 
         :param index : <int>                index of the leaf where the proof calculation must be
                                             based upon (Client Side)
@@ -313,8 +315,8 @@ class merkle_tree(object):
 
     def consistency_proof(self, old_tree_hash, sublength):
         """
-        Returns consistency proof appropriately formatted along with its validation parameters, so that it
-        be insertible as the second argument to the proof_validations.validate_consistency_proof() method
+        Returns consistency proof appropriately formatted along with its validation parameters (so that it
+        be insertible as the second argument to the validation_tools.validate_proof() method)
 
         :param old_tree_hash : <str> top-hash of the tree to be presumably detected as a previous state of the current
                                one and whose consistency is about to be validated or not (Client Side)
@@ -327,7 +329,7 @@ class merkle_tree(object):
 
         # Return proof nice formatted along with validation parameters
         if consistency_path is not None and\
-           consistency_path[0] is not -1:  # Excludes zero leaves case
+           consistency_path[0] is not -1:  # Excludes zero leaves
             proof_index, left_path, full_path = consistency_path
 
             # Inclusion test
@@ -353,7 +355,8 @@ class merkle_tree(object):
                 proof_index=None,
                 proof_path=None)
 
-        # Handles incompatibility case (includes the zero leaves case)
+        # Handles incompatibility case (includes the zero leaves and zero
+        # `sublength` case)
         failure_message = 'Sutree provided by Client was incompatible'
         print('\n * WARNING: {}\n'.format(failure_message))
         return proof(
@@ -389,8 +392,15 @@ class merkle_tree(object):
 
         (-1, [], [])
 
+        is returned. If the merkle-tree is NOT empty but `sublength` is set to be 0, then
+
+        None
+
         is returned
         """
+        if sublength is 0:
+            return None  # so that it be handled as special incompatibility case
+
         left_roots = self._principal_subroots(sublength)
         if left_roots is not None:
             # No incompatibility issue

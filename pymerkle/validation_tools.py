@@ -48,13 +48,13 @@ def validate_proof(target_hash, proof):
 
 
 class proof_validator(object):
-    def __init__(self, validations_dir=os.path.abspath(os.sep)):
+    def __init__(self, validator_database=os.getcwd()):
         """
         ...
 
-        :param validations_dir : <str>
+        :param validator_database : <str>
         """
-        self.validations_dir = validations_dir
+        self.validator_database = validator_database
 
     def validate(self, target_hash, proof):
         """
@@ -77,7 +77,7 @@ class proof_validator(object):
             result=validated
         )
 
-        with open(os.path.join(self.validations_dir, 'test.json'), 'w') as output_file:
+        with open(os.path.join(self.validator_database, 'validations.json'), 'w') as output_file:
             json.dump(
                 receipt.JSONserialize(),
                 output_file,
