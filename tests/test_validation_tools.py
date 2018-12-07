@@ -183,6 +183,13 @@ validator = proof_validator(
     validator_database=os.path.join(
         current_dir, 'validation_receipts'))
 
+# Clean the receipts directory before running the test
+file_list = os.listdir(os.path.join(
+    current_dir, 'validation_receipts'))
+for file in file_list:
+    os.remove(os.path.join(
+        current_dir, 'validation_receipts', file))
+
 # Feed tree with logs and generate consistency proofs
 proofs = []
 target_hashes = []
