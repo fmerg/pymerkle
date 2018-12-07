@@ -3,41 +3,6 @@ import math
 import sys
 import os
 
-
-# ------------------------------ Buffer utilities ------------------------
-
-
-def bufferise(content):
-    """
-    Returns the bytes buffer corresponding to the inserted content (the latter
-    must be either bytes-like or a valid hexadecimal string)
-
-    :param content : <bytes> or <bytearray> or <str>
-    :returns       : <bytes> or <bytearray>
-    """
-    if isinstance(content, (bytes, bytearray)):
-        return content
-    if isinstance(content, str) and is_hex(content):
-        return bytearray.fromhex(content)
-    else:
-        raise Exception(
-            'Content must be bytes-like object or valid hex string')
-
-
-def is_hex(string):
-    """
-    Returns True iff the inserted string is a valid hexadecimal
-
-    :param string : <str>
-    :returns      : <bool>
-    """
-    hex_digits = '0123456789ABCDEFabcdef'
-    for char in string:
-        if char not in hex_digits:
-            return False
-    return True
-
-
 # ------------------------------ Math utilities --------------------------
 
 

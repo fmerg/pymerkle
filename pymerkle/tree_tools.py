@@ -37,9 +37,8 @@ class merkle_tree(object):
                                  hash and ecoding types (SHA256, resp. UTF-8)
         :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
                                  usually empty at construction
-        :param log_dir  : <str>  directory with respect to which relative paths of the log-files are specified, whose
-                                 content will be encrypted in the merkle-tree; defaults to the current working
-                                 directory if unspecified
+        :param log_dir  : <str>  absolute path of the directory, where the merkle-tree will receive the log files
+                                 to encrypt from; defaults to the current working directory if unspecified
         :param leaves   : <None>
         :param nodes    : <None>
         :param root     : <None>
@@ -145,7 +144,7 @@ class merkle_tree(object):
         """
         Returns top-hash of the merkle-tree (i.e., the hash of its current root)
 
-        :returns : <str> (valid hexadecimal), or None if the tree is empty
+        :returns : <str> (valid hex) or None (if the tree is empty)
         """
         if self:
             return self.root.hash
@@ -211,8 +210,10 @@ class merkle_tree(object):
 
     def encrypt_log(self, log_file):
         """
-        Encrypts data of the provided log-file into the merkle-tree: updates the tree by
-        successively updating it with each line of the log-file provided.
+        Encrypts the data of the provided log-file into the merkle-tree.
+
+        More accurately, it updates the tree by successively updating it with each line
+        of the log-file provided.
 
         :param log_file : <str> relative path of the log-file under enryption, specified
                                 with respect to the tree's root directory `log_dir`
@@ -268,7 +269,7 @@ class merkle_tree(object):
 
     def _audit_path(self, index):
         """
-        Response of the merkle tree (Server Side) to the request of providing the appropriate
+        Response of the merkle-tree (Server Side) to the request of providing the appropriate
         list of signed hashes for audit proof validation by auditor (Client Side)
 
         :param index : <int> index of the leaf where the proof calculation must be based upon (Client Side)
@@ -370,7 +371,7 @@ class merkle_tree(object):
 
     def _consistency_path(self, sublength):
         """
-        Response of the merkle tree (Server Side) to the request of providing the appropriate
+        Response of the merkle-tree (Server Side) to the request of providing the appropriate
         list of signed hashes for consistency proof validation by monitor (Client Side)
 
         :param sublength : <int> length of the tree to be presumably detected as a previous state of the current
@@ -378,8 +379,8 @@ class merkle_tree(object):
 
         :returns         : (
                                 <int>                      starting point for application of hash() during proof validation
-                                <list [of (-1, <str>)]>    list of leftmost hashes provided by Server for inclusion test
-                                                           to be performed by the Client
+                                <list [of (-1, <str>)]>    list of leftmost hashes for inclusion test to be performed by
+                                                           the Server (i.e., the tree itself)
                                 <list [of (+1/-1, <str>)]> full list of signed hashes provided by Server for top-hash test
                                                            to be performed by the Client, the sign +1 or -1 indicating
                                                            pairing with the right or left neighbour respectively

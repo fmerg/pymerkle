@@ -10,7 +10,7 @@ setup(
     version=pymerkle.__version__,
     author="Foteinos Mergoupis",
     author_email="foteinosmerg@gmail.com",
-    description="A Python library for constructing merkle trees and performing Log Proofs",
+    description="A Python library for constructing merkle-trees and performing Log Proofs",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="http://github.com/FoteinosMerg/pymerkle",

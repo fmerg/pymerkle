@@ -20,11 +20,11 @@ class proof(object):
         """
         :param generation  : <str>  Will be `SUCCESS` or `FAILURE` (plus an explanation message), according to whether
                                     or not a proof can be provided for the parameters provided from Client Side (cf.
-                                    the tree_tools.audit_proof and tree_tools.consistency_proof functions to
-                                    failure cases)
+                                    the tree_tools.audit_proof() and tree_tools.consistency_proof() functions to
+                                    understand failure cases)
         :provider          : <str>  id of the the merkle-tree providing the proof
         :param hash_type   : <str>  hash type of the merkle-tree providing the proof
-        :param encoding    : <str>  encoding type used by the merkle-tree providing the proof
+        :param encoding    : <str>  encoding type of the merkle-tree providing the proof
         :param security    : <bool> security mode of the merkle-tree providing the proof
         :param proof_index : <int>  position where the validation procedure should start from
         :param proof_path  : <list  [of (+1/-1, <str>)]> path of the signed hashes provided
@@ -151,7 +151,7 @@ def stringify_proof(signed_hashes):
     Helper function for nice printing.
 
     Returns a nice formatted stringified version of the inserted list of signed hashes
-    (e.g., the first outpout of the merkle_tree._audit_path() function)
+    (e.g., for the first outpout of the merkle_tree._audit_path() function)
 
     :param signed_hashes : <list [of (+1/-1, <str>)]> or None
     :returns             : <str>

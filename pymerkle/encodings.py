@@ -1,7 +1,3 @@
-
-# Contains all strings that may be passed as arguments to the `encoding` parameter
-# of the <str>.encode(), bytes.encode() and bytearray.encode() functions
-
 ENCODINGS = [
     'euc_jisx0213',
     'euc_kr',

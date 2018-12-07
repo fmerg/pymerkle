@@ -6,7 +6,7 @@ class node(object):
 
     def __init__(self, record, left, right, hash_function):
         """
-        Constructor of node objects
+        Constructor of node objects comrising the merkle-tree
 
         Should be called in either of the following two ways:
 

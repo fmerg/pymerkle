@@ -15,12 +15,13 @@ else:
 
 class hash_machine(object):
     """
-    Encapsulates the two basic hashing functionalities (the hash() and multi_hash() functions below)
+    Encapsulates the two basic hashi functionalities (the hash() and multi_hash() functions below)
     used for merkle-tree construction and validating merkle-proofs respectively.
 
     Sole purpose of this class is to fix at construction the hash and encoding types used for encrypting,
     so that these parameters need not be redefined every time a hash functionality is invoked; instances
-    of this class are thus to be initialized with every new construction of a merkle-tree
+    of this class are thus to be initialized with every new construction of a merkle-tree or every time
+    a proof validation is about to be performed
     """
 
     # -------------------------------- Construction --------------------------
@@ -39,7 +40,7 @@ class hash_machine(object):
                                   \x01 before hashing.
         """
 
-        # Hash algorithm used by this machine
+        # Hash algorithm used by the machine
         self.HASH = hash_machine.select_hash_algorithm(
             hash_type=hash_type.lower().replace('-', '_'))
 
@@ -88,7 +89,7 @@ class hash_machine(object):
     def security_mode_activated(self):
         """
         Returns True iff genuine security standards are activated, i.e., `self.SECURITY` is True
-        along with hash and ecoding types of the machine being SHA256, resp. UTF-8~
+        along with hash and ecoding types of the machine being SHA256, resp. UTF-8
 
         returns : <bool>
         """
@@ -98,17 +99,16 @@ class hash_machine(object):
 
     def hash(self, first, second=None):
         """
-        Core hashing function (single or double argument)
+        Core hash functionality (single or double argument)
 
         Returns the hash of the object occuring by concatenation of arguments in the given order;
-        if only one argument is passed in, then the hash of this argument is returned
+        if only one argument is passed in, then the hash of this single argument is returned.
 
         :param first  : <str> or <bytes> or <bytearray>
         :param second : <str> (valid hex) optional; if provided, then `first` must also be of <str> (valid hex) type
         :returns      : <str> (valid hex)
         """
 
-        # '''
         if not second:  # one arg case
 
             if isinstance(first, (bytes, bytearray)):
@@ -162,20 +162,10 @@ class hash_machine(object):
                     first,
                     second),
                 encoding=self.ENCODING)).hexdigest()
-        # '''
-        # Replace the above content with the following snipset, in order to trivialize
-        # hash() as simple parenthetization of string pairs (this might be helpful for
-        # understanding various functionalities of this package by means of
-        # printing)
-        '''
-        if not second:
-            return '{}'.format(first)
-        return '({}{})'.format(first, second)
-        '''
 
     def multi_hash(self, signed_hashes, start):
         """
-        Repeated application of the core hash() function over a list of strings or bytes objects
+        Repeated application of the core hash() function over a list of strings or byte-like objects
         parenthesized in pairs as specified by accompanying signs
 
         Example: calling

@@ -16,14 +16,14 @@ pymerkle: A Python library for constructing Merkle Trees capable of providing au
 
 ## Introduction
 
-The [merkle tree](https://en.wikipedia.org/wiki/merkle_tree) (also known as hash
+The [merkle-tree](https://en.wikipedia.org/wiki/merkle_tree) (also known as hash
 tree) collectively generalizes hash lists and hash chains, allowing for profound
 applications in cryptographic protocols from blockchain to [TLS certificate transparency](https://www.certificate-transparency.org/).
 
 This repository holds the following Python modules:
 
 - `log_proofs.py` containing functionalities for performing [Log proofs](<(http://www.certificate-transparency.org/log-proofs-work)>)
-  on merkle trees
+  on merkle-trees
 - `tree_tools.py` containing classes `merkle_tree`, `node` and the latter's subclass `leaf`
 - `hash_tools.py` employing the _SHA256_ algorithm to produce hashes of bytestring or string sequences paired according to specification
 - `utils.py` containing utilities of general character
@@ -296,7 +296,7 @@ where _callback_ stands for the function whose performance is to be measured, _\
 specified, then _callback_ accepts each element from _\*args_ singly and is thus called as many
 times as the length of _\*args_.
 
-For use throughout this session, we create two relatively big merkle trees of _100,000_ and _1,000,000_ leaves respectively (With a processor as above, the second construction might take up to ~ 30 secs to complete):
+For use throughout this session, we create two relatively big merkle-trees of _100,000_ and _1,000,000_ leaves respectively (With a processor as above, the second construction might take up to ~ 30 secs to complete):
 
 ```
 >>> tree1 = merkle_tree(*['{}-th record'.format(i).encode() for i in range(10**5)])

@@ -16,7 +16,7 @@ def validate_proof(target_hash, proof):
     according to validation result and returns this result
 
     :param target_hash : <str>   hash to be presumably attained at the end of the validation procedure
-                                 (i.e., acclaimed top-hash of the tree providing the proof)
+                                 (i.e., acclaimed top-hash of the merkle-tree providing the proof)
     :param proof       : <proof> the proof to be validated
     :returns           : <bool>  validation result
     """
@@ -36,38 +36,44 @@ def validate_proof(target_hash, proof):
         proof.header['status'] = validated
 
         # Print and return result
-        print('\n * Validated: {}\n'.format(validated))
         return validated
 
     # generation FAILURE
     proof.header['status'] = False
-    print('\n * {}\n'.format(proof.header['generation']))
     return False
 
 # -------------------------------- Classes --------------------------------
 
 
 class proof_validator(object):
-    def __init__(self, validator_database=os.getcwd()):
+    def __init__(self, validator_database=None):
         """
-        ...
+        Enhances the validate_proof() functionality by employing the <validation_receipt> object in order
+        to organize its result (see the valdiate() function below). If a `validator_database` is
+        specified, validated receipts are stored in .json files inside this directory.
 
-        :param validator_database : <str>
+        :param validator_database : <str> absolute path of the directory where validation receipts will
+                                          be stored as .json files (cf. the validate() function below);
+                                          defaults to `None`, in which case validation receipts are
+                                          not to be automatically stored
         """
         self.validator_database = validator_database
 
     def validate(self, target_hash, proof):
         """
-        Performs proof validation, modifies the proof's `status` as
+        Validates the inserted `proof` by comparing to `target_hash`, modifies the proof's `status` as
 
         True or False
 
-        according to validation result and returns this result
+        according to validation result and returns corresponding <validation_receipt> object. If a
+        `validator_database` has been specified at construction, then each validation receipt
+        is autoamtically stored in that directory as a .json file named with the receipt's id
 
-        :param target_hash : <str>   hash to be presumably attained at the end of the validation procedure
-                                     (i.e., acclaimed top-hash of the tree providing the proof)
-        :param proof       : <proof> the proof to be validated
-        :returns           : <bool>  validation result
+        :param target_hash : <str>                 hash to be presumably attained at the end of the validation
+                                                   procedure (i.e., acclaimed top-hash of the merkle-tree
+                                                   providing the proof)
+        :param proof       : <proof>               the proof to be validated
+        :returns           : <validation_receipt>  validation result
         """
         validated = validate_proof(target_hash=target_hash, proof=proof)
 
@@ -77,12 +83,19 @@ class proof_validator(object):
             result=validated
         )
 
-        with open(os.path.join(self.validator_database, '{}.json'.format(receipt.header['id'])), 'w') as output_file:
-            json.dump(
-                receipt.serialize(),
-                output_file,
-                sort_keys=True,
-                indent=4)
+        if self.validator_database:
+            with open(
+                os.path.join(
+                    self.validator_database,
+                    '{}.json'.format(receipt.header['id'])
+                ),
+                'w'
+            ) as output_file:
+                json.dump(
+                    receipt.serialize(),
+                    output_file,
+                    sort_keys=True,
+                    indent=4)
 
         return receipt
 
@@ -93,11 +106,11 @@ class validation_receipt(object):
         Encapsulates the output of the proof validation procedure for nice printing and easy saving
 
         :param proof_id       : <str>  id of the validated proof
-        :param proof_provider : <str>  id of the tree which provided the proof
+        :param proof_provider : <str>  id of the merkle-tree which provided the proof
         :param result         : <bool> validation output; True iff proof was found to be valid
         """
         self.header = {
-            'id': str(uuid.uuid1()),  # Time based validation id
+            'id': str(uuid.uuid1()),  # Time based
             'timestamp': int(time.time()),
             'validation_moment': time.ctime(),
         }
