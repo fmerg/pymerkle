@@ -51,7 +51,7 @@ class hash_machine(object):
         # Plays role only if hash and endoding types are SHA256 resp. UTF-8
         self.SECURITY = security
         if self.SECURITY and self.HASH == hashlib.sha256 and self.ENCODING == 'utf_8':
-            # ~ Security prefices will be prepended before hashing for defence against
+            # ~ Security prefices will be prepended before hashing for defense against
             # ~ second-preimage attack
             self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 

@@ -174,7 +174,7 @@ def test_consistency_proof_validation_for_non_empty_tree(
 
 # ------------------------- Test proof validator object ------------------
 
-# Proof provider (a typical SHA256/UTF-8 merkle-tree with defence against
+# Proof provider (a typical SHA256/UTF-8 merkle-tree with defense against
 # second-preimage attack)
 tree = merkle_tree(log_dir=os.path.join(current_dir, 'logs'))
 

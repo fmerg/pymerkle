@@ -32,7 +32,7 @@ class merkle_tree(object):
         :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
                                  encodings.ENCODINGS global variable, otherwise an exception is thrown;
                                  defaults to `utf_8` if unspecified
-        :param security : <bool> configures security mode of the underlying hash machine, i.e., defence against
+        :param security : <bool> configures security mode of the underlying hash machine, i.e., defense against
                                  second-preimage attack; genuinely activated only for the default values of the
                                  hash and ecoding types (SHA256, resp. UTF-8)
         :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,

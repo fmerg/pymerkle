@@ -20,6 +20,39 @@ pip install pysha3==1.0b1
 ```
 -->
 
+## Quick example
+
+```python
+from pymerkle import *
+
+tree = merkle_tree()              # Create empty SHA256/UTF-8 Merkle-tree with
+                                  # defense against second preimage-attack
+validator = proof_validator()     # Create object for validating proofs
+
+# Successively update the tree with one hundred records
+for i in range(100):
+    tree.update(bytes('{}-th record'.format(i), 'utf-8'))
+
+# Store current top-hash and length for later use
+top_hash = tree.root_hash()
+length = len(tree.leaves)
+
+# Generate audit-proof based upon the 56-th leaf
+p = tree.audit_proof(index=56)
+
+# Quick validation of the above proof
+valid = validate_proof(target_hash=a.root_hash(), proof=p) # <bool>
+
+# Update the tree by appending a new log
+tree.encrypt_log('logs/sample_log')
+
+# Generate consistency-proof for the tree before appending the log
+q = tree.consistency_proof(old_tree_hash=top_hash, sublength=length)
+
+# Validate the above proof and generate receipt
+validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
+```
+
 ## Requirements
 
 ## Usage
@@ -30,7 +63,7 @@ pip install pysha3==1.0b1
 t = merkle_tree()
 ```
 
-creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA256_, encoding type _UTF-8_ and defence against second-preimage attack _activated_. It is equivalent to:
+creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA256_, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
 
 ```python
 t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
@@ -101,7 +134,11 @@ In other words, the argument of the `.encrypt_log()` method should always be the
 t.log_dir
 ```
 
+### Anatomy of the *merkle_tree* object
+
 ### Generating proofs (Server's Side)
+
+### Anatomy of the *proof* object
 
 ### Validating proofs (Client's Side)
 
