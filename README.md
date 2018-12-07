@@ -192,13 +192,105 @@ t.log_dir
     height    : 7
 
 >>>
-
 ```
 
 
 ### Generating proofs (Server's Side)
 
 ### Anatomy of the *proof* object
+
+```bash
+>>>
+>>> p = tree.audit_proof(56)
+>>>
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : a4e60c64-fa56-11e8-8ca1-70c94e89b637                
+
+    generation  : SUCCESS                
+
+    timestamp   : 1544211067 (Fri Dec  7 20:31:07 2018)                
+    provider    : 570fb32e-fa55-11e8-8ca1-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 3                
+    proof-path  :                
+
+       [0]   +1  b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191
+       [1]   -1  a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198
+       [2]   -1  ba65fa1ce2655478c9b13aedc819ab0a488b5d71260e1322ca95a9bc4cbc06b1
+       [3]   +1  04cdce8d659faf91e5fa8f26898dcd6f2a3897855fb80224b61a0fd052c2ea2a
+       [4]   +1  9720ac3f8b814bb67dc5adee620ac5f48c3fe9bf5317b8b730e4ddae01118730
+       [5]   +1  042569a4ceed78d8c92651ca3d049d74bcabba96212291bebb2e7f9ff4034587
+       [6]   -1  0b547a789ad9d38c6e7eb2e609ca99dec73d15538bc4f1bc2bb67465c55441e7
+       [7]   -1  c0156101d1a75620c1863a70d3d553a197b247c5fca45353d74d72121f83611f                
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+
+```
+
+```json
+{
+    "body": {
+        "proof_index": 3,
+        "proof_path": [
+            [
+                1,
+                "b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191"
+            ],
+            [
+                -1,
+                "a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198"
+            ],
+            [
+                -1,
+                "ba65fa1ce2655478c9b13aedc819ab0a488b5d71260e1322ca95a9bc4cbc06b1"
+            ],
+            [
+                1,
+                "04cdce8d659faf91e5fa8f26898dcd6f2a3897855fb80224b61a0fd052c2ea2a"
+            ],
+            [
+                1,
+                "9720ac3f8b814bb67dc5adee620ac5f48c3fe9bf5317b8b730e4ddae01118730"
+            ],
+            [
+                1,
+                "042569a4ceed78d8c92651ca3d049d74bcabba96212291bebb2e7f9ff4034587"
+            ],
+            [
+                -1,
+                "0b547a789ad9d38c6e7eb2e609ca99dec73d15538bc4f1bc2bb67465c55441e7"
+            ],
+            [
+                -1,
+                "c0156101d1a75620c1863a70d3d553a197b247c5fca45353d74d72121f83611f"
+            ]
+        ]
+    },
+    "header": {
+        "creation_moment": "Fri Dec  7 20:31:07 2018",
+        "encoding": "utf_8",
+        "generation": "SUCCESS",
+        "hash_type": "sha256",
+        "id": "a4e60c64-fa56-11e8-8ca1-70c94e89b637",
+        "provider": "570fb32e-fa55-11e8-8ca1-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1544211067
+    }
+}
+
+```
 
 ### Validating proofs (Client's Side)
 
