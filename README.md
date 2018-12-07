@@ -1,7 +1,49 @@
-pymerkle: A Python library for constructing Merkle Trees capable of providing audit and consistency proofs
+pymerkle: A Python library for constructing Merkle Trees and validating Log Proofs
 =======================================================
 
-## Work in progress
+## [ Work in progress ]
+
+<!--
+[![PyPI version](https://badge.fury.io/py/merkletools.svg)](https://badge.fury.io/py/merkletools) [![Build Status](https://travis-ci.org/Tierion/pymerkletools.svg?branch=master)](https://travis-ci.org/Tierion/pymerkletools)
+-->
+## Installation
+
+<!--
+```bash
+pip install pymerkle
+```
+
+This module will attempt also to install `sha3` depending on [pysha3](https://pypi.python.org/pypi/pysha3). You can alternatively install this module manually with:
+
+```bash
+pip install pysha3==1.0b1
+```
+-->
+
+## Common usage
+
+### Merkle-tree creation
+
+### Updating and log encryption
+
+### Generating proofs (Server's Side)
+
+### Validating proofs (Client's Side)
+
+### Proof-validator
+
+### CLI example
+
+## Performance measurement
+
+## API
+
+## Running tests
+
+
+## Tree structure
+
+### Deviations from RFC
 
 <!--
 - [Introduction](#introduction)

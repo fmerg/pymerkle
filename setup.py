@@ -5,6 +5,10 @@ import pymerkle
 with open("README.md", "r") as f:
     long_description = f.read()
 
+install_requires = [
+    "pysha3>=1.0b1"
+]
+
 setup(
     name="pymerkle",
     version=pymerkle.__version__,
