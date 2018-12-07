@@ -46,7 +46,7 @@ valid = validate_proof(target_hash=tree.root_hash(), proof=p) # <bool>
 # Update the tree by appending a new log
 tree.encrypt_log('logs/sample_log')
 
-# Generate consistency-proof for the tree before appending the log
+# Generate consistency-proof for the stage before appending the log
 q = tree.consistency_proof(old_tree_hash=top_hash, sublength=length)
 
 # Validate the above proof and generate receipt
@@ -135,6 +135,66 @@ t.log_dir
 ```
 
 ### Anatomy of the *merkle_tree* object
+
+```bash
+>>> tree = merkle_tree()
+>>>
+>>> tree
+
+    id        : 570fb32e-fa55-11e8-8ca1-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    security  : ACTIVATED                
+
+    root-hash : None                
+
+    size      : 0                
+    length    : 0                
+    height    : 0
+
+>>>
+>>> tree.serialize()
+{'id': '570fb32e-fa55-11e8-8ca1-70c94e89b637', 'hash_type': 'sha256', 'encoding': 'utf_8', 'security': True'leaves': [], 'nodes': [], 'root': None}
+>>>
+```
+
+```json
+{
+    "encoding": "utf_8",
+    "hash_type": "sha256",
+    "id": "570fb32e-fa55-11e8-8ca1-70c94e89b637",
+    "leaves": [],
+    "nodes": [],
+    "root": null,
+    "security": true
+}
+```
+
+```bash
+>>>
+>>> for i in range(100):
+...     tree.update(bytes('{}-th record'.format(i), 'utf-8'))
+...
+>>>
+>>> tree
+
+    id        : 570fb32e-fa55-11e8-8ca1-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    security  : ACTIVATED                
+
+    root-hash : b36fd619f7e06a0659c52060ee8726eb0769d687f7a56e7b3fe254a1cef357d6                
+
+    size      : 199                
+    length    : 100                
+    height    : 7
+
+>>>
+
+```
+
 
 ### Generating proofs (Server's Side)
 
