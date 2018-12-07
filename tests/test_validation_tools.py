@@ -1,6 +1,8 @@
 import pytest
 import os
-from pymerkle import merkle_tree, validate_proof, hash_tools
+import json
+import time
+from pymerkle import merkle_tree, hash_tools, validate_proof, proof_validator
 
 HASH_TYPES = hash_tools.HASH_TYPES
 ENCODINGS = ['utf_7',
@@ -19,7 +21,7 @@ with open(os.path.join(current_dir, 'logs/short_APACHE_log')) as first_log_file:
 with open(os.path.join(current_dir, 'logs/RED_HAT_LINUX_log')) as second_log_file:
     second_log_size = sum(1 for line in second_log_file)
 
-# ------------------------------ Empty tree case ------------------------------
+# ------------------- Test validate proof for empty tree case ------------
 
 trees = []
 for encoding in ENCODINGS:
@@ -168,3 +170,44 @@ def test_consistency_proof_validation_for_non_empty_tree(
     assert validate_proof(
         target_hash=target_hash,
         proof=consistency_proof) is expected
+
+
+# ------------------------- Test proof validator object ------------------
+
+# Proof provider (a typical SHA256/UTF-8 merkle-tree with defence against
+# second-preimage attack)
+tree = merkle_tree(log_dir=os.path.join(current_dir, 'logs'))
+
+# Proof validator
+validator = proof_validator(
+    validator_database=os.path.join(
+        current_dir, 'validation_receipts'))
+
+# Feed tree with logs and generate consistency proofs
+proofs = []
+target_hashes = []
+for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
+    old_hash = tree.root_hash()
+    old_length = len(tree.leaves)
+    tree.encrypt_log(log_file)
+    proofs.append(
+        tree.consistency_proof(
+            old_tree_hash=old_hash,
+            sublength=old_length))
+    target_hashes.append(tree.root_hash())
+
+
+@pytest.mark.parametrize(
+    'proof, target_hash', [
+        (proofs[i], target_hashes[i]) for i in range(
+            len(proofs))])
+def test_test(proof, target_hash):
+    receipt = validator.validate(proof=proof, target_hash=target_hash)
+    receipt_file_path = os.path.join(
+        current_dir,
+        'validation_receipts',
+        '{}.json'.format(
+            receipt.header['id']))
+    with open(receipt_file_path) as receipt_file:
+        receipt_clone = json.load(receipt_file)
+    assert receipt.serialize() == receipt_clone

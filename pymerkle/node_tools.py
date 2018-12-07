@@ -100,7 +100,7 @@ class node(object):
 # ------------------------------- JSON formatting ------------------------
 
 
-    def JSONserialize(self):
+    def serialize(self):
         """
         :returns : <dict>
         """
@@ -156,8 +156,8 @@ class nodeEncoder(json.JSONEncoder):
                     'hash': hash
                 }
             return {
-                'left': left.JSONserialize(),
-                'right': right.JSONserialize(),
+                'left': left.serialize(),
+                'right': right.serialize(),
                 'hash': hash
             }  # Non-leaf case
 

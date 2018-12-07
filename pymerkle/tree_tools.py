@@ -546,7 +546,7 @@ class merkle_tree(object):
 
 # ------------------------------ JSON formatting -------------------------
 
-    def JSONserialize(self):
+    def serialize(self):
         """
         :returns : <dict>
         """
@@ -584,7 +584,7 @@ class merkle_treeEncoder(json.JSONEncoder):
             hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security
             leaves, nodes = obj.leaves, obj.nodes
             try:
-                root = obj.root.JSONserialize()
+                root = obj.root.serialize()
             except AttributeError:  # tree is empty and thus have no root
                 root = None
         except TypeError:
@@ -595,8 +595,8 @@ class merkle_treeEncoder(json.JSONEncoder):
                 'hash_type': hash_type,
                 'encoding': encoding,
                 'security': security,
-                'leaves': [leaf.JSONserialize() for leaf in leaves],
-                'nodes': [node.JSONserialize() for node in nodes],
+                'leaves': [leaf.serialize() for leaf in leaves],
+                'nodes': [node.serialize() for node in nodes],
                 'root': root
             }
 # -------------------------------- End of code ---------------------------

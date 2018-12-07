@@ -9,7 +9,7 @@ from .hash_tools import hash_machine
 
 def validate_proof(target_hash, proof):
     """
-    Performs proof validation, modifies the proof's `status` as
+    Validates the inserted `proof` by comparing to `target_hash`, modifies the proof's `status` as
 
     True or False
 
@@ -77,9 +77,9 @@ class proof_validator(object):
             result=validated
         )
 
-        with open(os.path.join(self.validator_database, 'validations.json'), 'w') as output_file:
+        with open(os.path.join(self.validator_database, '{}.json'.format(receipt.header['id'])), 'w') as output_file:
             json.dump(
-                receipt.JSONserialize(),
+                receipt.serialize(),
                 output_file,
                 sort_keys=True,
                 indent=4)
@@ -131,7 +131,7 @@ class validation_receipt(object):
 
 # ------------------------------ JSON formatting -------------------------
 
-    def JSONserialize(self):
+    def serialize(self):
         """
         :returns : <dict>
         """

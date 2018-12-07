@@ -86,7 +86,7 @@ class proof(object):
 
 # ------------------------------ JSON formatting -------------------------
 
-    def JSONserialize(self):
+    def serialize(self):
         """
         :returns : <dict>
         """
