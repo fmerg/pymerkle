@@ -34,13 +34,15 @@ creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA2
 t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see ... for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you can just type:
+Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see ... for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
 
 ```python
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
 ```
 
-An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log files for encryption; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to receive log files from an existing directory `/logs` inside the directory containing the script, type:
+See ... for the list of supported hash and encoding types.
+
+An extra argument `log_dir` specifies the absolute path of the directory, wherefrom the Merkle-tree will receive log files for encryption; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to receive log files from an existing directory `/logs` inside the directory containing the script, type:
 
 ```python
 import os
@@ -60,6 +62,37 @@ without the need to specify its absolute path (see ... for details).
 
 ### New records and log encryption
 
+_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update()` method of the `merkle_tree` class to successively update a tree with new records as follows:
+
+```python
+t = merkle_tree()                          # initially empty SHA256/UTF-8 Merkle tree
+
+t.update('arbitrary string')               # first record
+t.update(b'arbitrary bytes-like object')   # second record
+...                                        # ...
+```
+
+_Encrypting_ a _log-file_ into the Merkle-tree means updating the tree with each line of the file successively. Use the `.encrypt_log()` method of the `merkle_tree` class to append a new log to the tree as follows:
+
+```python
+t = merkle_tree()
+...
+
+t.encrypt_log('sample_log')
+```
+
+This presupposes that the log-file `sample_log` lies inside the tree's configured log directory, where the tree receives its log-files for encryption from, otherwise a message
+
+```bash
+* Requested log file does not exist
+```
+
+is displayed at console. You can anytime access the tree's configured log directory as
+
+```python
+t.log_dir
+```
+
 ### Generating proofs (Server's Side)
 
 ### Validating proofs (Client's Side)
@@ -74,7 +107,31 @@ without the need to specify its absolute path (see ... for details).
 
 ## API
 
+### merkle_tree
+
+### validate_proof
+
+### proof_validator
+
 ## Running tests
+
+In order to run all tests, make the file `run_tests.sh` executable and run
+
+```bash
+./run_tests.sh
+```
+
+from inside the root directory of the project. Alternatively, run the command
+
+```bash
+pytest tests/
+```
+
+You can run only a specific test file, e.g., `test_log_encryption.py`, by
+
+```bash
+pytest tests/test_log_encryption.py
+```
 
 ## Tree structure
 
