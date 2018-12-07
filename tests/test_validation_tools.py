@@ -180,15 +180,15 @@ tree = merkle_tree(log_dir=os.path.join(current_dir, 'logs'))
 
 # Proof validator
 validator = proof_validator(
-    validator_database=os.path.join(
-        current_dir, 'validation_receipts'))
+    validations_database=os.path.join(
+        current_dir, 'validations_database'))
 
 # Clean the receipts directory before running the test
 file_list = os.listdir(os.path.join(
-    current_dir, 'validation_receipts'))
+    current_dir, 'validations_database'))
 for file in file_list:
     os.remove(os.path.join(
-        current_dir, 'validation_receipts', file))
+        current_dir, 'validations_database', file))
 
 # Feed tree with logs and generate consistency proofs
 proofs = []
@@ -212,7 +212,7 @@ def test_test(proof, target_hash):
     receipt = validator.validate(proof=proof, target_hash=target_hash)
     receipt_file_path = os.path.join(
         current_dir,
-        'validation_receipts',
+        'validations_database',
         '{}.json'.format(
             receipt.header['id']))
     with open(receipt_file_path) as receipt_file:

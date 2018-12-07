@@ -46,18 +46,18 @@ def validate_proof(target_hash, proof):
 
 
 class proof_validator(object):
-    def __init__(self, validator_database=None):
+    def __init__(self, validations_database=None):
         """
         Enhances the validate_proof() functionality by employing the <validation_receipt> object in order
-        to organize its result (see the valdiate() function below). If a `validator_database` is
+        to organize its result (see the valdiate() function below). If a `validations_database` is
         specified, validated receipts are stored in .json files inside this directory.
 
-        :param validator_database : <str> absolute path of the directory where validation receipts will
+        :param validations_database : <str> absolute path of the directory where validation receipts will
                                           be stored as .json files (cf. the validate() function below);
                                           defaults to `None`, in which case validation receipts are
                                           not to be automatically stored
         """
-        self.validator_database = validator_database
+        self.validations_database = validations_database
 
     def validate(self, target_hash, proof):
         """
@@ -66,8 +66,8 @@ class proof_validator(object):
         True or False
 
         according to validation result and returns corresponding <validation_receipt> object. If a
-        `validator_database` has been specified at construction, then each validation receipt
-        is autoamtically stored in that directory as a .json file named with the receipt's id
+        `validations_database` has been specified at construction, then each validation receipt is
+        automatically stored in that directory as a .json file named with the receipt's id
 
         :param target_hash : <str>                 hash to be presumably attained at the end of the validation
                                                    procedure (i.e., acclaimed top-hash of the merkle-tree
@@ -83,10 +83,10 @@ class proof_validator(object):
             result=validated
         )
 
-        if self.validator_database:
+        if self.validations_database:
             with open(
                 os.path.join(
-                    self.validator_database,
+                    self.validations_database,
                     '{}.json'.format(receipt.header['id'])
                 ),
                 'w'
