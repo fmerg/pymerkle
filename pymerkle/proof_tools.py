@@ -78,7 +78,7 @@ class proof(object):
             encoding=self.header['encoding'].upper().replace('_', '-'),
             security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
             proof_index=self.body['proof_index'] if self.body['proof_index'] is not None else '',
-            proof_path=stringify_proof(
+            proof_path=stringify_path(
                 signed_hashes=self.body['proof_path']),
             status='UNVALIDATED' if self.header['status'] is None
             else 'VALID' if self.header['status'] is True
@@ -146,7 +146,7 @@ class proofEncoder(json.JSONEncoder):
 # -------------------------------- Helpers --------------------------------
 
 
-def stringify_proof(signed_hashes):
+def stringify_path(signed_hashes):
     """
     Helper function for nice printing.
 
