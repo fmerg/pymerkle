@@ -20,11 +20,45 @@ pip install pysha3==1.0b1
 ```
 -->
 
-## Common usage
+## Usage
 
 ### Merkle-tree creation
 
-### Updating and log encryption
+```python
+t = merkle_tree()
+```
+
+creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA256_, encoding type _UTF-8_ and defence against second-preimage attack _activated_. It is equivalent to:
+
+```python
+t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
+```
+
+Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see ... for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you can just type:
+
+```python
+t = merkle_tree(hash_type='sha512', encoding='utf-32')
+```
+
+An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log files for encryption; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to receive log files from an existing directory `/logs` inside the directory containing the script, type:
+
+```python
+import os
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+t = merkle_tree(log_dir=os.path.join(script_dir, 'logs'))
+```
+
+You can then encrypt any file `log_sample` inside the `/logs` directory just with :
+
+```python
+t.encrypt_log(log_sample)
+```
+
+without the need to specify its absolute path (see ... for details).
+
+### New records and log encryption
 
 ### Generating proofs (Server's Side)
 
@@ -36,10 +70,11 @@ pip install pysha3==1.0b1
 
 ## Performance measurement
 
+## Security
+
 ## API
 
 ## Running tests
-
 
 ## Tree structure
 
