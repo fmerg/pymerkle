@@ -294,8 +294,61 @@ t.log_dir
         "timestamp": 1544211067
     }
 }
-
 ```
+
+```bash
+>>> p = tree.audit_proof(100)
+
+ * WARNING: Index provided by Client was out of range
+
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : d8a2e402-fa59-11e8-8ca1-70c94e89b637                
+
+    generation  : FAILURE (Index provided by Client was out of range)                
+
+    timestamp   : 1544212442 (Fri Dec  7 20:54:02 2018)                
+    provider    : 570fb32e-fa55-11e8-8ca1-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index :                 
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+```json
+{
+    "body": {
+        "proof_index": null,
+        "proof_path": []
+    },
+    "header": {
+        "creation_moment": "Fri Dec  7 20:54:02 2018",
+        "encoding": "utf_8",
+        "generation": "FAILURE (Index provided by Client was out of range)",
+        "hash_type": "sha256",
+        "id": "d8a2e402-fa59-11e8-8ca1-70c94e89b637",
+        "provider": "570fb32e-fa55-11e8-8ca1-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1544212442
+    }
+}
+```
+
+
+
 
 ### Validating proofs (Client's Side)
 
