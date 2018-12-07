@@ -41,7 +41,7 @@ length = len(tree.leaves)
 p = tree.audit_proof(index=56)
 
 # Quick validation of the above proof
-valid = validate_proof(target_hash=a.root_hash(), proof=p) # <bool>
+valid = validate_proof(target_hash=tree.root_hash(), proof=p) # <bool>
 
 # Update the tree by appending a new log
 tree.encrypt_log('logs/sample_log')
