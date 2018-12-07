@@ -46,18 +46,18 @@ def validate_proof(target_hash, proof):
 
 
 class proof_validator(object):
-    def __init__(self, validations_database=None):
+    def __init__(self, validations_dir=None):
         """
         Enhances the validate_proof() functionality by employing the <validation_receipt> object in order
-        to organize its result (see the valdiate() function below). If a `validations_database` is
+        to organize its result (see the valdiate() function below). If a `validations_dir` is
         specified, validated receipts are stored in .json files inside this directory.
 
-        :param validations_database : <str> absolute path of the directory where validation receipts will
+        :param validations_dir : <str> absolute path of the directory where validation receipts will
                                           be stored as .json files (cf. the validate() function below);
                                           defaults to `None`, in which case validation receipts are
                                           not to be automatically stored
         """
-        self.validations_database = validations_database
+        self.validations_dir = validations_dir
 
     def validate(self, target_hash, proof):
         """
@@ -66,7 +66,7 @@ class proof_validator(object):
         True or False
 
         according to validation result and returns corresponding <validation_receipt> object. If a
-        `validations_database` has been specified at construction, then each validation receipt is
+        `validations_dir` has been specified at construction, then each validation receipt is
         automatically stored in that directory as a .json file named with the receipt's id
 
         :param target_hash : <str>                 hash to be presumably attained at the end of the validation
@@ -83,10 +83,10 @@ class proof_validator(object):
             result=validated
         )
 
-        if self.validations_database:
+        if self.validations_dir:
             with open(
                 os.path.join(
-                    self.validations_database,
+                    self.validations_dir,
                     '{}.json'.format(receipt.header['id'])
                 ),
                 'w'

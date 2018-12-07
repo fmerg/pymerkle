@@ -54,7 +54,7 @@ This repository holds the following Python modules:
     ├── test_log_encryption.py
     ├── test_tree_structure.py
     ├── test_validate_proof.py
-    └── validations_database
+    └── validations_dir
         └── test.json
 
 5 directories, 24 files
