@@ -1,12 +1,12 @@
 pymerkle: A Python library for constructing Merkle Trees and validating Log Proofs
 =======================================================
 
-## [ Work in progress ]
-
 <!--
 [![PyPI version](https://badge.fury.io/py/merkletools.svg)](https://badge.fury.io/py/merkletools) [![Build Status](https://travis-ci.org/Tierion/pymerkletools.svg?branch=master)](https://travis-ci.org/Tierion/pymerkletools)
 -->
 ## Installation
+
+### [ Work in progress ]
 
 <!--
 ```bash
@@ -19,6 +19,8 @@ This module will attempt also to install `sha3` depending on [pysha3](https://py
 pip install pysha3==1.0b1
 ```
 -->
+
+## Requirements
 
 ## Usage
 
@@ -42,7 +44,7 @@ t = merkle_tree(hash_type='sha512', encoding='utf-32')
 
 See ... for the list of supported hash and encoding types.
 
-An extra argument `log_dir` specifies the absolute path of the directory, wherefrom the Merkle-tree will receive log files for encryption; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to receive log files from an existing directory `/logs` inside the directory containing the script, type:
+An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to receive log files from an existing directory `/logs` inside the directory containing the script, type:
 
 ```python
 import os
@@ -72,7 +74,7 @@ t.update(b'arbitrary bytes-like object')   # second record
 ...                                        # ...
 ```
 
-_Encrypting_ a _log-file_ into the Merkle-tree means updating the tree with each line of the file successively. Use the `.encrypt_log()` method of the `merkle_tree` class to append a new log to the tree as follows:
+_Encrypting_ a _log-file_ into the Merkle-tree means updating the tree with each line of that file successively. Use the `.encrypt_log()` method of the `merkle_tree` class to append a new log to the tree as follows:
 
 ```python
 t = merkle_tree()
@@ -87,7 +89,13 @@ This presupposes that the log-file `sample_log` lies inside the tree's configure
 * Requested log file does not exist
 ```
 
-is displayed at console. You can anytime access the tree's configured log directory as
+is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily encrypt in as
+
+```python
+t.encrypt_log('subdir/sample_log')
+```
+
+In other words, the argument of the `.encrypt_log()` method should always be the relative path of the log with respect to the tree's configured log directory. You can anytime access the tree's configured log directory as
 
 ```python
 t.log_dir
@@ -107,11 +115,33 @@ t.log_dir
 
 ## API
 
-### merkle_tree
+### Merkle-tree
 
-### validate_proof
+#### merkle_tree()
 
-### proof_validator
+#### height()
+
+#### root_hash()
+
+#### update()
+
+#### encrypt_log()
+
+#### audit_proof()
+
+#### consistency_proof()
+
+#### clear()
+
+### Quick proof validation
+
+#### validate_proof()
+
+### Proof-validator
+
+#### proof_validator()
+
+#### validate()
 
 ## Running tests
 
