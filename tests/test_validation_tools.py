@@ -41,7 +41,7 @@ def test_proof_validation_for_empty_tree(tree):
     """
     audit_proof = tree.audit_proof(index=0)
     consistency_proof = tree.consistency_proof(
-        old_tree_hash=tree.root_hash(), sublength=0)
+        old_hash=tree.root_hash(), sublength=0)
 
     assert validate_proof(
         target_hash='anything...',
@@ -133,9 +133,9 @@ for bool_1 in (
 
                         # Old-tree-hash configuration
                         if bool_1:
-                            old_tree_hash = tree.root_hash()
+                            old_hash = tree.root_hash()
                         else:
-                            old_tree_hash = 'anything else...'
+                            old_hash = 'anything else...'
 
                         # Subtree-detection configuration
                         if bool_2 and bool_3:
@@ -151,7 +151,7 @@ for bool_1 in (
                         # Generate proof for the above configurations
                         consistency_proofs.append(
                             tree.consistency_proof(
-                                old_tree_hash=old_tree_hash,
+                                old_hash=old_hash,
                                 sublength=old_tree_length))
 
                         # Target-hash configuration
@@ -199,7 +199,7 @@ for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
     tree.encrypt_log(log_file)
     proofs.append(
         tree.consistency_proof(
-            old_tree_hash=old_hash,
+            old_hash=old_hash,
             sublength=old_length))
     target_hashes.append(tree.root_hash())
 

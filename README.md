@@ -116,13 +116,13 @@ t = merkle_tree()
 t.encrypt_log('sample_log')
 ```
 
-This presupposes that the log-file `sample_log` lies inside the tree's configured log directory, where the tree receives its log-files for encryption from, otherwise a message
+This presupposes that the log-file `sample_log` lies inside the tree's configured log directory, where the tree receives its log-files for encryption from, otherwise an exception is thrown and a message
 
 ```bash
 * Requested log file does not exist
 ```
 
-is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily encrypt in as
+is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily encrypt it as
 
 ```python
 t.encrypt_log('subdir/sample_log')
@@ -360,7 +360,7 @@ t.log_dir
 
 ### Merkle-tree
 
-#### merkle_tree([*records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None])
+#### merkle_tree( [ *records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None ] )
 
 
 Constructor of merkle_tree objects

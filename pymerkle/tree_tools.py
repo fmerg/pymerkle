@@ -128,6 +128,12 @@ class merkle_tree(object):
             return log_2(length)
         return 0
 
+    def length(self):
+        """
+        :returns : <int> current length of the tree (i.e., the number of its leaves)
+        """
+        return len(self.leaves)
+
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
@@ -314,12 +320,12 @@ class merkle_tree(object):
 
 # --------------------- Consistency proof functionalities ---------------------
 
-    def consistency_proof(self, old_tree_hash, sublength):
+    def consistency_proof(self, old_hash, sublength):
         """
         Returns consistency proof appropriately formatted along with its validation parameters (so that it
         be insertible as the second argument to the validation_tools.validate_proof() method)
 
-        :param old_tree_hash : <str> top-hash of the tree to be presumably detected as a previous state of the current
+        :param old_hash : <str> top-hash of the tree to be presumably detected as a previous state of the current
                                one and whose consistency is about to be validated or not (Client Side)
         :param sublength     : <int> length of the above tree (Client Side)
         :returns             : <proofs.consistency_proof> proof content in nice format with validation parameters
@@ -334,7 +340,7 @@ class merkle_tree(object):
             proof_index, left_path, full_path = consistency_path
 
             # Inclusion test
-            if old_tree_hash == self.multi_hash(left_path, len(left_path) - 1):
+            if old_hash == self.multi_hash(left_path, len(left_path) - 1):
                 return proof(
                     generation='SUCCESS',
                     provider=self.id,
