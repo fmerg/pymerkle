@@ -4,9 +4,6 @@ pymerkle: A Python library for constructing Merkle Trees and validating Log Proo
 <!--
 [![PyPI version](https://badge.fury.io/py/merkletools.svg)](https://badge.fury.io/py/merkletools) [![Build Status](https://travis-ci.org/Tierion/pymerkletools.svg?branch=master)](https://travis-ci.org/Tierion/pymerkletools)
 -->
-## Installation
-
-### [ Work in progress ]
 
 <!--
 ```bash
@@ -53,7 +50,13 @@ q = tree.consistency_proof(old_hash=top_hash, sublength=length)
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 ```
 
+## Installation
+
+### [ Work in progress ]
+
 ## Requirements
+
+- `python3`
 
 ## Usage
 
@@ -254,7 +257,7 @@ In the current version, security measures against second-preimage attack can gen
 t = merkle_tree(..., security=False, ...)
 ```
 
-but, as already said, this does _not_ affect hashing for any non-default combination of hash and encoding types. Roughly speaking, security measures consist in the following:
+but -as already said- this does _not_ affect hashing for non-default combinations of hash and encoding types. Roughly speaking, security measures consist in the following:
 
 - Before calculating the hash of a leaf, prepend the corresponding record with the hexadecimal `/x00`
 
