@@ -299,7 +299,7 @@ pytest tests/test_log_encryption.py
 
 ## API
 
-### Merkle-tree
+- ### _Merkle-tree_
 
 ### __merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )__
 
@@ -319,11 +319,11 @@ pytest tests/test_log_encryption.py
 
 ### __.clear ( )__
 
-### Quick proof validation
+- ### _Quick proof validation_
 
 ### __validate_proof (*target_hash, proof*)__
 
-### Proof-validator
+- ### _Proof-validator_
 
 ### __proof_validator ( [ *validations_dir=None* ] )__
 
