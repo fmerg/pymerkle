@@ -301,33 +301,33 @@ pytest tests/test_log_encryption.py
 
 ### Merkle-tree
 
-__merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )__
+#### __merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )__
 
-__. height ( )__
+#### __. height ( )__
 
-__. length ( )__
+#### __. length ( )__
 
-__. root_hash ( )__
+#### __. root_hash ( )__
 
-__. update (*record*)__
+#### __. update (*record*)__
 
-__. encrypt_log (*log_file*)__
+#### __. encrypt_log (*log_file*)__
 
-__. audit_proof (*index*)__
+#### __. audit_proof (*index*)__
 
-__. consistency_proof (*old_hash, sublength*)__
+#### __. consistency_proof (*old_hash, sublength*)__
 
-__. clear ( )__
+#### __. clear ( )__
 
 ### Quick proof validation
 
-__validate_proof (*target_hash, proof*)__
+#### __validate_proof (*target_hash, proof*)__
 
 ### Proof-validator
 
-__proof_validator ( [ *validations_dir=None* ] )__
+#### __proof_validator ( [ *validations_dir=None* ] )__
 
-__. validate (*target_hash, proof*)__
+#### __. validate (*target_hash, proof*)__
 
 ## Internals
 
