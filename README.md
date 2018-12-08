@@ -240,13 +240,13 @@ where `proof-provider` refers to the Merkle-tree which generated the validated p
   }
 ```
 
-will be stored in a `.json` file if the validator object is configured upon construction appropriately. More specifically,
+and will be stored in a `.json` file if the validator object has been configured upon construction appropriately. More specifically,
 
 ```python
 v = proof_validator(validations_dir=...)
 ```
 
-configures the validator to save each receipt upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`
+configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`.
 
 
 ## Defence against second-preimage attack
@@ -270,6 +270,30 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 - Rewrite line `53` to include any desired combination of hash and encoding types
 
 - Inform the `.security_mode_activated()` method of the `hash_machine` class accordingly
+
+## Running tests
+
+In order to run all tests, make the file `run_tests.sh` executable and run
+
+```bash
+./run_tests.sh
+```
+
+from inside the root directory of the project. Alternatively, run the command
+
+```bash
+pytest tests/
+```
+
+You can run only a specific test file, e.g., `test_log_encryption.py`, by
+
+```bash
+pytest tests/test_log_encryption.py
+```
+
+## Tree structure
+
+### Deviations from RFC
 
 ## Performance measurement
 
@@ -295,43 +319,21 @@ __. consistency_proof (*old_hash, sublength*)__
 
 __. clear ( )__
 
-__. serialize ( )__
-
-__. JSONstring ( )__
-
 ### Quick proof validation
 
-validate_proof(target_hash, proof)
+__validate_proof (*target_hash, proof*)__
 
 ### Proof-validator
 
-proof_validator(validations_dir=None)
+__proof_validator ( [ *validations_dir=None* ] )__
 
-validate()
+__. validate (*target_hash, proof*)__
 
-## Running tests
+## Internals
 
-In order to run all tests, make the file `run_tests.sh` executable and run
+### Anatomy of the *merkle_tree* object
 
-```bash
-./run_tests.sh
-```
-
-from inside the root directory of the project. Alternatively, run the command
-
-```bash
-pytest tests/
-```
-
-You can run only a specific test file, e.g., `test_log_encryption.py`, by
-
-```bash
-pytest tests/test_log_encryption.py
-```
-
-## Tree structure
-
-### Deviations from RFC
+### Anatomy of the *proof* object
 
 <!--
 - [Introduction](#introduction)
