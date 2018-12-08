@@ -243,146 +243,50 @@ will be stored in a `.json` file if the validator object is configured upon cons
 v = proof_validator(validations_dir=...)
 ```
 
-configures the validator to save each receipt upon validation inside the specified directory as a `.json` file named with the receipt's id.
+configures the validator to save each receipt upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`
 
+
+## Defence against second-preimage attack
+
+In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ and _UTF-8_ respectively.
 
 ## Performance measurement
-
-## Security
 
 ## API
 
 ### Merkle-tree
 
-#### merkle_tree( [ *records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None ] )
+__merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )__
 
+__. height ( )__
 
-Constructor of merkle_tree objects
+__. length ( )__
 
-May be called in either of the following two ways:
+__. root_hash ( )__
 
-:param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings   contained in the
-                             hash_tools.HASH_TYPES global variable (upper- or mixed-case with '-' instead of '_'
-                             allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
-:param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
-                             encodings.ENCODINGS global variable, otherwise an exception is thrown;
-                             defaults to `utf_8` if unspecified
-:param security : <bool> configures security mode of the underlying hash machine, i.e., defense against
-                             second-preimage attack; genuinely activated only for the default values of the
-                             hash and ecoding types (SHA256, resp. UTF-8)
-:param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
-                             usually empty at construction
-:param log_dir  : <str>  absolute path of the directory, where the merkle-tree will receive the log files
-                             to encrypt from; defaults to the current working directory if unspecified
-:param leaves   : <None>
-:param nodes    : <None>
-:param root     : <None>
+__. update ( *record* )__
 
-or
+__. encrypt_log (* log_file* )__
 
-:param hash_type : <str>              see above
-:param encoding  : <str>              see above
-:param security  : <bool>             see above
-:param log_dir   : <str>              see above
-:param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
-param nodes     : <set [of <node>]>  initial nodes of the tree under construction
-:param root      : <node>             root of the tree under construction
+__. audit_proof ( *index* )__
 
-NOTE: The constructor is nowhere within this library called in the second way
+__. consistency_proof ( *old_hash, sublengt*h )__
 
-#### height()
+__. clear ( )__
 
-  :returns : <int> current height of the tree (equal to depth of the leftmost leaf)
+__. serialize ( )__
 
-#### root_hash()
-
-  Returns top-hash of the merkle-tree (i.e., the hash of its current root)
-
-  :returns : <str> (valid hex) or None (if the tree is empty)
-
-#### update(record)
-
-Updates the tree by storing the hash of the inserted record in a newly created leaf,
-restructuring the tree appropriately and recalculating all necessary interior hashes
-
-:param record : <str> or <bytes> or <bytearray>
-
-#### encrypt_log(log_file)
-
-Encrypts the data of the provided log-file into the merkle-tree.
-
-More accurately, it updates the tree by successively updating it with each line
-of the log-file provided.
-
-:param log_file : <str> relative path of the log-file under enryption, specified
-                        with respect to the tree's root directory `log_dir`
-
-#### audit_proof(index)
-
-Returns audit proof appropriately formatted along with its validation parameters (so that it
-be insertible as the second argument to the  validation_tools.validate_proof() method)
-
-:param index : <int>                index of the leaf where the proof calculation must be
-                                        based upon (Client Side)
-:returns     : <proofs.audit_proof> proof content in nice format with validation parameters
-
-#### consistency_proof(old_hash, sublength)
-
-Returns consistency proof appropriately formatted along with its validation parameters (so that it
-be insertible as the second argument to the validation_tools.validate_proof() method)
-
-:param old_hash : <str> top-hash of the tree to be presumably detected as a previous state of thecurrent
-                           one and whose consistency is about to be validated or not (Client Side)
-:param sublength     : <int> length of the above tree (Client Side)
-:returns             : <proofs.consistency_proof> proof content in nice format with validation parameters
-
-#### clear()
-
-Deletes all nodes of the tree (retaining however its hashing configutation)
+__. JSONstring ( )__
 
 ### Quick proof validation
 
-#### validate_proof(target_hash, proof)
-
-Validates the inserted `proof` by comparing to `target_hash`, modifies the proof's `status` as
-
-True or False
-
-according to validation result and returns this result
-
-:param target_hash : <str>   hash to be presumably attained at the end of the validation procedure
-                             (i.e., acclaimed top-hash of the merkle-tree providing the proof)
-:param proof       : <proof> the proof to be validated
-:returns           : <bool>  validation result
+validate_proof(target_hash, proof)
 
 ### Proof-validator
 
-#### proof_validator(validations_dir=None)
+proof_validator(validations_dir=None)
 
-Enhances the validate_proof() functionality by employing the <validation_receipt> object in order
-to organize its result (see the valdiate() function below). If a `validations_dir` is
-specified, validated receipts are stored in .json files inside this directory.
-
-:param validations_dir : <str> absolute path of the directory where validation receipts will
-                                  be stored as .json files (cf. the validate() function below);
-                                  defaults to `None`, in which case validation receipts are
-                                  not to be automatically stored
-
-#### validate()
-
-Validates the inserted `proof` by comparing to `target_hash`, modifies the proof's `status` as
-
-True or False
-
-according to validation result and returns corresponding <validation_receipt> object. If a
-`validations_dir` has been specified at construction, then each validation receipt is
-automatically stored in that directory as a .json file named with the receipt's id
-
-:param target_hash : <str>                 hash to be presumably attained at the end of the validation
-                                           procedure (i.e., acclaimed top-hash of the merkle-tree
-                                           providing the proof)
-:param proof       : <proof>               the proof to be validated
-:returns           : <validation_receipt>  validation result
+validate()
 
 ## Running tests
 
