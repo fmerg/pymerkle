@@ -35,7 +35,7 @@ for i in range(100):
 
 # Store current top-hash and length for later use
 top_hash = tree.root_hash()
-length = len(tree.leaves)
+length = tree.length()
 
 # Generate audit-proof based upon the 56-th leaf
 p = tree.audit_proof(index=56)
@@ -47,7 +47,7 @@ valid = validate_proof(target_hash=tree.root_hash(), proof=p) # <bool>
 tree.encrypt_log('logs/sample_log')
 
 # Generate consistency-proof for the stage before appending the log
-q = tree.consistency_proof(old_tree_hash=top_hash, sublength=length)
+q = tree.consistency_proof(old_hash=top_hash, sublength=length)
 
 # Validate the above proof and generate receipt
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
@@ -77,7 +77,7 @@ t = merkle_tree(hash_type='sha512', encoding='utf-32')
 
 See ... for the list of supported hash and encoding types.
 
-An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to receive log files from an existing directory `/logs` inside the directory containing the script, type:
+An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, type:
 
 ```python
 import os
@@ -122,17 +122,62 @@ This presupposes that the log-file `sample_log` lies inside the tree's configure
 * Requested log file does not exist
 ```
 
-is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily encrypt it as
+is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily append it byL
 
 ```python
 t.encrypt_log('subdir/sample_log')
 ```
 
-In other words, the argument of the `.encrypt_log()` method should always be the relative path of the log with respect to the tree's configured log directory. You can anytime access the tree's configured log directory as
+In other words, the argument of the `.encrypt_log()` method should always be the relative path of the log file under encryption with respect to the tree's configured log directory. You can anytime access the tree's configured log directory as
 
 ```python
 t.log_dir
 ```
+
+### Generating log proofs (Server's Side)
+
+A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Each such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current top-hash of the tree. Requesting, providing and validating log proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous stage and/or the current stage of the tree, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
+
+Given a Merkle-tree `t`, use the `.audit_proof()` method of the `merkle_tree` class to generate the audit proof based upon, say, the 56-th leaf as follows:
+
+```python
+p = t.audit_proof(index=56)
+```
+The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. See ... for further details.
+
+Similarly, use the `.consistency_proof()` method of the `merkle_tree` class to generate a consistency proof as follows:
+
+```python
+q = t.consistency_proof(
+      old_hash='82cb65862639b7e295dde50789cb4945c7584e4f31b9ea5f8e5387b80e130d88',
+      subength=100
+    )
+```
+
+Here the parameters `old_hash`, resp. `sublength` provided from Client's side refer to the top-hash, resp. length of the Merkle-tree to be presumably detected as a previous stage of `t`. A typical session would thus be as follows:
+
+```python
+
+# Client requests current stage of the tree from a trusted authority
+old_hash = t.root_hash()
+sublength = t.length()
+
+# Server encrypts new log (modifies top-hash and length of the tree)
+t.encrypt_log('sample_log')
+
+# Client requests consistency proof for the stored stage
+# and the Server provides it
+q = t.consistency_proof(old_hash=old_hash, sublength=sublength)
+```
+
+The generated object `q` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). Upon generating the proof, the Merkle-tree (Server) performs also an _inclusion test_, leading to two possibilities in accordance with the parameters provided by Client:
+
+- _inclusion test success_: if the combination of `old_hash` and `sublength` is found by the tree itself to correspond indeed to a previous stage, then a _non empty_ path is included with the proof and a generation success message is inscribed in it
+
+- _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to any previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the prood, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
+
+### Validating log proofs (Client's Side)
+
 
 ### Anatomy of the *merkle_tree* object
 
@@ -194,8 +239,6 @@ t.log_dir
 >>>
 ```
 
-
-### Generating proofs (Server's Side)
 
 ### Anatomy of the *proof* object
 
@@ -347,9 +390,6 @@ t.log_dir
 }
 ```
 
-
-### Validating proofs (Client's Side)
-
 ### Proof-validator
 
 ## Performance measurement
@@ -432,12 +472,12 @@ be insertible as the second argument to the  validation_tools.validate_proof() m
                                         based upon (Client Side)
 :returns     : <proofs.audit_proof> proof content in nice format with validation parameters
 
-#### consistency_proof(old_tree_hash, sublength)
+#### consistency_proof(old_hash, sublength)
 
 Returns consistency proof appropriately formatted along with its validation parameters (so that it
 be insertible as the second argument to the validation_tools.validate_proof() method)
 
-:param old_tree_hash : <str> top-hash of the tree to be presumably detected as a previous state of thecurrent
+:param old_hash : <str> top-hash of the tree to be presumably detected as a previous state of thecurrent
                            one and whose consistency is about to be validated or not (Client Side)
 :param sublength     : <int> length of the above tree (Client Side)
 :returns             : <proofs.consistency_proof> proof content in nice format with validation parameters
