@@ -248,7 +248,25 @@ configures the validator to save each receipt upon validation inside the specifi
 
 ## Defence against second-preimage attack
 
-In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ and _UTF-8_ respectively.
+In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ resp. _UTF-8_. They are controlled by the `security` argument of the `merkle_tree` constructor and are _by default activated_. You can deactivate them by calling the constructor as:
+
+```python
+t = merkle_tree(..., security=False, ...)
+```
+
+but, as already said, this does _not_ affect hashing for any non-default combination of hash and encoding types. Roughly speaking, security measures consist in the following:
+
+- Before calculating the hash of a leaf, prepend the corresponding record with the hexadecimal `/x00`
+
+- Before calculating the hash any interior node, prepend both of its parents' hashes with the hexadecimal `/x01`
+
+Cf. the `.hash()` method and the docs of the `hash_machine` class inside the `hash_tools.py` module for more accuracy.
+
+_NOTE_ : Security measures are readily extendible to any combination of hash and encoding types by appropriately modifying only the `hash_tools.py` module as follows:
+
+- Rewrite line `53` to include any desired combination of hash and encoding types
+
+- Inform the `.security_mode_activated()` method of the `hash_machine` class accordingly
 
 ## Performance measurement
 
@@ -264,13 +282,13 @@ __. length ( )__
 
 __. root_hash ( )__
 
-__. update ( *record* )__
+__. update (*record*)__
 
-__. encrypt_log (* log_file* )__
+__. encrypt_log (*log_file*)__
 
-__. audit_proof ( *index* )__
+__. audit_proof (*index*)__
 
-__. consistency_proof ( *old_hash, sublengt*h )__
+__. consistency_proof (*old_hash, sublength*)__
 
 __. clear ( )__
 
