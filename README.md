@@ -271,6 +271,12 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 
 - Inform the `.security_mode_activated()` method of the `hash_machine` class accordingly
 
+## Tree structure
+
+### Deviations from RFC
+
+## Performance measurement
+
 ## Running tests
 
 In order to run all tests, make the file `run_tests.sh` executable and run
@@ -291,33 +297,27 @@ You can run only a specific test file, e.g., `test_log_encryption.py`, by
 pytest tests/test_log_encryption.py
 ```
 
-## Tree structure
-
-### Deviations from RFC
-
-## Performance measurement
-
 ## API
 
 ### Merkle-tree
 
 ### __merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )__
 
-### __. height ( )__
+### __.height ( )__
 
-### __. length ( )__
+### __.length ( )__
 
-### __. root_hash ( )__
+### __.root_hash ( )__
 
-### __. update (*record*)__
+### __.update (*record*)__
 
-### __. encrypt_log (*log_file*)__
+### __.encrypt_log (*log_file*)__
 
-### __. audit_proof (*index*)__
+### __.audit_proof (*index*)__
 
-### __. consistency_proof (*old_hash, sublength*)__
+### __.consistency_proof (*old_hash, sublength*)__
 
-### __. clear ( )__
+### __.clear ( )__
 
 ### Quick proof validation
 
@@ -327,7 +327,7 @@ pytest tests/test_log_encryption.py
 
 ### __proof_validator ( [ *validations_dir=None* ] )__
 
-### __. validate (*target_hash, proof*)__
+### __.validate (*target_hash, proof*)__
 
 ## Internals
 
