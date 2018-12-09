@@ -20,7 +20,8 @@ pip install pysha3==1.0b1
 ## Quick example
 
 ```python
-from pymerkle import *
+from pymerkle import *            # Import merkle_tree, validate_proof
+                                  # and proof_validator
 
 tree = merkle_tree()              # Create empty SHA256/UTF-8 Merkle-tree with
                                   # defense against second preimage-attack
@@ -56,7 +57,7 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 
 ## Requirements
 
-- `python3`
+`python3.6`
 
 ## Usage
 
@@ -125,13 +126,13 @@ This presupposes that the log-file `sample_log` lies inside the tree's configure
 * Requested log file does not exist
 ```
 
-is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily append it byL
+is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily append it by:
 
 ```python
 t.encrypt_log('subdir/sample_log')
 ```
 
-In other words, the argument of the `.encrypt_log()` method should always be the relative path of the log file under encryption with respect to the tree's configured log directory. You can anytime access the tree's configured log directory as
+In other words, the argument of the `.encrypt_log()` method should always be the relative path of the log file under encryption with respect to the tree's configured log directory. You can anytime access the tree's configured log dir as
 
 ```python
 t.log_dir
@@ -274,8 +275,6 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 ## Tree structure
 
 ### Deviations from RFC
-
-## Performance measurement
 
 ## Running tests
 

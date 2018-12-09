@@ -66,48 +66,6 @@ def order_of_magnitude(num):
     return int(math.log10(num))
 
 
-# -------------------------- Performance utitilities ---------------------
-
-
-def perform(*args, callback, repeats=None):
-    """
-    Returns the average performance of the inserted callback function
-    after being called repeats many times with arguments *args.
-
-    :param *args    : arguments to be inserted in callback
-    :param callback : <func> function whose average performance is to be measured
-    :param repeats  : <int> if specified, then the callback is called `repeats`
-                      many times admitting each time all *args at once
-    :return         : <float> average performance in seconds
-    """
-    process_times = []
-    if repeats:
-        count = 0
-        while count < repeats:
-            start = time.time()
-            callback(*args)
-            end = time.time()
-            process_times.append(end - start)
-            count += 1
-    else:
-        for arg in args:
-            start = time.time()
-            callback(arg)
-            end = time.time()
-            process_times.append(end - start)
-    return mean(*process_times)
-
-
-def mean(*floats):
-    """
-    Returns mean value of arguments.
-    """
-    sum = 0
-    for num in floats:
-        sum += num
-        return sum / len(floats)
-
-
 # ------------------------------ Object utilities ------------------------
 
 
