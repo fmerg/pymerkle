@@ -302,7 +302,7 @@ pytest tests/test_log_encryption.py
 
 - ### _Merkle-tree_
 
-### __merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )__
+### __merkle_tree__ ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd(), leaves=None, nodes=None, root=None* ] )
 
 ### __.height ( )__
 
