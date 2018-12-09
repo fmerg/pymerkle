@@ -279,7 +279,7 @@ Feel free to contribute.
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_. All nodes except for the exterior ones (_leaves_) have _two_ parents.
 
 #### Tree before update
-
+```
                 h=hash(e,f)      
                  /       \         
                 /         \         
@@ -287,9 +287,9 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
           /     \        /     \      
          /       \      /       \      
         a         b    c         d      
-
+```
 #### Updating in other implementations
-
+```
                          r=hash(h,e)
                          /        \
                         /          \
@@ -300,9 +300,9 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
           /     \        /     \        \
          /       \      /       \        \
         a         b    c         d        e
-
+```
 #### Updating in present impentation
-
+```
                          r=hash(h,e)
                          /        \
                         /          \
@@ -313,7 +313,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
           /     \        /     \        
          /       \      /       \        
         a         b    c         d        
-
+```
 This structure is crucial for generating fast proof-paths (based on additive decompositions in decreasing powers of 2).
 
 ## Running tests
