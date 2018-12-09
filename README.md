@@ -57,7 +57,7 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 
 ## Requirements
 
-`python3.6`
+`python3.x`
 
 ## Usage
 
@@ -250,7 +250,7 @@ v = proof_validator(validations_dir=...)
 configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`.
 
 
-## Defence against second-preimage attack
+## Defense against second-preimage attack
 
 In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ resp. _UTF-8_. They are controlled by the `security` argument of the `merkle_tree` constructor and are _by default activated_. You can deactivate them by calling the constructor as:
 
@@ -300,6 +300,14 @@ pytest tests/test_log_encryption.py
 
 ## API
 
+Type
+
+```python
+from pymerkle import *
+```
+
+to import the `merkle_tree` class, the `validate_proof` function and the `proof_validator` class
+
 ### _Merkle-tree_
 
 ### __merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
@@ -328,21 +336,37 @@ Returns an integer equal to the current length (number of leaves) of the Merkle-
 
 ### __.root_hash ( )__
 
-Returns the current top-hash (hexadecimal string) of the Merkle-tree (i.e., the hash currently stored by its root)
+Returns in hexadecimal form (String) the current top-hash of the Merkle-tree (i.e., the hash currently stored by its root)
 
 ### __.update (*record*)__
 
-Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf; restructures the tree appropriately and recalculate hashes of its right-most branch
+Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf; restructures the tree appropriately and recalculates hashes of the right-most branch
 
-- _record_, strings or bytes-like object, thought of as a the record to be encrypted into the Merkle-tree
+- _record_, Strings or Bytes-like object, thought of as a new record to be encrypted into the Merkle-tree
 
 ### __.encrypt_log (*log_file*)__
 
+Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update()` function internally); throws relative exception if the specified file does not exist
+
+- *log_file*, String, relative path of the log file under encryption with respect to the configured log directory `.log_dir` of the Merkle-tree
+
 ### __.audit_proof (*index*)__
+
+Returns an instance of the `proof_tools.proof` class, thought of as the audit-proof based upon the Merkle-tree's leaf with the specified index
+
+- _index_, Integer, indicating the leaf where the audit-proof should be based upon
 
 ### __.consistency_proof (*old_hash, sublength*)__
 
+Returns an instance of the `proof_tools.proof` class, thought of as the consistency-proof for the presumed previous stage of the Merkle-tree corresponding to the inserted hash-length combination
+
+- *old_hash*, String, hexadecimal form of the top-hash of the tree to be presumable detected as a previous stage of the Merkle-tree
+
+- _sublength_, Integer, length of the tree to be presumably detected as a previous stage of the Merkle-tree
+
 ### __.clear ( )__
+
+Deletes all the nodes of the Merkle-tree
 
 ### _Quick proof validation_
 
