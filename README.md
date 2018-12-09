@@ -81,7 +81,7 @@ t = merkle_tree(hash_type='sha512', encoding='utf-32')
 
 See ... for the list of supported hash and encoding types.
 
-An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, type:
+An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
 
 ```python
 import os
@@ -271,6 +271,8 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 - Rewrite line `53` to include any desired combination of hash and encoding types
 
 - Inform the `.security_mode_activated()` method of the `hash_machine` class accordingly
+
+Feel free to contribute.
 
 ## Tree structure
 
