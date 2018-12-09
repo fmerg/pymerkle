@@ -1,6 +1,9 @@
+# Dev
 *cache*
 /log_samples
 lint.sh
-pymerkle.egg-info
-build
-dist
+
+# Packaging
+*.egg-info/
+build/
+dist/
