@@ -438,4 +438,456 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 ### Anatomy of the *merkle_tree* object
 
+```bash
+>>> import os
+>>> from pymerkle import *
+
+ * WARNING: SHA3 is not supported by your computer. Run the command            
+
+   pip install pysha3==1.0b1           
+
+   to install `sha3` depending on https://pypi.python.org/pypi/pysha3
+
+>>>
+>>> tree = merkle_tree(log_dir=os.path.join(os.getcwd(), 'tests/logs'))
+>>> tree
+
+    id        : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    security  : ACTIVATED                
+
+    root-hash : None                
+
+    size      : 0                
+    length    : 0                
+    height    : 0
+
+>>>
+```
+
+```bash
+>>> tree.serialize()
+{'id': 'f26316a8-fbcd-11e8-8a04-70c94e89b637', 'hash_type': 'sha256', 'encoding': 'utf_8', 'security': True, 'leaves': [], 'nodes': [], 'root': None}
+>>>
+```
+`print(tree.JSONstring())`
+
+```json
+{
+    "encoding": "utf_8",
+    "hash_type": "sha256",
+    "id": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
+    "leaves": [],
+    "nodes": [],
+    "root": null,
+    "security": true
+}
+```
+
+```bash
+>>> tree.encrypt_log('large_APACHE_log')
+>>> tree
+
+    id        : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    security  : ACTIVATED                
+
+    root-hash : 92e0e8f2d57526d852fb567a052219937e56e9c388abf570a679651772360e7a                
+
+    size      : 3091                
+    length    : 1546                
+    height    : 11
+
+>>>
+```
+
 ### Anatomy of the *proof* object
+
+#### Audit-proof
+
+```bash
+>>> p = tree.audit_proof(1000)
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : c6a1d864-fbce-11e8-8a04-70c94e89b637                
+
+    generation  : SUCCESS                
+
+    timestamp   : 1544372614 (Sun Dec  9 17:23:34 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 6                
+    proof-path  :                
+
+       [0]   +1  f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318
+       [1]   -1  68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76
+       [2]   -1  4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f
+       [3]   -1  812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b
+       [4]   -1  74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c
+       [5]   +1  0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c
+       [6]   +1  227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59
+       [7]   +1  15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6
+       [8]   +1  4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc
+       [9]   -1  3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c
+      [10]   -1  554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe
+      [11]   -1  51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619                
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+`p.serialize()`, `print(p.JSONstring())`
+
+```json
+{
+    "body": {
+        "proof_index": 6,
+        "proof_path": [
+            [
+                1,
+                "f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318"
+            ],
+            [
+                -1,
+                "68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76"
+            ],
+            [
+                -1,
+                "4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f"
+            ],
+            [
+                -1,
+                "812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b"
+            ],
+            [
+                -1,
+                "74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c"
+            ],
+            [
+                1,
+                "0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c"
+            ],
+            [
+                1,
+                "227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59"
+            ],
+            [
+                1,
+                "15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6"
+            ],
+            [
+                1,
+                "4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc"
+            ],
+            [
+                -1,
+                "3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c"
+            ],
+            [
+                -1,
+                "554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe"
+            ],
+            [
+                -1,
+                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
+            ]
+        ]
+    },
+    "header": {
+        "creation_moment": "Sun Dec  9 17:23:34 2018",
+        "encoding": "utf_8",
+        "generation": "SUCCESS",
+        "hash_type": "sha256",
+        "id": "c6a1d864-fbce-11e8-8a04-70c94e89b637",
+        "provider": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1544372614
+    }
+}
+```
+
+```bash
+>>> validate_proof(target_hash=tree.root_hash(), proof=p)
+True
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : c6a1d864-fbce-11e8-8a04-70c94e89b637                
+
+    generation  : SUCCESS                
+
+    timestamp   : 1544372614 (Sun Dec  9 17:23:34 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 6                
+    proof-path  :                
+
+       [0]   +1  f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318
+       [1]   -1  68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76
+       [2]   -1  4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f
+       [3]   -1  812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b
+       [4]   -1  74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c
+       [5]   +1  0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c
+       [6]   +1  227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59
+       [7]   +1  15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6
+       [8]   +1  4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc
+       [9]   -1  3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c
+      [10]   -1  554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe
+      [11]   -1  51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619                
+
+    status      : VALID                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+```json
+{
+    "body": {
+        "proof_index": 6,
+        "proof_path": [
+            [
+                1,
+                "f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318"
+            ],
+            [
+                -1,
+                "68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76"
+            ],
+            [
+                -1,
+                "4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f"
+            ],
+            [
+                -1,
+                "812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b"
+            ],
+            [
+                -1,
+                "74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c"
+            ],
+            [
+                1,
+                "0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c"
+            ],
+            [
+                1,
+                "227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59"
+            ],
+            [
+                1,
+                "15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6"
+            ],
+            [
+                1,
+                "4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc"
+            ],
+            [
+                -1,
+                "3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c"
+            ],
+            [
+                -1,
+                "554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe"
+            ],
+            [
+                -1,
+                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
+            ]
+        ]
+    },
+    "header": {
+        "creation_moment": "Sun Dec  9 17:23:34 2018",
+        "encoding": "utf_8",
+        "generation": "SUCCESS",
+        "hash_type": "sha256",
+        "id": "c6a1d864-fbce-11e8-8a04-70c94e89b637",
+        "provider": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
+        "security": true,
+        "status": true,
+        "timestamp": 1544372614
+    }
+}
+```
+
+```bash
+>>> validate_proof(target_hash='anything else...', proof=p)
+False
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : c6a1d864-fbce-11e8-8a04-70c94e89b637                
+
+    generation  : SUCCESS                
+
+    timestamp   : 1544372614 (Sun Dec  9 17:23:34 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 6                
+    proof-path  :                
+
+       [0]   +1  f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318
+       [1]   -1  68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76
+       [2]   -1  4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f
+       [3]   -1  812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b
+       [4]   -1  74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c
+       [5]   +1  0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c
+       [6]   +1  227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59
+       [7]   +1  15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6
+       [8]   +1  4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc
+       [9]   -1  3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c
+      [10]   -1  554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe
+      [11]   -1  51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619                
+
+    status      : NON VALID                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+```json
+{
+    "body": {
+        "proof_index": 6,
+        "proof_path": [
+            [
+                1,
+                "f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318"
+            ],
+            [
+                -1,
+                "68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76"
+            ],
+            [
+                -1,
+                "4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f"
+            ],
+            [
+                -1,
+                "812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b"
+            ],
+            [
+                -1,
+                "74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c"
+            ],
+            [
+                1,
+                "0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c"
+            ],
+            [
+                1,
+                "227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59"
+            ],
+            [
+                1,
+                "15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6"
+            ],
+            [
+                1,
+                "4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc"
+            ],
+            [
+                -1,
+                "3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c"
+            ],
+            [
+                -1,
+                "554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe"
+            ],
+            [
+                -1,
+                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
+            ]
+        ]
+    },
+    "header": {
+        "creation_moment": "Sun Dec  9 17:23:34 2018",
+        "encoding": "utf_8",
+        "generation": "SUCCESS",
+        "hash_type": "sha256",
+        "id": "c6a1d864-fbce-11e8-8a04-70c94e89b637",
+        "provider": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
+        "security": true,
+        "status": false,
+        "timestamp": 1544372614
+    }
+}
+```
+
+```bash
+>>> p = tree.audit_proof(10000)
+
+ * WARNING: Index provided by Client was out of range
+
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : 46bbc8ba-fbd0-11e8-8a04-70c94e89b637                
+
+    generation  : FAILURE (Index provided by Client was out of range)                
+
+    timestamp   : 1544373259 (Sun Dec  9 17:34:19 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index :                 
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+```json
+{
+    "body": {
+        "proof_index": null,
+        "proof_path": []
+    },
+    "header": {
+        "creation_moment": "Sun Dec  9 17:34:19 2018",
+        "encoding": "utf_8",
+        "generation": "FAILURE (Index provided by Client was out of range)",
+        "hash_type": "sha256",
+        "id": "46bbc8ba-fbd0-11e8-8a04-70c94e89b637",
+        "provider": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1544373259
+    }
+}
+```
+
+#### Consistencty-proof
