@@ -313,7 +313,7 @@ to import the `merkle_tree` class, the `validate_proof` function and the `proof_
 ### __merkle_tree ( [ **records, hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
 
 
-Constructor of Merkle-trees; returns an instance of the `merkle_tree` class.
+Constructor of Merkle-trees; returns an instance of the `tree_tools.merkle_tree` class.
 
 - _*records_, Strings or Bytes-like objects indifferently, thought of as the records encrypted into the Merkle-tree upon construction; usually _not_ provided
 
@@ -360,7 +360,7 @@ Returns an instance of the `proof_tools.proof` class, thought of as the audit-pr
 
 Returns an instance of the `proof_tools.proof` class, thought of as the consistency-proof for the presumed previous stage of the Merkle-tree corresponding to the inserted hash-length combination
 
-- *old_hash*, String, hexadecimal form of the top-hash of the tree to be presumable detected as a previous stage of the Merkle-tree
+- *old_hash*, String, hexadecimal form of the top-hash of the tree to be presumably detected as a previous stage of the Merkle-tree
 
 - _sublength_, Integer, length of the tree to be presumably detected as a previous stage of the Merkle-tree
 
@@ -372,11 +372,29 @@ Deletes all the nodes of the Merkle-tree
 
 ### __validate_proof (*target_hash, proof*)__
 
+Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns this result
+
+- *target_hash*, String, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed top-hash of the Merkle-tree providing the proof)
+
+- _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
+
 ### _Proof-validator_
 
 ### __proof_validator ( [ *validations_dir=None* ] )__
 
+Constructor of the `validation_tools.proof_validator` class.
+
+This class enhances the `validate_proof()` functionality by employing the `validation_tools.validation_receipt` in order to organize any validation result in nice format. If an argument `validations_dir` is specified, validated receipts are stored in .json files inside the configured directory.
+
+- *validations_dir*, String, absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate()` function below); defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
+
 ### __.validate (*target_hash, proof*)__
+
+Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns corresponding `validation_tools.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file named with the receipt's id
+
+- *target_hash*, String, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed top-hash of the Merkle-tree providing the proof)
+
+- _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
 ## Internals
 

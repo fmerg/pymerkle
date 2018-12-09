@@ -53,9 +53,9 @@ class proof_validator(object):
         specified, validated receipts are stored in .json files inside this directory.
 
         :param validations_dir : <str> absolute path of the directory where validation receipts will
-                                          be stored as .json files (cf. the validate() function below);
-                                          defaults to `None`, in which case validation receipts are
-                                          not to be automatically stored
+                                       be stored as .json files (cf. the validate() function below);
+                                       defaults to `None`, in which case validation receipts are
+                                       not to be automatically stored
         """
         self.validations_dir = validations_dir
 
