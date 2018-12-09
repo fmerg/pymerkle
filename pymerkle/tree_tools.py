@@ -354,7 +354,7 @@ class merkle_tree(object):
             failure_message = 'Subtree provided by Client failed to be detected'
             print('\n * WARNING: {}\n'.format(failure_message))
             return proof(
-                generation='FAILURE {})'.format(failure_message),
+                generation='FAILURE ({})'.format(failure_message),
                 provider=self.id,
                 hash_type=self.hash_type,
                 encoding=self.encoding,

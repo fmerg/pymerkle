@@ -890,4 +890,125 @@ False
 }
 ```
 
-#### Consistencty-proof
+#### Consistency-proof
+
+```bash
+>>>
+>>> old_hash = tree.root_hash()
+>>> sublength = tree.length()
+>>>
+>>> tree.encrypt_log('short_APACHE_log')
+>>> tree
+
+    id        : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    security  : ACTIVATED                
+
+    root-hash : e527c26e38fe09eb34abb461b5a43f162f784fa7c3789599557451ce81a00395                
+
+    size      : 3191                
+    length    : 1596                
+    height    : 11
+
+>>>
+```
+
+```bash
+>>> q = tree.consistency_proof(old_hash=old_hash, sublength=sublength-1)
+
+ * WARNING: Subtree provided by Client failed to be detected
+
+>>> q
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : aa581e04-fbd1-11e8-8a04-70c94e89b637                
+
+    generation  : FAILURE (Subtree provided by Client failed to be detected)                
+
+    timestamp   : 1544373855 (Sun Dec  9 17:44:15 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index :                 
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+```bash
+>>> q = tree.consistency_proof(old_hash='anything else...', sublength=sublength)
+
+ * WARNING: Subtree provided by Client failed to be detected
+
+>>> q
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : d064fa7c-fbd1-11e8-8a04-70c94e89b637                
+
+    generation  : FAILURE (Subtree provided by Client failed to be detected)                
+
+    timestamp   : 1544373919 (Sun Dec  9 17:45:19 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index :                 
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+```bash
+>>> q = tree.consistency_proof(old_hash=old_hash, sublength=sublength)
+>>> q
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    id          : 0960371a-fbd2-11e8-8a04-70c94e89b637                
+
+    generation  : SUCCESS                
+
+    timestamp   : 1544374015 (Sun Dec  9 17:46:55 2018)                
+    provider    : f26316a8-fbcd-11e8-8a04-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 3                
+    proof-path  :                
+
+       [0]   +1  41b8a0040df817b1527335e5d7f6bccd9bca49af25f54a24d788051a354da3d0
+       [1]   -1  79c595f1768e365841f7fed5f9c14a731f831ba4e79723da12bfff1e94ae28ad
+       [2]   +1  c83ed4eb0083b0493d018489943e1e8181bb030195c3a7383c11d93370f35dc0
+       [3]   +1  6b65d5df1b1b4e2f84e88fdf3a7f5cf9a82b9bf700217c33028604e25ef4bc43
+       [4]   +1  d2af471841ae98f7ee37416b9eba452042f1677ebdf257778e03b9f55a480d11
+       [5]   -1  cbc52b117f077ebed4ce67a571a062837ba5e3ff030d352f655bf45f85899aac
+       [6]   +1  dc9dd814fc2f20d0f9fd62107374ba06f503c1ff2f489b9fe85985b03fd2d3fa
+       [7]   -1  4df67d8fee120817cb35bb2cd2150299fc24f8ff0ebae7a90ce7b98ae58f0ec3                
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
