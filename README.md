@@ -59,13 +59,9 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 
 Installation
 ------------
-<!--
 ```bash
 pip install pymerkle
 ```
--->
-
-### [ Work in progress ]
 
 Requirements
 ------------
