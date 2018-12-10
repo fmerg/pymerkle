@@ -803,6 +803,10 @@ is `'SUCCESS'` or `'FAILURE'` respectively.
 
 #### Consistency-proof
 
+All above considerations apply also to the case where the `proof` object represents a consistency-proof. The only thing changing is the generation-failure message included with the proof if the latter has been requested for wrong parameters (i.e., the combination of the provided `old_hash` and `sublength` does not correspond to a previous stage of the provider-tree).
+
+First store the tree's current stage and then update it by appending a new log file:
+
 ```bash
 >>>
 >>> old_hash = tree.root_hash()
@@ -825,6 +829,8 @@ is `'SUCCESS'` or `'FAILURE'` respectively.
 
 >>>
 ```
+
+Requesting a consistency-proof for wrong `sublength` returns an object as follows:
 
 ```bash
 >>> q = tree.consistency_proof(old_hash=old_hash, sublength=sublength-1)
@@ -857,6 +863,8 @@ is `'SUCCESS'` or `'FAILURE'` respectively.
 >>>
 ```
 
+Similarly, the proof requested for wrong `old_hash` looks like:
+
 ```bash
 >>> q = tree.consistency_proof(old_hash='anything else...', sublength=sublength)
 
@@ -887,6 +895,8 @@ is `'SUCCESS'` or `'FAILURE'` respectively.
 
 >>>
 ```
+
+In both above cases, inclusion test performed by the Merkle-tree has failed. Success of inclusion test (i.e., genuine generation of a consistency-path) amounts to the `q.header.generation` field having value `SUCCESS`:
 
 ```bash
 >>> q = tree.consistency_proof(old_hash=old_hash, sublength=sublength)
