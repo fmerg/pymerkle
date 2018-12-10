@@ -507,6 +507,8 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 >>>
 ```
 
+Note that serializing the updated tree will now return a quite huge object.
+
 ### Anatomy of the *proof* object
 
 #### Audit-proof
