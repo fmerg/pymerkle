@@ -18,17 +18,17 @@ pip install pysha3==1.0b1
 ```
 -->
 
-- [Quick-Example](#quick_example)
+- [Quick Example](#quick_example)
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Usage](#usage)
-- [Defense-against-second-preimage-attack](#defense)
-- [Tree-structure](#tree_structure)
+- [Defense against second-preimage attack](#defense)
+- [Tree structure](#tree_structure)
 - [API](#api)
-- [Anatomy-of-the-Merkle-tree-object](#merkle_tree_obj)
-- [Anatomy-of-the-Proof-object](#proof_obj)
+- [Anatomy of the Merkle-tree object](#merkle_tree_obj)
+- [Anatomy of the Proof object](#proof_obj)
 
-Quick-example
+Quick example
 -------------
 
 ```python
@@ -265,7 +265,7 @@ v = proof_validator(validations_dir=...)
 configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`.
 
 
-Defense-against-second-preimage-attack
+Defense against second-preimage attack
 --------------------------------------
 
 In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ resp. _UTF-8_. They are controlled by the `security` argument of the `merkle_tree` constructor and are _by default activated_. You can deactivate them by calling the constructor as:
@@ -290,7 +290,7 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 
 Feel free to contribute.
 
-Tree-structure
+Tree structure
 --------------
 
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_. All nodes except for the exterior ones (_leaves_) have _two_ parents.
@@ -452,7 +452,7 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 - _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
-Anatomy-of-the Merkle-tree-object
+Anatomy of the Merkle-tree object
 -----------------------------------
 
 ```bash
@@ -528,7 +528,7 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 
 Note that serializing the updated tree will now return a quite huge object.
 
-Anatomy-of-the-Proof-object
+Anatomy of the Proof object
 -----------------------------
 
 ### Audit-proof
