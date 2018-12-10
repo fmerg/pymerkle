@@ -88,7 +88,7 @@ creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA2
 t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see ... for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
+Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see [here](#defense) for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
 
 ```python
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
@@ -112,7 +112,7 @@ You can then encrypt any file `log_sample` inside the `/logs` directory just wit
 t.encrypt_log(log_sample)
 ```
 
-without the need to specify its absolute path (see ... for details).
+without the need to specify its absolute path (see below for details).
 
 ### New records and log encryption
 
