@@ -66,7 +66,8 @@ pip3 install pymerkle
 Requirements
 ------------
 
-`python3.x`
+`python3`
+`python3.6`
 
 
 Usage
