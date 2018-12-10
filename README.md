@@ -1,6 +1,7 @@
 pymerkle: A Python library for constructing Merkle Trees and validating Log Proofs
 =======================================================
 
+
 <!--
 [![PyPI version](https://badge.fury.io/py/merkletools.svg)](https://badge.fury.io/py/merkletools) [![Build Status](https://travis-ci.org/Tierion/pymerkletools.svg?branch=master)](https://travis-ci.org/Tierion/pymerkletools)
 -->
@@ -17,7 +18,18 @@ pip install pysha3==1.0b1
 ```
 -->
 
-## Quick example
+- [Quick Example](#quick_example)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Defense against second-preimage attack](#defense)
+- [Tree structure](#tree_structure)
+- [API](#api)
+- [Anatomy of the *merkle_tree* object](#merkle_tree_ob)
+- [Anatomy of the *proof* object](#proof_obj)
+
+Quick example
+-------------
 
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof
@@ -51,13 +63,16 @@ q = tree.consistency_proof(old_hash=top_hash, sublength=length)
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 ```
 
-## Installation
+Installation
+------------
 
 ### [ Work in progress ]
 
-## Requirements
+Requirements
+------------
 
 `python3.x`
+
 
 ## Usage
 
@@ -79,7 +94,7 @@ Defence measures play role only for the default hash and encoding types above; i
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
 ```
 
-See ... for the list of supported hash and encoding types.
+See [here](#API) for the list of supported hash and encoding types.
 
 An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
 
@@ -250,7 +265,8 @@ v = proof_validator(validations_dir=...)
 configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`.
 
 
-## Defense against second-preimage attack
+Defense against second-preimage attack
+--------------------------------------
 
 In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ resp. _UTF-8_. They are controlled by the `security` argument of the `merkle_tree` constructor and are _by default activated_. You can deactivate them by calling the constructor as:
 
@@ -274,7 +290,8 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 
 Feel free to contribute.
 
-## Tree structure
+Tree structure
+--------------
 
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_. All nodes except for the exterior ones (_leaves_) have _two_ parents.
 
@@ -336,7 +353,8 @@ You can run only a specific test file, e.g., `test_log_encryption.py`, by
 pytest tests/test_log_encryption.py
 ```
 
-## API
+API
+---
 
 Type
 
@@ -434,7 +452,8 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 - _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
-## Anatomy of the *merkle_tree* object
+Anatomy of the *merkle_tree* object
+-----------------------------------
 
 ```bash
 >>> import os
@@ -509,9 +528,10 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 
 Note that serializing the updated tree will now return a quite huge object.
 
-### Anatomy of the *proof* object
+Anatomy of the *proof* object
+-----------------------------
 
-#### Audit-proof
+### Audit-proof
 
 ```bash
 >>> p = tree.audit_proof(1000)
@@ -803,7 +823,7 @@ p.header.generation[:7]
 
 is `'SUCCESS'` or `'FAILURE'` respectively.
 
-#### Consistency-proof
+### Consistency-proof
 
 All above considerations apply also to the case where the `proof` object represents a consistency-proof. The only thing changing is the generation-failure message included with the proof if the latter has been requested for wrong parameters (i.e., the combination of the provided `old_hash` and `sublength` does not correspond to a previous stage of the provider-tree).
 
