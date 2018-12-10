@@ -10,15 +10,8 @@ pymerkle: A Python library for constructing Merkle Trees and validating Log Proo
 <!--
 ```bash
 pip install pymerkle
-```
-
-This module will attempt also to install `sha3` depending on [pysha3](https://pypi.python.org/pypi/pysha3). You can alternatively install this module manually with:
-
-```bash
-pip install pysha3==1.0b1
-```
 -->
-
+<!--
 - [Quick Example](#quick_example)
 - [Installation](#installation)
 - [Requirements](#requirements)
@@ -28,7 +21,7 @@ pip install pysha3==1.0b1
 - [API](#api)
 - [Anatomy of the Merkle-tree object](#merkle_tree_obj)
 - [Anatomy of the Proof object](#proof_obj)
-
+-->
 Quick example
 -------------
 
@@ -66,6 +59,11 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 
 Installation
 ------------
+<!--
+```bash
+pip install pymerkle
+```
+-->
 
 ### [ Work in progress ]
 
@@ -75,7 +73,8 @@ Requirements
 `python3.x`
 
 
-## Usage
+Usage
+-----
 
 ### Merkle-tree creation
 
@@ -89,7 +88,7 @@ creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA2
 t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see [here](#defense) for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
+Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see <!--[here](#defense)--> for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
 
 ```python
 t = merkle_tree(hash_type='sha512', encoding='utf-32')

@@ -8,7 +8,8 @@ HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512']
 try:  # to extend hash types if SHA3 is supported
     import sha3
 except BaseException:
-    print('\n * WARNING: SHA3 is not supported by your computer. Run the command \
+    print(
+        '\n * WARNING: SHA3 is not supported by your computer. Run the command \
            \n\
            \n   pip install pysha3==1.0b1\
            \n\

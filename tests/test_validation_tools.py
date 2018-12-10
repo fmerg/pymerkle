@@ -7,8 +7,12 @@ from pymerkle import merkle_tree, hash_tools, validate_proof, proof_validator
 HASH_TYPES = hash_tools.HASH_TYPES
 ENCODINGS = ['utf_7',
              'utf_8',
+             'utf_16',
+             'utf_16_be',
+             'utf_16_le',
              'utf_32',
-             'utf_16']
+             'utf_32_be',
+             'utf_32_le']
 
 # Directory containing this script
 current_dir = os.path.dirname(os.path.abspath(__file__))
