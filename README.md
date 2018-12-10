@@ -472,7 +472,7 @@ You can get a serialized version of `tree` as follows.
 {'id': 'f26316a8-fbcd-11e8-8a04-70c94e89b637', 'hash_type': 'sha256', 'encoding': 'utf_8', 'security': True, 'leaves': [], 'nodes': [], 'root': None}
 >>>
 ```
-To print the JSONified version of `tree`, type `print(tree.JSONstring())`:
+To view the JSONified version of `tree`, type `print(tree.JSONstring())`:
 
 ```json
 {
@@ -550,7 +550,8 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 
 >>>
 ```
-Type `p.serialize()`, `print(p.JSONstring())`
+
+You get the serialized version of `p` by running the command  `p.serialize()`. A better overview of its fields is attained with `print(p.JSONstring())`, displaying its JSONified version:
 
 ```json
 {
@@ -621,6 +622,8 @@ Type `p.serialize()`, `print(p.JSONstring())`
 }
 ```
 
+Note that `'UNVALIDATED'` corresponds to value `None` for `p.header.status`. Validation of `p` modifies the latter as follows:
+
 ```bash
 >>> validate_proof(target_hash=tree.root_hash(), proof=p)
 True
@@ -662,7 +665,7 @@ True
 >>>
 ```
 
-More accurately, the JSON form of the proof has now been modified as follows:
+More accurately, the value of `p.header.status` becomes `True` after correct validation, as can be also seen in the JSONified version of `p`:
 
 
 ```
@@ -677,6 +680,8 @@ More accurately, the JSON form of the proof has now been modified as follows:
     }
 }
 ```
+
+Similar considerations apply to the case of false validation:
 
 ```bash
 >>> validate_proof(target_hash='anything else...', proof=p)
@@ -718,8 +723,7 @@ False
 
 >>>
 ```
-
-More accurately, the JSON form of the proof has now been modified as follows:
+corresponding to the following JSON entity:
 
 ```
 {
@@ -733,6 +737,8 @@ More accurately, the JSON form of the proof has now been modified as follows:
     }
 }
 ```
+
+If an audit-proof is requested to be based on an index exceeding the Merkle-tree's current length, then no actual path is included with the proof and its `p.header.generation` field is set equal to a failure message:
 
 ```bash
 >>> p = tree.audit_proof(10000)
@@ -765,6 +771,8 @@ More accurately, the JSON form of the proof has now been modified as follows:
 >>>
 ```
 
+or, in JSONified version,
+
 ```json
 {
     "body": {
@@ -784,6 +792,14 @@ More accurately, the JSON form of the proof has now been modified as follows:
     }
 }
 ```
+
+Clearly, to verify if a proof has been genuinely generated or not (i.e., a path has indeed been included with it), one needs only check if
+
+```path
+p.header.generation[:7]
+```
+
+is `'SUCCESS'` or `'FAILURE'` respectively.
 
 #### Consistency-proof
 
