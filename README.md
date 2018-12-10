@@ -198,7 +198,7 @@ Here the result is of course `True`, whereas any other choice of `target_hash` w
 
 #### Validation with receipt
 
-A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `.validate()` method of the `proof.validator` class:
+A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `.validate()` method of the `proof_validator` class:
 
 ```python
 v = proof_validator()
@@ -434,9 +434,7 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 - _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
-## Internals
-
-### Anatomy of the *merkle_tree* object
+## Anatomy of the *merkle_tree* object
 
 ```bash
 >>> import os
@@ -467,12 +465,14 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 >>>
 ```
 
+You can get a serialized version of `tree` as follows.
+
 ```bash
 >>> tree.serialize()
 {'id': 'f26316a8-fbcd-11e8-8a04-70c94e89b637', 'hash_type': 'sha256', 'encoding': 'utf_8', 'security': True, 'leaves': [], 'nodes': [], 'root': None}
 >>>
 ```
-`print(tree.JSONstring())`
+To print the JSONified version of `tree`, type `print(tree.JSONstring())`:
 
 ```json
 {
@@ -485,6 +485,8 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
     "security": true
 }
 ```
+
+Encrypting a relatively big log file into `tree` modifies it as follows:
 
 ```bash
 >>> tree.encrypt_log('large_APACHE_log')
@@ -660,6 +662,9 @@ True
 >>>
 ```
 
+More accurately, the JSON form of the proof has now been modified as follows:
+
+
 ```
 {
     "body": {
@@ -713,6 +718,8 @@ False
 
 >>>
 ```
+
+More accurately, the JSON form of the proof has now been modified as follows:
 
 ```
 {
