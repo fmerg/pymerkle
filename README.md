@@ -25,8 +25,8 @@ pip install pysha3==1.0b1
 - [Defense against second-preimage attack](#defense)
 - [Tree structure](#tree_structure)
 - [API](#api)
-- [Anatomy of the *merkle_tree* object](#merkle_tree_ob)
-- [Anatomy of the *proof* object](#proof_obj)
+- [Anatomy of the Merkle-tree object](#merkle_tree_obj)
+- [Anatomy of the Proof object](#proof_obj)
 
 Quick example
 -------------
@@ -162,7 +162,7 @@ Given a Merkle-tree `t`, use the `.audit_proof()` method of the `merkle_tree` cl
 ```python
 p = t.audit_proof(index=56)
 ```
-The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. See ... for further details.
+The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. See [here](#proof_obj) for further details.
 
 Similarly, use the `.consistency_proof()` method of the `merkle_tree` class to generate a consistency proof as follows:
 
@@ -195,7 +195,7 @@ The generated object `q` is an instance of the `proof` class (cf. the `proof_too
 
 - _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to a previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the proof, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
 
-See ... for further details.
+See [here](#proof) for further details.
 
 ### Validating log proofs (Client's Side)
 
@@ -377,7 +377,7 @@ Constructor of Merkle-trees; returns an instance of the `tree_tools.merkle_tree`
 
 - *encoding_type*, String, specifies the encoding used by the Merkle-tree before hashing; defaults to _UTF-8_ if unspecified. Can be any of the following (upper- or mixed-case with '-' instead of '_' allowed): `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
 
-- *security*, Boolean, specifies the security mode of the Merkle-tree; if unspecified defaults to `True` (security measures against second-preimage attack activated). See ... for details.
+- *security*, Boolean, specifies the security mode of the Merkle-tree; if unspecified defaults to `True` (security measures against second-preimage attack activated). See [here](defense) for details.
 
 - *log_dir*, String, absolute path of the directory, where the Merkle-tree will receive log files to encrypt from; defaults to the current working directory if unspecified
 
