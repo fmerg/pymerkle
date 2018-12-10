@@ -4,7 +4,8 @@ from pymerkle import hash_tools
 import hashlib
 
 HASH_TYPES = hash_tools.HASH_TYPES
-ENCODINGS = hash_tools.ENCODINGS
+excluded_ENCODINGS = ['utf_16', 'utf_16_be', 'urf_16_le', 'utf_32', 'utf_32_be', 'urf_32_le']
+ENCODINGS = [e for e in hash_tools.ENCODINGS if e not in excluded_ENCODINGS]
 
 # Hard-coded string to be used for testing
 message = 'oculusnonviditnecaurisaudivit'
