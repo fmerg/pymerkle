@@ -452,7 +452,7 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 - _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
-Anatomy of the *merkle_tree* object
+Anatomy of the Merkle-tree object
 -----------------------------------
 
 ```bash
@@ -528,7 +528,7 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 
 Note that serializing the updated tree will now return a quite huge object.
 
-Anatomy of the *proof* object
+Anatomy of the Proof object
 -----------------------------
 
 ### Audit-proof
