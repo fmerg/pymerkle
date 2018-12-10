@@ -548,7 +548,7 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 >>>
 ```
-`p.serialize()`, `print(p.JSONstring())`
+Type `p.serialize()`, `print(p.JSONstring())`
 
 ```json
 {
@@ -663,68 +663,12 @@ True
 ```json
 {
     "body": {
-        "proof_index": 6,
-        "proof_path": [
-            [
-                1,
-                "f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318"
-            ],
-            [
-                -1,
-                "68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76"
-            ],
-            [
-                -1,
-                "4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f"
-            ],
-            [
-                -1,
-                "812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b"
-            ],
-            [
-                -1,
-                "74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c"
-            ],
-            [
-                1,
-                "0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c"
-            ],
-            [
-                1,
-                "227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59"
-            ],
-            [
-                1,
-                "15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6"
-            ],
-            [
-                1,
-                "4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc"
-            ],
-            [
-                -1,
-                "3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c"
-            ],
-            [
-                -1,
-                "554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe"
-            ],
-            [
-                -1,
-                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
-            ]
-        ]
+      ...
     },
     "header": {
-        "creation_moment": "Sun Dec  9 17:23:34 2018",
-        "encoding": "utf_8",
-        "generation": "SUCCESS",
-        "hash_type": "sha256",
-        "id": "c6a1d864-fbce-11e8-8a04-70c94e89b637",
-        "provider": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
-        "security": true,
+        ...
         "status": true,
-        "timestamp": 1544372614
+        ...
     }
 }
 ```
@@ -773,68 +717,12 @@ False
 ```json
 {
     "body": {
-        "proof_index": 6,
-        "proof_path": [
-            [
-                1,
-                "f090f2b39449d33c8ba3ede2a34c7219bb421f91fec62df13666136fdd38f318"
-            ],
-            [
-                -1,
-                "68567fc2b6713aa988e37f6603ce0d53004340153a116c6347449ade61121d76"
-            ],
-            [
-                -1,
-                "4d542b7bc393c340dc3a532b38038a290bf5edd3032484cd2e11796f0ee23b3f"
-            ],
-            [
-                -1,
-                "812ad5a63817c94c7ccb789fb3025685af40d509cb08d9cfe21876de32c20f9b"
-            ],
-            [
-                -1,
-                "74b1956a43ae6b309b17fef89392042bac687ec869290523dde6f09e8feb7a7c"
-            ],
-            [
-                1,
-                "0d944bce1fb03b54f3537064cd6a245cc919512743b831675d1e9579c4ce002c"
-            ],
-            [
-                1,
-                "227eef7004971d575b477279480be1e3f962d580c8efc7a9e0125398b8928b59"
-            ],
-            [
-                1,
-                "15c0dd84d03b3227785d9e4bd808a57291a829631eb04d789a880574481913a6"
-            ],
-            [
-                1,
-                "4f185281f6ad682b7c758d138d5de7733dea71fe2369ddc4546af3e52430a5cc"
-            ],
-            [
-                -1,
-                "3b891ced55c4282993aa01f39b7483d6cda5d8a4624b071744597ad49f19f97c"
-            ],
-            [
-                -1,
-                "554f61542d3e3ea4dfacdc734a40b4b88b9c35cb5bc8163bd6a8ed928db28efe"
-            ],
-            [
-                -1,
-                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
-            ]
-        ]
+      ...
     },
     "header": {
-        "creation_moment": "Sun Dec  9 17:23:34 2018",
-        "encoding": "utf_8",
-        "generation": "SUCCESS",
-        "hash_type": "sha256",
-        "id": "c6a1d864-fbce-11e8-8a04-70c94e89b637",
-        "provider": "f26316a8-fbcd-11e8-8a04-70c94e89b637",
-        "security": true,
+        ...
         "status": false,
-        "timestamp": 1544372614
+        ...
     }
 }
 ```
