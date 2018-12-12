@@ -8,13 +8,7 @@ HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512']
 try:  # to extend hash types if SHA3 is supported
     import sha3
 except BaseException:
-    print(
-        '\n * WARNING: SHA3 is not supported by your computer. Run the command \
-           \n\
-           \n   pip install pysha3==1.0b1\
-           \n\
-           \n   to install `sha3` depending on https://pypi.python.org/pypi/pysha3\n')
-
+    pass
 else:
     HASH_TYPES.extend(['sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'])
 
@@ -71,11 +65,19 @@ class hash_machine(object):
         :returns         : <builtin_funciton_or_method> the corressponding hash algorithm; e.g. hashlib.sha256 for
                            `hash_type` equal to 'sha256'
         """
+        ''
         if hash_type in HASH_TYPES:
             return getattr(hashlib, hash_type)
         else:
-            raise Exception(
-                '\n\n * Hash type {hash_type} is not supported\n'.format(hash_type=hash_type))
+            message = '\n\n * Hash type {hash_type} is not supported'.format(hash_type=hash_type)
+            if hash_type[:4] == 'sha3':
+                message += '. Run the command\
+                   \n\
+                   \n   pip install pysha3==1.0b1\
+                   \n\
+                   \n   to install `sha3` depending on https://pypi.python.org/pypi/pysha3\n'
+            else:
+            raise Exception(message)
 
     @staticmethod
     def select_encoding(encoding):

@@ -294,7 +294,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 
 #### Tree before update
 ```
-                h=hash(e,f)      
+                g=hash(e,f)      
                  /       \         
                 /         \         
          e=hash(a,b)   f=hash(c,d)  
@@ -304,33 +304,58 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 ```
 #### Updating in other implementations
 ```
-                         r=hash(h,e)
-                         /        \
-                        /          \
-                 h=hash(f,g)        e
-                 /       \           \
-                /         \           \
-         f=hash(a,b)   g=hash(c,d)     e
-          /     \        /     \        \
-         /       \      /       \        \
-        a         b    c         d        e
+                          r=hash(g,h)
+                          /        \
+                         /          \
+                  g=hash(e,f)        h
+                  /       \           \
+                 /         \           \
+          e=hash(a,b)   f=hash(c,d)     h
+           /     \        /     \        \
+          /       \      /       \        \
+         a         b    c         d        h
 ```
-#### Updating in present impentation
+#### Updating in present implementation
 ```
-                         r=hash(h,e)
-                         /        \
-                        /          \
-                 h=hash(f,g)        e
-                 /       \           
-                /         \           
-         f=hash(a,b)   g=hash(c,d)    
-          /     \        /     \        
-         /       \      /       \        
-        a         b    c         d        
+                          r=hash(g,h)
+                          /        \
+                         /          \
+                  g=hash(e,f)        h
+                  /       \           
+                 /         \           
+         e=hash(a,b)   f=hash(c,d)    
+           /     \        /     \        
+          /       \      /       \        
+         a         b    c         d        
 ```
-This structure is crucial for generating fast proof-paths (based on additive decompositions in decreasing powers of 2).
 
-## Running tests
+Further updating the tree leads to
+```
+                            r=hash(g,j)
+                            /        \
+                           /          \
+                          /            \
+                         /              \
+                  g=hash(e,f)            j=hash(h,i)        
+                  /       \               /       \           
+                 /         \             /         \           
+          e=hash(a,b)   f=hash(c,d)     h           i    
+           /     \        /     \                   
+          /       \      /       \              
+         a         b    c         d              
+```
+That is, instead of promoting lonely leaves to the next level, a bifurcation node (here `j`) is created. This structure is crucial for:
+
+- *fast generation of consistency-paths* (based on additive decompositions in decreasing powers of 2)
+- fast calculation of the new root-hash *since only the hashes at the left-most branch of the tree need be recalculated*
+- *speed and memory efficiency*, since the height as well as the total number of nodes with respect to the tree's length is kept to a minimum.
+
+For example, a tree with 9 leaves has 17 nodes in the present implementation, whereas the total number of nodes in the structure described [here](# https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is 20. Follow the straightforward algorithm of the `update()` method inside the `tree_tools.merkle_tree` class for further insight in the tree's structure.
+
+
+
+Running tests
+-------------
 
 In order to run all tests, make the file `run_tests.sh` executable and run
 
