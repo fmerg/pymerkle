@@ -350,7 +350,7 @@ That is, instead of promoting lonely leaves to the next level, a bifurcation nod
 - fast calculation of the new root-hash *since only the hashes at the left-most branch of the tree need be recalculated*
 - *speed and memory efficiency*, since the height as well as the total number of nodes with respect to the tree's length is kept to a minimum.
 
-For example, a tree with 9 leaves has 17 nodes in the present implementation, whereas the total number of nodes in the structure described [here](# https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is 20. Follow the straightforward algorithm of the `update()` method inside the `tree_tools.merkle_tree` class for further insight in the tree's structure.
+For example, a tree with 9 leaves has 17 nodes in the present implementation, whereas the total number of nodes in the structure described [here](#https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is 20. Follow the straightforward algorithm of the `update()` method inside the `tree_tools.merkle_tree` class for further insight in the tree's structure.
 
 
 
