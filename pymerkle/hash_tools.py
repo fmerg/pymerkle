@@ -77,6 +77,7 @@ class hash_machine(object):
                    \n\
                    \n   to install `sha3` depending on https://pypi.python.org/pypi/pysha3\n'
             else:
+                message += '\n'
             raise Exception(message)
 
     @staticmethod
