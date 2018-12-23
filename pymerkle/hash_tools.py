@@ -69,7 +69,8 @@ class hash_machine(object):
         if hash_type in HASH_TYPES:
             return getattr(hashlib, hash_type)
         else:
-            message = '\n\n * Hash type {hash_type} is not supported'.format(hash_type=hash_type)
+            message = '\n\n * Hash type {hash_type} is not supported'.format(
+                hash_type=hash_type)
             if hash_type[:4] == 'sha3':
                 message += '. Run the command\
                    \n\

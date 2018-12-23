@@ -59,6 +59,7 @@ Installation
 ```bash
 pip install pymerkle
 ```
+or
 ```bash
 pip3 install pymerkle
 ```
@@ -68,6 +69,8 @@ Requirements
 
 `python3`
 `python3.6`
+
+To run tests you will also need to have installed `pytest`
 
 
 Usage
@@ -85,13 +88,13 @@ creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA2
 t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-Defence measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (see <!--[here](#defense)--> for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
+Defense measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (cf. section *Defense against second-preimage attack* for details <!--see [here](#defense)-->for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
 
 ```python
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
 ```
 
-See [here](#API) for the list of supported hash and encoding types.
+<!--See [here](#API)-->Cf. the *API* section for the list of supported hash and encoding types.
 
 An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
 
@@ -103,7 +106,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 t = merkle_tree(log_dir=os.path.join(script_dir, 'logs'))
 ```
 
-You can then encrypt any file `log_sample` inside the `/logs` directory just with :
+You can then encrypt any file `log_sample` inside the `/logs` directory just as
 
 ```python
 t.encrypt_log(log_sample)
@@ -132,7 +135,7 @@ t = merkle_tree()
 t.encrypt_log('sample_log')
 ```
 
-This presupposes that the log-file `sample_log` lies inside the tree's configured log directory, where the tree receives its log-files for encryption from, otherwise an exception is thrown and a message
+This presupposes that the file `sample_log` lies inside the tree's configured log directory, where the tree receives its log-files for encryption from; otherwise an exception is thrown and a message
 
 ```bash
 * Requested log file does not exist
@@ -159,7 +162,7 @@ Given a Merkle-tree `t`, use the `.audit_proof()` method of the `merkle_tree` cl
 ```python
 p = t.audit_proof(index=56)
 ```
-The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. See [here](#proof_obj) for further details.
+The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. <!--See [here](#proof_obj)-->Cf. *Anatomy of the proof object* for further details.
 
 Similarly, use the `.consistency_proof()` method of the `merkle_tree` class to generate a consistency proof as follows:
 
@@ -173,16 +176,15 @@ q = t.consistency_proof(
 Here the parameters `old_hash`, resp. `sublength` provided from Client's side refer to the top-hash, resp. length of the Merkle-tree to be presumably detected as a previous stage of `t`. A typical session would thus be as follows:
 
 ```python
-
-# Client requests current stage of the tree from a trusted authority
+# Client requests and stores current stage of the tree from a trusted authority
 old_hash = t.root_hash()
 sublength = t.length()
 
-# Server encrypts new log (modifies top-hash and length of the tree)
+# Server encrypts some new log (modifies top-hash and length of the tree)
 t.encrypt_log('sample_log')
 
-# Client requests consistency proof for the stored stage
-# and the Server provides it
+# Server provides consistency proof for the stored stage
+# upon request from the Client
 q = t.consistency_proof(old_hash=old_hash, sublength=sublength)
 ```
 
@@ -192,15 +194,15 @@ The generated object `q` is an instance of the `proof` class (cf. the `proof_too
 
 - _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to a previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the proof, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
 
-See [here](#proof) for further details.
+<!--See [here](#proof)-->Cf. *Anatomy of the proof object* for further details. for further details.
 
 ### Validating log proofs (Client's Side)
 
-In what follows, let `t` be a Merkle-tree and `p` a log proof (audit or consistency indifferently) generated by it.
+In what follows, let `t` be a Merkle-tree and `p` a log proof (audit or consistency indifferently) generated by `t`.
 
 #### Quick validation
 
-The quickest way to validate a proof is by applying the `validate_proof()` method, returning `True` or `False` according to whether the proof was found to be valid or invalid. Before validation the proof has status `UNVALIDATED`, changing upon validation to `VALID` or `INVALID` accordingly.
+The quickest way to validate a proof is by applying the `validate_proof()` method, returning `True` or `False` according to whether the proof was found to be valid or invalid. Before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
 
 ```python
 validate_proof(target_hash=t.root_hash(), proof=p)
@@ -236,7 +238,7 @@ Here the `validate_proof()` method is internally called, modifying the proof as 
 
 >>>
 ```
-where `proof-provider` refers to the Merkle-tree which generated the validated proof. The corresponding JSON format is
+where `proof-provider` refers to the Merkle-tree which generated the proof. The corresponding JSON format is
 
 ```json
   {
@@ -395,11 +397,11 @@ Constructor of Merkle-trees; returns an instance of the `tree_tools.merkle_tree`
 
 - _*records_, Strings or Bytes-like objects indifferently, thought of as the records encrypted into the Merkle-tree upon construction; usually _not_ provided
 
-- *hash_type*, String, specifies the hash algorithm used by the Merkle-tree; defaults to _SHA256_ if unspecified. Can be any of the following: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case allowed); if `sha3` is moreover supported, can also be `'sha3_224'`, `'sha3_256'`, `'sha3_384'`, or `'sha3_512'` (upper- or mixed-case with '-' instead of '_' allowed)
+- *hash_type*, String, specifies the hash algorithm used by the Merkle-tree defulting to _SHA256_ if unspecified. Can be any of the following: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case allowed); if `sha3` is moreover supported, can also be `'sha3_224'`, `'sha3_256'`, `'sha3_384'`, or `'sha3_512'` (upper- or mixed-case with '-' instead of '_' allowed)
 
-- *encoding_type*, String, specifies the encoding used by the Merkle-tree before hashing; defaults to _UTF-8_ if unspecified. Can be any of the following (upper- or mixed-case with '-' instead of '_' allowed): `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
+- *encoding_type*, String, specifies the encoding used by the Merkle-tree before hashing defaulting to _UTF-8_ if unspecified. Can be any of the following (upper- or mixed-case with '-' instead of '_' allowed): `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
 
-- *security*, Boolean, specifies the security mode of the Merkle-tree; if unspecified defaults to `True` (security measures against second-preimage attack activated). See [here](defense) for details.
+- *security*, Boolean, specifies the security mode of the Merkle-tree defaulting to `True` if unspecified (security measures against second-preimage attack activated). Cf. *Defense against second-preimage attack* for details.
 
 - *log_dir*, String, absolute path of the directory, where the Merkle-tree will receive log files to encrypt from; defaults to the current working directory if unspecified
 
@@ -424,7 +426,7 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 ### __.encrypt_log (*log_file*)__
 
-Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update()` function internally); throws relative exception if the specified file does not exist
+Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update()` function internally); throws relative exception if the specified file does not exist.
 
 - *log_file*, String, relative path of the log file under encryption with respect to the configured log directory `.log_dir` of the Merkle-tree
 
@@ -480,13 +482,6 @@ Anatomy of the Merkle-tree object
 ```bash
 >>> import os
 >>> from pymerkle import *
-
- * WARNING: SHA3 is not supported by your computer. Run the command            
-
-   pip install pysha3==1.0b1           
-
-   to install `sha3` depending on https://pypi.python.org/pypi/pysha3
-
 >>>
 >>> tree = merkle_tree(log_dir=os.path.join(os.getcwd(), 'tests/logs'))
 >>> tree
