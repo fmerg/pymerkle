@@ -5,7 +5,8 @@ import pymerkle
 with open("README.md", "r") as f:
     long_description = f.read()
 
-install_requires["pytest>=3.9.2"]
+python_requires='>=3'
+install_requires=["pytest>=3.9.2"]
 
 setup(
     name="pymerkle",

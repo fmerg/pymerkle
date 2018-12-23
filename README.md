@@ -70,9 +70,6 @@ Requirements
 `python3`
 `python3.6`
 
-To run tests you will also need to have installed `pytest`
-
-
 Usage
 -----
 
