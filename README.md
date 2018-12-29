@@ -91,7 +91,7 @@ Defense measures play role only for the default hash and encoding types above; i
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
 ```
 
-<!--See [here](#API)-->Cf. the *API* section for the list of supported hash and encoding types.
+<!--See [here](#API)-->Cf. the _API_ section for the list of supported hash and encoding types.
 
 An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
 
@@ -159,7 +159,7 @@ Given a Merkle-tree `t`, use the `.audit_proof()` method of the `merkle_tree` cl
 ```python
 p = t.audit_proof(index=56)
 ```
-The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. <!--See [here](#proof_obj)-->Cf. *Anatomy of the proof object* for further details.
+The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. <!--See [here](#proof_obj)-->Cf. _Anatomy of the proof object_ for further details.
 
 Similarly, use the `.consistency_proof()` method of the `merkle_tree` class to generate a consistency proof as follows:
 
