@@ -25,7 +25,6 @@ Quick example
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof
                                   # and proof_validator
-
 tree = merkle_tree()              # Create empty SHA256/UTF-8 Merkle-tree with
                                   # defense against second-preimage attack
 validator = proof_validator()     # Create object for validating proofs

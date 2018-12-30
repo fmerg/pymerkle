@@ -43,7 +43,7 @@ def test_proof_validation_for_empty_tree(tree):
     """
     Tests proof-validation for proofs provided by empty trees
     """
-    audit_proof = tree.audit_proof(index=0)
+    audit_proof = tree.audit_proof(arg=0)
     consistency_proof = tree.consistency_proof(
         old_hash=tree.root_hash(), sublength=0)
 
@@ -80,10 +80,10 @@ for bool_1 in (True, False):  # Controls index compatibility
 
                     # Proof configuration
                     if bool_1:
-                        audit_proofs.append(tree.audit_proof(index=index))
+                        audit_proofs.append(tree.audit_proof(arg=index))
                     else:
                         audit_proofs.append(tree.audit_proof(
-                            index=first_log_size + index))
+                            arg=first_log_size + index))
 
                     # Target-hash configuration
                     if bool_2:

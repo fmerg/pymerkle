@@ -134,6 +134,8 @@ class merkle_tree(object):
         """
         return len(self.leaves)
 
+# -------------------------- Terminal representation ---------------------
+
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
@@ -236,6 +238,52 @@ class merkle_tree(object):
 
 # ------------------------ Audit proof functionalities ------------------------
 
+    def audit_proof(self, arg):
+        """
+        Returns audit proof appropriately formatted along with its validation parameters (so that it
+        be insertible as the second argument to the  validation_tools.validate_proof() method)
+
+        :param index : <int>                index of the leaf where the proof calculation must be
+                                            based upon (Client Side)
+        :returns     : <proofs.audit_proof> proof content in nice format with validation parameters
+        """
+
+        if type(arg) in (str, bytes, bytearray):
+            try:
+                index = this.leaves.index(arg)
+            except ValueError:
+                index = -1  # Indicates that the given argument has not been recorded
+        else:
+            index = arg
+
+        # Calculate proof
+        proof_index, audit_path = self._audit_path(index=index)
+
+        # Return proof nice formatted along with validation parameters
+        if proof_index is not None:
+            return proof(
+                generation='SUCCESS',
+                provider=self.id,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=proof_index,
+                proof_path=audit_path)
+
+        # Handles indexError case (`index` provided by Client was not among
+        # possibilities)
+        failure_message = 'Index provided by Client was out of range'
+        print('\n * WARNING: {}\n'.format(failure_message))
+        return proof(
+            generation='FAILURE ({})'.format(failure_message),
+            provider=self.id,
+            hash_type=self.hash_type,
+            encoding=self.encoding,
+            security=self.security,
+            proof_index=None,
+            proof_path=None)
+
+    '''
     def audit_proof(self, index):
         """
         Returns audit proof appropriately formatted along with its validation parameters (so that it
@@ -272,6 +320,7 @@ class merkle_tree(object):
             security=self.security,
             proof_index=None,
             proof_path=None)
+    '''
 
     def _audit_path(self, index):
         """
@@ -291,6 +340,12 @@ class merkle_tree(object):
 
                        or (None, None) in case of IndexError
         """
+
+        # ~ Handle negative index case separately like index error since
+        # ~ certain negative indices might be considered as valid positions
+        if index < -1:
+            return None, None
+
         try:
             current_node = self.leaves[index]
         except IndexError:
