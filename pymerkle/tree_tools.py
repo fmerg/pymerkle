@@ -2,6 +2,7 @@ from .hash_tools import hash_machine
 from .node_tools import node, leaf
 from .proof_tools import proof
 from .utils import *
+from pptree import *
 import json
 import uuid
 import os
@@ -134,8 +135,62 @@ class merkle_tree(object):
         """
         return len(self.leaves)
 
-# -------------------------- Terminal representation ---------------------
+    def __str__(self, indent=3):
+        """
+        Designed so that printing the tree displays it in a terminal friendly way; in particular,
+        printing the tree at console is similar to what you get by running the `tree` command on
+        Unix based platforms.
 
+        NOTE: In the current implementation, the left parent of each node is printed *above* the right
+        one (cf. the recursive implementation node_tools.node.__str__() function to understand why)
+
+        :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
+                              the tree will be indented with respect to the previous one; increase it to
+                              achieve better visibility of the tree's structure
+        :returns      : <str>
+        """
+        if self:
+            return self.root.__str__(indent=indent)
+        else:
+            return ''
+
+    def _print(self, indent=3):
+        """
+        Sole purpose of this print() like function is to parametrize the depth at which each level of
+        the printed tree will be indented with respect to the previous one; increase it to achieve
+        better visibility of the tree's structure
+
+        :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
+                              the tree will be indented with respect to the previous one;
+        """
+        print(self.__str__(indent=indent))
+
+
+# -------------------------- Nested representation ---------------------
+
+    '''
+    def _nested_structure(self):
+        """
+        :returns : <dict> (or None if the tree is empty)
+        """
+        if self:
+            return self._substructure(self.root)
+        return None
+
+    def _substructure(self, base_node):
+        """
+        :param base_node : <node_tools.node>
+        :returns         : <dict>
+        """
+        if isinstance(base_node, leaf):
+            return base_node.hash
+        return {
+            base_node.hash: {
+                'left': self._substructure(base_node.left),
+                'right': self._substructure(base_node.right)
+            }
+        }
+    '''
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
@@ -250,7 +305,7 @@ class merkle_tree(object):
 
         if type(arg) in (str, bytes, bytearray):
             try:
-                index = this.leaves.index(arg)
+                index = self.leaves.index(arg)
             except ValueError:
                 index = -1  # Indicates that the given argument has not been recorded
         else:

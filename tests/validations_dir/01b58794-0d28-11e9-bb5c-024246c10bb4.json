@@ -1,0 +1,12 @@
+{
+    "body": {
+        "proof_id": "eb8c5985-0d27-11e9-bb5c-024246c10bb4",
+        "proof_provider": "eb8c5982-0d27-11e9-bb5c-024246c10bb4",
+        "result": true
+    },
+    "header": {
+        "id": "01b58794-0d28-11e9-bb5c-024246c10bb4",
+        "timestamp": 1546280109,
+        "validation_moment": "Mon Dec 31 19:15:09 2018"
+    }
+}
