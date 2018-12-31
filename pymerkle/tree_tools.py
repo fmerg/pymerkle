@@ -2,7 +2,6 @@ from .hash_tools import hash_machine
 from .node_tools import node, leaf
 from .proof_tools import proof
 from .utils import *
-from pptree import *
 import json
 import uuid
 import os
