@@ -515,7 +515,7 @@ Returns an instance of the `proof_tools.proof` class, thought of as the consiste
 
 Deletes all the nodes of the Merkle-tree
 
-### __.display ( [ indent=3 ] )__
+### __.display ( [ *indent=3* ] )__
 
 Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with each default parameter, it is equivalent to printing the tree with `print()`
 
