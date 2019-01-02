@@ -18,6 +18,12 @@ pymerkle: A Python library for constructing Merkle Trees and validating Log Proo
 - [Anatomy of the Proof object](#proof_obj)
  -->
 
+## Installation
+
+```bash
+pip install pymerkle
+```
+
 ## Quick example
 
 ```python
@@ -57,9 +63,11 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 
 ### Tree display
 
+You can display info about the fixed configurations as well as current state of a Merkle-tree `t` by just invoking it inside the Python interpreter:
+
 ```shell
 >>>
->>> tree
+>>> t
 
     id        : 5e2c80ee-0e99-11e9-87fe-70c94e89b637                
 
@@ -73,8 +81,19 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
     length    : 5                
     height    : 3
 
+```
+Calling
+
+```python
+t.__str()__
+```
+
+will return a string representing the Merkle-tree in a format very similar to the output of the `tree` command of Unix based platforms. For example, printing the above Merkle-tree `t` inside the Python interpreter displays the following binary structure:
+
+
+```shell
 >>>
->>> print(tree)
+>>> print(t)
 
  └─f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da
      ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
@@ -88,12 +107,6 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 
 >>>
 
-```
-
-## Installation
-
-```bash
-pip install pymerkle
 ```
 
 ## Requirements
