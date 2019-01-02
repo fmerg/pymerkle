@@ -517,7 +517,7 @@ Deletes all the nodes of the Merkle-tree
 
 ### __.display ( [ indent=3 ] )__
 
-Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms.
+Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with each default parameter, it is equivalent to printing the tree with `print()`
 
 - `indent`, _int_, depth at which each level is indented with respect to its above one
 
@@ -529,7 +529,7 @@ _NOTE_: In the current implementation, the left parent of each node is printed *
 
 Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns this result
 
-- `target_hash`, _str_, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed top-hash of the Merkle-tree providing the proof)
+- `target_hash`, _str_, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
 - `proof`, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
@@ -547,7 +547,7 @@ This class enhances the `validate_proof()` functionality by employing the `valid
 
 Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns corresponding `validation_tools.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file named with the receipt's id
 
-- `target_hash`, _str_, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed top-hash of the Merkle-tree providing the proof)
+- `target_hash`, _str_, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
 - `proof`, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
