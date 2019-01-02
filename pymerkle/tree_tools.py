@@ -153,7 +153,7 @@ class merkle_tree(object):
         else:
             return ''
 
-    def print_(self, indent=3):
+    def display(self, indent=3):
         """
         Sole purpose of this print() like function is to parametrize the depth at which each level of
         the printed tree will be indented with respect to the previous one; increase it to achieve
