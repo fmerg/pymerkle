@@ -88,13 +88,7 @@ You can save this info in a file called `info_file` by
 with open('info_file', 'w') as f:
     f.write(t.__repr__())
 ```
-Calling
-
-```python
-t.__str()__
-```
-
-will return a string representing the Merkle-tree in a format very similar to the output of the `tree` command of Unix based platforms. For example, printing the above Merkle-tree `t` inside the Python interpreter displays the following binary structure:
+Calling `t.__str()__` will return a string representing the Merkle-tree in a format very similar to the output of the `tree` command of Unix based platforms. For example, printing the above Merkle-tree `t` inside the Python interpreter displays the following structure:
 
 
 ```shell
@@ -417,9 +411,9 @@ That is, instead of promoting lonely leaves to the next level, a bifurcation nod
 
 For example, a tree with 9 leaves has 17 nodes in the present implementation, whereas the total number of nodes in the structure described [here](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is 20. Follow the straightforward algorithm in the `update()` method of the `tree_tools.merkle_tree` class for further insight into the tree's structure.
 
-### Deviation from bitcoin specifications
+### Deviation from bitcoin specification
 
-### Console display
+In contrast to the bitcoin specification, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain genuinely binary. Instead, promoting lonely leaves to the next level (see above) allows the tree to remain genuinely balanced while having an odd number of leaves.
 
 ## Running tests
 
