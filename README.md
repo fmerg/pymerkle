@@ -1,14 +1,12 @@
 pymerkle: A Python library for constructing Merkle Trees and validating Log Proofs
 =======================================================
-
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 [![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
 
-<!--
-```bash
-pip install pymerkle
--->
-<!--
+
+> Construct Merkle Trees capable of providing both audit-proofs and consistency-proofs as well as mechanisms for validating them
+
+<!-- -->
 - [Quick Example](#quick_example)
 - [Installation](#installation)
 - [Requirements](#requirements)
@@ -18,9 +16,9 @@ pip install pymerkle
 - [API](#api)
 - [Anatomy of the Merkle-tree object](#merkle_tree_obj)
 - [Anatomy of the Proof object](#proof_obj)
--->
-Quick example
--------------
+<!-- -->
+
+## Quick example
 
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof
@@ -33,15 +31,19 @@ validator = proof_validator()     # Create object for validating proofs
 for i in range(100):
     tree.update(bytes('{}-th record'.format(i), 'utf-8'))
 
-# Store current top-hash and length for later use
-top_hash = tree.root_hash()
-length = tree.length()
+# Generate audit-proof based upon the inserted record
+p_1 = tree.audit_proof(arg='12-th record')
 
 # Generate audit-proof based upon the 56-th leaf
-p = tree.audit_proof(index=56)
+p_2 = tree.audit_proof(arg=56)
 
-# Quick validation of the above proof
-valid = validate_proof(target_hash=tree.root_hash(), proof=p) # <bool>
+# Quick validation of the above proofs
+valid_1 = validate_proof(target_hash=tree.root_hash(), proof=p_1) # <bool>
+valid_2 = validate_proof(target_hash=tree.root_hash(), proof=p_2) # <bool>
+
+# Store current top-hash and tree length for later use
+top_hash = tree.root_hash()
+length = tree.length()
 
 # Update the tree by appending a new log
 tree.encrypt_log('logs/sample_log')
@@ -49,22 +51,18 @@ tree.encrypt_log('logs/sample_log')
 # Generate consistency-proof for the stage before appending the log
 q = tree.consistency_proof(old_hash=top_hash, sublength=length)
 
-# Validate the above proof and generate receipt
+# Validate the above consistency-proof and generate receipt
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=q)
 ```
 
-Installation
-------------
+## Installation
+
 ```bash
 pip install pymerkle
 ```
-or
-```bash
-pip3 install pymerkle
-```
 
-Requirements
-------------
+## Requirements
+
 
 `python3`
 `python3.6`
@@ -72,7 +70,7 @@ Requirements
 Usage
 -----
 
-### Merkle-tree creation
+### Merkle-tree construction
 
 ```python
 t = merkle_tree()
@@ -84,7 +82,7 @@ creates an _empty_ Merkle-tree with default configurations: hash algorithm _SHA2
 t = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-Defense measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (cf. section *Defense against second-preimage attack* for details <!--see [here](#defense)-->for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
+Defense measures play role only for the default hash and encoding types above; in all other combinations, `security` could be set to `False` or by default `True` without essentially affecting encryption (cf. section *Defense against second-preimage attack* <!--see [here](#defense)-->for details). To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ you could just type:
 
 ```python
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
@@ -97,12 +95,12 @@ An extra argument `log_dir` specifies the absolute path of the directory, where 
 ```python
 import os
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
+script_dir = os.path.dirname(os.path.abspath(__file__)) # Directory containing the current script
 
 t = merkle_tree(log_dir=os.path.join(script_dir, 'logs'))
 ```
 
-You can then encrypt any file `log_sample` inside the `/logs` directory just as
+You can then encrypt any file `log_sample` inside the `/logs` directory just with
 
 ```python
 t.encrypt_log(log_sample)
@@ -156,8 +154,17 @@ A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_)
 Given a Merkle-tree `t`, use the `.audit_proof()` method of the `merkle_tree` class to generate the audit proof based upon, say, the 56-th leaf as follows:
 
 ```python
-p = t.audit_proof(index=56)
+p = t.audit_proof(arg=55)
 ```
+
+You can instead generate an audit proof based upon a record `record` with
+
+```python
+p = t.audit_proof(arg=record)
+```
+
+where `record` is of type `str`, `bytes` or `bytearray` indifferently. In in this case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any); since different leaves might store the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records__.
+
 The generated object `p` is an instance of the `proof` class (cf. the `proof_tools.py` module) consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the `index` requested by Client exceeds the tree's current length, then the audit path is empty and `p` is predestined to be found invalid upon validation. <!--See [here](#proof_obj)-->Cf. _Anatomy of the proof object_ for further details.
 
 Similarly, use the `.consistency_proof()` method of the `merkle_tree` class to generate a consistency proof as follows:
@@ -176,7 +183,7 @@ Here the parameters `old_hash`, resp. `sublength` provided from Client's side re
 old_hash = t.root_hash()
 sublength = t.length()
 
-# Server encrypts some new log (modifies top-hash and length of the tree)
+# Server encrypts some new log (modifying the top-hash and length of the tree)
 t.encrypt_log('sample_log')
 
 # Server provides consistency proof for the stored stage
@@ -190,7 +197,7 @@ The generated object `q` is an instance of the `proof` class (cf. the `proof_too
 
 - _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to a previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the proof, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
 
-<!--See [here](#proof)-->Cf. *Anatomy of the proof object* for further details. for further details.
+<!--See [here](#proof)-->Cf. *Anatomy of the proof object* for further details.
 
 ### Validating log proofs (Client's Side)
 
@@ -260,8 +267,8 @@ v = proof_validator(validations_dir=...)
 configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`.
 
 
-Defense against second-preimage attack
---------------------------------------
+## Defense against second-preimage attack
+
 
 In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ resp. _UTF-8_. They are controlled by the `security` argument of the `merkle_tree` constructor and are _by default activated_. You can deactivate them by calling the constructor as:
 
@@ -285,8 +292,8 @@ _NOTE_ : Security measures are readily extendible to any combination of hash and
 
 Feel free to contribute.
 
-Tree structure
---------------
+## Tree structure
+
 
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_. All nodes except for the exterior ones (_leaves_) have _two_ parents.
 
@@ -352,8 +359,8 @@ For example, a tree with 9 leaves has 17 nodes in the present implementation, wh
 
 
 
-Running tests
--------------
+## Running tests
+
 
 In order to run all tests, make the file `run_tests.sh` executable and run
 
@@ -373,8 +380,8 @@ You can run only a specific test file, e.g., `test_log_encryption.py`, by
 pytest tests/test_log_encryption.py
 ```
 
-API
----
+## API
+
 
 Type
 
@@ -472,8 +479,8 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 - _proof_, instance of `proof_tools.proof` (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
 
-Anatomy of the Merkle-tree object
------------------------------------
+## Anatomy of the Merkle-tree object
+
 
 ```bash
 >>> import os
@@ -541,8 +548,8 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 
 Note that serializing the updated tree will now return a quite huge object.
 
-Anatomy of the Proof object
------------------------------
+## Anatomy of the Proof object
+
 
 ### Audit-proof
 
