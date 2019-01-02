@@ -145,8 +145,6 @@ Defense measures play role only for the default hash and encoding types above; i
 t = merkle_tree(hash_type='sha512', encoding='utf-32')
 ```
 
-<!--See [here](#API)-->Cf. the *API* section for the list of supported hash and encoding types.
-
 An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive log-files for encryption from; if unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
 
 ```python
@@ -254,7 +252,6 @@ The generated object `q` is an instance of the `proof` class (cf. the `proof_too
 
 - _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to a previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the proof, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
 
-<!--See [here](#proof)-->Cf. *Anatomy of the proof object* for further details.
 
 ### Validating log proofs (Client's Side)
 
