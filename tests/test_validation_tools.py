@@ -101,7 +101,8 @@ def test_index_based_audit_proof_validation_for_non_empty_tree(
         target_hash=target_hash,
         proof=audit_proof) is expected
 
-small_tree = merkle_tree('0','1','2','3','4','5','6','7','8','9')
+
+small_tree = merkle_tree('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 audit_proofs = []
 expecteds = []
 

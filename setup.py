@@ -5,7 +5,7 @@ import pymerkle
 with open("README.md", "r") as f:
     long_description = f.read()
 
-python_requires='>=3'
+python_requires='>=3.6'
 install_requires=["pytest>=3.9.2"]
 
 setup(
@@ -23,9 +23,11 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Topic :: Security :: Cryptography",
         "Topic :: Software Development :: Libraries :: Python Modules"],
     license="License :: OSI Approved :: MIT License",
-    keywords="merkle proof audit consistency log security encryption")
+    keywords="merkle proof audit consistency log security encryption",
+    install_requires=install_requires)
