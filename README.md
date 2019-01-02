@@ -120,9 +120,7 @@ t.display()
 
 ## Requirements
 
-
-`python3`
-`python3.6`
+`python3.6` or `python3.7`
 
 Usage
 -----
