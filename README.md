@@ -511,7 +511,7 @@ Deletes all the nodes of the Merkle-tree
 
 ### __.display ( [ *indent=3* ] )__
 
-Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with each default parameter, it is equivalent to printing the tree with `print()`
+Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with its default parameter, it is equivalent to printing the tree with `print()`
 
 - `indent`, _int_, depth at which each level is indented with respect to its above one
 
