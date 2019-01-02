@@ -108,12 +108,18 @@ Calling `t.__str()__` will return a string representing the Merkle-tree in a for
 >>>
 
 ```
-You can save this format in a file called `tree_file` by
+ You can save this format in a file called `tree_file` by
 
 ```python
 with open('tree_file', 'w') as f:
     f.write(t.__str__())
 ```
+Note that `print(t)` is equivalent to
+
+```python
+t.display()
+```
+(cf. *API* for details).
 
 ## Requirements
 
@@ -508,6 +514,14 @@ Returns an instance of the `proof_tools.proof` class, thought of as the consiste
 ### __.clear ( )__
 
 Deletes all the nodes of the Merkle-tree
+
+### __.display ( [ indent=3 ] )__
+
+Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms.
+
+- `indent`, _int_, depth at which each level is indented with respect to its above one
+
+_NOTE_: In the current implementation, the left parent of each node is printed *above* the right one (cf. the recursive implementation `node_tools.node.__str__()` function to understand why)
 
 ### _Quick proof validation_
 
