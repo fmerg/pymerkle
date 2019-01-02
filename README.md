@@ -82,6 +82,12 @@ You can display info about the fixed configurations as well as current state of 
     height    : 3
 
 ```
+You can save this info in a file called `info_file` by
+
+```python
+with open('info_file', 'w') as f:
+    f.write(t.__repr__())
+```
 Calling
 
 ```python
@@ -107,6 +113,12 @@ will return a string representing the Merkle-tree in a format very similar to th
 
 >>>
 
+```
+You can save this format in a file called `tree_file` by
+
+```python
+with open('tree_file', 'w') as f:
+    f.write(t.__str__())
 ```
 
 ## Requirements
@@ -245,7 +257,7 @@ The generated object `q` is an instance of the `proof` class (cf. the `proof_too
 
 - _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to a previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the proof, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
 
-<!--See [here](#proof)-->Cf. *Anatomy of the proof object* for further details.
+<!--See [here](#proof)-->Cf. _Anatomy of the proof object_ for further details.
 
 ### Validating log proofs (Client's Side)
 
