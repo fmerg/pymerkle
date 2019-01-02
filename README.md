@@ -413,7 +413,7 @@ For example, a tree with 9 leaves has 17 nodes in the present implementation, wh
 
 ### Deviation from bitcoin specification
 
-In contrast to the bitcoin specification, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain genuinely binary. Instead, promoting lonely leaves to the next level (see above) allows the tree to remain genuinely balanced while having an odd number of leaves.
+In contrast to the bitcoin specification for Merkle-trees, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, promoting lonely leaves to the next level (see above) allows the tree to remain genuinely binary while having an odd number of leaves.
 
 ## Running tests
 
