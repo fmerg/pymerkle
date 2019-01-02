@@ -547,6 +547,7 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 ## Anatomy of the Merkle-tree object
 
+Construct an empty Merkle-tree admitting log files for encryption from the current working directory:
 
 ```bash
 >>> import os
@@ -612,12 +613,14 @@ Encrypting a relatively big log file into `tree` modifies it as follows:
 >>>
 ```
 
-Note that serializing the updated tree will now return a quite huge object.
+Note that serializing the updated tree as above will now return a fairly huge object. If you want to view its structure, it would be more sensible to print it with `t.print()` or equivalently `t.display`.
 
 ## Anatomy of the Proof object
 
 
 ### Audit-proof
+
+Use the above Merkle-tree to generate an audit-proof based upon its 101-th leaf as follows.
 
 ```bash
 >>> p = tree.audit_proof(1000)
