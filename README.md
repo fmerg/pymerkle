@@ -3,9 +3,6 @@ pymerkle: A Python library for constructing Merkle Trees and validating Log Proo
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 [![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
 
-
-> Construct Merkle Trees capable of providing both audit-proofs and consistency-proofs as well as mechanisms for validating them
-
 <!--
 - [Quick Example](#quick_example)
 - [Installation](#installation)
