@@ -153,7 +153,7 @@ class merkle_tree(object):
         else:
             return ''
 
-    def _print(self, indent=3):
+    def print_(self, indent=3):
         """
         Sole purpose of this print() like function is to parametrize the depth at which each level of
         the printed tree will be indented with respect to the previous one; increase it to achieve
@@ -164,32 +164,6 @@ class merkle_tree(object):
         """
         print(self.__str__(indent=indent))
 
-
-# -------------------------- Nested representation ---------------------
-
-    '''
-    def _nested_structure(self):
-        """
-        :returns : <dict> (or None if the tree is empty)
-        """
-        if self:
-            return self._substructure(self.root)
-        return None
-
-    def _substructure(self, base_node):
-        """
-        :param base_node : <node_tools.node>
-        :returns         : <dict>
-        """
-        if isinstance(base_node, leaf):
-            return base_node.hash
-        return {
-            base_node.hash: {
-                'left': self._substructure(base_node.left),
-                'right': self._substructure(base_node.right)
-            }
-        }
-    '''
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
@@ -297,20 +271,40 @@ class merkle_tree(object):
         Returns audit proof appropriately formatted along with its validation parameters (so that it
         be insertible as the second argument to the  validation_tools.validate_proof() method)
 
-        :param index : <int>                index of the leaf where the proof calculation must be
-                                            based upon (Client Side)
-        :returns     : <proofs.audit_proof> proof content in nice format with validation parameters
+        :param arg : <str>/<bytes>/<bytearray> or <int>; the record (if type is <str>/<bytes>/<bytearray>) or index
+                                                         of leaf (if type is <int>) where the proof calculation
+                                                         must be based upon (provided by Client Side)
+        :returns   : <proof_tools.proof>                 proof content in nice format with validation parameters
         """
 
         if type(arg) in (str, bytes, bytearray):
-            try:
-                index = self.leaves.index(arg)
-            except ValueError:
-                index = -1  # Indicates that the given argument has not been recorded
+            # ~ Find the index of the first leaf having recorded the inserted argument;
+            # ~ if no such leaf exists (i.e., the inserted argument has not been
+            # ~ recorded into the tree), set index equal to -1 so that
+            # ~ no genuine path be generated
+            arg_hash = self.hash(arg)
+            index = -1  # Will change only if the inserted argument has been recorded
+            for j in range(len(self.leaves)):
+                if self.leaves[j].hash == arg_hash:
+                    index = j
+                    break
+                else:
+                    continue
+            # ~ Replace the above block with the following snipset if you want to make use of
+            # ~ a Python generator instead (this implementation does not necessarily perform
+            # ~ better than the above elmentary loop)
+            '''
+            arg_hash = self.hash(arg)
+            recorder = next((leaf for leaf in self.leaves if leaf.hash == arg_hash), None)
+            if recorder:
+                index = self.leaves.index(recorder)
+            else:
+                index = -1
+            '''
         else:
             index = arg
 
-        # Calculate proof
+        # Calculate proof path
         proof_index, audit_path = self._audit_path(index=index)
 
         # Return proof nice formatted along with validation parameters
@@ -324,7 +318,7 @@ class merkle_tree(object):
                 proof_index=proof_index,
                 proof_path=audit_path)
 
-        # Handles indexError case (`index` provided by Client was not among
+        # Handles indexError case (`arg` provided by Client was not among
         # possibilities)
         failure_message = 'Index provided by Client was out of range'
         print('\n * WARNING: {}\n'.format(failure_message))
@@ -336,45 +330,6 @@ class merkle_tree(object):
             security=self.security,
             proof_index=None,
             proof_path=None)
-
-    '''
-    def audit_proof(self, index):
-        """
-        Returns audit proof appropriately formatted along with its validation parameters (so that it
-        be insertible as the second argument to the  validation_tools.validate_proof() method)
-
-        :param index : <int>                index of the leaf where the proof calculation must be
-                                            based upon (Client Side)
-        :returns     : <proofs.audit_proof> proof content in nice format with validation parameters
-        """
-
-        # Calculate proof
-        proof_index, audit_path = self._audit_path(index=index)
-
-        # Return proof nice formatted along with validation parameters
-        if proof_index is not None:
-            return proof(
-                generation='SUCCESS',
-                provider=self.id,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                proof_index=proof_index,
-                proof_path=audit_path)
-
-        # Handles indexError case (`index` provided by Client was not among
-        # possibilities)
-        failure_message = 'Index provided by Client was out of range'
-        print('\n * WARNING: {}\n'.format(failure_message))
-        return proof(
-            generation='FAILURE ({})'.format(failure_message),
-            provider=self.id,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            proof_index=None,
-            proof_path=None)
-    '''
 
     def _audit_path(self, index):
         """
@@ -397,7 +352,7 @@ class merkle_tree(object):
 
         # ~ Handle negative index case separately like index error since
         # ~ certain negative indices might be considered as valid positions
-        if index < -1:
+        if index < 0:
             return None, None
 
         try:
@@ -437,10 +392,10 @@ class merkle_tree(object):
         :param old_hash : <str> top-hash of the tree to be presumably detected as a previous state of the current
                                one and whose consistency is about to be validated or not (Client Side)
         :param sublength     : <int> length of the above tree (Client Side)
-        :returns             : <proofs.consistency_proof> proof content in nice format with validation parameters
+        :returns             : <proof_tools.proof> proof content in nice format with validation parameters
         """
 
-        # Calculate path
+        # Calculate proof path
         consistency_path = self._consistency_path(sublength=sublength)
 
         # Return proof nice formatted along with validation parameters

@@ -64,7 +64,7 @@ for bool_1 in (True, False):  # Controls index compatibility
     for bool_2 in (True, False):  # Controls validity of target hash
         for encoding in ENCODINGS:
             for hash_type in HASH_TYPES:
-                for index in range(first_log_size):
+                for arg in range(first_log_size):
 
                     # Expected value configuration
                     expecteds.append(bool_1 and bool_2)
@@ -76,14 +76,13 @@ for bool_1 in (True, False):  # Controls index compatibility
                         security=True,
                         log_dir=os.path.join(current_dir, 'logs'))
                     tree.encrypt_log('short_APACHE_log')
-                    # trees.append(tree)
 
                     # Proof configuration
                     if bool_1:
-                        audit_proofs.append(tree.audit_proof(arg=index))
+                        audit_proofs.append(tree.audit_proof(arg=arg))
                     else:
                         audit_proofs.append(tree.audit_proof(
-                            arg=first_log_size + index))
+                            arg=first_log_size + arg))
 
                     # Target-hash configuration
                     if bool_2:
@@ -96,10 +95,33 @@ for bool_1 in (True, False):  # Controls index compatibility
     'audit_proof, target_hash, expected', [
         (audit_proofs[i], target_hashes[i], expecteds[i]) for i in range(
             len(audit_proofs))])
-def test_audit_proof_validation_for_non_empty_tree(
+def test_index_based_audit_proof_validation_for_non_empty_tree(
         audit_proof, target_hash, expected):
     assert validate_proof(
         target_hash=target_hash,
+        proof=audit_proof) is expected
+
+small_tree = merkle_tree('0','1','2','3','4','5','6','7','8','9')
+audit_proofs = []
+expecteds = []
+
+for bool in (True, False):
+    for i in range(0, 10):
+        if bool:
+            audit_proofs.append(small_tree.audit_proof(arg=str(i)))
+        else:
+            audit_proofs.append(small_tree.audit_proof(arg=str(10 + i)))
+        expecteds.append(bool)
+
+
+@pytest.mark.parametrize(
+    'audit_proof, expected', [
+        (audit_proofs[i], expecteds[i]) for i in range(
+            len(audit_proofs))])
+def test_record_based_audit_proof_validation_for_non_empty_tree(
+        audit_proof, expected):
+    assert validate_proof(
+        target_hash=small_tree.root_hash(),
         proof=audit_proof) is expected
 
 # --------------------- Test consistency proof validation ---------------------
