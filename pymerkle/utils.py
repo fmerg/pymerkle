@@ -39,7 +39,7 @@ def powers_of(integer):
         power = log_2(integer)
         integer -= 2**power
         powers.append(power)
-    return powers
+    return tuple(powers)
 
 
 def get_with_sign(num):
