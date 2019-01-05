@@ -269,24 +269,14 @@ class merkle_tree(object):
             # ~ recorded into the tree), set index equal to -1 so that
             # ~ no genuine path be generated
             arg_hash = self.hash(arg)
-            index = -1  # Will change only if the inserted argument has been recorded
-            for j in range(len(self.leaves)):
-                if self.leaves[j].hash == arg_hash:
-                    index = j
+            index = -1
+            leaf_hashes = (leaf.hash for leaf in self.leaves)
+            count = 0
+            for hash in leaf_hashes:
+                if hash == arg_hash:
+                    index = count
                     break
-                else:
-                    continue
-            # ~ Replace the above block with the following snipset if you want to make use of
-            # ~ a Python generator instead (this implementation does not necessarily perform
-            # ~ better than the above elmentary loop)
-            '''
-            arg_hash = self.hash(arg)
-            recorder = next((leaf for leaf in self.leaves if leaf.hash == arg_hash), None)
-            if recorder:
-                index = self.leaves.index(recorder)
-            else:
-                index = -1
-            '''
+                count += 1
         else:
             index = arg
 
