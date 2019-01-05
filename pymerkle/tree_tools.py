@@ -242,12 +242,11 @@ class merkle_tree(object):
                                 with respect to the tree's root directory `log_dir`
         """
         try:
-            with open(os.path.join(self.log_dir, log_file), 'rb') as file:
+            for line in open(os.path.join(self.log_dir, log_file), 'rb'):
                 # ~ NOTE: File should be opened in binary mode so that its content remains
                 # ~ bytes and no decoding is thus needed during hashing (otherwise byte
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                for line in file:
-                    self.update(record=line)
+                self.update(record=line)
         except FileNotFoundError:
             print('\n * Requested log file does not exist\n')
 
