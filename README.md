@@ -179,7 +179,7 @@ _Encrypting_ a _log-file_ into the Merkle-tree means updating the tree with each
 t = merkle_tree()
 ...
 
-t.encrypt_log('sample_log')
+t.encrypt_log(log_file='sample_log')
 ```
 
 This presupposes that the file `sample_log` lies inside the tree's configured log directory, where the tree receives its log-files for encryption from; otherwise an exception is thrown and a message
@@ -191,7 +191,7 @@ This presupposes that the file `sample_log` lies inside the tree's configured lo
 is displayed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily append it by:
 
 ```python
-t.encrypt_log('subdir/sample_log')
+t.encrypt_log(log_file='subdir/sample_log')
 ```
 
 In other words, the argument of the `.encrypt_log()` method should always be the relative path of the log file under encryption with respect to the tree's configured log directory. You can anytime access the tree's configured log dir as
@@ -411,7 +411,7 @@ For example, a tree with 9 leaves has 17 nodes in the present implementation, wh
 
 ### Deviation from bitcoin specification
 
-In contrast to the bitcoin specification for Merkle-trees, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, promoting lonely leaves to the next level (see above) allows the tree to remain genuinely binary while having an odd number of leaves.
+In contrast to the bitcoin specification for Merkle-trees, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, creating bifurcation nodes at the rightmost branch (see above) allows the tree to remain genuinely binary while having an odd number of leaves.
 
 ## Running tests
 
@@ -479,7 +479,7 @@ Returns in hexadecimal form (String) the current top-hash of the Merkle-tree (i.
 
 Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf; restructures the tree appropriately and recalculates hashes of the right-most branch
 
-- `record`, _str_ or _bytes_ or _bytearray_, thought of as a new record to be encrypted into the Merkle-tree
+- `record`, _str_ or _bytes_ or _bytearray_, thought of as the new record whose hash is about to be encrypted into the Merkle-tree
 
 ### __.encrypt_log (*log_file*)__
 
@@ -493,7 +493,7 @@ Returns an instance of the `proof_tools.proof` class, thought of as the audit-pr
 
 - `arg`, _int_ or _str_ or _bytes_ or _bytearray_. If integer, indicates the leaf where the audit-proof should be based upon; in any other case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any)
 
-*NOTE*: since different leaves might store the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records and audit proofs are unique for each__.
+*NOTE*: since different leaves might store the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records and audit proofs are uniquely ascribed to each__.
 
 ### __.consistency_proof (*old_hash, sublength*)__
 
@@ -850,7 +850,7 @@ corresponding to the following JSON entity:
 If an audit-proof is requested to be based on an index exceeding the Merkle-tree's current length, then no actual path is included with the proof and its `p.header.generation` field is set equal to a failure message:
 
 ```bash
->>> p = tree.audit_proof(10000)
+>>> p = tree.audit_proof(arg=10000)
 
  * WARNING: Index provided by Client was out of range
 
