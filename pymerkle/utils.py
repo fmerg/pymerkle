@@ -21,9 +21,7 @@ def log_2(length):
 
     for arguments smaller than zero.
     """
-    if length == 0:
-        return 0
-    return int(math.log(length, 2))
+    return 0 if length == 0 else int(math.log(length, 2))
 
 
 def powers_of(integer):
@@ -61,9 +59,7 @@ def order_of_magnitude(num):
     param num : <int>
     return    : <int>
     """
-    if num == 0:
-        return 0  # convention
-    return int(math.log10(num))
+    return 0 if num == 0 else int(math.log10(num))
 
 
 # ------------------------------ Object utilities ------------------------
@@ -79,9 +75,7 @@ def string_id(obj):
     NOTE: If the inserted object happens to be None, a string composed of 'None'
     is returned followed by the memory pointer in parentheses.
     """
-    if obj:
-        return str(hex(id(obj)))
-    return '{} ({})'.format(None, hex(id(obj)))
+    return str(hex(id(obj))) if obj else '{} ({})'.format(None, hex(id(obj)))
 
 
 # --------------------------- Block/Unblock printing ---------------------
