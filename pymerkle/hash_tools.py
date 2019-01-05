@@ -195,7 +195,6 @@ class hash_machine(object):
         :returns             : <str> result of calculation, or None if the argument `signed_hashes` was []
         """
 
-        # Make a copy, so that input is not shrink-destroyed during calculation
         signed_hashes = list(signed_hashes)
 
         # Calculate and return
