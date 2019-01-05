@@ -189,14 +189,14 @@ class hash_machine(object):
 
             hash(hash('a' + hash('b' + 'c')) + 'd')
 
-        :param signed_hashes : <list [of (+1/-1, <str> or <bytes> or <bytearray)]>, the sign +1 or -1
+        :param signed_hashes : <tuple [of (+1/-1, <str> or <bytes> or <bytearray)]>, the sign +1 or -1
                                indicating pairing with the right or left neighbour respectively
         :param start         : <int> starting position for application of the hash() function
         :returns             : <str> result of calculation, or None if the argument `signed_hashes` was []
         """
 
         # Make a copy, so that input is not shrink-destroyed during calculation
-        signed_hashes = signed_hashes[:]
+        signed_hashes = list(signed_hashes)
 
         # Calculate and return
         if signed_hashes != []:

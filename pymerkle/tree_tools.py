@@ -23,9 +23,7 @@ class merkle_tree(object):
             root=None):
         """
         Constructor of merkle_tree objects
-
         May be called in either of the following two ways:
-
         :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
                                  hash_tools.HASH_TYPES global variable (upper- or mixed-case with '-' instead of '_'
                                  allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
@@ -42,9 +40,7 @@ class merkle_tree(object):
         :param leaves   : <None>
         :param nodes    : <None>
         :param root     : <None>
-
         or
-
         :param hash_type : <str>              see above
         :param encoding  : <str>              see above
         :param security  : <bool>             see above
@@ -52,7 +48,6 @@ class merkle_tree(object):
         :param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
         :param nodes     : <set [of <node>]>  initial nodes of the tree under construction
         :param root      : <node>             root of the tree under construction
-
         NOTE: The constructor is nowhere within this library called in the second way
         """
         self.id = str(uuid.uuid1())
@@ -139,10 +134,8 @@ class merkle_tree(object):
         Designed so that printing the tree displays it in a terminal friendly way; in particular,
         printing the tree at console is similar to what you get by running the `tree` command on
         Unix based platforms.
-
         NOTE: In the current implementation, the left parent of each node is printed *above* the right
         one (cf. the recursive implementation node_tools.node.__str__() function to understand why)
-
         :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
                               the tree will be indented with respect to the previous one; increase it to
                               achieve better visibility of the tree's structure
@@ -158,7 +151,6 @@ class merkle_tree(object):
         Sole purpose of this print() like function is to parametrize the depth at which each level of
         the printed tree will be indented with respect to the previous one; increase it to achieve
         better visibility of the tree's structure
-
         :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
                               the tree will be indented with respect to the previous one;
         """
@@ -169,7 +161,6 @@ class merkle_tree(object):
     def __bool__(self):
         """
         Returns False iff the tree has no nodes, True otherwise
-
         :returns : <bool>
         """
         return bool(self.nodes)
@@ -179,7 +170,6 @@ class merkle_tree(object):
     def root_hash(self):
         """
         Returns top-hash of the merkle-tree (i.e., the hash of its current root)
-
         :returns : <str> (valid hex) or None (if the tree is empty)
         """
         if self:
@@ -192,7 +182,6 @@ class merkle_tree(object):
         """
         Updates the tree by storing the hash of the inserted record in a newly created leaf, restructuring
         the tree appropriately and recalculating all necessary interior hashes
-
         :param record : <str> or <bytes> or <bytearray>
         """
         if self:
@@ -247,10 +236,8 @@ class merkle_tree(object):
     def encrypt_log(self, log_file):
         """
         Encrypts the data of the provided log-file into the merkle-tree.
-
         More accurately, it updates the tree by successively updating it with each line
         of the log-file provided.
-
         :param log_file : <str> relative path of the log-file under enryption, specified
                                 with respect to the tree's root directory `log_dir`
         """
@@ -270,7 +257,6 @@ class merkle_tree(object):
         """
         Returns audit proof appropriately formatted along with its validation parameters (so that it
         be insertible as the second argument to the  validation_tools.validate_proof() method)
-
         :param arg : <str>/<bytes>/<bytearray> or <int>; the record (if type is <str>/<bytes>/<bytearray>) or index
                                                          of leaf (if type is <int>) where the proof calculation
                                                          must be based upon (provided by Client Side)
@@ -335,18 +321,14 @@ class merkle_tree(object):
         """
         Response of the merkle-tree (Server Side) to the request of providing the appropriate
         list of signed hashes for audit proof validation by auditor (Client Side)
-
         :param index : <int> index of the leaf where the proof calculation must be based upon (Client Side)
-
         :returns     : (
-                            <list [of (+1/-1, <str>)]> list of signed hashes provided by Server, the sign
-                                                       +1 or -1 indicating pairing with the right or left
-                                                       neigbour respectively during proof validation
-
-                            <int>                      starting point for application of hash()
-                                                       during proof validation
+                            <tuple [of (+1/-1, <str>)]> list of signed hashes provided by Server, the sign
+                                                        +1 or -1 indicating pairing with the right or left
+                                                        neigbour respectively during proof validation
+                            <int>                       starting point for application of hash()
+                                                        during proof validation
                        )
-
                        or (None, None) in case of IndexError
         """
 
@@ -380,7 +362,7 @@ class merkle_tree(object):
                         path.insert(0, (+1, next_hash))
                     start += 1
                 current_node = current_node.child
-            return start, path
+            return start, tuple(path)
 
 # --------------------- Consistency proof functionalities ---------------------
 
@@ -388,11 +370,10 @@ class merkle_tree(object):
         """
         Returns consistency proof appropriately formatted along with its validation parameters (so that it
         be insertible as the second argument to the validation_tools.validate_proof() method)
-
-        :param old_hash : <str> top-hash of the tree to be presumably detected as a previous state of the current
-                               one and whose consistency is about to be validated or not (Client Side)
-        :param sublength     : <int> length of the above tree (Client Side)
-        :returns             : <proof_tools.proof> proof content in nice format with validation parameters
+        :param old_hash  : <str> top-hash of the tree to be presumably detected as a previous state of the current
+                                 one and whose consistency is about to be validated or not (Client Side)
+        :param sublength : <int> length of the above tree (Client Side)
+        :returns         : <proof_tools.proof> proof content in nice format with validation parameters
         """
 
         # Calculate proof path
@@ -443,30 +424,24 @@ class merkle_tree(object):
         """
         Response of the merkle-tree (Server Side) to the request of providing the appropriate
         list of signed hashes for consistency proof validation by monitor (Client Side)
-
         :param sublength : <int> length of the tree to be presumably detected as a previous state of the current
                                  one and whose consistency is about to be validated or not (Client Side)
-
         :returns         : (
-                                <int>                      starting point for application of hash() during proof validation
-                                <list [of (-1, <str>)]>    list of leftmost hashes for inclusion test to be performed by
-                                                           the Server (i.e., the tree itself)
-                                <list [of (+1/-1, <str>)]> full list of signed hashes provided by Server for top-hash test
-                                                           to be performed by the Client, the sign +1 or -1 indicating
-                                                           pairing with the right or left neighbour respectively
-                                                           during proof validation
+                                <int>                       starting point for application of hash() during proof validation
+                                <tuple [of (-1, <str>)]>    list of leftmost hashes for inclusion test to be performed by
+                                                            the Server (i.e., the tree itself)
+                                <tuple [of (+1/-1, <str>)]> full list of signed hashes provided by Server for top-hash test
+                                                            to be performed by the Client, the sign +1 or -1 indicating
+                                                            pairing with the right or left neighbour respectively
+                                                            during proof validation
                            )
 
                            or None in case of incompatibility
 
         NOTE: If the merkle-tree is empty (no nodes) and `sublength` is set to be 0, then the tuple
-
         (-1, [], [])
-
         is returned. If the merkle-tree is NOT empty but `sublength` is set to be 0, then
-
         None
-
         is returned
         """
         if sublength is 0:
@@ -495,7 +470,7 @@ class merkle_tree(object):
             # Collect and return only sign and hash pairs
             left_path = [(-1, r[1].hash) for r in left_roots]
             full_path = [(r[0], r[1].hash) for r in all_roots]
-            return proof_index, left_path, full_path
+            return proof_index, tuple(left_path), tuple(full_path)
 
         return None  # Incompatibility issue detected
 
@@ -524,7 +499,6 @@ class merkle_tree(object):
         """
         Returns in corresponding order the roots of the successive *full* binary subtrees of maximum
         (and thus decreasing) length, whose lengths sum up to the inserted argument `sublength`
-
         :param sublength : <int>
         :returns         : <list [of (+1/-1, <node>)]>, or None in case of incompatibility
         """
@@ -570,7 +544,6 @@ class merkle_tree(object):
         """
         Returns the root of the *full* binary subtree whose first leaf is located at
         the inserted position `start` and has the inserted height `height`
-
         :param start  : <int>  index of leaf where detection should start from
         :param height : <int>  height of candidate subtree to be detected
         :returns      : <node> or None if `start` is out of range
