@@ -18,7 +18,7 @@ pymerkle: A Python library for constructing Merkle Trees and validating Log Proo
 ## Installation
 
 ```bash
-pip install pymerkle
+pip3 install pymerkle
 ```
 
 ## Quick example
