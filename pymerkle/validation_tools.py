@@ -148,7 +148,7 @@ class validation_receipt(object):
         """
         :returns : <dict>
         """
-        encoder = validation_receiptEncoder()
+        encoder = validationReceiptEncoder()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -157,14 +157,14 @@ class validation_receipt(object):
         """
         return json.dumps(
             self,
-            cls=validation_receiptEncoder,
+            cls=validationReceiptEncoder,
             sort_keys=True,
             indent=4)
 
 # ------------------------------- JSON encoders --------------------------
 
 
-class validation_receiptEncoder(json.JSONEncoder):
+class validationReceiptEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:

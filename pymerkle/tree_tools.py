@@ -583,7 +583,7 @@ class merkle_tree(object):
         """
         :returns : <dict>
         """
-        encoder = merkle_treeEncoder()
+        encoder = merkleTreeEncoder()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -592,7 +592,7 @@ class merkle_tree(object):
         """
         return json.dumps(
             self,
-            cls=merkle_treeEncoder,
+            cls=merkleTreeEncoder,
             sort_keys=True,
             indent=4)
 
@@ -609,7 +609,7 @@ class merkle_tree(object):
 # ------------------------------- JSON encoders --------------------------
 
 
-class merkle_treeEncoder(json.JSONEncoder):
+class merkleTreeEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:
