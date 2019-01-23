@@ -1,10 +1,13 @@
 from .hash_tools import hash_machine
 from .node_tools import node, leaf
 from .proof_tools import proof
-from .utils import *
+from .utils import log_2, powers_of
 import json
 import uuid
 import os
+import logging
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
 
 # -------------------------------- Main class ----------------------------
 
@@ -248,7 +251,7 @@ class merkle_tree(object):
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
                 self.update(record=line)
         except FileNotFoundError:
-            print('\n * Requested log file does not exist\n')
+            logging.warning('Requested log file does not exist')
 
 # ------------------------ Audit proof functionalities ------------------------
 
@@ -296,7 +299,7 @@ class merkle_tree(object):
         # Handles indexError case (`arg` provided by Client was not among
         # possibilities)
         failure_message = 'Index provided by Client was out of range'
-        print('\n * WARNING: {}\n'.format(failure_message))
+        logging.warning(failure_message)
         return proof(
             generation='FAILURE ({})'.format(failure_message),
             provider=self.id,
@@ -386,7 +389,7 @@ class merkle_tree(object):
 
             # Handles inclusion test failure
             failure_message = 'Subtree provided by Client failed to be detected'
-            print('\n * WARNING: {}\n'.format(failure_message))
+            logging.warning(failure_message)
             return proof(
                 generation='FAILURE ({})'.format(failure_message),
                 provider=self.id,
@@ -399,7 +402,7 @@ class merkle_tree(object):
         # Handles incompatibility case (includes the zero leaves and zero
         # `sublength` case)
         failure_message = 'Sutree provided by Client was incompatible'
-        print('\n * WARNING: {}\n'.format(failure_message))
+        logging.warning(failure_message)
         return proof(
             generation='FAILURE ({})'.format(failure_message),
             provider=self.id,
@@ -500,7 +503,6 @@ class merkle_tree(object):
             start = 0
             i = 0
             for i in range(0, len(powers)):
-                block_print()
                 next_subroot = self._subroot(start, powers[i])
                 if next_subroot is not None:  # No incompatibility issue
                     if next_subroot.child and next_subroot.child.child:
@@ -516,17 +518,14 @@ class merkle_tree(object):
                     start += 2**powers[i]
                 else:
                     # Incompatibility issue detected; break loop and return
-                    allow_print()
                     return None
-            allow_print()
             # Principal subroot successfully detected
             if len(principal_subroots) > 0:
                 # modify last sign
                 principal_subroots[-1] = (+1, principal_subroots[-1][1])
             return principal_subroots
         else:  # Negative input handled as `incompatibility`
-            print(
-                '\n * WARNING: Required sequence of subroots is undefinable.\n')
+            logging.warning('Required sequence of subroots is undefinable')
             return None
 
     def _subroot(self, start, height):
@@ -552,13 +551,12 @@ class merkle_tree(object):
                     else:
                         subroot = subroot.child
                 except AttributeError:
-                    print(
-                        '\n * {}: inserted height exceeds possibilities.'.format(failure_message))
+                    logging.warning('{} (requested height exceeds possibilities)'.format(failure_message))
                     return None
                 else:
                     i += 1
         except IndexError:
-            print('\n * {}: starting point out of range.'.format(failure_message))
+            logging.warning('{} (requested starting point is out of range)'.format(failure_message))
             return None
 
         # Verify existence of *full* binary subtree for the above detected
@@ -567,14 +565,13 @@ class merkle_tree(object):
         i = 0
         while i < height:
             if isinstance(right_parent, leaf):
-                print(
-                    '\n * {}: full binary subtree does not exist.'.format(failure_message))
+                logging.warning('{} (corresponding full binary subtree does not exist)'.format(failure_message))
                 return None
             else:
                 right_parent = right_parent.right
                 i += 1
 
-        print('\n * Subroot successfully detected.')
+        # Subroot successfully detected
         return subroot
 
 # ------------------------------ JSON formatting -------------------------

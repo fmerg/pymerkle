@@ -87,20 +87,3 @@ def stringify_path(signed_hashes):
                     hash=elem[1]))
         return ''.join(elem for elem in stringified_elems)
     return ''  # input was None
-
-
-# --------------------------- Block/Unblock printing ---------------------
-
-
-def block_print():
-    """
-    Blocks printing
-    """
-    sys.stdout = open(os.devnull, 'w')
-
-
-def allow_print():
-    """
-    Unblocks printing
-    """
-    sys.stdout = sys.__stdout__
