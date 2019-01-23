@@ -241,7 +241,7 @@ def test_proof_validator(proof, target_hash):
         current_dir,
         'validations_dir',
         '{}.json'.format(
-            receipt.header['id']))
+            receipt.header['uuid']))
     with open(receipt_file_path) as receipt_file:
         receipt_clone = json.load(receipt_file)
     assert receipt.serialize() == receipt_clone
