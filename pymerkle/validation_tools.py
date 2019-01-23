@@ -78,7 +78,7 @@ class proof_validator(object):
         validated = validate_proof(target_hash=target_hash, proof=proof)
 
         receipt = validation_receipt(
-            proof_id=proof.header['id'],
+            proof_uuid=proof.header['uuid'],
             proof_provider=proof.header['provider'],
             result=validated
         )
@@ -87,7 +87,7 @@ class proof_validator(object):
             with open(
                 os.path.join(
                     self.validations_dir,
-                    '{}.json'.format(receipt.header['id'])
+                    '{}.json'.format(receipt.header['uuid'])
                 ),
                 'w'
             ) as output_file:
@@ -101,22 +101,22 @@ class proof_validator(object):
 
 
 class validation_receipt(object):
-    def __init__(self, proof_id, proof_provider, result):
+    def __init__(self, proof_uuid, proof_provider, result):
         """
         Encapsulates the output of the proof validation procedure for nice printing and easy saving
 
-        :param proof_id       : <str>  id of the validated proof
+        :param proof_uuid       : <str>  id of the validated proof
         :param proof_provider : <str>  id of the merkle-tree which provided the proof
         :param result         : <bool> validation output; True iff proof was found to be valid
         """
         self.header = {
-            'id': str(uuid.uuid1()),  # Time based
+            'uuid': str(uuid.uuid1()),  # Time based
             'timestamp': int(time.time()),
             'validation_moment': time.ctime(),
         }
 
         self.body = {
-            'proof_id': proof_id,
+            'proof_uuid': proof_uuid,
             'proof_provider': proof_provider,
             'result': result
         }
@@ -128,17 +128,17 @@ class validation_receipt(object):
                 \n    id             : {id}\
                 \n    timestamp      : {timestamp} ({validation_moment})\
                 \n\
-                \n    proof-id       : {proof_id}\
+                \n    proof-uuid     : {proof_uuid}\
                 \n    proof-provider : {proof_provider}\
                 \n\
                 \n    result         : {result}\
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\
                 \n'.format(
-            id=self.header['id'],
+            uuid=self.header['uuid'],
             timestamp=self.header['timestamp'],
             validation_moment=self.header['validation_moment'],
-            proof_id=self.body['proof_id'],
+            proof_uuid=self.body['proof_uuid'],
             proof_provider=self.body['proof_provider'],
             result='VALID' if self.body['result'] else 'NON VALID')
 
@@ -168,10 +168,10 @@ class validationReceiptEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:
-            id = obj.header['id']
+            uuid = obj.header['uuid']
             timestamp = obj.header['timestamp']
             validation_moment = obj.header['validation_moment']
-            proof_id = obj.body['proof_id']
+            proof_uuid = obj.body['proof_uuid']
             proof_provider = obj.body['proof_provider']
             result = obj.body['result']
         except TypeError:
@@ -179,12 +179,12 @@ class validationReceiptEncoder(json.JSONEncoder):
         else:
             return {
                 'header': {
-                    'id': id,
+                    'uuid': uuid,
                     'timestamp': timestamp,
                     'validation_moment': validation_moment
                 },
                 'body': {
-                    'proof_id': proof_id,
+                    'proof_uuid': proof_uuid,
                     'proof_provider': proof_provider,
                     'result': result
                 }

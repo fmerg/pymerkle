@@ -30,7 +30,7 @@ class proof(object):
         :param proof_path  : <list  [of (+1/-1, <str>)]> path of the signed hashes provided
         """
         self.header = {
-            'id': str(uuid.uuid1()),    # Time based proof id
+            'uuid': str(uuid.uuid1()),    # Time based proof id
             'generation': generation,
             'timestamp': int(time.time()),
             'creation_moment': time.ctime(),
@@ -50,7 +50,7 @@ class proof(object):
 
         return '\n    ----------------------------------- PROOF ------------------------------------\
                 \n\
-                \n    id          : {id}\
+                \n    uuid        : {uuid}\
                 \n\
                 \n    generation  : {generation}\
                 \n\
@@ -69,7 +69,7 @@ class proof(object):
                 \n\
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n'.format(
-            id=self.header['id'],
+            uuid=self.header['uuid'],
             generation=self.header['generation'],
             timestamp=self.header['timestamp'],
             creation_moment=self.header['creation_moment'],
@@ -111,7 +111,7 @@ class proofEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:
-            id = obj.header['id']
+            uuid = obj.header['uuid']
             generation = obj.header['generation']
             timestamp = obj.header['timestamp']
             creation_moment = obj.header['creation_moment']
@@ -127,7 +127,7 @@ class proofEncoder(json.JSONEncoder):
         else:
             return {
                 'header': {
-                    'id': id,
+                    'uuid': uuid,
                     'generation': generation,
                     'timestamp': timestamp,
                     'creation_moment': creation_moment,

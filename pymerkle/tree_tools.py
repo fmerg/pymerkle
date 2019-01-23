@@ -7,6 +7,7 @@ import uuid
 import os
 import logging
 
+# Console log messages configuration
 logging.basicConfig(format='%(levelname)s: %(message)s')
 
 # -------------------------------- Main class ----------------------------
@@ -53,7 +54,7 @@ class merkle_tree(object):
         :param root      : <node>             root of the tree under construction
         NOTE: The constructor is nowhere within this library called in the second way
         """
-        self.id = str(uuid.uuid1())
+        self.uuid = str(uuid.uuid1())
 
         # Hash and encoding type configuration
         self.machine = hash_machine(
@@ -89,7 +90,7 @@ class merkle_tree(object):
 
     def __repr__(self):
 
-        return '\n    id        : {id}\
+        return '\n    uuid      : {id}\
                 \n\
                 \n    hash-type : {hash_type}\
                 \n    encoding  : {encoding}\
@@ -100,7 +101,7 @@ class merkle_tree(object):
                 \n    size      : {size}\
                 \n    length    : {length}\
                 \n    height    : {height}\n' .format(
-            id=self.id,
+            uuid=self.uuid,
             hash_type=self.hash_type.upper().replace(
                 '_',
                 '-'),
@@ -146,8 +147,7 @@ class merkle_tree(object):
         """
         if self:
             return self.root.__str__(indent=indent)
-        else:
-            return ''
+        return ''
 
     def display(self, indent=3):
         """
@@ -289,7 +289,7 @@ class merkle_tree(object):
         if proof_index is not None:
             return proof(
                 generation='SUCCESS',
-                provider=self.id,
+                provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
@@ -302,7 +302,7 @@ class merkle_tree(object):
         logging.warning(failure_message)
         return proof(
             generation='FAILURE ({})'.format(failure_message),
-            provider=self.id,
+            provider=self.uuid,
             hash_type=self.hash_type,
             encoding=self.encoding,
             security=self.security,
@@ -380,7 +380,7 @@ class merkle_tree(object):
             if old_hash == self.multi_hash(left_path, len(left_path) - 1):
                 return proof(
                     generation='SUCCESS',
-                    provider=self.id,
+                    provider=self.uuid,
                     hash_type=self.hash_type,
                     encoding=self.encoding,
                     security=self.security,
@@ -392,7 +392,7 @@ class merkle_tree(object):
             logging.warning(failure_message)
             return proof(
                 generation='FAILURE ({})'.format(failure_message),
-                provider=self.id,
+                provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
@@ -405,7 +405,7 @@ class merkle_tree(object):
         logging.warning(failure_message)
         return proof(
             generation='FAILURE ({})'.format(failure_message),
-            provider=self.id,
+            provider=self.uuid,
             hash_type=self.hash_type,
             encoding=self.encoding,
             security=self.security,
@@ -551,12 +551,14 @@ class merkle_tree(object):
                     else:
                         subroot = subroot.child
                 except AttributeError:
-                    logging.warning('{} (requested height exceeds possibilities)'.format(failure_message))
+                    logging.warning(
+                        '{} (requested height exceeds possibilities)'.format(failure_message))
                     return None
                 else:
                     i += 1
         except IndexError:
-            logging.warning('{} (requested starting point is out of range)'.format(failure_message))
+            logging.warning(
+                '{} (requested starting point is out of range)'.format(failure_message))
             return None
 
         # Verify existence of *full* binary subtree for the above detected
@@ -565,7 +567,8 @@ class merkle_tree(object):
         i = 0
         while i < height:
             if isinstance(right_parent, leaf):
-                logging.warning('{} (corresponding full binary subtree does not exist)'.format(failure_message))
+                logging.warning(
+                    '{} (corresponding full binary subtree does not exist)'.format(failure_message))
                 return None
             else:
                 right_parent = right_parent.right
@@ -610,7 +613,7 @@ class merkleTreeEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:
-            id = obj.id
+            uuid = obj.uuid
             hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security
             leaves, nodes = obj.leaves, obj.nodes
             try:
@@ -621,7 +624,7 @@ class merkleTreeEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
         else:
             return {
-                'id': id,
+                'uuid': uuid,
                 'hash_type': hash_type,
                 'encoding': encoding,
                 'security': security,
