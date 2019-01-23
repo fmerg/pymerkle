@@ -2,9 +2,9 @@ import pytest
 import os
 import json
 import time
-from pymerkle import merkle_tree, hash_tools, validate_proof, proof_validator
+from pymerkle import merkle_tree, hashing, validate_proof, proof_validator
 
-HASH_TYPES = hash_tools.HASH_TYPES
+HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = ['utf_7',
              'utf_8',
              'utf_16',

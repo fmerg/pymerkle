@@ -274,7 +274,7 @@ v = proof_validator()
 receipt = v.validate(target_hash=t.root_hash(), proof=p)
 ```
 
-Here the `validate_proof()` method is internally called, modifying the proof as described above, and `receipt` is instant of the `validation_receipt` class (cf. the `validation_tools.py` module). It looks like
+Here the `validate_proof()` method is internally called, modifying the proof as described above, and `receipt` is instant of the `validation_receipt` class (cf. the `validations.py` module). It looks like
 
 ```bash
 >>> receipt
@@ -316,7 +316,7 @@ and will be stored in a `.json` file if the validator object has been configured
 v = proof_validator(validations_dir=...)
 ```
 
-configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validation_tools.py`.
+configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's id. Cf. the `tests/validations_dir` inside the root-directory of the project and the `tests/test_validations.py`.
 
 
 ## Defense against second-preimage attack
@@ -334,9 +334,9 @@ but -as already said- this does _not_ affect hashing for non-default combination
 
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the hexadecimal `/x01`
 
-Cf. the `.hash()` method and the docs of the `hash_machine` class inside the `hash_tools.py` module for more accuracy.
+Cf. the `.hash()` method and the docs of the `hash_machine` class inside the `hash_machine.py` module for more accuracy.
 
-_NOTE_ : Security measures are readily extendible to any combination of hash and encoding types by appropriately modifying only the `hash_tools.py` module as follows:
+_NOTE_ : Security measures are readily extendible to any combination of hash and encoding types by appropriately modifying only the `hash_machine.py` module as follows:
 
 - Rewrite line `53` to include any desired combination of hash and encoding types
 
@@ -529,15 +529,15 @@ Validates the inserted proof by comparing to target hash, modifies the proof's s
 
 ### __proof_validator ( [ *validations_dir=None* ] )__
 
-Constructor of the `validation_tools.proof_validator` class.
+Constructor of the `validations.proof_validator` class.
 
-This class enhances the `validate_proof()` functionality by employing the `validation_tools.validation_receipt` in order to organize any validation result in nice format. If an argument `validations_dir` is specified, validated receipts are stored in .json files inside the configured directory.
+This class enhances the `validate_proof()` functionality by employing the `validations.validation_receipt` in order to organize any validation result in nice format. If an argument `validations_dir` is specified, validated receipts are stored in .json files inside the configured directory.
 
 - `validations_dir`, _str_, absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate()` function below); defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
 
 ### __.validate (*target_hash, proof*)__
 
-Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns corresponding `validation_tools.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file named with the receipt's id
+Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns corresponding `validations.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file named with the receipt's id
 
 - `target_hash`, _str_, hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 

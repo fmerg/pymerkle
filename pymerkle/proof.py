@@ -4,7 +4,7 @@ import json
 from .utils import stringify_path
 
 
-# -------------------------------- Classes --------------------------------
+# -------------------------------- Main class --------------------------------
 
 
 class proof(object):
@@ -20,7 +20,7 @@ class proof(object):
         """
         :param generation  : <str>  Will be `SUCCESS` or `FAILURE` (plus an explanation message), according to whether
                                     or not a proof can be provided for the parameters provided from Client Side (cf.
-                                    the tree_tools.audit_proof() and tree_tools.consistency_proof() functions to
+                                    the tree.audit_proof() and tree.consistency_proof() functions to
                                     understand failure cases)
         :provider          : <str>  id of the the merkle-tree providing the proof
         :param hash_type   : <str>  hash type of the merkle-tree providing the proof

@@ -1,6 +1,6 @@
-from .hash_tools import hash_machine
-from .node_tools import node, leaf
-from .proof_tools import proof
+from .hashing import hash_machine
+from .nodes import node, leaf
+from .proof import proof
 from .utils import log_2, powers_of
 import json
 import uuid
@@ -29,7 +29,7 @@ class merkle_tree(object):
         Constructor of merkle_tree objects
         May be called in either of the following two ways:
         :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
-                                 hash_tools.HASH_TYPES global variable (upper- or mixed-case with '-' instead of '_'
+                                 hash_machine.HASH_TYPES global variable (upper- or mixed-case with '-' instead of '_'
                                  allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
         :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
                                  encodings.ENCODINGS global variable, otherwise an exception is thrown;
@@ -139,7 +139,7 @@ class merkle_tree(object):
         printing the tree at console is similar to what you get by running the `tree` command on
         Unix based platforms.
         NOTE: In the current implementation, the left parent of each node is printed *above* the right
-        one (cf. the recursive implementation node_tools.node.__str__() function to understand why)
+        one (cf. the recursive implementation nodes.node.__str__() function to understand why)
         :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
                               the tree will be indented with respect to the previous one; increase it to
                               achieve better visibility of the tree's structure
@@ -258,11 +258,11 @@ class merkle_tree(object):
     def audit_proof(self, arg):
         """
         Returns audit proof appropriately formatted along with its validation parameters (so that it
-        be insertible as the second argument to the  validation_tools.validate_proof() method)
+        be insertible as the second argument to the  validations.validate_proof() method)
         :param arg : <str>/<bytes>/<bytearray> or <int>; the record (if type is <str>/<bytes>/<bytearray>) or index
                                                          of leaf (if type is <int>) where the proof calculation
                                                          must be based upon (provided by Client Side)
-        :returns   : <proof_tools.proof>                 proof content in nice format with validation parameters
+        :returns   : <proof.proof>                 proof content in nice format with validation parameters
         """
 
         if type(arg) in (str, bytes, bytearray):
@@ -361,11 +361,11 @@ class merkle_tree(object):
     def consistency_proof(self, old_hash, sublength):
         """
         Returns consistency proof appropriately formatted along with its validation parameters (so that it
-        be insertible as the second argument to the validation_tools.validate_proof() method)
+        be insertible as the second argument to the validations.validate_proof() method)
         :param old_hash  : <str> top-hash of the tree to be presumably detected as a previous state of the current
                                  one and whose consistency is about to be validated or not (Client Side)
         :param sublength : <int> length of the above tree (Client Side)
-        :returns         : <proof_tools.proof> proof content in nice format with validation parameters
+        :returns         : <proof.proof> proof content in nice format with validation parameters
         """
 
         # Calculate proof path

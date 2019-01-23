@@ -1,10 +1,10 @@
 import hashlib
 import pytest
-from pymerkle import merkle_tree, hash_tools
-from pymerkle.hash_tools import hash_machine
+from pymerkle import merkle_tree, hashing
+from pymerkle.hashing import hash_machine
 
-HASH_TYPES = hash_tools.HASH_TYPES
-ENCODINGS = hash_tools.ENCODINGS
+HASH_TYPES = hashing.HASH_TYPES
+ENCODINGS = hashing.ENCODINGS
 
 
 # Generate separately hash-functions and empty merkle-trees for any combination

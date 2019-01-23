@@ -1,9 +1,9 @@
 import pytest
-from pymerkle import hash_tools
+from pymerkle import hashing
 
 import hashlib
 
-HASH_TYPES = hash_tools.HASH_TYPES
+HASH_TYPES = hashing.HASH_TYPES
 excluded_ENCODINGS = [
     'utf_16',
     'utf_16_be',
@@ -11,7 +11,7 @@ excluded_ENCODINGS = [
     'utf_32',
     'utf_32_be',
     'utf_32_le']
-ENCODINGS = [e for e in hash_tools.ENCODINGS if e not in excluded_ENCODINGS]
+ENCODINGS = [e for e in hashing.ENCODINGS if e not in excluded_ENCODINGS]
 
 # Hard-coded string to be used for testing
 message = 'oculusnonviditnecaurisaudivit'
@@ -27,7 +27,7 @@ bytearray_messages = []
 for security in {True, False}:
     for hash_type in HASH_TYPES:
         for encoding in ENCODINGS:
-            hash_machines.append(hash_tools.hash_machine(
+            hash_machines.append(hashing.hash_machine(
                 hash_type=hash_type,
                 encoding=encoding,
                 security=security))

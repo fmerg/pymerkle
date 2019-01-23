@@ -62,8 +62,8 @@ class node(object):
         """
         Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly
         way, similar to what is printed at console when running the `tree` command of Unix based
-        platforms; cf. the implementations of the tree_tools.merkle_tree.__str__ and the
-        tree_tools.merkle_tree.display() functions to understand how
+        platforms; cf. the implementations of the tree.merkle_tree.__str__ and the
+        tree.merkle_tree.display() functions to understand how
 
         Designed so that printing the node at console displays the subtree having that node as root
 

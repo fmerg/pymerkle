@@ -1,5 +1,5 @@
-from .tree_tools import merkle_tree
-from .validation_tools import validate_proof, proof_validator
+from .tree import merkle_tree
+from .validations import validate_proof, proof_validator
 
 name = "pymerkle"  # Just for verifying correct installation
 

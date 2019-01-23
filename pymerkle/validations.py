@@ -2,7 +2,7 @@ import uuid
 import time
 import json
 import os
-from .hash_tools import hash_machine
+from .hashing import hash_machine
 
 # -------------------------------- Validation ---------------------------------
 
