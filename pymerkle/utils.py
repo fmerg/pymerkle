@@ -61,6 +61,39 @@ def order_of_magnitude(num):
     """
     return 0 if num == 0 else int(math.log10(num))
 
+# ---------------------------- Formatting utilities----------------------------
+
+
+def stringify_path(signed_hashes):
+    """
+    Returns a nice formatted stringified version of the inserted list of signed hashes
+    (e.g., for the first outpout of the merkle_tree._audit_path() function)
+
+    :param signed_hashes : <list [of (+1/-1, <str>)]> or None
+    :returns             : <str>
+    """
+    if signed_hashes is not None:
+        stringified_elems = []
+        for i in range(len(signed_hashes)):
+            elem = signed_hashes[i]
+            stringified_elems.append(
+                ('\n' +
+                 (7 - order_of_magnitude(i)) *
+                 ' ' +
+                 '[{i}]' +
+                 3 *
+                 ' ' +
+                 '{sign}' +
+                 2 *
+                 ' ' +
+                 '{hash}').format(
+                    i=i,
+                    sign=get_with_sign(
+                        elem[0]),
+                    hash=elem[1]))
+        return ''.join(elem for elem in stringified_elems)
+    return ''  # input was None
+
 
 # --------------------------- Block/Unblock printing ---------------------
 

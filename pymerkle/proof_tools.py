@@ -1,7 +1,7 @@
 import uuid
 import time
 import json
-from .utils import get_with_sign, order_of_magnitude
+from .utils import get_with_sign, stringify_path
 
 
 # -------------------------------- Classes --------------------------------
@@ -142,38 +142,3 @@ class proofEncoder(json.JSONEncoder):
                     'proof_path': [[sign, hash] for (sign, hash) in proof_path] if proof_path is not None else []
                 }
             }
-
-# -------------------------------- Helpers --------------------------------
-
-
-def stringify_path(signed_hashes):
-    """
-    Helper function for nice printing.
-
-    Returns a nice formatted stringified version of the inserted list of signed hashes
-    (e.g., for the first outpout of the merkle_tree._audit_path() function)
-
-    :param signed_hashes : <list [of (+1/-1, <str>)]> or None
-    :returns             : <str>
-    """
-    if signed_hashes is not None:
-        stringified_elems = []
-        for i in range(len(signed_hashes)):
-            elem = signed_hashes[i]
-            stringified_elems.append(
-                ('\n' +
-                 (7 - order_of_magnitude(i)) *
-                 ' ' +
-                 '[{i}]' +
-                 3 *
-                 ' ' +
-                 '{sign}' +
-                 2 *
-                 ' ' +
-                 '{hash}').format(
-                    i=i,
-                    sign=get_with_sign(
-                        elem[0]),
-                    hash=elem[1]))
-        return ''.join(elem for elem in stringified_elems)
-    return ''  # input was None
