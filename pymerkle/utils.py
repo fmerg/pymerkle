@@ -62,22 +62,6 @@ def order_of_magnitude(num):
     return 0 if num == 0 else int(math.log10(num))
 
 
-# ------------------------------ Object utilities ------------------------
-
-
-def string_id(obj):
-    """
-    Memory-id of the object inserted in hexadecimal string format.
-
-    :param obj : <object>
-    :returns   : <str>
-
-    NOTE: If the inserted object happens to be None, a string composed of 'None'
-    is returned followed by the memory pointer in parentheses.
-    """
-    return str(hex(id(obj))) if obj else '{} ({})'.format(None, hex(id(obj)))
-
-
 # --------------------------- Block/Unblock printing ---------------------
 
 

@@ -1,4 +1,3 @@
-from .utils import string_id
 import json
 
 # Prefices to be used for nice tree printing
@@ -45,15 +44,18 @@ class node(object):
 # ------------------------- Representation formatting --------------------
 
     def __repr__(self):
+        def memory_id(obj): return str(
+            hex(id(obj))) if obj else '{} ({})'.format(None, hex(id(obj)))
+
         return '\n    memory-id    : {memory_id}\
                 \n    left parent  : {left}\
                 \n    right parent : {right}\
                 \n    child        : {child}\
                 \n    hash         : {hash}\n'\
-                .format(memory_id=string_id(self),
-                        left=string_id(self.left),
-                        right=string_id(self.right),
-                        child=string_id(self.child),
+                .format(memory_id=memory_id(self),
+                        left=memory_id(self.left),
+                        right=memory_id(self.right),
+                        child=memory_id(self.child),
                         hash=self.hash)
 
     def __str__(self, level=0, indent=3, ignore=[]):
