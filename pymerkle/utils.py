@@ -41,6 +41,8 @@ def powers_of(integer):
         powers.append(power)
     return tuple(powers)
 
+# ------------------------------ Format utilities------------------------------
+
 
 def get_with_sign(num):
     """
@@ -54,16 +56,6 @@ def get_with_sign(num):
     return sign + str(abs(num))
 
 
-def order_of_magnitude(num):
-    """
-    param num : <int>
-    return    : <int>
-    """
-    return 0 if num == 0 else int(math.log10(num))
-
-# ---------------------------- Formatting utilities----------------------------
-
-
 def stringify_path(signed_hashes):
     """
     Returns a nice formatted stringified version of the inserted list of signed hashes
@@ -72,6 +64,8 @@ def stringify_path(signed_hashes):
     :param signed_hashes : <list [of (+1/-1, <str>)]> or None
     :returns             : <str>
     """
+    def order_of_magnitude(num): return 0 if num == 0 else int(math.log10(num))
+
     if signed_hashes is not None:
         stringified_elems = []
         for i in range(len(signed_hashes)):

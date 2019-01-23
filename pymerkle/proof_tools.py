@@ -1,7 +1,7 @@
 import uuid
 import time
 import json
-from .utils import get_with_sign, stringify_path
+from .utils import stringify_path
 
 
 # -------------------------------- Classes --------------------------------
