@@ -332,20 +332,20 @@ class merkle_tree(object):
             return None, None  # Covers also the zero leaves case
         else:
             initial_sign = +1
-            if current_node.is_rightParent():
+            if current_node.isRightParent():
                 initial_sign = -1
             path = [(initial_sign, current_node.hash)]
             start = 0
             while current_node.child is not None:
-                if current_node.is_leftParent():
+                if current_node.isLeftParent():
                     next_hash = current_node.child.right.hash
-                    if current_node.child.is_leftParent():
+                    if current_node.child.isLeftParent():
                         path.append((+1, next_hash))
                     else:
                         path.append((-1, next_hash))
                 else:
                     next_hash = current_node.child.left.hash
-                    if current_node.child.is_rightParent():
+                    if current_node.child.isRightParent():
                         path.insert(0, (-1, next_hash))
                     else:
                         path.insert(0, (+1, next_hash))
@@ -473,7 +473,7 @@ class merkle_tree(object):
             while subroots[-1].child is not None:
                 last_root = subroots[-1]
                 if last_root is last_root.child.left:
-                    if last_root.child.is_rightParent():
+                    if last_root.child.isRightParent():
                         complement.append((-1, last_root.child.right))
                     else:
                         complement.append((+1, last_root.child.right))
@@ -504,12 +504,12 @@ class merkle_tree(object):
                 next_subroot = self._subroot(start, powers[i])
                 if next_subroot is not None:  # No incompatibility issue
                     if next_subroot.child and next_subroot.child.child:
-                        if next_subroot.child.is_leftParent():
+                        if next_subroot.child.isLeftParent():
                             principal_subroots.append((+1, next_subroot))
                         else:
                             principal_subroots.append((-1, next_subroot))
                     else:
-                        if next_subroot.is_leftParent():
+                        if next_subroot.isLeftParent():
                             principal_subroots.append((+1, next_subroot))
                         else:
                             principal_subroots.append((-1, next_subroot))

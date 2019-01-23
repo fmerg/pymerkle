@@ -83,7 +83,7 @@ class node(object):
         """
         if level == 0:
             output = '\n'
-            if not self.is_leftParent() and not self.is_rightParent():  # root case
+            if not self.isLeftParent() and not self.isRightParent():  # root case
                 output += ' ' + L_BRACKET_SHORT
         else:
             output = (indent + 1) * ' '
@@ -98,9 +98,9 @@ class node(object):
         new_ignore = ignore[:]
         del ignore
 
-        if self.is_leftParent():
+        if self.isLeftParent():
             output += ' ' + T_BRACKET
-        if self.is_rightParent():
+        if self.isRightParent():
             output += ' ' + L_BRACKET_LONG
             new_ignore.append(level)
 
@@ -114,7 +114,7 @@ class node(object):
 
 # ----------------------------- Boolean functions ------------------------
 
-    def is_leftParent(self):
+    def isLeftParent(self):
         """
         Returns True iff the node is the left attribute of some other node,
         otherwise False (including the childless case)
@@ -125,7 +125,7 @@ class node(object):
             return self == self.child.left
         return False
 
-    def is_rightParent(self):
+    def isRightParent(self):
         """
         Returns True iff the node is the right attribute of some other node,
         otherwise False (including the childless case)
