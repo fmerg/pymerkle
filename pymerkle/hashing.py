@@ -15,7 +15,7 @@ else:
 
 class hash_machine(object):
     """
-    Encapsulates the two basic hashi functionalities (the hash() and multi_hash() functions below)
+    Encapsulates the two basic hashing functionalities (the hash() and multi_hash() functions below)
     used for merkle-tree construction and validating merkle-proofs respectively.
 
     Sole purpose of this class is to fix at construction the hash and encoding types used for encrypting,

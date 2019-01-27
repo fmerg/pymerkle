@@ -1,7 +1,7 @@
 from .hashing import hash_machine
 from .nodes import node, leaf
 from .proof import proof
-from .utils import log_2, powers_of
+from .utils import log_2, decompose
 import json
 import uuid
 import os
@@ -191,7 +191,7 @@ class merkle_tree(object):
 
             # Height of *full* binary subtree with maximum
             # possible length containing the rightmost leaf
-            last_power = powers_of(len(self.leaves))[-1]
+            last_power = decompose(len(self.leaves))[-1]
 
             # Detect root of the above rightmost *full* binary subtree
             last_subroot = self.leaves[-1].descendant(degree=last_power)
@@ -499,7 +499,7 @@ class merkle_tree(object):
             return []
         elif sublength > 0:
             principal_subroots = []
-            powers = powers_of(sublength)
+            powers = decompose(sublength)
             start = 0
             i = 0
             for i in range(0, len(powers)):

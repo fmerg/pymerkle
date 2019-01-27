@@ -3,54 +3,45 @@ import math
 # ------------------------------ Math utilities --------------------------
 
 
-def log_2(length):
+def log_2(num):
+    """Computes and returns the base 2 logarithm of the given number (i.e.,
+    the greatest power of 2 equal to or smaller than `num`)
+
+    :param num: the number whose logarithm is to be computed
+    :type num: int
+    :returns: the computed logarithm
+    :rtype: int
+    :raises ValueError: for arguments smaller than zero
+
+    ..note:: By convention, it returns 0 for zero argument
     """
-    Logarithm with base 2
-
-    :param length : <int>
-    :returns      : <int>
-
-    Returns the logarithm of the greatest power of 2 equal to or smaller than `length`
-
-    NOTE: Throws
-
-    ValueError: math domain IndexError
-
-    for arguments smaller than zero.
-    """
-    return 0 if length == 0 else int(math.log(length, 2))
+    return 0 if num == 0 else int(math.log(num, 2))
 
 
-def powers_of(integer):
-    """
-    Additive decomposition in decreasing powers of 2
+def decompose(num):
+    """Additive decomposition in decreasing powers of 2
 
-    :param integer : <int>
-    :returns       : <list [of <int>]>
+    :param num: the number to be decomposed
+    :type num: int
+    :returns: powers of 2 in decreasing order
+    :rtype: tuple of int
 
-    NOTE: Returns the nonsensical empty list [] for any argument equal to
-    or smaller than zero.
+    :Example:
+
+    >>> from pymerkle.utils import decompose
+    >>> decompose(2**5 + 2**3 + 2**2 + 1)
+    (5, 3, 2, 0)
+
+    ..note:: Returns the nonsensical empty tuple for arguments equal to or smaller than zero
     """
     powers = []
-    while integer > 0:
-        power = log_2(integer)
-        integer -= 2**power
+    while num > 0:
+        power = log_2(num)
+        num -= 2**power
         powers.append(power)
     return tuple(powers)
 
-# ------------------------------ Format utilities------------------------------
-
-
-def get_with_sign(num):
-    """
-    param num : <int>
-    returns   : <str>
-    """
-    if num >= 0:
-        sign = '+'
-    else:
-        sign = '-'
-    return sign + str(abs(num))
+# -------------------------------- Format utils --------------------------
 
 
 def stringify_path(signed_hashes):
@@ -63,24 +54,20 @@ def stringify_path(signed_hashes):
     """
     def order_of_magnitude(num): return 0 if num == 0 else int(math.log10(num))
 
+    def get_with_sign(num): return str(num) if num < 0 else '+' + str(num)
+
     if signed_hashes is not None:
         stringified_elems = []
         for i in range(len(signed_hashes)):
             elem = signed_hashes[i]
             stringified_elems.append(
                 ('\n' +
-                 (7 - order_of_magnitude(i)) *
-                 ' ' +
+                 (7 - order_of_magnitude(i)) * ' ' +
                  '[{i}]' +
-                 3 *
-                 ' ' +
+                 3 * ' ' +
                  '{sign}' +
-                 2 *
-                 ' ' +
-                 '{hash}').format(
-                    i=i,
-                    sign=get_with_sign(
-                        elem[0]),
-                    hash=elem[1]))
+                 2 * ' ' +
+                 '{hash}').
+                format(i=i, sign=get_with_sign(elem[0]), hash=elem[1]))
         return ''.join(elem for elem in stringified_elems)
     return ''  # input was None
