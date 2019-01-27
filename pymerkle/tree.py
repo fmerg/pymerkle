@@ -29,7 +29,7 @@ class merkle_tree(object):
         Constructor of merkle_tree objects
         May be called in either of the following two ways:
         :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
-                                 hash_machine.HASH_TYPES global variable (upper- or mixed-case with '-' instead of '_'
+                                 hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with '-' instead of '_'
                                  allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
         :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
                                  encodings.ENCODINGS global variable, otherwise an exception is thrown;

@@ -1,7 +1,9 @@
-from .encodings import ENCODINGS  # Load encoding types
+"""Contains one main class encapsulating hash utilities"""
 
+import pymerkle.encodings  # Load encoding types
 import hashlib
 
+ENCODINGS = pymerkle.encodings.ENCODINGS  # Load encoding types
 # Supported hash types
 HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512']
 
@@ -14,58 +16,59 @@ else:
 
 
 class hash_machine(object):
-    """
-    Encapsulates the two basic hashing functionalities (the hash() and multi_hash() functions below)
-    used for merkle-tree construction and validating merkle-proofs respectively.
+    """Encapsulates the two basic hash utilities used accross this library.
 
-    Sole purpose of this class is to fix at construction the hash and encoding types used for encrypting,
-    so that these parameters need not be redefined every time a hash functionality is invoked; instances
+    Sole purpose of this class is to fix at construction the hash and encoding types used for encryption,
+    so that these parameters need not be redefined every time a hash utility is invoked. Instances
     of this class are thus to be initialized with every new construction of a merkle-tree or every time
     a proof validation is about to be performed
+
+    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the HASH_TYPES
+                      global variable (upper- or mixed-case with '-' instead of '_' allowed). Defaults to ``sha256``
+                      if unspecified
+    :type hash_type: str
+    :param encoding: specifies the encoding algorithm to be used by machine before hashing; must be among the elements of the
+                     ENCODINGS global variable (upper- or mixed-case with ``-`` instead of ``_`` allowed). Defaults to ``utf_8``
+                     if unspecified
+    :type encoding: str
+    :param security: defaults to True; plays role only if hash and encoding types are sha256 and utf-8 respec-
+                     tively. In this case, security standards are applied against second-preimage attack, i.e.,
+                     single, resp. double arguments of the hash() function will be prepended with \x00, resp.
+                     \x01 before hashing.
+    :type security: bool
+    :raises Exception: if hash_type, resp. encoding is not contained in ``HASH_TYPES``, resp. ``ENCODINGS``
     """
 
     # -------------------------------- Construction --------------------------
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
-        """
-        :param hash_type : <str>  hash algorithm to be used by the machine; must be among the elements of the HASH_TYPES
-                                  global variable (upper- or mixed-case with '-' instead of '_' allowed), otherwise an
-                                  exception is thrown. Defaults to `sha256` if unspecified
-        :param encoding  : <str>  encoding algorithm to be used by machine before hashing; must be among the elements of the
-                                  ENCODINGS global variable (upper- or mixed-case with '-' instead of '_' allowed), otherwise an
-                                  exception is thrown. Defaults to `utf_8` if unspecified
-        :param security  : <bool> defaults to True; plays role only if hash and encoding types are sha256 and utf-8 respec-
-                                  tively. In this case, security standards are applied against second-preimage attack, i.e.,
-                                  single, resp. double arguments of the hash() function will be prepended with \x00, resp.
-                                  \x01 before hashing.
-        """
 
-        # Hash algorithm used by the machine
-        self.HASH = hash_machine.select_hash_algorithm(
-            hash_type=hash_type.lower().replace('-', '_'))
+        self.HASH_ALGORITHM = hash_machine.select_hash_algorithm(
+            hash_type=hash_type.lower().replace(
+                '-', '_'))  # Hash algorithm used by the machine
 
-        # Encoding type used by this machine before hashing
         self.ENCODING = hash_machine.select_encoding(
-            encoding=encoding.lower().replace('-', '_'))
+            encoding=encoding.lower().replace(
+                '-', '_'))  # Encoding type used by this machine before hashing
 
         # Plays role only if hash and endoding types are SHA256 resp. UTF-8
         self.SECURITY = security
-        if self.SECURITY and self.HASH == hashlib.sha256 and self.ENCODING == 'utf_8':
+        if self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8':
             # ~ Security prefices will be prepended before hashing for defense against
             # ~ second-preimage attack
             self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
     @staticmethod
     def select_hash_algorithm(hash_type):
-        """
-        Selects hash function according to inserted type
+        """Selects hash algorithm according to inserted label
 
-        :param hash_type : <str> must be among the hard-coded strings contained in the HASH_TYPES global variable;
-                           otherwise an exception is raised
-        :returns         : <builtin_funciton_or_method> the corressponding hash algorithm; e.g. hashlib.sha256 for
-                           `hash_type` equal to 'sha256'
+        :param hash_type: label indicating the desired algorithm
+        :type hash_type:  str
+        :returns:         the desired hash algorithm; e.g. ``hashlib.sha256``
+        :rtype:           builtin_funciton_or_method
+
+        :raises Exception: if ``hash_type`` is not in ``HASH_TYPES``
         """
-        ''
         if hash_type in HASH_TYPES:
             return getattr(hashlib, hash_type)
         else:
@@ -98,25 +101,27 @@ class hash_machine(object):
 
     def security_mode_activated(self):
         """
-        Returns True iff genuine security standards are activated, i.e., `self.SECURITY` is True
-        along with hash and ecoding types of the machine being SHA256, resp. UTF-8
-
-        returns : <bool>
+        :returns: ``True`` iff genuine security standards are activated, i.e., ``self.SECURITY`` is ``True``
+                  along with hash and ecoding types of the machine being ``SHA256``, resp. ``UTF-8``
+        :rtype:   bool
         """
-        return self.SECURITY and self.HASH == hashlib.sha256 and self.ENCODING == 'utf_8'
+        return self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8'
 
     # ------------------------------ Hash tools ------------------------------
 
     def hash(self, first, second=None):
-        """
-        Core hash functionality (single or double argument)
+        """Core hash functionality
 
-        Returns the hash of the object occuring by concatenation of arguments in the given order;
-        if only one argument is passed in, then the hash of this single argument is returned.
+        Returns in hexadecimal form the hash of the object occuring by concatenation of arguments in the given
+        order; if only one argument is passed in, then the hash of this single argument is returned
 
-        :param first  : <str> or <bytes> or <bytearray>
-        :param second : <str> (valid hex) optional; if provided, then `first` must also be of <str> (valid hex) type
-        :returns      : <str> (valid hex)
+        :param first:  left member of the pair to be hashed
+        :type first:   str or bytes or bytearray
+        :param second: second member of the pair to be hashed; if provided, then ``first`` must also
+                       be of ``str`` type (valid hex)
+        :type second:  str
+        :returns:      a valid hex representing the produced hash
+        :rtype:        str
         """
 
         if not second:  # one arg case
@@ -126,21 +131,21 @@ class hash_machine(object):
 
                 if self.security_mode_activated():
                     # Apply security stadards
-                    return self.HASH(
+                    return self.HASH_ALGORITHM(
                         bytes(
                             self.PREFIX_0,
                             encoding=self.ENCODING) +
                         first).hexdigest()
 
                 # No security standards
-                return self.HASH(first).hexdigest()
+                return self.HASH_ALGORITHM(first).hexdigest()
 
             # Non bytes-like input
 
             if self.security_mode_activated():
 
                 # Apply security standards
-                return self.HASH(
+                return self.HASH_ALGORITHM(
                     bytes(
                         '{}{}'.format(
                             self.PREFIX_0,
@@ -148,7 +153,7 @@ class hash_machine(object):
                         encoding=self.ENCODING)).hexdigest()
 
             # No security standards
-            return self.HASH(
+            return self.HASH_ALGORITHM(
                 bytes(first, encoding=self.ENCODING)).hexdigest()
 
         # two args case
@@ -156,7 +161,7 @@ class hash_machine(object):
         if self.security_mode_activated():
 
             # Apply security standards
-            return self.HASH(
+            return self.HASH_ALGORITHM(
                 bytes(
                     '{}{}{}{}'.format(
                         self.PREFIX_1,
@@ -166,7 +171,7 @@ class hash_machine(object):
                     encoding=self.ENCODING)).hexdigest()
 
         # No security standards
-        return self.HASH(
+        return self.HASH_ALGORITHM(
             bytes(
                 '{}{}'.format(
                     first,

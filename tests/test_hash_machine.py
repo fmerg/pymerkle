@@ -157,7 +157,7 @@ def test_multi_hash_with_two_args(hash_machine):
     '''
     multi_hash = hash_machine.multi_hash
     hash = hash_machine.hash
-    if hash_machine.HASH == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
+    if hash_machine.HASH_ALGORITHM == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
         # Genuinely activated security standards
         assert multi_hash([(+1, message), (-1, message)], start=0) == \
             multi_hash([(+1, message), (-1, message)], start=1) == \
@@ -176,7 +176,7 @@ def test_multi_hash_with_three_args_first_case(hash_machine):
     '''
     multi_hash = hash_machine.multi_hash
     hash = hash_machine.hash
-    if hash_machine.HASH == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
+    if hash_machine.HASH_ALGORITHM == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
         # Genuinely activated security standards
         assert multi_hash(
             signed_hashes=[(+1, message), (+1, message), ('_anything_', message)],
@@ -203,7 +203,7 @@ def test_multi_hash_with_three_args_second_case(hash_machine):
     '''
     multi_hash = hash_machine.multi_hash
     hash = hash_machine.hash
-    if hash_machine.HASH == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
+    if hash_machine.HASH_ALGORITHM == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
         # Genuinely activated security standards
         assert multi_hash(
             signed_hashes=[('_anything_', message), (-1, message), (-1, message)],
@@ -229,7 +229,7 @@ def test_multi_hash_four_args_first_edge_case(hash_machine):
     '''
     multi_hash = hash_machine.multi_hash
     hash = hash_machine.hash
-    if hash_machine.HASH == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
+    if hash_machine.HASH_ALGORITHM == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
         # Genuinely activated security standards
         assert multi_hash(
             signed_hashes=[
@@ -263,7 +263,7 @@ def test_multi_hash_four_args_second_edge_case(hash_machine):
     '''
     multi_hash = hash_machine.multi_hash
     hash = hash_machine.hash
-    if hash_machine.HASH == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
+    if hash_machine.HASH_ALGORITHM == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
         # Genuinely activated security standards
         assert multi_hash(
             signed_hashes=[
@@ -297,7 +297,7 @@ def test_multi_hash_with_four_args(hash_machine):
     '''
     multi_hash = hash_machine.multi_hash
     hash = hash_machine.hash
-    if hash_machine.HASH == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
+    if hash_machine.HASH_ALGORITHM == hashlib.sha256 and hash_machine.ENCODING == 'utf_8' and hash_machine.SECURITY:
         # Genuinely activated security standards
         assert multi_hash(
             signed_hashes=[

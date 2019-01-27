@@ -8,9 +8,10 @@ def log_2(num):
     the greatest power of 2 equal to or smaller than ``num``)
 
     :param num: the number whose logarithm is to be computed
-    :type num: int
-    :returns: the computed logarithm
-    :rtype: int
+    :type num:  int
+    :returns:   the computed logarithm
+    :rtype:     ``int``
+
     :raises ValueError: for arguments smaller than zero
 
     .. note:: By convention, it returns 0 for zero argument
@@ -22,9 +23,9 @@ def decompose(num):
     """Additive decomposition in decreasing powers of 2
 
     :param num: the number to be decomposed
-    :type num: int
-    :returns: powers of 2 in decreasing order
-    :rtype: tuple of integers
+    :type num:  int
+    :returns:   powers of 2 in decreasing order
+    :rtype:     ``tuple`` of integers
 
     :Example:
 
@@ -46,8 +47,8 @@ def stringify_path(signed_hashes):
     """Returns a stringified version of the inserted sequence of signed hashes
 
     :param signed_hashes: a sequence of signed hashes
-    :type signed_hashes: tuple of (+1/-1, str) pairs
-    :rtype: str
+    :type signed_hashes:  tuple of (+1/-1, str) pairs
+    :rtype:               ``str``
 
     :Example:
 
