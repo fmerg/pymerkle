@@ -69,9 +69,7 @@ class hash_machine(object):
         self.SECURITY = security
         if self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8':
             # ~ Security prefices will be prepended before hashing for defense against
-            # ~ second-preimage attack
-            self.PREFIX_0 = '\x01'
-            self.PREFIX_1 = '\x00'
+            self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
     @staticmethod
     def select_hash_algorithm(hash_type):
@@ -134,7 +132,7 @@ class hash_machine(object):
 
         :param first:  left member of the pair to be hashed
         :type first:   str or bytes or bytearray
-        :param second: [optional] second member of the pair to be hashed; if provided, then ``first`` must also
+        :param second: [optional] right member of the pair to be hashed; if provided, then ``first`` must also
                        be of ``str`` type (valid hex)
         :type second:  str
         :returns:      a valid hex representing the produced hash
