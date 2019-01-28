@@ -1,3 +1,7 @@
+"""
+Provides a core function for validating proof and a related wrapper
+"""
+
 import uuid
 import time
 import json
@@ -8,17 +12,19 @@ from .hashing import hash_machine
 
 
 def validate_proof(target_hash, proof):
-    """
-    Validates the inserted `proof` by comparing to `target_hash`, modifies the proof's `status` as
+    """Core validation function
 
-    True or False
+    Validates the inserted proof by comparing to the provided target hash, modifies the proof's
+    status as ``True`` or ``False`` according to validation result and returns this result.
 
-    according to validation result and returns this result
-
-    :param target_hash : <str>   hash to be presumably attained at the end of the validation procedure
-                                 (i.e., acclaimed top-hash of the merkle-tree providing the proof)
-    :param proof       : <proof> the proof to be validated
-    :returns           : <bool>  validation result
+    :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the
+                        validation procedure (i.e., acclaimed top-hash of the Merkle-Tree
+                        having provided the proof)
+    :type target_hash:  str
+    :param proof:       the proof to be validated
+    :type proof:        proof.proof
+    :returns:           validation result
+    :rtype:             bool
     """
     if proof.header['generation'][:7] == 'SUCCESS':
 
@@ -42,38 +48,38 @@ def validate_proof(target_hash, proof):
     proof.header['status'] = False
     return False
 
-# -------------------------------- Classes --------------------------------
+# ---------------------------------- Classes ----------------------------------
 
 
 class proof_validator(object):
-    def __init__(self, validations_dir=None):
-        """
-        Enhances the validate_proof() functionality by employing the <validation_receipt> object in order
-        to organize its result (see the valdiate() function below). If a `validations_dir` is
-        specified, validated receipts are stored in .json files inside this directory.
+    """Wrapper of the ``validate_proof`` function.
 
-        :param validations_dir : <str> absolute path of the directory where validation receipts will
-                                       be stored as .json files (cf. the validate() function below);
-                                       defaults to `None`, in which case validation receipts are
-                                       not to be automatically stored
-        """
+    Employs the ``validation_receipt`` class in order to organize validation results
+    in an easy storable way.
+
+    :param validations_dir: [optional] absolute path of the directory where validation
+                            receipts will be stored as `.json` files. Defaults to ``None``,
+                            in which case validation receipts will not be automatically
+                            stored.
+    :type validations_dir: str
+    """
+
+    def __init__(self, validations_dir=None):
         self.validations_dir = validations_dir
 
     def validate(self, target_hash, proof):
-        """
-        Validates the inserted `proof` by comparing to `target_hash`, modifies the proof's `status` as
+        """Wraps ``validate_proof``, returning a validation receipt instead of a boolean.
 
-        True or False
+        If a ``validations_dir`` has been specified at construction, then the produced validation receipt
+        is automatically stored in that directory as a ``.json`` file named with the receipt's uuid.
 
-        according to validation result and returns corresponding <validation_receipt> object. If a
-        `validations_dir` has been specified at construction, then each validation receipt is
-        automatically stored in that directory as a .json file named with the receipt's id
-
-        :param target_hash : <str>                 hash to be presumably attained at the end of the validation
-                                                   procedure (i.e., acclaimed top-hash of the merkle-tree
-                                                   providing the proof)
-        :param proof       : <proof>               the proof to be validated
-        :returns           : <validation_receipt>  validation result
+        :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the
+                            validation procedure (i.e., acclaimed top-hash of the Merkle-Tree
+                            having provided the proof)
+        :type target_hash:  str
+        :param proof:       the proof to be validated
+        :type proof:        proof.proof
+        :rtype:             validations.validation_receipt
         """
         validated = validate_proof(target_hash=target_hash, proof=proof)
 
@@ -101,14 +107,26 @@ class proof_validator(object):
 
 
 class validation_receipt(object):
-    def __init__(self, proof_uuid, proof_provider, result):
-        """
-        Encapsulates the output of the proof validation procedure for nice printing and easy saving
+    """Encapsulates the result of proof validation
 
-        :param proof_uuid       : <str>  id of the validated proof
-        :param proof_provider : <str>  id of the merkle-tree which provided the proof
-        :param result         : <bool> validation output; True iff proof was found to be valid
-        """
+    :param proof_uuid:     uuid of the validated proof (time-based)
+    :type proof_uuid:      str
+    :param proof_provider: uuid of the Merkle-Tree having provided the proof
+    :type proof_provider:  str
+    :param result:         Validation result (``True`` iff the proof was found to be valid)
+    :type result:          bool
+
+    :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamo*, *validation_moment*
+    :ivar header.uuid:              (*str*) uuid of the proof (time-based)
+    :ivar header.timestamp:         (*str*) Validation moment (msecs) from the start of time
+    :ivar header.validation_moment: (*str*) Validation moment in human readable form
+    :ivar body:                     (*dict*) Contains the keys *proof_uuid*, *proof_provider*, *result*
+    :ivar body.proof_uuid:          (*str*) See the homonymous argument of the constructor
+    :ivar body.proof_provider:      (*str*) See the homonymous argument of the constructor
+    :ivar body.result:              (*bool*) See the homonymous argument of the constructor
+    """
+
+    def __init__(self, proof_uuid, proof_provider, result):
         self.header = {
             'uuid': str(uuid.uuid1()),  # Time based
             'timestamp': int(time.time()),
@@ -145,15 +163,19 @@ class validation_receipt(object):
 # ------------------------------ JSON formatting -------------------------
 
     def serialize(self):
-        """
-        :returns : <dict>
+        """ Returns a JSON structure with the receipt's attributes as key-value pairs
+
+        :rtype: dict
         """
         encoder = validationReceiptEncoder()
         return encoder.default(self)
 
     def JSONstring(self):
-        """
-        :returns : <str>
+        """Returns a nicely stringified version of the receipt's JSON serialized form
+
+        .. note:: The output of this function is to be passed in the ``print()`` function
+
+        :rtype: str
         """
         return json.dumps(
             self,
@@ -165,8 +187,13 @@ class validation_receipt(object):
 
 
 class validationReceiptEncoder(json.JSONEncoder):
+    """Used implicitely in the JSON serialization of proof receipts. Extends the built-in
+    JSON encoder for data structures.
+    """
 
     def default(self, obj):
+        """ Overrides the built-in method of JSON encoders according to the needs of this library
+        """
         try:
             uuid = obj.header['uuid']
             timestamp = obj.header['timestamp']
