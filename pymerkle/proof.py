@@ -63,18 +63,6 @@ class proof(object):
             encoding,
             proof_index,
             proof_path):
-        """
-        :param generation  : <str>  Will be `SUCCESS` or `FAILURE` (plus an explanation message), according to whether
-                                    or not a proof can be provided for the parameters provided from Client Side (cf.
-                                    the tree.audit_proof() and tree.consistency_proof() functions to
-                                    understand failure cases)
-        :provider          : <str>  id of the the merkle-tree providing the proof
-        :param hash_type   : <str>  hash type of the merkle-tree providing the proof
-        :param encoding    : <str>  encoding type of the merkle-tree providing the proof
-        :param security    : <bool> security mode of the merkle-tree providing the proof
-        :param proof_index : <int>  position where the validation procedure should start from
-        :param proof_path  : <list  [of (+1/-1, <str>)]> path of the signed hashes provided
-        """
         self.header = {
             'uuid': str(uuid.uuid1()),    # Time based proof id
             'generation': generation,
@@ -93,6 +81,12 @@ class proof(object):
         }
 
     def __repr__(self):
+        """Overrides the default implementation.
+
+        Sole purpose of this function is to easy print info about a proof by just invoking it at console.
+
+        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
+        """
 
         return '\n    ----------------------------------- PROOF ------------------------------------\
                 \n\

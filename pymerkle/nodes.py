@@ -55,7 +55,7 @@ class node(object):
     def __repr__(self):
         """Overrides the default implementation.
 
-        Sole purpose of this function is to easy print info about a node by just invoking the node it at console.
+        Sole purpose of this function is to easy print info about a node by just invoking it at console.
 
         .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
         """
