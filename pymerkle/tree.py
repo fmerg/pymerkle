@@ -24,27 +24,27 @@ class merkle_tree(object):
     :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
                          hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with '-' instead of '_'
                          allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
-    :type hash_type:
+    :type hash_type: str
     :param encoding: <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
                          encodings.ENCODINGS global variable, otherwise an exception is thrown;
                          defaults to `utf_8` if unspecified
-    :type encoding:
+    :type encoding: str
     :param security: <bool> configures security mode of the underlying hash machine, i.e., defense against
                          second-preimage attack; genuinely activated only for the default values of the
                          hash and ecoding types (SHA256, resp. UTF-8)
-    :type security:
+    :type security: bool
     :param *records: <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
                          usually empty at construction
     :type *records:
     :param log_dir: <str>  absolute path of the directory, where the merkle-tree will receive the log files
                          to encrypt from; defaults to the current working directory if unspecified
-    :type log_dir:
+    :type log_dir: str
     :param leaves: <None>
-    :type leaves:
+    :type leaves: list of ``nodes.leaf``
     :param nodes: <None>
-    :type nodes:
+    :type nodes: set of ``nodes.node``
     :param root: <None>
-    :type root:
+    :type root: nodes.node
 
     or
     :param hash_type : <str>              see above
@@ -54,6 +54,27 @@ class merkle_tree(object):
     :param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
     :param nodes     : <set [of <node>]>  initial nodes of the tree under construction
     :param root      : <node>             root of the tree under construction
+
+    :ivar uuid:       (*builtin_function_or_method*) Hash algorithm used by the machine. Defaults to SHA256.
+    :ivar machine:    (*str*) Encoding type used by the machine while hashing. Defaults to UTF-8.
+    :ivar hash_type:  (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar encoding:   (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar security:   (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar hash:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar multi_hash: (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar log_dir:    (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar leaves:     (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar nodes:      (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
+    :ivar root:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
+                      default values of hash and encoding types). Defaults to ``True``.
     """
 
     def __init__(
@@ -99,7 +120,6 @@ class merkle_tree(object):
             self.leaves, self.nodes, self.root = leaves, nodes, root
 
 # --------------------------- Boolean implementation ---------------------
-
 
     def __bool__(self):
         """Overrides the default implementation
@@ -678,4 +698,3 @@ class merkleTreeEncoder(json.JSONEncoder):
                 'nodes': [node.serialize() for node in nodes],
                 'root': root
             }
-# -------------------------------- End of code ---------------------------
