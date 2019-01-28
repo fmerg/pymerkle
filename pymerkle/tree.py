@@ -63,7 +63,7 @@ class merkle_tree(object):
             encoding='utf-8',
             security=True,
             log_dir=os.getcwd(),
-            leaves=None,*records
+            leaves=None,
             nodes=None,
             root=None):
         self.uuid = str(uuid.uuid1())
@@ -101,13 +101,13 @@ class merkle_tree(object):
 # --------------------------- Boolean implementation ---------------------
 
 
-def __bool__(self):
-    """Overrides the default implementation
+    def __bool__(self):
+        """Overrides the default implementation
 
-    :returns: ``False`` iff the Merkle-Tree has no nodes
-    :rtype:   bool
-    """
-    return bool(self.nodes)
+        :returns: ``False`` iff the Merkle-Tree has no nodes
+        :rtype:   bool
+        """
+        return bool(self.nodes)
 
 # ------------------------------------ Root ------------------------------
 
