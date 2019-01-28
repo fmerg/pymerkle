@@ -52,7 +52,7 @@ class hash_machine(object):
     :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine. Defaults to SHA256.
     :ivar ENCODING:       (*str*) Encoding type used by the machine while hashing. Defaults to UTF-8.
     :ivar SECURITY:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
-                          default values of hash and encoding types). Defaults to ``'True'``.
+                          default values of hash and encoding types). Defaults to ``True``.
     """
 
     # -------------------------------- Construction --------------------------
