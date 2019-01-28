@@ -1,3 +1,6 @@
+"""
+Provides the main class for Merkle-Tree objects and related functionalites
+"""
 from .hashing import hash_machine
 from .nodes import node, leaf
 from .proof import proof
@@ -7,13 +10,41 @@ import uuid
 import os
 import logging
 
-# Console log messages configuration
-logging.basicConfig(format='%(levelname)s: %(message)s')
+logging.basicConfig(format='%(levelname)s: %(message)s') # Console messages configuration
 
 # -------------------------------- Main class ----------------------------
 
 
 class merkle_tree(object):
+    """Class for Merkle-Trees
+
+    May be called in either of the following two ways:
+    :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
+                         hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with '-' instead of '_'
+                         allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
+    :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
+                         encodings.ENCODINGS global variable, otherwise an exception is thrown;
+                         defaults to `utf_8` if unspecified
+    :param security : <bool> configures security mode of the underlying hash machine, i.e., defense against
+                         second-preimage attack; genuinely activated only for the default values of the
+                         hash and ecoding types (SHA256, resp. UTF-8)
+    :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
+                         usually empty at construction
+    :param log_dir  : <str>  absolute path of the directory, where the merkle-tree will receive the log files
+                         to encrypt from; defaults to the current working directory if unspecified
+    :param leaves   : <None>
+    :param nodes    : <None>
+    :param root     : <None>
+    or
+    :param hash_type : <str>              see above
+    :param encoding  : <str>              see above
+    :param security  : <bool>             see above
+    :param log_dir   : <str>              see above
+    :param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
+    :param nodes     : <set [of <node>]>  initial nodes of the tree under construction
+    :param root      : <node>             root of the tree under construction
+    NOTE: The constructor is nowhere within this library called in the second way
+    """
 
     def __init__(
             self,
@@ -25,35 +56,6 @@ class merkle_tree(object):
             leaves=None,
             nodes=None,
             root=None):
-        """
-        Constructor of merkle_tree objects
-        May be called in either of the following two ways:
-        :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
-                                 hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with '-' instead of '_'
-                                 allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
-        :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
-                                 encodings.ENCODINGS global variable, otherwise an exception is thrown;
-                                 defaults to `utf_8` if unspecified
-        :param security : <bool> configures security mode of the underlying hash machine, i.e., defense against
-                                 second-preimage attack; genuinely activated only for the default values of the
-                                 hash and ecoding types (SHA256, resp. UTF-8)
-        :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
-                                 usually empty at construction
-        :param log_dir  : <str>  absolute path of the directory, where the merkle-tree will receive the log files
-                                 to encrypt from; defaults to the current working directory if unspecified
-        :param leaves   : <None>
-        :param nodes    : <None>
-        :param root     : <None>
-        or
-        :param hash_type : <str>              see above
-        :param encoding  : <str>              see above
-        :param security  : <bool>             see above
-        :param log_dir   : <str>              see above
-        :param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
-        :param nodes     : <set [of <node>]>  initial nodes of the tree under construction
-        :param root      : <node>             root of the tree under construction
-        NOTE: The constructor is nowhere within this library called in the second way
-        """
         self.uuid = str(uuid.uuid1())
 
         # Hash and encoding type configuration
@@ -88,9 +90,10 @@ class merkle_tree(object):
 
 # ------------------------- Representation formatting --------------------
 
+
     def __repr__(self):
 
-        return '\n    uuid      : {id}\
+        return '\n    uuid      : {uuid}\
                 \n\
                 \n    hash-type : {hash_type}\
                 \n    encoding  : {encoding}\
@@ -117,19 +120,22 @@ class merkle_tree(object):
             height=self.height())
 
     def height(self):
-        """
-        :returns : <int> current height of the tree (equal to depth of the leftmost leaf)
+        """Calculates and returns the Merkle-Tree current height
+
+        Since the tree is binary balanced by construction, its height coincides
+        with the length of its leftmost branch.
+
+        :rtype: int
         """
         length = len(self.leaves)
-        if length:
-            if length != 2**log_2(length):  # length is not a power of 2
-                return log_2(length) + 1
-            return log_2(length)
+        if length > 0:
+            return log_2(length) + 1 if length != 2**log_2(length) else log_2(length)
         return 0
 
     def length(self):
-        """
-        :returns : <int> current length of the tree (i.e., the number of its leaves)
+        """Returns the Merkle-Tree current height (i.e., the nuber of its leaves)
+
+        :rtype: int
         """
         return len(self.leaves)
 
@@ -162,18 +168,20 @@ class merkle_tree(object):
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
-        """
-        Returns False iff the tree has no nodes, True otherwise
-        :returns : <bool>
+        """Overrides the default implementation
+
+        :returns: ``False`` iff the Merkle-Tree has no nodes
+        :rtype:   bool
         """
         return bool(self.nodes)
 
 # ------------------------------------ Root ------------------------------
 
     def root_hash(self):
-        """
-        Returns top-hash of the merkle-tree (i.e., the hash of its current root)
-        :returns : <str> (valid hex) or None (if the tree is empty)
+        """Returns current top-hash of the Merkle-Tree,i.e., the hash stored by its current root
+
+        :returns: The tree's current root hash in hexadecimal form
+        :rtype: str
         """
         if self:
             return self.root.hash

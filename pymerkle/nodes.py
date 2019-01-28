@@ -134,7 +134,7 @@ class node(object):
 
         :returns: ``True`` iff the node is the ``.left`` attribute of some other
                   node inside the containing Merkle-Tree
-        :rtype: bool
+        :rtype:   bool
         """
         if self.child is not None:
             return self == self.child.left
@@ -145,7 +145,7 @@ class node(object):
 
         :returns: ``True`` iff the node is the ``.right`` attribute of some other
                   node inside the containing Merkle-Tree
-        :rtype: bool
+        :rtype:   bool
         """
         if self.child is not None:
             return self == self.child.right
@@ -162,8 +162,8 @@ class node(object):
 
         :param degree: depth of descendancy. Must be non-negative
         :type degree:  int
-        :returns: the descendant corresdponding to the requested depth
-        :rtype: nodes.node
+        :returns:      the descendant corresdponding to the requested depth
+        :rtype:        nodes.node
 
         .. note:: Returns ``None`` if the requested depth of dependancy exceeds possibilities
         """
@@ -234,8 +234,8 @@ class leaf(node):
 
 
 class nodeEncoder(json.JSONEncoder):
-    """Extends the built-in JSON encoder for data structures. Used implicitely in the JSON
-    serialization of nodes.
+    """Used implicitely in the JSON serialization of nodes. Extends the built-in
+    JSON encoder for data structures.
     """
 
     def default(self, obj):
