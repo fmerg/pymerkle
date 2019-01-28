@@ -19,26 +19,24 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 class merkle_tree(object):
     """Class for Merkle-Trees
 
-    ..note :: Cf. the *API* to see how this constructor should actually be called externally by a user
+    .. note:: Cf. the *API* to see how this constructor should actually be called externally by a user
 
-    :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
-                         hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with '-' instead of '_'
-                         allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
-    :type hash_type: str
-    :param encoding: <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
-                         encodings.ENCODINGS global variable, otherwise an exception is thrown;
-                         defaults to `utf_8` if unspecified
-    :type encoding: str
-    :param security: <bool> configures security mode of the underlying hash machine, i.e., defense against
-                         second-preimage attack; genuinely activated only for the default values of the
-                         hash and ecoding types (SHA256, resp. UTF-8)
-    :type security: bool
-    :param *records: <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
-                         usually empty at construction
-    :type *records:
-    :param log_dir: <str>  absolute path of the directory, where the merkle-tree will receive the log files
-                         to encrypt from; defaults to the current working directory if unspecified
-    :type log_dir: str
+    :param hash_type: [optional] Defaults to 'sha256'. Should be included in hash_machine.HASH_TYPES (upper-
+                      or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
+    :type hash_type:  str
+    :param encoding:  [optional] Defaults to 'utf_8'. Should be included in hash_machine.ENCODINGS (upper-
+                      or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
+    :type encoding:   str
+    :param security:  [optional] Defaults to ``True``. Activates defense against second-preimage attack
+                      (genuinely activated only for the default values of hash and encoding types)
+    :type security:   bool
+    :param *records:  [optional] The records initially stored by the Merkle-Tree; usually empty at construction.
+                      If given, the is constructed with as many leafs from the beginning, storing the hashes
+                      of the inserted records in the respective order.
+    :type *records:   str or bytes or bytearray
+    :param log_dir:   [optional] Absolute path of the directory, where the Merkle-Tree will receive log files
+                      to encrypt from. Defaults to the current working directory if unspecified
+    :type log_dir:    str
     :param leaves: <None>
     :type leaves: list of ``nodes.leaf``
     :param nodes: <None>
@@ -83,10 +81,7 @@ class merkle_tree(object):
             hash_type='sha256',
             encoding='utf-8',
             security=True,
-            log_dir=os.getcwd(),
-            leaves=None,
-            nodes=None,
-            root=None):
+            log_dir=os.getcwd()):
         self.uuid = str(uuid.uuid1())
 
         # Hash and encoding type configuration
@@ -113,11 +108,11 @@ class merkle_tree(object):
         self.nodes = set()
 
         # tree construction
-        if not leaves and not nodes and not root:
-            for record in records:
-                self.update(record)
-        else:  # Leaves, nodes and root specified by insertion
-            self.leaves, self.nodes, self.root = leaves, nodes, root
+        # if not leaves and not nodes and not root:
+        for record in records:
+            self.update(record)
+        # else:  # Leaves, nodes and root specified by insertion
+        #     self.leaves, self.nodes, self.root = leaves, nodes, root
 
 # --------------------------- Boolean implementation ---------------------
 

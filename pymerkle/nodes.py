@@ -195,7 +195,7 @@ class node(object):
 
         :rtype: dict
 
-        .. note:: The ``.child`` attribute is excluded so that ``ValueError`` to be avoided
+        .. note:: The ``.child`` attribute is excluded in order for circular reference error to be avoided
         """
         encoder = nodeEncoder()
         return encoder.default(self)
@@ -242,7 +242,7 @@ class nodeEncoder(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library.
 
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
-                  for ``ValueError`` to be avoided.
+                  for circular reference error to be avoided.
         """
         try:
             left, right = obj.left, obj.right
