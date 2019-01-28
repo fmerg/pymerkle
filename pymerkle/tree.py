@@ -10,7 +10,8 @@ import uuid
 import os
 import logging
 
-logging.basicConfig(format='%(levelname)s: %(message)s') # Console messages configuration
+# Console messages configuration
+logging.basicConfig(format='%(levelname)s: %(message)s')
 
 # -------------------------------- Main class ----------------------------
 
@@ -18,23 +19,33 @@ logging.basicConfig(format='%(levelname)s: %(message)s') # Console messages conf
 class merkle_tree(object):
     """Class for Merkle-Trees
 
-    May be called in either of the following two ways:
+    ..note :: Cf. the *API* to see how this constructor should actually be called externally by a user
+
     :param hash_type: <str>  hash algorithm configuration. Must be among the hard-coded strings contained in the
                          hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with '-' instead of '_'
                          allowed), otherwise an exception is thrown; defaults to 'sha256' if unspecified.
-    :param encoding : <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
+    :type hash_type:
+    :param encoding: <str>  encoding algorithm configuration. Must be among the hard-coded elements of the
                          encodings.ENCODINGS global variable, otherwise an exception is thrown;
                          defaults to `utf_8` if unspecified
-    :param security : <bool> configures security mode of the underlying hash machine, i.e., defense against
+    :type encoding:
+    :param security: <bool> configures security mode of the underlying hash machine, i.e., defense against
                          second-preimage attack; genuinely activated only for the default values of the
                          hash and ecoding types (SHA256, resp. UTF-8)
-    :param *records : <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
+    :type security:
+    :param *records: <str>  or <bytes> or <bytearray>; thought of as the records initially stored by the tree,
                          usually empty at construction
-    :param log_dir  : <str>  absolute path of the directory, where the merkle-tree will receive the log files
+    :type *records:
+    :param log_dir: <str>  absolute path of the directory, where the merkle-tree will receive the log files
                          to encrypt from; defaults to the current working directory if unspecified
-    :param leaves   : <None>
-    :param nodes    : <None>
-    :param root     : <None>
+    :type log_dir:
+    :param leaves: <None>
+    :type leaves:
+    :param nodes: <None>
+    :type nodes:
+    :param root: <None>
+    :type root:
+
     or
     :param hash_type : <str>              see above
     :param encoding  : <str>              see above
@@ -43,7 +54,6 @@ class merkle_tree(object):
     :param leaves    : <list [of <leaf>]> initial leaves of the tree under construction
     :param nodes     : <set [of <node>]>  initial nodes of the tree under construction
     :param root      : <node>             root of the tree under construction
-    NOTE: The constructor is nowhere within this library called in the second way
     """
 
     def __init__(
@@ -53,7 +63,7 @@ class merkle_tree(object):
             encoding='utf-8',
             security=True,
             log_dir=os.getcwd(),
-            leaves=None,
+            leaves=None,*records
             nodes=None,
             root=None):
         self.uuid = str(uuid.uuid1())
@@ -88,92 +98,16 @@ class merkle_tree(object):
         else:  # Leaves, nodes and root specified by insertion
             self.leaves, self.nodes, self.root = leaves, nodes, root
 
-# ------------------------- Representation formatting --------------------
-
-
-    def __repr__(self):
-
-        return '\n    uuid      : {uuid}\
-                \n\
-                \n    hash-type : {hash_type}\
-                \n    encoding  : {encoding}\
-                \n    security  : {security}\
-                \n\
-                \n    root-hash : {root_hash}\
-                \n\
-                \n    size      : {size}\
-                \n    length    : {length}\
-                \n    height    : {height}\n' .format(
-            uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace(
-                '_',
-                '-'),
-            encoding=self.encoding.upper().replace(
-                '_',
-                '-'),
-            security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.root_hash(),
-            size=len(
-                self.nodes),
-            length=len(
-                self.leaves),
-            height=self.height())
-
-    def height(self):
-        """Calculates and returns the Merkle-Tree current height
-
-        Since the tree is binary balanced by construction, its height coincides
-        with the length of its leftmost branch.
-
-        :rtype: int
-        """
-        length = len(self.leaves)
-        if length > 0:
-            return log_2(length) + 1 if length != 2**log_2(length) else log_2(length)
-        return 0
-
-    def length(self):
-        """Returns the Merkle-Tree current height (i.e., the nuber of its leaves)
-
-        :rtype: int
-        """
-        return len(self.leaves)
-
-    def __str__(self, indent=3):
-        """
-        Designed so that printing the tree displays it in a terminal friendly way; in particular,
-        printing the tree at console is similar to what you get by running the `tree` command on
-        Unix based platforms.
-        NOTE: In the current implementation, the left parent of each node is printed *above* the right
-        one (cf. the recursive implementation nodes.node.__str__() function to understand why)
-        :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
-                              the tree will be indented with respect to the previous one; increase it to
-                              achieve better visibility of the tree's structure
-        :returns      : <str>
-        """
-        if self:
-            return self.root.__str__(indent=indent)
-        return ''
-
-    def display(self, indent=3):
-        """
-        Sole purpose of this print() like function is to parametrize the depth at which each level of
-        the printed tree will be indented with respect to the previous one; increase it to achieve
-        better visibility of the tree's structure
-        :param indent : <int> optional (defaults to 3), the horizontal depth at which each level of
-                              the tree will be indented with respect to the previous one;
-        """
-        print(self.__str__(indent=indent))
-
 # --------------------------- Boolean implementation ---------------------
 
-    def __bool__(self):
-        """Overrides the default implementation
 
-        :returns: ``False`` iff the Merkle-Tree has no nodes
-        :rtype:   bool
-        """
-        return bool(self.nodes)
+def __bool__(self):
+    """Overrides the default implementation
+
+    :returns: ``False`` iff the Merkle-Tree has no nodes
+    :rtype:   bool
+    """
+    return bool(self.nodes)
 
 # ------------------------------------ Root ------------------------------
 
@@ -187,13 +121,104 @@ class merkle_tree(object):
             return self.root.hash
         return None
 
-# ------------------------------- Updating tools --------------------------
+# ------------------------------- Representation -------------------------
+
+    def __repr__(self):
+        """Overrides the default implementation.
+
+        Sole purpose of this function is to easy print info about the Merkle-Treee by just invoking it at console.
+
+        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
+        """
+
+        return '\n    uuid      : {uuid}\
+                \n\
+                \n    hash-type : {hash_type}\
+                \n    encoding  : {encoding}\
+                \n    security  : {security}\
+                \n\
+                \n    root-hash : {root_hash}\
+                \n\
+                \n    size      : {size}\
+                \n    length    : {length}\
+                \n    height    : {height}\n' .format(
+            uuid=self.uuid,
+            hash_type=self.hash_type.upper().replace('_', '-'),
+            encoding=self.encoding.upper().replace('_', '-'),
+            security='ACTIVATED' if self.security else 'DEACTIVATED',
+            root_hash=self.root_hash(),
+            size=len(self.nodes),
+            length=len(self.leaves),
+            height=self.height())
+
+    def length(self):
+        """Returns the Merkle-Tree's current length (i.e., the nuber of its leaves)
+
+        :rtype: int
+        """
+        return len(self.leaves)
+
+    def size(self):
+        """Returns the current number of the Merkle-Tree's nodes
+
+        :rtype: int
+        """
+        return len(self.nodes)
+
+    def height(self):
+        """Calculates and returns the Merkle-Tree's current height
+
+        Since the tree is by construction binary balanced, its height coincides
+        with the length of its leftmost branch.
+
+        :rtype: int
+        """
+        length = len(self.leaves)
+        if length > 0:
+            return log_2(length) + \
+                1 if length != 2**log_2(length) else log_2(length)
+        return 0
+
+    def __str__(self, indent=3):
+        """Overrides the default implementation.
+
+        Designed so that inserting the Merkle-Tree as an argument to ``print()`` displays it in a terminal
+        friendly way. In particular, printing the tree is similar to what is printed at console when running
+        the ``tree`` command of Unix based platforms.
+
+        :param indent: [optional] The horizontal depth at which each level will be indented with respect to
+                       its previous one. Defaults to ``3``.
+        :type indent:  int
+        :rtype: str
+
+        .. note: The left parent of each node is printed *above* the right one
+        """
+        if self:
+            return self.root.__str__(indent=indent)
+        return ''
+
+    def display(self, indent=3):
+        """Prints the Merkle-Tree in a terminal friendy way
+
+        Printing the tree is similar to what is printed at console when running the ``tree`` command of
+        Unix based platforms.
+
+        :param indent: [optional] The horizontal depth at which each level will be indented with respect to
+                       its previous one. Defaults to ``3``.
+        :type indent:  int
+
+        .. note: The left parent of each node is printed *above* the right one
+        """
+        print(self.__str__(indent=indent))
+
+# ---------------------------------- Updating ----------------------------
 
     def update(self, record):
-        """
-        Updates the tree by storing the hash of the inserted record in a newly created leaf, restructuring
-        the tree appropriately and recalculating all necessary interior hashes
-        :param record : <str> or <bytes> or <bytearray>
+        """Updates the Merkle-Tree by storing the hash of the inserted record in a newly created leaf,
+        restructuring the tree appropriately and recalculating all necessary interior hashes
+
+        :param record: the record whose hash is to be stored in a the leaf
+        :type record: str or bytes or bytearray
         """
         if self:
 
@@ -245,12 +270,14 @@ class merkle_tree(object):
                 new_leaf], set([new_leaf]), new_leaf
 
     def encrypt_log(self, log_file):
-        """
-        Encrypts the data of the provided log-file into the merkle-tree.
+        """Encrypts the data of the provided log-file into the Merkle-Tree.
+
         More accurately, it updates the tree by successively updating it with each line
-        of the log-file provided.
-        :param log_file : <str> relative path of the log-file under enryption, specified
-                                with respect to the tree's root directory `log_dir`
+        of the log-file provided (cf. doc of the ``.update`` method)
+
+        :param log_file: relative path of the log-file under enryption, specified with respect
+                         to the Merkle-Tree's directory ``log_dir``
+        :type log_file:  str
         """
         try:
             for line in open(os.path.join(self.log_dir, log_file), 'rb'):
@@ -585,18 +612,34 @@ class merkle_tree(object):
         # Subroot successfully detected
         return subroot
 
-# ------------------------------ JSON formatting -------------------------
+# ---------------------------------- Clearance ---------------------------
+
+    def clear(self):
+        """Deletes all nodes of the tree
+        """
+        self.leaves = []
+        self.nodes = set()
+        self.root = None
+
+# ----------------------------- JSON serialization -----------------------
 
     def serialize(self):
-        """
-        :returns : <dict>
+        """ Returns a JSON structure with the Merkle-Trees's current characteristics as key-value pairs
+
+        :rtype: dict
+
+        .. note:: This method does *not* serialize the tree structure itself, but only the info
+                  about the tree's current state
         """
         encoder = merkleTreeEncoder()
         return encoder.default(self)
 
     def JSONstring(self):
-        """
-        :returns : <str>
+        """Returns a nicely stringified version of the Merkle-Tree's JSON serialized form
+
+        .. note:: The output of this function is to be passed in the ``print()`` function
+
+        :rtype: str
         """
         return json.dumps(
             self,
@@ -604,22 +647,17 @@ class merkle_tree(object):
             sort_keys=True,
             indent=4)
 
-# ---------------------------------- Clearance ---------------------------
-
-    def clear(self):
-        """
-        Deletes all nodes of the tree (retaining however its hashing configutation)
-        """
-        self.leaves = []
-        self.nodes = set()
-        self.root = None
-
 # ------------------------------- JSON encoders --------------------------
 
 
 class merkleTreeEncoder(json.JSONEncoder):
+    """Used implicitely in the JSON serialization of Merkle-Trees. Extends the built-in
+    JSON encoder for data structures.
+    """
 
     def default(self, obj):
+        """ Overrides the built-in method of JSON encoders according to the needs of this library
+        """
         try:
             uuid = obj.uuid
             hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security

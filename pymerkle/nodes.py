@@ -25,7 +25,7 @@ class node(object):
                           is meant to be a leaf
     :type right:          nodes.node
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          attribute of the Merkle-Tree's hashing machine
+                          attribute of the containing Merkle-Tree's hash machine
     :type hash_function:  method
 
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
@@ -33,8 +33,8 @@ class node(object):
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
     :ivar hash:          (*str*) The hash currently stored by the node (hex)
     :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes
-                         it is equal to the ``.hash`` attribute of the Merkle-Tree's hashing machine. For
-                         leafs it is ``None`` (no hash re-calculation case)
+                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree's hash machine.
+                         For leafs it is ``None`` (no hash re-calculation case)
     """
 
     def __init__(self, hash_function, record=None, left=None, right=None):
@@ -94,7 +94,7 @@ class node(object):
         :type ignore:  list of integers
         :rtype: str
 
-        .. note: In the current implementation, the left parent of each node is printed *above* the right one
+        .. note: The left parent of each node is printed *above* the right one
         """
         if level == 0:
             output = '\n'
@@ -191,7 +191,7 @@ class node(object):
 
 
     def serialize(self):
-        """ Returns a structure with the node's attributes as key-value pairs
+        """ Returns a JSON structure with the node's attributes as key-value pairs
 
         :rtype: dict
 
@@ -218,7 +218,7 @@ class leaf(node):
     :param record:        the record to be encrypted within the leaf
     :type record:         str or bytes or bytearray
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
-                          attribute of the Merkle-Tree's hashing machine
+                          attribute of the containing Merkle-Tree's hash machine
     :type hash_function:  method
     """
 
