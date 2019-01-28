@@ -9,4 +9,4 @@ build/
 dist/
 
 # Docs
-docs/*
+/docs
