@@ -3,7 +3,7 @@ import pytest
 from pymerkle import merkle_tree, hashing
 from pymerkle.hashing import hash_machine
 
-HASH_TYPES = hashing.HASH_TYPES
+HASH_TYPES = (hashing.HASH_TYPES)
 ENCODINGS = hashing.ENCODINGS
 
 

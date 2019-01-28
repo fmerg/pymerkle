@@ -1,4 +1,4 @@
-ENCODINGS = [
+ENCODINGS = (
     'euc_jisx0213',
     'euc_kr',
     'ptcp154',
@@ -88,4 +88,4 @@ ENCODINGS = [
     'euc_jp',
     'utf_16_be',
     'cp1253',
-    'iso2022_jp']
+    'iso2022_jp')

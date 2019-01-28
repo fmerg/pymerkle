@@ -1,4 +1,6 @@
-"""Contains math and format utils invoked across the library"""
+"""
+Contains math and format utils invoked across the library
+"""
 
 import math
 
