@@ -342,7 +342,7 @@ class merkle_tree(object):
                       (provided from Client's Side directly or indirectly in form of a record;
                       cf. the ``.audit_proof`` method).
         :type index:  int
-        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, str)*), the sign ``+`` or ``-``
+        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, str)*), the sign ``+1`` or ``-1``
                       indicating pairing with the right or left neighbour during proof validation respectively,
                       along with the starting point for application of hashing during proof validation.
         :rtype:       (int, tuple)
@@ -454,8 +454,8 @@ class merkle_tree(object):
         :returns:         the starting point for application of hashing during proof validation, a tuple of
                           hashes signed with ``-`` (leftmost hashes for inclusion test to be performed from
                           the Server's Side, i.e., by the Merkle-Tree itself) and a tuple of signed hashes
-                          for top-hash test to be performed from the Client's Side (the sign ``+``, resp.
-                          ``-`` indicating pairing with the right or left neigbour respectively during
+                          for top-hash test to be performed from the Client's Side (the sign ``+1``, resp.
+                          ``-1`` indicating pairing with the right or left neigbour respectively during
                           proof validation).
         :rtype:           (int, tuple, tuple)
 
@@ -493,9 +493,15 @@ class merkle_tree(object):
 
     def minimal_complement(self, subroots):
         """
-        :param subroots:
+        Complements optimally the subroot hashes detected by ``.principal_subroots``
+        with all necessary interior hashes of the Merkle-Tree, so that a full
+        consistency-path cN be generated
+
+        :param subroots: Should be some output of the ``.principal_subroots`` method
         :type subroots:  list of nodes.node
-        :returns:
+        :returns:        a list of signed hashes complementing optimally the hashes
+                         detected by ``.principal_subroots``, so that a full
+                         consistency-path be generated
         :rtype:          list of signed pairs *(+1/-1, str)*
         """
         if len(subroots) != 0:
@@ -516,15 +522,30 @@ class merkle_tree(object):
 
     def principal_subroots(self, sublength):
         """
-        Returns in corresponding order the roots of the successive *full* binary subtrees of maximum
-        (and thus decreasing) length, whose lengths sum up to the inserted argument `sublength`
+        Detects and returns in corresponding order the roots of the *successive*,
+        *rightmost*, *full* binary subtrees of maximum (and thus decreasing)
+        length, whose lengths sum up to the inserted argument.
 
-        :param sublength:
+        Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying
+        information used in consistency-proof generation after extracting hashes.
+
+        :param sublength: Should be an integer satisfying the following *compatibility* condition:
+                          if the Merkle-Tree's current length decomposes additively as
+
+                          ``2 ^ (p_1) + ... + 2 ^ (p_m), p_1 > ... > p_m >= 0``
+
+                          in decreasing powers of ``2``, then ``sublength`` is of the form
+
+                          ``2 ^ (p_1) + ... + 2 ^ (p_n)``
+
+                          for some ``1 <= n <= m``.
         :type sublength:  int
-        :returns:
+        :returns:         The (signed) roots of the detected subtrees, whose hashes
+                          are to be used for the generation of consistency-proofs
         :rtype:           list of *(+1/-1, nodes.node)*
 
-        .. note:: Returns ``None`` in case of incompatibility
+        .. note:: Returns ``None`` in case of *incompatibility*, i.e., if the provided
+                  ``sublength`` does not fulfill the required condition
         """
 
         if sublength == 0:

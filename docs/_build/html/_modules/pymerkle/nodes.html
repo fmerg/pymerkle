@@ -82,7 +82,7 @@
 <span class="sd">                          is meant to be a leaf</span>
 <span class="sd">    :type right:          nodes.node</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption. Should be the ``.hash``</span>
-<span class="sd">                          attribute of the containing Merkle-Tree&#39;s hash machine</span>
+<span class="sd">                          attribute of the containing Merkle-Tree</span>
 <span class="sd">    :type hash_function:  method</span>
 
 <span class="sd">    :ivar left:          (*nodes.node*) The node&#39;s left parent. Defaults to ``None`` if the node is a leaf</span>
@@ -90,8 +90,8 @@
 <span class="sd">    :ivar child:         (*nodes.node*) The node&#39;s child parent. Defaults to ``None`` if the node is a root</span>
 <span class="sd">    :ivar hash:          (*str*) The hash currently stored by the node (hex)</span>
 <span class="sd">    :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes</span>
-<span class="sd">                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree&#39;s hash machine.</span>
-<span class="sd">                         For leafs it is ``None`` (no hash re-calculation case)</span>
+<span class="sd">                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree. For leaf nodes</span>
+<span class="sd">                         it is ``None`` (no hash re-calculation case)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hash_function</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -275,7 +275,7 @@
 <span class="sd">    :param record:        the record to be encrypted within the leaf</span>
 <span class="sd">    :type record:         str or bytes or bytearray</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``</span>
-<span class="sd">                          attribute of the containing Merkle-Tree&#39;s hash machine</span>
+<span class="sd">                          attribute of the containing Merkle-Tree</span>
 <span class="sd">    :type hash_function:  method</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

@@ -399,7 +399,7 @@
 <span class="sd">                      (provided from Client&#39;s Side directly or indirectly in form of a record;</span>
 <span class="sd">                      cf. the ``.audit_proof`` method).</span>
 <span class="sd">        :type index:  int</span>
-<span class="sd">        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, str)*), the sign ``+`` or ``-``</span>
+<span class="sd">        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, str)*), the sign ``+1`` or ``-1``</span>
 <span class="sd">                      indicating pairing with the right or left neighbour during proof validation respectively,</span>
 <span class="sd">                      along with the starting point for application of hashing during proof validation.</span>
 <span class="sd">        :rtype:       (int, tuple)</span>
@@ -511,8 +511,8 @@
 <span class="sd">        :returns:         the starting point for application of hashing during proof validation, a tuple of</span>
 <span class="sd">                          hashes signed with ``-`` (leftmost hashes for inclusion test to be performed from</span>
 <span class="sd">                          the Server&#39;s Side, i.e., by the Merkle-Tree itself) and a tuple of signed hashes</span>
-<span class="sd">                          for top-hash test to be performed from the Client&#39;s Side (the sign ``+``, resp.</span>
-<span class="sd">                          ``-`` indicating pairing with the right or left neigbour respectively during</span>
+<span class="sd">                          for top-hash test to be performed from the Client&#39;s Side (the sign ``+1``, resp.</span>
+<span class="sd">                          ``-1`` indicating pairing with the right or left neigbour respectively during</span>
 <span class="sd">                          proof validation).</span>
 <span class="sd">        :rtype:           (int, tuple, tuple)</span>
 
@@ -550,9 +550,15 @@
 
 <div class="viewcode-block" id="merkle_tree.minimal_complement"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.minimal_complement">[docs]</a>    <span class="k">def</span> <span class="nf">minimal_complement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subroots</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param subroots:</span>
+<span class="sd">        Complements optimally the subroot hashes detected by ``.principal_subroots``</span>
+<span class="sd">        with all necessary interior hashes of the Merkle-Tree, so that a full</span>
+<span class="sd">        consistency-path cN be generated</span>
+
+<span class="sd">        :param subroots: Should be some output of the ``.principal_subroots`` method</span>
 <span class="sd">        :type subroots:  list of nodes.node</span>
-<span class="sd">        :returns:</span>
+<span class="sd">        :returns:        a list of signed hashes complementing optimally the hashes</span>
+<span class="sd">                         detected by ``.principal_subroots``, so that a full</span>
+<span class="sd">                         consistency-path be generated</span>
 <span class="sd">        :rtype:          list of signed pairs *(+1/-1, str)*</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subroots</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -573,15 +579,30 @@
 
 <div class="viewcode-block" id="merkle_tree.principal_subroots"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.principal_subroots">[docs]</a>    <span class="k">def</span> <span class="nf">principal_subroots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns in corresponding order the roots of the successive *full* binary subtrees of maximum</span>
-<span class="sd">        (and thus decreasing) length, whose lengths sum up to the inserted argument `sublength`</span>
+<span class="sd">        Detects and returns in corresponding order the roots of the *successive*,</span>
+<span class="sd">        *rightmost*, *full* binary subtrees of maximum (and thus decreasing)</span>
+<span class="sd">        length, whose lengths sum up to the inserted argument.</span>
 
-<span class="sd">        :param sublength:</span>
+<span class="sd">        Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying</span>
+<span class="sd">        information used in consistency-proof generation after extracting hashes.</span>
+
+<span class="sd">        :param sublength: Should be an integer satisfying the following *compatibility* condition:</span>
+<span class="sd">                          if the Merkle-Tree&#39;s current length decomposes additively as</span>
+
+<span class="sd">                          ``2 ^ (p_1) + ... + 2 ^ (p_m), p_1 &gt; ... &gt; p_m &gt;= 0``</span>
+
+<span class="sd">                          in decreasing powers of ``2``, then ``sublength`` is of the form</span>
+
+<span class="sd">                          ``2 ^ (p_1) + ... + 2 ^ (p_n)``</span>
+
+<span class="sd">                          for some ``1 &lt;= n &lt;= m``.</span>
 <span class="sd">        :type sublength:  int</span>
-<span class="sd">        :returns:</span>
+<span class="sd">        :returns:         The (signed) roots of the detected subtrees, whose hashes</span>
+<span class="sd">                          are to be used for the generation of consistency-proofs</span>
 <span class="sd">        :rtype:           list of *(+1/-1, nodes.node)*</span>
 
-<span class="sd">        .. note:: Returns ``None`` in case of incompatibility</span>
+<span class="sd">        .. note:: Returns ``None`` in case of *incompatibility*, i.e., if the provided</span>
+<span class="sd">                  ``sublength`` does not fulfill the required condition</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">sublength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
