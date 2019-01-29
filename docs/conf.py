@@ -82,12 +82,23 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if on_rtd:
+    html_theme = "default"
+else:
+    html_theme_path = ["_themes"]
+    html_theme = "sphinx_rtd_theme"
+
+html_theme_options = {}
+
 # html_theme = 'bootstrap-astropy'#'default'#'caktus'
 
-import caktus_theme
-html_theme = 'caktus'
-html_theme_path = [caktus_theme.get_theme_dir()]
-html_sidebars = caktus_theme.default_sidebars()
+# import caktus_theme
+# html_theme = 'caktus'
+# html_theme_path = [caktus_theme.get_theme_dir()]
+# html_sidebars = caktus_theme.default_sidebars()
 
 # html_theme = 'default'
 
