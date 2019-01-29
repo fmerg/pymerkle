@@ -11,26 +11,22 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, '/home/beast/projects/pymerkle/pymerkle')
 
 
 import os
 import sys
-sys.path.insert(0, '/home/beast/projects/pymerkle')
+sys.path.insert(0, '..')
 
 # -- Project information -----------------------------------------------------
 
 project = 'pymerkle'
-copyright = '2019, Author'
-author = 'Author'
+copyright = '2019, FoteinosMerg'
+author = 'FoteinosMerg'
 
 # The short X.Y version
-version = ''
+version = '0.1.3'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -46,7 +42,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     # 'sphinx.ext.todo',
-    'sphinx.ext.autodoc' # CHANGE_HERE
 ]
 
 # Add any paths that contain templates here, relative to this directory.
