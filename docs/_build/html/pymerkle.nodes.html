@@ -1,91 +1,80 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pymerkle.nodes module &#8212; pymerkle  documentation</title>
-    <link rel="stylesheet" href="_static/css/adctheme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/caktus.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
-    <meta name="generator" content="Sphinx/ADC Theme by Mirounga www.mirounga.fr"/>
+    <link rel="shortcut icon" href="_static/favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="pymerkle  documentation" href="index.html" />
-    <link rel="up" title="pymerkle package" href="pymerkle.html" />
     <link rel="next" title="pymerkle.proof module" href="pymerkle.proof.html" />
-    <link rel="prev" title="pymerkle.hashing module" href="pymerkle.hashing.html" />
-    <link media="only screen and (max-device-width: 480px)" href="_static/css/mobile.css" type="text/css" rel="stylesheet" /> 
+    <link rel="prev" title="pymerkle.hashing module" href="pymerkle.hashing.html" /> 
   </head><body>
-<div id="docstitle">
-    <p>pymerkle  documentation</p>
-</div>
-<div id="header">
-    <div id="title"><h1>pymerkle.nodes module</h1></div>
-    <ul id="headerButtons">
-        <li id="toc_button"><div class="headerButton"><a href="#">Table of Contents</a></div></li>
-        <li id="page_buttons">
-            <div class="headerButton"><a href="genindex.html" title="General Index" accesskey="I">index</a></div>
-            <div class="headerButton"><a href="py-modindex.html" title="Python Module Index" >modules</a></div>
-            <div class="headerButton"><a href="pymerkle.proof.html" title="pymerkle.proof module" accesskey="N">next</a></div>
-            <div class="headerButton"><a href="pymerkle.hashing.html" title="pymerkle.hashing module" accesskey="P">previous</a></div>
-        </li>
-    </ul>
-</div>
-
-<div id="sphinxsidebar">
-  <div class="sphinxsidebarwrapper">
-        <ul><li class="toctree-l1"><a href="index.html">Main Page</a></li></ul>
-        <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="pymerkle.html">pymerkle package</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymerkle.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="pymerkle.encodings.html">pymerkle.encodings module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymerkle.hashing.html">pymerkle.hashing module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pymerkle.nodes module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymerkle.proof.html">pymerkle.proof module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymerkle.tree.html">pymerkle.tree module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymerkle.utils.html">pymerkle.utils module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymerkle.validations.html">pymerkle.validations module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pymerkle.html#module-pymerkle">Module contents</a></li>
-</ul>
-</li>
-</ul>
-
-      <h3>This Page</h3>
-      <ul class="this-page-menu">
-        <li><a href="_sources/pymerkle.nodes.rst.txt"
-               rel="nofollow">Show Source</a></li>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pymerkle.proof.html" title="pymerkle.proof module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymerkle.hashing.html" title="pymerkle.hashing module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymerkle  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="pymerkle.html" accesskey="U">pymerkle package</a> &#187;</li> 
       </ul>
-    <div id="searchbox" style="display: none">
-        <form class="search" action="search.html" method="get">
-                        <div class="search-wrapper">
-                        <input type="submit" value="" class="search-left"/>
-                        <input class="prettysearch" type="text" name="q" size="18" title="Enter search terms or a module, class or function name."/>
-                        <span class="search-right">&nbsp;</span>
-                        </div>
-          <input type="hidden" name="check_keywords" value="yes" />
-          <input type="hidden" name="area" value="default" />
-        </form>
     </div>
-    <script type="text/javascript">$('#searchbox').show(0);</script>
-  </div>
-</div>
-
-
-
     <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+<h3>pymerkle</h3>
+<p class="tagline">''</p>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymerkle.hashing.html"
+                        title="previous chapter">pymerkle.hashing module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymerkle.proof.html"
+                        title="next chapter">pymerkle.proof module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymerkle.nodes.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+        <div class="documentwrapper">
+            <div class="bodywrapper">
+                <div class="body">
+                    
   <div class="section" id="module-pymerkle.nodes">
 <span id="pymerkle-nodes-module"></span><h1>pymerkle.nodes module<a class="headerlink" href="#module-pymerkle.nodes" title="Permalink to this headline">¶</a></h1>
 <p>Provides the base class for the Merkle-Tree’s nodes and an inheriting
@@ -114,7 +103,7 @@ attribute of the containing Merkle-Tree’s hash machine</li>
 <dt id="pymerkle.nodes.node">
 <em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">node</code><span class="sig-paren">(</span><em>hash_function</em>, <em>record=None</em>, <em>left=None</em>, <em>right=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base class for the nodes of Merkle-Tree</p>
+<p>Base class for the nodes of a Merkle-Tree</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -250,7 +239,7 @@ every time a new leaf is appended into the tree.</p>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal notranslate"><span class="pre">.child</span></code> attribute is excluded so that <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> to be avoided</p>
+<p class="last">The <code class="docutils literal notranslate"><span class="pre">.child</span></code> attribute is excluded in order for circular reference error to be avoided</p>
 </div>
 </dd></dl>
 
@@ -269,7 +258,7 @@ JSON encoder for data structures.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The <code class="docutils literal notranslate"><span class="pre">.child</span></code> attribute is excluded from JSON formatting of nodes in order
-for <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> to be avoided.</p>
+for circular reference error to be avoided.</p>
 </div>
 </dd></dl>
 
@@ -278,22 +267,33 @@ for <code class="docutils literal notranslate"><span class="pre">ValueError</spa
 </div>
 
 
-          </div> 
+                </div>
+            </div>
         </div>
-      </div>
+    <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pymerkle.proof.html" title="pymerkle.proof module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymerkle.hashing.html" title="pymerkle.hashing module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymerkle  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="pymerkle.html" >pymerkle package</a> &#187;</li> 
+      </ul>
+    </div>
     <div class="footer">
-    <p>
-      &copy; Copyright 2019, Author.
-      Created using <a href="http://www.sphinx-doc.org/">Sphinx</a> 1.8.3 <a href="https://github.com/mga-sphinx/sphinx_adc_theme">ADC Theme</a> .
-    (Revision )
-        </p>
+        &copy; <a href="http://www.caktusgroup.com/">Copyright 2019, Author</a>.
+        Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
     </div>
-      <div class="clearer"></div>
-    </div>
-        <div id="breadcrumbs">
-                <a href="pymerkle.html" accesskey="U">pymerkle package</a><img src="_static/img/triangle_closed.png" height="9" width="9" alt="&gt;">
-                pymerkle.nodes module
-        </div>
-        <script type="text/javascript" charset="utf-8" src="_static/js/toc.js"></script>
   </body>
 </html>

@@ -84,10 +84,10 @@ pygments_style = None
 
 # html_theme = 'bootstrap-astropy'#'default'#'caktus'
 
-# import caktus_theme
-# html_theme = 'caktus'
-# html_theme_path = [caktus_theme.get_theme_dir()]
-# html_sidebars = caktus_theme.default_sidebars()
+import caktus_theme
+html_theme = 'caktus'
+html_theme_path = [caktus_theme.get_theme_dir()]
+html_sidebars = caktus_theme.default_sidebars()
 
 # html_theme = 'default'
 
@@ -116,9 +116,9 @@ pygments_style = None
 # html_theme_path = [zerovm_sphinx_theme.theme_path]
 # html_theme = 'zerovm'
 
-import sphinx_adc_theme
-html_theme = "sphinx_adc_theme"
-html_theme_path = [sphinx_adc_theme.get_html_theme_path()]
+# import sphinx_adc_theme
+# html_theme = "sphinx_adc_theme"
+# html_theme_path = [sphinx_adc_theme.get_html_theme_path()]
 
 # ----------------------------------------------------------------------------
 # Theme options are theme-specific and customize the look and feel of a theme

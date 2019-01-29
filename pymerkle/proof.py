@@ -32,7 +32,7 @@ class proof(object):
     :param proof_path:  Path of signed hashes (provided by the Merkle-Tree)
     :type proof_path:   list of (+1/-1, str)
 
-    .. note:: Required Merkle-Tree parameters (``hash_type``, ``security``, ``encoding``) are necessary for
+    .. note:: Required Merkle-Tree parameters (``hash_type``, ``security`` and ``encoding``) are necessary for
               proof validation (cf. the ``validations`` module)
 
     :ivar header:                 (*dict*) Contains the keys *uuid*, *generation*, *timestamp*, *creation_moment*,

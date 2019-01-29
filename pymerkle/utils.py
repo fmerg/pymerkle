@@ -52,13 +52,7 @@ def stringify_path(signed_hashes):
     :type signed_hashes:  tuple of (+1/-1, str) pairs
     :rtype:               ``str``
 
-    :Example:
-
-    >>> from pymerkle.utils import stringify_path
-    >>> stringified_path = stringify_path(((+1, 'f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da'), (-1, '11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c'), (-1, 'a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02')))
-    >>> print(stringified_path)
-    '\n       [0]   +1  f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da\n       [1]   -1  11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c\n       [2]   -1  a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02'
-    >>>
+    .. note:: The output of this function is to be passed into the ``print()`` function
     """
     def order_of_magnitude(num): return 0 if num == 0 else int(math.log10(num))
 

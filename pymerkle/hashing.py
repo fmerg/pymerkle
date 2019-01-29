@@ -31,7 +31,7 @@ class hash_machine(object):
 
     Sole purpose of this class is to fix at construction the hash and encoding types used for encryption,
     so that these parameters need not be redefined every time a hash utility is invoked. Instances
-    of this class are thus to be initialized with every new construction of a merkle-tree or every time
+    of this class are thus to be initialized with every new construction of a Merkle-Tree or every time
     a proof validation is about to be performed
 
     :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the HASH_TYPES

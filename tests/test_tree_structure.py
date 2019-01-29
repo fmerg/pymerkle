@@ -7,7 +7,7 @@ HASH_TYPES = (hashing.HASH_TYPES)
 ENCODINGS = hashing.ENCODINGS
 
 
-# Generate separately hash-functions and empty merkle-trees for any combination
+# Generate separately hash-functions and empty Merkle-Trees for any combination
 # of hash and encoding types (including both security modes for each)
 hash_functions = []
 merkle_trees = []
@@ -20,7 +20,7 @@ for security in (True, False):
                 encoding=encoding,
                 security=security)
             hash_functions.append(machine.hash)
-            # Store corresponding merkle-tree
+            # Store corresponding Merkle-Tree
             merkle_trees.append(
                 merkle_tree(
                     hash_type=hash_type,

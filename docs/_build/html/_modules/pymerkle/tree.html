@@ -1,69 +1,59 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pymerkle.tree &#8212; pymerkle  documentation</title>
-    <link rel="stylesheet" href="../../_static/css/adctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/caktus.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
-    <meta name="generator" content="Sphinx/ADC Theme by Mirounga www.mirounga.fr"/>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="pymerkle  documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" />
-    <link media="only screen and (max-device-width: 480px)" href="../../_static/css/mobile.css" type="text/css" rel="stylesheet" /> 
+    <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-<div id="docstitle">
-    <p>pymerkle  documentation</p>
-</div>
-<div id="header">
-    <div id="title"><h1>pymerkle.tree</h1></div>
-    <ul id="headerButtons">
-        <li id="toc_button"><div class="headerButton"><a href="#">Table of Contents</a></div></li>
-        <li id="page_buttons">
-            <div class="headerButton"><a href="../../genindex.html" title="General Index" accesskey="I">index</a></div>
-            <div class="headerButton"><a href="../../py-modindex.html" title="Python Module Index" >modules</a></div>
-        </li>
-    </ul>
-</div>
-
-<div id="sphinxsidebar">
-  <div class="sphinxsidebarwrapper">
-        <ul><li class="toctree-l1"><a href="../../index.html">Main Page</a></li></ul>
-        <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../pymerkle.html">pymerkle package</a></li>
-</ul>
-
-    <div id="searchbox" style="display: none">
-        <form class="search" action="../../search.html" method="get">
-                        <div class="search-wrapper">
-                        <input type="submit" value="" class="search-left"/>
-                        <input class="prettysearch" type="text" name="q" size="18" title="Enter search terms or a module, class or function name."/>
-                        <span class="search-right">&nbsp;</span>
-                        </div>
-          <input type="hidden" name="check_keywords" value="yes" />
-          <input type="hidden" name="area" value="default" />
-        </form>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymerkle  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
     </div>
-    <script type="text/javascript">$('#searchbox').show(0);</script>
-  </div>
-</div>
-
-
-
     <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+<h3>pymerkle</h3>
+<p class="tagline">''</p>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+        <div class="documentwrapper">
+            <div class="bodywrapper">
+                <div class="body">
+                    
   <h1>Source code for pymerkle.tree</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Provides the main class for Merkle-Tree objects and related functionalites</span>
@@ -88,60 +78,31 @@
 
 <span class="sd">    .. note:: Cf. the *API* to see how this constructor should actually be called externally by a user</span>
 
-<span class="sd">    :param hash_type: &lt;str&gt;  hash algorithm configuration. Must be among the hard-coded strings contained in the</span>
-<span class="sd">                         hash_machine.HASH_ALGORITHM_TYPES global variable (upper- or mixed-case with &#39;-&#39; instead of &#39;_&#39;</span>
-<span class="sd">                         allowed), otherwise an exception is thrown; defaults to &#39;sha256&#39; if unspecified.</span>
-<span class="sd">    :type hash_type: str</span>
-<span class="sd">    :param encoding: &lt;str&gt;  encoding algorithm configuration. Must be among the hard-coded elements of the</span>
-<span class="sd">                         encodings.ENCODINGS global variable, otherwise an exception is thrown;</span>
-<span class="sd">                         defaults to `utf_8` if unspecified</span>
-<span class="sd">    :type encoding: str</span>
-<span class="sd">    :param security: &lt;bool&gt; configures security mode of the underlying hash machine, i.e., defense against</span>
-<span class="sd">                         second-preimage attack; genuinely activated only for the default values of the</span>
-<span class="sd">                         hash and ecoding types (SHA256, resp. UTF-8)</span>
-<span class="sd">    :type security: bool</span>
-<span class="sd">    :param *records: &lt;str&gt;  or &lt;bytes&gt; or &lt;bytearray&gt;; thought of as the records initially stored by the tree,</span>
-<span class="sd">                         usually empty at construction</span>
-<span class="sd">    :type *records:</span>
-<span class="sd">    :param log_dir: &lt;str&gt;  absolute path of the directory, where the merkle-tree will receive the log files</span>
-<span class="sd">                         to encrypt from; defaults to the current working directory if unspecified</span>
-<span class="sd">    :type log_dir: str</span>
-<span class="sd">    :param leaves: &lt;None&gt;</span>
-<span class="sd">    :type leaves: list of ``nodes.leaf``</span>
-<span class="sd">    :param nodes: &lt;None&gt;</span>
-<span class="sd">    :type nodes: set of ``nodes.node``</span>
-<span class="sd">    :param root: &lt;None&gt;</span>
-<span class="sd">    :type root: nodes.node</span>
+<span class="sd">    :param hash_type:  [optional] Defaults to &#39;sha256&#39;. Should be included in hashing.HASH_TYPES (upper-</span>
+<span class="sd">                       or mixed-case with &#39;-&#39; instead of &#39;_&#39; allowed), otherwise an exception is thrown.</span>
+<span class="sd">    :type hash_type:   str</span>
+<span class="sd">    :param encoding:   [optional] Defaults to &#39;utf_8&#39;. Should be included in hashing.ENCODINGS (upper-</span>
+<span class="sd">                       or mixed-case with &#39;-&#39; instead of &#39;_&#39; allowed), otherwise an exception is thrown.</span>
+<span class="sd">    :type encoding:    str</span>
+<span class="sd">    :param security:   [optional] Defaults to ``True``. Activates defense against second-preimage attack</span>
+<span class="sd">                       (genuinely activated only for the default values of hash and encoding types)</span>
+<span class="sd">    :type security:    bool</span>
+<span class="sd">    :param \*records:  [optional] The records initially stored by the Merkle-Tree; usually empty at construction.</span>
+<span class="sd">                       If given, the is constructed with as many leafs from the beginning, storing the hashes</span>
+<span class="sd">                       of the inserted records in the respective order.</span>
+<span class="sd">    :type \*records:   str or bytes or bytearray</span>
+<span class="sd">    :param log_dir:    [optional] Absolute path of the directory, where the Merkle-Tree will receive log files</span>
+<span class="sd">                       to encrypt from. Defaults to the current working directory if unspecified</span>
+<span class="sd">    :type log_dir:     str</span>
 
-<span class="sd">    or</span>
-<span class="sd">    :param hash_type : &lt;str&gt;              see above</span>
-<span class="sd">    :param encoding  : &lt;str&gt;              see above</span>
-<span class="sd">    :param security  : &lt;bool&gt;             see above</span>
-<span class="sd">    :param log_dir   : &lt;str&gt;              see above</span>
-<span class="sd">    :param leaves    : &lt;list [of &lt;leaf&gt;]&gt; initial leaves of the tree under construction</span>
-<span class="sd">    :param nodes     : &lt;set [of &lt;node&gt;]&gt;  initial nodes of the tree under construction</span>
-<span class="sd">    :param root      : &lt;node&gt;             root of the tree under construction</span>
-
-<span class="sd">    :ivar uuid:       (*builtin_function_or_method*) Hash algorithm used by the machine. Defaults to SHA256.</span>
-<span class="sd">    :ivar machine:    (*str*) Encoding type used by the machine while hashing. Defaults to UTF-8.</span>
-<span class="sd">    :ivar hash_type:  (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar encoding:   (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar security:   (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar hash:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar multi_hash: (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar log_dir:    (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar leaves:     (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar nodes:      (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
-<span class="sd">    :ivar root:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                      default values of hash and encoding types). Defaults to ``True``.</span>
+<span class="sd">    :ivar uuid:       (*str*) uuid of the Merkle-Tree (time-based)</span>
+<span class="sd">    :ivar hash_type:  (*str*) Type of hashing algorithm used by the Merkle-Tree</span>
+<span class="sd">    :ivar encoding:   (*str*) Encoding type used by the Merkle-Tree for encryption</span>
+<span class="sd">    :ivar security:   (*bool*) Iff ``True``, security measures against second-preimage attack are activated</span>
+<span class="sd">    :ivar hash:       (*method*) Core hash functionality of the Merkle-Tree.</span>
+<span class="sd">    :ivar multi_hash: (*method*) Hash functionality used by the Merkle-Tree for performing inclusion test</span>
+<span class="sd">                      upon a request for consistency proof.</span>
+<span class="sd">    :ivar .log_dir:   (*bool*) See homonymous argument of the constructor</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
@@ -150,14 +111,11 @@
             <span class="n">hash_type</span><span class="o">=</span><span class="s1">&#39;sha256&#39;</span><span class="p">,</span>
             <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span>
             <span class="n">security</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">log_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
-            <span class="n">leaves</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">root</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">log_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">())</span>
 
-        <span class="c1"># Hash and encoding type configuration</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">machine</span> <span class="o">=</span> <span class="n">hash_machine</span><span class="p">(</span>
+        <span class="c1"># Hash type, encoding type and security mode configuration</span>
+        <span class="n">machine</span> <span class="o">=</span> <span class="n">hash_machine</span><span class="p">(</span>
             <span class="n">hash_type</span><span class="o">=</span><span class="n">hash_type</span><span class="p">,</span>
             <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
             <span class="n">security</span><span class="o">=</span><span class="n">security</span><span class="p">)</span>
@@ -166,25 +124,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hash_type</span> <span class="o">=</span> <span class="n">hash_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">security</span> <span class="o">=</span> <span class="n">security</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machine</span><span class="o">.</span><span class="n">hash</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">machine</span><span class="o">.</span><span class="n">multi_hash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">hash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">multi_hash</span>
+        <span class="k">del</span> <span class="n">machine</span>
 
         <span class="c1"># Logs directory configuration</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">log_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">log_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_dir</span>
 
-        <span class="c1"># Must be here initialized, so that consistency proof works in some</span>
-        <span class="c1"># edge cases</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># Initialized here so that consistency-proof works in some edge cases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[],</span> <span class="nb">set</span><span class="p">()</span>
 
-        <span class="c1"># tree construction</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">leaves</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">nodes</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">root</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Leaves, nodes and root specified by insertion</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">leaves</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">root</span>
+        <span class="c1"># nodes generation</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
 
 <span class="c1"># --------------------------- Boolean implementation ---------------------</span>
 
@@ -304,7 +258,7 @@
         <span class="sd">&quot;&quot;&quot;Updates the Merkle-Tree by storing the hash of the inserted record in a newly created leaf,</span>
 <span class="sd">        restructuring the tree appropriately and recalculating all necessary interior hashes</span>
 
-<span class="sd">        :param record: the record whose hash is to be stored in a the leaf</span>
+<span class="sd">        :param record: the record whose hash is to be stored in a new leaf</span>
 <span class="sd">        :type record: str or bytes or bytearray</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="p">:</span>
@@ -359,7 +313,7 @@
 <div class="viewcode-block" id="merkle_tree.encrypt_log"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.encrypt_log">[docs]</a>    <span class="k">def</span> <span class="nf">encrypt_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Encrypts the data of the provided log-file into the Merkle-Tree.</span>
 
-<span class="sd">        More accurately, it updates the tree by successively updating it with each line</span>
+<span class="sd">        More accurately, it successively updates the Merkle-Tree it with each line</span>
 <span class="sd">        of the log-file provided (cf. doc of the ``.update`` method)</span>
 
 <span class="sd">        :param log_file: relative path of the log-file under enryption, specified with respect</span>
@@ -378,13 +332,15 @@
 <span class="c1"># ------------------------ Audit proof functionalities ------------------------</span>
 
 <div class="viewcode-block" id="merkle_tree.audit_proof"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.audit_proof">[docs]</a>    <span class="k">def</span> <span class="nf">audit_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns audit proof appropriately formatted along with its validation parameters (so that it</span>
-<span class="sd">        be insertible as the second argument to the  validations.validate_proof() method)</span>
-<span class="sd">        :param arg : &lt;str&gt;/&lt;bytes&gt;/&lt;bytearray&gt; or &lt;int&gt;; the record (if type is &lt;str&gt;/&lt;bytes&gt;/&lt;bytearray&gt;) or index</span>
-<span class="sd">                                                         of leaf (if type is &lt;int&gt;) where the proof calculation</span>
-<span class="sd">                                                         must be based upon (provided by Client Side)</span>
-<span class="sd">        :returns   : &lt;proof.proof&gt;                 proof content in nice format with validation parameters</span>
+        <span class="sd">&quot;&quot;&quot;Response of the Merkle-Tree to the request of providing an audit-proof based upon</span>
+<span class="sd">        the given argument.</span>
+
+<span class="sd">        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type</span>
+<span class="sd">                    is *int*) where the proof calculation must be based upon (provided from Client&#39;s Side)</span>
+<span class="sd">        :type arg:  str or bytes or bytearray or int</span>
+<span class="sd">        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it</span>
+<span class="sd">                    can be passed in as the second argument to the ``validations.validate_proof`` method)</span>
+<span class="sd">        :rtype:     proof.proof</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">):</span>
@@ -405,7 +361,7 @@
             <span class="n">index</span> <span class="o">=</span> <span class="n">arg</span>
 
         <span class="c1"># Calculate proof path</span>
-        <span class="n">proof_index</span><span class="p">,</span> <span class="n">audit_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_audit_path</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">proof_index</span><span class="p">,</span> <span class="n">audit_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audit_path</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
 
         <span class="c1"># Return proof nice formatted along with validation parameters</span>
         <span class="k">if</span> <span class="n">proof_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -431,23 +387,29 @@
             <span class="n">proof_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">proof_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_audit_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.audit_path"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.audit_path">[docs]</a>    <span class="k">def</span> <span class="nf">audit_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Response of the merkle-tree (Server Side) to the request of providing the appropriate</span>
-<span class="sd">        list of signed hashes for audit proof validation by auditor (Client Side)</span>
-<span class="sd">        :param index : &lt;int&gt; index of the leaf where the proof calculation must be based upon (Client Side)</span>
-<span class="sd">        :returns     : (</span>
-<span class="sd">                            &lt;tuple [of (+1/-1, &lt;str&gt;)]&gt; list of signed hashes provided by Server, the sign</span>
-<span class="sd">                                                        +1 or -1 indicating pairing with the right or left</span>
-<span class="sd">                                                        neigbour respectively during proof validation</span>
-<span class="sd">                            &lt;int&gt;                       starting point for application of hash()</span>
-<span class="sd">                                                        during proof validation</span>
-<span class="sd">                       )</span>
-<span class="sd">                       or (None, None) in case of IndexError</span>
+<span class="sd">        Computes and returns the body for the audit-proof based upon the requested index.</span>
+
+<span class="sd">        Body of an audit-proof consist of an *audit-path* (a sequence of signed hashes) and a</span>
+<span class="sd">        *proof-index* (the position within the above sequence where the validation procedure</span>
+<span class="sd">        should start from).</span>
+
+<span class="sd">        :param index: index of the leaf where the audit-proof calculation should be based upon</span>
+<span class="sd">                      (provided from Client&#39;s Side directly or indirectly in form of a record;</span>
+<span class="sd">                      cf. the ``.audit_proof`` method).</span>
+<span class="sd">        :type index:  int</span>
+<span class="sd">        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, str)*), the sign ``+`` or ``-``</span>
+<span class="sd">                      indicating pairing with the right or left neighbour during proof validation respectively,</span>
+<span class="sd">                      along with the starting point for application of hashing during proof validation.</span>
+<span class="sd">        :rtype:       (int, tuple)</span>
+
+<span class="sd">        .. note:: If the requested index is either negative or exceeds the tree&#39;s current length</span>
+<span class="sd">                  (``IndexError``), then the nonsensical tuple ``(None, None)`` is returned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># ~ Handle negative index case separately like index error since</span>
-        <span class="c1"># ~ certain negative indices might be considered as valid positions</span>
+        <span class="c1"># ~ Handle negative index case separately like an IndexError, since certain</span>
+        <span class="c1"># ~ negative indices might otherwise be considered as valid positions</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
@@ -476,22 +438,28 @@
                         <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                     <span class="n">start</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">current_node</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span>
-            <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 <span class="c1"># --------------------- Consistency proof functionalities ---------------------</span>
 
 <div class="viewcode-block" id="merkle_tree.consistency_proof"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.consistency_proof">[docs]</a>    <span class="k">def</span> <span class="nf">consistency_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_hash</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns consistency proof appropriately formatted along with its validation parameters (so that it</span>
-<span class="sd">        be insertible as the second argument to the validations.validate_proof() method)</span>
-<span class="sd">        :param old_hash  : &lt;str&gt; top-hash of the tree to be presumably detected as a previous state of the current</span>
-<span class="sd">                                 one and whose consistency is about to be validated or not (Client Side)</span>
-<span class="sd">        :param sublength : &lt;int&gt; length of the above tree (Client Side)</span>
-<span class="sd">        :returns         : &lt;proof.proof&gt; proof content in nice format with validation parameters</span>
+        <span class="sd">&quot;&quot;&quot;Response of the Merkle-Tree to the request of providing a consistency-proof for the</span>
+<span class="sd">        given parameters.</span>
+
+<span class="sd">        Arguments of this function amount to a presumed previous stage of the Merkle-Tree (root-hash</span>
+<span class="sd">        and length respectively) provided from Client&#39;s Side.</span>
+
+<span class="sd">        :param old_hash:  root-hash of a presumably valid previous stage of the Merkle-Tree</span>
+<span class="sd">        :type old_hash:   str or bytes or bytearray or int</span>
+<span class="sd">        :param sublength: presumable length (number of leaves) for the above previous stage of the Merkle-Tree</span>
+<span class="sd">        :type sublength:  int</span>
+<span class="sd">        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it</span>
+<span class="sd">                          it can be passed in as the second argument to the ``validations.validate_proof`` method)</span>
+<span class="sd">        :rtype:           proof.proof</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Calculate proof path</span>
-        <span class="n">consistency_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consistency_path</span><span class="p">(</span><span class="n">sublength</span><span class="o">=</span><span class="n">sublength</span><span class="p">)</span>
+        <span class="n">consistency_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consistency_path</span><span class="p">(</span><span class="n">sublength</span><span class="o">=</span><span class="n">sublength</span><span class="p">)</span>
 
         <span class="c1"># Return proof nice formatted along with validation parameters</span>
         <span class="k">if</span> <span class="n">consistency_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>\
@@ -523,7 +491,7 @@
 
         <span class="c1"># Handles incompatibility case (includes the zero leaves and zero</span>
         <span class="c1"># `sublength` case)</span>
-        <span class="n">failure_message</span> <span class="o">=</span> <span class="s1">&#39;Sutree provided by Client was incompatible&#39;</span>
+        <span class="n">failure_message</span> <span class="o">=</span> <span class="s1">&#39;Subtree provided by Client was incompatible&#39;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">failure_message</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">proof</span><span class="p">(</span>
             <span class="n">generation</span><span class="o">=</span><span class="s1">&#39;FAILURE (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">),</span>
@@ -534,38 +502,30 @@
             <span class="n">proof_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">proof_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_consistency_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.consistency_path"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.consistency_path">[docs]</a>    <span class="k">def</span> <span class="nf">consistency_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Response of the merkle-tree (Server Side) to the request of providing the appropriate</span>
-<span class="sd">        list of signed hashes for consistency proof validation by monitor (Client Side)</span>
-<span class="sd">        :param sublength : &lt;int&gt; length of the tree to be presumably detected as a previous state of the current</span>
-<span class="sd">                                 one and whose consistency is about to be validated or not (Client Side)</span>
-<span class="sd">        :returns         : (</span>
-<span class="sd">                                &lt;int&gt;                       starting point for application of hash() during proof validation</span>
-<span class="sd">                                &lt;tuple [of (-1, &lt;str&gt;)]&gt;    list of leftmost hashes for inclusion test to be performed by</span>
-<span class="sd">                                                            the Server (i.e., the tree itself)</span>
-<span class="sd">                                &lt;tuple [of (+1/-1, &lt;str&gt;)]&gt; full list of signed hashes provided by Server for top-hash test</span>
-<span class="sd">                                                            to be performed by the Client, the sign +1 or -1 indicating</span>
-<span class="sd">                                                            pairing with the right or left neighbour respectively</span>
-<span class="sd">                                                            during proof validation</span>
-<span class="sd">                           )</span>
+<span class="sd">        Computes and returns the body for any consistency-proof based upon the requested sublength.</span>
 
-<span class="sd">                           or None in case of incompatibility</span>
+<span class="sd">        :param sublength: length (number of leaves) for a presumably valid previous stage of the Merkle-Tree</span>
+<span class="sd">        :type sublength:  int</span>
+<span class="sd">        :returns:         the starting point for application of hashing during proof validation, a tuple of</span>
+<span class="sd">                          hashes signed with ``-`` (leftmost hashes for inclusion test to be performed from</span>
+<span class="sd">                          the Server&#39;s Side, i.e., by the Merkle-Tree itself) and a tuple of signed hashes</span>
+<span class="sd">                          for top-hash test to be performed from the Client&#39;s Side (the sign ``+``, resp.</span>
+<span class="sd">                          ``-`` indicating pairing with the right or left neigbour respectively during</span>
+<span class="sd">                          proof validation).</span>
+<span class="sd">        :rtype:           (int, tuple, tuple)</span>
 
-<span class="sd">        NOTE: If the merkle-tree is empty (no nodes) and `sublength` is set to be 0, then the tuple</span>
-<span class="sd">        (-1, [], [])</span>
-<span class="sd">        is returned. If the merkle-tree is NOT empty but `sublength` is set to be 0, then</span>
-<span class="sd">        None</span>
-<span class="sd">        is returned</span>
+<span class="sd">        .. note::  Returns ``None`` for ``sublength`` equal to ``0``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">sublength</span> <span class="ow">is</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># so that it be handled as special incompatibility case</span>
 
-        <span class="n">left_roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_principal_subroots</span><span class="p">(</span><span class="n">sublength</span><span class="p">)</span>
+        <span class="n">left_roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">principal_subroots</span><span class="p">(</span><span class="n">sublength</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">left_roots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># No incompatibility issue</span>
 
-            <span class="n">right_roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimal_complement</span><span class="p">(</span>
+            <span class="n">right_roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimal_complement</span><span class="p">(</span>
                 <span class="n">subroots</span><span class="o">=</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">left_roots</span><span class="p">])</span>
             <span class="n">all_roots</span> <span class="o">=</span> <span class="n">left_roots</span> <span class="o">+</span> <span class="n">right_roots</span>
 
@@ -586,12 +546,14 @@
             <span class="n">full_path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">all_roots</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">proof_index</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">left_path</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Incompatibility issue detected</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Incompatibility issue detected</span></div>
 
-    <span class="k">def</span> <span class="nf">_minimal_complement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subroots</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.minimal_complement"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.minimal_complement">[docs]</a>    <span class="k">def</span> <span class="nf">minimal_complement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subroots</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param subroots : &lt;list [of &lt;node&gt;]&gt;</span>
-<span class="sd">        :return         : &lt;list [of (+1/-1, &lt;str&gt; or &lt;bytes&gt; or &lt;byteaerray&gt;)]&gt;</span>
+<span class="sd">        :param subroots:</span>
+<span class="sd">        :type subroots:  list of nodes.node</span>
+<span class="sd">        :returns:</span>
+<span class="sd">        :rtype:          list of signed pairs *(+1/-1, str)*</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subroots</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">complement</span> <span class="o">=</span> <span class="p">[]</span>
@@ -607,14 +569,19 @@
                     <span class="n">subroots</span> <span class="o">=</span> <span class="n">subroots</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">subroots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">last_root</span><span class="o">.</span><span class="n">child</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">complement</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_principal_subroots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">principal_subroots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">_principal_subroots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.principal_subroots"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.principal_subroots">[docs]</a>    <span class="k">def</span> <span class="nf">principal_subroots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns in corresponding order the roots of the successive *full* binary subtrees of maximum</span>
 <span class="sd">        (and thus decreasing) length, whose lengths sum up to the inserted argument `sublength`</span>
-<span class="sd">        :param sublength : &lt;int&gt;</span>
-<span class="sd">        :returns         : &lt;list [of (+1/-1, &lt;node&gt;)]&gt;, or None in case of incompatibility</span>
+
+<span class="sd">        :param sublength:</span>
+<span class="sd">        :type sublength:  int</span>
+<span class="sd">        :returns:</span>
+<span class="sd">        :rtype:           list of *(+1/-1, nodes.node)*</span>
+
+<span class="sd">        .. note:: Returns ``None`` in case of incompatibility</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">sublength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -625,7 +592,7 @@
             <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">powers</span><span class="p">)):</span>
-                <span class="n">next_subroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subroot</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">powers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">next_subroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subroot</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">powers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">next_subroot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># No incompatibility issue</span>
                     <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span> <span class="ow">and</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">child</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">():</span>
@@ -648,15 +615,22 @@
             <span class="k">return</span> <span class="n">principal_subroots</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Negative input handled as `incompatibility`</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Required sequence of subroots is undefinable&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
-    <span class="k">def</span> <span class="nf">_subroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.subroot"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.subroot">[docs]</a>    <span class="k">def</span> <span class="nf">subroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the root of the *full* binary subtree whose first leaf is located at</span>
-<span class="sd">        the inserted position `start` and has the inserted height `height`</span>
-<span class="sd">        :param start  : &lt;int&gt;  index of leaf where detection should start from</span>
-<span class="sd">        :param height : &lt;int&gt;  height of candidate subtree to be detected</span>
-<span class="sd">        :returns      : &lt;node&gt; or None if `start` is out of range</span>
+<span class="sd">        Returns the root of the unique *full* binary subtree of the Merkle-Tree, whose</span>
+<span class="sd">        leftmost leaf is located at the given position ``start`` and whose height is</span>
+<span class="sd">        equal to the given ``height``.</span>
+
+<span class="sd">        :param start:  index of leaf where detection of subtree should start from</span>
+<span class="sd">        :type start:   int</span>
+<span class="sd">        :param height: height of candidate subtree to be detected</span>
+<span class="sd">        :type height:  int</span>
+<span class="sd">        :returns:      root of the detected subtree</span>
+<span class="sd">        :rtype:        nodes.node</span>
+
+<span class="sd">        .. note:: Returns ``None`` if the requested ``start`` is out of range</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">subroot</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">failure_message</span> <span class="o">=</span> <span class="s1">&#39;Required subroot is undefinable&#39;</span>
@@ -697,12 +671,12 @@
                 <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="c1"># Subroot successfully detected</span>
-        <span class="k">return</span> <span class="n">subroot</span>
+        <span class="k">return</span> <span class="n">subroot</span></div>
 
 <span class="c1"># ---------------------------------- Clearance ---------------------------</span>
 
 <div class="viewcode-block" id="merkle_tree.clear"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Deletes all nodes of the tree</span>
+        <span class="sd">&quot;&quot;&quot;Deletes all nodes of the Merkle-Tree</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -716,7 +690,8 @@
 <span class="sd">        :rtype: dict</span>
 
 <span class="sd">        .. note:: This method does *not* serialize the tree structure itself, but only the info</span>
-<span class="sd">                  about the tree&#39;s current state</span>
+<span class="sd">                  about the tree&#39;s fixed configurations (hash type, encoding type, security mode,</span>
+<span class="sd">                  uuid) and current state (size, length, height, root-hash).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">encoder</span> <span class="o">=</span> <span class="n">merkleTreeEncoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -767,22 +742,27 @@
             <span class="p">}</span></div></div>
 </pre></div>
 
-          </div> 
+                </div>
+            </div>
         </div>
-      </div>
+    <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pymerkle  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
     <div class="footer">
-    <p>
-      &copy; Copyright 2019, Author.
-      Created using <a href="http://www.sphinx-doc.org/">Sphinx</a> 1.8.3 <a href="https://github.com/mga-sphinx/sphinx_adc_theme">ADC Theme</a> .
-    (Revision )
-        </p>
+        &copy; <a href="http://www.caktusgroup.com/">Copyright 2019, Author</a>.
+        Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
     </div>
-      <div class="clearer"></div>
-    </div>
-        <div id="breadcrumbs">
-                <a href="../index.html" accesskey="U">Module code</a><img src="../../_static/img/triangle_closed.png" height="9" width="9" alt="&gt;">
-                pymerkle.tree
-        </div>
-        <script type="text/javascript" charset="utf-8" src="../../_static/js/toc.js"></script>
   </body>
 </html>

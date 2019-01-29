@@ -13,7 +13,7 @@ VERTICAL_BAR = u'\u2502'                    # │
 
 
 class node(object):
-    """Base class for the nodes of Merkle-Tree
+    """Base class for the nodes of a Merkle-Tree
 
     :param record:        [optional] the record to be encrypted within the node. If provided,
                           then the node is meant to be a leaf
@@ -25,7 +25,7 @@ class node(object):
                           is meant to be a leaf
     :type right:          nodes.node
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          attribute of the containing Merkle-Tree's hash machine
+                          attribute of the containing Merkle-Tree
     :type hash_function:  method
 
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
@@ -33,8 +33,8 @@ class node(object):
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
     :ivar hash:          (*str*) The hash currently stored by the node (hex)
     :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes
-                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree's hash machine.
-                         For leafs it is ``None`` (no hash re-calculation case)
+                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree. For leaf nodes
+                         it is ``None`` (no hash re-calculation case)
     """
 
     def __init__(self, hash_function, record=None, left=None, right=None):
@@ -218,7 +218,7 @@ class leaf(node):
     :param record:        the record to be encrypted within the leaf
     :type record:         str or bytes or bytearray
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
-                          attribute of the containing Merkle-Tree's hash machine
+                          attribute of the containing Merkle-Tree
     :type hash_function:  method
     """
 
