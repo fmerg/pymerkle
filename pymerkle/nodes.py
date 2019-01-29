@@ -16,13 +16,13 @@ class node(object):
     """Base class for the nodes of a Merkle-Tree
 
     :param record:        [optional] the record to be encrypted within the node. If provided,
-                          then the node is meant to be a leaf
+                          then the node is considered to be a leaf
     :type record:         str or bytes or bytearray
     :param left:          [optional] the node's left parent. If not provided, then the node
-                          is meant to be a leaf
+                          is considered to be a leaf
     :type left:           nodes.node
     :param right:         [optional] the node's right parent. If not provided, then the node
-                          is meant to be a leaf
+                          is considered to be a leaf
     :type right:          nodes.node
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
                           attribute of the containing Merkle-Tree

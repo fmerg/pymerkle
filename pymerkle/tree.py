@@ -19,8 +19,6 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 class merkle_tree(object):
     """Class for Merkle-Trees
 
-    .. note:: Cf. the *API* to see how this constructor should actually be called externally by a user
-
     :param hash_type:  [optional] Defaults to 'sha256'. Should be included in hashing.HASH_TYPES (upper-
                        or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type hash_type:   str

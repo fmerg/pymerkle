@@ -160,13 +160,13 @@
     <span class="sd">&quot;&quot;&quot;Base class for the nodes of a Merkle-Tree</span>
 
 <span class="sd">    :param record:        [optional] the record to be encrypted within the node. If provided,</span>
-<span class="sd">                          then the node is meant to be a leaf</span>
+<span class="sd">                          then the node is considered to be a leaf</span>
 <span class="sd">    :type record:         str or bytes or bytearray</span>
 <span class="sd">    :param left:          [optional] the node&#39;s left parent. If not provided, then the node</span>
-<span class="sd">                          is meant to be a leaf</span>
+<span class="sd">                          is considered to be a leaf</span>
 <span class="sd">    :type left:           nodes.node</span>
 <span class="sd">    :param right:         [optional] the node&#39;s right parent. If not provided, then the node</span>
-<span class="sd">                          is meant to be a leaf</span>
+<span class="sd">                          is considered to be a leaf</span>
 <span class="sd">    :type right:          nodes.node</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption. Should be the ``.hash``</span>
 <span class="sd">                          attribute of the containing Merkle-Tree</span>

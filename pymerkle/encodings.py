@@ -1,3 +1,7 @@
+"""
+Provides a tuple with supported encoding types
+"""
+
 ENCODINGS = (
     'euc_jisx0213',
     'euc_kr',

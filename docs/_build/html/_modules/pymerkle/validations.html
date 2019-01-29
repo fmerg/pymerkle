@@ -155,7 +155,7 @@
 <span class="c1"># -------------------------------- Validation ---------------------------------</span>
 
 
-<div class="viewcode-block" id="validate_proof"><a class="viewcode-back" href="../../pymerkle.html#pymerkle.validate_proof">[docs]</a><span class="k">def</span> <span class="nf">validate_proof</span><span class="p">(</span><span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
+<div class="viewcode-block" id="validate_proof"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.validate_proof">[docs]</a><span class="k">def</span> <span class="nf">validate_proof</span><span class="p">(</span><span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Core validation function</span>
 
 <span class="sd">    Validates the inserted proof by comparing to the provided target hash, modifies the proof&#39;s</span>
@@ -195,7 +195,7 @@
 <span class="c1"># ---------------------------------- Classes ----------------------------------</span>
 
 
-<div class="viewcode-block" id="proof_validator"><a class="viewcode-back" href="../../pymerkle.html#pymerkle.proof_validator">[docs]</a><span class="k">class</span> <span class="nc">proof_validator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="proof_validator"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.proof_validator">[docs]</a><span class="k">class</span> <span class="nc">proof_validator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Wrapper of the ``validate_proof`` function.</span>
 
 <span class="sd">    Employs the ``validation_receipt`` class in order to organize validation results</span>
@@ -211,7 +211,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validations_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validations_dir</span> <span class="o">=</span> <span class="n">validations_dir</span>
 
-<div class="viewcode-block" id="proof_validator.validate"><a class="viewcode-back" href="../../pymerkle.html#pymerkle.proof_validator.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
+<div class="viewcode-block" id="proof_validator.validate"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.proof_validator.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Wraps ``validate_proof``, returning a validation receipt instead of a boolean.</span>
 
 <span class="sd">        If a ``validations_dir`` has been specified at construction, then the produced validation receipt</span>
