@@ -1,2 +1,2 @@
-pymerkle
-========
+pymerkle Documentation
+======================
