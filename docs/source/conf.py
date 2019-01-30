@@ -23,14 +23,14 @@ sys.path.insert(0, '../../pymerkle')
 
 # -- Project information -----------------------------------------------------
 
-project = 'pymerkle'
-copyright = '2019, FoteinosMerg'
+project = u'pymerkle'
+copyright = u'2019, FoteinosMerg'
 author = 'FoteinosMerg'
 
 # The short X.Y version
-version = ''
+version = '0.1.3'
 # The full version, including alpha/beta/rc tags
-release = '0.1.3'
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -72,7 +72,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'sphinx'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -81,6 +81,15 @@ pygments_style = None
 # a list of builtin themes.
 #
 # html_theme = 'default'
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if on_rtd:
+    html_theme = "default"
+else:
+    html_theme_path = ["_themes"]
+    html_theme = "sphinx_rtd_theme"
+
+html_theme_options = {}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
