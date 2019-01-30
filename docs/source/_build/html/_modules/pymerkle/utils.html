@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymerkle.utils &mdash; pymerkle 0.1.3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pymerkle
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pymerkle.html">pymerkle package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pymerkle</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pymerkle.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pymerkle.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Contains math and format utils invoked across the library</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+
+<div class="viewcode-block" id="log_2"><a class="viewcode-back" href="../../pymerkle.utils.html#pymerkle.utils.log_2">[docs]</a><span class="k">def</span> <span class="nf">log_2</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes and returns the base 2 logarithm of the given number (i.e.,</span>
+<span class="sd">    the greatest power of 2 equal to or smaller than ``num``)</span>
+
+<span class="sd">    :param num: the number whose logarithm is to be computed</span>
+<span class="sd">    :type num:  int</span>
+<span class="sd">    :returns:   the computed logarithm</span>
+<span class="sd">    :rtype:     ``int``</span>
+
+<span class="sd">    :raises ValueError: for arguments smaller than zero</span>
+
+<span class="sd">    .. note:: By convention, it returns 0 for zero argument</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="decompose"><a class="viewcode-back" href="../../pymerkle.utils.html#pymerkle.utils.decompose">[docs]</a><span class="k">def</span> <span class="nf">decompose</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Additive decomposition in decreasing powers of 2</span>
+
+<span class="sd">    :param num: the number to be decomposed</span>
+<span class="sd">    :type num:  int</span>
+<span class="sd">    :returns:   powers of 2 in decreasing order</span>
+<span class="sd">    :rtype:     ``tuple`` of integers</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; from pymerkle.utils import decompose</span>
+<span class="sd">    &gt;&gt;&gt; decompose(2**5 + 2**3 + 2**2 + 1)</span>
+<span class="sd">    (5, 3, 2, 0)</span>
+
+<span class="sd">    .. note:: Returns the nonsensical empty tuple for arguments equal to or smaller than zero</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">powers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="n">log_2</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">num</span> <span class="o">-=</span> <span class="mi">2</span><span class="o">**</span><span class="n">power</span>
+        <span class="n">powers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">power</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">powers</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="stringify_path"><a class="viewcode-back" href="../../pymerkle.utils.html#pymerkle.utils.stringify_path">[docs]</a><span class="k">def</span> <span class="nf">stringify_path</span><span class="p">(</span><span class="n">signed_hashes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a stringified version of the inserted sequence of signed hashes</span>
+
+<span class="sd">    :param signed_hashes: a sequence of signed hashes</span>
+<span class="sd">    :type signed_hashes:  tuple of (+1/-1, str) pairs</span>
+<span class="sd">    :rtype:               ``str``</span>
+
+<span class="sd">    .. note:: The output of this function is to be passed into the ``print()`` function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">order_of_magnitude</span><span class="p">(</span><span class="n">num</span><span class="p">):</span> <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">get_with_sign</span><span class="p">(</span><span class="n">num</span><span class="p">):</span> <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;+&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">signed_hashes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stringified_elems</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">signed_hashes</span><span class="p">)):</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">signed_hashes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">stringified_elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                 <span class="p">(</span><span class="mi">7</span> <span class="o">-</span> <span class="n">order_of_magnitude</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                 <span class="s1">&#39;[</span><span class="si">{i}</span><span class="s1">]&#39;</span> <span class="o">+</span>
+                 <span class="mi">3</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                 <span class="s1">&#39;</span><span class="si">{sign}</span><span class="s1">&#39;</span> <span class="o">+</span>
+                 <span class="mi">2</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                 <span class="s1">&#39;</span><span class="si">{hash}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span>
+                <span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="n">get_with_sign</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">hash</span><span class="o">=</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">stringified_elems</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># input was None</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, FoteinosMerg
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
