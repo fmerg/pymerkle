@@ -4,10 +4,10 @@ pymerkle: A Python library for constructing Merkle Trees and validating Log Proo
 Another simple header
 =====================
 
-Here some text explaining some very complicated stuff.::
+Basic usage::
 
-    print('Kill')
-    >>> Kill
+    from pymerkle import *
+    tree = merkle_tree()
 
 Guide
 ^^^^^
