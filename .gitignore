@@ -5,5 +5,5 @@ lint.sh
 
 # Packaging
 *.egg-info/
-build/
+*/build/
 dist/
