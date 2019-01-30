@@ -5,6 +5,10 @@
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
+This library implements
+
+- a Merkle-Tree, capable of providing also consistency-profs
+
 ## Installation
 
 ```bash
@@ -46,33 +50,6 @@ r = tree.consistency_proof(old_hash=top_hash, sublength=length)
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
 ```
 
-#### Tree display
-
-Printing `tree` displays it in a format similar to the output of the `tree` command of Unix based systems:
-
-```shell
->>> print(tree)
-
- └─f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da
-     ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
-     │    ├──a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02
-     │    │    ├──db3426e878068d28d269b6c87172322ce5372b65756d0789001d34835f601c03
-     │    │    └──2215e8ac4e2b871c2a48189e79738c956c081e23ac2f2415bf77da199dfd920c
-     │    └──33bf7016f45e2219bf095500a67170bd4a9c21e465de3c1e4c51d37336fd1a6f
-     │         ├──fa61e3dec3439589f4784c893bf321d0084f04c572c7af2b68e3f3360a35b486
-     │         └──906c5d2485cae722073a430f4d04fe1767507592cef226629aeadb85a2ec909d
-     └──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
-
->>>
-```
-
-where each node is represented by the hash it currently stores. You can save this format in a file called `structure` by
-
-```python
-with open('structure', 'w') as f:
-    f.write(tree.__str__())
-```
-
 ## Requirements
 
 `python3.6` or `python3.7`
@@ -90,311 +67,29 @@ In order to run all tests, execute
 from inside the root directory of the project. Alternatively, run the command `pytest tests/`. You can run only a specific test file, e.g., `test_log_encryption.py`, with the command `pytest tests/test_log_encryption.py`.
 
 
-## Defense against second-preimage attack
-
-
-Security measures against second-preimage attack are by default activated. In the current version, they play genuine role _only_ for Merkle-trees with default hash and encoding type (SHA256, resp. UTF-8). Roughly speaking, security measures consist in the following:
-
-- Before calculating the hash of a leaf, prepend the corresponding record with the null hexadecimal `/x00`
-
-- Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `/x01`
-
-_NOTE_ : Security measures are readily extendible to any combination of hash and encoding types by appropriately modifying only the `hashing` module as follows:
-
-- Rewrite the `if` statement right after the definition of the `hash_machine.SECURITY` attribute to include any desired combination of hash and encoding types
-- Inform the `hash_machine.security_mode_activated` method accordingly
-
-## Usage
-
-Typing
-
-```python
-from pymerkle import *
-```
-
-imports the classes `merkle_tree`, `proof_validator` and the `validate_proof` function.
-
-### Merkle-tree construction
-
-```python
-tree = merkle_tree()
-```
-
-creates an empty Merkle-tree with default configurations: hash algorithm SHA256, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
-
-```python
-tree = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
-```
-
-To create a Merkle-tree with hash algorithm SHA512 and encoding type UTF-32 just write:
-
-```python
-tree = merkle_tree(hash_type='sha512', encoding='utf-32')
-```
-
-An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive to encrypt from. If unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
-
-```python
-import os
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-tree = merkle_tree(log_dir=os.path.join(script_dir, 'logs'))
-```
-
-You can then encrypt any file `log_sample` inside the `/logs` directory just with
-
-```python
-tree.encrypt_log(log_sample)
-```
-
-without specifying its absolute path.
-
-#### Tree display
-
-Invoking `tree` inside the Python interpreter displays info about its fixed configurations
-(hash and encoding type, security mode) and current state (size, length, height):
-
-```shell
->>> tree
-
-    uuid      : 5e2c80ee-0e99-11e9-87fe-70c94e89b637                
-
-    hash-type : SHA256                
-    encoding  : UTF-8                
-    security  : ACTIVATED                
-
-    root-hash : f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da                
-
-    size      : 9                
-    length    : 5                
-    height    : 3
-```
-You can save this info in a file called `current_state` by
-
-```python
-with open('current_state', 'w') as f:
-    f.write(tree.__repr__())
-```
-
-Printing `tree` displays it in a format similar to the output of the `tree` command of Unix based systems:
-
-```shell
->>> print(tree)
-
- └─f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da
-     ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
-     │    ├──a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02
-     │    │    ├──db3426e878068d28d269b6c87172322ce5372b65756d0789001d34835f601c03
-     │    │    └──2215e8ac4e2b871c2a48189e79738c956c081e23ac2f2415bf77da199dfd920c
-     │    └──33bf7016f45e2219bf095500a67170bd4a9c21e465de3c1e4c51d37336fd1a6f
-     │         ├──fa61e3dec3439589f4784c893bf321d0084f04c572c7af2b68e3f3360a35b486
-     │         └──906c5d2485cae722073a430f4d04fe1767507592cef226629aeadb85a2ec909d
-     └──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
-
->>>
-```
-
-where each node is represented by the hash it currently stores. You can save this format in a file called `structure` by
-
-```python
-with open('structure', 'w') as f:
-    f.write(tree.__str__())
-```
-
-### New records and log encryption
-
-_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update()` methodto successively update with new records as follows:
-
-```python
-tree = merkle_tree()                          # initially empty SHA256/UTF-8 Merkle-tree
-
-tree.update('arbitrary string')               # first record
-tree.update(b'arbitrary bytes-like object')   # second record
-...                                           # ...
-```
-
-_Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encrypt_log()` to encrypt a new file as follows:
-
-```python
-tree = merkle_tree()
-...
-
-tree.encrypt_log(log_file='sample_log')
-```
-
-This presupposes that the file `sample_log` lies inside the configured log directory, where the tree receives its log-files to encrypt from; otherwise an exception is thrown and a message
-
-```bash
-* Requested log file does not exist
-```
-
-is printed at console. Similarly, if the log resides inside a nested directory `/logs/subdir`, you can easily encrypt it by:
-
-```python
-tree.encrypt_log(log_file='subdir/sample_log')
-```
-
-In other words, the argument of `.encrypt_log()` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. It can anytime be accessed as the `.log_dir` attribute
-
-### Generating Log proofs (Server's Side)
-
-A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current top-hash of the tree. Requesting, providing and validating log proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous stage and/or the current stage of the tree, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
-
-### Audit-proof
-
-Given a Merkle-tree `tree`, use the `.audit_proof()` method to generate the audit proof based upon, say, the 56-th leaf as follows:
-
-```python
-p = tree.audit_proof(arg=55)
-```
-
-You can instead generate the proof based upon a presumed record `record` with
-
-```python
-p = tree.audit_proof(arg=record)
-```
-
-where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently. In this case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
-
-The generated object `p` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the argument requested by Client exceeds the tree's current length or is not among its encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
-
-#### Consistency-proof
-
-Similarly, use the `.consistency_proof()` to generate a consistency proof as follows:
-
-```python
-q = tree.consistency_proof(
-      old_hash='82cb65862639b7e295dde50789cb4945c7584e4f31b9ea5f8e5387b80e130d88',
-      subength=100
-    )
-```
-
-Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the top-hash, resp. length of a subrtree to be presumably detected as a previous stage of `tree`. A typical session would thus be as follows:
-
-```python
-# Client requests and stores current stage of the tree from a trusted authority
-old_hash = tree.root_hash()
-sublength = tree.length()
-
-# Server encrypts some new log (modifying the top-hash and length of the tree)
-tree.encrypt_log('sample_log')
-
-# Server provides consistency proof for the stored stage upon Client's request
-q = tree.consistency_proof(old_hash, sublength)
-```
-
-The generated object `q` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). Upon generating the proof, the Merkle-tree (Server) performs also an _inclusion test_, leading to two possibilities in accordance with the parameters provided by Client:
-
-- _inclusion test success_: if the combination of `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous stage of it, then a _non empty_ path is included with the proof and a generation success message is inscribed in it
-
-- _inclusion test failure_: if the combination of `old_hash` and `sublength` is _not_ found to correspond to a previous stage, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed in the proof, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
-
-
-### Validating Log proofs (Client's Side)
-
-In what follows, let `tree` be a Merkle-tree and `p` a log proof (audit or consistency indifferently) generated by it.
-
-#### Quick validation
-
-The quickest way to validate a proof is by applying the `validate_proof` function, returning `True` or `False` according to whether the proof was found to be valid resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
-
-```python
-validate_proof(target_hash=tree.root_hash(), proof=p)
-```
-
-Here the result is of course `True`, whereas any other choice of `target_hash` would return `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it.
-
-
-#### Validation with receipt
-
-A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `.validate` method of the `proof_validator` class:
-
-```python
-v = proof_validator()
-receipt = v.validate(target_hash=tree.root_hash(), proof=p)
-```
-
-Here the `validate_proof` method is internally invoked, modifying the proof as described above, whereas `receipt` is instant of the `validations.validation_receipt` class. It looks like
-
-```bash
->>> receipt
-
-    ----------------------------- VALIDATION RECEIPT -----------------------------                
-
-    uuid           : eee725d8-fb31-11e8-af94-70c94e89b637                
-    timestamp      : 1544305251 (Sat Dec  8 22:40:51 2018)                
-
-    proof-id       : 34e20e14-fb31-11e8-af94-70c94e89b637                
-    proof-provider : 29958266-fb31-11e8-af94-70c94e89b637                
-
-    result         : VALID                
-
-    ------------------------------- END OF RECEIPT -------------------------------                
-
->>>
-```
-where `proof-provider` refers to the Merkle-tree having generated the proof. The corresponding JSON format is
-
-```json
-  {
-      "body": {
-          "proof_uuid": "34e20e14-fb31-11e8-af94-70c94e89b637",
-          "proof_provider": "29958266-fb31-11e8-af94-70c94e89b637",
-          "result": true
-      },
-      "header": {
-          "uuid": "eee725d8-fb31-11e8-af94-70c94e89b637",
-          "timestamp": 1544305251,
-          "validation_moment": "Sat Dec  8 22:40:51 2018"
-      }
-  }
-```
-
-and will be stored in a `.json` file if the validator object has been configured upon construction appropriately. More specifically,
-
-```python
-v = proof_validator(validations_dir=...)
-```
-
-configures the validator to save receipts upon validation inside the specified directory as a `.json` file named with the receipt's uuid.
-
-
-## Defense against second-preimage attack
-
-
-In the current version, security measures against second-preimage attack can genuinely be activated only for Merkle-trees with default hash and encoding type, i.e., _SHA256_ resp. _UTF-8_. They are controlled by the `security` argument of the `merkle_tree` constructor and are _by default activated_. You can deactivate them by calling the constructor as:
-
-```python
-t = merkle_tree(..., security=False, ...)
-```
-
-but -as already said- this does _not_ affect hashing for non-default combinations of hash and encoding types. Roughly speaking, security measures consist in the following:
-
-- Before calculating the hash of a leaf, prepend the corresponding record with the hexadecimal `/x00`
-
-- Before calculating the hash any interior node, prepend both of its parents' hashes with the hexadecimal `/x01`
-
-Cf. the `.hash()` method and the docs of the `hash_machine` class inside the `hash_machine.py` module for more accuracy.
-
-_NOTE_ : Security measures are readily extendible to any combination of hash and encoding types by appropriately modifying only the `hash_machine.py` module as follows:
-
-- Rewrite line `53` to include any desired combination of hash and encoding types
-
-- Inform the `.security_mode_activated()` method of the `hash_machine` class accordingly
-
-Feel free to contribute.
-
 ## Tree structure
-
 
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_. All nodes except for the exterior ones (_leaves_) have _two_ parents. That is, instead of promoting lonely leaves to the next level, a bifurcation node is being created. This structure is crucial for:
 
-- *fast generation of consistency-paths* (based on additive decompositions in decreasing powers of 2).
-- fast calculation of the new root-hash *since only the hashes at the left-most branch of the tree need be recalculated*.
-- *speed and memory efficiency*, since the height as well as the total number of nodes with respect to the tree's length is kept to a minimum.
+- fast generation of consistency-paths (based on additive decompositions in decreasing powers of _2_).
+- fast calculation of the new root-hash since only the hashes at the left-most branch of the tree need be recalculated.
+- speed and memory efficiency, since the height as well as the total number of nodes with respect to the tree's length is kept to a minimum.
 
-For example, a tree with 9 leaves has 17 nodes in the present implementation, whereas the total number of nodes in the structure described [here](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is 20. Follow the straightforward algorithm in the `update()` method of the `tree_tools.merkle_tree` class for further insight into the tree's structure.
+For example, a tree with 9 leaves has _17_ nodes in the present implementation, whereas the total number of nodes in the structure described [here](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_. Follow the straightforward algorithm in the `.update` method of the `tree.merkle_tree` class for further insight into the tree's structure.
 
 ### Deviation from bitcoin specification
 
-In contrast to the bitcoin specification for Merkle-trees, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, creating bifurcation nodes at the rightmost branch (see above) allows the tree to remain genuinely binary while having an odd number of leaves.
+In contrast to the bitcoin specification for Merkle-trees, lonely leaves are not doubled in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, creating bifurcation nodes at the rightmost branch allows the tree to remain genuinely binary while having an odd number of leaves. As a consequence, even if security mode (see below) is deactivated, the current implementation is invulnerable to the kind of attack that is described [here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp).
+
+
+
+## Defense against second-preimage attack
+
+
+Security measures against second-preimage attack are by default activated. In the current implementation, they play genuine role _only_ for Merkle-trees with default hash and encoding type (SHA256, resp. UTF-8). Roughly speaking, security measures consist in the following:
+
+- Before calculating the hash of a leaf, prepend the corresponding record with the null hexadecimal `0x00`
+
+- Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
+
+See [here](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) for some insight into this kind of attack and the way to defend against it.

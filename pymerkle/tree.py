@@ -19,10 +19,10 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 class merkle_tree(object):
     """Class for Merkle-Trees
 
-    :param hash_type:  [optional] Defaults to 'sha256'. Should be included in hashing.HASH_TYPES (upper-
+    :param hash_type:  [optional] Defaults to 'sha256'. Should be included in ``hashing.HASH_TYPES`` (upper-
                        or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type hash_type:   str
-    :param encoding:   [optional] Defaults to 'utf_8'. Should be included in hashing.ENCODINGS (upper-
+    :param encoding:   [optional] Defaults to 'utf_8'. Should be included in ``hashing.ENCODINGS`` (upper-
                        or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type encoding:    str
     :param security:   [optional] Defaults to ``True``. Activates defense against second-preimage attack
