@@ -11,11 +11,11 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+#
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
-
-import os
-import sys
-sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
@@ -24,9 +24,9 @@ copyright = '2019, FoteinosMerg'
 author = 'FoteinosMerg'
 
 # The short X.Y version
-version = '0.1.3'
+version = ''
 # The full version, including alpha/beta/rc tags
-release = version
+release = '0.1.3'
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,11 +41,10 @@ release = version
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    # 'sphinx.ext.todo',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ['ntemplates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -61,12 +60,12 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'en'
+language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -76,57 +75,9 @@ pygments_style = None
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
+#
+html_theme = 'default'
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    html_theme = "default"
-else:
-    html_theme_path = ["_themes"]
-    html_theme = "sphinx_rtd_theme"
-
-html_theme_options = {}
-
-# html_theme = 'bootstrap-astropy'#'default'#'caktus'
-
-# import caktus_theme
-# html_theme = 'caktus'
-# html_theme_path = [caktus_theme.get_theme_dir()]
-# html_sidebars = caktus_theme.default_sidebars()
-
-# html_theme = 'default'
-
-# extensions += ['sphinxjp.themes.basicstrap']
-# html_theme = 'basicstrap'
-
-# import astropy_sphinx_theme
-# html_theme_path = astropy_sphinx_theme.get_html_theme_path()
-# html_theme = 'bootstrap-astropy'
-
-# import kotti_docs_theme
-# html_theme_path = [kotti_docs_theme.get_theme_dir()]
-# html_theme = 'kotti_docs_theme'
-# html_theme_options = {
-#     'github_user': 'Pylons',
-#     'github_repo': 'Kotti',
-#     'twitter_username': 'KottiCMS',
-#     'home_url': 'http://kotti.pylonsproject.org/',
-#     'mailing_list_url': 'http://groups.google.com/group/kotti',
-#     'irc_channel_url': 'irc://irc.freenode.net/#kotti',
-# }
-
-# html_theme = 'sphinxjp'
-
-# import zerovm_sphinx_theme
-# html_theme_path = [zerovm_sphinx_theme.theme_path]
-# html_theme = 'zerovm'
-
-# import sphinx_adc_theme
-# html_theme = "sphinx_adc_theme"
-# html_theme_path = [sphinx_adc_theme.get_html_theme_path()]
-
-# ----------------------------------------------------------------------------
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -136,7 +87,17 @@ html_theme_options = {}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['nstatic']
+
+# Custom sidebar templates, must be a dictionary that maps document names
+# to template names.
+#
+# The default sidebars (for documents that don't match any pattern) are
+# defined by theme itself.  Builtin themes are using these templates by
+# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
+# 'searchbox.html']``.
+#
+# html_sidebars = {}
 
 
 # -- Options for HTMLHelp output ---------------------------------------------
@@ -170,7 +131,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'pymerkle.tex', 'pymerkle Documentation',
-     'Author', 'manual'),
+     'FoteinosMerg', 'manual'),
 ]
 
 
@@ -215,8 +176,3 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
-
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True
