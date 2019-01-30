@@ -67,7 +67,7 @@ class hash_machine(object):
         self.ENCODING = hash_machine.select_encoding(
             encoding=encoding.lower().replace('-', '_'))
 
-        # Plays role only if hash and endoding types are SHA256 resp. UTF-8
+        # Plays role only if hash and endodin types is SHA256, resp. UTF-8
         self.SECURITY = security
         if self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8':
             # ~ Security prefices will be prepended before hashing for defense against
