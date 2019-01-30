@@ -94,7 +94,7 @@ class node(object):
         :type ignore:  list of integers
         :rtype: str
 
-        .. note: The left parent of each node is printed *above* the right one
+        .. note:: The left parent of each node is printed *above* the right one
         """
         if level == 0:
             output = '\n'
