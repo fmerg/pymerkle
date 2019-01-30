@@ -7,10 +7,10 @@
 
 This library implements
 
-- a balanced Merkle-Tree, with possibly odd number of leaves, capable of providing consistency-profs in addition to audit-proofs (generally known as _merkle-proofs_) with defense against second-preimage attack.
+- a _balanced_ Merkle-Tree, with possibly odd number of leaves, capable of providing consistency-profs in addition to audit-proofs and defense against second-preimage attack
 - flexible mechanisms for validating the provided proofs
 
-It is currently the only Python library supporting all the above features, with an eye on protocols like Certificate Transparency and real-life applications.
+It is currently the only Python implementation supporting all the above features, with an eye on protocols like Certificate Transparency and real-life applications.
 
 ## Installation
 
@@ -95,4 +95,4 @@ Security measures against second-preimage attack are by default activated. In th
 
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
-See [here](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) for some insight into this kind of attack and the way to defend against it.
+See [here](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) for some insight.
