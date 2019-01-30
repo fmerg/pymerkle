@@ -18,7 +18,7 @@
 
 import os
 import sys
-sys.path.insert(0, '../../pymerkle')
+sys.path.insert(0, '../..')
 
 
 # -- Project information -----------------------------------------------------
