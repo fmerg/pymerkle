@@ -7,6 +7,3 @@ lint.sh
 *.egg-info/
 build/
 dist/
-
-#
-docs/build
