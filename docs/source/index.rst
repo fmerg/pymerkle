@@ -1,10 +1,10 @@
-.. pymerkle documentation master file, created by
-   sphinx-quickstart on Wed Jan 30 17:26:38 2019.
+.. pymerkle 0.1.3 documentation master file, created by
+   sphinx-quickstart on Wed Jan 30 19:57:01 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pymerkle's documentation!
-====================================
+Welcome to pymerkle 0.1.3's documentation!
+==========================================
 
 .. toctree::
    :maxdepth: 2

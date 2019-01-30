@@ -46,32 +46,7 @@ r = tree.consistency_proof(old_hash=top_hash, sublength=length)
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
 ```
 
-### Tree display
-
-Invoking `tree` inside the Python interpreter displays info about its fixed configurations
-(hash and encoding type, security mode) and current state (size, length, height):
-
-```shell
->>> tree
-
-    uuid      : 5e2c80ee-0e99-11e9-87fe-70c94e89b637                
-
-    hash-type : SHA256                
-    encoding  : UTF-8                
-    security  : ACTIVATED                
-
-    root-hash : f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da                
-
-    size      : 9                
-    length    : 5                
-    height    : 3
-```
-You can save this info in a file called `current_state` by
-
-```python
-with open('current_state', 'w') as f:
-    f.write(tree.__repr__())
-```
+#### Tree display
 
 Printing `tree` displays it in a format similar to the output of the `tree` command of Unix based systems:
 
@@ -173,6 +148,58 @@ tree.encrypt_log(log_sample)
 ```
 
 without specifying its absolute path.
+
+#### Tree display
+
+Invoking `tree` inside the Python interpreter displays info about its fixed configurations
+(hash and encoding type, security mode) and current state (size, length, height):
+
+```shell
+>>> tree
+
+    uuid      : 5e2c80ee-0e99-11e9-87fe-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    security  : ACTIVATED                
+
+    root-hash : f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da                
+
+    size      : 9                
+    length    : 5                
+    height    : 3
+```
+You can save this info in a file called `current_state` by
+
+```python
+with open('current_state', 'w') as f:
+    f.write(tree.__repr__())
+```
+
+Printing `tree` displays it in a format similar to the output of the `tree` command of Unix based systems:
+
+```shell
+>>> print(tree)
+
+ └─f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da
+     ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
+     │    ├──a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02
+     │    │    ├──db3426e878068d28d269b6c87172322ce5372b65756d0789001d34835f601c03
+     │    │    └──2215e8ac4e2b871c2a48189e79738c956c081e23ac2f2415bf77da199dfd920c
+     │    └──33bf7016f45e2219bf095500a67170bd4a9c21e465de3c1e4c51d37336fd1a6f
+     │         ├──fa61e3dec3439589f4784c893bf321d0084f04c572c7af2b68e3f3360a35b486
+     │         └──906c5d2485cae722073a430f4d04fe1767507592cef226629aeadb85a2ec909d
+     └──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
+
+>>>
+```
+
+where each node is represented by the hash it currently stores. You can save this format in a file called `structure` by
+
+```python
+with open('structure', 'w') as f:
+    f.write(tree.__str__())
+```
 
 ### New records and log encryption
 
