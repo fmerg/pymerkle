@@ -7,7 +7,7 @@
 
 This library implements
 
-- a balanced Merkle-Tree, with possibly odd number of leaves, capable of providing consistency-proofs in addition to audit-proofs, along with defense against second-preimage attack
+- a balanced Merkle-Tree, with possibly odd number of leaves and defense against second-preimage attack, capable of providing consistency-proofs (along with inclusion-tests) in addition to audit-proofs
 - flexible mechanisms for validating the provided proofs
 
 It is currently the only Python implementation supporting all the above features, with an eye on protocols like Certificate Transparency and real-life applications.
@@ -19,6 +19,8 @@ pip3 install pymerkle
 ```
 
 ## Quick example
+
+(See [here](USAGE.md) for extended examples and sessions)
 
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof
@@ -52,8 +54,6 @@ r = tree.consistency_proof(old_hash=top_hash, sublength=length)
 # Validate consistency-proof and generate receipt
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
 ```
-
-See [here](USAGE.md) for further examples. 
 
 ## Requirements
 
