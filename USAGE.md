@@ -102,7 +102,7 @@ with open('structure', 'w') as f:
 
 ### New records and log encryption
 
-_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update()` method to successively update with new records as follows:
+_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update` method to successively update with new records as follows:
 
 ```python
 tree = merkle_tree()                          # initially empty SHA256/UTF-8 Merkle-tree
@@ -112,7 +112,7 @@ tree.update(b'arbitrary bytes-like object')   # second record
 ...                                           # ...
 ```
 
-_Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encrypt_log()` to encrypt a new file as follows:
+_Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encrypt_log` method to encrypt a new file as follows:
 
 ```python
 tree = merkle_tree()
@@ -386,13 +386,13 @@ Returns in hexadecimal form (String) the current top-hash of the Merkle-tree (i.
 
 ### __.update (*record*)__
 
-Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf; restructures the tree appropriately and recalculates hashes of the right-most branch
+Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf. Restructures the tree appropriately and recalculates hashes of the right-most branch.
 
-- `record` (_str_) or _bytes_ or _bytearray_, thought of as the new record whose hash is about to be encrypted into the Merkle-tree
+- **record** (_str_) or _bytes_ or _bytearray_, thought of as the new record whose hash is about to be encrypted into the Merkle-tree
 
 ### __.encrypt_log (*log_file*)__
 
-Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update()` function internally); throws relative exception if the specified file does not exist.
+Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update` method internally). Throws relative exception if the specified file does not exist.
 
 - **log_file** (_str_), relative path of the log file under encryption with respect to the configured log directory `.log_dir` of the Merkle-tree
 
@@ -418,7 +418,7 @@ Deletes all the nodes of the Merkle-tree
 
 ### __.display ( [ *indent=3* ] )__
 
-Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with its default parameter, it is equivalent to printing the tree with `print()`
+Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with its default parameter, it is equivalent to printing the tree with `print`
 
 - **indent** (_int_) [optional], depth at which each level is indented with respect to its above one
 
@@ -442,7 +442,7 @@ Constructor of the `validations.proof_validator` class.
 
 This class wraps the `validate_proof` functionality by employing the `validations.validation_receipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
 
-- **validations_dir** (_str_) [optional], absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate()` function below). Defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
+- **validations_dir** (_str_) [optional], absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate` method below). Defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
 
 ### __.validate (*target_hash, proof*)__
 
