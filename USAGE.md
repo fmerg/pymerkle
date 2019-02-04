@@ -350,7 +350,7 @@ configures the validator to save receipts upon validation inside the specified d
 
 ## API
 
-This section describes the _pymerkle_ API as suggested to be used by an external user. Refer to the [complete documentation](http://pymerkle.readthedocs.org/) to see all possibilities.
+This section describes the _pymerkle_ API as suggested to be used by an external user. See the [documentation](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
 
 ### _Merkle-tree class_
 
@@ -388,7 +388,7 @@ Returns in hexadecimal form (String) the current top-hash of the Merkle-tree (i.
 
 Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf. Restructures the tree appropriately and recalculates hashes of the right-most branch.
 
-- **record** (_str_) or _bytes_ or _bytearray_, thought of as the new record whose hash is about to be encrypted into the Merkle-tree
+- **record** (_str_ or _bytes_ or _bytearray_), thought of as the new record whose hash is about to be encrypted into the Merkle-tree
 
 ### __.encrypt_log (*log_file*)__
 
