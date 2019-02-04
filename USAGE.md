@@ -1,15 +1,8 @@
-# pymerkle: Basic usage
+# pymerkle: Usage and API
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
-## Installation
-
-```bash
-pip3 install pymerkle
-```
-## Usage
-
-### Basic import
+## Basic usage
 
 Type
 
@@ -25,7 +18,7 @@ to import the classes `merkle_tree`, `proof_validator`, as well as the `validate
 tree = merkle_tree()
 ```
 
-creates an empty Merkle-tree with default configurations: hash algorithm SHA256, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
+creates an empty Merkle-tree with default configurations: hash algorithm _SHA256_, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
 
 ```python
 tree = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
@@ -37,7 +30,7 @@ To create a Merkle-tree with hash algorithm SHA512 and encoding type UTF-32 just
 tree = merkle_tree(hash_type='sha512', encoding='utf-32')
 ```
 
-An extra argument `log_dir` specifies the absolute path of the directory, where the Merkle-tree will receive files to encrypt from. If unspecified, it is by default set equal to the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log files from an existing directory `/logs` inside the directory containing the script, write:
+An extra argument `log_dir` would specify the absolute path of the directory, where the Merkle-tree will receive files to encrypt from. If unspecified, it defaults the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log-files from an existing directory `/logs` inside the directory containing the script, write:
 
 ```python
 import os
@@ -46,18 +39,18 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 tree = merkle_tree(log_dir=os.path.join(script_dir, 'logs'))
 ```
 
-You can then encrypt any file `log_sample` inside the `/logs` directory just with
+You can then encrypt any file `log_sample` inside the `/logs` directory by
 
 ```python
 tree.encrypt_log(log_sample)
 ```
 
-without specifying its absolute path.
+without need to specify its absolute path.
 
 #### Tree display
 
 Invoking `tree` inside the Python interpreter displays info about its fixed configurations
-(hash and encoding type, security mode) and current state (size, length, height, top-hash):
+(uuid, hash and encoding type, security mode) and current state (size, length, height, top-hash):
 
 ```shell
 >>> tree
@@ -74,6 +67,7 @@ Invoking `tree` inside the Python interpreter displays info about its fixed conf
     length    : 5                
     height    : 3
 ```
+
 You can save this info in a file called `current_state` by
 
 ```python
@@ -155,7 +149,99 @@ p = tree.audit_proof(arg=record)
 
 where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently. In the second case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
 
-The generated object `p` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). If the argument requested by Client exceeds the tree's current length or isn't among its encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
+The generated object `p` is an instance of the `proof.proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
+
+```shell
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    uuid        : 18fa4ec0-28c0-11e9-85e0-70c94e89b637                
+
+    generation  : SUCCESS                
+
+    timestamp   : 1549314112 (Mon Feb  4 22:01:52 2019)                
+    provider    : 09f8c6ea-28c0-11e9-85e0-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 3                
+    proof-path  :                
+
+       [0]   +1  7f40f5151cb5fd959b5e9e3ee599e87a807bc4c867bd1b1ee9ed467fc5c7e863
+       [1]   -1  66b83e9146ca1e6417fd1a8f84a2b0a7024d71427b0e3ad8e05476e6964f633c
+       [2]   -1  848e28f3bca50b932cd828ee9794a6a58844820925bab4ad6eae9cd17122ab2e
+       [3]   +1  110014ecd2a9435c070e17b761d9a7d1f0cebbb3a9807d7f8a82111237a85242
+       [4]   +1  b114831f03bba7ae482c5faf824d08dc6c67252189473f4cf7dde8db54dfa4ff
+       [5]   +1  383a6ccbd975aec2df2757f874346eb8dc77bf42c2c7ccc2da781a9f9cb15ab7
+       [6]   -1  7deb247d069adf4b786bf9da98e661fb497a417853afaf8d514b35b83e5330c3
+       [7]   -1  2419f3f28535deeed2365fa098480a524c10d5c0214d2d8cd6d59631bae51b23                
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+the correpsonding JSON format being
+
+```json
+{
+    "body": {
+        "proof_index": 3,
+        "proof_path": [
+            [
+                1,
+                "7f40f5151cb5fd959b5e9e3ee599e87a807bc4c867bd1b1ee9ed467fc5c7e863"
+            ],
+            [
+                -1,
+                "66b83e9146ca1e6417fd1a8f84a2b0a7024d71427b0e3ad8e05476e6964f633c"
+            ],
+            [
+                -1,
+                "848e28f3bca50b932cd828ee9794a6a58844820925bab4ad6eae9cd17122ab2e"
+            ],
+            [
+                1,
+                "110014ecd2a9435c070e17b761d9a7d1f0cebbb3a9807d7f8a82111237a85242"
+            ],
+            [
+                1,
+                "b114831f03bba7ae482c5faf824d08dc6c67252189473f4cf7dde8db54dfa4ff"
+            ],
+            [
+                1,
+                "383a6ccbd975aec2df2757f874346eb8dc77bf42c2c7ccc2da781a9f9cb15ab7"
+            ],
+            [
+                -1,
+                "7deb247d069adf4b786bf9da98e661fb497a417853afaf8d514b35b83e5330c3"
+            ],
+            [
+                -1,
+                "2419f3f28535deeed2365fa098480a524c10d5c0214d2d8cd6d59631bae51b23"
+            ]
+        ]
+    },
+    "header": {
+        "creation_moment": "Mon Feb  4 22:01:52 2019",
+        "encoding": "utf_8",
+        "generation": "SUCCESS",
+        "hash_type": "sha256",
+        "provider": "09f8c6ea-28c0-11e9-85e0-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1549314112,
+        "uuid": "18fa4ec0-28c0-11e9-85e0-70c94e89b637"
+    }
+}
+```
+
+If the argument requested by Client exceeds the tree's current length or isn't among the latter's encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
 
 #### Consistency-proof
 
@@ -264,6 +350,8 @@ configures the validator to save receipts upon validation inside the specified d
 
 ## API
 
+This section describes the _pymerkle_ API as suggested to be used by an external user. Refer to the [complete documentation](http://pymerkle.readthedocs.org/) to see all possibilities.
+
 ### _Merkle-tree class_
 
 ### __merkle_tree ( [ *hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
@@ -271,13 +359,13 @@ configures the validator to save receipts upon validation inside the specified d
 
 Constructor of Merkle-trees, returning an instance of the `tree.merkle_tree` class.
 
-- **hash_type** (_str_), specifies the hash algorithm used by the Merkle-tree defulting to _SHA256_ if unspecified. Can be any of the following: `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case allowed); if `sha3` is moreover supported, can also be `'sha3_224'`, `'sha3_256'`, `'sha3_384'`, or `'sha3_512'` (upper- or mixed-case with '-' instead of '_' allowed)
+- **hash_type** (_str_) [optional], specifies the hash algorithm used by the Merkle-tree defulting to _SHA256_ if unspecified. Must be among `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case allowed); if `sha3` is moreover supported, can also be `'sha3_224'`, `'sha3_256'`, `'sha3_384'`, or `'sha3_512'` (upper- or mixed-case with '-' instead of '_' allowed)
 
-- **encoding_type** _str_, specifies the encoding used by the Merkle-tree before hashing defaulting to _UTF-8_ if unspecified. Can be any of the following (upper- or mixed-case with '-' instead of '_' allowed): `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
+- **encoding_type** (_str_) [optional], specifies the encoding used by the Merkle-tree before hashing defaulting to _UTF-8_ if unspecified. Can be any of the following (upper- or mixed-case with '-' instead of '_' allowed): `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
 
-- **security** (_bool_), specifies the security mode of the Merkle-tree defaulting to `True` if unspecified (security measures against second-preimage attack activated). Cf. *Defense against second-preimage attack* for details.
+- **security** (_bool_) [optional], specifies the security mode of the Merkle-tree, defaulting to `True` if unspecified (security measures against second-preimage attack activated)
 
-- **log_dir** (_str_), absolute path of the directory, where the Merkle-tree will receive log files to encrypt from; defaults to the current working directory if unspecified
+- **log_dir** (_str_) [optional], absolute path of the directory, where the Merkle-tree will receive log files to encrypt from. Defaults to the current working directory if unspecified
 
 
 ### __.height ( )__
@@ -287,6 +375,10 @@ Returns an integer equal to the current height of the Merkle-tree
 ### __.length ( )__
 
 Returns an integer equal to the current length (number of leaves) of the Merkle-tree
+
+### __.size ( )__
+
+Returns an integer equal to the current size (number of nodes) of the Merkle-tree
 
 ### __.root_hash ( )__
 
@@ -310,7 +402,7 @@ Returns an instance of the `proof.proof` class, thought of as the audit-proof ba
 
 - **arg** (_int_ or _str_ or _bytes_ or _bytearray_). If integer, indicates the leaf where the audit-proof should be based upon; in any other case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any)
 
-*NOTE*: since different leaves might store the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records and audit proofs are uniquely ascribed to each__.
+*NOTE*: since different leaves might encrypt the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records and audit proofs are uniquely ascribed to each__.
 
 ### __.consistency_proof (*old_hash, sublength*)__
 
@@ -328,19 +420,19 @@ Deletes all the nodes of the Merkle-tree
 
 Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with its default parameter, it is equivalent to printing the tree with `print()`
 
-- **indent** (_int_), depth at which each level is indented with respect to its above one
+- **indent** (_int_) [optional], depth at which each level is indented with respect to its above one
 
-_NOTE_: In the current implementation, the left parent of each node is printed *above* the right one (cf. the recursive implementation `node.node.__str__()` function to understand why)
+_NOTE_: The left parent of each node is printed *above* its right one
 
 ### _Quick proof validation_
 
 ### __validate_proof (*target_hash, proof*)__
 
-Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns this result
+Validates the inserted proof by comparing to the target-hash, modifies the proof's status as `True` or `False` accordingly and returns this result.
 
-- **target_hash** (_str_), hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
+- **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
-- **proof** (_proof.proof_) (e.g., any output of the `.audit_proof()` and `.consistency_proof()` methods); the proof to be validated
+- **proof** (_proof.proof_), the proof to be validated
 
 ### _Proof-validator class_
 
@@ -350,12 +442,12 @@ Constructor of the `validations.proof_validator` class.
 
 This class wraps the `validate_proof` functionality by employing the `validations.validation_receipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
 
-- **validations_dir** (_str_), absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate()` function below); defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
+- **validations_dir** (_str_) [optional], absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate()` function below). Defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
 
 ### __.validate (*target_hash, proof*)__
 
-Validates the inserted proof by comparing to target hash, modifies the proof's status as `True` or `False` according to validation result and returns corresponding `validations.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file named with the receipt's id
+Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file, bearing as name the corresponding receipt's uuid.
 
-- **target_hash** (_str_), hash (in hexadecimal form) to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
+- **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
 - **proof** (_proof.proof_), the proof to be validated

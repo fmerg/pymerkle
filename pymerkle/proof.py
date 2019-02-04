@@ -131,7 +131,6 @@ class proof(object):
 
         :rtype: dict
         """
-        encoder = mer
         encoder = proofEncoder()
         return encoder.default(self)
 
