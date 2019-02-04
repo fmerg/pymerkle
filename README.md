@@ -53,6 +53,8 @@ r = tree.consistency_proof(old_hash=top_hash, sublength=length)
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
 ```
 
+See [here](USAGE.md) for further examples. 
+
 ## Requirements
 
 `python3.6` or `python3.7`
