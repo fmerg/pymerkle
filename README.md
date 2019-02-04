@@ -20,7 +20,7 @@ pip3 install pymerkle
 
 ## Quick example
 
-(See [here](USAGE.md) for extended examples and sessions)
+(See [**here**](USAGE.md) for extended examples and sessions)
 
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof

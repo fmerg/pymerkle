@@ -350,7 +350,7 @@ configures the validator to save receipts upon validation inside the specified d
 
 ## API
 
-This section describes the _pymerkle_ API as suggested to be used by an external user. See the [documentation](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
+This section describes the _pymerkle_ API as suggested to be used by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
 
 ### _Merkle-tree class_
 
