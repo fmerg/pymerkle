@@ -342,6 +342,13 @@ class merkle_tree(object):
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
                           it can be passed in as the second argument to the ``validations.validate_proof`` method)
         :rtype:           proof.proof
+
+        .. note:: Before the final proof is being returned, an inclusion-test is performed for the presumed
+                  previous state of the Merke-tree corresponding to the provided parameters (If the inclusion-
+                  test fails, then the returned proof is predestined to be found invalid upon validation).
+                  This is done implicitely and not by calling the ``.inclusion_test`` method (whose implementation
+                  differs in that no full path of signed hashes, as generated here by the ``.consistency_path``
+                  method, needs be taken into account.)
         """
 
         # Calculate proof path
@@ -391,31 +398,28 @@ class merkle_tree(object):
 # ------------------------------ Inclusion tests ------------------------------
 
     def inclusion_test(self, old_hash, sublength):
-        """Verifies that the parameters provided from Client's Side correspond to a previous state of the Merkle-tree
-
-        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
-        and length respectively) provided from Client's Side.
+        """Verifies that the parameters provided from Client's Side correspond
+        to a previous state of the Merkle-tree
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
         :type old_hash:   str or bytes or bytearray or int
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
-        :returns:         ``True`` if the path of signed hashes generated for the provided ``sublength``
-                          leads to the provided hash
+        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated
+                          internally for the provided ``sublength``, leads to the provided hash
         :rtype:           bool
         """
 
-        # Calculate path
-        consistency_path = self.consistency_path(sublength=sublength)
+        if 0 < sublength <= len(self.leaves):
 
-        if consistency_path is not None and\
-           consistency_path[0] is not -1:  # Excludes zero leaves
+            # Generate corresponding path of negatively signed hashes
+            left_roots = self.principal_subroots(sublength)
+            left_path = tuple([(-1, r[1].hash) for r in left_roots])
 
-            # Root-hash test
-            left_path = consistency_path[1]
+            # Perform hash-test
             return old_hash == self.multi_hash(left_path, len(left_path) - 1)
 
-        return False  # No genuine path corresponds to the requested sublength
+        return False  # No path of hashes was generated
 
 
 # ------------------------------ Path generation ------------------------------
