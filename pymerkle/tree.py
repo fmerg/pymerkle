@@ -270,7 +270,7 @@ class merkle_tree(object):
         except FileNotFoundError:
             logging.warning('Requested log file does not exist')
 
-# ------------------------ Audit proof functionalities ------------------------
+# ------------------------------ Proof generation ------------------------------
 
     def audit_proof(self, arg):
         """Response of the Merkle-Tree to the request of providing an audit-proof based upon
@@ -328,6 +328,79 @@ class merkle_tree(object):
             proof_index=None,
             proof_path=None)
 
+    def consistency_proof(self, old_hash, sublength):
+        """Response of the Merkle-Tree to the request of providing a consistency-proof for the
+        given parameters.
+
+        Arguments of this function amount to a presumed previous stage of the Merkle-Tree (root-hash
+        and length respectively) provided from Client's Side.
+
+        :param old_hash:  root-hash of a presumably valid previous stage of the Merkle-Tree
+        :type old_hash:   str or bytes or bytearray or int
+        :param sublength: presumable length (number of leaves) for the above previous stage of the Merkle-Tree
+        :type sublength:  int
+        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
+                          it can be passed in as the second argument to the ``validations.validate_proof`` method)
+        :rtype:           proof.proof
+        """
+
+        # Calculate proof path
+        consistency_path = self.consistency_path(sublength=sublength)
+
+        # Return proof nice formatted along with validation parameters
+        if consistency_path is not None and\
+           consistency_path[0] is not -1:  # Excludes zero leaves
+            proof_index, left_path, full_path = consistency_path
+
+            # Subtree inclusion test
+            if old_hash == self.multi_hash(left_path, len(left_path) - 1):
+                return proof(
+                    generation='SUCCESS',
+                    provider=self.uuid,
+                    hash_type=self.hash_type,
+                    encoding=self.encoding,
+                    security=self.security,
+                    proof_index=proof_index,
+                    proof_path=full_path)
+
+            # Handles inclusion test failure
+            failure_message = 'Subtree provided by Client failed to be detected'
+            logging.warning(failure_message)
+            return proof(
+                generation='FAILURE ({})'.format(failure_message),
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=None,
+                proof_path=None)
+
+        # Handles incompatibility case (includes the zero leaves and zero
+        # `sublength` case)
+        failure_message = 'Subtree provided by Client was incompatible'
+        logging.warning(failure_message)
+        return proof(
+            generation='FAILURE ({})'.format(failure_message),
+            provider=self.uuid,
+            hash_type=self.hash_type,
+            encoding=self.encoding,
+            security=self.security,
+            proof_index=None,
+            proof_path=None)
+
+# ------------------------------ Inclusion tests ------------------------------
+
+    def inclusion_test(self, *arg):
+        pass
+
+    def record_inclusion_test(self, record):
+        pass
+
+    def subtree_inclusion_test(self, old_hash, sublength):
+        pass
+
+# ------------------------------ Path generation ------------------------------
+
     def audit_path(self, index):
         """
         Computes and returns the body for the audit-proof based upon the requested index.
@@ -381,67 +454,6 @@ class merkle_tree(object):
                 current_node = current_node.child
             return start, tuple(path)
 
-# --------------------- Consistency proof functionalities ---------------------
-
-    def consistency_proof(self, old_hash, sublength):
-        """Response of the Merkle-Tree to the request of providing a consistency-proof for the
-        given parameters.
-
-        Arguments of this function amount to a presumed previous stage of the Merkle-Tree (root-hash
-        and length respectively) provided from Client's Side.
-
-        :param old_hash:  root-hash of a presumably valid previous stage of the Merkle-Tree
-        :type old_hash:   str or bytes or bytearray or int
-        :param sublength: presumable length (number of leaves) for the above previous stage of the Merkle-Tree
-        :type sublength:  int
-        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
-                          it can be passed in as the second argument to the ``validations.validate_proof`` method)
-        :rtype:           proof.proof
-        """
-
-        # Calculate proof path
-        consistency_path = self.consistency_path(sublength=sublength)
-
-        # Return proof nice formatted along with validation parameters
-        if consistency_path is not None and\
-           consistency_path[0] is not -1:  # Excludes zero leaves
-            proof_index, left_path, full_path = consistency_path
-
-            # Inclusion test
-            if old_hash == self.multi_hash(left_path, len(left_path) - 1):
-                return proof(
-                    generation='SUCCESS',
-                    provider=self.uuid,
-                    hash_type=self.hash_type,
-                    encoding=self.encoding,
-                    security=self.security,
-                    proof_index=proof_index,
-                    proof_path=full_path)
-
-            # Handles inclusion test failure
-            failure_message = 'Subtree provided by Client failed to be detected'
-            logging.warning(failure_message)
-            return proof(
-                generation='FAILURE ({})'.format(failure_message),
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                proof_index=None,
-                proof_path=None)
-
-        # Handles incompatibility case (includes the zero leaves and zero
-        # `sublength` case)
-        failure_message = 'Subtree provided by Client was incompatible'
-        logging.warning(failure_message)
-        return proof(
-            generation='FAILURE ({})'.format(failure_message),
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            proof_index=None,
-            proof_path=None)
 
     def consistency_path(self, sublength):
         """
@@ -493,7 +505,7 @@ class merkle_tree(object):
         """
         Complements optimally the subroot hashes detected by ``.principal_subroots``
         with all necessary interior hashes of the Merkle-Tree, so that a full
-        consistency-path cN be generated
+        consistency-path can be generated
 
         :param subroots: Should be some output of the ``.principal_subroots`` method
         :type subroots:  list of nodes.node

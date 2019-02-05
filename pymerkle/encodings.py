@@ -1,5 +1,5 @@
 """
-Provides a tuple with supported encoding types
+Provides a tuple with supported encoding types to be used during hashing
 """
 
 ENCODINGS = (
@@ -93,3 +93,5 @@ ENCODINGS = (
     'utf_16_be',
     'cp1253',
     'iso2022_jp')
+    """
+    """

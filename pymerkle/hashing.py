@@ -34,7 +34,7 @@ class hash_machine(object):
     of this class are thus to be initialized with every new construction of a Merkle-Tree or every time
     a proof validation is about to be performed
 
-    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the HASH_TYPES
+    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the ``HASH_TYPES``
                       global variable (upper- or mixed-case with '-' instead of '_' allowed). Defaults to ``sha256``
                       if unspecified
     :type hash_type:  str
