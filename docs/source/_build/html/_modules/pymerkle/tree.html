@@ -534,12 +534,12 @@
         <span class="sd">&quot;&quot;&quot;Response of the Merkle-Tree to the request of providing a consistency-proof for the</span>
 <span class="sd">        given parameters.</span>
 
-<span class="sd">        Arguments of this function amount to a presumed previous stage of the Merkle-Tree (root-hash</span>
+<span class="sd">        Arguments of this function amount to a presumed previous state of the Merkle-Tree (root-hash</span>
 <span class="sd">        and length respectively) provided from Client&#39;s Side.</span>
 
-<span class="sd">        :param old_hash:  root-hash of a presumably valid previous stage of the Merkle-Tree</span>
+<span class="sd">        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-Tree</span>
 <span class="sd">        :type old_hash:   str or bytes or bytearray or int</span>
-<span class="sd">        :param sublength: presumable length (number of leaves) for the above previous stage of the Merkle-Tree</span>
+<span class="sd">        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-Tree</span>
 <span class="sd">        :type sublength:  int</span>
 <span class="sd">        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it</span>
 <span class="sd">                          it can be passed in as the second argument to the ``validations.validate_proof`` method)</span>
@@ -594,7 +594,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes and returns the body for any consistency-proof based upon the requested sublength.</span>
 
-<span class="sd">        :param sublength: length (number of leaves) for a presumably valid previous stage of the Merkle-Tree</span>
+<span class="sd">        :param sublength: length (number of leaves) for a presumably valid previous state of the Merkle-Tree</span>
 <span class="sd">        :type sublength:  int</span>
 <span class="sd">        :returns:         the starting point for application of hashing during proof validation, a tuple of</span>
 <span class="sd">                          hashes signed with ``-`` (leftmost hashes for inclusion test to be performed from</span>

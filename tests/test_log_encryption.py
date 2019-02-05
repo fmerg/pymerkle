@@ -1,9 +1,9 @@
 import pytest
 import os
-from pymerkle import merkle_tree, hashing
+from pymerkle import merkle_tree, hashing, encodings
 
 HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = hashing.ENCODINGS
+ENCODINGS = encodings.ENCODINGS
 
 # Directory containing this script
 current_dir = os.path.dirname(os.path.abspath(__file__))

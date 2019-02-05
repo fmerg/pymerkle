@@ -1,5 +1,5 @@
 """
-Stores the tuple of supported encoding types (see the ``hashing.ENCODING`` variable)
+Stores the tuple of supported encoding types (see the ``hashing.ENCODINGS`` variable)
 """
 
 ENCODINGS = (

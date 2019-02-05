@@ -1,5 +1,5 @@
 """
-Provides the base class for the Merkle-Tree's nodes and an inheriting
+Provides the base class for the Merkle-tree's nodes and an inheriting
 class for its leaves
 """
 
@@ -13,7 +13,7 @@ VERTICAL_BAR = u'\u2502'                    # │
 
 
 class node(object):
-    """Base class for the nodes of a Merkle-Tree
+    """Base class for the nodes of a Merkle-tree
 
     :param record:        [optional] the record to be encrypted within the node. If provided,
                           then the node is considered to be a leaf
@@ -25,7 +25,7 @@ class node(object):
                           is considered to be a leaf
     :type right:          nodes.node
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          attribute of the containing Merkle-Tree
+                          attribute of the containing Merkle-tree
     :type hash_function:  method
 
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
@@ -33,7 +33,7 @@ class node(object):
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
     :ivar hash:          (*str*) The hash currently stored by the node (hex)
     :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes
-                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree. For leaf nodes
+                         it is equal to the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes
                          it is ``None`` (no hash re-calculation case)
     """
 
@@ -77,7 +77,7 @@ class node(object):
         """Overrides the default implementation. Designed so that inserting the node as an argument to ``print()``
         displays the subtree having that node as root.
 
-        Sole purpose of this function is to be used for printing Merkle-Trees in a terminal friendly way,
+        Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way,
         similar to what is printed at console when running the ``tree`` command of Unix based platforms.
 
         :param level:  [optional] Defaults to ``0``. Should be always left equal to the *default* value
@@ -133,7 +133,7 @@ class node(object):
         """Checks if the node is a left parent.
 
         :returns: ``True`` iff the node is the ``.left`` attribute of some other
-                  node inside the containing Merkle-Tree
+                  node inside the containing Merkle-tree
         :rtype:   bool
         """
         if self.child is not None:
@@ -144,7 +144,7 @@ class node(object):
         """Checks if the node is a right parent.
 
         :returns: ``True`` iff the node is the ``.right`` attribute of some other
-                  node inside the containing Merkle-Tree
+                  node inside the containing Merkle-tree
         :rtype:   bool
         """
         if self.child is not None:
@@ -155,7 +155,7 @@ class node(object):
 
     def descendant(self, degree):
         """ Detects and returns the node that is ``degree`` steps upwards within
-        the containing Merkle-Tree.
+        the containing Merkle-tree.
 
         .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``
                   is the node's child, etc.
@@ -179,7 +179,7 @@ class node(object):
     def recalculate_hash(self):
         """Recalculates the node's hash under account of its parents' new hashes
 
-        This method is to be invoked for all non-leaf nodes of the Merkle-Tree's rightmost branch
+        This method is to be invoked for all non-leaf nodes of the Merkle-tree's rightmost branch
         every time a new leaf is appended into the tree.
 
         .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes
@@ -213,12 +213,12 @@ class node(object):
 
 
 class leaf(node):
-    """Class for the leafs of Merkle-Tree (parentless nodes). Inherits from the ``node`` class
+    """Class for the leafs of Merkle-tree (parentless nodes). Inherits from the ``node`` class
 
     :param record:        the record to be encrypted within the leaf
     :type record:         str or bytes or bytearray
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
-                          attribute of the containing Merkle-Tree
+                          attribute of the containing Merkle-tree
     :type hash_function:  method
     """
 

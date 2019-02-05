@@ -1,5 +1,5 @@
 """
-Provides the main class for Merkle-Tree objects and related functionalites
+Provides the main class for Merkle-tree objects and related functionalites
 """
 from .hashing import hash_machine
 from .nodes import node, leaf
@@ -17,7 +17,7 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 
 
 class merkle_tree(object):
-    """Class for Merkle-Trees
+    """Class for Merkle-trees
 
     :param hash_type:  [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper-
                        or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
@@ -28,20 +28,20 @@ class merkle_tree(object):
     :param security:   [optional] Defaults to ``True``. Activates defense against second-preimage attack
                        (genuinely activated only for the default values of hash and encoding types)
     :type security:    bool
-    :param \*records:  [optional] The records initially stored by the Merkle-Tree; usually empty at construction.
+    :param \*records:  [optional] The records initially stored by the Merkle-tree; usually empty at construction.
                        If given, the is constructed with as many leafs from the beginning, storing the hashes
                        of the inserted records in the respective order.
     :type \*records:   str or bytes or bytearray
-    :param log_dir:    [optional] Absolute path of the directory, where the Merkle-Tree will receive log files
+    :param log_dir:    [optional] Absolute path of the directory, where the Merkle-tree will receive log files
                        to encrypt from. Defaults to the current working directory if unspecified
     :type log_dir:     str
 
-    :ivar uuid:       (*str*) uuid of the Merkle-Tree (time-based)
-    :ivar hash_type:  (*str*) Type of hashing algorithm used by the Merkle-Tree
-    :ivar encoding:   (*str*) Encoding type used by the Merkle-Tree for encryption
+    :ivar uuid:       (*str*) uuid of the Merkle-tree (time-based)
+    :ivar hash_type:  (*str*) Type of hashing algorithm used by the Merkle-tree
+    :ivar encoding:   (*str*) Encoding type used by the Merkle-tree for encryption
     :ivar security:   (*bool*) Iff ``True``, security measures against second-preimage attack are activated
-    :ivar hash:       (*method*) Core hash functionality of the Merkle-Tree.
-    :ivar multi_hash: (*method*) Hash functionality used by the Merkle-Tree for performing inclusion test
+    :ivar hash:       (*method*) Core hash functionality of the Merkle-tree.
+    :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion test
                       upon a request for consistency proof.
     :ivar .log_dir:   (*bool*) See homonymous argument of the constructor
     """
@@ -86,7 +86,7 @@ class merkle_tree(object):
     def __bool__(self):
         """Overrides the default implementation
 
-        :returns: ``False`` iff the Merkle-Tree has no nodes
+        :returns: ``False`` iff the Merkle-tree has no nodes
         :rtype:   bool
         """
         return bool(self.nodes)
@@ -94,7 +94,7 @@ class merkle_tree(object):
 # ------------------------------------ Root ------------------------------
 
     def root_hash(self):
-        """Returns current top-hash of the Merkle-Tree,i.e., the hash stored by its current root
+        """Returns current top-hash of the Merkle-tree,i.e., the hash stored by its current root
 
         :returns: The tree's current root hash in hexadecimal form
         :rtype: str
@@ -108,7 +108,7 @@ class merkle_tree(object):
     def __repr__(self):
         """Overrides the default implementation.
 
-        Sole purpose of this function is to easy print info about the Merkle-Treee by just invoking it at console.
+        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
 
         .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
         """
@@ -134,21 +134,21 @@ class merkle_tree(object):
             height=self.height())
 
     def length(self):
-        """Returns the Merkle-Tree's current length (i.e., the nuber of its leaves)
+        """Returns the Merkle-tree's current length (i.e., the nuber of its leaves)
 
         :rtype: int
         """
         return len(self.leaves)
 
     def size(self):
-        """Returns the current number of the Merkle-Tree's nodes
+        """Returns the current number of the Merkle-tree's nodes
 
         :rtype: int
         """
         return len(self.nodes)
 
     def height(self):
-        """Calculates and returns the Merkle-Tree's current height
+        """Calculates and returns the Merkle-tree's current height
 
         Since the tree is by construction binary balanced, its height coincides
         with the length of its leftmost branch.
@@ -164,7 +164,7 @@ class merkle_tree(object):
     def __str__(self, indent=3):
         """Overrides the default implementation.
 
-        Designed so that inserting the Merkle-Tree as an argument to ``print()`` displays it in a terminal
+        Designed so that inserting the Merkle-tree as an argument to ``print()`` displays it in a terminal
         friendly way. In particular, printing the tree is similar to what is printed at console when running
         the ``tree`` command of Unix based platforms.
 
@@ -180,7 +180,7 @@ class merkle_tree(object):
         return ''
 
     def display(self, indent=3):
-        """Prints the Merkle-Tree in a terminal friendy way
+        """Prints the Merkle-tree in a terminal friendy way
 
         Printing the tree is similar to what is printed at console when running the ``tree`` command of
         Unix based platforms.
@@ -196,7 +196,7 @@ class merkle_tree(object):
 # ---------------------------------- Updating ----------------------------
 
     def update(self, record):
-        """Updates the Merkle-Tree by storing the hash of the inserted record in a newly created leaf,
+        """Updates the Merkle-tree by storing the hash of the inserted record in a newly created leaf,
         restructuring the tree appropriately and recalculating all necessary interior hashes
 
         :param record: the record whose hash is to be stored in a new leaf
@@ -252,13 +252,13 @@ class merkle_tree(object):
                 new_leaf], set([new_leaf]), new_leaf
 
     def encrypt_log(self, log_file):
-        """Encrypts the data of the provided log-file into the Merkle-Tree.
+        """Encrypts the data of the provided log-file into the Merkle-tree.
 
-        More accurately, it successively updates the Merkle-Tree it with each line
+        More accurately, it successively updates the Merkle-tree it with each line
         of the log-file provided (cf. doc of the ``.update`` method)
 
         :param log_file: relative path of the log-file under enryption, specified with respect
-                         to the Merkle-Tree's directory ``log_dir``
+                         to the Merkle-tree's directory ``log_dir``
         :type log_file:  str
         """
         try:
@@ -270,10 +270,10 @@ class merkle_tree(object):
         except FileNotFoundError:
             logging.warning('Requested log file does not exist')
 
-# ------------------------------ Proof generation ------------------------------
+# ------------------------------ Proof generation ------------------------
 
     def audit_proof(self, arg):
-        """Response of the Merkle-Tree to the request of providing an audit-proof based upon
+        """Response of the Merkle-tree to the request of providing an audit-proof based upon
         the given argument.
 
         :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
@@ -329,15 +329,15 @@ class merkle_tree(object):
             proof_path=None)
 
     def consistency_proof(self, old_hash, sublength):
-        """Response of the Merkle-Tree to the request of providing a consistency-proof for the
+        """Response of the Merkle-tree to the request of providing a consistency-proof for the
         given parameters.
 
-        Arguments of this function amount to a presumed previous stage of the Merkle-Tree (root-hash
+        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
         and length respectively) provided from Client's Side.
 
-        :param old_hash:  root-hash of a presumably valid previous stage of the Merkle-Tree
+        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
         :type old_hash:   str or bytes or bytearray or int
-        :param sublength: presumable length (number of leaves) for the above previous stage of the Merkle-Tree
+        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
                           it can be passed in as the second argument to the ``validations.validate_proof`` method)
@@ -352,7 +352,7 @@ class merkle_tree(object):
            consistency_path[0] is not -1:  # Excludes zero leaves
             proof_index, left_path, full_path = consistency_path
 
-            # Subtree inclusion test
+            # Root hash test
             if old_hash == self.multi_hash(left_path, len(left_path) - 1):
                 return proof(
                     generation='SUCCESS',
@@ -390,16 +390,36 @@ class merkle_tree(object):
 
 # ------------------------------ Inclusion tests ------------------------------
 
-    def inclusion_test(self, *arg):
-        pass
+    def inclusion_test(self, old_hash, sublength):
+        """Verifies that the parameters provided from Client's Side correspond to a previous state of the Merkle-tree
 
-    def record_inclusion_test(self, record):
-        pass
+        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
+        and length respectively) provided from Client's Side.
 
-    def subtree_inclusion_test(self, old_hash, sublength):
-        pass
+        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
+        :type old_hash:   str or bytes or bytearray or int
+        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
+        :type sublength:  int
+        :returns:         ``True`` if the path of signed hashes generated for the provided ``sublength``
+                          leads to the provided hash
+        :rtype:           bool
+        """
+
+        # Calculate path
+        consistency_path = self.consistency_path(sublength=sublength)
+
+        if consistency_path is not None and\
+           consistency_path[0] is not -1:  # Excludes zero leaves
+
+            # Root-hash test
+            left_path = consistency_path[1]
+            return old_hash == self.multi_hash(left_path, len(left_path) - 1)
+
+        return False  # No genuine path corresponds to the requested sublength
+
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """
@@ -454,16 +474,15 @@ class merkle_tree(object):
                 current_node = current_node.child
             return start, tuple(path)
 
-
     def consistency_path(self, sublength):
         """
         Computes and returns the body for any consistency-proof based upon the requested sublength.
 
-        :param sublength: length (number of leaves) for a presumably valid previous stage of the Merkle-Tree
+        :param sublength: length (number of leaves) for a presumably valid previous state of the Merkle-tree
         :type sublength:  int
         :returns:         the starting point for application of hashing during proof validation, a tuple of
                           hashes signed with ``-`` (leftmost hashes for inclusion test to be performed from
-                          the Server's Side, i.e., by the Merkle-Tree itself) and a tuple of signed hashes
+                          the Server's Side, i.e., by the Merkle-tree itself) and a tuple of signed hashes
                           for top-hash test to be performed from the Client's Side (the sign ``+1``, resp.
                           ``-1`` indicating pairing with the right or left neigbour respectively during
                           proof validation).
@@ -504,7 +523,7 @@ class merkle_tree(object):
     def minimal_complement(self, subroots):
         """
         Complements optimally the subroot hashes detected by ``.principal_subroots``
-        with all necessary interior hashes of the Merkle-Tree, so that a full
+        with all necessary interior hashes of the Merkle-tree, so that a full
         consistency-path can be generated
 
         :param subroots: Should be some output of the ``.principal_subroots`` method
@@ -539,23 +558,14 @@ class merkle_tree(object):
         Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying
         information used in consistency-proof generation after extracting hashes.
 
-        :param sublength: Should be an integer satisfying the following *compatibility* condition:
-                          if the Merkle-Tree's current length decomposes additively as
-
-                          ``2 ^ (p_1) + ... + 2 ^ (p_m), p_1 > ... > p_m >= 0``
-
-                          in decreasing powers of ``2``, then ``sublength`` is of the form
-
-                          ``2 ^ (p_1) + ... + 2 ^ (p_n)``
-
-                          for some ``1 <= n <= m``.
-        :type sublength:  int
+        :param sublength: Should be a non-negative integer smaller than or equal to
+                          the Merkle-tree's current length
         :returns:         The (signed) roots of the detected subtrees, whose hashes
                           are to be used for the generation of consistency-proofs
         :rtype:           list of *(+1/-1, nodes.node)*
 
-        .. note:: Returns ``None`` in case of *incompatibility*, i.e., if the provided
-                  ``sublength`` does not fulfill the required condition
+        .. note:: Returns ``None`` if the provided ``sublength`` does not fulfill
+                  the required condition
         """
 
         if sublength == 0:
@@ -593,7 +603,7 @@ class merkle_tree(object):
 
     def subroot(self, start, height):
         """
-        Returns the root of the unique *full* binary subtree of the Merkle-Tree, whose
+        Returns the root of the unique *full* binary subtree of the Merkle-tree, whose
         leftmost leaf is located at the given position ``start`` and whose height is
         equal to the given ``height``.
 
@@ -650,7 +660,7 @@ class merkle_tree(object):
 # ---------------------------------- Clearance ---------------------------
 
     def clear(self):
-        """Deletes all nodes of the Merkle-Tree
+        """Deletes all nodes of the Merkle-tree
         """
         self.leaves = []
         self.nodes = set()
@@ -659,7 +669,7 @@ class merkle_tree(object):
 # ----------------------------- JSON serialization -----------------------
 
     def serialize(self):
-        """ Returns a JSON structure with the Merkle-Trees's current characteristics as key-value pairs
+        """ Returns a JSON structure with the Merkle-trees's current characteristics as key-value pairs
 
         :rtype: dict
 
@@ -671,7 +681,7 @@ class merkle_tree(object):
         return encoder.default(self)
 
     def JSONstring(self):
-        """Returns a nicely stringified version of the Merkle-Tree's JSON serialized form
+        """Returns a nicely stringified version of the Merkle-tree's JSON serialized form
 
         .. note:: The output of this function is to be passed in the ``print()`` function
 
@@ -687,7 +697,7 @@ class merkle_tree(object):
 
 
 class merkleTreeEncoder(json.JSONEncoder):
-    """Used implicitely in the JSON serialization of Merkle-Trees. Extends the built-in
+    """Used implicitely in the JSON serialization of Merkle-trees. Extends the built-in
     JSON encoder for data structures.
     """
 

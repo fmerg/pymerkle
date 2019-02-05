@@ -18,7 +18,7 @@ def validate_proof(target_hash, proof):
     status as ``True`` or ``False`` according to validation result and returns this result.
 
     :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the
-                        validation procedure (i.e., acclaimed top-hash of the Merkle-Tree
+                        validation procedure (i.e., acclaimed top-hash of the Merkle-tree
                         having provided the proof)
     :type target_hash:  str
     :param proof:       the proof to be validated
@@ -74,7 +74,7 @@ class proof_validator(object):
         is automatically stored in that directory as a ``.json`` file named with the receipt's uuid.
 
         :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the
-                            validation procedure (i.e., acclaimed top-hash of the Merkle-Tree
+                            validation procedure (i.e., acclaimed top-hash of the Merkle-tree
                             having provided the proof)
         :type target_hash:  str
         :param proof:       the proof to be validated
@@ -111,7 +111,7 @@ class validation_receipt(object):
 
     :param proof_uuid:     uuid of the validated proof (time-based)
     :type proof_uuid:      str
-    :param proof_provider: uuid of the Merkle-Tree having provided the proof
+    :param proof_provider: uuid of the Merkle-tree having provided the proof
     :type proof_provider:  str
     :param result:         Validation result (``True`` iff the proof was found to be valid)
     :type result:          bool

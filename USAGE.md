@@ -131,7 +131,7 @@ In other words, the argument of `.encrypt_log` should always be the relative pat
 
 ### Generating Log proofs (Server's Side)
 
-A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current top-hash of the tree. Requesting, providing and validating log proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous stage and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
+A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current top-hash of the tree. Requesting, providing and validating log proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
 
 ### Audit-proof
 
@@ -254,7 +254,7 @@ q = tree.consistency_proof(
     )
 ```
 
-Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the top-hash, resp. length of a subrtree to be presumably detected as a previous stage of `tree`. A typical session would thus be as follows:
+Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the top-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. A typical session would thus be as follows:
 
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
@@ -274,9 +274,9 @@ The generated object `q` is an instance of the `proof.proof` class consisting of
 
 Upon generating a consistency-proof, the Merkle-tree (Server) performs also an _inclusion test_, leading to two possibilities in accordance with the parameters provided by Client:
 
-- _inclusion-test success_: if the combination of `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous stage of it, then a _non empty_ path is included with the proof and a generation success message is inscribed in it
+- _inclusion-test success_: if the combination of `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it, then a _non empty_ path is included with the proof and a generation success message is inscribed in it
 
-- _inclusion-test failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous stage of it, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed into the proof provided, indicating that the Client does not actually have proper knowledge of the presumed previous stage.
+- _inclusion-test failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed into the proof provided, indicating that the Client does not actually have proper knowledge of the presumed previous state.
 
 
 ### Validating Log proofs (Client's Side)
@@ -406,11 +406,11 @@ Returns an instance of the `proof.proof` class, thought of as the audit-proof ba
 
 ### __.consistency_proof (*old_hash, sublength*)__
 
-Returns an instance of the `proof.proof` class, thought of as the consistency-proof for the presumed previous stage of the Merkle-tree corresponding to the inserted hash-length combination
+Returns an instance of the `proof.proof` class, thought of as the consistency-proof for the presumed previous state of the Merkle-tree corresponding to the inserted hash-length combination
 
-- **old_hash** (_str_), hexadecimal form of the top-hash of the tree to be presumably detected as a previous stage of the Merkle-tree
+- **old_hash** (_str_), hexadecimal form of the top-hash of the tree to be presumably detected as a previous state of the Merkle-tree
 
-- **sublength** (_int_), length of the tree to be presumably detected as a previous stage of the Merkle-tree
+- **sublength** (_int_), length of the tree to be presumably detected as a previous state of the Merkle-tree
 
 ### __.clear ( )__
 
