@@ -12,8 +12,6 @@ This library implements
 
 It is currently the only Python implementation supporting all the above features, with an eye on protocols like Certificate Transparency and real-life applications.
 
-**See also [_Usage and API_](USAGE.md)**
-
 ## Installation
 
 ```bash
@@ -22,7 +20,7 @@ pip3 install pymerkle
 
 ## Quick example
 
-(See [**here**](USAGE.md) for more elaborate examples)
+**See also [_Usage and API_](USAGE.md)**
 
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof
