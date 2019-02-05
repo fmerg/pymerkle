@@ -166,13 +166,16 @@
 <dt id="pymerkle.utils.decompose">
 <code class="descclassname">pymerkle.utils.</code><code class="descname">decompose</code><span class="sig-paren">(</span><em>num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/utils.html#decompose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.utils.decompose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Additive decomposition in decreasing powers of 2</p>
+<p>Given a positive integer uniquely decomposed as</p>
+<p><code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">^</span> <span class="pre">(p_m)</span> <span class="pre">+</span> <span class="pre">...</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">^</span> <span class="pre">(p_1),</span>&#160; <span class="pre">p_m</span> <span class="pre">&gt;</span> <span class="pre">...</span> <span class="pre">&gt;</span> <span class="pre">p_1</span> <span class="pre">&gt;=</span> <span class="pre">0</span></code></p>
+<p>then the tuple <code class="docutils literal notranslate"><span class="pre">(p_m,</span> <span class="pre">...,</span> <span class="pre">p_1)</span></code> is returned</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>num</strong> (<em>int</em>) – the number to be decomposed</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">powers of 2 in decreasing order</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">powers of <em>2</em> in decreasing order</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal notranslate"><span class="pre">tuple</span></code> of integers</td>
 </tr>
@@ -180,22 +183,32 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymerkle.utils</span> <span class="k">import</span> <span class="n">decompose</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">decompose</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">num</span> <span class="o">=</span> <span class="mi">45</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num</span> <span class="o">==</span> <span class="mi">2</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="go">True</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">decompose</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
 <span class="go">(5, 3, 2, 0)</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Returns the nonsensical empty tuple for arguments equal to or smaller than zero</p>
+<p class="last">Returns the nonsensical empty tuple for arguments equal to or
+smaller than zero</p>
 </div>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymerkle.utils.log_2">
 <code class="descclassname">pymerkle.utils.</code><code class="descname">log_2</code><span class="sig-paren">(</span><em>num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/utils.html#log_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.utils.log_2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes and returns the base 2 logarithm of the given number (i.e.,
-the greatest power of 2 equal to or smaller than <code class="docutils literal notranslate"><span class="pre">num</span></code>)</p>
+<dd><p>Computes and returns the base <em>2</em> logarithm of the given number (i.e.,
+the greatest power of <em>2</em> equal to or smaller than <code class="docutils literal notranslate"><span class="pre">num</span></code>)</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Given any <em>balanced</em> binary tree, whose number of leaves equals
+the inserted number, this function returns the tree’s height
+(i.e., the depth of its <em>left-most</em> branch)</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -232,7 +245,7 @@ the greatest power of 2 equal to or smaller than <code class="docutils literal n
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The output of this function is to be passed into the <code class="docutils literal notranslate"><span class="pre">print()</span></code> function</p>
+<p class="last">The output of this function is to be passed into the <code class="docutils literal notranslate"><span class="pre">print</span></code> function</p>
 </div>
 </dd></dl>
 

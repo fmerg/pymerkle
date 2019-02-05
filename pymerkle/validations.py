@@ -173,7 +173,7 @@ class validation_receipt(object):
     def JSONstring(self):
         """Returns a nicely stringified version of the receipt's JSON serialized form
 
-        .. note:: The output of this function is to be passed in the ``print()`` function
+        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """
@@ -187,7 +187,7 @@ class validation_receipt(object):
 
 
 class validationReceiptEncoder(json.JSONEncoder):
-    """Used implicitely in the JSON serialization of proof receipts. Extends the built-in
+    """Used implicitly in the JSON serialization of proof receipts. Extends the built-in
     JSON encoder for data structures.
     """
 

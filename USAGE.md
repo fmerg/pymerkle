@@ -10,7 +10,7 @@ Type
 from pymerkle import *
 ```
 
-to import the classes `merkle_tree`, `proof_validator`, as well as the `validate_proof` function.
+to import the classes `merkle_tree` and `proof_validator`, as well as the `validate_proof` function.
 
 ### Merkle-tree construction
 
@@ -24,7 +24,7 @@ creates an empty Merkle-tree with default configurations: hash algorithm _SHA256
 tree = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-To create a Merkle-tree with hash algorithm SHA512 and encoding type UTF-32 just write:
+To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ just write:
 
 ```python
 tree = merkle_tree(hash_type='sha512', encoding='utf-32')
@@ -270,13 +270,41 @@ q = tree.consistency_proof(old_hash, sublength)
 
 The generated object `q` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
 
-#### Inclusion-test
+### Inclusion-tests
 
-Upon generating a consistency-proof, the Merkle-tree (Server) performs also an _inclusion test_, leading to two possibilities in accordance with the parameters provided by Client:
+#### Client's Side (auditor)
 
-- _inclusion-test success_: if the combination of `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it, then a _non empty_ path is included with the proof and a generation success message is inscribed in it
+An _auditor_ (Client) verifies inclusion of a record within the Merkle-Tree by just requesting
+the corresponding audit-proof from the Server (Merkle-tree). Inclusion is namely verified _iff_
+the proof provided by the Server is found by the auditor to be valid (verifying the Server's identity under further assumptions).
 
-- _inclusion-test failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it, then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation. Moreover, a generation failure message is inscribed into the proof provided, indicating that the Client does not actually have proper knowledge of the presumed previous state.
+#### Server's Side (Merkle-tree)
+
+However, a "symmetric" inclusion-test may be also performed from the Server's Side, in the sense that it allows the Server to verify whether the Client has actual knowledge of some of the tree's previous state (and thus the Client's identity under further assumptions).
+
+More specifically, upon generating any consistency-proof requested by a Client, the Merkle-tree (Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with the parameters provided by the Client:
+
+- inclusion-test _success_: if the combination of the provided `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an appropriate "subtree" can indeed be internally detected), then a _non empty_ path is included with the proof and a generation success message is inscribed in it
+
+- inclusion-test _failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
+internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
+
+In version _0.2.0_, the above implicit check has been abstracted from the `.consistency_proof` method and explicitly implemented within the `.inclusion_test` method of the `merkle_tree` object. A typical session would then be as follows:
+
+```python
+# Client requests and stores the Merkle-tree's current state
+old_hash = tree.root_hash()
+sublength = tree.length()
+
+# Server encrypts new records into the Merkle-tree
+tree.encrypt('large_APACHE_log')
+
+# ~ Server performs inclusion-tests for various
+# ~ presumed previous states submitted by the Client
+tree.inclusion_test(old_hash=old_hash, sublength=sublength)        # True
+tree.inclusion_test(old_hash='anything else', sublength=sublength) # False
+tree.inclusion_test(old_hash=old_hash, sublength=sublength + 1)    # False
+```
 
 
 ### Validating Log proofs (Client's Side)

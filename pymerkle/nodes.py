@@ -57,7 +57,7 @@ class node(object):
 
         Sole purpose of this function is to easy print info about a node by just invoking it at console.
 
-        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
+        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
         def memory_id(obj): return str(
             hex(id(obj))) if obj else '{} ({})'.format(None, hex(id(obj)))
@@ -74,7 +74,7 @@ class node(object):
                         hash=self.hash)
 
     def __str__(self, level=0, indent=3, ignore=[]):
-        """Overrides the default implementation. Designed so that inserting the node as an argument to ``print()``
+        """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``
         displays the subtree having that node as root.
 
         Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way,
@@ -203,7 +203,7 @@ class node(object):
     def JSONstring(self):
         """Returns a nicely stringified version of the node's JSON serialized form
 
-        .. note:: The output of this function is to be passed in the ``print()`` function
+        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """
@@ -234,7 +234,7 @@ class leaf(node):
 
 
 class nodeEncoder(json.JSONEncoder):
-    """Used implicitely in the JSON serialization of nodes. Extends the built-in
+    """Used implicitly in the JSON serialization of nodes. Extends the built-in
     JSON encoder for data structures.
     """
 

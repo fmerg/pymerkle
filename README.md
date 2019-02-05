@@ -7,8 +7,11 @@
 
 This library implements
 
-- a balanced Merkle-Tree, with possibly odd number of leaves and defense against second-preimage attack, capable of providing consistency-proofs (along with inclusion-tests) in addition to audit-proofs
-- flexible mechanisms for validating the provided proofs
+* a _balanced_ Merkle-Tree (with possibly _odd_ number of leaves) providing
+  * _consistency-proofs_ along with _audit-proofs_
+  * _inclusion-tests_
+  * defence against _second-preimage attack_
+* flexible mechanisms for validating the provided proofs
 
 It is currently the only Python implementation supporting all the above features, with an eye on protocols like Certificate Transparency and real-life applications.
 
@@ -20,7 +23,7 @@ pip3 install pymerkle
 
 ## Quick example
 
-(See [**here**](USAGE.md) for extended examples and sessions)
+(See [**here**](USAGE.md) for more elaborate examples)
 
 ```python
 from pymerkle import *            # Import merkle_tree, validate_proof

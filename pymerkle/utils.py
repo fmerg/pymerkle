@@ -6,8 +6,12 @@ import math
 
 
 def log_2(num):
-    """Computes and returns the base 2 logarithm of the given number (i.e.,
-    the greatest power of 2 equal to or smaller than ``num``)
+    """Computes and returns the base *2* logarithm of the given number (i.e.,
+    the greatest power of *2* equal to or smaller than ``num``)
+
+    .. note:: Given any *balanced* binary tree, whose number of leaves equals
+              the inserted number, this function returns the tree's height
+              (i.e., the depth of its *left-most* branch)
 
     :param num: the number whose logarithm is to be computed
     :type num:  int
@@ -24,18 +28,28 @@ def log_2(num):
 def decompose(num):
     """Additive decomposition in decreasing powers of 2
 
+    Given a positive integer uniquely decomposed as
+
+    ``2 ^ (p_m) + ... + 2 ^ (p_1),  p_m > ... > p_1 >= 0``
+
+    then the tuple ``(p_m, ..., p_1)`` is returned
+
     :param num: the number to be decomposed
     :type num:  int
-    :returns:   powers of 2 in decreasing order
+    :returns:   powers of *2* in decreasing order
     :rtype:     ``tuple`` of integers
 
     :Example:
 
-    >>> from pymerkle.utils import decompose
-    >>> decompose(2**5 + 2**3 + 2**2 + 1)
+    >>> num = 45
+    >>> num == 2**5 + 2**3 + 2**2 + 1
+    True
+    >>>
+    >>> decompose(num)
     (5, 3, 2, 0)
 
-    .. note:: Returns the nonsensical empty tuple for arguments equal to or smaller than zero
+    .. note:: Returns the nonsensical empty tuple for arguments equal to or
+              smaller than zero
     """
     powers = []
     while num > 0:
@@ -52,7 +66,7 @@ def stringify_path(signed_hashes):
     :type signed_hashes:  tuple of (+1/-1, str) pairs
     :rtype:               ``str``
 
-    .. note:: The output of this function is to be passed into the ``print()`` function
+    .. note:: The output of this function is to be passed into the ``print`` function
     """
     def order_of_magnitude(num): return 0 if num == 0 else int(math.log10(num))
 

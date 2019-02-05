@@ -85,7 +85,7 @@ class proof(object):
 
         Sole purpose of this function is to easy print info about a proof by just invoking it at console.
 
-        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
+        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
 
         return '\n    ----------------------------------- PROOF ------------------------------------\
@@ -137,7 +137,7 @@ class proof(object):
     def JSONstring(self):
         """Returns a nicely stringified version of the proof's JSON serialized form
 
-        .. note:: The output of this function is to be passed in the ``print()`` function
+        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """
@@ -152,7 +152,7 @@ class proof(object):
 
 
 class proofEncoder(json.JSONEncoder):
-    """Used implicitely in the JSON serialization of proofs. Extends the built-in
+    """Used implicitly in the JSON serialization of proofs. Extends the built-in
     JSON encoder for data structures.
     """
 

@@ -146,7 +146,7 @@
             
   <h1>Source code for pymerkle.nodes</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Provides the base class for the Merkle-Tree&#39;s nodes and an inheriting</span>
+<span class="sd">Provides the base class for the Merkle-tree&#39;s nodes and an inheriting</span>
 <span class="sd">class for its leaves</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -160,7 +160,7 @@
 
 
 <div class="viewcode-block" id="node"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node">[docs]</a><span class="k">class</span> <span class="nc">node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for the nodes of a Merkle-Tree</span>
+    <span class="sd">&quot;&quot;&quot;Base class for the nodes of a Merkle-tree</span>
 
 <span class="sd">    :param record:        [optional] the record to be encrypted within the node. If provided,</span>
 <span class="sd">                          then the node is considered to be a leaf</span>
@@ -172,7 +172,7 @@
 <span class="sd">                          is considered to be a leaf</span>
 <span class="sd">    :type right:          nodes.node</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption. Should be the ``.hash``</span>
-<span class="sd">                          attribute of the containing Merkle-Tree</span>
+<span class="sd">                          attribute of the containing Merkle-tree</span>
 <span class="sd">    :type hash_function:  method</span>
 
 <span class="sd">    :ivar left:          (*nodes.node*) The node&#39;s left parent. Defaults to ``None`` if the node is a leaf</span>
@@ -180,7 +180,7 @@
 <span class="sd">    :ivar child:         (*nodes.node*) The node&#39;s child parent. Defaults to ``None`` if the node is a root</span>
 <span class="sd">    :ivar hash:          (*str*) The hash currently stored by the node (hex)</span>
 <span class="sd">    :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes</span>
-<span class="sd">                         it is equal to the ``.hash`` attribute of the containing Merkle-Tree. For leaf nodes</span>
+<span class="sd">                         it is equal to the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes</span>
 <span class="sd">                         it is ``None`` (no hash re-calculation case)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -204,7 +204,7 @@
 
 <span class="sd">        Sole purpose of this function is to easy print info about a node by just invoking it at console.</span>
 
-<span class="sd">        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function</span>
+<span class="sd">        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">memory_id</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span> <span class="k">return</span> <span class="nb">str</span><span class="p">(</span>
             <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span> <span class="k">if</span> <span class="n">obj</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span>
@@ -221,10 +221,10 @@
                         <span class="nb">hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="sd">&quot;&quot;&quot;Overrides the default implementation. Designed so that inserting the node as an argument to ``print()``</span>
+        <span class="sd">&quot;&quot;&quot;Overrides the default implementation. Designed so that inserting the node as an argument to ``print``</span>
 <span class="sd">        displays the subtree having that node as root.</span>
 
-<span class="sd">        Sole purpose of this function is to be used for printing Merkle-Trees in a terminal friendly way,</span>
+<span class="sd">        Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way,</span>
 <span class="sd">        similar to what is printed at console when running the ``tree`` command of Unix based platforms.</span>
 
 <span class="sd">        :param level:  [optional] Defaults to ``0``. Should be always left equal to the *default* value</span>
@@ -241,7 +241,7 @@
 <span class="sd">        :type ignore:  list of integers</span>
 <span class="sd">        :rtype: str</span>
 
-<span class="sd">        .. note: The left parent of each node is printed *above* the right one</span>
+<span class="sd">        .. note:: The left parent of each node is printed *above* the right one</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -280,7 +280,7 @@
         <span class="sd">&quot;&quot;&quot;Checks if the node is a left parent.</span>
 
 <span class="sd">        :returns: ``True`` iff the node is the ``.left`` attribute of some other</span>
-<span class="sd">                  node inside the containing Merkle-Tree</span>
+<span class="sd">                  node inside the containing Merkle-tree</span>
 <span class="sd">        :rtype:   bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -291,7 +291,7 @@
         <span class="sd">&quot;&quot;&quot;Checks if the node is a right parent.</span>
 
 <span class="sd">        :returns: ``True`` iff the node is the ``.right`` attribute of some other</span>
-<span class="sd">                  node inside the containing Merkle-Tree</span>
+<span class="sd">                  node inside the containing Merkle-tree</span>
 <span class="sd">        :rtype:   bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -302,7 +302,7 @@
 
 <div class="viewcode-block" id="node.descendant"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.descendant">[docs]</a>    <span class="k">def</span> <span class="nf">descendant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Detects and returns the node that is ``degree`` steps upwards within</span>
-<span class="sd">        the containing Merkle-Tree.</span>
+<span class="sd">        the containing Merkle-tree.</span>
 
 <span class="sd">        .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``</span>
 <span class="sd">                  is the node&#39;s child, etc.</span>
@@ -326,7 +326,7 @@
 <div class="viewcode-block" id="node.recalculate_hash"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.recalculate_hash">[docs]</a>    <span class="k">def</span> <span class="nf">recalculate_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Recalculates the node&#39;s hash under account of its parents&#39; new hashes</span>
 
-<span class="sd">        This method is to be invoked for all non-leaf nodes of the Merkle-Tree&#39;s rightmost branch</span>
+<span class="sd">        This method is to be invoked for all non-leaf nodes of the Merkle-tree&#39;s rightmost branch</span>
 <span class="sd">        every time a new leaf is appended into the tree.</span>
 
 <span class="sd">        .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes</span>
@@ -350,7 +350,7 @@
 <div class="viewcode-block" id="node.JSONstring"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.JSONstring">[docs]</a>    <span class="k">def</span> <span class="nf">JSONstring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a nicely stringified version of the node&#39;s JSON serialized form</span>
 
-<span class="sd">        .. note:: The output of this function is to be passed in the ``print()`` function</span>
+<span class="sd">        .. note:: The output of this function is to be passed into the ``print`` function</span>
 
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -360,12 +360,12 @@
 
 
 <div class="viewcode-block" id="leaf"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.leaf">[docs]</a><span class="k">class</span> <span class="nc">leaf</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class for the leafs of Merkle-Tree (parentless nodes). Inherits from the ``node`` class</span>
+    <span class="sd">&quot;&quot;&quot;Class for the leafs of Merkle-tree (parentless nodes). Inherits from the ``node`` class</span>
 
 <span class="sd">    :param record:        the record to be encrypted within the leaf</span>
 <span class="sd">    :type record:         str or bytes or bytearray</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``</span>
-<span class="sd">                          attribute of the containing Merkle-Tree</span>
+<span class="sd">                          attribute of the containing Merkle-tree</span>
 <span class="sd">    :type hash_function:  method</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

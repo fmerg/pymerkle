@@ -44,7 +44,7 @@ class hash_machine(object):
     :type encoding:   str
     :param security:  defaults to ``True``; plays role only if hash and encoding types are sha256 and utf-8 respectively. In this
                       case, security standards are applied against second-preimage attack, i.e., single, resp. double arguments of
-                      the ``hash()`` function will be prepended with ``'x00'``, resp. ``'x01'`` before hashing
+                      the ``hash`` function will be prepended with ``'x00'``, resp. ``'x01'`` before hashing
     :type security:   bool
 
     :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``HASH_TYPES``, resp. ``ENCODINGS``
@@ -198,12 +198,12 @@ class hash_machine(object):
     def multi_hash(self, signed_hashes, start):
         """Hash utility used in proof validation
 
-        Repeatedly applies the core ``hash()`` method over a tuple of signed hashes parenthesized in pairs
+        Repeatedly applies the core ``hash`` method over a tuple of signed hashes parenthesized in pairs
         as specified by accompanying signs
 
         :param signed_hashes: a sequence of signed hashes
         :type signed_hashes:  tuple of (+1/-1, hash) pairs, where hash is of type ``str`` or ``bytes`` or ``bytearray``
-        :param start:         position where the application of ``hash()`` will start from
+        :param start:         position where the application of ``hash`` will start from
         :type start:          int
         :returns:             a valid hexadecimal representing the computed hash
         :rtype:               ``str``

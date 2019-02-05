@@ -178,10 +178,10 @@
 
 <span class="sd">    Sole purpose of this class is to fix at construction the hash and encoding types used for encryption,</span>
 <span class="sd">    so that these parameters need not be redefined every time a hash utility is invoked. Instances</span>
-<span class="sd">    of this class are thus to be initialized with every new construction of a Merkle-Tree or every time</span>
+<span class="sd">    of this class are thus to be initialized with every new construction of a Merkle-tree or every time</span>
 <span class="sd">    a proof validation is about to be performed</span>
 
-<span class="sd">    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the HASH_TYPES</span>
+<span class="sd">    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the ``HASH_TYPES``</span>
 <span class="sd">                      global variable (upper- or mixed-case with &#39;-&#39; instead of &#39;_&#39; allowed). Defaults to ``sha256``</span>
 <span class="sd">                      if unspecified</span>
 <span class="sd">    :type hash_type:  str</span>
@@ -191,7 +191,7 @@
 <span class="sd">    :type encoding:   str</span>
 <span class="sd">    :param security:  defaults to ``True``; plays role only if hash and encoding types are sha256 and utf-8 respectively. In this</span>
 <span class="sd">                      case, security standards are applied against second-preimage attack, i.e., single, resp. double arguments of</span>
-<span class="sd">                      the ``hash()`` function will be prepended with ``&#39;x00&#39;``, resp. ``&#39;x01&#39;`` before hashing</span>
+<span class="sd">                      the ``hash`` function will be prepended with ``&#39;x00&#39;``, resp. ``&#39;x01&#39;`` before hashing</span>
 <span class="sd">    :type security:   bool</span>
 
 <span class="sd">    :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``HASH_TYPES``, resp. ``ENCODINGS``</span>
@@ -345,12 +345,12 @@
 <div class="viewcode-block" id="hash_machine.multi_hash"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine.multi_hash">[docs]</a>    <span class="k">def</span> <span class="nf">multi_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signed_hashes</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Hash utility used in proof validation</span>
 
-<span class="sd">        Repeatedly applies the core ``hash()`` method over a tuple of signed hashes parenthesized in pairs</span>
+<span class="sd">        Repeatedly applies the core ``hash`` method over a tuple of signed hashes parenthesized in pairs</span>
 <span class="sd">        as specified by accompanying signs</span>
 
 <span class="sd">        :param signed_hashes: a sequence of signed hashes</span>
 <span class="sd">        :type signed_hashes:  tuple of (+1/-1, hash) pairs, where hash is of type ``str`` or ``bytes`` or ``bytearray``</span>
-<span class="sd">        :param start:         position where the application of ``hash()`` will start from</span>
+<span class="sd">        :param start:         position where the application of ``hash`` will start from</span>
 <span class="sd">        :type start:          int</span>
 <span class="sd">        :returns:             a valid hexadecimal representing the computed hash</span>
 <span class="sd">        :rtype:               ``str``</span>

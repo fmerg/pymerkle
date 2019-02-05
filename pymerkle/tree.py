@@ -110,7 +110,7 @@ class merkle_tree(object):
 
         Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
 
-        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
+        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
 
         return '\n    uuid      : {uuid}\
@@ -164,7 +164,7 @@ class merkle_tree(object):
     def __str__(self, indent=3):
         """Overrides the default implementation.
 
-        Designed so that inserting the Merkle-tree as an argument to ``print()`` displays it in a terminal
+        Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal
         friendly way. In particular, printing the tree is similar to what is printed at console when running
         the ``tree`` command of Unix based platforms.
 
@@ -343,12 +343,12 @@ class merkle_tree(object):
                           it can be passed in as the second argument to the ``validations.validate_proof`` method)
         :rtype:           proof.proof
 
-        .. note:: Before the final proof is being returned, an inclusion-test is performed for the presumed
-                  previous state of the Merke-tree corresponding to the provided parameters (If the inclusion-
-                  test fails, then the returned proof is predestined to be found invalid upon validation).
-                  This is done implicitely and not by calling the ``.inclusion_test`` method (whose implementation
-                  differs in that no full path of signed hashes, as generated here by the ``.consistency_path``
-                  method, needs be taken into account.)
+        .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
+                  of the Merke-tree corresponding to the provided parameters (If that test fails,
+                  then the returned proof is predestined to be found invalid upon validation).
+                  This is done implicitly and not by calling the ``.inclusion_test`` method
+                  (whose implementation differs in that no full path of signed hashes,
+                  as generated here by the ``.consistency_path`` method, needs be taken into account.)
         """
 
         # Calculate proof path
@@ -687,7 +687,7 @@ class merkle_tree(object):
     def JSONstring(self):
         """Returns a nicely stringified version of the Merkle-tree's JSON serialized form
 
-        .. note:: The output of this function is to be passed in the ``print()`` function
+        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """
@@ -701,7 +701,7 @@ class merkle_tree(object):
 
 
 class merkleTreeEncoder(json.JSONEncoder):
-    """Used implicitely in the JSON serialization of Merkle-trees. Extends the built-in
+    """Used implicitly in the JSON serialization of Merkle-trees. Extends the built-in
     JSON encoder for data structures.
     """
 
