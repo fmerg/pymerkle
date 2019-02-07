@@ -54,31 +54,49 @@ class proof(object):
     :ivar body.proof_path:        (*list of (+1/-1, str)*) See the homonymous argument of the constructor
     """
 
-    def __init__(
-            self,
-            generation,
-            provider,
-            hash_type,
-            security,
-            encoding,
-            proof_index,
-            proof_path):
-        self.header = {
-            'uuid': str(uuid.uuid1()),    # Time based proof id
-            'generation': generation,
-            'timestamp': int(time.time()),
-            'creation_moment': time.ctime(),
-            'provider': provider,
-            'hash_type': hash_type,
-            'encoding': encoding,
-            'security': security,
-            'status': None               # Will change to True or False after validation
-        }
+    def __init__(self, *args, **kwargs):
+        if args:                                    # Assuming positional arguments by default
+            self.header = {
+                'uuid': str(uuid.uuid1()),      # Time based proof idW
+                'timestamp': int(time.time()),
+                'creation_moment': time.ctime(),
+                'generation': args[0],
+                'provider': args[1],
+                'hash_type': args[2],
+                'security': args[3],
+                'encoding': args[4],
+                'status': None                  # Will change to True or False after validation
+            }
 
-        self.body = {
-            'proof_index': proof_index,
-            'proof_path': proof_path
-        }
+            self.body = {
+                'proof_index': args[5],
+                'proof_path': args[6]
+            }
+        else:
+            if kwargs.get('from_dict'):             # Importing proof from dict
+                self.header = kwargs.get('from_dict')['header']
+                self.body = kwargs.get('from_dict')['body']
+            elif kwargs.get('from_json'):           # Importing proof from JSON text
+                proof_dict = json.loads(kwargs.get('from_json'))
+                self.header = proof_dict['header']
+                self.body = proof_dict['body']
+            else:                                   # Standard creation of a proof
+                self.header = {
+                    'uuid': str(uuid.uuid1()),      # Time based proof idW
+                    'timestamp': int(time.time()),
+                    'creation_moment': time.ctime(),
+                    'generation': kwargs.get('generation'),
+                    'provider': kwargs.get('provider'),
+                    'hash_type': kwargs.get('hash_type'),
+                    'security': kwargs.get('security'),
+                    'encoding': kwargs.get('encoding'),
+                    'status': None                  # Will change to True or False after validation
+                }
+
+                self.body = {
+                    'proof_index': kwargs.get("proof_index"),
+                    'proof_path': kwargs.get("proof_path")
+                }
 
     def __repr__(self):
         """Overrides the default implementation.
