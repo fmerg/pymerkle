@@ -7,7 +7,7 @@
 
 This library implements
 
-- a _balanced_ Merkle-Tree (with possibly _odd_ number of leaves) providing _consistency-proofs_ except for _audit-proofs_, _inclusion-tests_ and defence against _second-preimage attack_
+- a _balanced_ Merkle-Tree (with possibly _odd_ number of leaves) providing _consistency-proofs_ except for _audit-proofs_, along with _inclusion-tests_ and defense against _second-preimage attack_
 - flexible mechanisms for validating the provided proofs
 
 It is currently the only Python implementation supporting all the above features, with an eye on protocols like Certificate Transparency and real-life applications.

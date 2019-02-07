@@ -378,7 +378,10 @@ configures the validator to save receipts upon validation inside the specified d
 
 ## API
 
-This section describes the _pymerkle_ API as suggested to be used by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
+### [ Work in In progress ]
+**See the complete documentation at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
+
+<!-- This section describes the _pymerkle_ API as suggested to be used by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
 
 ### _Merkle-tree class_
 
@@ -478,4 +481,4 @@ Validates the inserted proof by comparing to target-hash, modifies the proof's s
 
 - **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
-- **proof** (_proof.proof_), the proof to be validated
+- **proof** (_proof.proof_), the proof to be validated -->
