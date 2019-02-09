@@ -299,7 +299,10 @@ class merkle_tree(object):
                     break
                 count += 1
         else:
-            index = arg
+            try:
+                index = arg
+            except TypeError:
+                console.error('No proof could be generated (Invalid type inserted)')
 
         # Calculate proof path
         proof_index, audit_path = self.audit_path(index=index)
