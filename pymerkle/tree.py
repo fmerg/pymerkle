@@ -94,6 +94,8 @@ class merkle_tree(object):
 
         :returns: The tree's current root hash in hexadecimal form
         :rtype: str
+
+        .. note:: Returns ``None`` if the Merkle-tree is currently empty
         """
         if self:
             return self.root.hash
@@ -298,8 +300,8 @@ class merkle_tree(object):
                     index = count
                     break
                 count += 1
-        elif type(arg) is int:
-            index = arg # Inserted type was integer
+        elif isinstance(arg, int):
+            index = arg  # Inserted type was integer
         else:
             raise TypeError
 
@@ -337,7 +339,7 @@ class merkle_tree(object):
         and length respectively) provided from Client's Side.
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   str or bytes or bytearray or int
+        :type old_hash:   str or bytes or bytearray or None
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
@@ -351,10 +353,14 @@ class merkle_tree(object):
                   (whose implementation differs in that no full path of signed hashes,
                   as generated here by the ``.consistency_path`` method, needs be taken into account.)
 
+        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens
+                  be the empty one
+
         .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
         """
 
-        if type(old_hash) is not str or type(sublength) is not int:
+        if type(old_hash) not in (str, type(None)) \
+                or not isinstance(sublength, int):
             raise TypeError
 
         # Calculate proof path
@@ -427,7 +433,6 @@ class merkle_tree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """

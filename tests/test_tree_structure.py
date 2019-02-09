@@ -3,12 +3,15 @@ import pytest
 from pymerkle import merkle_tree, hashing, encodings
 from pymerkle.hashing import hash_machine
 
+
 def test_tree_constructor_with_records():
-    tree_1 = merkle_tree(*(bytes('{i}-th record', 'utf-8') for i in range(0, 1000)))
+    tree_1 = merkle_tree(*(bytes('{i}-th record', 'utf-8')
+                           for i in range(0, 1000)))
     tree_2 = merkle_tree()
     for i in range(1000):
         tree_2.update('{i}-th record')
     assert tree_1.root_hash() == tree_2.root_hash()
+
 
 # Generate separately hash-functions and empty Merkle-Trees for any combination
 # of hash and encoding types (including both security modes for each)

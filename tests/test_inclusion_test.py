@@ -37,7 +37,7 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 tree = merkle_tree(log_dir=os.path.join(current_dir, 'logs'))
 tree.encrypt_log('short_APACHE_log')
 old_hash, sublength = tree.root_hash(), tree.length()
-tree.encrypt_log("RED_HAT_LINUX")
+tree.encrypt_log("RED_HAT_LINUX_log")
 
 
 def test_inclusion_test_edge_success_case():
