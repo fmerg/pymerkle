@@ -1,6 +1,5 @@
-import hashlib
 import pytest
-from pymerkle import merkle_tree, hashing, encodings
+from pymerkle import merkle_tree
 from pymerkle.hashing import hash_machine
 
 
@@ -13,52 +12,26 @@ def test_tree_constructor_with_records():
     assert tree_1.root_hash() == tree_2.root_hash()
 
 
-# Generate separately hash-functions and empty Merkle-Trees for any combination
-# of hash and encoding types (including both security modes for each)
-HASH_TYPES = (hashing.HASH_TYPES)
-ENCODINGS = encodings.ENCODINGS
-hash_functions = []
-merkle_trees = []
-for security in (True, False):
-    for hash_type in HASH_TYPES:
-        for encoding in ENCODINGS:
-            # Configure and store hash function
-            machine = hash_machine(
-                hash_type=hash_type,
-                encoding=encoding,
-                security=security)
-            hash_functions.append(machine.hash)
-            # Store corresponding Merkle-Tree
-            merkle_trees.append(
-                merkle_tree(
-                    hash_type=hash_type,
-                    encoding=encoding,
-                    security=security))
+# Construct standard Merkle-tree and hash function
+tree = merkle_tree()
+machine = hash_machine()
+hash = machine.hash
 
 # Transactions the trees will gradually be updated with
 t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
     'ingi', 'rum', 'imus', 'noc', 'te', 'et', 'con', 'su', 'mi', 'mur', 'igni'
 
 
-@pytest.mark.parametrize("tree", merkle_trees)
-def test_0_leaves(tree):
+def test_0_leaves():
     assert tree.root_hash() is None
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_1_leaves(tree, hash):
+def test_1_leaves():
     tree.update(t_1)
     assert tree.root_hash() == hash(t_1)
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_2_leaves(tree, hash):
+def test_2_leaves():
     tree.update(t_2)
     assert tree.root_hash() == hash(
         hash(t_1),
@@ -66,11 +39,7 @@ def test_2_leaves(tree, hash):
     )
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_3_leaves(tree, hash):
+def test_3_leaves():
     tree.update(t_3)
     assert tree.root_hash() == hash(
         hash(
@@ -81,11 +50,7 @@ def test_3_leaves(tree, hash):
     )
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_4_leaves(tree, hash):
+def test_4_leaves():
     tree.update(t_4)
     assert tree.root_hash() == hash(
         hash(
@@ -99,11 +64,7 @@ def test_4_leaves(tree, hash):
     )
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_5_leaves(tree, hash):
+def test_5_leaves():
     tree.update(t_5)
     assert tree.root_hash() == hash(
         hash(
@@ -120,11 +81,7 @@ def test_5_leaves(tree, hash):
     )
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_7_leaves(tree, hash):
+def test_7_leaves():
     tree.update(t_6)
     tree.update(t_7)
     assert tree.root_hash() == hash(
@@ -148,11 +105,7 @@ def test_7_leaves(tree, hash):
     )
 
 
-@pytest.mark.parametrize(
-    "tree, hash", [
-        (merkle_trees[i], hash_functions[i]) for i in range(
-            len(merkle_trees))])
-def test_11_leaves(tree, hash):
+def test_11_leaves():
     tree.update(t_8)
     tree.update(t_9)
     tree.update(t_10)
