@@ -8,10 +8,6 @@ from .utils import log_2, decompose
 import json
 import uuid
 import os
-import logging
-
-# Console messages configuration
-logging.basicConfig(format='%(levelname)s: %(message)s')
 
 # -------------------------------- Main class ----------------------------
 
@@ -268,7 +264,6 @@ class merkle_tree(object):
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
                 self.update(record=line)
         except FileNotFoundError:
-            logging.warning('Requested log file does not exist')
 
 # ------------------------------ Proof generation ------------------------
 
@@ -282,6 +277,8 @@ class merkle_tree(object):
         :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
                     can be passed in as the second argument to the ``validations.validate_proof`` method)
         :rtype:     proof.proof
+
+        .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
         """
 
         if type(arg) in (str, bytes, bytearray):
@@ -301,8 +298,7 @@ class merkle_tree(object):
         elif type(arg) is int:
             index = arg # Inserted type was integer
         else:
-            console.error('No proof could be generated (Invalid type inserted)')
-            return
+            raise TypeError
 
         # Calculate proof path
         proof_index, audit_path = self.audit_path(index=index)
@@ -321,7 +317,6 @@ class merkle_tree(object):
         # Handles indexError case (`arg` provided by Client was not among
         # possibilities)
         failure_message = 'Index provided by Client was out of range'
-        logging.warning(failure_message)
         return proof(
             generation='FAILURE ({})'.format(failure_message),
             provider=self.uuid,
@@ -352,7 +347,12 @@ class merkle_tree(object):
                   This is done implicitly and not by calling the ``.inclusion_test`` method
                   (whose implementation differs in that no full path of signed hashes,
                   as generated here by the ``.consistency_path`` method, needs be taken into account.)
+
+        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
         """
+
+        if type(old_hash) is not str or type(sublength) is not int:
+            raise TypeError
 
         # Calculate proof path
         consistency_path = self.consistency_path(sublength=sublength)
@@ -375,7 +375,6 @@ class merkle_tree(object):
 
             # Handles inclusion test failure
             failure_message = 'Subtree provided by Client failed to be detected'
-            logging.warning(failure_message)
             return proof(
                 generation='FAILURE ({})'.format(failure_message),
                 provider=self.uuid,
@@ -388,7 +387,6 @@ class merkle_tree(object):
         # Handles incompatibility case (includes the zero leaves and zero
         # `sublength` case)
         failure_message = 'Subtree provided by Client was incompatible'
-        logging.warning(failure_message)
         return proof(
             generation='FAILURE ({})'.format(failure_message),
             provider=self.uuid,
@@ -605,7 +603,6 @@ class merkle_tree(object):
                 principal_subroots[-1] = (+1, principal_subroots[-1][1])
             return principal_subroots
         else:  # Negative input handled as `incompatibility`
-            logging.warning('Required sequence of subroots is undefinable')
             return None
 
     def subroot(self, start, height):
@@ -638,14 +635,10 @@ class merkle_tree(object):
                     else:
                         subroot = subroot.child
                 except AttributeError:
-                    logging.warning(
-                        '{} (requested height exceeds possibilities)'.format(failure_message))
                     return None
                 else:
                     i += 1
         except IndexError:
-            logging.warning(
-                '{} (requested starting point is out of range)'.format(failure_message))
             return None
 
         # Verify existence of *full* binary subtree for the above detected
@@ -654,8 +647,6 @@ class merkle_tree(object):
         i = 0
         while i < height:
             if isinstance(right_parent, leaf):
-                logging.warning(
-                    '{} (corresponding full binary subtree does not exist)'.format(failure_message))
                 return None
             else:
                 right_parent = right_parent.right
