@@ -298,11 +298,11 @@ class merkle_tree(object):
                     index = count
                     break
                 count += 1
+        elif type(arg) is int:
+            index = arg # Inserted type was integer
         else:
-            try:
-                index = arg
-            except TypeError:
-                console.error('No proof could be generated (Invalid type inserted)')
+            console.error('No proof could be generated (Invalid type inserted)')
+            return
 
         # Calculate proof path
         proof_index, audit_path = self.audit_path(index=index)
