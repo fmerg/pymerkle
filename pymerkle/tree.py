@@ -256,6 +256,8 @@ class merkle_tree(object):
         :param log_file: relative path of the log-file under enryption, specified with respect
                          to the Merkle-tree's directory ``log_dir``
         :type log_file:  str
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
             for line in open(os.path.join(self.log_dir, log_file), 'rb'):
@@ -264,6 +266,7 @@ class merkle_tree(object):
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
                 self.update(record=line)
         except FileNotFoundError:
+            raise
 
 # ------------------------------ Proof generation ------------------------
 
