@@ -106,7 +106,7 @@ class hash_machine(object):
         :param encoding: label indicating the desired encoding type
         :type encoding:  str
         :returns:        just the inserted argument
-        :rtype:          ``str``
+        :rtype:          str
 
         :raises Exception: if ``encoding`` is not contained in ``ENCODINGS``
         """
@@ -120,7 +120,7 @@ class hash_machine(object):
         """
         :returns: ``True`` iff genuine security standards are activated (i.e., ``self.SECURITY`` is ``True``
                   along with hash, resp. ecoding type of the machine being ``SHA256``, resp. ``UTF-8``)
-        :rtype:   ``bool``
+        :rtype:   bool
         """
         return self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8'
 
@@ -137,8 +137,8 @@ class hash_machine(object):
         :param second: [optional] right member of the pair to be hashed; if provided, then ``first`` must also
                        be of ``str`` type (valid hex)
         :type second:  str
-        :returns:      a valid hex representing the produced hash
-        :rtype:        ``str``
+        :returns:      the hexdigest of the generated hash in bytes form
+        :rtype:        bytes
         """
 
         if not second:  # one arg case
@@ -211,8 +211,8 @@ class hash_machine(object):
         :type signed_hashes:  tuple of (+1/-1, hash) pairs, where hash is of type ``str`` or ``bytes`` or ``bytearray``
         :param start:         position where the application of ``hash`` will start from
         :type start:          int
-        :returns:             a valid hexadecimal representing the computed hash
-        :rtype:               ``str``
+        :returns:             the hexdigest of the computed hash in bytes
+        :rtype:               bytes
 
         :Example:
 
