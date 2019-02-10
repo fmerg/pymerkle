@@ -148,37 +148,41 @@ class hash_machine(object):
 
                 if self.security_mode_activated():
                     # Apply security stadards
-                    return self.HASH_ALGORITHM(
+                    hex_hash = self.HASH_ALGORITHM(
                         bytes(
                             self.PREFIX_0,
                             encoding=self.ENCODING) +
                         first).hexdigest()
+                    return bytes(hex_hash, encoding=self.ENCODING)
 
                 # No security standards
-                return self.HASH_ALGORITHM(first).hexdigest()
+                hex_hash = self.HASH_ALGORITHM(first).hexdigest()
+                return bytes(hex_hash, encoding=self.ENCODING)
 
             # Non bytes-like input
 
             if self.security_mode_activated():
 
                 # Apply security standards
-                return self.HASH_ALGORITHM(
+                hex_hash = self.HASH_ALGORITHM(
                     bytes(
                         '{}{}'.format(
                             self.PREFIX_0,
                             first),
                         encoding=self.ENCODING)).hexdigest()
+                return bytes(hex_hash, encoding=self.ENCODING)
 
             # No security standards
-            return self.HASH_ALGORITHM(
+            hex_hash = self.HASH_ALGORITHM(
                 bytes(first, encoding=self.ENCODING)).hexdigest()
+            return bytes(hex_hash, encoding=self.ENCODING)
 
         # two args case
 
         if self.security_mode_activated():
 
             # Apply security standards
-            return self.HASH_ALGORITHM(
+            hex_hash = self.HASH_ALGORITHM(
                 bytes(
                     '{}{}{}{}'.format(
                         self.PREFIX_1,
@@ -186,14 +190,16 @@ class hash_machine(object):
                         self.PREFIX_1,
                         second),
                     encoding=self.ENCODING)).hexdigest()
+            return bytes(hex_hash, encoding=self.ENCODING)
 
         # No security standards
-        return self.HASH_ALGORITHM(
+        hex_hash = self.HASH_ALGORITHM(
             bytes(
                 '{}{}'.format(
                     first,
                     second),
                 encoding=self.ENCODING)).hexdigest()
+        return bytes(hex_hash, encoding=self.ENCODING)
 
     def multi_hash(self, signed_hashes, start):
         """Hash utility used in proof validation
