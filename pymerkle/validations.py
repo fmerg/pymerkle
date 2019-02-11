@@ -1,5 +1,5 @@
 """
-Provides a core function for validating proof and a related wrapper
+Provides a core function for validating proofs along with a wrapper
 """
 
 import uuid

@@ -5,7 +5,7 @@ import time
 from pymerkle import merkle_tree, hashing, validate_proof, proof_validator
 from pymerkle.validations import validation_receipt
 
-# ---------------- Check receipt replicates in all possible ways ----------------
+# ---------------- Check receipt replicates in all possible ways ---------
 
 tree = merkle_tree(*(bytes('{}-th record'.format(i), 'utf-8')
                      for i in range(0, 1000)))
@@ -20,7 +20,8 @@ r_2 = validation_receipt(from_dict=json.loads(r.JSONstring()))
 def test_r_replicates_via_serialization(replicate):
     assert r.serialize() == replicate.serialize()
 
-# ---------------------- Validation tests parametrization ----------------------
+# ---------------------- Validation tests parametrization ----------------
+
 
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = ['utf_7',

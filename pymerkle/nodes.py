@@ -10,7 +10,10 @@ L_BRACKET_SHORT = u'\u2514' + u'\u2500'     # └─
 L_BRACKET_LONG = u'\u2514' + 2 * u'\u2500'  # └──
 T_BRACKET = u'\u251C' + 2 * u'\u2500'       # ├──
 VERTICAL_BAR = u'\u2502'                    # │
-
+"""
+Provides the base class for the Merkle-tree's nodes and an inheriting
+class for its leaves
+"""
 
 class node(object):
     """Base class for the nodes of a Merkle-tree

@@ -66,7 +66,7 @@ class hash_machine(object):
 
         # Plays role only if hash and endodin types is SHA256, resp. UTF-8
         self.SECURITY = security
-        if self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8':
+        if self.SECURITY:
             # ~ Security prefices will be prepended before hashing for defense against
             self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
@@ -104,14 +104,6 @@ class hash_machine(object):
             raise Exception(
                 '\n\n * Encoding type {encoding} is not supported\n'.format(encoding=encoding))
 
-    def security_mode_activated(self):
-        """
-        :returns: ``True`` iff genuine security standards are activated (i.e., ``self.SECURITY`` is ``True``
-                  along with hash, resp. ecoding type of the machine being ``SHA256``, resp. ``UTF-8``)
-        :rtype:   bool
-        """
-        return self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8'
-
     # ------------------------------- Hash utils -----------------------------
 
     def hash(self, first, second=None):
@@ -134,7 +126,7 @@ class hash_machine(object):
             if isinstance(first, (bytes, bytearray)):
                 # bytes-like input
 
-                if self.security_mode_activated():
+                if self.SECURITY:
                     # Apply security stadards
                     hex_hash = self.HASH_ALGORITHM(
                         bytes(
@@ -149,7 +141,7 @@ class hash_machine(object):
 
             # Non bytes-like input
 
-            if self.security_mode_activated():
+            if self.SECURITY:
 
                 # Apply security standards
                 hex_hash = self.HASH_ALGORITHM(
@@ -167,16 +159,16 @@ class hash_machine(object):
 
         # two args case
 
-        if self.security_mode_activated():
+        if self.SECURITY:
 
             # Apply security standards
             hex_hash = self.HASH_ALGORITHM(
                 bytes(
                     '{}{}{}{}'.format(
                         self.PREFIX_1,
-                        first,
+                        first.decode(encoding=self.ENCODING),
                         self.PREFIX_1,
-                        second),
+                        second.decode(encoding=self.ENCODING)),
                     encoding=self.ENCODING)).hexdigest()
             return bytes(hex_hash, encoding=self.ENCODING)
 
@@ -184,8 +176,8 @@ class hash_machine(object):
         hex_hash = self.HASH_ALGORITHM(
             bytes(
                 '{}{}'.format(
-                    first,
-                    second),
+                    first.decode(encoding=self.ENCODING),
+                    second.decode(encoding=self.ENCODING)),
                 encoding=self.ENCODING)).hexdigest()
         return bytes(hex_hash, encoding=self.ENCODING)
 

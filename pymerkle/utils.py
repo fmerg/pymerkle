@@ -95,6 +95,8 @@ def stringify_path(signed_hashes, encoding):
                     sign=get_with_sign(
                         elem[0]),
                     hash=elem[1].decode(
-                        encoding=encoding) if type(elem[1]) is not str else elem[1]))
+                        encoding=encoding) if not isinstance(
+                        elem[1],
+                        str) else elem[1]))
         return ''.join(elem for elem in stringified_elems)
     return ''  # input was None
