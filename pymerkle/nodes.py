@@ -27,6 +27,8 @@ class node(object):
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
                           attribute of the containing Merkle-tree
     :type hash_function:  method
+    :param encoding:
+    :type encoding:       str
 
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
     :ivar right:         (*nodes.node*) The node's right parent. Defaults to ``None`` if the node is a leaf
@@ -37,8 +39,16 @@ class node(object):
                          it is ``None`` (no hash re-calculation case)
     """
 
-    def __init__(self, hash_function, record=None, left=None, right=None):
+    def __init__(
+            self,
+            hash_function,
+            encoding,
+            record=None,
+            left=None,
+            right=None):
         self.left, self.right, self.child = None, None, None
+        # Store encoding type for hash decoding when printing or jsonifying
+        self.encoding = encoding
 
         if left is None and right is None:  # Leaf case (parentless node)
             self.hash = hash_function(record)
@@ -47,7 +57,7 @@ class node(object):
             left.child, right.child = self, self
             self.left, self.right = left, right
             self.hash = hash_function(left.hash, right.hash)
-            # Store hash and encoding type in case of hash recalculation
+            # Store hash function in case of hash recalculation
             self.hash_function = hash_function
 
 # ------------------------- Representation formatting --------------------
@@ -71,7 +81,7 @@ class node(object):
                         left=memory_id(self.left),
                         right=memory_id(self.right),
                         child=memory_id(self.child),
-                        hash=self.hash)
+                        hash=self.hash.decode(encoding=self.encoding))
 
     def __str__(self, level=0, indent=3, ignore=[]):
         """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``
@@ -119,7 +129,7 @@ class node(object):
             output += ' ' + L_BRACKET_LONG
             new_ignore.append(level)
 
-        output += self.hash + '\n'
+        output += self.hash.decode(encoding=self.encoding) + '\n'
         if not isinstance(self, leaf):  # Recursive step
             output += self.left.__str__(level=level + 1,
                                         indent=indent, ignore=new_ignore)
@@ -189,7 +199,6 @@ class node(object):
 
 # ------------------------------- JSON serialization ------------------------
 
-
     def serialize(self):
         """ Returns a JSON structure with the node's attributes as key-value pairs
 
@@ -220,15 +229,18 @@ class leaf(node):
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
                           attribute of the containing Merkle-tree
     :type hash_function:  method
+    :param encoding:
+    :type encoding:       str
     """
 
-    def __init__(self, record, hash_function):
+    def __init__(self, record, hash_function, encoding):
         node.__init__(
             self,
             record=record,
             left=None,
             right=None,
-            hash_function=hash_function)
+            hash_function=hash_function,
+            encoding=encoding)
 
 # ------------------------------- JSON encoders --------------------------
 
@@ -252,10 +264,10 @@ class nodeEncoder(json.JSONEncoder):
         else:
             if isinstance(obj, leaf):
                 return {
-                    'hash': hash
+                    'hash': hash.decode(encoding=obj.encoding)
                 }
             return {
                 'left': left.serialize(),
                 'right': right.serialize(),
-                'hash': hash
+                'hash': hash.decode(encoding=obj.encoding)
             }  # Non-leaf case
