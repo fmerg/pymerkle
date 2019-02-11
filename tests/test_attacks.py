@@ -54,7 +54,6 @@ def test_defense_against_second_preimage_attack(original_tree):
         security=original_tree.security
     )
     # Check if the attacker has found the original root-hash
-    # assert original_tree.root_hash() == attacker_tree.root_hash()
     if original_tree.security:
         assert original_tree.root_hash() != attacker_tree.root_hash()
     else:
