@@ -123,12 +123,19 @@ class merkle_tree(object):
                 \n    length    : {length}\
                 \n    height    : {height}\n' .format(
             uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', '-'),
-            encoding=self.encoding.upper().replace('_', '-'),
+            hash_type=self.hash_type.upper().replace(
+                '_',
+                '-'),
+            encoding=self.encoding.upper().replace(
+                '_',
+                '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.root_hash(),
-            size=len(self.nodes),
-            length=len(self.leaves),
+            root_hash=self.root_hash().decode(
+                encoding=self.encoding) if self else '',
+            size=len(
+                self.nodes),
+            length=len(
+                self.leaves),
             height=self.height())
 
     def length(self):
@@ -210,7 +217,10 @@ class merkle_tree(object):
             last_subroot = self.leaves[-1].descendant(degree=last_power)
 
             # Store new record to new leaf
-            new_leaf = leaf(record=record, hash_function=self.hash)
+            new_leaf = leaf(
+                record=record,
+                hash_function=self.hash,
+                encoding=self.encoding)
 
             # Assimilate new leaf
             self.leaves.append(new_leaf)
@@ -224,7 +234,8 @@ class merkle_tree(object):
                 record=None,
                 left=last_subroot,
                 right=new_leaf,
-                hash_function=self.hash)
+                hash_function=self.hash,
+                encoding=self.encoding)
             self.nodes.add(new_child)
 
             # Bifurcate
@@ -245,7 +256,10 @@ class merkle_tree(object):
                     current_node = current_node.child
 
         else:  # void case
-            new_leaf = leaf(record=record, hash_function=self.hash)
+            new_leaf = leaf(
+                record=record,
+                hash_function=self.hash,
+                encoding=self.encoding)
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
 
@@ -433,6 +447,7 @@ class merkle_tree(object):
 
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """

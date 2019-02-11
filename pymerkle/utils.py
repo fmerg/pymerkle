@@ -59,12 +59,14 @@ def decompose(num):
     return tuple(powers)
 
 
-def stringify_path(signed_hashes):
+def stringify_path(signed_hashes, encoding):
     """Returns a stringified version of the inserted sequence of signed hashes
 
     :param signed_hashes: a sequence of signed hashes
     :type signed_hashes:  tuple of (+1/-1, str) pairs
-    :rtype:               ``str``
+    :param encoding:
+    :type encoding:       str
+    :rtype:               str
 
     .. note:: The output of this function is to be passed into the ``print`` function
     """
@@ -84,6 +86,6 @@ def stringify_path(signed_hashes):
                  '{sign}' +
                  2 * ' ' +
                  '{hash}').
-                format(i=i, sign=get_with_sign(elem[0]), hash=elem[1]))
+                format(i=i, sign=get_with_sign(elem[0]), hash=elem[1].decode(encoding=encoding)))
         return ''.join(elem for elem in stringified_elems)
     return ''  # input was None

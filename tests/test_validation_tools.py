@@ -40,8 +40,7 @@ for encoding in ENCODINGS:
 
 @pytest.mark.parametrize('tree', trees)
 def test_proof_validation_for_empty_tree(tree):
-    """
-    Tests proof-validation for proofs provided by empty trees
+    """Tests proof-validation for proofs provided by empty trees
     """
     audit_proof = tree.audit_proof(arg=0)
     consistency_proof = tree.consistency_proof(

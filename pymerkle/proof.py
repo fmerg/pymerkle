@@ -137,7 +137,7 @@ class proof(object):
             security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
             proof_index=self.body['proof_index'] if self.body['proof_index'] is not None else '',
             proof_path=stringify_path(
-                signed_hashes=self.body['proof_path']),
+                signed_hashes=self.body['proof_path'], encoding=self.header['encoding']),
             status='UNVALIDATED' if self.header['status'] is None
             else 'VALID' if self.header['status'] is True
             else 'NON VALID')
@@ -206,6 +206,7 @@ class proofEncoder(json.JSONEncoder):
                 },
                 'body': {
                     'proof_index': proof_index,
-                    'proof_path': [[sign, hash] for (sign, hash) in proof_path] if proof_path is not None else []
+                    'proof_path': [[sign, hash.decode(encoding=encoding)] for (sign, hash) in proof_path]
+                    if proof_path is not None else []
                 }
             }
