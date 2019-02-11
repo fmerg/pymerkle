@@ -166,9 +166,9 @@ class hash_machine(object):
                 bytes(
                     '{}{}{}{}'.format(
                         self.PREFIX_1,
-                        first,
+                        first.decode(encoding=self.ENCODING),
                         self.PREFIX_1,
-                        second),
+                        second.decode(encoding=self.ENCODING)),
                     encoding=self.ENCODING)).hexdigest()
             return bytes(hex_hash, encoding=self.ENCODING)
 
@@ -176,8 +176,8 @@ class hash_machine(object):
         hex_hash = self.HASH_ALGORITHM(
             bytes(
                 '{}{}'.format(
-                    first,
-                    second),
+                    first.decode(encoding=self.ENCODING),
+                    second.decode(encoding=self.ENCODING)),
                 encoding=self.ENCODING)).hexdigest()
         return bytes(hex_hash, encoding=self.ENCODING)
 
