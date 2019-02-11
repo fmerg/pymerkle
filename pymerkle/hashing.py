@@ -104,14 +104,6 @@ class hash_machine(object):
             raise Exception(
                 '\n\n * Encoding type {encoding} is not supported\n'.format(encoding=encoding))
 
-    def security_mode_activated(self):
-        """
-        :returns: ``True`` iff genuine security standards are activated (i.e., ``self.SECURITY`` is ``True``
-                  along with hash, resp. ecoding type of the machine being ``SHA256``, resp. ``UTF-8``)
-        :rtype:   bool
-        """
-        return self.SECURITY
-
     # ------------------------------- Hash utils -----------------------------
 
     def hash(self, first, second=None):
@@ -134,7 +126,7 @@ class hash_machine(object):
             if isinstance(first, (bytes, bytearray)):
                 # bytes-like input
 
-                if self.security_mode_activated():
+                if self.SECURITY:
                     # Apply security stadards
                     hex_hash = self.HASH_ALGORITHM(
                         bytes(
@@ -149,7 +141,7 @@ class hash_machine(object):
 
             # Non bytes-like input
 
-            if self.security_mode_activated():
+            if self.SECURITY:
 
                 # Apply security standards
                 hex_hash = self.HASH_ALGORITHM(
@@ -167,7 +159,7 @@ class hash_machine(object):
 
         # two args case
 
-        if self.security_mode_activated():
+        if self.SECURITY:
 
             # Apply security standards
             hex_hash = self.HASH_ALGORITHM(
