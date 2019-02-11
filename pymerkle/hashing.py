@@ -66,7 +66,7 @@ class hash_machine(object):
 
         # Plays role only if hash and endodin types is SHA256, resp. UTF-8
         self.SECURITY = security
-        if self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8':
+        if self.SECURITY:
             # ~ Security prefices will be prepended before hashing for defense against
             self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
@@ -110,7 +110,7 @@ class hash_machine(object):
                   along with hash, resp. ecoding type of the machine being ``SHA256``, resp. ``UTF-8``)
         :rtype:   bool
         """
-        return self.SECURITY and self.HASH_ALGORITHM == hashlib.sha256 and self.ENCODING == 'utf_8'
+        return self.SECURITY
 
     # ------------------------------- Hash utils -----------------------------
 
