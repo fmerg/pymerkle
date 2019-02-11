@@ -20,6 +20,7 @@ HASH_TYPES = [
     'sha3_384',
     'sha3_512'
 ]
+"""Supported hash types"""
 
 
 class hash_machine(object):
