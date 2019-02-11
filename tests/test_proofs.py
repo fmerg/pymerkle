@@ -22,11 +22,6 @@ def test_p_replicates_via_serialization(replicate):
     assert p.serialize() == replicate.serialize()
 
 
-@pytest.mark.parametrize('replicate', (p_1, p_2))
-def test_p_replicates_via_validation(replicate):
-    assert validate_proof(tree.root_hash(), replicate)
-
-
 @pytest.mark.parametrize('replicate', (q_1, q_2))
 def test_q_replicates_via_serialization(replicate):
     assert q.serialize() == replicate.serialize()

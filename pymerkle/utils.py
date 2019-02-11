@@ -80,12 +80,21 @@ def stringify_path(signed_hashes, encoding):
             elem = signed_hashes[i]
             stringified_elems.append(
                 ('\n' +
-                 (7 - order_of_magnitude(i)) * ' ' +
-                 '[{i}]' +
-                 3 * ' ' +
-                 '{sign}' +
-                 2 * ' ' +
-                 '{hash}').
-                format(i=i, sign=get_with_sign(elem[0]), hash=elem[1].decode(encoding=encoding)))
+                 (
+                     7 -
+                     order_of_magnitude(i)) *
+                    ' ' +
+                    '[{i}]' +
+                    3 *
+                    ' ' +
+                    '{sign}' +
+                    2 *
+                    ' ' +
+                    '{hash}'). format(
+                    i=i,
+                    sign=get_with_sign(
+                        elem[0]),
+                    hash=elem[1].decode(
+                        encoding=encoding) if type(elem[1]) is not str else elem[1]))
         return ''.join(elem for elem in stringified_elems)
     return ''  # input was None

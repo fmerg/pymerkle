@@ -373,7 +373,7 @@ class merkle_tree(object):
         .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
         """
 
-        if type(old_hash) not in (str, type(None)) \
+        if type(old_hash) not in (bytes, type(None)) \
                 or not isinstance(sublength, int):
             raise TypeError
 

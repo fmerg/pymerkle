@@ -47,9 +47,9 @@ def test_proof_validation_for_empty_tree(tree):
         old_hash=tree.root_hash(), sublength=0)
 
     assert validate_proof(
-        target_hash='anything...',
+        target_hash=b'anything...',
         proof=audit_proof) is False and validate_proof(
-        target_hash='anything...',
+        target_hash=b'anything...',
         proof=consistency_proof) is False
 
 # ------------------------ Test audit proof validation ------------------------
@@ -87,7 +87,7 @@ for bool_1 in (True, False):  # Controls index compatibility
                     if bool_2:
                         target_hashes.append(tree.root_hash())
                     else:
-                        target_hashes.append('anything else...')
+                        target_hashes.append(b'anything else...')
 
 
 @pytest.mark.parametrize(
@@ -161,7 +161,7 @@ for bool_1 in (
                         if bool_1:
                             old_hash = tree.root_hash()
                         else:
-                            old_hash = 'anything else...'
+                            old_hash = b'anything else...'
 
                         # Subtree-detection configuration
                         if bool_2 and bool_3:
@@ -184,7 +184,7 @@ for bool_1 in (
                         if bool_4:
                             target_hashes.append(tree.root_hash())
                         else:
-                            target_hashes.append('anything else...')
+                            target_hashes.append(b'anything else...')
 
 
 @pytest.mark.parametrize(
