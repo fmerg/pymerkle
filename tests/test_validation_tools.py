@@ -3,6 +3,24 @@ import os
 import json
 import time
 from pymerkle import merkle_tree, hashing, validate_proof, proof_validator
+from pymerkle.validations import validation_receipt
+
+# ---------------- Check receipt replicates in all possible ways ----------------
+
+tree = merkle_tree(*(bytes('{}-th record'.format(i), 'utf-8')
+                     for i in range(0, 1000)))
+p = tree.audit_proof(666)
+v = proof_validator()
+r = v.validate(target_hash=tree.root_hash(), proof=p)
+r_1 = validation_receipt(from_json=r.JSONstring())
+r_2 = validation_receipt(from_dict=json.loads(r.JSONstring()))
+
+
+@pytest.mark.parametrize('replicate', (r_1, r_2))
+def test_r_replicates_via_serialization(replicate):
+    assert r.serialize() == replicate.serialize()
+
+# ---------------------- Validation tests parametrization ----------------------
 
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = ['utf_7',

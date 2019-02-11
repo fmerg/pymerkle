@@ -126,18 +126,39 @@ class validation_receipt(object):
     :ivar body.result:              (*bool*) See the homonymous argument of the constructor
     """
 
-    def __init__(self, proof_uuid, proof_provider, result):
-        self.header = {
-            'uuid': str(uuid.uuid1()),  # Time based
-            'timestamp': int(time.time()),
-            'validation_moment': time.ctime(),
-        }
+    def __init__(self, *args, **kwargs):
+        if args:                            # Assuming positional arguments by default
+            self.header = {
+                'uuid': str(uuid.uuid1()),  # Time based receipt id
+                'timestamp': int(time.time()),
+                'validation_moment': time.ctime(),
+            }
 
-        self.body = {
-            'proof_uuid': proof_uuid,
-            'proof_provider': proof_provider,
-            'result': result
-        }
+            self.body = {
+                'proof_uuid': args[0],
+                'proof_provider': args[1],
+                'result': args[2]
+            }
+        else:
+            if kwargs.get('from_dict'):     # Importing receipt from dict
+                self.header = kwargs.get('from_dict')['header']
+                self.body = kwargs.get('from_dict')['body']
+            elif kwargs.get('from_json'):   # Importing receipt form JSON text
+                receipt_dict = json.loads(kwargs.get('from_json'))
+                self.header = receipt_dict['header']
+                self.body = receipt_dict['body']
+            else:                           # Standard creation of a receipt
+                self.header = {
+                    'uuid': str(uuid.uuid1()),  # Time based receipt id
+                    'timestamp': int(time.time()),
+                    'validation_moment': time.ctime(),
+                }
+
+                self.body = {
+                    'proof_uuid': kwargs.get('proof_uuid'),
+                    'proof_provider': kwargs.get('proof_provider'),
+                    'result': kwargs.get('result')
+                }
 
     def __repr__(self):
 
