@@ -108,7 +108,7 @@ class merkle_tree(object):
 
         Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
 
-        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
+        .. warning::Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
 
         return '\n    uuid      : {uuid}\
@@ -644,7 +644,6 @@ class merkle_tree(object):
         .. note:: Returns ``None`` if the requested ``start`` is out of range
         """
         subroot = None
-        failure_message = 'Required subroot is undefinable'
 
         # Detect candidate subroot
         try:
@@ -664,8 +663,8 @@ class merkle_tree(object):
         except IndexError:
             return None
 
-        # Verify existence of *full* binary subtree for the above detected
-        # candidate subroot
+        # ~ Verify existence of *full* binary subtree for the above detected
+        # ~ candidate subroot
         right_parent = subroot
         i = 0
         while i < height:
@@ -695,7 +694,7 @@ class merkle_tree(object):
         :rtype: dict
 
         .. note:: This method does *not* serialize the tree structure itself, but only the info
-                  about the tree's fixed configurations (hash type, encoding type, security mode,
+                  about the tree's fixed configs (hash type, encoding type, security mode,
                   uuid) and current state (size, length, height, root-hash).
         """
         encoder = merkleTreeEncoder()

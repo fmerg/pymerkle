@@ -146,7 +146,7 @@
             
   <h1>Source code for pymerkle.validations</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Provides a core function for validating proof and a related wrapper</span>
+<span class="sd">Provides a core function for validating proofs along with a wrapper</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">uuid</span>
@@ -273,24 +273,45 @@
 <span class="sd">    :ivar body.result:              (*bool*) See the homonymous argument of the constructor</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proof_uuid</span><span class="p">,</span> <span class="n">proof_provider</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()),</span>  <span class="c1"># Time based</span>
-            <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()),</span>
-            <span class="s1">&#39;validation_moment&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">ctime</span><span class="p">(),</span>
-        <span class="p">}</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>                            <span class="c1"># Assuming positional arguments by default</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()),</span>  <span class="c1"># Time based receipt id</span>
+                <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()),</span>
+                <span class="s1">&#39;validation_moment&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">ctime</span><span class="p">(),</span>
+            <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;proof_uuid&#39;</span><span class="p">:</span> <span class="n">proof_uuid</span><span class="p">,</span>
-            <span class="s1">&#39;proof_provider&#39;</span><span class="p">:</span> <span class="n">proof_provider</span><span class="p">,</span>
-            <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result</span>
-        <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;proof_uuid&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s1">&#39;proof_provider&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from_dict&#39;</span><span class="p">):</span>     <span class="c1"># Importing receipt from dict</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from_dict&#39;</span><span class="p">)[</span><span class="s1">&#39;header&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from_dict&#39;</span><span class="p">)[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from_json&#39;</span><span class="p">):</span>   <span class="c1"># Importing receipt form JSON text</span>
+                <span class="n">receipt_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;from_json&#39;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">receipt_dict</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">receipt_dict</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>                           <span class="c1"># Standard creation of a receipt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()),</span>  <span class="c1"># Time based receipt id</span>
+                    <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()),</span>
+                    <span class="s1">&#39;validation_moment&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">ctime</span><span class="p">(),</span>
+                <span class="p">}</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;proof_uuid&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;proof_uuid&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;proof_provider&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;proof_provider&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">)</span>
+                <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    ----------------------------- VALIDATION RECEIPT -----------------------------</span><span class="se">\</span>
 <span class="s1">                </span><span class="se">\n\</span>
-<span class="s1">                </span><span class="se">\n</span><span class="s1">    id             : </span><span class="si">{id}</span><span class="se">\</span>
+<span class="s1">                </span><span class="se">\n</span><span class="s1">    uuid           : </span><span class="si">{uuid}</span><span class="se">\</span>
 <span class="s1">                </span><span class="se">\n</span><span class="s1">    timestamp      : </span><span class="si">{timestamp}</span><span class="s1"> (</span><span class="si">{validation_moment}</span><span class="s1">)</span><span class="se">\</span>
 <span class="s1">                </span><span class="se">\n\</span>
 <span class="s1">                </span><span class="se">\n</span><span class="s1">    proof-uuid     : </span><span class="si">{proof_uuid}</span><span class="se">\</span>
@@ -334,7 +355,7 @@
 
 
 <div class="viewcode-block" id="validationReceiptEncoder"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.validationReceiptEncoder">[docs]</a><span class="k">class</span> <span class="nc">validationReceiptEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Used implicitely in the JSON serialization of proof receipts. Extends the built-in</span>
+    <span class="sd">&quot;&quot;&quot;Used implicitly in the JSON serialization of proof receipts. Extends the built-in</span>
 <span class="sd">    JSON encoder for data structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

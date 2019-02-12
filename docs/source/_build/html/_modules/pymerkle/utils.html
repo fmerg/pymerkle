@@ -146,7 +146,7 @@
             
   <h1>Source code for pymerkle.utils</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Contains math and format utils invoked across the library</span>
+<span class="sd">Provides invoked across the library</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
@@ -157,17 +157,17 @@
 <span class="sd">    the greatest power of *2* equal to or smaller than ``num``)</span>
 
 <span class="sd">    .. note:: Given any *balanced* binary tree, whose number of leaves equals</span>
-<span class="sd">              the inserted number, this function returns the tree&#39;s height</span>
+<span class="sd">              the inserted one, this function returns the tree&#39;s height</span>
 <span class="sd">              (i.e., the depth of its *left-most* branch)</span>
 
 <span class="sd">    :param num: the number whose logarithm is to be computed</span>
 <span class="sd">    :type num:  int</span>
 <span class="sd">    :returns:   the computed logarithm</span>
-<span class="sd">    :rtype:     ``int``</span>
-
-<span class="sd">    :raises ValueError: for arguments smaller than zero</span>
+<span class="sd">    :rtype:     int</span>
 
 <span class="sd">    .. note:: By convention, it returns 0 for zero argument</span>
+
+<span class="sd">    :raises ValueError: for arguments smaller than zero</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span></div>
 
@@ -181,11 +181,6 @@
 
 <span class="sd">    then the tuple ``(p_m, ..., p_1)`` is returned</span>
 
-<span class="sd">    :param num: the number to be decomposed</span>
-<span class="sd">    :type num:  int</span>
-<span class="sd">    :returns:   powers of *2* in decreasing order</span>
-<span class="sd">    :rtype:     ``tuple`` of integers</span>
-
 <span class="sd">    :Example:</span>
 
 <span class="sd">    &gt;&gt;&gt; num = 45</span>
@@ -194,6 +189,11 @@
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; decompose(num)</span>
 <span class="sd">    (5, 3, 2, 0)</span>
+
+<span class="sd">    :param num: the number to be decomposed</span>
+<span class="sd">    :type num:  int</span>
+<span class="sd">    :returns:   powers of *2* in decreasing order</span>
+<span class="sd">    :rtype:     tuple of integers</span>
 
 <span class="sd">    .. note:: Returns the nonsensical empty tuple for arguments equal to or</span>
 <span class="sd">              smaller than zero</span>
@@ -206,14 +206,19 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">powers</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="stringify_path"><a class="viewcode-back" href="../../pymerkle.utils.html#pymerkle.utils.stringify_path">[docs]</a><span class="k">def</span> <span class="nf">stringify_path</span><span class="p">(</span><span class="n">signed_hashes</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a stringified version of the inserted sequence of signed hashes</span>
+<div class="viewcode-block" id="stringify_path"><a class="viewcode-back" href="../../pymerkle.utils.html#pymerkle.utils.stringify_path">[docs]</a><span class="k">def</span> <span class="nf">stringify_path</span><span class="p">(</span><span class="n">signed_hashes</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a nicely stringified version of the inserted sequence of signed hashes.</span>
 
-<span class="sd">    :param signed_hashes: a sequence of signed hashes</span>
-<span class="sd">    :type signed_hashes:  tuple of (+1/-1, str) pairs</span>
-<span class="sd">    :rtype:               ``str``</span>
+<span class="sd">    The printed hashes are hexadecimals, occuring after decoding the given ones according</span>
+<span class="sd">    to the inserted encoding type.</span>
 
 <span class="sd">    .. note:: The output of this function is to be passed into the ``print`` function</span>
+
+<span class="sd">    :param signed_hashes: a sequence of signed hashes</span>
+<span class="sd">    :type signed_hashes:  tuple of (+1/-1, bytes) pairs</span>
+<span class="sd">    :param encoding:      type to be used for decoding</span>
+<span class="sd">    :type encoding:       str</span>
+<span class="sd">    :rtype:               str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">order_of_magnitude</span><span class="p">(</span><span class="n">num</span><span class="p">):</span> <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
 
@@ -225,13 +230,24 @@
             <span class="n">elem</span> <span class="o">=</span> <span class="n">signed_hashes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">stringified_elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-                 <span class="p">(</span><span class="mi">7</span> <span class="o">-</span> <span class="n">order_of_magnitude</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
-                 <span class="s1">&#39;[</span><span class="si">{i}</span><span class="s1">]&#39;</span> <span class="o">+</span>
-                 <span class="mi">3</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
-                 <span class="s1">&#39;</span><span class="si">{sign}</span><span class="s1">&#39;</span> <span class="o">+</span>
-                 <span class="mi">2</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
-                 <span class="s1">&#39;</span><span class="si">{hash}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span>
-                <span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="n">get_with_sign</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">hash</span><span class="o">=</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                 <span class="p">(</span>
+                     <span class="mi">7</span> <span class="o">-</span>
+                     <span class="n">order_of_magnitude</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">*</span>
+                    <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                    <span class="s1">&#39;[</span><span class="si">{i}</span><span class="s1">]&#39;</span> <span class="o">+</span>
+                    <span class="mi">3</span> <span class="o">*</span>
+                    <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                    <span class="s1">&#39;</span><span class="si">{sign}</span><span class="s1">&#39;</span> <span class="o">+</span>
+                    <span class="mi">2</span> <span class="o">*</span>
+                    <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                    <span class="s1">&#39;</span><span class="si">{hash}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span> <span class="nb">format</span><span class="p">(</span>
+                    <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+                    <span class="n">sign</span><span class="o">=</span><span class="n">get_with_sign</span><span class="p">(</span>
+                        <span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="nb">hash</span><span class="o">=</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+                        <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                        <span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elem</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">stringified_elems</span><span class="p">)</span>
     <span class="k">return</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># input was None</span></div>
 </pre></div>

@@ -1,5 +1,5 @@
 """
-Contains a class ``hash_machine`` encapsulating the two basic hash utilities used accross the library.
+Provides a class ``hash_machine`` encapsulating the two basic hash utilities used accross the library.
 Instances of this class should receive their configuration parameters from the ``ENCODINGS`` and
 ``HASH_TYPES`` global variables of this module
 """
@@ -32,24 +32,26 @@ class hash_machine(object):
     a proof validation is about to be performed
 
     :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the ``HASH_TYPES``
-                      global variable (upper- or mixed-case with '-' instead of '_' allowed). Defaults to ``sha256``
+                      global variable (upper- or mixed-case with '-' instead of '_' allowed). Defaults to ``'sha256'``
                       if unspecified
     :type hash_type:  str
     :param encoding:  specifies the encoding algorithm to be used by machine before hashing; must be among the elements of the
-                      ENCODINGS global variable (upper- or mixed-case with ``-`` instead of ``_`` allowed). Defaults to ``utf_8``
+                      ENCODINGS global variable (upper- or mixed-case with ``-`` instead of ``_`` allowed). Defaults to ``'utf_8'``
                       if unspecified
     :type encoding:   str
-    :param security:  defaults to ``True``; plays role only if hash and encoding types are sha256 and utf-8 respectively. In this
-                      case, security standards are applied against second-preimage attack, i.e., single, resp. double arguments of
-                      the ``hash`` function will be prepended with ``'x00'``, resp. ``'x01'`` before hashing
+    :param security:  defaults to ``True``, in which case security standards are applied against second-preimage attack, i.e.,
+                      single, resp. double arguments of the ``.hash`` method will be prepended with ``'\\x00'``, resp. ``'\\x01'``
+                      before hashing
     :type security:   bool
 
-    :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``HASH_TYPES``, resp. ``ENCODINGS``
+    :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``hashing.HASH_TYPES``, resp. ``hashing.ENCODINGS``
 
-    :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine. Defaults to SHA256.
-    :ivar ENCODING:       (*str*) Encoding type used by the machine while hashing. Defaults to UTF-8.
-    :ivar SECURITY:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for
-                          default values of hash and encoding types). Defaults to ``True``.
+    :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine, specified in the obvious way
+                          by the ``hash_type`` argument at construction
+    :ivar ENCODING:       (*str*) Encoding type used by the machine before hashing, specified in the obvious way
+                          by the ``encoding`` argument at construction
+    :ivar SECURITY:       (*bool*) Indicates whether defense against second-preimage attack is activated, specified in the
+                          obvious way by the ``security`` argument at construction
     """
 
     # -------------------------------- Construction --------------------------
@@ -77,9 +79,9 @@ class hash_machine(object):
         :param hash_type: label indicating the desired hash algorithm
         :type hash_type:  str
         :returns:         the desired hash algorithm; e.g. ``hashlib.sha256``
-        :rtype:           ``builtin_function_or_method``
+        :rtype:           builtin_function_or_method
 
-        :raises Exception: if ``hash_type`` is not contained in ``HASH_TYPES``
+        :raises Exception: if ``hash_type`` is not contained in ``hashing.HASH_TYPES``
         """
         if hash_type in HASH_TYPES:
             return getattr(hashlib, hash_type)
@@ -96,7 +98,7 @@ class hash_machine(object):
         :returns:        just the inserted argument
         :rtype:          str
 
-        :raises Exception: if ``encoding`` is not contained in ``ENCODINGS``
+        :raises Exception: if ``encoding`` is not contained in ``hashing.ENCODINGS``
         """
         if encoding in ENCODINGS:
             return encoding
@@ -109,15 +111,18 @@ class hash_machine(object):
     def hash(self, first, second=None):
         """Core hash utility
 
-        Returns in hexadecimal form the hash of the object occuring by concatenation of arguments in the given
-        order; if only one argument is passed in, then the hash of this single argument is returned
+        Returns the hash of the object occuring by concatenation of arguments in the given order.
+        If only one argument is passed in, then the hash of this single argument is returned
 
         :param first:  left member of the pair to be hashed
         :type first:   str or bytes or bytearray
-        :param second: [optional] right member of the pair to be hashed; if provided, then ``first`` must also
-                       be of ``str`` type (valid hex)
-        :type second:  str
-        :returns:      the hexdigest of the generated hash in bytes form
+        :param second: [optional] right member of the pair to be hashed
+        :type second:  bytes or bytearray
+
+        .. warning:: if ``second`` is provided, then ``first`` *must* also be of `bytes`
+                    or `byetarray` type
+
+        :returns:      the hash of the provided pair
         :rtype:        bytes
         """
 
@@ -184,28 +189,28 @@ class hash_machine(object):
     def multi_hash(self, signed_hashes, start):
         """Hash utility used in proof validation
 
-        Repeatedly applies the core ``hash`` method over a tuple of signed hashes parenthesized in pairs
+        Repeatedly applies the ``.hash`` method over a tuple of signed hashes parenthesized in pairs
         as specified by accompanying signs
 
         :param signed_hashes: a sequence of signed hashes
-        :type signed_hashes:  tuple of (+1/-1, hash) pairs, where hash is of type ``str`` or ``bytes`` or ``bytearray``
-        :param start:         position where the application of ``hash`` will start from
+        :type signed_hashes:  tuple of (+1/-1, bytes) pairs
+        :param start:         position where the application of ``.hash`` will start from
         :type start:          int
-        :returns:             the hexdigest of the computed hash in bytes
+        :returns:             the computed hash
         :rtype:               bytes
+
+        .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty
 
         :Example:
 
-        >>> from pymerkle.hashing import hash_machine
-        >>> machine = hash_machine()
-        >>> machine.multi_hash(((1, 'a'), (1, 'b'), (-1, 'c'), (-1, 'd')), 1)
-        '1453fd7ac377d0892731cfdbd60f656db6ed0d4f4475657335945634bb6d3243'
+        Schematically speaking, the result of
 
-        the result being equivalent to
+        ``multi_hash(((1, a), (1, b), (-1, c), (-1, d)), 1)``
 
-        ``hash(hash('a', hash('b', 'c')), 'd')``
+        is equivalent to
 
-        .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty
+        ``hash(hash(a, hash(b, c)), d)``
+
         .. warning:: When using this method, make sure that the combination of signs corresponds indeed
                      to a valid parenthetization
         """

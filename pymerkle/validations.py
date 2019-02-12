@@ -12,7 +12,7 @@ from .hashing import hash_machine
 
 
 def validate_proof(target_hash, proof):
-    """Core validation function
+    """Core validation utility
 
     Validates the inserted proof by comparing to the provided target hash, modifies the proof's
     status as ``True`` or ``False`` according to validation result and returns this result.

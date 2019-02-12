@@ -160,7 +160,7 @@
             
   <div class="section" id="module-pymerkle.validations">
 <span id="pymerkle-validations-module"></span><h1>pymerkle.validations module<a class="headerlink" href="#module-pymerkle.validations" title="Permalink to this headline">¶</a></h1>
-<p>Provides a core function for validating proof and a related wrapper</p>
+<p>Provides a core function for validating proofs along with a wrapper</p>
 <dl class="class">
 <dt id="pymerkle.validations.proof_validator">
 <em class="property">class </em><code class="descclassname">pymerkle.validations.</code><code class="descname">proof_validator</code><span class="sig-paren">(</span><em>validations_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#proof_validator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.proof_validator" title="Permalink to this definition">¶</a></dt>
@@ -238,7 +238,7 @@ having provided the proof)</li>
 <dt id="pymerkle.validations.validationReceiptEncoder">
 <em class="property">class </em><code class="descclassname">pymerkle.validations.</code><code class="descname">validationReceiptEncoder</code><span class="sig-paren">(</span><em>*</em>, <em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#validationReceiptEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.validationReceiptEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">json.encoder.JSONEncoder</span></code></p>
-<p>Used implicitely in the JSON serialization of proof receipts. Extends the built-in
+<p>Used implicitly in the JSON serialization of proof receipts. Extends the built-in
 JSON encoder for data structures.</p>
 <dl class="method">
 <dt id="pymerkle.validations.validationReceiptEncoder.default">
@@ -250,7 +250,7 @@ JSON encoder for data structures.</p>
 
 <dl class="class">
 <dt id="pymerkle.validations.validation_receipt">
-<em class="property">class </em><code class="descclassname">pymerkle.validations.</code><code class="descname">validation_receipt</code><span class="sig-paren">(</span><em>proof_uuid</em>, <em>proof_provider</em>, <em>result</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#validation_receipt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.validation_receipt" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pymerkle.validations.</code><code class="descname">validation_receipt</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#validation_receipt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.validation_receipt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Encapsulates the result of proof validation</p>
 <table class="docutils field-list" frame="void" rules="none">

@@ -146,8 +146,7 @@
             
   <h1>Source code for pymerkle.nodes</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Provides the base class for the Merkle-tree&#39;s nodes and an inheriting</span>
-<span class="sd">class for its leaves</span>
+<span class="sd">Provides the base class for the Merkle-tree&#39;s nodes and an inheriting class for its leaves</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
@@ -172,20 +171,31 @@
 <span class="sd">                          is considered to be a leaf</span>
 <span class="sd">    :type right:          nodes.node</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption. Should be the ``.hash``</span>
-<span class="sd">                          attribute of the containing Merkle-tree</span>
-<span class="sd">    :type hash_function:  method</span>
+<span class="sd">                          method of the containing Merkle-tree</span>
+<span class="sd">    :type hash_function:  `method`</span>
+<span class="sd">    :param encoding:      Encoding type to be used when decoding the hash stored by the node.</span>
+<span class="sd">                          Should coincide with the containing Merkle-tree&#39;s encoding type.</span>
+<span class="sd">    :type encoding:       str</span>
 
 <span class="sd">    :ivar left:          (*nodes.node*) The node&#39;s left parent. Defaults to ``None`` if the node is a leaf</span>
 <span class="sd">    :ivar right:         (*nodes.node*) The node&#39;s right parent. Defaults to ``None`` if the node is a leaf</span>
 <span class="sd">    :ivar child:         (*nodes.node*) The node&#39;s child parent. Defaults to ``None`` if the node is a root</span>
-<span class="sd">    :ivar hash:          (*str*) The hash currently stored by the node (hex)</span>
+<span class="sd">    :ivar hash:          (*bytes*) The hash currently stored by the node</span>
 <span class="sd">    :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes</span>
 <span class="sd">                         it is equal to the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes</span>
-<span class="sd">                         it is ``None`` (no hash re-calculation case)</span>
+<span class="sd">                         it is ``None``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hash_function</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">hash_function</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">,</span>
+            <span class="n">record</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="c1"># Store encoding type for hash decoding when printing or jsonifying</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
 
         <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Leaf case (parentless node)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="n">hash_function</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
@@ -194,7 +204,7 @@
             <span class="n">left</span><span class="o">.</span><span class="n">child</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">=</span> <span class="n">hash_function</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span>
-            <span class="c1"># Store hash and encoding type in case of hash recalculation</span>
+            <span class="c1"># Store hash function in case of hash recalculation</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hash_function</span> <span class="o">=</span> <span class="n">hash_function</span>
 
 <span class="c1"># ------------------------- Representation formatting --------------------</span>
@@ -204,7 +214,7 @@
 
 <span class="sd">        Sole purpose of this function is to easy print info about a node by just invoking it at console.</span>
 
-<span class="sd">        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
+<span class="sd">        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">memory_id</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span> <span class="k">return</span> <span class="nb">str</span><span class="p">(</span>
             <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span> <span class="k">if</span> <span class="n">obj</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span>
@@ -218,7 +228,7 @@
                         <span class="n">left</span><span class="o">=</span><span class="n">memory_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">),</span>
                         <span class="n">right</span><span class="o">=</span><span class="n">memory_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">),</span>
                         <span class="n">child</span><span class="o">=</span><span class="n">memory_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">),</span>
-                        <span class="nb">hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span>
+                        <span class="nb">hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;Overrides the default implementation. Designed so that inserting the node as an argument to ``print``</span>
@@ -239,7 +249,7 @@
 <span class="sd">                       when called externally by the user. Augmented appropriately whenever the function is recursively</span>
 <span class="sd">                       called so that track be kept of the positions where vertical bars should be omitted</span>
 <span class="sd">        :type ignore:  list of integers</span>
-<span class="sd">        :rtype: str</span>
+<span class="sd">        :rtype:        str</span>
 
 <span class="sd">        .. note:: The left parent of each node is printed *above* the right one</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -266,7 +276,7 @@
             <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">L_BRACKET_LONG</span>
             <span class="n">new_ignore</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
 
-        <span class="n">output</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf</span><span class="p">):</span>  <span class="c1"># Recursive step</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
                                         <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="n">new_ignore</span><span class="p">)</span>
@@ -342,7 +352,8 @@
 
 <span class="sd">        :rtype: dict</span>
 
-<span class="sd">        .. note:: The ``.child`` attribute is excluded in order for circular reference error to be avoided</span>
+<span class="sd">        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order</span>
+<span class="sd">                  for circular reference error to be avoided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">encoder</span> <span class="o">=</span> <span class="n">nodeEncoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -360,36 +371,37 @@
 
 
 <div class="viewcode-block" id="leaf"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.leaf">[docs]</a><span class="k">class</span> <span class="nc">leaf</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class for the leafs of Merkle-tree (parentless nodes). Inherits from the ``node`` class</span>
+    <span class="sd">&quot;&quot;&quot;Class for the leafs of Merkle-tree (parentless nodes)</span>
 
 <span class="sd">    :param record:        the record to be encrypted within the leaf</span>
 <span class="sd">    :type record:         str or bytes or bytearray</span>
 <span class="sd">    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``</span>
 <span class="sd">                          attribute of the containing Merkle-tree</span>
 <span class="sd">    :type hash_function:  method</span>
+<span class="sd">    :param encoding:      Encoding type to be used when decoding the hash stored by the node.</span>
+<span class="sd">                          Should coincide with the containing Merkle-tree&#39;s encoding type.</span>
+<span class="sd">    :type encoding:       str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">hash_function</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">hash_function</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
         <span class="n">node</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
             <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">hash_function</span><span class="o">=</span><span class="n">hash_function</span><span class="p">)</span></div>
+            <span class="n">hash_function</span><span class="o">=</span><span class="n">hash_function</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span></div>
 
 <span class="c1"># ------------------------------- JSON encoders --------------------------</span>
 
 
 <div class="viewcode-block" id="nodeEncoder"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.nodeEncoder">[docs]</a><span class="k">class</span> <span class="nc">nodeEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Used implicitely in the JSON serialization of nodes. Extends the built-in</span>
+    <span class="sd">&quot;&quot;&quot;Used implicitly in the JSON serialization of nodes. Extends the built-in</span>
 <span class="sd">    JSON encoder for data structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="nodeEncoder.default"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.nodeEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Overrides the built-in method of JSON encoders according to the needs of this library.</span>
-
-<span class="sd">        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order</span>
-<span class="sd">                  for circular reference error to be avoided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">right</span>
@@ -399,12 +411,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">leaf</span><span class="p">):</span>
                 <span class="k">return</span> <span class="p">{</span>
-                    <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="nb">hash</span>
+                    <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="nb">hash</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
                 <span class="p">}</span>
             <span class="k">return</span> <span class="p">{</span>
                 <span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">left</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span>
                 <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="n">right</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span>
-                <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="nb">hash</span>
+                <span class="s1">&#39;hash&#39;</span><span class="p">:</span> <span class="nb">hash</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
             <span class="p">}</span>  <span class="c1"># Non-leaf case</span></div></div>
 </pre></div>
 

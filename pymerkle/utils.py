@@ -1,5 +1,5 @@
 """
-Contains math and format utils invoked across the library
+Provides invoked across the library
 """
 
 import math
@@ -10,17 +10,17 @@ def log_2(num):
     the greatest power of *2* equal to or smaller than ``num``)
 
     .. note:: Given any *balanced* binary tree, whose number of leaves equals
-              the inserted number, this function returns the tree's height
+              the inserted one, this function returns the tree's height
               (i.e., the depth of its *left-most* branch)
 
     :param num: the number whose logarithm is to be computed
     :type num:  int
     :returns:   the computed logarithm
-    :rtype:     ``int``
-
-    :raises ValueError: for arguments smaller than zero
+    :rtype:     int
 
     .. note:: By convention, it returns 0 for zero argument
+
+    :raises ValueError: for arguments smaller than zero
     """
     return 0 if num == 0 else int(math.log(num, 2))
 
@@ -34,11 +34,6 @@ def decompose(num):
 
     then the tuple ``(p_m, ..., p_1)`` is returned
 
-    :param num: the number to be decomposed
-    :type num:  int
-    :returns:   powers of *2* in decreasing order
-    :rtype:     ``tuple`` of integers
-
     :Example:
 
     >>> num = 45
@@ -47,6 +42,11 @@ def decompose(num):
     >>>
     >>> decompose(num)
     (5, 3, 2, 0)
+
+    :param num: the number to be decomposed
+    :type num:  int
+    :returns:   powers of *2* in decreasing order
+    :rtype:     tuple of integers
 
     .. note:: Returns the nonsensical empty tuple for arguments equal to or
               smaller than zero
@@ -60,15 +60,18 @@ def decompose(num):
 
 
 def stringify_path(signed_hashes, encoding):
-    """Returns a stringified version of the inserted sequence of signed hashes
+    """Returns a nicely stringified version of the inserted sequence of signed hashes.
 
-    :param signed_hashes: a sequence of signed hashes
-    :type signed_hashes:  tuple of (+1/-1, str) pairs
-    :param encoding:
-    :type encoding:       str
-    :rtype:               str
+    The printed hashes are hexadecimals, occuring after decoding the given ones according
+    to the inserted encoding type.
 
     .. note:: The output of this function is to be passed into the ``print`` function
+
+    :param signed_hashes: a sequence of signed hashes
+    :type signed_hashes:  tuple of (+1/-1, bytes) pairs
+    :param encoding:      type to be used for decoding
+    :type encoding:       str
+    :rtype:               str
     """
     def order_of_magnitude(num): return 0 if num == 0 else int(math.log10(num))
 

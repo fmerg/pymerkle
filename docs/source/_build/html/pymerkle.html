@@ -280,6 +280,10 @@ can be passed in as the second argument to the <code class="docutils literal not
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> if the argument’s type is not as prescribed</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -327,7 +331,7 @@ and length respectively) provided from Client’s Side.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>old_hash</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em><em> or </em><em>int</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
+<li><strong>old_hash</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em><em> or </em><em>None</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
 <li><strong>sublength</strong> (<em>int</em>) – presumable length (number of leaves) for the above previous state of the Merkle-tree</li>
 </ul>
 </td>
@@ -346,9 +350,18 @@ it can be passed in as the second argument to the <code class="docutils literal 
 <p class="last">During proof generation, an inclusion-test is performed for the presumed previous state
 of the Merke-tree corresponding to the provided parameters (If that test fails,
 then the returned proof is predestined to be found invalid upon validation).
-This is done implicitely and not by calling the <code class="docutils literal notranslate"><span class="pre">.inclusion_test</span></code> method
+This is done implicitly and not by calling the <code class="docutils literal notranslate"><span class="pre">.inclusion_test</span></code> method
 (whose implementation differs in that no full path of signed hashes,
 as generated here by the <code class="docutils literal notranslate"><span class="pre">.consistency_path</span></code> method, needs be taken into account.)</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Type of <code class="docutils literal notranslate"><span class="pre">old_hash</span></code> will be <code class="docutils literal notranslate"><span class="pre">None</span></code> iff the presumed previous state happens
+be the empty one</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> if any of the arguments’ type is not as prescribed</p>
 </div>
 </dd></dl>
 
@@ -388,6 +401,10 @@ to the Merkle-tree’s directory <code class="docutils literal notranslate"><spa
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Raises <code class="docutils literal notranslate"><span class="pre">FileNotFoundError</span></code> if the specified file does not exist</p>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -511,6 +528,10 @@ the required condition</p>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if the Merkle-tree is currently empty</p>
+</div>
 </dd></dl>
 
 <dl class="method">

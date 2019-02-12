@@ -161,13 +161,12 @@
             
   <div class="section" id="module-pymerkle.nodes">
 <span id="pymerkle-nodes-module"></span><h1>pymerkle.nodes module<a class="headerlink" href="#module-pymerkle.nodes" title="Permalink to this headline">¶</a></h1>
-<p>Provides the base class for the Merkle-tree’s nodes and an inheriting
-class for its leaves</p>
+<p>Provides the base class for the Merkle-tree’s nodes and an inheriting class for its leaves</p>
 <dl class="class">
 <dt id="pymerkle.nodes.leaf">
-<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">leaf</code><span class="sig-paren">(</span><em>record</em>, <em>hash_function</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#leaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.leaf" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">leaf</code><span class="sig-paren">(</span><em>record</em>, <em>hash_function</em>, <em>encoding</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#leaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.leaf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymerkle.nodes.node" title="pymerkle.nodes.node"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymerkle.nodes.node</span></code></a></p>
-<p>Class for the leafs of Merkle-tree (parentless nodes). Inherits from the <code class="docutils literal notranslate"><span class="pre">node</span></code> class</p>
+<p>Class for the leafs of Merkle-tree (parentless nodes)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -176,6 +175,8 @@ class for its leaves</p>
 <li><strong>record</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em>) – the record to be encrypted within the leaf</li>
 <li><strong>hash_function</strong> (<em>method</em>) – hash function to be used for encryption (only once). Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
 attribute of the containing Merkle-tree</li>
+<li><strong>encoding</strong> (<em>str</em>) – Encoding type to be used when decoding the hash stored by the node.
+Should coincide with the containing Merkle-tree’s encoding type.</li>
 </ul>
 </td>
 </tr>
@@ -185,7 +186,7 @@ attribute of the containing Merkle-tree</li>
 
 <dl class="class">
 <dt id="pymerkle.nodes.node">
-<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">node</code><span class="sig-paren">(</span><em>hash_function</em>, <em>record=None</em>, <em>left=None</em>, <em>right=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">node</code><span class="sig-paren">(</span><em>hash_function</em>, <em>encoding</em>, <em>record=None</em>, <em>left=None</em>, <em>right=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for the nodes of a Merkle-tree</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -199,8 +200,10 @@ then the node is considered to be a leaf</li>
 is considered to be a leaf</li>
 <li><strong>right</strong> (<a class="reference internal" href="#pymerkle.nodes.node" title="pymerkle.nodes.node"><em>nodes.node</em></a>) – [optional] the node’s right parent. If not provided, then the node
 is considered to be a leaf</li>
-<li><strong>hash_function</strong> (<em>method</em>) – hash function to be used for encryption. Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
-attribute of the containing Merkle-tree</li>
+<li><strong>hash_function</strong> (<cite>method</cite>) – hash function to be used for encryption. Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
+method of the containing Merkle-tree</li>
+<li><strong>encoding</strong> (<em>str</em>) – Encoding type to be used when decoding the hash stored by the node.
+Should coincide with the containing Merkle-tree’s encoding type.</li>
 </ul>
 </td>
 </tr>
@@ -208,10 +211,10 @@ attribute of the containing Merkle-tree</li>
 <li><strong>left</strong> – (<em>nodes.node</em>) The node’s left parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a leaf</li>
 <li><strong>right</strong> – (<em>nodes.node</em>) The node’s right parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a leaf</li>
 <li><strong>child</strong> – (<em>nodes.node</em>) The node’s child parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a root</li>
-<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.hash" title="pymerkle.hashing.hash_machine.hash"><strong>hash</strong></a> – (<em>str</em>) The hash currently stored by the node (hex)</li>
+<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.hash" title="pymerkle.hashing.hash_machine.hash"><strong>hash</strong></a> – (<em>bytes</em>) The hash currently stored by the node</li>
 <li><strong>hash_function</strong> – (<em>method</em>) The hash function used by the node for encryption. For interior nodes
 it is equal to the <code class="docutils literal notranslate"><span class="pre">.hash</span></code> attribute of the containing Merkle-tree. For leaf nodes
-it is <code class="docutils literal notranslate"><span class="pre">None</span></code> (no hash re-calculation case)</li>
+it is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -323,7 +326,8 @@ every time a new leaf is appended into the tree.</p>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal notranslate"><span class="pre">.child</span></code> attribute is excluded in order for circular reference error to be avoided</p>
+<p class="last">The <code class="docutils literal notranslate"><span class="pre">.child</span></code> attribute is excluded from JSON formatting of nodes in order
+for circular reference error to be avoided.</p>
 </div>
 </dd></dl>
 
@@ -333,17 +337,12 @@ every time a new leaf is appended into the tree.</p>
 <dt id="pymerkle.nodes.nodeEncoder">
 <em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">nodeEncoder</code><span class="sig-paren">(</span><em>*</em>, <em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#nodeEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.nodeEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">json.encoder.JSONEncoder</span></code></p>
-<p>Used implicitely in the JSON serialization of nodes. Extends the built-in
+<p>Used implicitly in the JSON serialization of nodes. Extends the built-in
 JSON encoder for data structures.</p>
 <dl class="method">
 <dt id="pymerkle.nodes.nodeEncoder.default">
 <code class="descname">default</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#nodeEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.nodeEncoder.default" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overrides the built-in method of JSON encoders according to the needs of this library.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal notranslate"><span class="pre">.child</span></code> attribute is excluded from JSON formatting of nodes in order
-for circular reference error to be avoided.</p>
-</div>
 </dd></dl>
 
 </dd></dl>

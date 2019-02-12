@@ -155,10 +155,6 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-
-<span class="c1"># Console messages configuration</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(levelname)s</span><span class="s1">: </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <span class="c1"># -------------------------------- Main class ----------------------------</span>
 
@@ -245,6 +241,8 @@
 
 <span class="sd">        :returns: The tree&#39;s current root hash in hexadecimal form</span>
 <span class="sd">        :rtype: str</span>
+
+<span class="sd">        .. note:: Returns ``None`` if the Merkle-tree is currently empty</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">hash</span>
@@ -257,7 +255,7 @@
 
 <span class="sd">        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.</span>
 
-<span class="sd">        .. warning: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
+<span class="sd">        .. warning::Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    uuid      : </span><span class="si">{uuid}</span><span class="se">\</span>
@@ -272,12 +270,19 @@
 <span class="s1">                </span><span class="se">\n</span><span class="s1">    length    : </span><span class="si">{length}</span><span class="se">\</span>
 <span class="s1">                </span><span class="se">\n</span><span class="s1">    height    : </span><span class="si">{height}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-            <span class="n">hash_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">),</span>
-            <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">),</span>
+            <span class="n">hash_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;_&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-&#39;</span><span class="p">),</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;_&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-&#39;</span><span class="p">),</span>
             <span class="n">security</span><span class="o">=</span><span class="s1">&#39;ACTIVATED&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security</span> <span class="k">else</span> <span class="s1">&#39;DEACTIVATED&#39;</span><span class="p">,</span>
-            <span class="n">root_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_hash</span><span class="p">(),</span>
-            <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span>
-            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">),</span>
+            <span class="n">root_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_hash</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span>
+            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">),</span>
             <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
 
 <div class="viewcode-block" id="merkle_tree.length"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.length">[docs]</a>    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -359,7 +364,10 @@
             <span class="n">last_subroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">descendant</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">last_power</span><span class="p">)</span>
 
             <span class="c1"># Store new record to new leaf</span>
-            <span class="n">new_leaf</span> <span class="o">=</span> <span class="n">leaf</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span> <span class="n">hash_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span>
+            <span class="n">new_leaf</span> <span class="o">=</span> <span class="n">leaf</span><span class="p">(</span>
+                <span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
+                <span class="n">hash_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
 
             <span class="c1"># Assimilate new leaf</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_leaf</span><span class="p">)</span>
@@ -373,7 +381,8 @@
                 <span class="n">record</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">left</span><span class="o">=</span><span class="n">last_subroot</span><span class="p">,</span>
                 <span class="n">right</span><span class="o">=</span><span class="n">new_leaf</span><span class="p">,</span>
-                <span class="n">hash_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span>
+                <span class="n">hash_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_child</span><span class="p">)</span>
 
             <span class="c1"># Bifurcate</span>
@@ -394,7 +403,10 @@
                     <span class="n">current_node</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span>
 
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># void case</span>
-            <span class="n">new_leaf</span> <span class="o">=</span> <span class="n">leaf</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span> <span class="n">hash_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">)</span>
+            <span class="n">new_leaf</span> <span class="o">=</span> <span class="n">leaf</span><span class="p">(</span>
+                <span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
+                <span class="n">hash_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">new_leaf</span><span class="p">],</span> <span class="nb">set</span><span class="p">([</span><span class="n">new_leaf</span><span class="p">]),</span> <span class="n">new_leaf</span></div>
 
@@ -407,6 +419,8 @@
 <span class="sd">        :param log_file: relative path of the log-file under enryption, specified with respect</span>
 <span class="sd">                         to the Merkle-tree&#39;s directory ``log_dir``</span>
 <span class="sd">        :type log_file:  str</span>
+
+<span class="sd">        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">log_file</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">):</span>
@@ -415,7 +429,7 @@
                 <span class="c1"># ~ 0x80 would for example be unreadable by &#39;utf-8&#39; codec)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="n">line</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Requested log file does not exist&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span></div>
 
 <span class="c1"># ------------------------------ Proof generation ------------------------</span>
 
@@ -429,6 +443,8 @@
 <span class="sd">        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it</span>
 <span class="sd">                    can be passed in as the second argument to the ``validations.validate_proof`` method)</span>
 <span class="sd">        :rtype:     proof.proof</span>
+
+<span class="sd">        .. warning:: Raises ``TypeError`` if the argument&#39;s type is not as prescribed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">):</span>
@@ -445,8 +461,10 @@
                     <span class="n">index</span> <span class="o">=</span> <span class="n">count</span>
                     <span class="k">break</span>
                 <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">arg</span>  <span class="c1"># Inserted type was integer</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="n">arg</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
 
         <span class="c1"># Calculate proof path</span>
         <span class="n">proof_index</span><span class="p">,</span> <span class="n">audit_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audit_path</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
@@ -465,7 +483,6 @@
         <span class="c1"># Handles indexError case (`arg` provided by Client was not among</span>
         <span class="c1"># possibilities)</span>
         <span class="n">failure_message</span> <span class="o">=</span> <span class="s1">&#39;Index provided by Client was out of range&#39;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">failure_message</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">proof</span><span class="p">(</span>
             <span class="n">generation</span><span class="o">=</span><span class="s1">&#39;FAILURE (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">),</span>
             <span class="n">provider</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -483,7 +500,7 @@
 <span class="sd">        and length respectively) provided from Client&#39;s Side.</span>
 
 <span class="sd">        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree</span>
-<span class="sd">        :type old_hash:   str or bytes or bytearray or int</span>
+<span class="sd">        :type old_hash:   str or bytes or bytearray or None</span>
 <span class="sd">        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree</span>
 <span class="sd">        :type sublength:  int</span>
 <span class="sd">        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it</span>
@@ -493,10 +510,19 @@
 <span class="sd">        .. note:: During proof generation, an inclusion-test is performed for the presumed previous state</span>
 <span class="sd">                  of the Merke-tree corresponding to the provided parameters (If that test fails,</span>
 <span class="sd">                  then the returned proof is predestined to be found invalid upon validation).</span>
-<span class="sd">                  This is done implicitely and not by calling the ``.inclusion_test`` method</span>
+<span class="sd">                  This is done implicitly and not by calling the ``.inclusion_test`` method</span>
 <span class="sd">                  (whose implementation differs in that no full path of signed hashes,</span>
 <span class="sd">                  as generated here by the ``.consistency_path`` method, needs be taken into account.)</span>
+
+<span class="sd">        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens</span>
+<span class="sd">                  be the empty one</span>
+
+<span class="sd">        .. warning:: Raises ``TypeError`` if any of the arguments&#39; type is not as prescribed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">old_hash</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span> \
+                <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sublength</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
 
         <span class="c1"># Calculate proof path</span>
         <span class="n">consistency_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consistency_path</span><span class="p">(</span><span class="n">sublength</span><span class="o">=</span><span class="n">sublength</span><span class="p">)</span>
@@ -519,7 +545,6 @@
 
             <span class="c1"># Handles inclusion test failure</span>
             <span class="n">failure_message</span> <span class="o">=</span> <span class="s1">&#39;Subtree provided by Client failed to be detected&#39;</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">failure_message</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">proof</span><span class="p">(</span>
                 <span class="n">generation</span><span class="o">=</span><span class="s1">&#39;FAILURE (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">),</span>
                 <span class="n">provider</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -532,7 +557,6 @@
         <span class="c1"># Handles incompatibility case (includes the zero leaves and zero</span>
         <span class="c1"># `sublength` case)</span>
         <span class="n">failure_message</span> <span class="o">=</span> <span class="s1">&#39;Subtree provided by Client was incompatible&#39;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">failure_message</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">proof</span><span class="p">(</span>
             <span class="n">generation</span><span class="o">=</span><span class="s1">&#39;FAILURE (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">),</span>
             <span class="n">provider</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -749,7 +773,6 @@
                 <span class="n">principal_subroots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">principal_subroots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">principal_subroots</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Negative input handled as `incompatibility`</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Required sequence of subroots is undefinable&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="merkle_tree.subroot"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.subroot">[docs]</a>    <span class="k">def</span> <span class="nf">subroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
@@ -782,14 +805,10 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">subroot</span> <span class="o">=</span> <span class="n">subroot</span><span class="o">.</span><span class="n">child</span>
                 <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (requested height exceeds possibilities)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">))</span>
                     <span class="k">return</span> <span class="kc">None</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (requested starting point is out of range)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">))</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># Verify existence of *full* binary subtree for the above detected</span>
@@ -798,8 +817,6 @@
         <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">height</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right_parent</span><span class="p">,</span> <span class="n">leaf</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (corresponding full binary subtree does not exist)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_message</span><span class="p">))</span>
                 <span class="k">return</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">right_parent</span> <span class="o">=</span> <span class="n">right_parent</span><span class="o">.</span><span class="n">right</span>
@@ -848,7 +865,7 @@
 
 
 <div class="viewcode-block" id="merkleTreeEncoder"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkleTreeEncoder">[docs]</a><span class="k">class</span> <span class="nc">merkleTreeEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Used implicitely in the JSON serialization of Merkle-trees. Extends the built-in</span>
+    <span class="sd">&quot;&quot;&quot;Used implicitly in the JSON serialization of Merkle-trees. Extends the built-in</span>
 <span class="sd">    JSON encoder for data structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

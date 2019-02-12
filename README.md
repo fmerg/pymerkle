@@ -72,11 +72,11 @@ The topology is namely identical to that of a binary _Sekura tree_, depicted in 
 
 ### Deviation from bitcoin specification
 
-In contrast to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification for Merkle-trees, lonely leaves are not duplicated in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, creating bifurcation nodes at the rightmost branch allows the tree to remain genuinely binary while having an _odd_ number of leaves. As a consequence, even if security against second-preimage attack (see below) were deactivated, the current implementation is invulnerable to the kind of attack that is described [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp).
+In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification for Merkle-trees, lonely leaves are not duplicated in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, creating bifurcation nodes at the rightmost branch allows the tree to remain genuinely binary while having an _odd_ number of leaves. As a consequence, even if security against second-preimage attack (see below) were deactivated, the current implementation is invulnerable to the kind of attack that is described [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp).
 
 
 
-## Defense against second-preimage attack and security
+## Defense against second-preimage attack
 
 
 Defense against second-preimage attack is by default activated. Roughly speaking, it consists in the following security measures:

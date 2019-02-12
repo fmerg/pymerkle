@@ -146,7 +146,7 @@
             
   <h1>Source code for pymerkle.hashing</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Contains a class ``hash_machine`` encapsulating the two basic hash utilities used accross the library.</span>
+<span class="sd">Provides a class ``hash_machine`` encapsulating the two basic hash utilities used accross the library.</span>
 <span class="sd">Instances of this class should receive their configuration parameters from the ``ENCODINGS`` and</span>
 <span class="sd">``HASH_TYPES`` global variables of this module</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -161,16 +161,13 @@
     <span class="s1">&#39;sha224&#39;</span><span class="p">,</span>
     <span class="s1">&#39;sha256&#39;</span><span class="p">,</span>
     <span class="s1">&#39;sha384&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;sha512&#39;</span><span class="p">]</span>
-<span class="sd">&quot;&quot;&quot;Supported hash types. If SHA3 is supported locally, then the above list will include also</span>
-<span class="sd">*sha3_224*, *sha3_256*, *sha3_384*, *sha3_512*&quot;&quot;&quot;</span>
-
-<span class="k">try</span><span class="p">:</span>  <span class="c1"># to extend hash types if SHA3 is supported</span>
-    <span class="kn">import</span> <span class="nn">sha3</span>
-<span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
-    <span class="k">pass</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">HASH_TYPES</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;sha3_224&#39;</span><span class="p">,</span> <span class="s1">&#39;sha3_256&#39;</span><span class="p">,</span> <span class="s1">&#39;sha3_384&#39;</span><span class="p">,</span> <span class="s1">&#39;sha3_512&#39;</span><span class="p">])</span>
+    <span class="s1">&#39;sha512&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha3_224&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha3_256&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha3_384&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sha3_512&#39;</span>
+<span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Supported hash types&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="hash_machine"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine">[docs]</a><span class="k">class</span> <span class="nc">hash_machine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -182,24 +179,26 @@
 <span class="sd">    a proof validation is about to be performed</span>
 
 <span class="sd">    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the ``HASH_TYPES``</span>
-<span class="sd">                      global variable (upper- or mixed-case with &#39;-&#39; instead of &#39;_&#39; allowed). Defaults to ``sha256``</span>
+<span class="sd">                      global variable (upper- or mixed-case with &#39;-&#39; instead of &#39;_&#39; allowed). Defaults to ``&#39;sha256&#39;``</span>
 <span class="sd">                      if unspecified</span>
 <span class="sd">    :type hash_type:  str</span>
 <span class="sd">    :param encoding:  specifies the encoding algorithm to be used by machine before hashing; must be among the elements of the</span>
-<span class="sd">                      ENCODINGS global variable (upper- or mixed-case with ``-`` instead of ``_`` allowed). Defaults to ``utf_8``</span>
+<span class="sd">                      ENCODINGS global variable (upper- or mixed-case with ``-`` instead of ``_`` allowed). Defaults to ``&#39;utf_8&#39;``</span>
 <span class="sd">                      if unspecified</span>
 <span class="sd">    :type encoding:   str</span>
-<span class="sd">    :param security:  defaults to ``True``; plays role only if hash and encoding types are sha256 and utf-8 respectively. In this</span>
-<span class="sd">                      case, security standards are applied against second-preimage attack, i.e., single, resp. double arguments of</span>
-<span class="sd">                      the ``hash`` function will be prepended with ``&#39;x00&#39;``, resp. ``&#39;x01&#39;`` before hashing</span>
+<span class="sd">    :param security:  defaults to ``True``, in which case security standards are applied against second-preimage attack, i.e.,</span>
+<span class="sd">                      single, resp. double arguments of the ``.hash`` method will be prepended with ``&#39;\\x00&#39;``, resp. ``&#39;\\x01&#39;``</span>
+<span class="sd">                      before hashing</span>
 <span class="sd">    :type security:   bool</span>
 
-<span class="sd">    :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``HASH_TYPES``, resp. ``ENCODINGS``</span>
+<span class="sd">    :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``hashing.HASH_TYPES``, resp. ``hashing.ENCODINGS``</span>
 
-<span class="sd">    :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine. Defaults to SHA256.</span>
-<span class="sd">    :ivar ENCODING:       (*str*) Encoding type used by the machine while hashing. Defaults to UTF-8.</span>
-<span class="sd">    :ivar SECURITY:       (*bool*) Indicates that defense against second-preimage attack is activated (genuinely only for</span>
-<span class="sd">                          default values of hash and encoding types). Defaults to ``True``.</span>
+<span class="sd">    :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine, specified in the obvious way</span>
+<span class="sd">                          by the ``hash_type`` argument at construction</span>
+<span class="sd">    :ivar ENCODING:       (*str*) Encoding type used by the machine before hashing, specified in the obvious way</span>
+<span class="sd">                          by the ``encoding`` argument at construction</span>
+<span class="sd">    :ivar SECURITY:       (*bool*) Indicates whether defense against second-preimage attack is activated, specified in the</span>
+<span class="sd">                          obvious way by the ``security`` argument at construction</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># -------------------------------- Construction --------------------------</span>
@@ -214,10 +213,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span> <span class="o">=</span> <span class="n">hash_machine</span><span class="o">.</span><span class="n">select_encoding</span><span class="p">(</span>
             <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">))</span>
 
-        <span class="c1"># Plays role only if hash and endodin types is SHA256, resp. UTF-8</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span> <span class="o">=</span> <span class="n">security</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span> <span class="o">==</span> <span class="s1">&#39;utf_8&#39;</span><span class="p">:</span>
-            <span class="c1"># ~ Security prefices will be prepended before hashing for defense against</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
+            <span class="c1"># Prefices will be prepended before hashing for defense against</span>
+            <span class="c1"># second-preimage attack</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_1</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\x01</span><span class="s1">&#39;</span>
 
 <div class="viewcode-block" id="hash_machine.select_hash_algorithm"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine.select_hash_algorithm">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -227,23 +226,14 @@
 <span class="sd">        :param hash_type: label indicating the desired hash algorithm</span>
 <span class="sd">        :type hash_type:  str</span>
 <span class="sd">        :returns:         the desired hash algorithm; e.g. ``hashlib.sha256``</span>
-<span class="sd">        :rtype:           ``builtin_function_or_method``</span>
+<span class="sd">        :rtype:           builtin_function_or_method</span>
 
-<span class="sd">        :raises Exception: if ``hash_type`` is not contained in ``HASH_TYPES``</span>
+<span class="sd">        :raises Exception: if ``hash_type`` is not contained in ``hashing.HASH_TYPES``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">hash_type</span> <span class="ow">in</span> <span class="n">HASH_TYPES</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">hashlib</span><span class="p">,</span> <span class="n">hash_type</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1"> * Hash type </span><span class="si">{hash_type}</span><span class="s1"> is not supported&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">hash_type</span><span class="o">=</span><span class="n">hash_type</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">hash_type</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;sha3&#39;</span><span class="p">:</span>
-                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39;. Run the command</span><span class="se">\</span>
-<span class="s1">                   </span><span class="se">\n\</span>
-<span class="s1">                   </span><span class="se">\n</span><span class="s1">   pip install pysha3==1.0b1</span><span class="se">\</span>
-<span class="s1">                   </span><span class="se">\n\</span>
-<span class="s1">                   </span><span class="se">\n</span><span class="s1">   to install `sha3` depending on https://pypi.python.org/pypi/pysha3</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1"> * Hash type </span><span class="si">{hash_type}</span><span class="s1"> is not supported</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="hash_machine.select_encoding"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine.select_encoding">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -253,9 +243,9 @@
 <span class="sd">        :param encoding: label indicating the desired encoding type</span>
 <span class="sd">        :type encoding:  str</span>
 <span class="sd">        :returns:        just the inserted argument</span>
-<span class="sd">        :rtype:          ``str``</span>
+<span class="sd">        :rtype:          str</span>
 
-<span class="sd">        :raises Exception: if ``encoding`` is not contained in ``ENCODINGS``</span>
+<span class="sd">        :raises Exception: if ``encoding`` is not contained in ``hashing.ENCODINGS``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">encoding</span> <span class="ow">in</span> <span class="n">ENCODINGS</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">encoding</span>
@@ -263,29 +253,24 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
                 <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1"> * Encoding type </span><span class="si">{encoding}</span><span class="s1"> is not supported</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="hash_machine.security_mode_activated"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine.security_mode_activated">[docs]</a>    <span class="k">def</span> <span class="nf">security_mode_activated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :returns: ``True`` iff genuine security standards are activated (i.e., ``self.SECURITY`` is ``True``</span>
-<span class="sd">                  along with hash, resp. ecoding type of the machine being ``SHA256``, resp. ``UTF-8``)</span>
-<span class="sd">        :rtype:   ``bool``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span> <span class="o">==</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span> <span class="o">==</span> <span class="s1">&#39;utf_8&#39;</span></div>
-
     <span class="c1"># ------------------------------- Hash utils -----------------------------</span>
 
 <div class="viewcode-block" id="hash_machine.hash"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine.hash">[docs]</a>    <span class="k">def</span> <span class="nf">hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Core hash utility</span>
 
-<span class="sd">        Returns in hexadecimal form the hash of the object occuring by concatenation of arguments in the given</span>
-<span class="sd">        order; if only one argument is passed in, then the hash of this single argument is returned</span>
+<span class="sd">        Returns the hash of the object occuring by concatenation of arguments in the given order.</span>
+<span class="sd">        If only one argument is passed in, then the hash of this single argument is returned</span>
 
 <span class="sd">        :param first:  left member of the pair to be hashed</span>
 <span class="sd">        :type first:   str or bytes or bytearray</span>
-<span class="sd">        :param second: [optional] right member of the pair to be hashed; if provided, then ``first`` must also</span>
-<span class="sd">                       be of ``str`` type (valid hex)</span>
-<span class="sd">        :type second:  str</span>
-<span class="sd">        :returns:      a valid hex representing the produced hash</span>
-<span class="sd">        :rtype:        ``str``</span>
+<span class="sd">        :param second: [optional] right member of the pair to be hashed</span>
+<span class="sd">        :type second:  bytes or bytearray</span>
+
+<span class="sd">        .. warning:: if ``second`` is provided, then ``first`` *must* also be of `bytes`</span>
+<span class="sd">                    or `byetarray` type</span>
+
+<span class="sd">        :returns:      the hash of the provided pair</span>
+<span class="sd">        :rtype:        bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">second</span><span class="p">:</span>  <span class="c1"># one arg case</span>
@@ -293,80 +278,86 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)):</span>
                 <span class="c1"># bytes-like input</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_mode_activated</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
                     <span class="c1"># Apply security stadards</span>
-                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
+                    <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
                         <span class="nb">bytes</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_0</span><span class="p">,</span>
                             <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span> <span class="o">+</span>
                         <span class="n">first</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">hex_hash</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span>
 
                 <span class="c1"># No security standards</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span><span class="n">first</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+                <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span><span class="n">first</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">hex_hash</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span>
 
             <span class="c1"># Non bytes-like input</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_mode_activated</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
 
                 <span class="c1"># Apply security standards</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
+                <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
                     <span class="nb">bytes</span><span class="p">(</span>
                         <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_0</span><span class="p">,</span>
                             <span class="n">first</span><span class="p">),</span>
                         <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">hex_hash</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span>
 
             <span class="c1"># No security standards</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
+            <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
                 <span class="nb">bytes</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">hex_hash</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span>
 
         <span class="c1"># two args case</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security_mode_activated</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
 
             <span class="c1"># Apply security standards</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
+            <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
                 <span class="nb">bytes</span><span class="p">(</span>
                     <span class="s1">&#39;</span><span class="si">{}{}{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_1</span><span class="p">,</span>
-                        <span class="n">first</span><span class="p">,</span>
+                        <span class="n">first</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">),</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_1</span><span class="p">,</span>
-                        <span class="n">second</span><span class="p">),</span>
+                        <span class="n">second</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)),</span>
                     <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">hex_hash</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span>
 
         <span class="c1"># No security standards</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
+        <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
             <span class="nb">bytes</span><span class="p">(</span>
                 <span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">first</span><span class="p">,</span>
-                    <span class="n">second</span><span class="p">),</span>
-                <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+                    <span class="n">first</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">),</span>
+                    <span class="n">second</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)),</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">hex_hash</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="hash_machine.multi_hash"><a class="viewcode-back" href="../../pymerkle.hashing.html#pymerkle.hashing.hash_machine.multi_hash">[docs]</a>    <span class="k">def</span> <span class="nf">multi_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signed_hashes</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Hash utility used in proof validation</span>
 
-<span class="sd">        Repeatedly applies the core ``hash`` method over a tuple of signed hashes parenthesized in pairs</span>
+<span class="sd">        Repeatedly applies the ``.hash`` method over a tuple of signed hashes parenthesized in pairs</span>
 <span class="sd">        as specified by accompanying signs</span>
 
 <span class="sd">        :param signed_hashes: a sequence of signed hashes</span>
-<span class="sd">        :type signed_hashes:  tuple of (+1/-1, hash) pairs, where hash is of type ``str`` or ``bytes`` or ``bytearray``</span>
-<span class="sd">        :param start:         position where the application of ``hash`` will start from</span>
+<span class="sd">        :type signed_hashes:  tuple of (+1/-1, bytes) pairs</span>
+<span class="sd">        :param start:         position where the application of ``.hash`` will start from</span>
 <span class="sd">        :type start:          int</span>
-<span class="sd">        :returns:             a valid hexadecimal representing the computed hash</span>
-<span class="sd">        :rtype:               ``str``</span>
+<span class="sd">        :returns:             the computed hash</span>
+<span class="sd">        :rtype:               bytes</span>
+
+<span class="sd">        .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty</span>
 
 <span class="sd">        :Example:</span>
 
-<span class="sd">        &gt;&gt;&gt; from pymerkle.hashing import hash_machine</span>
-<span class="sd">        &gt;&gt;&gt; machine = hash_machine()</span>
-<span class="sd">        &gt;&gt;&gt; machine.multi_hash(((1, &#39;a&#39;), (1, &#39;b&#39;), (-1, &#39;c&#39;), (-1, &#39;d&#39;)), 1)</span>
-<span class="sd">        &#39;1453fd7ac377d0892731cfdbd60f656db6ed0d4f4475657335945634bb6d3243&#39;</span>
+<span class="sd">        Schematically speaking, the result of</span>
 
-<span class="sd">        the result being equivalent to</span>
+<span class="sd">        ``multi_hash(((1, a), (1, b), (-1, c), (-1, d)), 1)``</span>
 
-<span class="sd">        ``hash(hash(&#39;a&#39;, hash(&#39;b&#39;, &#39;c&#39;)), &#39;d&#39;)``</span>
+<span class="sd">        is equivalent to</span>
 
-<span class="sd">        .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty</span>
+<span class="sd">        ``hash(hash(a, hash(b, c)), d)``</span>
+
 <span class="sd">        .. warning:: When using this method, make sure that the combination of signs corresponds indeed</span>
 <span class="sd">                     to a valid parenthetization</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -399,9 +390,9 @@
                     <span class="k">if</span> <span class="n">move</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="k">return</span> <span class="n">signed_hashes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-            <span class="c1"># `signed_hashes` contained one element</span>
+            <span class="c1"># signed_hashes contained one element</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">signed_hashes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="c1"># `signed_hashes` was equal to []</span>
+        <span class="c1"># signed_hashes was empty</span>
         <span class="k">return</span> <span class="kc">None</span></div></div>
 </pre></div>
 

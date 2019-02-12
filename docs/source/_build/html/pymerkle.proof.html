@@ -164,7 +164,7 @@
 <p>Provides the main class for <cite>proof</cite> objects and related functionalities</p>
 <dl class="class">
 <dt id="pymerkle.proof.proof">
-<em class="property">class </em><code class="descclassname">pymerkle.proof.</code><code class="descname">proof</code><span class="sig-paren">(</span><em>generation</em>, <em>provider</em>, <em>hash_type</em>, <em>security</em>, <em>encoding</em>, <em>proof_index</em>, <em>proof_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/proof.html#proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof.proof" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pymerkle.proof.</code><code class="descname">proof</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/proof.html#proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof.proof" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for the <code class="docutils literal notranslate"><span class="pre">proof</span></code> object</p>
 <p>Basic purpose of this class is to organize the provided proof data in a nicely formatted dictionary,
@@ -257,7 +257,7 @@ is <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <dt id="pymerkle.proof.proofEncoder">
 <em class="property">class </em><code class="descclassname">pymerkle.proof.</code><code class="descname">proofEncoder</code><span class="sig-paren">(</span><em>*</em>, <em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/proof.html#proofEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof.proofEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">json.encoder.JSONEncoder</span></code></p>
-<p>Used implicitely in the JSON serialization of proofs. Extends the built-in
+<p>Used implicitly in the JSON serialization of proofs. Extends the built-in
 JSON encoder for data structures.</p>
 <dl class="method">
 <dt id="pymerkle.proof.proofEncoder.default">
