@@ -3,8 +3,8 @@ encoding-types, for *both* possible security modes. Attack should succeed only
 when the tree's security mode is deactiveated (i.e., *iff* its ``.security``
 attribute is ``False`` by construction).
 
-Attack Shema
-------------
+Attack Schema
+-------------
 
                Original tree               Attacker's tree
 

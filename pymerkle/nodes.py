@@ -15,6 +15,7 @@ Provides the base class for the Merkle-tree's nodes and an inheriting
 class for its leaves
 """
 
+
 class node(object):
     """Base class for the nodes of a Merkle-tree
 
@@ -201,6 +202,7 @@ class node(object):
 
 
 # ------------------------------- JSON serialization ------------------------
+
 
     def serialize(self):
         """ Returns a JSON structure with the node's attributes as key-value pairs

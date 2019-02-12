@@ -64,10 +64,10 @@ class hash_machine(object):
         self.ENCODING = hash_machine.select_encoding(
             encoding=encoding.lower().replace('-', '_'))
 
-        # Plays role only if hash and endodin types is SHA256, resp. UTF-8
         self.SECURITY = security
         if self.SECURITY:
-            # ~ Security prefices will be prepended before hashing for defense against
+            # Prefices will be prepended before hashing for defense against
+            # second-preimage attack
             self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
     @staticmethod
@@ -238,7 +238,7 @@ class hash_machine(object):
                     if move < 0:
                         i -= 1
                 return signed_hashes[0][1]
-            # `signed_hashes` contained one element
+            # signed_hashes contained one element
             return self.hash(signed_hashes[0][1])
-        # `signed_hashes` was equal to []
+        # signed_hashes was empty
         return None
