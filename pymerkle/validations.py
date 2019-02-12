@@ -15,12 +15,12 @@ def validate_proof(target_hash, proof):
     """Core validation utility
 
     Validates the inserted proof by comparing to the provided target hash, modifies the proof's
-    status as ``True`` or ``False`` according to validation result and returns this result.
+    status as ``True`` or ``False`` according to validation result and returns this result
 
-    :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the
-                        validation procedure (i.e., acclaimed top-hash of the Merkle-tree
-                        having provided the proof)
-    :type target_hash:  str
+    :param target_hash: the hash to be presumably attained at the end of the validation procedure
+                        (i.e., acclaimed current root-hash of the Merkle-tree having provided
+                        the proof)
+    :type target_hash:  bytes
     :param proof:       the proof to be validated
     :type proof:        proof.proof
     :returns:           validation result
@@ -52,15 +52,15 @@ def validate_proof(target_hash, proof):
 
 
 class proof_validator(object):
-    """Wrapper of the ``validate_proof`` function.
+    """Wrapper for the ``validations.validate_proof`` function
 
-    Employs the ``validation_receipt`` class in order to organize validation results
-    in an easy storable way.
+    Employs the ``validations.validation_receipt`` class in order to organize validation results
+    in an easy storable way
 
     :param validations_dir: [optional] absolute path of the directory where validation
                             receipts will be stored as `.json` files. Defaults to ``None``,
                             in which case validation receipts will not be automatically
-                            stored.
+                            stored
     :type validations_dir: str
     """
 

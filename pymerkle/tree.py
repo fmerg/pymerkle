@@ -90,10 +90,10 @@ class merkle_tree(object):
 # ------------------------------------ Root ------------------------------
 
     def root_hash(self):
-        """Returns current top-hash of the Merkle-tree,i.e., the hash stored by its current root
+        """Returns the current root-hash of the Merkle-tree, i.e., the hash stored by its current root
 
-        :returns: The tree's current root hash in hexadecimal form
-        :rtype: str
+        :returns: the tree's current root-hash
+        :rtype:   bytes
 
         .. note:: Returns ``None`` if the Merkle-tree is currently empty
         """
@@ -108,7 +108,7 @@ class merkle_tree(object):
 
         Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
 
-        .. warning::Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
+        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
 
         return '\n    uuid      : {uuid}\
@@ -139,7 +139,7 @@ class merkle_tree(object):
             height=self.height())
 
     def length(self):
-        """Returns the Merkle-tree's current length (i.e., the nuber of its leaves)
+        """Returns the Merkle-tree's current length, i.e., the number of its leaves
 
         :rtype: int
         """
@@ -155,8 +155,8 @@ class merkle_tree(object):
     def height(self):
         """Calculates and returns the Merkle-tree's current height
 
-        Since the tree is by construction binary balanced, its height coincides
-        with the length of its leftmost branch.
+        .. note:: Since the tree is by construction binary *balanced*, its height coincides
+                  with the length of its leftmost branch
 
         :rtype: int
         """
@@ -176,7 +176,7 @@ class merkle_tree(object):
         :param indent: [optional] The horizontal depth at which each level will be indented with respect to
                        its previous one. Defaults to ``3``.
         :type indent:  int
-        :rtype: str
+        :rtype:        str
 
         .. note:: The left parent of each node is printed *above* the right one
         """
@@ -188,9 +188,9 @@ class merkle_tree(object):
         """Prints the Merkle-tree in a terminal friendy way
 
         Printing the tree is similar to what is printed at console when running the ``tree`` command of
-        Unix based platforms.
+        Unix based platforms
 
-        :param indent: [optional] The horizontal depth at which each level will be indented with respect to
+        :param indent: [optional] the horizontal depth at which each level will be indented with respect to
                        its previous one. Defaults to ``3``.
         :type indent:  int
 
@@ -201,11 +201,11 @@ class merkle_tree(object):
 # ---------------------------------- Updating ----------------------------
 
     def update(self, record):
-        """Updates the Merkle-tree by storing the hash of the inserted record in a newly created leaf,
-        restructuring the tree appropriately and recalculating all necessary interior hashes
+        """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
+        restructeres the tree appropriately and recalculates all necessary interior hashes
 
-        :param record: the record whose hash is to be stored in a new leaf
-        :type record: str or bytes or bytearray
+        :param record: the record whose hash is to be stored into a new leaf
+        :type record:  str or bytes or bytearray
         """
         if self:
 
@@ -264,13 +264,13 @@ class merkle_tree(object):
                 new_leaf], set([new_leaf]), new_leaf
 
     def encrypt_log(self, log_file):
-        """Encrypts the data of the provided log-file into the Merkle-tree.
+        """Encrypts the data of the provided log-file into the Merkle-tree
 
         More accurately, it successively updates the Merkle-tree it with each line
         of the log-file provided (cf. doc of the ``.update`` method)
 
         :param log_file: relative path of the log-file under enryption, specified with respect
-                         to the Merkle-tree's directory ``log_dir``
+                         to the configured Merkle-tree's directory ``log_dir``
         :type log_file:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
@@ -288,12 +288,12 @@ class merkle_tree(object):
 
     def audit_proof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
-        the given argument.
+        the given argument
 
         :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
                     is *int*) where the proof calculation must be based upon (provided from Client's Side)
         :type arg:  str or bytes or bytearray or int
-        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
+        :returns:   audit-proof appropriately formatted along with its validation parameters (so that it
                     can be passed in as the second argument to the ``validations.validate_proof`` method)
         :rtype:     proof.proof
 
@@ -347,13 +347,13 @@ class merkle_tree(object):
 
     def consistency_proof(self, old_hash, sublength):
         """Response of the Merkle-tree to the request of providing a consistency-proof for the
-        given parameters.
+        given parameters
 
         Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
-        and length respectively) provided from Client's Side.
+        and length respectively) provided from Client's Side
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   str or bytes or bytearray or None
+        :type old_hash:   bytes or None
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
@@ -422,15 +422,14 @@ class merkle_tree(object):
 # ------------------------------ Inclusion tests ------------------------------
 
     def inclusion_test(self, old_hash, sublength):
-        """Verifies that the parameters provided from Client's Side correspond
-        to a previous state of the Merkle-tree
+        """Verifies that the parameters provided from Client's Side correspond to a previous state of the Merkle-tree
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   str or bytes or bytearray or int
+        :type old_hash:   bytes
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
-        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated
-                          internally for the provided ``sublength``, leads to the provided hash
+        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for
+                          the provided ``sublength``, leads to the provided ``old_hash``
         :rtype:           bool
         """
 
@@ -461,7 +460,7 @@ class merkle_tree(object):
                       (provided from Client's Side directly or indirectly in form of a record;
                       cf. the ``.audit_proof`` method).
         :type index:  int
-        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, str)*), the sign ``+1`` or ``-1``
+        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, bytes)*), the sign ``+1`` or ``-1``
                       indicating pairing with the right or left neighbour during proof validation respectively,
                       along with the starting point for application of hashing during proof validation.
         :rtype:       (int, tuple)

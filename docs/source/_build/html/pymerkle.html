@@ -549,7 +549,7 @@ the required condition</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This method does <em>not</em> serialize the tree structure itself, but only the info
-about the tree’s fixed configurations (hash type, encoding type, security mode,
+about the tree’s fixed configs (hash type, encoding type, security mode,
 uuid) and current state (size, length, height, root-hash).</p>
 </div>
 </dd></dl>
@@ -618,17 +618,17 @@ restructuring the tree appropriately and recalculating all necessary interior ha
 <dl class="function">
 <dt id="pymerkle.validate_proof">
 <code class="descclassname">pymerkle.</code><code class="descname">validate_proof</code><span class="sig-paren">(</span><em>target_hash</em>, <em>proof</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#validate_proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validate_proof" title="Permalink to this definition">¶</a></dt>
-<dd><p>Core validation function</p>
+<dd><p>Core validation utility</p>
 <p>Validates the inserted proof by comparing to the provided target hash, modifies the proof’s
-status as <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> according to validation result and returns this result.</p>
+status as <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code> according to validation result and returns this result</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_hash</strong> (<em>str</em>) – hash (hexadecimal form) to be presumably attained at the end of the
-validation procedure (i.e., acclaimed top-hash of the Merkle-tree
-having provided the proof)</li>
+<li><strong>target_hash</strong> (<em>bytes</em>) – the hash to be presumably attained at the end of the validation procedure
+(i.e., acclaimed current root-hash of the Merkle-tree having provided
+the proof)</li>
 <li><strong>proof</strong> (<a class="reference internal" href="pymerkle.proof.html#pymerkle.proof.proof" title="pymerkle.proof.proof"><em>proof.proof</em></a>) – the proof to be validated</li>
 </ul>
 </td>
@@ -647,9 +647,9 @@ having provided the proof)</li>
 <dt id="pymerkle.proof_validator">
 <em class="property">class </em><code class="descclassname">pymerkle.</code><code class="descname">proof_validator</code><span class="sig-paren">(</span><em>validations_dir=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#proof_validator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof_validator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Wrapper of the <code class="docutils literal notranslate"><span class="pre">validate_proof</span></code> function.</p>
-<p>Employs the <code class="docutils literal notranslate"><span class="pre">validation_receipt</span></code> class in order to organize validation results
-in an easy storable way.</p>
+<p>Wrapper for the <code class="docutils literal notranslate"><span class="pre">validations.validate_proof</span></code> function</p>
+<p>Employs the <code class="docutils literal notranslate"><span class="pre">validations.validation_receipt</span></code> class in order to organize validation results
+in an easy storable way</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -657,7 +657,7 @@ in an easy storable way.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>validations_dir</strong> (<em>str</em>) – [optional] absolute path of the directory where validation
 receipts will be stored as <cite>.json</cite> files. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 in which case validation receipts will not be automatically
-stored.</td>
+stored</td>
 </tr>
 </tbody>
 </table>

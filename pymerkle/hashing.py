@@ -205,7 +205,7 @@ class hash_machine(object):
 
         Schematically speaking, the result of
 
-        ``multi_hash(((1, a), (1, b), (-1, c), (-1, d)), 1)``
+        ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``
 
         is equivalent to
 

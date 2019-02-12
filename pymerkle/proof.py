@@ -103,7 +103,7 @@ class proof(object):
 
         Sole purpose of this function is to easy print info about a proof by just invoking it at console.
 
-        .. warning::Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
+        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
 
         return '\n    ----------------------------------- PROOF ------------------------------------\
