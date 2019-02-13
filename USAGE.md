@@ -4,7 +4,9 @@
 
 ## Basic usage
 
-Type
+### [ Work In progress ]
+
+<!-- Type
 
 ```python
 from pymerkle import *
@@ -373,12 +375,12 @@ and will be stored in a `.json` file if the validator object has been configured
 v = proof_validator(validations_dir=...)
 ```
 
-configures the validator to save receipts upon validation inside the specified directory as a `.json` file, bearing as name the corresponding receipt's uuid.
+configures the validator to save receipts upon validation inside the specified directory as a `.json` file, bearing as name the corresponding receipt's uuid. -->
 
 
 ## API
 
-### [ Work in In progress ]
+### [ Work In progress ]
 **See the complete documentation at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
 <!-- This section describes the _pymerkle_ API as suggested to be used by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
