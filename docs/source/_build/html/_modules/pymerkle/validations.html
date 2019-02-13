@@ -216,15 +216,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">validations_dir</span> <span class="o">=</span> <span class="n">validations_dir</span>
 
 <div class="viewcode-block" id="proof_validator.validate"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.proof_validator.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Wraps ``validate_proof``, returning a validation receipt instead of a boolean.</span>
+        <span class="sd">&quot;&quot;&quot;Wraps ``validations.validate_proof``, returning a validation receipt instead of a boolean</span>
 
-<span class="sd">        If a ``validations_dir`` has been specified at construction, then the produced validation receipt</span>
-<span class="sd">        is automatically stored in that directory as a ``.json`` file named with the receipt&#39;s uuid.</span>
+<span class="sd">        If a ``validations_dir`` has been specified at construction, then the receipt is automatically</span>
+<span class="sd">        stored in the configured directory as a ``.json`` file named with the receipt&#39;s uuid</span>
 
-<span class="sd">        :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the</span>
-<span class="sd">                            validation procedure (i.e., acclaimed top-hash of the Merkle-tree</span>
-<span class="sd">                            having provided the proof)</span>
-<span class="sd">        :type target_hash:  str</span>
+<span class="sd">        :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,</span>
+<span class="sd">                            acclaimed top-hash of the Merkle-tree having provided the proof)</span>
+<span class="sd">        :type target_hash:  bytes</span>
 <span class="sd">        :param proof:       the proof to be validated</span>
 <span class="sd">        :type proof:        proof.proof</span>
 <span class="sd">        :rtype:             validations.validation_receipt</span>
@@ -264,11 +263,22 @@
 <span class="sd">    :param result:         Validation result (``True`` iff the proof was found to be valid)</span>
 <span class="sd">    :type result:          bool</span>
 
-<span class="sd">    :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamo*, *validation_moment*</span>
-<span class="sd">    :ivar header.uuid:              (*str*) uuid of the proof (time-based)</span>
+<span class="sd">    Instead of providing the above arguments corresponding to `*args`, a ``validation_receipt`` object may also</span>
+<span class="sd">    be constructed in the following ways by employing `**kwargs` in order to load the JSON string of a</span>
+<span class="sd">    given validation-receipt ``r``:</span>
+
+<span class="sd">    &gt;&gt;&gt; from pymerkle.valiation_receipts import validation_receipt</span>
+<span class="sd">    &gt;&gt;&gt; s = validation_receipt(from_json=r.JSONstring())</span>
+<span class="sd">    &gt;&gt;&gt; t = validation_receipt(from_dict=json.loads(r.JSONstring()))</span>
+
+<span class="sd">    .. note:: Constructing receipt in the above ways is a genuine *replication*, since the constructed</span>
+<span class="sd">              receipts ``s`` and ``t`` have the same *uuuid* and *timestamps* as ``r``</span>
+
+<span class="sd">    :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamp*, *validation_moment*</span>
+<span class="sd">    :ivar header.uuid:              (*str*) uuid of the validation (time-based)</span>
 <span class="sd">    :ivar header.timestamp:         (*str*) Validation moment (msecs) from the start of time</span>
 <span class="sd">    :ivar header.validation_moment: (*str*) Validation moment in human readable form</span>
-<span class="sd">    :ivar body:                     (*dict*) Contains the keys *proof_uuid*, *proof_provider*, *result*</span>
+<span class="sd">    :ivar body:                     (*dict*) Contains the keys *proof_uuid*, *proof_provider*, *result* (see below)</span>
 <span class="sd">    :ivar body.proof_uuid:          (*str*) See the homonymous argument of the constructor</span>
 <span class="sd">    :ivar body.proof_provider:      (*str*) See the homonymous argument of the constructor</span>
 <span class="sd">    :ivar body.result:              (*bool*) See the homonymous argument of the constructor</span>

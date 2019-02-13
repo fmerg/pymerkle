@@ -184,17 +184,16 @@ validation receipts are not to be automatically stored</td>
 <dl class="method">
 <dt id="pymerkle.validations.proof_validator.validate">
 <code class="descname">validate</code><span class="sig-paren">(</span><em>target_hash</em>, <em>proof</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#proof_validator.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.proof_validator.validate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wraps <code class="docutils literal notranslate"><span class="pre">validate_proof</span></code>, returning a validation receipt instead of a boolean.</p>
-<p>If a <code class="docutils literal notranslate"><span class="pre">validations_dir</span></code> has been specified at construction, then the produced validation receipt
-is automatically stored in that directory as a <code class="docutils literal notranslate"><span class="pre">.json</span></code> file named with the receipt’s uuid.</p>
+<dd><p>Wraps <code class="docutils literal notranslate"><span class="pre">validations.validate_proof</span></code>, returning a validation receipt instead of a boolean</p>
+<p>If a <code class="docutils literal notranslate"><span class="pre">validations_dir</span></code> has been specified at construction, then the receipt is automatically
+stored in the configured directory as a <code class="docutils literal notranslate"><span class="pre">.json</span></code> file named with the receipt’s uuid</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_hash</strong> (<em>str</em>) – hash (hexadecimal form) to be presumably attained at the end of the
-validation procedure (i.e., acclaimed top-hash of the Merkle-tree
-having provided the proof)</li>
+<li><strong>target_hash</strong> (<em>bytes</em>) – hash to be presumably attained at the end of the validation procedure (i.e.,
+acclaimed top-hash of the Merkle-tree having provided the proof)</li>
 <li><strong>proof</strong> (<a class="reference internal" href="pymerkle.proof.html#pymerkle.proof.proof" title="pymerkle.proof.proof"><em>proof.proof</em></a>) – the proof to be validated</li>
 </ul>
 </td>
@@ -258,19 +257,38 @@ JSON encoder for data structures.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>proof_uuid</strong> (<em>str</em>) – uuid of the validated proof (time-based)</li>
 <li><strong>proof_provider</strong> (<em>str</em>) – uuid of the Merkle-tree having provided the proof</li>
 <li><strong>result</strong> (<em>bool</em>) – Validation result (<code class="docutils literal notranslate"><span class="pre">True</span></code> iff the proof was found to be valid)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
-<li><strong>header</strong> – (<em>dict</em>) Contains the keys <em>uuid</em>, <em>timestamo</em>, <em>validation_moment</em></li>
-<li><strong>header.uuid</strong> – (<em>str</em>) uuid of the proof (time-based)</li>
+</tbody>
+</table>
+<p>Instead of providing the above arguments corresponding to <cite>*args</cite>, a <code class="docutils literal notranslate"><span class="pre">validation_receipt</span></code> object may also
+be constructed in the following ways by employing <cite>**kwargs</cite> in order to load the JSON string of a
+given validation-receipt <code class="docutils literal notranslate"><span class="pre">r</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymerkle.valiation_receipts</span> <span class="k">import</span> <span class="n">validation_receipt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">validation_receipt</span><span class="p">(</span><span class="n">from_json</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">JSONstring</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">validation_receipt</span><span class="p">(</span><span class="n">from_dict</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">JSONstring</span><span class="p">()))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Constructing receipt in the above ways is a genuine <em>replication</em>, since the constructed
+receipts <code class="docutils literal notranslate"><span class="pre">s</span></code> and <code class="docutils literal notranslate"><span class="pre">t</span></code> have the same <em>uuuid</em> and <em>timestamps</em> as <code class="docutils literal notranslate"><span class="pre">r</span></code></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>header</strong> – (<em>dict</em>) Contains the keys <em>uuid</em>, <em>timestamp</em>, <em>validation_moment</em></li>
+<li><strong>header.uuid</strong> – (<em>str</em>) uuid of the validation (time-based)</li>
 <li><strong>header.timestamp</strong> – (<em>str</em>) Validation moment (msecs) from the start of time</li>
 <li><strong>header.validation_moment</strong> – (<em>str</em>) Validation moment in human readable form</li>
-<li><strong>body</strong> – (<em>dict</em>) Contains the keys <em>proof_uuid</em>, <em>proof_provider</em>, <em>result</em></li>
+<li><strong>body</strong> – (<em>dict</em>) Contains the keys <em>proof_uuid</em>, <em>proof_provider</em>, <em>result</em> (see below)</li>
 <li><strong>body.proof_uuid</strong> – (<em>str</em>) See the homonymous argument of the constructor</li>
 <li><strong>body.proof_provider</strong> – (<em>str</em>) See the homonymous argument of the constructor</li>
 <li><strong>body.result</strong> – (<em>bool</em>) See the homonymous argument of the constructor</li>

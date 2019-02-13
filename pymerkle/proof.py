@@ -35,6 +35,16 @@ class proof(object):
     .. note:: Required Merkle-tree parameters (``hash_type``, ``security`` and ``encoding``) are necessary for
               proof validation (cf. the ``pymerkle.validations`` module)
 
+    Instead of providing the above arguments corresponding to `*args`, a ``proof`` object may also be constructed
+    in the following ways by employing `**kwargs` in order to load the JSON string of a given proof ``p``:
+
+    >>> from pymerkle.proof import proof
+    >>> q = proof(from_json=p.JSONstring())
+    >>> r = proof(from_dict=json.loads(p.JSONstring()))
+
+    .. note:: Constructing proofs in the above ways is a genuine *replication*, since the constructed
+              proofs ``q`` and ``r`` have the same *uuuid* and *timestamps* as ``p``
+
     :ivar header:                 (*dict*) Contains the keys *uuid*, *generation*, *timestamp*, *creation_moment*,
                                   *provider*, *hash_type*, *encoding*, *security* and *status* (see below)
     :ivar header.uuid:            (*str*) uuid of the proof (time-based)

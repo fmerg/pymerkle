@@ -71,8 +71,8 @@ class proof_validator(object):
     def validate(self, target_hash, proof):
         """Wraps ``validations.validate_proof``, returning a validation receipt instead of a boolean
 
-        If a ``validations_dir`` has been specified at construction, then the produced validation receipt is
-        automatically stored in the configured directory as a ``.json`` file named with the receipt's uuid
+        If a ``validations_dir`` has been specified at construction, then the receipt is automatically
+        stored in the configured directory as a ``.json`` file named with the receipt's uuid
 
         :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
                             acclaimed top-hash of the Merkle-tree having provided the proof)
@@ -116,11 +116,22 @@ class validation_receipt(object):
     :param result:         Validation result (``True`` iff the proof was found to be valid)
     :type result:          bool
 
-    :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamo*, *validation_moment*
-    :ivar header.uuid:              (*str*) uuid of the proof (time-based)
+    Instead of providing the above arguments corresponding to `*args`, a ``validation_receipt`` object may also
+    be constructed in the following ways by employing `**kwargs` in order to load the JSON string of a
+    given validation-receipt ``r``:
+
+    >>> from pymerkle.valiation_receipts import validation_receipt
+    >>> s = validation_receipt(from_json=r.JSONstring())
+    >>> t = validation_receipt(from_dict=json.loads(r.JSONstring()))
+
+    .. note:: Constructing receipts in the above ways is a genuine *replication*, since the constructed
+              receipts ``s`` and ``t`` have the same *uuuid* and *timestamps* as ``r``
+
+    :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamp*, *validation_moment*
+    :ivar header.uuid:              (*str*) uuid of the validation (time-based)
     :ivar header.timestamp:         (*str*) Validation moment (msecs) from the start of time
     :ivar header.validation_moment: (*str*) Validation moment in human readable form
-    :ivar body:                     (*dict*) Contains the keys *proof_uuid*, *proof_provider*, *result*
+    :ivar body:                     (*dict*) Contains the keys *proof_uuid*, *proof_provider*, *result* (see below)
     :ivar body.proof_uuid:          (*str*) See the homonymous argument of the constructor
     :ivar body.proof_provider:      (*str*) See the homonymous argument of the constructor
     :ivar body.result:              (*bool*) See the homonymous argument of the constructor

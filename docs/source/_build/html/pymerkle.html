@@ -660,17 +660,16 @@ validation receipts are not to be automatically stored</td>
 <dl class="method">
 <dt id="pymerkle.proof_validator.validate">
 <code class="descname">validate</code><span class="sig-paren">(</span><em>target_hash</em>, <em>proof</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#proof_validator.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof_validator.validate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wraps <code class="docutils literal notranslate"><span class="pre">validate_proof</span></code>, returning a validation receipt instead of a boolean.</p>
-<p>If a <code class="docutils literal notranslate"><span class="pre">validations_dir</span></code> has been specified at construction, then the produced validation receipt
-is automatically stored in that directory as a <code class="docutils literal notranslate"><span class="pre">.json</span></code> file named with the receipt’s uuid.</p>
+<dd><p>Wraps <code class="docutils literal notranslate"><span class="pre">validations.validate_proof</span></code>, returning a validation receipt instead of a boolean</p>
+<p>If a <code class="docutils literal notranslate"><span class="pre">validations_dir</span></code> has been specified at construction, then the receipt is automatically
+stored in the configured directory as a <code class="docutils literal notranslate"><span class="pre">.json</span></code> file named with the receipt’s uuid</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_hash</strong> (<em>str</em>) – hash (hexadecimal form) to be presumably attained at the end of the
-validation procedure (i.e., acclaimed top-hash of the Merkle-tree
-having provided the proof)</li>
+<li><strong>target_hash</strong> (<em>bytes</em>) – hash to be presumably attained at the end of the validation procedure (i.e.,
+acclaimed top-hash of the Merkle-tree having provided the proof)</li>
 <li><strong>proof</strong> (<a class="reference internal" href="pymerkle.proof.html#pymerkle.proof.proof" title="pymerkle.proof.proof"><em>proof.proof</em></a>) – the proof to be validated</li>
 </ul>
 </td>
