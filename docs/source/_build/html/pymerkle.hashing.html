@@ -257,7 +257,15 @@ or <cite>byetarray</cite> type</p>
 <code class="descname">multi_hash</code><span class="sig-paren">(</span><em>signed_hashes</em>, <em>start</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/hashing.html#hash_machine.multi_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.hashing.hash_machine.multi_hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hash utility used in proof validation</p>
 <p>Repeatedly applies the <code class="docutils literal notranslate"><span class="pre">.hash</span></code> method over a tuple of signed hashes parenthesized in pairs
-as specified by accompanying signs</p>
+as specified by accompanying signs. Schematically speaking, the result of</p>
+<blockquote>
+<div><code class="docutils literal notranslate"><span class="pre">multi_hash(signed_hashes=((1,</span> <span class="pre">a),</span> <span class="pre">(1,</span> <span class="pre">b),</span> <span class="pre">(-1,</span> <span class="pre">c),</span> <span class="pre">(-1,</span> <span class="pre">d)),</span> <span class="pre">start=1)</span></code></div></blockquote>
+<p>is equivalent to <code class="docutils literal notranslate"><span class="pre">hash(hash(a,</span> <span class="pre">hash(b,</span> <span class="pre">c)),</span> <span class="pre">d)</span></code>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When using this method, make sure that the combination of signs corresponds indeed
+to a valid parenthetization</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -279,23 +287,6 @@ as specified by accompanying signs</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if the inserted sequence of signed hashes was empty</p>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<p>Schematically speaking, the result of</p>
-<p><code class="docutils literal notranslate"><span class="pre">multi_hash(((1,</span> <span class="pre">a),</span> <span class="pre">(1,</span> <span class="pre">b),</span> <span class="pre">(-1,</span> <span class="pre">c),</span> <span class="pre">(-1,</span> <span class="pre">d)),</span> <span class="pre">1)</span></code></p>
-<p>is equivalent to</p>
-<p><code class="docutils literal notranslate"><span class="pre">hash(hash(a,</span> <span class="pre">hash(b,</span> <span class="pre">c)),</span> <span class="pre">d)</span></code></p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">When using this method, make sure that the combination of signs corresponds indeed
-to a valid parenthetization</p>
 </div>
 </dd></dl>
 

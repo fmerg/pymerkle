@@ -33,9 +33,9 @@ class node(object):
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
     :ivar right:         (*nodes.node*) The node's right parent. Defaults to ``None`` if the node is a leaf
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
-    :ivar hash:          (*bytes*) The hash currently stored by the node
-    :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes
-                         it is equal to the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes
+    :ivar stored_hash:   (*bytes*) The hash currently stored by the node
+    :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes it should
+                         coincide with the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes
                          it is ``None``.
     """
 
@@ -51,21 +51,22 @@ class node(object):
         self.encoding = encoding
 
         if left is None and right is None:  # Leaf case (parentless node)
-            self.hash = hash_function(record)
+            self.stored_hash = hash_function(record)
         # Interior case (node with exactly two parents)
         elif record is None:
             left.child, right.child = self, self
             self.left, self.right = left, right
-            self.hash = hash_function(left.hash, right.hash)
+            self.stored_hash = hash_function(
+                left.stored_hash, right.stored_hash)
             # Store hash function in case of hash recalculation
             self.hash_function = hash_function
 
 # ------------------------- Representation formatting --------------------
 
     def __repr__(self):
-        """Overrides the default implementation.
+        """Overrides the default implementation
 
-        Sole purpose of this function is to easy print info about a node by just invoking it at console.
+        Sole purpose of this function is to easy print info about a node by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
@@ -81,7 +82,7 @@ class node(object):
                         left=memory_id(self.left),
                         right=memory_id(self.right),
                         child=memory_id(self.child),
-                        hash=self.hash.decode(encoding=self.encoding))
+                        hash=self.stored_hash.decode(encoding=self.encoding))
 
     def __str__(self, level=0, indent=3, ignore=[]):
         """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``
@@ -129,7 +130,7 @@ class node(object):
             output += ' ' + L_BRACKET_LONG
             new_ignore.append(level)
 
-        output += self.hash.decode(encoding=self.encoding) + '\n'
+        output += self.stored_hash.decode(encoding=self.encoding) + '\n'
         if not isinstance(self, leaf):  # Recursive step
             output += self.left.__str__(level=level + 1,
                                         indent=indent, ignore=new_ignore)
@@ -140,7 +141,7 @@ class node(object):
 # ----------------------------- Boolean functions ------------------------
 
     def isLeftParent(self):
-        """Checks if the node is a left parent.
+        """Checks if the node is a left parent
 
         :returns: ``True`` iff the node is the ``.left`` attribute of some other
                   node inside the containing Merkle-tree
@@ -151,7 +152,7 @@ class node(object):
         return False
 
     def isRightParent(self):
-        """Checks if the node is a right parent.
+        """Checks if the node is a right parent
 
         :returns: ``True`` iff the node is the ``.right`` attribute of some other
                   node inside the containing Merkle-tree
@@ -165,7 +166,7 @@ class node(object):
 
     def descendant(self, degree):
         """ Detects and returns the node that is ``degree`` steps upwards within
-        the containing Merkle-tree.
+        the containing Merkle-tree
 
         .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``
                   is the node's child, etc.
@@ -190,11 +191,12 @@ class node(object):
         """Recalculates the node's hash under account of its parents' new hashes
 
         This method is to be invoked for all non-leaf nodes of the Merkle-tree's rightmost branch
-        every time a new leaf is appended into the tree.
+        every time a new leaf is appended into the tree
 
         .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes
         """
-        self.hash = self.hash_function(self.left.hash, self.right.hash)
+        self.stored_hash = self.hash_function(
+            self.left.stored_hash, self.right.stored_hash)
 
 
 # ------------------------------- JSON serialization ------------------------
@@ -258,7 +260,7 @@ class nodeEncoder(json.JSONEncoder):
         """
         try:
             left, right = obj.left, obj.right
-            hash = obj.hash
+            hash = obj.stored_hash
         except TypeError:
             return json.JSONEncoder.default(self, obj)
         else:

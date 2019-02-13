@@ -337,7 +337,14 @@
         <span class="sd">&quot;&quot;&quot;Hash utility used in proof validation</span>
 
 <span class="sd">        Repeatedly applies the ``.hash`` method over a tuple of signed hashes parenthesized in pairs</span>
-<span class="sd">        as specified by accompanying signs</span>
+<span class="sd">        as specified by accompanying signs. Schematically speaking, the result of</span>
+
+<span class="sd">            ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``</span>
+
+<span class="sd">        is equivalent to ``hash(hash(a, hash(b, c)), d)``.</span>
+
+<span class="sd">        .. warning:: When using this method, make sure that the combination of signs corresponds indeed</span>
+<span class="sd">                     to a valid parenthetization</span>
 
 <span class="sd">        :param signed_hashes: a sequence of signed hashes</span>
 <span class="sd">        :type signed_hashes:  tuple of (+1/-1, bytes) pairs</span>
@@ -347,19 +354,6 @@
 <span class="sd">        :rtype:               bytes</span>
 
 <span class="sd">        .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty</span>
-
-<span class="sd">        :Example:</span>
-
-<span class="sd">        Schematically speaking, the result of</span>
-
-<span class="sd">        ``multi_hash(((1, a), (1, b), (-1, c), (-1, d)), 1)``</span>
-
-<span class="sd">        is equivalent to</span>
-
-<span class="sd">        ``hash(hash(a, hash(b, c)), d)``</span>
-
-<span class="sd">        .. warning:: When using this method, make sure that the combination of signs corresponds indeed</span>
-<span class="sd">                     to a valid parenthetization</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">signed_hashes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signed_hashes</span><span class="p">)</span>

@@ -210,9 +210,9 @@
 <span class="c1"># ------------------------- Representation formatting --------------------</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Overrides the default implementation.</span>
+        <span class="sd">&quot;&quot;&quot;Overrides the default implementation</span>
 
-<span class="sd">        Sole purpose of this function is to easy print info about a node by just invoking it at console.</span>
+<span class="sd">        Sole purpose of this function is to easy print info about a node by just invoking it at console</span>
 
 <span class="sd">        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -287,7 +287,7 @@
 <span class="c1"># ----------------------------- Boolean functions ------------------------</span>
 
 <div class="viewcode-block" id="node.isLeftParent"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.isLeftParent">[docs]</a>    <span class="k">def</span> <span class="nf">isLeftParent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Checks if the node is a left parent.</span>
+        <span class="sd">&quot;&quot;&quot;Checks if the node is a left parent</span>
 
 <span class="sd">        :returns: ``True`` iff the node is the ``.left`` attribute of some other</span>
 <span class="sd">                  node inside the containing Merkle-tree</span>
@@ -298,7 +298,7 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="node.isRightParent"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.isRightParent">[docs]</a>    <span class="k">def</span> <span class="nf">isRightParent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Checks if the node is a right parent.</span>
+        <span class="sd">&quot;&quot;&quot;Checks if the node is a right parent</span>
 
 <span class="sd">        :returns: ``True`` iff the node is the ``.right`` attribute of some other</span>
 <span class="sd">                  node inside the containing Merkle-tree</span>
@@ -312,7 +312,7 @@
 
 <div class="viewcode-block" id="node.descendant"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.descendant">[docs]</a>    <span class="k">def</span> <span class="nf">descendant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Detects and returns the node that is ``degree`` steps upwards within</span>
-<span class="sd">        the containing Merkle-tree.</span>
+<span class="sd">        the containing Merkle-tree</span>
 
 <span class="sd">        .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``</span>
 <span class="sd">                  is the node&#39;s child, etc.</span>
@@ -337,7 +337,7 @@
         <span class="sd">&quot;&quot;&quot;Recalculates the node&#39;s hash under account of its parents&#39; new hashes</span>
 
 <span class="sd">        This method is to be invoked for all non-leaf nodes of the Merkle-tree&#39;s rightmost branch</span>
-<span class="sd">        every time a new leaf is appended into the tree.</span>
+<span class="sd">        every time a new leaf is appended into the tree</span>
 
 <span class="sd">        .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes</span>
 <span class="sd">        &quot;&quot;&quot;</span>

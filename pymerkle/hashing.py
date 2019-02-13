@@ -190,7 +190,14 @@ class hash_machine(object):
         """Hash utility used in proof validation
 
         Repeatedly applies the ``.hash`` method over a tuple of signed hashes parenthesized in pairs
-        as specified by accompanying signs
+        as specified by accompanying signs. Schematically speaking, the result of
+
+            ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``
+
+        is equivalent to ``hash(hash(a, hash(b, c)), d)``.
+
+        .. warning:: When using this method, make sure that the combination of signs corresponds indeed
+                     to a valid parenthetization
 
         :param signed_hashes: a sequence of signed hashes
         :type signed_hashes:  tuple of (+1/-1, bytes) pairs
@@ -200,19 +207,6 @@ class hash_machine(object):
         :rtype:               bytes
 
         .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty
-
-        :Example:
-
-        Schematically speaking, the result of
-
-        ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``
-
-        is equivalent to
-
-        ``hash(hash(a, hash(b, c)), d)``
-
-        .. warning:: When using this method, make sure that the combination of signs corresponds indeed
-                     to a valid parenthetization
         """
 
         signed_hashes = list(signed_hashes)

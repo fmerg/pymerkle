@@ -242,7 +242,7 @@ it is <code class="docutils literal notranslate"><span class="pre">None</span></
 <dt id="pymerkle.nodes.node.descendant">
 <code class="descname">descendant</code><span class="sig-paren">(</span><em>degree</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node.descendant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node.descendant" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detects and returns the node that is <code class="docutils literal notranslate"><span class="pre">degree</span></code> steps upwards within
-the containing Merkle-tree.</p>
+the containing Merkle-tree</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Descendant of degree <code class="docutils literal notranslate"><span class="pre">0</span></code> is the node itself, descendant of degree <code class="docutils literal notranslate"><span class="pre">1</span></code>
@@ -269,7 +269,7 @@ is the node’s child, etc.</p>
 <dl class="method">
 <dt id="pymerkle.nodes.node.isLeftParent">
 <code class="descname">isLeftParent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node.isLeftParent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node.isLeftParent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the node is a left parent.</p>
+<dd><p>Checks if the node is a left parent</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -286,7 +286,7 @@ node inside the containing Merkle-tree</td>
 <dl class="method">
 <dt id="pymerkle.nodes.node.isRightParent">
 <code class="descname">isRightParent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node.isRightParent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node.isRightParent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the node is a right parent.</p>
+<dd><p>Checks if the node is a right parent</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -305,7 +305,7 @@ node inside the containing Merkle-tree</td>
 <code class="descname">recalculate_hash</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node.recalculate_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node.recalculate_hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recalculates the node’s hash under account of its parents’ new hashes</p>
 <p>This method is to be invoked for all non-leaf nodes of the Merkle-tree’s rightmost branch
-every time a new leaf is appended into the tree.</p>
+every time a new leaf is appended into the tree</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">Only for interior nodes (i.e., with two parents); fails in case of leaf nodes</p>

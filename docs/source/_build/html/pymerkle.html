@@ -189,13 +189,13 @@
 or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown.</li>
 <li><strong>encoding</strong> (<em>str</em>) – [optional] Defaults to <code class="docutils literal notranslate"><span class="pre">'utf_8'</span></code>. Should be included in <code class="docutils literal notranslate"><span class="pre">hashing.ENCODINGS</span></code> (upper-
 or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown.</li>
-<li><strong>security</strong> (<em>bool</em>) – [optional] Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>. Activates defense against second-preimage attack
-(genuinely activated only for the default values of hash and encoding types)</li>
-<li><strong>*records</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em>) – [optional] The records initially stored by the Merkle-tree; usually empty at construction.
-If given, the is constructed with as many leafs from the beginning, storing the hashes
+<li><strong>security</strong> (<em>bool</em>) – [optional] If <code class="docutils literal notranslate"><span class="pre">False</span></code>, it deactivates defense against second-preimage attack if <code class="docutils literal notranslate"><span class="pre">False</span></code>.
+Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</li>
+<li><strong>*records</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em>) – [optional] The records initially stored by the Merkle-tree; usually empty at construction. If
+If provided, the tree is constructed with as many leafs from the beginning, storing the hashes
 of the inserted records in the respective order.</li>
 <li><strong>log_dir</strong> (<em>str</em>) – [optional] Absolute path of the directory, where the Merkle-tree will receive log files
-to encrypt from. Defaults to the current working directory if unspecified</li>
+to encrypt from. Defaults to the current working directory if unspecified.</li>
 </ul>
 </td>
 </tr>
@@ -204,9 +204,9 @@ to encrypt from. Defaults to the current working directory if unspecified</li>
 <li><strong>hash_type</strong> – (<em>str</em>) Type of hashing algorithm used by the Merkle-tree</li>
 <li><strong>encoding</strong> – (<em>str</em>) Encoding type used by the Merkle-tree for encryption</li>
 <li><strong>security</strong> – (<em>bool</em>) Iff <code class="docutils literal notranslate"><span class="pre">True</span></code>, security measures against second-preimage attack are activated</li>
-<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.hash" title="pymerkle.hashing.hash_machine.hash"><strong>hash</strong></a> – (<em>method</em>) Core hash functionality of the Merkle-tree.</li>
-<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.multi_hash" title="pymerkle.hashing.hash_machine.multi_hash"><strong>multi_hash</strong></a> – (<em>method</em>) Hash functionality used by the Merkle-tree for performing inclusion test
-upon a request for consistency proof.</li>
+<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.hash" title="pymerkle.hashing.hash_machine.hash"><strong>hash</strong></a> – (<em>method</em>) Core hash functionality of the Merkle-tree</li>
+<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.multi_hash" title="pymerkle.hashing.hash_machine.multi_hash"><strong>multi_hash</strong></a> – (<em>method</em>) Hash functionality used by the Merkle-tree for performing inclusion tests
+(explicitely or implicitely upon a request for consistency proof)</li>
 <li><strong>log_dir</strong> – (<em>bool</em>) See homonymous argument of the constructor</li>
 </ul>
 </td>
@@ -244,9 +244,9 @@ should start from).</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – index of the leaf where the audit-proof calculation should be based upon
 (provided from Client’s Side directly or indirectly in form of a record;
-cf. the <code class="docutils literal notranslate"><span class="pre">.audit_proof</span></code> method).</td>
+cf. the <code class="docutils literal notranslate"><span class="pre">.audit_proof</span></code> method)</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a tuple of signed hashes (pairs of the form <em>(+1/-1, str)</em>), the sign <code class="docutils literal notranslate"><span class="pre">+1</span></code> or <code class="docutils literal notranslate"><span class="pre">-1</span></code>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a tuple of signed hashes (pairs of the form <em>(+1/-1, bytes)</em>), the sign <code class="docutils literal notranslate"><span class="pre">+1</span></code> or <code class="docutils literal notranslate"><span class="pre">-1</span></code>
 indicating pairing with the right or left neighbour during proof validation respectively,
 along with the starting point for application of hashing during proof validation.</td>
 </tr>
@@ -265,7 +265,7 @@ along with the starting point for application of hashing during proof validation
 <dt id="pymerkle.merkle_tree.audit_proof">
 <code class="descname">audit_proof</code><span class="sig-paren">(</span><em>arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.audit_proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.audit_proof" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response of the Merkle-tree to the request of providing an audit-proof based upon
-the given argument.</p>
+the given argument</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -273,7 +273,7 @@ the given argument.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arg</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em><em> or </em><em>int</em>) – the record (if type is <em>str</em> or <em>bytes</em> or <em>bytearray</em>) or index of leaf (if type
 is <em>int</em>) where the proof calculation must be based upon (provided from Client’s Side)</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Audit proof appropriately formatted along with its validation parameters (so that it
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">audit-proof appropriately formatted along with its validation parameters (so that it
 can be passed in as the second argument to the <code class="docutils literal notranslate"><span class="pre">validations.validate_proof</span></code> method)</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pymerkle.proof.html#pymerkle.proof.proof" title="pymerkle.proof.proof">proof.proof</a></td>
@@ -302,14 +302,13 @@ can be passed in as the second argument to the <code class="docutils literal not
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sublength</strong> (<em>int</em>) – length (number of leaves) for a presumably valid previous state of the Merkle-tree</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the starting point for application of hashing during proof validation, a tuple of
-hashes signed with <code class="docutils literal notranslate"><span class="pre">-</span></code> (leftmost hashes for inclusion test to be performed from
-the Server’s Side, i.e., by the Merkle-tree itself) and a tuple of signed hashes
-for top-hash test to be performed from the Client’s Side (the sign <code class="docutils literal notranslate"><span class="pre">+1</span></code>, resp.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> indicating pairing with the right or left neigbour respectively during
-proof validation).</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the starting point for application of hashing during proof validation, a tuple of hashes
+signed with <code class="docutils literal notranslate"><span class="pre">-1</span></code> (leftmost hashes for inclusion test to be performed from the Server’s
+Side, i.e., by the Merkle-tree itself) and a tuple of signed hashes for top-hash test to
+be performed from the Client’s Side (the sign <code class="docutils literal notranslate"><span class="pre">+1</span></code>, resp. <code class="docutils literal notranslate"><span class="pre">-1</span></code> indicating pairing
+with the right or left neigbour respectively during proof validation)</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(int, tuple, tuple)</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(int, tuple of (-1 bytes) pairs, tuple of (+1/-1 bytes) pairs)</td>
 </tr>
 </tbody>
 </table>
@@ -323,15 +322,15 @@ proof validation).</td>
 <dt id="pymerkle.merkle_tree.consistency_proof">
 <code class="descname">consistency_proof</code><span class="sig-paren">(</span><em>old_hash</em>, <em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.consistency_proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.consistency_proof" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response of the Merkle-tree to the request of providing a consistency-proof for the
-given parameters.</p>
+given parameters</p>
 <p>Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
-and length respectively) provided from Client’s Side.</p>
+and length respectively) provided from Client’s Side</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>old_hash</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em><em> or </em><em>None</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
+<li><strong>old_hash</strong> (<em>bytes</em><em> or </em><em>None</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
 <li><strong>sublength</strong> (<em>int</em>) – presumable length (number of leaves) for the above previous state of the Merkle-tree</li>
 </ul>
 </td>
@@ -370,12 +369,12 @@ be the empty one</p>
 <code class="descname">display</code><span class="sig-paren">(</span><em>indent=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.display" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the Merkle-tree in a terminal friendy way</p>
 <p>Printing the tree is similar to what is printed at console when running the <code class="docutils literal notranslate"><span class="pre">tree</span></code> command of
-Unix based platforms.</p>
+Unix based platforms</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indent</strong> (<em>int</em>) – [optional] The horizontal depth at which each level will be indented with respect to
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indent</strong> (<em>int</em>) – [optional] the horizontal depth at which each level will be indented with respect to
 its previous one. Defaults to <code class="docutils literal notranslate"><span class="pre">3</span></code>.</td>
 </tr>
 </tbody>
@@ -389,7 +388,7 @@ its previous one. Defaults to <code class="docutils literal notranslate"><span c
 <dl class="method">
 <dt id="pymerkle.merkle_tree.encrypt_log">
 <code class="descname">encrypt_log</code><span class="sig-paren">(</span><em>log_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.encrypt_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.encrypt_log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encrypts the data of the provided log-file into the Merkle-tree.</p>
+<dd><p>Encrypts the data of the provided log-file into the Merkle-tree</p>
 <p>More accurately, it successively updates the Merkle-tree it with each line
 of the log-file provided (cf. doc of the <code class="docutils literal notranslate"><span class="pre">.update</span></code> method)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -397,7 +396,7 @@ of the log-file provided (cf. doc of the <code class="docutils literal notransla
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>log_file</strong> (<em>str</em>) – relative path of the log-file under enryption, specified with respect
-to the Merkle-tree’s directory <code class="docutils literal notranslate"><span class="pre">log_dir</span></code></td>
+to the configured Merkle-tree’s directory <code class="docutils literal notranslate"><span class="pre">log_dir</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -411,8 +410,11 @@ to the Merkle-tree’s directory <code class="docutils literal notranslate"><spa
 <dt id="pymerkle.merkle_tree.height">
 <code class="descname">height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.height" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates and returns the Merkle-tree’s current height</p>
-<p>Since the tree is by construction binary balanced, its height coincides
-with the length of its leftmost branch.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Since the tree is by construction binary <em>balanced</em>, its height coincides
+with the length of its leftmost branch</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -426,20 +428,19 @@ with the length of its leftmost branch.</p>
 <dl class="method">
 <dt id="pymerkle.merkle_tree.inclusion_test">
 <code class="descname">inclusion_test</code><span class="sig-paren">(</span><em>old_hash</em>, <em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.inclusion_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.inclusion_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Verifies that the parameters provided from Client’s Side correspond
-to a previous state of the Merkle-tree</p>
+<dd><p>Verifies that the parameters provided from Client’s Side correspond to a previous state of the Merkle-tree</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>old_hash</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em><em> or </em><em>int</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
+<li><strong>old_hash</strong> (<em>bytes</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
 <li><strong>sublength</strong> (<em>int</em>) – presumable length (number of leaves) for the above previous state of the Merkle-tree</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal notranslate"><span class="pre">True</span></code> iff an appropriate path of negatively signed hashes, generated
-internally for the provided <code class="docutils literal notranslate"><span class="pre">sublength</span></code>, leads to the provided hash</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal notranslate"><span class="pre">True</span></code> iff an appropriate path of negatively signed hashes, generated internally for
+the provided <code class="docutils literal notranslate"><span class="pre">sublength</span></code>, leads indeed to the provided <code class="docutils literal notranslate"><span class="pre">old_hash</span></code></p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
@@ -452,7 +453,7 @@ internally for the provided <code class="docutils literal notranslate"><span cla
 <dl class="method">
 <dt id="pymerkle.merkle_tree.length">
 <code class="descname">length</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the Merkle-tree’s current length (i.e., the nuber of its leaves)</p>
+<dd><p>Returns the Merkle-tree’s current length, i.e., the number of its leaves</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -466,20 +467,18 @@ internally for the provided <code class="docutils literal notranslate"><span cla
 <dl class="method">
 <dt id="pymerkle.merkle_tree.minimal_complement">
 <code class="descname">minimal_complement</code><span class="sig-paren">(</span><em>subroots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.minimal_complement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.minimal_complement" title="Permalink to this definition">¶</a></dt>
-<dd><p>Complements optimally the subroot hashes detected by <code class="docutils literal notranslate"><span class="pre">.principal_subroots</span></code>
-with all necessary interior hashes of the Merkle-tree, so that a full
-consistency-path can be generated</p>
+<dd><p>Complements optimally the subroot hashes detected by <code class="docutils literal notranslate"><span class="pre">.principal_subroots</span></code> with all necessary
+interior hashes of the Merkle-tree, so that a full consistency-path can be generated</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subroots</strong> (<em>list of nodes.node</em>) – Should be some output of the <code class="docutils literal notranslate"><span class="pre">.principal_subroots</span></code> method</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of signed hashes complementing optimally the hashes
-detected by <code class="docutils literal notranslate"><span class="pre">.principal_subroots</span></code>, so that a full
-consistency-path be generated</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of signed hashes complementing optimally the hashes detected by
+<code class="docutils literal notranslate"><span class="pre">.principal_subroots</span></code>, so that a full consistency-path be generated</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of signed pairs <em>(+1/-1, str)</em></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of signed pairs (+1/-1, bytes)</td>
 </tr>
 </tbody>
 </table>
@@ -488,17 +487,15 @@ consistency-path be generated</td>
 <dl class="method">
 <dt id="pymerkle.merkle_tree.principal_subroots">
 <code class="descname">principal_subroots</code><span class="sig-paren">(</span><em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.principal_subroots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.principal_subroots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Detects and returns in corresponding order the roots of the <em>successive</em>,
-<em>rightmost</em>, <em>full</em> binary subtrees of maximum (and thus decreasing)
-length, whose lengths sum up to the inserted argument.</p>
-<p>Returned nodes are prepended with a sign (<code class="docutils literal notranslate"><span class="pre">+1</span></code> or <code class="docutils literal notranslate"><span class="pre">-1</span></code>), carrying
-information used in consistency-proof generation after extracting hashes.</p>
+<dd><p>Detects and returns in corresponding order the roots of the <em>successive</em>, <em>rightmost</em>, <em>full</em> binary
+subtrees of maximum (and thus decreasing) ength, whose lengths sum up to the inserted argument</p>
+<p>Returned nodes are prepended with a sign (<code class="docutils literal notranslate"><span class="pre">+1</span></code> or <code class="docutils literal notranslate"><span class="pre">-1</span></code>), carrying information used in
+consistency-proof generation after extracting hashes</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sublength</strong> – Should be a non-negative integer smaller than or equal to
-the Merkle-tree’s current length</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sublength</strong> – Should be a non-negative integer smaller than or equal to the Merkle-tree’s current length</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The (signed) roots of the detected subtrees, whose hashes
 are to be used for the generation of consistency-proofs</td>
@@ -509,22 +506,21 @@ are to be used for the generation of consistency-proofs</td>
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if the provided <code class="docutils literal notranslate"><span class="pre">sublength</span></code> does not fulfill
-the required condition</p>
+<p class="last">Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if the provided <code class="docutils literal notranslate"><span class="pre">sublength</span></code> does not fulfill the required condition</p>
 </div>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymerkle.merkle_tree.root_hash">
 <code class="descname">root_hash</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.root_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.root_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns current top-hash of the Merkle-tree,i.e., the hash stored by its current root</p>
+<dd><p>Returns the current root-hash of the Merkle-tree, i.e., the hash stored by its current root</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The tree’s current root hash in hexadecimal form</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the tree’s current root-hash</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bytes</td>
 </tr>
 </tbody>
 </table>
@@ -549,8 +545,8 @@ the required condition</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This method does <em>not</em> serialize the tree structure itself, but only the info
-about the tree’s fixed configs (hash type, encoding type, security mode,
-uuid) and current state (size, length, height, root-hash).</p>
+about the tree’s current state (<em>size</em>, <em>length</em>, <em>height</em>, <em>root-hash</em>) and
+fixed configs (<em>hash type</em>, <em>encoding type</em>, <em>security mode</em>, <em>uuid</em>)</p>
 </div>
 </dd></dl>
 
@@ -571,9 +567,8 @@ uuid) and current state (size, length, height, root-hash).</p>
 <dl class="method">
 <dt id="pymerkle.merkle_tree.subroot">
 <code class="descname">subroot</code><span class="sig-paren">(</span><em>start</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.subroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.subroot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the root of the unique <em>full</em> binary subtree of the Merkle-tree, whose
-leftmost leaf is located at the given position <code class="docutils literal notranslate"><span class="pre">start</span></code> and whose height is
-equal to the given <code class="docutils literal notranslate"><span class="pre">height</span></code>.</p>
+<dd><p>Returns the root of the unique <em>full</em> binary subtree of the Merkle-tree, whose leftmost leaf is located
+at the given position <code class="docutils literal notranslate"><span class="pre">start</span></code> and whose height is equal to the given <code class="docutils literal notranslate"><span class="pre">height</span></code></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -601,13 +596,13 @@ equal to the given <code class="docutils literal notranslate"><span class="pre">
 <dl class="method">
 <dt id="pymerkle.merkle_tree.update">
 <code class="descname">update</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the Merkle-tree by storing the hash of the inserted record in a newly created leaf,
-restructuring the tree appropriately and recalculating all necessary interior hashes</p>
+<dd><p>Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
+restructeres the tree appropriately and recalculates all necessary interior hashes</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em>) – the record whose hash is to be stored in a new leaf</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em>) – the record whose hash is to be stored into a new leaf</td>
 </tr>
 </tbody>
 </table>

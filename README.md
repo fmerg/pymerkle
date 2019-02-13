@@ -60,19 +60,19 @@ validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
 
 ## Tree structure
 
-Contrary to most implementations, the Merkle-tree is here always _binary balanced_, with all nodes except for the exterior ones (_leaves_) having _two_ parents. This is achieved as follows: upon appending a block of new leaves, instead of promoting a lonely leaf o rduplicating it, a *bifurcation* node gets created **_so that trees with the same number of leaves have always identical structure and input clashes among growing strategies be avoided_** (independently of the configured hash and encoding types). This standardization is further crucial for:
+Contrary to most implementations, the Merkle-tree is here always _binary balanced_, with all nodes except for the exterior ones (_leaves_) having _two_ parents. This is achieved as follows: upon appending a block of new leaves, instead of promoting a lonely leaf or duplicating it, a *bifurcation* node gets created **_so that trees with the same number of leaves have always identical structure and input clashes among growing strategies be avoided_** (independently of the configured hash and encoding types). This standardization is further crucial for:
 
 - fast generation of consistency-proof paths (based on additive decompositions in decreasing powers of _2_)
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes in the present implementation, whereas the total number of nodes in the structure described [**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
 
-The topology is namely identical to that of a binary _Sekura tree_, depicted in Section _5.4_ of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the `pymerkle.merkle_tree.update` method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`]('tests/test_tree_structure.py') file of this repository.
+The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the `pymerkle.merkle_tree.update` method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`]('tests/test_tree_structure.py') file of this repository.
 
 
 
 ### Deviation from bitcoin specification
 
-In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification for Merkle-trees, lonely leaves are not duplicated in order for the tree's length to become even and the tree to remain thus genuinely binary. Instead, creating bifurcation nodes at the rightmost branch allows the tree to remain genuinely binary while having an _odd_ number of leaves. As a consequence, even if security against second-preimage attack (see below) were deactivated, the current implementation is invulnerable to the kind of attack that is described [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp).
+In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead, creating bifurcation nodes at the rightmost branch allows the tree remains balanced upon any update. As a consequence, even if security against second-preimage attack (see below) were deactivated, the current implementation by structure invulnerable to the kind of attack that is described [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp).
 
 
 
