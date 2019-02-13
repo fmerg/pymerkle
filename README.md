@@ -66,7 +66,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes in the present implementation, whereas the total number of nodes in the structure described [**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
 
-The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the `pymerkle.merkle_tree.update` method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`]('tests/test_tree_structure.py') file of this repository.
+The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the `pymerkle.merkle_tree.update` method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`]('https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_tree_structure.py') file of the project's repository.
 
 
 
@@ -85,7 +85,7 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
-(See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or [**here**](https://news.ycombinator.com/item?id=16572793) for some insight). Read the [`tests/test_defense.py`](tests/test_defense.py) file of this repository to see how to perform second-preimage attacks against the current implementation.
+(See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or [**here**](https://news.ycombinator.com/item?id=16572793) for some insight). Read the [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file inside the project's repository to see how to perform second-preimage attacks against the current implementation.
 
 
 
