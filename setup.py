@@ -29,5 +29,4 @@ setup(
         "Topic :: Security :: Cryptography",
         "Topic :: Software Development :: Libraries :: Python Modules"],
     license="License :: OSI Approved :: MIT License",
-    keywords="merkle proof audit consistency log security encryption",
-    install_requires=install_requires)
+    keywords="merkle proof audit consistency log security encryption")
