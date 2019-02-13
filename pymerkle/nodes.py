@@ -30,13 +30,15 @@ class node(object):
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
 
+    :ivar stored_hash:   (*bytes*) The hash currently stored by the node
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
     :ivar right:         (*nodes.node*) The node's right parent. Defaults to ``None`` if the node is a leaf
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
-    :ivar stored_hash:   (*bytes*) The hash currently stored by the node
-    :ivar hash_function: (*method*) The hash function used by the node for encryption. For interior nodes it should
-                         coincide with the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes
-                         it is ``None``.
+    :ivar hash_function: (*method*) The hash function used by the node when recalcullating hashes. For interior nodes
+                         it should coincide with the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes
+                         it is ``None``, since their hash is never recalculated.
+    :ivar encoding:      (*str*) Used by the node for decoding its hash. Should coincide with the encoding
+                         type of the containing Merkle-tree.
     """
 
     def __init__(

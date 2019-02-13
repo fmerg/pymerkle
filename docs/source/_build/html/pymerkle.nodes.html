@@ -208,13 +208,15 @@ Should coincide with the containing Merkle-tree’s encoding type.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stored_hash</strong> – (<em>bytes</em>) The hash currently stored by the node</li>
 <li><strong>left</strong> – (<em>nodes.node</em>) The node’s left parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a leaf</li>
 <li><strong>right</strong> – (<em>nodes.node</em>) The node’s right parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a leaf</li>
 <li><strong>child</strong> – (<em>nodes.node</em>) The node’s child parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a root</li>
-<li><a class="reference internal" href="pymerkle.hashing.html#pymerkle.hashing.hash_machine.hash" title="pymerkle.hashing.hash_machine.hash"><strong>hash</strong></a> – (<em>bytes</em>) The hash currently stored by the node</li>
-<li><strong>hash_function</strong> – (<em>method</em>) The hash function used by the node for encryption. For interior nodes
-it is equal to the <code class="docutils literal notranslate"><span class="pre">.hash</span></code> attribute of the containing Merkle-tree. For leaf nodes
-it is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</li>
+<li><strong>hash_function</strong> – (<em>method</em>) The hash function used by the node when recalcullating hashes. For interior nodes
+it should coincide with the <code class="docutils literal notranslate"><span class="pre">.hash</span></code> attribute of the containing Merkle-tree. For leaf nodes
+it is <code class="docutils literal notranslate"><span class="pre">None</span></code>, since their hash is never recalculated.</li>
+<li><strong>encoding</strong> – (<em>str</em>) Used by the node for decoding its hash. Should coincide with the encoding
+type of the containing Merkle-tree.</li>
 </ul>
 </td>
 </tr>

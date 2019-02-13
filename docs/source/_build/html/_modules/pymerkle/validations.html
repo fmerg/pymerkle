@@ -158,15 +158,14 @@
 <span class="c1"># -------------------------------- Validation ---------------------------------</span>
 
 
-<div class="viewcode-block" id="validate_proof"><a class="viewcode-back" href="../../pymerkle.html#pymerkle.validate_proof">[docs]</a><span class="k">def</span> <span class="nf">validate_proof</span><span class="p">(</span><span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
+<div class="viewcode-block" id="validate_proof"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.validate_proof">[docs]</a><span class="k">def</span> <span class="nf">validate_proof</span><span class="p">(</span><span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Core validation utility</span>
 
 <span class="sd">    Validates the inserted proof by comparing to the provided target hash, modifies the proof&#39;s</span>
 <span class="sd">    status as ``True`` or ``False`` according to validation result and returns this result</span>
 
-<span class="sd">    :param target_hash: the hash to be presumably attained at the end of the validation procedure</span>
-<span class="sd">                        (i.e., acclaimed current root-hash of the Merkle-tree having provided</span>
-<span class="sd">                        the proof)</span>
+<span class="sd">    :param target_hash: the hash to be presumably attained at the end of the validation procedure (i.e.,</span>
+<span class="sd">                        acclaimed current root-hash of the Merkle-tree having provided the proof)</span>
 <span class="sd">    :type target_hash:  bytes</span>
 <span class="sd">    :param proof:       the proof to be validated</span>
 <span class="sd">    :type proof:        proof.proof</span>
@@ -191,30 +190,32 @@
         <span class="c1"># Print and return result</span>
         <span class="k">return</span> <span class="n">validated</span>
 
-    <span class="c1"># generation FAILURE</span>
+    <span class="c1"># generation was `FAILURE`</span>
     <span class="n">proof</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
 <span class="c1"># ---------------------------------- Classes ----------------------------------</span>
 
 
-<div class="viewcode-block" id="proof_validator"><a class="viewcode-back" href="../../pymerkle.html#pymerkle.proof_validator">[docs]</a><span class="k">class</span> <span class="nc">proof_validator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="proof_validator"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.proof_validator">[docs]</a><span class="k">class</span> <span class="nc">proof_validator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Wrapper for the ``validations.validate_proof`` function</span>
 
 <span class="sd">    Employs the ``validations.validation_receipt`` class in order to organize validation results</span>
 <span class="sd">    in an easy storable way</span>
 
-<span class="sd">    :param validations_dir: [optional] absolute path of the directory where validation</span>
-<span class="sd">                            receipts will be stored as `.json` files. Defaults to ``None``,</span>
-<span class="sd">                            in which case validation receipts will not be automatically</span>
-<span class="sd">                            stored</span>
-<span class="sd">    :type validations_dir: str</span>
+<span class="sd">    :param validations_dir: [optional] Sets the homonymous attribute</span>
+<span class="sd">                            of this class</span>
+<span class="sd">    :type validations_dir:  str</span>
+
+<span class="sd">    :ivar validations_dir: (*str*) absolute path of the directory where validation receipts will be stored as</span>
+<span class="sd">                           ``.json`` files. Defaults to ``None`` if unspecified at construction, in which case</span>
+<span class="sd">                           validation receipts are not to be automatically stored</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validations_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validations_dir</span> <span class="o">=</span> <span class="n">validations_dir</span>
 
-<div class="viewcode-block" id="proof_validator.validate"><a class="viewcode-back" href="../../pymerkle.html#pymerkle.proof_validator.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
+<div class="viewcode-block" id="proof_validator.validate"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.proof_validator.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_hash</span><span class="p">,</span> <span class="n">proof</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Wraps ``validate_proof``, returning a validation receipt instead of a boolean.</span>
 
 <span class="sd">        If a ``validations_dir`` has been specified at construction, then the produced validation receipt</span>

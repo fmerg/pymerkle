@@ -17,9 +17,8 @@ def validate_proof(target_hash, proof):
     Validates the inserted proof by comparing to the provided target hash, modifies the proof's
     status as ``True`` or ``False`` according to validation result and returns this result
 
-    :param target_hash: the hash to be presumably attained at the end of the validation procedure
-                        (i.e., acclaimed current root-hash of the Merkle-tree having provided
-                        the proof)
+    :param target_hash: the hash to be presumably attained at the end of the validation procedure (i.e.,
+                        acclaimed current root-hash of the Merkle-tree having provided the proof)
     :type target_hash:  bytes
     :param proof:       the proof to be validated
     :type proof:        proof.proof
@@ -44,7 +43,7 @@ def validate_proof(target_hash, proof):
         # Print and return result
         return validated
 
-    # generation FAILURE
+    # generation was `FAILURE`
     proof.header['status'] = False
     return False
 
@@ -57,26 +56,27 @@ class proof_validator(object):
     Employs the ``validations.validation_receipt`` class in order to organize validation results
     in an easy storable way
 
-    :param validations_dir: [optional] absolute path of the directory where validation
-                            receipts will be stored as `.json` files. Defaults to ``None``,
-                            in which case validation receipts will not be automatically
-                            stored
-    :type validations_dir: str
+    :param validations_dir: [optional] Sets the homonymous attribute
+                            of this class
+    :type validations_dir:  str
+
+    :ivar validations_dir: (*str*) absolute path of the directory where validation receipts will be stored as
+                           ``.json`` files. Defaults to ``None`` if unspecified at construction, in which case
+                           validation receipts are not to be automatically stored
     """
 
     def __init__(self, validations_dir=None):
         self.validations_dir = validations_dir
 
     def validate(self, target_hash, proof):
-        """Wraps ``validate_proof``, returning a validation receipt instead of a boolean.
+        """Wraps ``validations.validate_proof``, returning a validation receipt instead of a boolean
 
-        If a ``validations_dir`` has been specified at construction, then the produced validation receipt
-        is automatically stored in that directory as a ``.json`` file named with the receipt's uuid.
+        If a ``validations_dir`` has been specified at construction, then the produced validation receipt is
+        automatically stored in the configured directory as a ``.json`` file named with the receipt's uuid
 
-        :param target_hash: hash (hexadecimal form) to be presumably attained at the end of the
-                            validation procedure (i.e., acclaimed top-hash of the Merkle-tree
-                            having provided the proof)
-        :type target_hash:  str
+        :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
+                            acclaimed top-hash of the Merkle-tree having provided the proof)
+        :type target_hash:  bytes
         :param proof:       the proof to be validated
         :type proof:        proof.proof
         :rtype:             validations.validation_receipt

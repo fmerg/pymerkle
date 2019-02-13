@@ -172,10 +172,12 @@ in an easy storable way</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>validations_dir</strong> (<em>str</em>) – [optional] absolute path of the directory where validation
-receipts will be stored as <cite>.json</cite> files. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>,
-in which case validation receipts will not be automatically
-stored</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>validations_dir</strong> (<em>str</em>) – [optional] Sets the homonymous attribute
+of this class</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><strong>validations_dir</strong> – (<em>str</em>) absolute path of the directory where validation receipts will be stored as
+<code class="docutils literal notranslate"><span class="pre">.json</span></code> files. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if unspecified at construction, in which case
+validation receipts are not to be automatically stored</td>
 </tr>
 </tbody>
 </table>
@@ -217,9 +219,8 @@ status as <code class="docutils literal notranslate"><span class="pre">True</spa
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_hash</strong> (<em>bytes</em>) – the hash to be presumably attained at the end of the validation procedure
-(i.e., acclaimed current root-hash of the Merkle-tree having provided
-the proof)</li>
+<li><strong>target_hash</strong> (<em>bytes</em>) – the hash to be presumably attained at the end of the validation procedure (i.e.,
+acclaimed current root-hash of the Merkle-tree having provided the proof)</li>
 <li><strong>proof</strong> (<a class="reference internal" href="pymerkle.proof.html#pymerkle.proof.proof" title="pymerkle.proof.proof"><em>proof.proof</em></a>) – the proof to be validated</li>
 </ul>
 </td>
