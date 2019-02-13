@@ -43,7 +43,7 @@ class proof(object):
     >>> r = proof(from_dict=json.loads(p.JSONstring()))
 
     .. note:: Constructing proofs in the above ways is a genuine *replication*, since the constructed
-              proofs ``q`` and ``r`` have the same *uuuid* and *timestamps* as ``p``
+              proofs ``q`` and ``r`` have the same *uuid* and *timestamps* as ``p``
 
     :ivar header:                 (*dict*) Contains the keys *uuid*, *generation*, *timestamp*, *creation_moment*,
                                   *provider*, *hash_type*, *encoding*, *security* and *status* (see below)

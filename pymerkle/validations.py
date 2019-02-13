@@ -125,7 +125,7 @@ class validation_receipt(object):
     >>> t = validation_receipt(from_dict=json.loads(r.JSONstring()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*, since the constructed
-              receipts ``s`` and ``t`` have the same *uuuid* and *timestamps* as ``r``
+              receipts ``s`` and ``t`` have the same *uuid* and *timestamps* as ``r``
 
     :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamp*, *validation_moment*
     :ivar header.uuid:              (*str*) uuid of the validation (time-based)

@@ -1,5 +1,5 @@
 """
-Provides invoked across the library
+Provides utilities invoked across the library
 """
 
 import math

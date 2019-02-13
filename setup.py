@@ -6,7 +6,6 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 python_requires='>=3.6'
-install_requires=["pytest>=3.9.2"]
 
 setup(
     name="pymerkle",
@@ -18,6 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     url="http://github.com/FoteinosMerg/pymerkle",
     packages=find_packages(),
+    # install_requires=open("requirements.txt").readlines(),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -29,5 +29,4 @@ setup(
         "Topic :: Security :: Cryptography",
         "Topic :: Software Development :: Libraries :: Python Modules"],
     license="License :: OSI Approved :: MIT License",
-    keywords="merkle proof audit consistency log security encryption",
-    install_requires=install_requires)
+    keywords="merkle proof audit consistency log security encryption")
