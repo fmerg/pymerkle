@@ -8,6 +8,8 @@ from .utils import log_2, decompose
 import json
 import uuid
 import os
+import mmap
+from tqdm import tqdm
 
 # -------------------------------- Main class ----------------------------
 
@@ -267,22 +269,39 @@ class merkle_tree(object):
         """Encrypts the data of the provided log-file into the Merkle-tree
 
         More accurately, it successively updates the Merkle-tree it with each line
-        of the log-file provided (cf. doc of the ``.update`` method)
+        of the provided log-file (cf. doc of the ``.update`` method)
 
         :param log_file: relative path of the log-file under enryption, specified with respect
-                         to the configured Merkle-tree's directory ``log_dir``
+                         to the configured Merkle-tree's directory ``.log_dir``
         :type log_file:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            for line in open(os.path.join(self.log_dir, log_file), 'rb'):
-                # ~ NOTE: File should be opened in binary mode so that its content remains
-                # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                self.update(record=line)
+            absolute_file_path = os.path.join(self.log_dir, log_file)
         except FileNotFoundError:
             raise
+        else:
+            # ~ tqdm needs to know the total number of lines
+            # ~ so that it can display the progress bar
+            number_of_lines = 0
+            with open(absolute_file_path, 'r+') as file:
+                # Use memory-mapped file support to count lines
+                buffer = mmap.mmap(file.fileno(), 0)
+                while buffer.readline():
+                    number_of_lines += 1
+
+            tqdm.write('')
+            # Start line by line encryption
+            for line in tqdm(
+                    open(absolute_file_path, 'rb'),
+                    # ~ NOTE: File should be opened in binary mode so that its content remains
+                    # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                    # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                    desc='Encrypting log file',
+                    total=number_of_lines):
+                self.update(record=line)
+            tqdm.write('Encryption complete\n')
 
 # ------------------------------ Proof generation ------------------------
 
