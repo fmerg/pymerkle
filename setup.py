@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 python_requires='>=3.6'
-install_requires=["pytest>=3.9.2"]
+install_requires=["tqdm>=4.28.1", "pytest>=3.9.2"]
 
 setup(
     name="pymerkle",
