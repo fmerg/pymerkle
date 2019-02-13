@@ -12,7 +12,7 @@ This library implements
 - defense against _second-preimage attack_
 - flexible mechanisms for validating the generated proofs
 
-It is currently the only Python implementation implementing all the above features, with an eye on protocols like [_Certificate Transparency_](https://tools.ietf.org/html/rfc6962) and real-life applications.
+It is currently the only Python library implementing all the above features, with an eye on protocols like [_Certificate Transparency_](https://tools.ietf.org/html/rfc6962) and real-life applications.
 
 ## Installation
 
