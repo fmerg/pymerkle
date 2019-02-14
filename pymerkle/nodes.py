@@ -23,11 +23,18 @@ class node(object):
     :param right:         [optional] the node's right parent. If not provided, then the node
                           is considered to be a leaf
     :type right:          nodes.node
+    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
+                          method of the containing Merkle-tree
+    :type hash_function:  `method`
+    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
+                          Should coincide with the containing Merkle-tree's encoding type.
+    :type encoding:       str
 
     :ivar stored_hash:   (*bytes*) The hash currently stored by the node
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
     :ivar right:         (*nodes.node*) The node's right parent. Defaults to ``None`` if the node is a leaf
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
+    :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
     """
 
     def __init__(
