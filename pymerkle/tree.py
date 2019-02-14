@@ -183,7 +183,7 @@ class merkle_tree(object):
         .. note:: The left parent of each node is printed *above* the right one
         """
         if self:
-            return self.root.__str__(indent=indent)
+            return self.root.__str__(indent=indent, encoding=self.encoding)
         return ''
 
     def display(self, indent=3):
@@ -254,7 +254,7 @@ class merkle_tree(object):
                 # Recalculate hashes only at the rightmost branch of the tree
                 current_node = old_child
                 while current_node:
-                    current_node.recalculate_hash()
+                    current_node.recalculate_hash(self.hash)
                     current_node = current_node.child
 
         else:  # void case
