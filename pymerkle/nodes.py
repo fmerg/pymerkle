@@ -23,22 +23,11 @@ class node(object):
     :param right:         [optional] the node's right parent. If not provided, then the node
                           is considered to be a leaf
     :type right:          nodes.node
-    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          method of the containing Merkle-tree
-    :type hash_function:  `method`
-    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
-                          Should coincide with the containing Merkle-tree's encoding type.
-    :type encoding:       str
 
     :ivar stored_hash:   (*bytes*) The hash currently stored by the node
     :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
     :ivar right:         (*nodes.node*) The node's right parent. Defaults to ``None`` if the node is a leaf
     :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
-    :ivar hash_function: (*method*) The hash function used by the node when recalcullating hashes. For interior nodes
-                         it should coincide with the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes
-                         it is ``None``, since their hash is never recalculated.
-    :ivar encoding:      (*str*) Used by the node for decoding its hash. Should coincide with the encoding
-                         type of the containing Merkle-tree.
     """
 
     def __init__(
@@ -185,13 +174,17 @@ class node(object):
                 descendant = None
         return descendant
 
-    def recalculate_hash(self, hash_function, encoding):
+    def recalculate_hash(self, hash_function):
         """Recalculates the node's hash under account of its parents' new hashes
 
         This method is to be invoked for all non-leaf nodes of the Merkle-tree's rightmost branch
         every time a new leaf is appended into the tree
 
-        .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes
+        :param hash_function: hash function to be used during recalculation (thought of as
+                              the ``.hash`` method of the containing Merkle-tree)
+        :type hash_function:  `method`
+
+        .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
         self.stored_hash = hash_function(self.left.stored_hash, self.right.stored_hash)
 
