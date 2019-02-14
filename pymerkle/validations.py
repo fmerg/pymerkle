@@ -176,6 +176,7 @@ class validation_receipt(object):
         return '\n    ----------------------------- VALIDATION RECEIPT -----------------------------\
                 \n\
                 \n    uuid           : {uuid}\
+                \n\
                 \n    timestamp      : {timestamp} ({validation_moment})\
                 \n\
                 \n    proof-uuid     : {proof_uuid}\
