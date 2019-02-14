@@ -66,7 +66,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes in the present implementation, whereas the total number of nodes in the structure described [**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
 
-The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the `pymerkle.merkle_tree.update` method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_tree_structure.py) file inside the project's repository.
+The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the [`merkle_tree.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#merkle_tree.update) method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_tree_structure.py) file inside the project's repository.
 
 
 
