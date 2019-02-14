@@ -39,6 +39,9 @@ class node(object):
             right=None):
         self.left, self.right, self.child = None, None, None
 
+        # Stored for decoding when printing
+        self.encoding = encoding
+
         if left is None and right is None:  # Leaf case (parentless node)
             self.stored_hash = hash_function(record)
         # Interior case (node with exactly two parents)
@@ -69,28 +72,30 @@ class node(object):
                         left=memory_id(self.left),
                         right=memory_id(self.right),
                         child=memory_id(self.child),
-                        hash=self.stored_hash.decode(encoding=self.encoding))
+                        hash=self.stored_hash.decode(self.encoding))
 
-    def __str__(self, level=0, indent=3, ignore=[]):
+    def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
         """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``
         displays the subtree having that node as root.
 
         Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way,
         similar to what is printed at console when running the ``tree`` command of Unix based platforms.
 
-        :param level:  [optional] Defaults to ``0``. Should be always left equal to the *default* value
-                       when called externally by the user. Increased by one whenever the function is
-                       recursively called so that track be kept of depth while printing
-        :type level:   int
-        :param indent: [optional] the horizontal depth at which each level of the tree will be indented with
-                       respect to the previous one; increase it to achieve better visibility of the tree's structure.
-                       Defaults to 3.
-        :type indent:  int
-        :param ignore: [optional] Defaults to the empty list ``[]``. Should be always left equal to the *default* value
-                       when called externally by the user. Augmented appropriately whenever the function is recursively
-                       called so that track be kept of the positions where vertical bars should be omitted
-        :type ignore:  list of integers
-        :rtype:        str
+        :param encoding: [optional] encoding type to be used for decoding the node's current stored hash
+        :type encoding:  str
+        :param level:    [optional] Defaults to ``0``. Should be always left equal to the *default* value
+                         when called externally by the user. Increased by one whenever the function is
+                         recursively called so that track be kept of depth while printing
+        :type level:     int
+        :param indent:   [optional] the horizontal depth at which each level of the tree will be indented with
+                         respect to the previous one; increase it to achieve better visibility of the tree's structure.
+                         Defaults to 3.
+        :type indent:    int
+        :param ignore:   [optional] Defaults to the empty list ``[]``. Should be always left equal to the *default* value
+                         when called externally by the user. Augmented appropriately whenever the function is recursively
+                         called so that track be kept of the positions where vertical bars should be omitted
+        :type ignore:    list of integers
+        :rtype:          str
 
         .. note:: The left parent of each node is printed *above* the right one
         """
@@ -117,12 +122,19 @@ class node(object):
             output += ' ' + L_BRACKET_LONG
             new_ignore.append(level)
 
-        output += self.stored_hash.decode(encoding=self.encoding) + '\n'
+        encoding = encoding if encoding else self.encoding
+        output += self.stored_hash.decode(encoding=encoding) + '\n'
         if not isinstance(self, leaf):  # Recursive step
-            output += self.left.__str__(level=level + 1,
-                                        indent=indent, ignore=new_ignore)
-            output += self.right.__str__(level=level + 1,
-                                         indent=indent, ignore=new_ignore)
+            output += self.left.__str__(
+                encoding=encoding,
+                level=level + 1,
+                indent=indent,
+                ignore=new_ignore)
+            output += self.right.__str__(
+                level=level + 1,
+                encoding=encoding,
+                indent=indent,
+                ignore=new_ignore)
         return output
 
 # ----------------------------- Boolean functions ------------------------

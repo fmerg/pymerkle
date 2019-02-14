@@ -183,7 +183,7 @@ class merkle_tree(object):
         .. note:: The left parent of each node is printed *above* the right one
         """
         if self:
-            return self.root.__str__(indent=indent)
+            return self.root.__str__(indent=indent, encoding=self.encoding)
         return ''
 
     def display(self, indent=3):
