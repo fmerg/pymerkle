@@ -1,7 +1,6 @@
-""" Performs second-preimage attack against Merkle-trees of all possible hash- and
-encoding-types, for *both* possible security modes. Attack should succeed only
-when the tree's security mode is deactiveated (i.e., *iff* its ``.security``
-attribute is ``False`` by construction).
+""" Performs second-preimage attack against Merkle-trees of all possible hash- and encoding-types
+for *both* possible security modes. Attack should succeed only when the tree's security mode is
+deactiveated (i.e., *iff* its ``.security`` attribute is ``False`` by construction).
 
 Attack Schema
 -------------
@@ -12,12 +11,13 @@ Attack Schema
                    /   \                       /   \
                  B       C = h(FG)           B      C    ------> [injected leaf]
                 / \     / \                 / \     |
-hashes:        D   E   F   G               D   E   (FG)  <------ [forged record]
+ hashes:       D   E   F   G               D   E   (FG)  <------ [forged record]
                |   |   |   |               |   |
 records:       d   e   f   g               d   e
 
-Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result
-(i.e., its hash) as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
+
+Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result (i.e., its hash)
+as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
 """
 import pytest
 from pymerkle import merkle_tree, hashing, encodings
