@@ -235,12 +235,14 @@ class leaf(node):
     :type encoding:       str
     """
 
-    def __init__(self, record):
+    def __init__(self, record, hash_function, encoding):
         node.__init__(
             self,
             record=record,
             left=None,
-            right=None)
+            right=None,
+            hash_function=hash_function,
+            encoding=encoding)
 
 # ------------------------------- JSON encoders --------------------------
 
