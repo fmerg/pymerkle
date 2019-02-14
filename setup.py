@@ -17,7 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     url="http://github.com/FoteinosMerg/pymerkle",
     packages=find_packages(),
-    # install_requires=open("requirements.txt").readlines(),
+    install_requires=open("requirements.txt").readlines(),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
