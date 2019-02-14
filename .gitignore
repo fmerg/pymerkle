@@ -2,6 +2,9 @@
 *cache*
 /log_samples
 lint.sh
+cpu*
+*.pyc
+/tests/logs/NASA*
 
 # Packaging
 *.egg-info/

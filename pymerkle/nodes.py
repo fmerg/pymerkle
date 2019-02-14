@@ -205,7 +205,8 @@ class node(object):
 
         .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
-        self.stored_hash = hash_function(self.left.stored_hash, self.right.stored_hash)
+        self.stored_hash = hash_function(
+            self.left.stored_hash, self.right.stored_hash)
 
 
 # ------------------------------- JSON serialization ------------------------
