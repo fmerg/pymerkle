@@ -49,8 +49,6 @@ class node(object):
             left=None,
             right=None):
         self.left, self.right, self.child = None, None, None
-        # Store encoding type for hash decoding when printing or jsonifying
-        self.encoding = encoding
 
         if left is None and right is None:  # Leaf case (parentless node)
             self.stored_hash = hash_function(record)
@@ -60,8 +58,6 @@ class node(object):
             self.left, self.right = left, right
             self.stored_hash = hash_function(
                 left.stored_hash, right.stored_hash)
-            # Store hash function in case of hash recalculation
-            self.hash_function = hash_function
 
 # ------------------------- Representation formatting --------------------
 
@@ -189,7 +185,7 @@ class node(object):
                 descendant = None
         return descendant
 
-    def recalculate_hash(self):
+    def recalculate_hash(self, hash_function, encoding):
         """Recalculates the node's hash under account of its parents' new hashes
 
         This method is to be invoked for all non-leaf nodes of the Merkle-tree's rightmost branch
@@ -197,8 +193,7 @@ class node(object):
 
         .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes
         """
-        self.stored_hash = self.hash_function(
-            self.left.stored_hash, self.right.stored_hash)
+        self.stored_hash = hash_function(self.left.stored_hash, self.right.stored_hash)
 
 
 # ------------------------------- JSON serialization ------------------------
@@ -240,14 +235,12 @@ class leaf(node):
     :type encoding:       str
     """
 
-    def __init__(self, record, hash_function, encoding):
+    def __init__(self, record):
         node.__init__(
             self,
             record=record,
             left=None,
-            right=None,
-            hash_function=hash_function,
-            encoding=encoding)
+            right=None)
 
 # ------------------------------- JSON encoders --------------------------
 
