@@ -2,11 +2,11 @@
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
-## Basic usage
+## Usage
 
-### [ Work In progress ]
+<!-- ### [ Work In progress ] -->
 
-<!-- Type
+Type
 
 ```python
 from pymerkle import *
@@ -22,11 +22,12 @@ tree = merkle_tree()
 
 creates an empty Merkle-tree with default configurations: hash algorithm _SHA256_, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
 
+
 ```python
 tree = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-To create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ just write:
+For example, in order to create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ write:
 
 ```python
 tree = merkle_tree(hash_type='sha512', encoding='utf-32')
@@ -51,25 +52,25 @@ without need to specify its absolute path.
 
 #### Tree display
 
-Invoking `tree` inside the Python interpreter displays info about its fixed configurations
-(uuid, hash and encoding type, security mode) and current state (size, length, height, top-hash):
+Invoking a Merkle-tree with its name inside the Python interpreter displays info about its fixed configurations
+(uuid, hash and encoding types, security mode) and current state (size, length, height, top-hash):
 
 ```shell
 >>> tree
 
-    uuid      : 5e2c80ee-0e99-11e9-87fe-70c94e89b637                
+    uuid      : 010ff520-32a8-11e9-8e47-70c94e89b637                
 
     hash-type : SHA256                
     encoding  : UTF-8                
     security  : ACTIVATED                
 
-    root-hash : f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da                
+    root-hash : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7                
 
-    size      : 9                
-    length    : 5                
+    size      : 13                
+    length    : 7                
     height    : 3
-```
 
+```
 You can save this info in a file called `current_state` by
 
 ```python
@@ -77,12 +78,12 @@ with open('current_state', 'w') as f:
     f.write(tree.__repr__())
 ```
 
-Printing `tree` displays it in a format similar to the output of the `tree` command of Unix based systems:
+Feeding a Merkle-tree to the `print()` function displays it in a format similar to the output of the `tree` command of Unix based systems:
 
 ```shell
 >>> print(tree)
 
- └─f0c5657b4c05a6538aef498ad9d92c28759f20c6ab99646a361f2b5e328287da
+ └─79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
      ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
      │    ├──a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02
      │    │    ├──db3426e878068d28d269b6c87172322ce5372b65756d0789001d34835f601c03
@@ -90,7 +91,11 @@ Printing `tree` displays it in a format similar to the output of the `tree` comm
      │    └──33bf7016f45e2219bf095500a67170bd4a9c21e465de3c1e4c51d37336fd1a6f
      │         ├──fa61e3dec3439589f4784c893bf321d0084f04c572c7af2b68e3f3360a35b486
      │         └──906c5d2485cae722073a430f4d04fe1767507592cef226629aeadb85a2ec909d
-     └──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
+     └──6a1d5da3067490f736493ad237bd71d95e4156632fdfc69447cffd6b8e0cd292
+          ├──03bbc5515ee4c3e175b84813fe0e5c34586f3e72d60e8b938e3ca990abc1f524
+          │    ├──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
+          │    └──53304f5e3fd4bcd20b39abdef2fe118031cc5ae8217bcea008dea7e27869348a
+          └──3bf9c81c231cae70b678d3f3038f9f4f6d6b9d7adcf9b378f25919ae53d17686
 
 >>>
 ```
@@ -104,7 +109,7 @@ with open('structure', 'w') as f:
 
 ### New records and log encryption
 
-_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update` method to successively update with new records as follows:
+_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
 
 ```python
 tree = merkle_tree()                          # initially empty SHA256/UTF-8 Merkle-tree
@@ -116,17 +121,24 @@ tree.update(b'arbitrary bytes-like object')   # second record
 
 _Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encrypt_log` method to encrypt a new file as follows:
 
-```python
-tree = merkle_tree()
-# ...
+```shell
+>>> tree.encrypt_log('short_APACHE_log')
 
-tree.encrypt_log(log_file='sample_log')
+Encrypting log file: 100%|███████████████████████████████████| 50/50 [00:00<00:00, 19066.75it/s]
+Encryption complete
+
+>>>
 ```
 
-This presupposes that the file `sample_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise an exception is thrown and a corresponding message is being logged. Similarly, if the log-file resides inside a nested directory `/logs/subdir`, you can easily encrypt it with
+This presupposes that the file `short_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would inside a nested directory `/APACHE_logs`, you could easily encrypt it with
 
-```python
-tree.encrypt_log(log_file='subdir/sample_log')
+```shell
+>>> tree.encrypt_log('APACHE_logs/short_APACHE_log')
+
+Encrypting log file: 100%|███████████████████████████████████| 50/50 [00:00<00:00, 19298.35it/s]
+Encryption complete
+
+>>>
 ```
 
 In other words, the argument of `.encrypt_log` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. The latter can be accessed as the tree's `.log_dir` attribute.
@@ -142,6 +154,7 @@ Given a Merkle-tree `tree`, use the `.audit_proof` method to generate the audit 
 ```python
 p = tree.audit_proof(arg=55)
 ```
+<!--
 
 You can instead generate the proof based upon a presumed record `record` with
 

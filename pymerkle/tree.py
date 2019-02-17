@@ -333,7 +333,7 @@ class merkle_tree(object):
                     index = count
                     break
                 count += 1
-        elif isinstance(arg, int):
+        elif type(arg) is int:
             index = arg  # Inserted type was integer
         else:
             raise TypeError
