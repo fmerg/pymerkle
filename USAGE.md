@@ -389,20 +389,19 @@ Here the `validate_proof` function is internally invoked, modifying the proof as
 >>>
 ```
 
-<!--
 where `proof-provider` refers to the Merkle-tree having generated the proof. The corresponding JSON format is
 
 ```json
   {
       "body": {
-          "proof_uuid": "34e20e14-fb31-11e8-af94-70c94e89b637",
-          "proof_provider": "29958266-fb31-11e8-af94-70c94e89b637",
+          "proof_provider": "5439c318-32ab-11e9-8e47-70c94e89b637",
+          "proof_uuid": "7f67b68a-32ab-11e9-8e47-70c94e89b637",
           "result": true
       },
       "header": {
-          "uuid": "eee725d8-fb31-11e8-af94-70c94e89b637",
-          "timestamp": 1544305251,
-          "validation_moment": "Sat Dec  8 22:40:51 2018"
+          "timestamp": 1550409129,
+          "uuid": "a19b988e-32b5-11e9-8e47-70c94e89b637",
+          "validation_moment": "Sun Feb 17 14:12:09 2019"
       }
   }
 ```
@@ -413,7 +412,7 @@ and will be stored in a `.json` file if the validator object has been configured
 v = proof_validator(validations_dir=...)
 ```
 
-configures the validator to save receipts upon validation inside the specified directory as a `.json` file, bearing as name the corresponding receipt's uuid. -->
+configures the validator to save receipts upon validation inside the specified directory as a `.json` file, bearing as name the corresponding receipt's uuid (see [**here**](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/validations_dir/d1307070-32aa-11e9-8e47-70c94e89b637.json) for example).
 
 
 ## API
