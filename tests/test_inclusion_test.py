@@ -47,15 +47,15 @@ def test_inclusion_test_edge_success_case():
 
 
 def test_inclusion_test_with_zero_sublength():
-    assert tree.inclusion_test('anything...', 0) is False
+    assert tree.inclusion_test(b'anything...', 0) is False
 
 
 def test_inclusion_test_with_sublength_exceeding_length():
-    assert tree.inclusion_test('anything...', tree.length()) is False
+    assert tree.inclusion_test(b'anything...', tree.length()) is False
 
 
-@pytest.mark.parametrize("sublength", list(i for i in range(1, tree.length())))
+@pytest.mark.parametrize('sublength', list(i for i in range(1, tree.length())))
 def test_inclusion_test_with_invalid_old_hash(sublength):
     assert tree.inclusion_test(
-        'anything except for the hash corresponding to the provided sublength',
+        b'anything except for the hash corresponding to the provided sublength',
         sublength) is False

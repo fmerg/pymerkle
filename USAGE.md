@@ -277,23 +277,25 @@ the correpsonding JSON format being
 
 If the argument requested by Client exceeds the tree's current length or isn't among the latter's encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
 
-<!--
 #### Consistency-proof
 
 Similarly, use the `.consistency_proof` method to generate a consistency proof as follows:
 
 ```python
 q = tree.consistency_proof(
-      old_hash='82cb65862639b7e295dde50789cb4945c7584e4f31b9ea5f8e5387b80e130d88',
-      subength=100
-    )
+      old_hash=bytes(
+        '92e0e8f2d57526d852fb567a052219937e56e9c388abf570a679651772360e7a',
+        'utf-8'),
+      sublength=1546)
 ```
 
-Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the top-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. A typical session would thus be as follows:
+Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the top-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available top-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
+
+A typical session would be as follows:
 
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
-old_hash = tree.root_hash()
+old_hash = tree.root_hash() # a bytes object
 sublength = tree.length()
 
 # Server encrypts some new log (modifying the top-hash and length of the tree)
@@ -303,7 +305,7 @@ tree.encrypt_log('sample_log')
 q = tree.consistency_proof(old_hash, sublength)
 ```
 
-The generated object `q` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the tree's current top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
+The generated object `q` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current top-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
 
 ### Inclusion-tests
 
@@ -311,20 +313,20 @@ The generated object `q` is an instance of the `proof.proof` class consisting of
 
 An _auditor_ (Client) verifies inclusion of a record within the Merkle-Tree by just requesting
 the corresponding audit-proof from the Server (Merkle-tree). Inclusion is namely verified _iff_
-the proof provided by the Server is found by the auditor to be valid (verifying the Server's identity under further assumptions).
+the proof provided by the Server is found by the auditor to be valid (verifying also the Server's identity under further assumptions).
 
 #### Server's Side (Merkle-tree)
 
 However, a "symmetric" inclusion-test may be also performed from the Server's Side, in the sense that it allows the Server to verify whether the Client has actual knowledge of some of the tree's previous state (and thus the Client's identity under further assumptions).
 
-More specifically, upon generating any consistency-proof requested by a Client, the Merkle-tree (Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with the parameters provided by the Client:
+More specifically, upon generating any consistency-proof requested by a Client, the Merkle-tree (Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with the parameters provided by Client:
 
 - inclusion-test _success_: if the combination of the provided `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an appropriate "subtree" can indeed be internally detected), then a _non empty_ path is included with the proof and a generation success message is inscribed in it
 
 - inclusion-test _failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
 internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
 
-In version _0.2.0_, the above implicit check has been abstracted from the `.consistency_proof` method and explicitly implemented within the `.inclusion_test` method of the `merkle_tree` object. A typical session would then be as follows:
+In versions later than _0.2.0_, the above implicit check has been abstracted from the `.consistency_proof` method and explicitly implemented within the `.inclusion_test` method of the `merkle_tree` object. A typical session would then be as follows:
 
 ```python
 # Client requests and stores the Merkle-tree's current state
@@ -336,9 +338,9 @@ tree.encrypt('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
-tree.inclusion_test(old_hash=old_hash, sublength=sublength)        # True
-tree.inclusion_test(old_hash='anything else', sublength=sublength) # False
-tree.inclusion_test(old_hash=old_hash, sublength=sublength + 1)    # False
+tree.inclusion_test(old_hash=old_hash, sublength=sublength)                              # True
+tree.inclusion_test(old_hash=bytes('anything else', tree.encoding), sublength=sublength) # False
+tree.inclusion_test(old_hash=old_hash, sublength=sublength + 1)                          # False
 ```
 
 
@@ -373,11 +375,12 @@ Here the `validate_proof` function is internally invoked, modifying the proof as
 
     ----------------------------- VALIDATION RECEIPT -----------------------------                
 
-    uuid           : eee725d8-fb31-11e8-af94-70c94e89b637                
-    timestamp      : 1544305251 (Sat Dec  8 22:40:51 2018)                
+    uuid           : a19b988e-32b5-11e9-8e47-70c94e89b637                
 
-    proof-id       : 34e20e14-fb31-11e8-af94-70c94e89b637                
-    proof-provider : 29958266-fb31-11e8-af94-70c94e89b637                
+    timestamp      : 1550409129 (Sun Feb 17 14:12:09 2019)                
+
+    proof-uuid     : 7f67b68a-32ab-11e9-8e47-70c94e89b637                
+    proof-provider : 5439c318-32ab-11e9-8e47-70c94e89b637                
 
     result         : VALID                
 
@@ -385,6 +388,8 @@ Here the `validate_proof` function is internally invoked, modifying the proof as
 
 >>>
 ```
+
+<!--
 where `proof-provider` refers to the Merkle-tree having generated the proof. The corresponding JSON format is
 
 ```json

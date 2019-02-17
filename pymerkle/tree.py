@@ -393,7 +393,7 @@ class merkle_tree(object):
         """
 
         if type(old_hash) not in (bytes, type(None)) \
-                or not isinstance(sublength, int):
+                or not type(sublength) is int:
             raise TypeError
 
         # Calculate proof path
@@ -450,7 +450,13 @@ class merkle_tree(object):
         :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for
                           the provided ``sublength``, leads indeed to the provided ``old_hash``
         :rtype:           bool
+
+        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
         """
+
+        if type(old_hash) not in (bytes, type(None)) \
+                or not type(sublength) is int:
+            raise TypeError
 
         if 0 < sublength <= len(self.leaves):
 
