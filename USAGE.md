@@ -122,20 +122,20 @@ tree.update(b'arbitrary bytes-like object')   # second record
 _Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encrypt_log` method to encrypt a new file as follows:
 
 ```shell
->>> tree.encrypt_log('short_APACHE_log')
+>>> tree.encrypt_log('large_APACHE_log')
 
-Encrypting log file: 100%|███████████████████████████████████| 50/50 [00:00<00:00, 19066.75it/s]
+Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
 
 >>>
 ```
 
-This presupposes that the file `short_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would inside a nested directory `/APACHE_logs`, you could easily encrypt it with
+This presupposes that the file `large_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would inside a nested directory `/APACHE_logs`, you could easily encrypt it with
 
 ```shell
->>> tree.encrypt_log('APACHE_logs/short_APACHE_log')
+>>> tree.encrypt_log('APACHE_logs/large_APACHE_log')
 
-Encrypting log file: 100%|███████████████████████████████████| 50/50 [00:00<00:00, 19298.35it/s]
+Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
 
 >>>
@@ -154,7 +154,6 @@ Given a Merkle-tree `tree`, use the `.audit_proof` method to generate the audit 
 ```python
 p = tree.audit_proof(arg=55)
 ```
-<!--
 
 You can instead generate the proof based upon a presumed record `record` with
 
@@ -162,7 +161,7 @@ You can instead generate the proof based upon a presumed record `record` with
 p = tree.audit_proof(arg=record)
 ```
 
-where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently. In the second case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
+where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
 
 The generated object `p` is an instance of the `proof.proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
@@ -171,28 +170,32 @@ The generated object `p` is an instance of the `proof.proof`, class consisting o
 
     ----------------------------------- PROOF ------------------------------------                
 
-    uuid        : 18fa4ec0-28c0-11e9-85e0-70c94e89b637                
+    uuid        : 7f67b68a-32ab-11e9-8e47-70c94e89b637                
 
     generation  : SUCCESS                
 
-    timestamp   : 1549314112 (Mon Feb  4 22:01:52 2019)                
-    provider    : 09f8c6ea-28c0-11e9-85e0-70c94e89b637                
+    timestamp   : 1550404776 (Sun Feb 17 12:59:36 2019)                
+    provider    : 5439c318-32ab-11e9-8e47-70c94e89b637                
 
     hash-type   : SHA256                
     encoding    : UTF-8                
     security    : ACTIVATED                
 
-    proof-index : 3                
+    proof-index : 5                
     proof-path  :                
 
-       [0]   +1  7f40f5151cb5fd959b5e9e3ee599e87a807bc4c867bd1b1ee9ed467fc5c7e863
-       [1]   -1  66b83e9146ca1e6417fd1a8f84a2b0a7024d71427b0e3ad8e05476e6964f633c
-       [2]   -1  848e28f3bca50b932cd828ee9794a6a58844820925bab4ad6eae9cd17122ab2e
-       [3]   +1  110014ecd2a9435c070e17b761d9a7d1f0cebbb3a9807d7f8a82111237a85242
-       [4]   +1  b114831f03bba7ae482c5faf824d08dc6c67252189473f4cf7dde8db54dfa4ff
-       [5]   +1  383a6ccbd975aec2df2757f874346eb8dc77bf42c2c7ccc2da781a9f9cb15ab7
-       [6]   -1  7deb247d069adf4b786bf9da98e661fb497a417853afaf8d514b35b83e5330c3
-       [7]   -1  2419f3f28535deeed2365fa098480a524c10d5c0214d2d8cd6d59631bae51b23                
+       [0]   +1  55c0387484b74a48d222f27af62f38ca2924a40f579c593af403626104a06f67
+       [1]   -1  e340cdb8257dad85310c31e967236532355b029d5c0fcc0c113f28cfd2a6329f
+       [2]   +1  5856af7bc848332425381cd76ab815d511cde305f592c3aef457c036045f2180
+       [3]   -1  f8dbb155ba43f868c4a5870730811ff9373d474ff48c480ac7f447b836195682
+       [4]   -1  b0bc9f503496125931ec9e5ee46584967cfedabe510292206bfdfc18479d03f1
+       [5]   -1  6690b39e3b8b4995b1ac05e26c87722943951bd088162fa3a573f896f8a3391b
+       [6]   -1  868ca4852e16fa69b59c0541ff2c39c0c123070ea53161cc2f4bbcfa9bda526b
+       [7]   +1  4ed02d875bd6c5abcda7ecd124eeb7e715bcf4bf02b520bd387eebeef365db6b
+       [8]   +1  05d002e899a11e4e829725aa291c97de71bc5600888b8d2fb8ac4d65731cee5f
+       [9]   +1  2f843e357090f2d82fbb8a63a19089e23b9cfc5ec4c0d0de23f7af54ab3850bb
+      [10]   +1  37828d35c131a6803f8d25da8e9a31e2b24e7289a134dc187ef605f7f41f45dd
+      [11]   -1  51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619                
 
     status      : UNVALIDATED                
 
@@ -206,58 +209,75 @@ the correpsonding JSON format being
 ```json
 {
     "body": {
-        "proof_index": 3,
+        "proof_index": 5,
         "proof_path": [
             [
                 1,
-                "7f40f5151cb5fd959b5e9e3ee599e87a807bc4c867bd1b1ee9ed467fc5c7e863"
+                "55c0387484b74a48d222f27af62f38ca2924a40f579c593af403626104a06f67"
             ],
             [
                 -1,
-                "66b83e9146ca1e6417fd1a8f84a2b0a7024d71427b0e3ad8e05476e6964f633c"
-            ],
-            [
-                -1,
-                "848e28f3bca50b932cd828ee9794a6a58844820925bab4ad6eae9cd17122ab2e"
+                "e340cdb8257dad85310c31e967236532355b029d5c0fcc0c113f28cfd2a6329f"
             ],
             [
                 1,
-                "110014ecd2a9435c070e17b761d9a7d1f0cebbb3a9807d7f8a82111237a85242"
-            ],
-            [
-                1,
-                "b114831f03bba7ae482c5faf824d08dc6c67252189473f4cf7dde8db54dfa4ff"
-            ],
-            [
-                1,
-                "383a6ccbd975aec2df2757f874346eb8dc77bf42c2c7ccc2da781a9f9cb15ab7"
+                "5856af7bc848332425381cd76ab815d511cde305f592c3aef457c036045f2180"
             ],
             [
                 -1,
-                "7deb247d069adf4b786bf9da98e661fb497a417853afaf8d514b35b83e5330c3"
+                "f8dbb155ba43f868c4a5870730811ff9373d474ff48c480ac7f447b836195682"
             ],
             [
                 -1,
-                "2419f3f28535deeed2365fa098480a524c10d5c0214d2d8cd6d59631bae51b23"
+                "b0bc9f503496125931ec9e5ee46584967cfedabe510292206bfdfc18479d03f1"
+            ],
+            [
+                -1,
+                "6690b39e3b8b4995b1ac05e26c87722943951bd088162fa3a573f896f8a3391b"
+            ],
+            [
+                -1,
+                "868ca4852e16fa69b59c0541ff2c39c0c123070ea53161cc2f4bbcfa9bda526b"
+            ],
+            [
+                1,
+                "4ed02d875bd6c5abcda7ecd124eeb7e715bcf4bf02b520bd387eebeef365db6b"
+            ],
+            [
+                1,
+                "05d002e899a11e4e829725aa291c97de71bc5600888b8d2fb8ac4d65731cee5f"
+            ],
+            [
+                1,
+                "2f843e357090f2d82fbb8a63a19089e23b9cfc5ec4c0d0de23f7af54ab3850bb"
+            ],
+            [
+                1,
+                "37828d35c131a6803f8d25da8e9a31e2b24e7289a134dc187ef605f7f41f45dd"
+            ],
+            [
+                -1,
+                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
             ]
         ]
     },
     "header": {
-        "creation_moment": "Mon Feb  4 22:01:52 2019",
+        "creation_moment": "Sun Feb 17 12:59:36 2019",
         "encoding": "utf_8",
         "generation": "SUCCESS",
         "hash_type": "sha256",
-        "provider": "09f8c6ea-28c0-11e9-85e0-70c94e89b637",
+        "provider": "5439c318-32ab-11e9-8e47-70c94e89b637",
         "security": true,
         "status": null,
-        "timestamp": 1549314112,
-        "uuid": "18fa4ec0-28c0-11e9-85e0-70c94e89b637"
+        "timestamp": 1550404776,
+        "uuid": "7f67b68a-32ab-11e9-8e47-70c94e89b637"
     }
 }
 ```
 
 If the argument requested by Client exceeds the tree's current length or isn't among the latter's encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
 
+<!--
 #### Consistency-proof
 
 Similarly, use the `.consistency_proof` method to generate a consistency proof as follows:
