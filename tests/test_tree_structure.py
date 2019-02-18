@@ -1,19 +1,19 @@
 import pytest
-from pymerkle import merkle_tree
+from pymerkle import MerkleTree
 from pymerkle.hashing import hash_machine
 
 
 def test_tree_constructor_with_records():
-    tree_1 = merkle_tree(*(bytes('{}-th record'.format(i), 'utf-8')
+    tree_1 = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                            for i in range(0, 1000)))
-    tree_2 = merkle_tree()
+    tree_2 = MerkleTree()
     for i in range(1000):
         tree_2.update('{}-th record'.format(i))
     assert tree_1.root_hash() == tree_2.root_hash()
 
 
 # Construct standard Merkle-tree and hash function
-tree = merkle_tree()
+tree = MerkleTree()
 machine = hash_machine()
 hash = machine.hash
 

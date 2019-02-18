@@ -10,7 +10,7 @@ from .utils import stringify_path
 # -------------------------------- Main class --------------------------------
 
 
-class proof(object):
+class Proof(object):
     """Base class for the ``proof`` object
 
     Basic purpose of this class is to organize the provided proof data in a nicely formatted dictionary,

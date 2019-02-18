@@ -1,6 +1,6 @@
 import pytest
 import os
-from pymerkle import merkle_tree, hashing, encodings
+from pymerkle import MerkleTree, hashing, encodings
 
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = encodings.ENCODINGS
@@ -21,7 +21,7 @@ for security in (True, False):
     for hash_type in HASH_TYPES:
         for encoding in ENCODINGS:
             trees.append(
-                merkle_tree(
+                MerkleTree(
                     hash_type=hash_type,
                     encoding=encoding,
                     security=security,
@@ -32,7 +32,7 @@ for security in (True, False):
 @pytest.mark.parametrize("tree", trees)
 def test_encrypt_log(tree):
 
-    clone_tree = merkle_tree(
+    clone_tree = MerkleTree(
         hash_type=tree.hash_type,
         encoding=tree.encoding,
         security=tree.security)

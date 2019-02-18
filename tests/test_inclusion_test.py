@@ -1,6 +1,6 @@
 import pytest
 import os
-from pymerkle import merkle_tree, hashing, encodings
+from pymerkle import MerkleTree, hashing, encodings
 
 # --------- Test intermediate success case for all possible tree types ---
 
@@ -16,7 +16,7 @@ trees_and_subtrees = []
 for security in (True, False):
     for hash_type in HASH_TYPES:
         for encoding in ENCODINGS:
-            tree = merkle_tree(
+            tree = MerkleTree(
                 hash_type=hash_type,
                 encoding=encoding,
                 security=security,
@@ -34,7 +34,7 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 # -------------- Test success edge case with standard Merkle-Tree --------
 
 
-tree = merkle_tree(log_dir=os.path.join(current_dir, 'logs'))
+tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
 tree.encrypt_log('short_APACHE_log')
 old_hash, sublength = tree.root_hash(), tree.length()
 tree.encrypt_log("RED_HAT_LINUX_log")

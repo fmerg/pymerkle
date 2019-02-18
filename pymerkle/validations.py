@@ -21,7 +21,7 @@ def validate_proof(target_hash, proof):
                         acclaimed current root-hash of the Merkle-tree having provided the proof)
     :type target_hash:  bytes
     :param proof:       the proof to be validated
-    :type proof:        proof.proof
+    :type proof:        proof.Proof
     :returns:           validation result
     :rtype:             bool
     """
@@ -78,7 +78,7 @@ class proof_validator(object):
                             acclaimed top-hash of the Merkle-tree having provided the proof)
         :type target_hash:  bytes
         :param proof:       the proof to be validated
-        :type proof:        proof.proof
+        :type proof:        proof.Proof
         :rtype:             validations.validation_receipt
         """
         validated = validate_proof(target_hash=target_hash, proof=proof)

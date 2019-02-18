@@ -2,8 +2,8 @@
 Provides the main class for Merkle-tree objects and related functionalites
 """
 from .hashing import hash_machine
-from .nodes import node, leaf
-from .proof import proof
+from .nodes import Node, leaf
+from .proof import Proof
 from .utils import log_2, decompose
 import json
 import uuid
@@ -14,7 +14,7 @@ from tqdm import tqdm
 # -------------------------------- Main class ----------------------------
 
 
-class merkle_tree(object):
+class MerkleTree(object):
     """Class for Merkle-trees
 
     :param hash_type:  [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper-
@@ -232,7 +232,7 @@ class merkle_tree(object):
             old_child = last_subroot.child
 
             # Create bifurcation node
-            new_child = node(
+            new_child = Node(
                 record=None,
                 left=last_subroot,
                 right=new_leaf,
@@ -314,7 +314,7 @@ class merkle_tree(object):
         :type arg:  str or bytes or bytearray or int
         :returns:   audit-proof appropriately formatted along with its validation parameters (so that it
                     can be passed in as the second argument to the ``validations.validate_proof`` method)
-        :rtype:     proof.proof
+        :rtype:     proof.Proof
 
         .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
         """
@@ -343,7 +343,7 @@ class merkle_tree(object):
 
         # Return proof nice formatted along with validation parameters
         if proof_index is not None:
-            return proof(
+            return Proof(
                 generation='SUCCESS',
                 provider=self.uuid,
                 hash_type=self.hash_type,
@@ -355,7 +355,7 @@ class merkle_tree(object):
         # Handles indexError case (`arg` provided by Client was not among
         # possibilities)
         failure_message = 'Index provided by Client was out of range'
-        return proof(
+        return Proof(
             generation='FAILURE ({})'.format(failure_message),
             provider=self.uuid,
             hash_type=self.hash_type,
@@ -377,7 +377,7 @@ class merkle_tree(object):
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
                           it can be passed in as the second argument to the ``validations.validate_proof`` method)
-        :rtype:           proof.proof
+        :rtype:           proof.Proof
 
         .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
                   of the Merke-tree corresponding to the provided parameters (If that test fails,
@@ -406,7 +406,7 @@ class merkle_tree(object):
 
             # Root hash test
             if old_hash == self.multi_hash(left_path, len(left_path) - 1):
-                return proof(
+                return Proof(
                     generation='SUCCESS',
                     provider=self.uuid,
                     hash_type=self.hash_type,
@@ -417,7 +417,7 @@ class merkle_tree(object):
 
             # Handles inclusion test failure
             failure_message = 'Subtree provided by Client failed to be detected'
-            return proof(
+            return Proof(
                 generation='FAILURE ({})'.format(failure_message),
                 provider=self.uuid,
                 hash_type=self.hash_type,
@@ -429,7 +429,7 @@ class merkle_tree(object):
         # Handles incompatibility case (includes the zero leaves and zero
         # `sublength` case)
         failure_message = 'Subtree provided by Client was incompatible'
-        return proof(
+        return Proof(
             generation='FAILURE ({})'.format(failure_message),
             provider=self.uuid,
             hash_type=self.hash_type,
@@ -574,7 +574,7 @@ class merkle_tree(object):
         interior hashes of the Merkle-tree, so that a full consistency-path can be generated
 
         :param subroots: Should be some output of the ``.principal_subroots`` method
-        :type subroots:  list of nodes.node
+        :type subroots:  list of nodes.Node
         :returns:        a list of signed hashes complementing optimally the hashes detected by
                          ``.principal_subroots``, so that a full consistency-path be generated
         :rtype:          list of signed pairs (+1/-1, bytes)
@@ -605,7 +605,7 @@ class merkle_tree(object):
         :param sublength: Should be a non-negative integer smaller than or equal to the Merkle-tree's current length
         :returns:         The (signed) roots of the detected subtrees, whose hashes
                           are to be used for the generation of consistency-proofs
-        :rtype:           list of *(+1/-1, nodes.node)*
+        :rtype:           list of *(+1/-1, nodes.Node)*
 
         .. note:: Returns ``None`` if the provided ``sublength`` does not fulfill the required condition
         """
@@ -652,7 +652,7 @@ class merkle_tree(object):
         :param height: height of candidate subtree to be detected
         :type height:  int
         :returns:      root of the detected subtree
-        :rtype:        nodes.node
+        :rtype:        nodes.Node
 
         .. note:: Returns ``None`` if the requested ``start`` is out of range
         """

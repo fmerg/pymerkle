@@ -20,7 +20,7 @@ Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result 
 as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
 """
 import pytest
-from pymerkle import merkle_tree, hashing, encodings
+from pymerkle import MerkleTree, hashing, encodings
 
 # Generate trees for all combinations of hash and encoding types
 # (including both security modes for each)
@@ -31,7 +31,7 @@ for security in (True, False):
     for hash_type in HASH_TYPES:
         for encoding in ENCODINGS:
             trees.append(
-                merkle_tree(
+                MerkleTree(
                     'a', 'b', 'c', 'd',  # original records
                     hash_type=hash_type,
                     encoding=encoding,
@@ -49,7 +49,7 @@ def test_defense_against_second_preimage_attack(original_tree):
         encoding=original_tree.encoding)
     forged_record = '%s%s' % (F, G)
     # Construct attacker's tree
-    attacker_tree = merkle_tree(
+    attacker_tree = MerkleTree(
         'a', 'b', forged_record,
         hash_type=original_tree.hash_type,
         encoding=original_tree.encoding,

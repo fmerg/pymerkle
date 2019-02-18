@@ -2,12 +2,12 @@ import pytest
 import os
 import json
 import time
-from pymerkle import merkle_tree, hashing, validate_proof, proof_validator
+from pymerkle import MerkleTree, hashing, validate_proof, proof_validator
 from pymerkle.validations import validation_receipt
 
 # ---------------- Check receipt replicates in all possible ways ---------
 
-tree = merkle_tree(*(bytes('{}-th record'.format(i), 'utf-8')
+tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                      for i in range(0, 1000)))
 p = tree.audit_proof(666)
 v = proof_validator()
@@ -49,7 +49,7 @@ with open(os.path.join(current_dir, 'logs/RED_HAT_LINUX_log')) as second_log_fil
 trees = []
 for encoding in ENCODINGS:
     for hash_type in HASH_TYPES:
-        tree = merkle_tree(
+        tree = MerkleTree(
             hash_type=hash_type,
             encoding=encoding,
             security=True,
@@ -88,7 +88,7 @@ for bool_1 in (True, False):  # Controls index compatibility
                     expecteds.append(bool_1 and bool_2)
 
                     # Proof-provider configuration
-                    tree = merkle_tree(
+                    tree = MerkleTree(
                         hash_type=hash_type,
                         encoding=encoding,
                         security=True,
@@ -120,7 +120,7 @@ def test_index_based_audit_proof_validation_for_non_empty_tree(
         proof=audit_proof) is expected
 
 
-small_tree = merkle_tree('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+small_tree = MerkleTree('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 audit_proofs = []
 expecteds = []
 
@@ -167,7 +167,7 @@ for bool_1 in (
                             bool_1 and bool_2 and bool_3 and bool_4)
 
                         # Proof-provider configuration
-                        tree = merkle_tree(
+                        tree = MerkleTree(
                             hash_type=hash_type,
                             encoding=encoding,
                             security=True,
@@ -221,7 +221,7 @@ def test_consistency_proof_validation_for_non_empty_tree(
 
 # Proof provider (a typical SHA256/UTF-8 Merkle-Tree with defense against
 # second-preimage attack)
-tree = merkle_tree(log_dir=os.path.join(current_dir, 'logs'))
+tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
 
 # Proof validator
 validator = proof_validator(
