@@ -2,7 +2,7 @@
 Provides the main class for Merkle-tree objects and related functionalites
 """
 from .hashing import hash_machine
-from .nodes import Node, leaf
+from .nodes import Node, Leaf
 from .proof import Proof
 from .utils import log_2, decompose
 import json
@@ -219,7 +219,7 @@ class MerkleTree(object):
             last_subroot = self.leaves[-1].descendant(degree=last_power)
 
             # Store new record to new leaf
-            new_leaf = leaf(
+            new_leaf = Leaf(
                 record=record,
                 hash_function=self.hash,
                 encoding=self.encoding)
@@ -258,7 +258,7 @@ class MerkleTree(object):
                     current_node = current_node.child
 
         else:  # void case
-            new_leaf = leaf(
+            new_leaf = Leaf(
                 record=record,
                 hash_function=self.hash,
                 encoding=self.encoding)
@@ -710,7 +710,7 @@ class MerkleTree(object):
                   about the tree's current state (*size*, *length*, *height*, *root-hash*) and
                   fixed configs (*hash type*, *encoding type*, *security mode*, *uuid*)
         """
-        encoder = merkleTreeEncoder()
+        encoder = MerkleTreeEncoder()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -722,14 +722,14 @@ class MerkleTree(object):
         """
         return json.dumps(
             self,
-            cls=merkleTreeEncoder,
+            cls=MerkleTreeEncoder,
             sort_keys=True,
             indent=4)
 
 # ------------------------------- JSON encoders --------------------------
 
 
-class merkleTreeEncoder(json.JSONEncoder):
+class MerkleTreeEncoder(json.JSONEncoder):
     """Used implicitly in the JSON serialization of Merkle-trees. Extends the built-in
     JSON encoder for data structures.
     """

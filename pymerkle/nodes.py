@@ -131,7 +131,7 @@ class Node(object):
 
         encoding = encoding if encoding else self.encoding
         output += self.stored_hash.decode(encoding=encoding) + '\n'
-        if not isinstance(self, leaf):  # Recursive step
+        if not isinstance(self, Leaf):  # Recursive step
             output += self.left.__str__(
                 encoding=encoding,
                 level=level + 1,
@@ -235,7 +235,7 @@ class Node(object):
 # -------------------------------- End of class --------------------------
 
 
-class leaf(Node):
+class Leaf(Node):
     """Class for the leafs of Merkle-tree (parentless nodes)
 
     :param record:        the record to be encrypted within the leaf
@@ -274,7 +274,7 @@ class NodeEncoder(json.JSONEncoder):
         except TypeError:
             return json.JSONEncoder.default(self, obj)
         else:
-            if isinstance(obj, leaf):
+            if isinstance(obj, Leaf):
                 return {
                     'hash': hash.decode(encoding=obj.encoding)
                 }
