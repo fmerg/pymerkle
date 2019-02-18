@@ -681,7 +681,7 @@ class MerkleTree(object):
         right_parent = subroot
         i = 0
         while i < height:
-            if isinstance(right_parent, leaf):
+            if isinstance(right_parent, Leaf):
                 return None  # Subtree failed to be detected
             else:
                 right_parent = right_parent.right

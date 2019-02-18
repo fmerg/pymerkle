@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 import time
-from pymerkle import MerkleTree, hashing, validate_proof, proof_validator
+from pymerkle import MerkleTree, hashing, validate_proof, ProofValidator
 from pymerkle.validations import validation_receipt
 
 # ---------------- Check receipt replicates in all possible ways ---------
@@ -10,7 +10,7 @@ from pymerkle.validations import validation_receipt
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                      for i in range(0, 1000)))
 p = tree.audit_proof(666)
-v = proof_validator()
+v = ProofValidator()
 r = v.validate(target_hash=tree.root_hash(), proof=p)
 r_1 = validation_receipt(from_json=r.JSONstring())
 r_2 = validation_receipt(from_dict=json.loads(r.JSONstring()))
@@ -224,7 +224,7 @@ def test_consistency_proof_validation_for_non_empty_tree(
 tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
 
 # Proof validator
-validator = proof_validator(
+validator = ProofValidator(
     validations_dir=os.path.join(
         current_dir, 'validations_dir'))
 
@@ -253,7 +253,7 @@ for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
     'proof, target_hash', [
         (proofs[i], target_hashes[i]) for i in range(
             len(proofs))])
-def test_proof_validator(proof, target_hash):
+def test_ProofValidator(proof, target_hash):
     receipt = validator.validate(proof=proof, target_hash=target_hash)
     receipt_file_path = os.path.join(
         current_dir,

@@ -50,7 +50,7 @@ def validate_proof(target_hash, proof):
 # ---------------------------------- Classes ----------------------------------
 
 
-class proof_validator(object):
+class ProofValidator(object):
     """Wrapper for the ``validations.validate_proof`` function
 
     Employs the ``validations.validation_receipt`` class in order to organize validation results
