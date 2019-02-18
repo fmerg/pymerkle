@@ -338,9 +338,9 @@ tree.encrypt('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
-tree.inclusion_test(old_hash=old_hash, sublength=sublength)                              # True
-tree.inclusion_test(old_hash=bytes('anything else', tree.encoding), sublength=sublength) # False
-tree.inclusion_test(old_hash=old_hash, sublength=sublength + 1)                          # False
+tree.inclusion_test(old_hash=old_hash, sublength=sublength)           # True
+tree.inclusion_test(bytes('anything else', tree.encoding), sublength) # False
+tree.inclusion_test(old_hash, sublength + 1)                          # False
 ```
 
 
