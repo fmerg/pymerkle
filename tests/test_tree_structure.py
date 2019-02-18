@@ -5,7 +5,7 @@ from pymerkle.hashing import hash_machine
 
 def test_tree_constructor_with_records():
     tree_1 = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
-                           for i in range(0, 1000)))
+                          for i in range(0, 1000)))
     tree_2 = MerkleTree()
     for i in range(1000):
         tree_2.update('{}-th record'.format(i))

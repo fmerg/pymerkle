@@ -5,7 +5,7 @@ import json
 
 # Generate proofs from a one-thousand leaves Merkle-tree
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
-                     for i in range(0, 1000)))
+                    for i in range(0, 1000)))
 p = tree.audit_proof(666)  # Genuine index-based proof
 q = tree.audit_proof(1000)  # Empty index-based proof
 

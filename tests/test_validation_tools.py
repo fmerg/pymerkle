@@ -8,7 +8,7 @@ from pymerkle.validations import validation_receipt
 # ---------------- Check receipt replicates in all possible ways ---------
 
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
-                     for i in range(0, 1000)))
+                    for i in range(0, 1000)))
 p = tree.audit_proof(666)
 v = ProofValidator()
 r = v.validate(target_hash=tree.root_hash(), proof=p)

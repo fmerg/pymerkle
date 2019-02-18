@@ -2,9 +2,9 @@
 Provides the main class for Merkle-tree objects and related functionalites
 """
 from .hashing import hash_machine
+from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
-from .utils import log_2, decompose
 import json
 import uuid
 import os
@@ -125,12 +125,8 @@ class MerkleTree(object):
                 \n    length    : {length}\
                 \n    height    : {height}\n' .format(
             uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace(
-                '_',
-                '-'),
-            encoding=self.encoding.upper().replace(
-                '_',
-                '-'),
+            hash_type=self.hash_type.upper().replace('_', '-'),
+            encoding=self.encoding.upper().replace('_', '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
             root_hash=self.root_hash().decode(
                 encoding=self.encoding) if self else '',
@@ -333,7 +329,7 @@ class MerkleTree(object):
                     index = count
                     break
                 count += 1
-        elif type(arg) is int:
+        elif isinstance(arg, int):
             index = arg  # Inserted type was integer
         else:
             raise TypeError
@@ -393,7 +389,7 @@ class MerkleTree(object):
         """
 
         if type(old_hash) not in (bytes, type(None)) \
-                or not type(sublength) is int:
+                or not isinstance(sublength, int):
             raise TypeError
 
         # Calculate proof path
@@ -455,7 +451,7 @@ class MerkleTree(object):
         """
 
         if type(old_hash) not in (bytes, type(None)) \
-                or not type(sublength) is int:
+                or not isinstance(sublength, int):
             raise TypeError
 
         if 0 < sublength <= len(self.leaves):
