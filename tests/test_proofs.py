@@ -6,8 +6,8 @@ import json
 # Generate proofs from a one-thousand leaves Merkle-tree
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                     for i in range(0, 1000)))
-p = tree.audit_proof(666)  # Genuine index-based proof
-q = tree.audit_proof(1000)  # Empty index-based proof
+p = tree.auditProof(666)  # Genuine index-based proof
+q = tree.auditProof(1000)  # Empty index-based proof
 
 # ------------------- Check replicates in all possible ways -------------------
 
@@ -29,8 +29,8 @@ def test_q_replicates_via_serialization(replicate):
 # ----------------------- Check record based generations -----------------
 
 
-p_3 = tree.audit_proof('665-th record')
-p_4 = tree.audit_proof(b'665-th record')
+p_3 = tree.auditProof('665-th record')
+p_4 = tree.auditProof(b'665-th record')
 
 
 @pytest.mark.parametrize('r', (p_3, p_4))

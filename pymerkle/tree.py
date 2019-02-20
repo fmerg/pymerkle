@@ -261,7 +261,7 @@ class MerkleTree(object):
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
 
-    def encrypt_log(self, log_file):
+    def encryptLog(self, log_file):
         """Encrypts the data of the provided log-file into the Merkle-tree
 
         More accurately, it successively updates the Merkle-tree it with each line
@@ -301,7 +301,7 @@ class MerkleTree(object):
 
 # ------------------------------ Proof generation ------------------------
 
-    def audit_proof(self, arg):
+    def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
         the given argument
 
@@ -478,7 +478,7 @@ class MerkleTree(object):
 
         :param index: index of the leaf where the audit-proof calculation should be based upon
                       (provided from Client's Side directly or indirectly in form of a record;
-                      cf. the ``.audit_proof`` method)
+                      cf. the ``.auditProof`` method)
         :type index:  int
         :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, bytes)*), the sign ``+1`` or ``-1``
                       indicating pairing with the right or left neighbour during proof validation respectively,

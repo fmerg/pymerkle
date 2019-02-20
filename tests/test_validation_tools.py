@@ -9,7 +9,7 @@ from pymerkle.validations import validation_receipt
 
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                     for i in range(0, 1000)))
-p = tree.audit_proof(666)
+p = tree.auditProof(666)
 v = ProofValidator()
 r = v.validate(target_hash=tree.root_hash(), proof=p)
 r_1 = validation_receipt(from_json=r.JSONstring())
@@ -61,7 +61,7 @@ for encoding in ENCODINGS:
 def test_proof_validation_for_empty_tree(tree):
     """Tests proof-validation for proofs provided by empty trees
     """
-    audit_proof = tree.audit_proof(arg=0)
+    audit_proof = tree.auditProof(arg=0)
     consistency_proof = tree.consistency_proof(
         old_hash=tree.root_hash(), sublength=0)
 
@@ -93,13 +93,13 @@ for bool_1 in (True, False):  # Controls index compatibility
                         encoding=encoding,
                         security=True,
                         log_dir=os.path.join(current_dir, 'logs'))
-                    tree.encrypt_log('short_APACHE_log')
+                    tree.encryptLog('short_APACHE_log')
 
                     # Proof configuration
                     if bool_1:
-                        audit_proofs.append(tree.audit_proof(arg=arg))
+                        audit_proofs.append(tree.auditProof(arg=arg))
                     else:
-                        audit_proofs.append(tree.audit_proof(
+                        audit_proofs.append(tree.auditProof(
                             arg=first_log_size + arg))
 
                     # Target-hash configuration
@@ -127,9 +127,9 @@ expecteds = []
 for bool in (True, False):
     for i in range(0, 10):
         if bool:
-            audit_proofs.append(small_tree.audit_proof(arg=str(i)))
+            audit_proofs.append(small_tree.auditProof(arg=str(i)))
         else:
-            audit_proofs.append(small_tree.audit_proof(arg=str(10 + i)))
+            audit_proofs.append(small_tree.auditProof(arg=str(10 + i)))
         expecteds.append(bool)
 
 
@@ -174,7 +174,7 @@ for bool_1 in (
                             log_dir=os.path.join(current_dir, 'logs'))
 
                         # Append first log
-                        tree.encrypt_log('short_APACHE_log')
+                        tree.encryptLog('short_APACHE_log')
 
                         # Old-tree-hash configuration
                         if bool_1:
@@ -191,7 +191,7 @@ for bool_1 in (
                             old_tree_length = second_log_size + first_log_size
 
                         # Update the tree by appending new log
-                        tree.encrypt_log('RED_HAT_LINUX_log')
+                        tree.encryptLog('RED_HAT_LINUX_log')
 
                         # Generate proof for the above configurations
                         consistency_proofs.append(
@@ -241,7 +241,7 @@ target_hashes = []
 for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
     old_hash = tree.root_hash()
     old_length = len(tree.leaves)
-    tree.encrypt_log(log_file)
+    tree.encryptLog(log_file)
     proofs.append(
         tree.consistency_proof(
             old_hash=old_hash,

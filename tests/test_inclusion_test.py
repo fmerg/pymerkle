@@ -21,9 +21,9 @@ for security in (True, False):
                 encoding=encoding,
                 security=security,
                 log_dir=os.path.join(current_dir, 'logs'))
-            tree.encrypt_log('short_APACHE_log')
+            tree.encryptLog('short_APACHE_log')
             old_hash, sublength = tree.root_hash(), tree.length()
-            tree.encrypt_log('RED_HAT_LINUX_log')
+            tree.encryptLog('RED_HAT_LINUX_log')
             trees_and_subtrees.append((tree, old_hash, sublength))
 
 
@@ -35,9 +35,9 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 
 
 tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
-tree.encrypt_log('short_APACHE_log')
+tree.encryptLog('short_APACHE_log')
 old_hash, sublength = tree.root_hash(), tree.length()
-tree.encrypt_log("RED_HAT_LINUX_log")
+tree.encryptLog("RED_HAT_LINUX_log")
 
 
 def test_inclusion_test_edge_success_case():

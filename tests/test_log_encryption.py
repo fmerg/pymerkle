@@ -30,7 +30,7 @@ for security in (True, False):
 
 
 @pytest.mark.parametrize("tree", trees)
-def test_encrypt_log(tree):
+def test_encryptLog(tree):
 
     clone_tree = MerkleTree(
         hash_type=tree.hash_type,
@@ -42,7 +42,7 @@ def test_encrypt_log(tree):
         clone_tree.update(record)
 
     # Update original tree directly from file
-    tree.encrypt_log('short_APACHE_log')
+    tree.encryptLog('short_APACHE_log')
 
     # Compare hashes
     assert tree.root_hash() == clone_tree.root_hash()
