@@ -11,7 +11,7 @@ from .hashing import hash_machine
 # -------------------------------- Validation ---------------------------------
 
 
-def validate_proof(target_hash, proof):
+def validateProof(target_hash, proof):
     """Core validation utility
 
     Validates the inserted proof by comparing to the provided target hash, modifies the proof's
@@ -51,7 +51,7 @@ def validate_proof(target_hash, proof):
 
 
 class ProofValidator(object):
-    """Wrapper for the ``validations.validate_proof`` function
+    """Wrapper for the ``validations.validateProof`` function
 
     Employs the ``validations.validation_receipt`` class in order to organize validation results
     in an easy storable way
@@ -69,7 +69,7 @@ class ProofValidator(object):
         self.validations_dir = validations_dir
 
     def validate(self, target_hash, proof):
-        """Wraps ``validations.validate_proof``, returning a validation receipt instead of a boolean
+        """Wraps ``validations.validateProof``, returning a validation receipt instead of a boolean
 
         If a ``validations_dir`` has been specified at construction, then the receipt is automatically
         stored in the configured directory as a ``.json`` file named with the receipt's uuid
@@ -81,7 +81,7 @@ class ProofValidator(object):
         :type proof:        proof.Proof
         :rtype:             validations.validation_receipt
         """
-        validated = validate_proof(target_hash=target_hash, proof=proof)
+        validated = validateProof(target_hash=target_hash, proof=proof)
 
         receipt = validation_receipt(
             proof_uuid=proof.header['uuid'],

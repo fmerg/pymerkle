@@ -309,7 +309,7 @@ class MerkleTree(object):
                     is *int*) where the proof calculation must be based upon (provided from Client's Side)
         :type arg:  str or bytes or bytearray or int
         :returns:   audit-proof appropriately formatted along with its validation parameters (so that it
-                    can be passed in as the second argument to the ``validations.validate_proof`` method)
+                    can be passed in as the second argument to the ``validations.validateProof`` method)
         :rtype:     proof.Proof
 
         .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
@@ -372,7 +372,7 @@ class MerkleTree(object):
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
-                          it can be passed in as the second argument to the ``validations.validate_proof`` method)
+                          it can be passed in as the second argument to the ``validations.validateProof`` method)
         :rtype:           proof.Proof
 
         .. note:: During proof generation, an inclusion-test is performed for the presumed previous state

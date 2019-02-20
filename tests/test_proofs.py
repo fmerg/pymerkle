@@ -1,5 +1,5 @@
 import pytest
-from pymerkle import MerkleTree, validate_proof
+from pymerkle import MerkleTree, validateProof
 from pymerkle.proof import Proof
 import json
 

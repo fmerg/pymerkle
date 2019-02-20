@@ -1,10 +1,10 @@
 from .tree import MerkleTree
-from .validations import validate_proof, ProofValidator
+from .validations import validateProof, ProofValidator
 
 name = "pymerkle"
 
 __version__ = "1.0.1"
 __all__ = (
     'MerkleTree',
-    'validate_proof',
+    'validateProof',
     'ProofValidator')

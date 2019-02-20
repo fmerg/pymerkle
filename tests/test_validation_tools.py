@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 import time
-from pymerkle import MerkleTree, hashing, validate_proof, ProofValidator
+from pymerkle import MerkleTree, hashing, validateProof, ProofValidator
 from pymerkle.validations import validation_receipt
 
 # ---------------- Check receipt replicates in all possible ways ---------
@@ -65,9 +65,9 @@ def test_proof_validation_for_empty_tree(tree):
     consistency_proof = tree.consistency_proof(
         old_hash=tree.root_hash(), sublength=0)
 
-    assert validate_proof(
+    assert validateProof(
         target_hash=b'anything...',
-        proof=audit_proof) is False and validate_proof(
+        proof=audit_proof) is False and validateProof(
         target_hash=b'anything...',
         proof=consistency_proof) is False
 
@@ -115,7 +115,7 @@ for bool_1 in (True, False):  # Controls index compatibility
             len(audit_proofs))])
 def test_index_based_audit_proof_validation_for_non_empty_tree(
         audit_proof, target_hash, expected):
-    assert validate_proof(
+    assert validateProof(
         target_hash=target_hash,
         proof=audit_proof) is expected
 
@@ -139,7 +139,7 @@ for bool in (True, False):
             len(audit_proofs))])
 def test_record_based_audit_proof_validation_for_non_empty_tree(
         audit_proof, expected):
-    assert validate_proof(
+    assert validateProof(
         target_hash=small_tree.root_hash(),
         proof=audit_proof) is expected
 
@@ -212,7 +212,7 @@ for bool_1 in (
             len(consistency_proofs))])
 def test_consistency_proof_validation_for_non_empty_tree(
         consistency_proof, target_hash, expected):
-    assert validate_proof(
+    assert validateProof(
         target_hash=target_hash,
         proof=consistency_proof) is expected
 
