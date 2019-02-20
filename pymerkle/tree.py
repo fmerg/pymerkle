@@ -360,7 +360,7 @@ class MerkleTree(object):
             proof_index=None,
             proof_path=None)
 
-    def consistency_proof(self, old_hash, sublength):
+    def consistencyProof(self, old_hash, sublength):
         """Response of the Merkle-tree to the request of providing a consistency-proof for the
         given parameters
 

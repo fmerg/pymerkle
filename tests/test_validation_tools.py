@@ -62,7 +62,7 @@ def test_proof_validation_for_empty_tree(tree):
     """Tests proof-validation for proofs provided by empty trees
     """
     audit_proof = tree.auditProof(arg=0)
-    consistency_proof = tree.consistency_proof(
+    consistency_proof = tree.consistencyProof(
         old_hash=tree.root_hash(), sublength=0)
 
     assert validateProof(
@@ -195,7 +195,7 @@ for bool_1 in (
 
                         # Generate proof for the above configurations
                         consistency_proofs.append(
-                            tree.consistency_proof(
+                            tree.consistencyProof(
                                 old_hash=old_hash,
                                 sublength=old_tree_length))
 
@@ -243,7 +243,7 @@ for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
     old_length = len(tree.leaves)
     tree.encryptLog(log_file)
     proofs.append(
-        tree.consistency_proof(
+        tree.consistencyProof(
             old_hash=old_hash,
             sublength=old_length))
     target_hashes.append(tree.root_hash())
