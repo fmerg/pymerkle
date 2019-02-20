@@ -29,7 +29,7 @@ for security in (True, False):
 
 @pytest.mark.parametrize("tree, old_hash, sublength", trees_and_subtrees)
 def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
-    assert tree.inclusion_test(old_hash, sublength) is True
+    assert tree.inclusionTest(old_hash, sublength) is True
 
 # -------------- Test success edge case with standard Merkle-Tree --------
 
@@ -41,21 +41,21 @@ tree.encryptLog("RED_HAT_LINUX_log")
 
 
 def test_inclusion_test_edge_success_case():
-    assert tree.inclusion_test(tree.root_hash(), tree.length()) is True
+    assert tree.inclusionTest(tree.root_hash(), tree.length()) is True
 
 # ---------------- Test failure cases with standard Merkle-tree ----------
 
 
 def test_inclusion_test_with_zero_sublength():
-    assert tree.inclusion_test(b'anything...', 0) is False
+    assert tree.inclusionTest(b'anything...', 0) is False
 
 
 def test_inclusion_test_with_sublength_exceeding_length():
-    assert tree.inclusion_test(b'anything...', tree.length()) is False
+    assert tree.inclusionTest(b'anything...', tree.length()) is False
 
 
 @pytest.mark.parametrize('sublength', list(i for i in range(1, tree.length())))
 def test_inclusion_test_with_invalid_old_hash(sublength):
-    assert tree.inclusion_test(
+    assert tree.inclusionTest(
         b'anything except for the hash corresponding to the provided sublength',
         sublength) is False

@@ -378,7 +378,7 @@ class MerkleTree(object):
         .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
                   of the Merke-tree corresponding to the provided parameters (If that test fails,
                   then the returned proof is predestined to be found invalid upon validation).
-                  This is done implicitly and not by calling the ``.inclusion_test`` method
+                  This is done implicitly and not by calling the ``.inclusionTest`` method
                   (whose implementation differs in that no full path of signed hashes,
                   as generated here by the ``.consistency_path`` method, needs be taken into account.)
 
@@ -436,7 +436,7 @@ class MerkleTree(object):
 
 # ------------------------------ Inclusion tests ------------------------------
 
-    def inclusion_test(self, old_hash, sublength):
+    def inclusionTest(self, old_hash, sublength):
         """Verifies that the parameters provided from Client's Side correspond to a previous state of the Merkle-tree
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
