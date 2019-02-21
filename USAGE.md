@@ -53,7 +53,7 @@ without need to specify its absolute path.
 #### Tree display
 
 Invoking a Merkle-tree with its name inside the Python interpreter displays info about its fixed configurations
-(uuid, hash and encoding types, security mode) and current state (size, length, height, top-hash):
+(_uuid, hash and encoding types, security mode_) and current state (_size, length, height, top-hash_):
 
 ```shell
 >>> tree
@@ -100,7 +100,7 @@ Feeding a Merkle-tree to the `print()` function displays it in a format similar 
 >>>
 ```
 
-where each node is represented by the hash it currently stores. You can save this format in a file called `structure` with
+where each node is represented by the hash it currently stores. You can save this format in a file called `structure` by
 
 ```python
 with open('structure', 'w') as f:
@@ -130,7 +130,7 @@ Encryption complete
 >>>
 ```
 
-This presupposes that the file `large_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would inside a nested directory `/APACHE_logs`, you could easily encrypt it with
+This presupposes that the file `large_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would reside in a nested directory `/APACHE_logs`, you could easily encrypt it with
 
 ```shell
 >>> tree.encryptLog('APACHE_logs/large_APACHE_log')
