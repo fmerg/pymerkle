@@ -163,7 +163,7 @@ p = tree.auditProof(arg=record)
 
 where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
 
-The generated object `p` is an instance of the `proof.proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
+The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
 ```shell
 >>> p
@@ -305,7 +305,7 @@ tree.encryptLog('sample_log')
 q = tree.consistencyProof(old_hash, sublength)
 ```
 
-The generated object `q` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current top-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
+The generated object `q` is an instance of the `proof.Proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current top-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
 
 ### Inclusion-tests
 
@@ -467,7 +467,7 @@ Appends the specified log file into the Merkle-tree by updating with each of its
 
 ### __.auditProof (*arg*)__
 
-Returns an instance of the `proof.proof` class, thought of as the audit-proof based upon the specified argument
+Returns an instance of the `proof.Proof` class, thought of as the audit-proof based upon the specified argument
 
 - **arg** (_int_ or _str_ or _bytes_ or _bytearray_). If integer, indicates the leaf where the audit-proof should be based upon; in any other case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any)
 
@@ -475,7 +475,7 @@ Returns an instance of the `proof.proof` class, thought of as the audit-proof ba
 
 ### __.consistencyProof (*old_hash, sublength*)__
 
-Returns an instance of the `proof.proof` class, thought of as the consistency-proof for the presumed previous state of the Merkle-tree corresponding to the inserted hash-length combination
+Returns an instance of the `proof.Proof` class, thought of as the consistency-proof for the presumed previous state of the Merkle-tree corresponding to the inserted hash-length combination
 
 - **old_hash** (_str_), hexadecimal form of the top-hash of the tree to be presumably detected as a previous state of the Merkle-tree
 
@@ -501,7 +501,7 @@ Validates the inserted proof by comparing to the target-hash, modifies the proof
 
 - **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
-- **proof** (_proof.proof_), the proof to be validated
+- **proof** (_proof.Proof_), the proof to be validated
 
 ### _Proof-validator class_
 
@@ -519,4 +519,4 @@ Validates the inserted proof by comparing to target-hash, modifies the proof's s
 
 - **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 
-- **proof** (_proof.proof_), the proof to be validated -->
+- **proof** (_proof.Proof_), the proof to be validated -->
