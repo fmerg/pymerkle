@@ -11,7 +11,7 @@ T_BRACKET = u'\u251C' + 2 * u'\u2500'       # ├──
 VERTICAL_BAR = u'\u2502'                    # │
 
 
-class node(object):
+class Node(object):
     """Base class for the nodes of a Merkle-tree
 
     :param record:        [optional] the record to be encrypted within the node. If provided,
@@ -19,21 +19,21 @@ class node(object):
     :type record:         str or bytes or bytearray
     :param left:          [optional] the node's left parent. If not provided, then the node
                           is considered to be a leaf
-    :type left:           nodes.node
+    :type left:           nodes.Node
     :param right:         [optional] the node's right parent. If not provided, then the node
                           is considered to be a leaf
-    :type right:          nodes.node
+    :type right:          nodes.Node
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
                           method of the containing Merkle-tree
-    :type hash_function:  `method`
+    :type hash_function:  method
     :param encoding:      Encoding type to be used when decoding the hash stored by the node.
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
 
     :ivar stored_hash:   (*bytes*) The hash currently stored by the node
-    :ivar left:          (*nodes.node*) The node's left parent. Defaults to ``None`` if the node is a leaf
-    :ivar right:         (*nodes.node*) The node's right parent. Defaults to ``None`` if the node is a leaf
-    :ivar child:         (*nodes.node*) The node's child parent. Defaults to ``None`` if the node is a root
+    :ivar left:          (*nodes.Node*) The node's left parent. Defaults to ``None`` if the node is a leaf
+    :ivar right:         (*nodes.Node*) The node's right parent. Defaults to ``None`` if the node is a leaf
+    :ivar child:         (*nodes.Node*) The node's child parent. Defaults to ``None`` if the node is a root
     :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
     """
 
@@ -49,7 +49,7 @@ class node(object):
         # Stored for decoding when printing
         self.encoding = encoding
 
-        if left is None and right is None:  # Leaf case (parentless node)
+        if left is None and right is None:  # leaf case (parentless node)
             self.stored_hash = hash_function(record)
         # Interior case (node with exactly two parents)
         elif record is None:
@@ -131,7 +131,7 @@ class node(object):
 
         encoding = encoding if encoding else self.encoding
         output += self.stored_hash.decode(encoding=encoding) + '\n'
-        if not isinstance(self, leaf):  # Recursive step
+        if not isinstance(self, Leaf):  # Recursive step
             output += self.left.__str__(
                 encoding=encoding,
                 level=level + 1,
@@ -180,7 +180,7 @@ class node(object):
         :param degree: depth of descendancy. Must be non-negative
         :type degree:  int
         :returns:      the descendant corresdponding to the requested depth
-        :rtype:        nodes.node
+        :rtype:        nodes.Node
 
         .. note:: Returns ``None`` if the requested depth of dependancy exceeds possibilities
         """
@@ -201,7 +201,7 @@ class node(object):
 
         :param hash_function: hash function to be used during recalculation (thought of as
                               the ``.hash`` method of the containing Merkle-tree)
-        :type hash_function:  `method`
+        :type hash_function:  method
 
         .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
@@ -220,7 +220,7 @@ class node(object):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
-        encoder = nodeEncoder()
+        encoder = NodeEncoder()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -230,12 +230,12 @@ class node(object):
 
         :rtype: str
         """
-        return json.dumps(self, cls=nodeEncoder, sort_keys=True, indent=4)
+        return json.dumps(self, cls=NodeEncoder, sort_keys=True, indent=4)
 
 # -------------------------------- End of class --------------------------
 
 
-class leaf(node):
+class Leaf(Node):
     """Class for the leafs of Merkle-tree (parentless nodes)
 
     :param record:        the record to be encrypted within the leaf
@@ -249,7 +249,7 @@ class leaf(node):
     """
 
     def __init__(self, record, hash_function, encoding):
-        node.__init__(
+        Node.__init__(
             self,
             record=record,
             left=None,
@@ -260,7 +260,7 @@ class leaf(node):
 # ------------------------------- JSON encoders --------------------------
 
 
-class nodeEncoder(json.JSONEncoder):
+class NodeEncoder(json.JSONEncoder):
     """Used implicitly in the JSON serialization of nodes. Extends the built-in
     JSON encoder for data structures.
     """
@@ -274,7 +274,7 @@ class nodeEncoder(json.JSONEncoder):
         except TypeError:
             return json.JSONEncoder.default(self, obj)
         else:
-            if isinstance(obj, leaf):
+            if isinstance(obj, Leaf):
                 return {
                     'hash': hash.decode(encoding=obj.encoding)
                 }
