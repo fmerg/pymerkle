@@ -45,4 +45,4 @@ def test_encryptLog(tree):
     tree.encryptLog('short_APACHE_log')
 
     # Compare hashes
-    assert tree.root_hash() == clone_tree.root_hash()
+    assert tree.rootHash() == clone_tree.rootHash()

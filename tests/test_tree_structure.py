@@ -9,7 +9,7 @@ def test_tree_constructor_with_records():
     tree_2 = MerkleTree()
     for i in range(1000):
         tree_2.update('{}-th record'.format(i))
-    assert tree_1.root_hash() == tree_2.root_hash()
+    assert tree_1.rootHash() == tree_2.rootHash()
 
 
 # Construct standard Merkle-tree and hash function
@@ -23,17 +23,17 @@ t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
 
 
 def test_0_leaves():
-    assert tree.root_hash() is None
+    assert tree.rootHash() is None
 
 
 def test_1_leaves():
     tree.update(t_1)
-    assert tree.root_hash() == hash(t_1)
+    assert tree.rootHash() == hash(t_1)
 
 
 def test_2_leaves():
     tree.update(t_2)
-    assert tree.root_hash() == hash(
+    assert tree.rootHash() == hash(
         hash(t_1),
         hash(t_2)
     )
@@ -41,7 +41,7 @@ def test_2_leaves():
 
 def test_3_leaves():
     tree.update(t_3)
-    assert tree.root_hash() == hash(
+    assert tree.rootHash() == hash(
         hash(
             hash(t_1),
             hash(t_2)
@@ -52,7 +52,7 @@ def test_3_leaves():
 
 def test_4_leaves():
     tree.update(t_4)
-    assert tree.root_hash() == hash(
+    assert tree.rootHash() == hash(
         hash(
             hash(t_1),
             hash(t_2)
@@ -66,7 +66,7 @@ def test_4_leaves():
 
 def test_5_leaves():
     tree.update(t_5)
-    assert tree.root_hash() == hash(
+    assert tree.rootHash() == hash(
         hash(
             hash(
                 hash(t_1),
@@ -84,7 +84,7 @@ def test_5_leaves():
 def test_7_leaves():
     tree.update(t_6)
     tree.update(t_7)
-    assert tree.root_hash() == hash(
+    assert tree.rootHash() == hash(
         hash(
             hash(
                 hash(t_1),
@@ -110,7 +110,7 @@ def test_11_leaves():
     tree.update(t_9)
     tree.update(t_10)
     tree.update(t_11)
-    assert tree.root_hash() == hash(
+    assert tree.rootHash() == hash(
         hash(
             hash(
                 hash(

@@ -22,7 +22,7 @@ for security in (True, False):
                 security=security,
                 log_dir=os.path.join(current_dir, 'logs'))
             tree.encryptLog('short_APACHE_log')
-            old_hash, sublength = tree.root_hash(), tree.length()
+            old_hash, sublength = tree.rootHash(), tree.length()
             tree.encryptLog('RED_HAT_LINUX_log')
             trees_and_subtrees.append((tree, old_hash, sublength))
 
@@ -36,12 +36,12 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 
 tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
 tree.encryptLog('short_APACHE_log')
-old_hash, sublength = tree.root_hash(), tree.length()
+old_hash, sublength = tree.rootHash(), tree.length()
 tree.encryptLog("RED_HAT_LINUX_log")
 
 
 def test_inclusion_test_edge_success_case():
-    assert tree.inclusionTest(tree.root_hash(), tree.length()) is True
+    assert tree.inclusionTest(tree.rootHash(), tree.length()) is True
 
 # ---------------- Test failure cases with standard Merkle-tree ----------
 

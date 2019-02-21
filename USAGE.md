@@ -295,7 +295,7 @@ A typical session would be as follows:
 
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
-old_hash = tree.root_hash() # a bytes object
+old_hash = tree.rootHash() # a bytes object
 sublength = tree.length()
 
 # Server encrypts some new log (modifying the top-hash and length of the tree)
@@ -330,7 +330,7 @@ In versions later than _0.2.0_, the above implicit check has been abstracted fro
 
 ```python
 # Client requests and stores the Merkle-tree's current state
-old_hash = tree.root_hash()
+old_hash = tree.rootHash()
 sublength = tree.length()
 
 # Server encrypts new records into the Merkle-tree
@@ -353,7 +353,7 @@ In what follows, let `tree` be a Merkle-tree and `p` a log proof (audit or consi
 The quickest way to validate a proof is by applying the `validate_proof` function, returning `True` or `False` according to whether the proof was found to be valid, resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
 
 ```python
-validate_proof(target_hash=tree.root_hash(), proof=p)
+validate_proof(target_hash=tree.rootHash(), proof=p)
 ```
 
 Here the result is of course `True`, whereas any other choice of `target_hash` would return `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to `p`.
@@ -365,7 +365,7 @@ A more elaborate validation procedure includes generating a receipt with info ab
 
 ```python
 v = ProofValidator()
-receipt = v.validate(target_hash=tree.root_hash(), proof=p)
+receipt = v.validate(target_hash=tree.rootHash(), proof=p)
 ```
 
 Here the `validate_proof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.ValidationReceipt` class. It looks like
@@ -450,7 +450,7 @@ Returns an integer equal to the current length (number of leaves) of the Merkle-
 
 Returns an integer equal to the current size (number of nodes) of the Merkle-tree
 
-### __.root_hash ( )__
+### __.rootHash ( )__
 
 Returns in hexadecimal form (String) the current top-hash of the Merkle-tree (i.e., the hash currently stored by its root)
 

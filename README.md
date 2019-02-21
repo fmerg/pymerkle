@@ -40,11 +40,11 @@ p = tree.auditProof(b'12-th record') # Generate audit-proof for the given record
 q = tree.auditProof(55) # Generate audit-proof based upon the 56-th leaf
 
 # Quick validation of the above proofs
-validateProof(target_hash=tree.root_hash(), proof=p) # True
-validateProof(target_hash=tree.root_hash(), proof=q) # True
+validateProof(target_hash=tree.rootHash(), proof=p) # True
+validateProof(target_hash=tree.rootHash(), proof=q) # True
 
 # Store the tree's current state (root-hash and length) for later use
-top_hash = tree.root_hash()
+top_hash = tree.rootHash()
 length = tree.length()
 
 # Update the tree by encrypting a new log
@@ -54,7 +54,7 @@ tree.encryptLog('logs/sample_log')
 r = tree.consistencyProof(old_hash=top_hash, sublength=length)
 
 # Validate consistency-proof and generate receipt
-validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
+validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
 ```
 
 

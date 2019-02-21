@@ -91,7 +91,7 @@ class MerkleTree(object):
 
 # ------------------------------------ Root ------------------------------
 
-    def root_hash(self):
+    def rootHash(self):
         """Returns the current root-hash of the Merkle-tree, i.e., the hash stored by its current root
 
         :returns: the tree's current root-hash
@@ -128,12 +128,10 @@ class MerkleTree(object):
             hash_type=self.hash_type.upper().replace('_', '-'),
             encoding=self.encoding.upper().replace('_', '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.root_hash().decode(
+            root_hash=self.rootHash().decode(
                 encoding=self.encoding) if self else '',
-            size=len(
-                self.nodes),
-            length=len(
-                self.leaves),
+            size=len(self.nodes),
+            length=len(self.leaves),
             height=self.height())
 
     def length(self):
