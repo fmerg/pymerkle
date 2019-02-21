@@ -158,8 +158,8 @@ class MerkleTree(object):
         """
         length = len(self.leaves)
         if length > 0:
-            return log_2(length) + \
-                1 if length != 2**log_2(length) else log_2(length)
+            return log_2(length) + 1\
+                if length != 2**log_2(length) else log_2(length)
         return 0
 
     def __str__(self, indent=3):
