@@ -417,7 +417,7 @@ configures the validator to save receipts upon validation inside the specified d
 
 ## API
 
-This section describes the _pymerkle_ API in its most standard use made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
+This section describes the recommended use of _pymerkle_ made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
 
 ### [ Work In progress ]
 <!--
