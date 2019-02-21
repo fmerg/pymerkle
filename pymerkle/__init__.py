@@ -3,7 +3,7 @@ from .validations import validateProof, ProofValidator
 
 name = "pymerkle"
 
-__version__ = "1.0.1"
+__version__ = "2.0.0b"
 __all__ = (
     'MerkleTree',
     'validateProof',
