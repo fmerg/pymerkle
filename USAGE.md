@@ -412,7 +412,7 @@ and will be stored in a `.json` file if the validator object has been configured
 v = ProofValidator(validations_dir=...)
 ```
 
-configures the validator to save receipts upon validation inside the specified directory as a `.json` file, bearing as name the corresponding receipt's uuid (see [**here**](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/validations_dir/d1307070-32aa-11e9-8e47-70c94e89b637.json) for example).
+configures the validator to save receipts upon validation inside the specified directory as `.json` files, each bearing as name the corresponding receipt's uuid (see [**here**](https://github.com/FoteinosMerg/pymerkle/tree/master/tests/validations_dir) for example).
 
 
 ## API
