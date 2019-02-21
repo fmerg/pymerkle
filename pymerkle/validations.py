@@ -53,7 +53,7 @@ def validateProof(target_hash, proof):
 class ProofValidator(object):
     """Wrapper for the ``validations.validateProof`` function
 
-    Employs the ``validations.validation_receipt`` class in order to organize validation results
+    Employs the ``validations.ValidationReceipt`` class in order to organize validation results
     in an easy storable way
 
     :param validations_dir: [optional] Sets the homonymous attribute
@@ -79,11 +79,11 @@ class ProofValidator(object):
         :type target_hash:  bytes
         :param proof:       the proof to be validated
         :type proof:        proof.Proof
-        :rtype:             validations.validation_receipt
+        :rtype:             validations.ValidationReceipt
         """
         validated = validateProof(target_hash=target_hash, proof=proof)
 
-        receipt = validation_receipt(
+        receipt = ValidationReceipt(
             proof_uuid=proof.header['uuid'],
             proof_provider=proof.header['provider'],
             result=validated
@@ -106,7 +106,7 @@ class ProofValidator(object):
         return receipt
 
 
-class validation_receipt(object):
+class ValidationReceipt(object):
     """Encapsulates the result of proof validation
 
     :param proof_uuid:     uuid of the validated proof (time-based)
@@ -116,13 +116,13 @@ class validation_receipt(object):
     :param result:         Validation result (``True`` iff the proof was found to be valid)
     :type result:          bool
 
-    Instead of providing the above arguments corresponding to `*args`, a ``validation_receipt`` object may also
+    Instead of providing the above arguments corresponding to `*args`, a ``ValidationReceipt`` object may also
     be constructed in the following ways by employing `**kwargs` in order to load the JSON string of a
     given validation-receipt ``r``:
 
-    >>> from pymerkle.valiation_receipts import validation_receipt
-    >>> s = validation_receipt(from_json=r.JSONstring())
-    >>> t = validation_receipt(from_dict=json.loads(r.JSONstring()))
+    >>> from pymerkle.valiation_receipts import ValidationReceipt
+    >>> s = ValidationReceipt(from_json=r.JSONstring())
+    >>> t = ValidationReceipt(from_dict=json.loads(r.JSONstring()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*, since the constructed
               receipts ``s`` and ``t`` have the same *uuid* and *timestamps* as ``r``

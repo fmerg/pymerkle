@@ -3,7 +3,7 @@ import os
 import json
 import time
 from pymerkle import MerkleTree, hashing, validateProof, ProofValidator
-from pymerkle.validations import validation_receipt
+from pymerkle.validations import ValidationReceipt
 
 # ---------------- Check receipt replicates in all possible ways ---------
 
@@ -12,8 +12,8 @@ tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
 p = tree.auditProof(666)
 v = ProofValidator()
 r = v.validate(target_hash=tree.root_hash(), proof=p)
-r_1 = validation_receipt(from_json=r.JSONstring())
-r_2 = validation_receipt(from_dict=json.loads(r.JSONstring()))
+r_1 = ValidationReceipt(from_json=r.JSONstring())
+r_2 = ValidationReceipt(from_dict=json.loads(r.JSONstring()))
 
 
 @pytest.mark.parametrize('replicate', (r_1, r_2))

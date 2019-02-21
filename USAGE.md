@@ -12,25 +12,25 @@ Type
 from pymerkle import *
 ```
 
-to import the classes `merkle_tree` and `proof_validator`, as well as the `validate_proof` function.
+to import the classes `MerkleTree` and `ProofValidator`, as well as the `validate_proof` function.
 
 ### Merkle-tree construction
 
 ```python
-tree = merkle_tree()
+tree = MerkleTree()
 ```
 
 creates an empty Merkle-tree with default configurations: hash algorithm _SHA256_, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
 
 
 ```python
-tree = merkle_tree(hash_type='sha256', encoding='utf-8', security=True)
+tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
 For example, in order to create a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_ write:
 
 ```python
-tree = merkle_tree(hash_type='sha512', encoding='utf-32')
+tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
 An extra argument `log_dir` would specify the absolute path of the directory, where the Merkle-tree will receive files to encrypt from. If unspecified, it defaults the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log-files from an existing directory `/logs` inside the directory containing the script, write:
@@ -39,13 +39,13 @@ An extra argument `log_dir` would specify the absolute path of the directory, wh
 import os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-tree = merkle_tree(log_dir=os.path.join(script_dir, 'logs'))
+tree = MerkleTree(log_dir=os.path.join(script_dir, 'logs'))
 ```
 
 You can then encrypt any file `log_sample` inside the `/logs` directory by
 
 ```python
-tree.encrypt_log(log_sample)
+tree.encryptLog(log_sample)
 ```
 
 without need to specify its absolute path.
@@ -112,17 +112,17 @@ with open('structure', 'w') as f:
 _Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
 
 ```python
-tree = merkle_tree()                          # initially empty SHA256/UTF-8 Merkle-tree
+tree = MerkleTree()                          # initially empty SHA256/UTF-8 Merkle-tree
 
 tree.update('arbitrary string')               # first record
 tree.update(b'arbitrary bytes-like object')   # second record
 ...                                           # ...
 ```
 
-_Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encrypt_log` method to encrypt a new file as follows:
+_Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encryptLog` method to encrypt a new file as follows:
 
 ```shell
->>> tree.encrypt_log('large_APACHE_log')
+>>> tree.encryptLog('large_APACHE_log')
 
 Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
@@ -133,7 +133,7 @@ Encryption complete
 This presupposes that the file `large_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would inside a nested directory `/APACHE_logs`, you could easily encrypt it with
 
 ```shell
->>> tree.encrypt_log('APACHE_logs/large_APACHE_log')
+>>> tree.encryptLog('APACHE_logs/large_APACHE_log')
 
 Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
@@ -141,7 +141,7 @@ Encryption complete
 >>>
 ```
 
-In other words, the argument of `.encrypt_log` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. The latter can be accessed as the tree's `.log_dir` attribute.
+In other words, the argument of `.encryptLog` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. The latter can be accessed as the tree's `.log_dir` attribute.
 
 ### Generating Log proofs (Server's Side)
 
@@ -149,16 +149,16 @@ A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_)
 
 ### Audit-proof
 
-Given a Merkle-tree `tree`, use the `.audit_proof` method to generate the audit proof based upon, say, the 56-th leaf as follows:
+Given a Merkle-tree `tree`, use the `.auditProof` method to generate the audit proof based upon, say, the 56-th leaf as follows:
 
 ```python
-p = tree.audit_proof(arg=55)
+p = tree.auditProof(arg=55)
 ```
 
 You can instead generate the proof based upon a presumed record `record` with
 
 ```python
-p = tree.audit_proof(arg=record)
+p = tree.auditProof(arg=record)
 ```
 
 where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
@@ -279,10 +279,10 @@ If the argument requested by Client exceeds the tree's current length or isn't a
 
 #### Consistency-proof
 
-Similarly, use the `.consistency_proof` method to generate a consistency proof as follows:
+Similarly, use the `.consistencyProof` method to generate a consistency proof as follows:
 
 ```python
-q = tree.consistency_proof(
+q = tree.consistencyProof(
       old_hash=bytes(
         '92e0e8f2d57526d852fb567a052219937e56e9c388abf570a679651772360e7a',
         'utf-8'),
@@ -299,10 +299,10 @@ old_hash = tree.root_hash() # a bytes object
 sublength = tree.length()
 
 # Server encrypts some new log (modifying the top-hash and length of the tree)
-tree.encrypt_log('sample_log')
+tree.encryptLog('sample_log')
 
 # Upon Client's request, the server provides consistency proof for the requested stage
-q = tree.consistency_proof(old_hash, sublength)
+q = tree.consistencyProof(old_hash, sublength)
 ```
 
 The generated object `q` is an instance of the `proof.proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current top-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
@@ -326,7 +326,7 @@ More specifically, upon generating any consistency-proof requested by a Client, 
 - inclusion-test _failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
 internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
 
-In versions later than _0.2.0_, the above implicit check has been abstracted from the `.consistency_proof` method and explicitly implemented within the `.inclusion_test` method of the `merkle_tree` object. A typical session would then be as follows:
+In versions later than _0.2.0_, the above implicit check has been abstracted from the `.consistencyProof` method and explicitly implemented within the `.inclusionTest` method of the `MerkleTree` object. A typical session would then be as follows:
 
 ```python
 # Client requests and stores the Merkle-tree's current state
@@ -338,9 +338,9 @@ tree.encrypt('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
-tree.inclusion_test(old_hash=old_hash, sublength=sublength)                              # True
-tree.inclusion_test(old_hash=bytes('anything else', tree.encoding), sublength=sublength) # False
-tree.inclusion_test(old_hash=old_hash, sublength=sublength + 1)                          # False
+tree.inclusionTest(old_hash=old_hash, sublength=sublength)                              # True
+tree.inclusionTest(old_hash=bytes('anything else', tree.encoding), sublength=sublength) # False
+tree.inclusionTest(old_hash=old_hash, sublength=sublength + 1)                          # False
 ```
 
 
@@ -361,14 +361,14 @@ Here the result is of course `True`, whereas any other choice of `target_hash` w
 
 #### Validation with receipt
 
-A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `.validate` method of the `proof_validator` class as follows:
+A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `.validate` method of the `ProofValidator` class as follows:
 
 ```python
-v = proof_validator()
+v = ProofValidator()
 receipt = v.validate(target_hash=tree.root_hash(), proof=p)
 ```
 
-Here the `validate_proof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.validation_receipt` class. It looks like
+Here the `validate_proof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.ValidationReceipt` class. It looks like
 
 ```bash
 >>> receipt
@@ -409,7 +409,7 @@ where `proof-provider` refers to the Merkle-tree having generated the proof. The
 and will be stored in a `.json` file if the validator object has been configured upon construction appropriately. More specifically,
 
 ```python
-v = proof_validator(validations_dir=...)
+v = ProofValidator(validations_dir=...)
 ```
 
 configures the validator to save receipts upon validation inside the specified directory as a `.json` file, bearing as name the corresponding receipt's uuid (see [**here**](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/validations_dir/d1307070-32aa-11e9-8e47-70c94e89b637.json) for example).
@@ -424,10 +424,10 @@ configures the validator to save receipts upon validation inside the specified d
 
 ### _Merkle-tree class_
 
-### __merkle_tree ( [ *hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
+### __MerkleTree ( [ *hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
 
 
-Constructor of Merkle-trees, returning an instance of the `tree.merkle_tree` class.
+Constructor of Merkle-trees, returning an instance of the `tree.MerkleTree` class.
 
 - **hash_type** (_str_) [optional], specifies the hash algorithm used by the Merkle-tree defulting to _SHA256_ if unspecified. Must be among `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case allowed) and 'sha3_224'`, `'sha3_256'`, `'sha3_384'`, or `'sha3_512'` (upper- or mixed-case with '-' instead of '_' allowed).
 
@@ -460,13 +460,13 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 - **record** (_str_ or _bytes_ or _bytearray_), thought of as the new record whose hash is about to be encrypted into the Merkle-tree
 
-### __.encrypt_log (*log_file*)__
+### __.encryptLog (*log_file*)__
 
 Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update` method internally). Throws relative exception if the specified file does not exist.
 
 - **log_file** (_str_), relative path of the log file under encryption with respect to the configured log directory `.log_dir` of the Merkle-tree
 
-### __.audit_proof (*arg*)__
+### __.auditProof (*arg*)__
 
 Returns an instance of the `proof.proof` class, thought of as the audit-proof based upon the specified argument
 
@@ -474,7 +474,7 @@ Returns an instance of the `proof.proof` class, thought of as the audit-proof ba
 
 *NOTE*: since different leaves might encrypt the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records and audit proofs are uniquely ascribed to each__.
 
-### __.consistency_proof (*old_hash, sublength*)__
+### __.consistencyProof (*old_hash, sublength*)__
 
 Returns an instance of the `proof.proof` class, thought of as the consistency-proof for the presumed previous state of the Merkle-tree corresponding to the inserted hash-length combination
 
@@ -506,17 +506,17 @@ Validates the inserted proof by comparing to the target-hash, modifies the proof
 
 ### _Proof-validator class_
 
-### __proof_validator ( [ *validations_dir=None* ] )__
+### __ProofValidator ( [ *validations_dir=None* ] )__
 
-Constructor of the `validations.proof_validator` class.
+Constructor of the `validations.ProofValidator` class.
 
-This class wraps the `validate_proof` functionality by employing the `validations.validation_receipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
+This class wraps the `validate_proof` functionality by employing the `validations.ValidationReceipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
 
 - **validations_dir** (_str_) [optional], absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate` method below). Defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
 
 ### __.validate (*target_hash, proof*)__
 
-Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.validation_receipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file, bearing as name the corresponding receipt's uuid.
+Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file, bearing as name the corresponding receipt's uuid.
 
 - **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
 

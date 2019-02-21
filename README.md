@@ -25,33 +25,33 @@ pip3 install pymerkle
 **See also [_Usage and API_](USAGE.md)**
 
 ```python
-from pymerkle import *            # Import merkle_tree, validate_proof
-                                  # and proof_validator
-tree = merkle_tree()              # Create empty SHA256/UTF-8 Merkle-tree with
+from pymerkle import *            # Import MerkleTree, validateProof
+                                  # and ProofValidator
+tree = MerkleTree()              # Create empty SHA256/UTF-8 Merkle-tree with
                                   # defense against second-preimage attack
-validator = proof_validator()     # Create object for validating proofs
+validator = ProofValidator()     # Create object for validating proofs
 
 # Successively update the tree with one hundred records
 for i in range(100):
     tree.update(bytes('{}-th record'.format(i), 'utf-8'))
 
 
-p = tree.audit_proof(b'12-th record') # Generate audit-proof for the given record
-q = tree.audit_proof(55) # Generate audit-proof based upon the 56-th leaf
+p = tree.auditProof(b'12-th record') # Generate audit-proof for the given record
+q = tree.auditProof(55) # Generate audit-proof based upon the 56-th leaf
 
 # Quick validation of the above proofs
-validate_proof(target_hash=tree.root_hash(), proof=p) # True
-validate_proof(target_hash=tree.root_hash(), proof=q) # True
+validateProof(target_hash=tree.root_hash(), proof=p) # True
+validateProof(target_hash=tree.root_hash(), proof=q) # True
 
 # Store the tree's current state (root-hash and length) for later use
 top_hash = tree.root_hash()
 length = tree.length()
 
 # Update the tree by encrypting a new log
-tree.encrypt_log('logs/sample_log')
+tree.encryptLog('logs/sample_log')
 
 # Generate consistency-proof for the stage before encrypting the log
-r = tree.consistency_proof(old_hash=top_hash, sublength=length)
+r = tree.consistencyProof(old_hash=top_hash, sublength=length)
 
 # Validate consistency-proof and generate receipt
 validation_receipt = validator.validate(target_hash=tree.root_hash(), proof=r)
@@ -66,7 +66,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes in the present implementation, whereas the total number of nodes in the structure described [**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
 
-The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the [`merkle_tree.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#merkle_tree.update) method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_tree_structure.py) file inside the project's repository.
+The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the [`MerkleTree.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update) method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_tree_structure.py) file inside the project's repository.
 
 
 
