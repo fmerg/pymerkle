@@ -219,42 +219,9 @@ the correpsonding JSON format being
                 -1,
                 "e340cdb8257dad85310c31e967236532355b029d5c0fcc0c113f28cfd2a6329f"
             ],
-            [
-                1,
-                "5856af7bc848332425381cd76ab815d511cde305f592c3aef457c036045f2180"
-            ],
-            [
-                -1,
-                "f8dbb155ba43f868c4a5870730811ff9373d474ff48c480ac7f447b836195682"
-            ],
-            [
-                -1,
-                "b0bc9f503496125931ec9e5ee46584967cfedabe510292206bfdfc18479d03f1"
-            ],
-            [
-                -1,
-                "6690b39e3b8b4995b1ac05e26c87722943951bd088162fa3a573f896f8a3391b"
-            ],
-            [
-                -1,
-                "868ca4852e16fa69b59c0541ff2c39c0c123070ea53161cc2f4bbcfa9bda526b"
-            ],
-            [
-                1,
-                "4ed02d875bd6c5abcda7ecd124eeb7e715bcf4bf02b520bd387eebeef365db6b"
-            ],
-            [
-                1,
-                "05d002e899a11e4e829725aa291c97de71bc5600888b8d2fb8ac4d65731cee5f"
-            ],
-            [
-                1,
-                "2f843e357090f2d82fbb8a63a19089e23b9cfc5ec4c0d0de23f7af54ab3850bb"
-            ],
-            [
-                1,
-                "37828d35c131a6803f8d25da8e9a31e2b24e7289a134dc187ef605f7f41f45dd"
-            ],
+
+            ...
+            
             [
                 -1,
                 "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"

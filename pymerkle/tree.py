@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 # -------------------------------- Main class ----------------------------
 
-                                                                                              
+
 class MerkleTree(object):
     """Class for Merkle-trees
 
@@ -571,7 +571,7 @@ class MerkleTree(object):
         :type subroots:  list of nodes.Node
         :returns:        a list of signed hashes complementing optimally the hashes detected by
                          ``.principal_subroots``, so that a full consistency-path be generated
-        :rtype:          list of signed pairs (+1/-1, bytes)
+        :rtype:          list of (+1/-1, bytes) pairs
         """
         if len(subroots) != 0:
             complement = []

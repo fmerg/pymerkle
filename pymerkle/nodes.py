@@ -25,7 +25,7 @@ class Node(object):
     :type right:          nodes.Node
     :param hash_function: hash function to be used for encryption. Should be the ``.hash``
                           method of the containing Merkle-tree
-    :type hash_function:  `method`
+    :type hash_function:  method
     :param encoding:      Encoding type to be used when decoding the hash stored by the node.
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
@@ -201,7 +201,7 @@ class Node(object):
 
         :param hash_function: hash function to be used during recalculation (thought of as
                               the ``.hash`` method of the containing Merkle-tree)
-        :type hash_function:  `method`
+        :type hash_function:  method
 
         .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
