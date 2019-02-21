@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 # -------------------------------- Main class ----------------------------
 
-
+                                                                                              
 class MerkleTree(object):
     """Class for Merkle-trees
 
