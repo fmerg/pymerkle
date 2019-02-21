@@ -25,10 +25,10 @@ pip3 install pymerkle
 **See also [_Usage and API_](USAGE.md)**
 
 ```python
-from pymerkle import *            # Import MerkleTree, validateProof
-                                  # and ProofValidator
+from pymerkle import *           # Import MerkleTree, validateProof
+                                 # and ProofValidator
 tree = MerkleTree()              # Create empty SHA256/UTF-8 Merkle-tree with
-                                  # defense against second-preimage attack
+                                 # defense against second-preimage attack
 validator = ProofValidator()     # Create object for validating proofs
 
 # Successively update the tree with one hundred records

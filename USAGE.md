@@ -12,7 +12,7 @@ Type
 from pymerkle import *
 ```
 
-to import the classes `MerkleTree` and `ProofValidator`, as well as the `validate_proof` function.
+to import the classes `MerkleTree` and `ProofValidator`, as well as the `validateProof` function.
 
 ### Merkle-tree construction
 
@@ -338,9 +338,9 @@ tree.encrypt('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
-tree.inclusionTest(old_hash=old_hash, sublength=sublength)                              # True
-tree.inclusionTest(old_hash=bytes('anything else', tree.encoding), sublength=sublength) # False
-tree.inclusionTest(old_hash=old_hash, sublength=sublength + 1)                          # False
+tree.inclusionTest(old_hash=old_hash, sublength=sublength)         # True
+tree.inclusionTest(old_hash=b'anything else', sublength=sublength) # False
+tree.inclusionTest(old_hash=old_hash, sublength=sublength + 1)     # False
 ```
 
 
@@ -350,10 +350,10 @@ In what follows, let `tree` be a Merkle-tree and `p` a log proof (audit or consi
 
 #### Quick validation
 
-The quickest way to validate a proof is by applying the `validate_proof` function, returning `True` or `False` according to whether the proof was found to be valid, resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
+The quickest way to validate a proof is by applying the `validateProof` function, returning `True` or `False` according to whether the proof was found to be valid, resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
 
 ```python
-validate_proof(target_hash=tree.rootHash(), proof=p)
+validateProof(target_hash=tree.rootHash(), proof=p)
 ```
 
 Here the result is of course `True`, whereas any other choice of `target_hash` would return `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to `p`.
@@ -368,7 +368,7 @@ v = ProofValidator()
 receipt = v.validate(target_hash=tree.rootHash(), proof=p)
 ```
 
-Here the `validate_proof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.ValidationReceipt` class. It looks like
+Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.ValidationReceipt` class. It looks like
 
 ```bash
 >>> receipt
@@ -417,11 +417,10 @@ configures the validator to save receipts upon validation inside the specified d
 
 ## API
 
+This section describes the _pymerkle_ API in its most standard use made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
+
 ### [ Work In progress ]
-**See the complete documentation at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
-
-<!-- This section describes the _pymerkle_ API as suggested to be used by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
-
+<!--
 ### _Merkle-tree class_
 
 ### __MerkleTree ( [ *hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
@@ -496,7 +495,7 @@ _NOTE_: The left parent of each node is printed *above* its right one
 
 ### _Quick proof validation_
 
-### __validate_proof (*target_hash, proof*)__
+### __validateProof (*target_hash, proof*)__
 
 Validates the inserted proof by comparing to the target-hash, modifies the proof's status as `True` or `False` accordingly and returns this result.
 
@@ -510,7 +509,7 @@ Validates the inserted proof by comparing to the target-hash, modifies the proof
 
 Constructor of the `validations.ProofValidator` class.
 
-This class wraps the `validate_proof` functionality by employing the `validations.ValidationReceipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
+This class wraps the `validateProof` functionality by employing the `validations.ValidationReceipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
 
 - **validations_dir** (_str_) [optional], absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate` method below). Defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
 
