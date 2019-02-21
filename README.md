@@ -35,7 +35,6 @@ validator = ProofValidator()     # Create object for validating proofs
 for i in range(100):
     tree.update(bytes('{}-th record'.format(i), 'utf-8'))
 
-
 p = tree.auditProof(b'12-th record') # Generate audit-proof for the given record
 q = tree.auditProof(55) # Generate audit-proof based upon the 56-th leaf
 
