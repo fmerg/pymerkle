@@ -17,7 +17,7 @@ It is currently the only Python library implementing all the above features, wit
 ## Installation
 
 ```bash
-pip3 install pymerkle
+pip3 install pymerkle --pre
 ```
 
 ## Quick example
