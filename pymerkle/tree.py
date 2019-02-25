@@ -262,7 +262,7 @@ class MerkleTree(object):
     def encryptLog(self, log_file):
         """Encrypts the data of the provided log-file into the Merkle-tree
 
-        More accurately, it successively updates the Merkle-tree it with each line
+        More accurately, it successively updates the Merkle-tree with each line
         of the provided log-file (cf. doc of the ``.update`` method)
 
         :param log_file: relative path of the log-file under enryption, specified with respect
@@ -287,13 +287,12 @@ class MerkleTree(object):
 
             tqdm.write('')
             # Start line by line encryption
-            for line in tqdm(
-                    open(absolute_file_path, 'rb'),
-                    # ~ NOTE: File should be opened in binary mode so that its content remains
-                    # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                    # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                    desc='Encrypting log file',
-                    total=number_of_lines):
+            for line in tqdm(open(absolute_file_path, 'rb'),
+                             # ~ NOTE: File should be opened in binary mode so that its content remains
+                             # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                             # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                             desc='Encrypting log file',
+                             total=number_of_lines):
                 self.update(record=line)
             tqdm.write('Encryption complete\n')
 
@@ -465,7 +464,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
