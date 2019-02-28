@@ -438,42 +438,45 @@ Class for Merkle-trees
 
 Calculates and returns the Merkle-tree’s current height
 
-_NOTE_: Since the tree is by construction binary balanced, its height coincides with the length of its leftmost branch
+- **Returns**: the Merkle-tree's current height
 
 - **Return type**: _int_
 
+_NOTE_: Since the tree is by construction binary balanced, its height coincides with the length of its leftmost branch
 
 ### __.length ( )__
 
-Returns the Merkle-tree’s current length (i.e., the number of its leaves)
+- **Returns**: the Merkle-tree’s current length (i.e., the number of its leaves)
 
 - **Return type**: _int_
 
 ### __.size ( )__
 
-Returns the current number of the Merkle-tree’s nodes
+- **Returns**: the current number of the Merkle-tree’s nodes
 
 - **Return type**: _int_
 
-<!--
-Returns an integer equal to the current size (number of nodes) of the Merkle-tree
 
 ### __.rootHash ( )__
 
-Returns in hexadecimal form (String) the current top-hash of the Merkle-tree (i.e., the hash currently stored by its root)
+Returns the current root-hash of the Merkle-tree (i.e., the hash stored by its current root)
+
+- **Return type**: _bytes_
 
 ### __.update (*record*)__
 
-Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf. Restructures the tree appropriately and recalculates hashes of the right-most branch.
+Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf. Restructures the tree appropriately and recalculates hashes at the _right-most_ branch.
 
-- **record** (_str_ or _bytes_ or _bytearray_), thought of as the new record whose hash is about to be encrypted into the Merkle-tree
+- **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf
+
 
 ### __.encryptLog (*log_file*)__
 
-Appends the specified log file into the Merkle-tree by updating with each of its lines successively (calling the `.update` method internally). Throws relative exception if the specified file does not exist.
+Encrypts the data of the provided log-file into the Merkle-tree, by syccessively updating it with each line of the provided log-file.
 
-- **log_file** (_str_), relative path of the log file under encryption with respect to the configured log directory `.log_dir` of the Merkle-tree
+- **log_file** (_str_) – relative path of the log-file under enryption, specified with respect to the configured Merkle-tree’s directory `.log_dir`
 
+<!--
 ### __.auditProof (*arg*)__
 
 Returns an instance of the `proof.Proof` class, thought of as the audit-proof based upon the specified argument
