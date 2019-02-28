@@ -472,9 +472,9 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 ### __.encryptLog (*log_file*)__
 
-Encrypts the data of the provided log-file into the Merkle-tree, by syccessively updating it with each line of the provided log-file.
+Encrypts the data of the provided file into the Merkle-tree, by successively updating it with each line of the provided log-file.
 
-- **log_file** (_str_) – relative path of the log-file under enryption, specified with respect to `.log_dir`
+- **log_file** (_str_) – relative path of the log-file under encryption, specified with respect to `.log_dir`
 
 _Note:_ Raises `FileNotFoundError` if the specified file does not exist
 <!--
