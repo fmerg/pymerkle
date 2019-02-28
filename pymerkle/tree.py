@@ -23,8 +23,7 @@ class MerkleTree(object):
     :param encoding:   [optional] Defaults to ``'utf_8'``. Should be included in ``hashing.ENCODINGS`` (upper-
                        or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type encoding:    str
-    :param security:   [optional] If ``False``, it deactivates defense against second-preimage attack if ``False``.
-                       Defaults to ``True``.
+    :param security:   [optional] If ``False``, it deactivates defense against second-preimage attack. Defaults to ``True``.
     :type security:    bool
     :param \*records:  [optional] The records initially stored by the Merkle-tree; usually empty at construction. If
                        If provided, the tree is constructed with as many leafs from the beginning, storing the hashes
