@@ -1,4 +1,4 @@
-## API [ Work In progress ]
+## API [Work In progress]
 
 This API describes the recommended use of _pymerkle_ made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
 
