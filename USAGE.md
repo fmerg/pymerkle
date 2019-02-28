@@ -161,7 +161,7 @@ You can instead generate the proof based upon a presumed record `record` with
 p = tree.auditProof(arg=record)
 ```
 
-where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records*__.
+where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
 
 The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
@@ -420,14 +420,12 @@ configures the validator to save receipts upon validation inside the specified d
 This section describes the recommended use of _pymerkle_ made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of all methods and their possible arguments.
 
 ### [ Work In progress ]
-<!--
-### _Merkle-tree class_
 
-### __MerkleTree ( [ *hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
-
+### `class` __MerkleTree ( [ *hash_type='sha256', encoding='utf-8', security=True, log_dir=os.getcwd()* ] )__
 
 Constructor of Merkle-trees, returning an instance of the `tree.MerkleTree` class.
 
+<!--
 - **hash_type** (_str_) [optional], specifies the hash algorithm used by the Merkle-tree defulting to _SHA256_ if unspecified. Must be among `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case allowed) and 'sha3_224'`, `'sha3_256'`, `'sha3_384'`, or `'sha3_512'` (upper- or mixed-case with '-' instead of '_' allowed).
 
 - **encoding_type** (_str_) [optional], specifies the encoding used by the Merkle-tree before hashing defaulting to _UTF-8_ if unspecified. Can be any of the following (upper- or mixed-case with '-' instead of '_' allowed): `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
