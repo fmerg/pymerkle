@@ -421,7 +421,7 @@ This section describes the recommended use of _pymerkle_ made by an external use
 
 ### [ Work In progress ]
 
-### `class` __MerkleTree ( [ *hash_type = 'sha256', encoding = 'utf-8', security=True, log_dir = os.getcwd()* ] )__
+## `class` __MerkleTree ( [ *hash_type = 'sha256', encoding = 'utf-8', security=True, log_dir = os.getcwd()* ] )__
 
 Class for Merkle-trees
 
@@ -477,8 +477,8 @@ Encrypts the data of the provided file into the Merkle-tree, by successively upd
 - **log_file** (_str_) – relative path of the log-file under encryption, specified with respect to `.log_dir`
 
 _Note:_ Raises `FileNotFoundError` if the specified file does not exist
-<!--
-### __.auditProof (*arg*)__
+
+<!-- ### __.auditProof (*arg*)__
 
 Returns an instance of the `proof.Proof` class, thought of as the audit-proof based upon the specified argument
 
@@ -506,9 +506,9 @@ Prints the Merkle-tree in a terminal friendly way; in particular, printing the t
 
 _NOTE_: The left parent of each node is printed *above* its right one
 
-### _Quick proof validation_
+### _Quick proof validation_ -->
 
-### __validateProof (*target_hash, proof*)__
+## `method` __validateProof ( *target_hash, proof* )__
 
 Validates the inserted proof by comparing to the target-hash, modifies the proof's status as `True` or `False` accordingly and returns this result.
 
@@ -516,10 +516,9 @@ Validates the inserted proof by comparing to the target-hash, modifies the proof
 
 - **proof** (_proof.Proof_), the proof to be validated
 
-### _Proof-validator class_
+## `class` __ProofValidator ( [ *validations_dir* ] )__
 
-### __ProofValidator ( [ *validations_dir=None* ] )__
-
+<!--
 Constructor of the `validations.ProofValidator` class.
 
 This class wraps the `validateProof` functionality by employing the `validations.ValidationReceipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
