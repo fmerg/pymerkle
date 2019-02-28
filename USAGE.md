@@ -442,7 +442,7 @@ Calculates and returns the Merkle-tree’s current height
 
 - **Return type**: _int_
 
-_NOTE_: Since the tree is by construction binary balanced, its height coincides with the length of its leftmost branch
+_Note:_ Since the tree is by construction binary balanced, its height coincides with the length of its leftmost branch
 
 ### __.length ( )__
 
@@ -474,8 +474,9 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 Encrypts the data of the provided log-file into the Merkle-tree, by syccessively updating it with each line of the provided log-file.
 
-- **log_file** (_str_) – relative path of the log-file under enryption, specified with respect to the configured Merkle-tree’s directory `.log_dir`
+- **log_file** (_str_) – relative path of the log-file under enryption, specified with respect to `.log_dir`
 
+_Note:_ Raises `FileNotFoundError` if the specified file does not exist
 <!--
 ### __.auditProof (*arg*)__
 
