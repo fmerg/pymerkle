@@ -22,7 +22,7 @@ pip3 install pymerkle --pre
 
 ## Quick example
 
-**See also [_Usage and API_](USAGE.md)**
+**See also [_Usage_](USAGE.md) and [_API_](API.md)**
 
 ```python
 from pymerkle import *           # Import MerkleTree, validateProof
