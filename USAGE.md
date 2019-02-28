@@ -469,7 +469,6 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 - **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf
 
-
 ### __.encryptLog (*log_file*)__
 
 Encrypts the data of the provided file into the Merkle-tree, by successively updating it with each line of the provided log-file.
@@ -510,25 +509,30 @@ _NOTE_: The left parent of each node is printed *above* its right one
 
 ## `method` __validateProof ( *target_hash, proof* )__
 
-Validates the inserted proof by comparing to the target-hash, modifies the proof's status as `True` or `False` accordingly and returns this result.
+Validates the inserted proof by comparing to the provided target hash, modifies the proof’s status as `True` or `False` accordingly and returns this result
 
-- **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
+- **target_hash** (_str_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 
-- **proof** (_proof.Proof_), the proof to be validated
+- **proof** (_proof.Proof_) – the proof to be validated
+
+- **Returns**: result of validation
+
+- **Return type**: _bool_
 
 ## `class` __ProofValidator ( [ *validations_dir* ] )__
 
-<!--
-Constructor of the `validations.ProofValidator` class.
+Wrapper for the `validateProof` function, employing the `validations.ValidationReceipt` class in order to organize validation results in an easy storable way.
 
-This class wraps the `validateProof` functionality by employing the `validations.ValidationReceipt` class in order to organize any validation result in nice format. If an argument `validations_dir` is provided, validated receipts are stored in `.json` files inside the configured directory.
-
-- **validations_dir** (_str_) [optional], absolute path of the directory where validation receipts will be stored as `.json` files (cf. the `.validate` method below). Defaults to `None` if unspecified, in which case validation receipts are not to be automatically stored
+- **validations_dir** (_str_) [optional] absolute path of the directory where validation receipts will be stored as `.json` files. Defaults to `None` if unspecified at construction, in which case validation receipts are not to be automatically stored
 
 ### __.validate (*target_hash, proof*)__
 
 Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file, bearing as name the corresponding receipt's uuid.
 
-- **target_hash** (_str_), the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current top-hash of the Merkle-tree having provided the proof)
+- **target_hash** (_str_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 
-- **proof** (_proof.Proof_), the proof to be validated -->
+- **proof** (_proof.Proof_) – the proof to be validated
+
+- **Returns**: a receipt containing the result of validation (along with _time-stamp_ and _uuid_)
+
+- **Return type**: _validations.validationReceipt_
