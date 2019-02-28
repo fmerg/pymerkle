@@ -34,13 +34,13 @@ class MerkleTree(object):
     :type log_dir:     str
 
     :ivar uuid:       (*str*) uuid of the Merkle-tree (time-based)
-    :ivar hash_type:  (*str*) Type of hashing algorithm used by the Merkle-tree
-    :ivar encoding:   (*str*) Encoding type used by the Merkle-tree for encryption
+    :ivar hash_type:  (*str*) See the constructor's homonymous argument
+    :ivar encoding:   (*str*) See the constructor's homonymous argument
     :ivar security:   (*bool*) Iff ``True``, security measures against second-preimage attack are activated
     :ivar hash:       (*method*) Core hash functionality of the Merkle-tree
     :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion tests
                       (explicitely or implicitely upon a request for consistency proof)
-    :ivar .log_dir:   (*bool*) See homonymous argument of the constructor
+    :ivar .log_dir:   (*bool*) See the constructor's homonymous argument
     """
 
     def __init__(
