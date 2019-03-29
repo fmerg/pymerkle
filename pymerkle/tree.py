@@ -5,7 +5,6 @@ from .hashing import hash_machine
 from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
-from .validations import validateProof
 import json
 import uuid
 import os
