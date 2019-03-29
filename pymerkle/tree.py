@@ -5,6 +5,7 @@ from .hashing import hash_machine
 from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
+from .validations import validateProof
 import json
 import uuid
 import os
@@ -192,6 +193,45 @@ class MerkleTree(object):
         .. note:: The left parent of each node is printed *above* the right one
         """
         print(self.__str__(indent=indent))
+
+# --------------------------------- Comparison ---------------------------
+
+    def __eq__(self, other):
+        """
+        """
+        return isinstance(other, MerkleTree) and \
+            self.rootHash() == other.rootHash()
+
+    # def __ne__(self, other):
+    #     """
+    #     """
+    #     return not self == other
+
+    # def __ge__(self, other):
+    #     """
+    #     """
+    #     return isinstance(
+    #         other,
+    #         MerkleTree) and self.inclusionTest(
+    #         old_hash=other.rootHash(),
+    #         sublength=other.length())
+    def __ge__(self, other):
+        """
+        """
+        return isinstance(
+            other,
+            MerkleTree) and validateProof(self.rootHash(), self.consistencyProof(
+            old_hash=other.rootHash(),
+            sublength=other.length()))
+
+    # def __gt__(self, other):
+    #     """
+    #     """
+    #     return isinstance(
+    #         other,
+    #         MerkleTree) and self.inclusionTest(
+    #         old_hash=other.rootHash(),
+    #         sublength=other.length())
 
 # ---------------------------------- Updating ----------------------------
 
@@ -463,6 +503,7 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
