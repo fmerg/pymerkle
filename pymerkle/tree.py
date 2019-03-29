@@ -198,40 +198,36 @@ class MerkleTree(object):
 
     def __eq__(self, other):
         """
+        Implements the ``==`` operator
+
+        Since Merkle-trees with the same number of leaves have always identical structure, equality
+        between trees is established by just comparing their current root-hashes.
         """
         return isinstance(other, MerkleTree) and \
             self.rootHash() == other.rootHash()
 
-    # def __ne__(self, other):
-    #     """
-    #     """
-    #     return not self == other
-
-    # def __ge__(self, other):
-    #     """
-    #     """
-    #     return isinstance(
-    #         other,
-    #         MerkleTree) and self.inclusionTest(
-    #         old_hash=other.rootHash(),
-    #         sublength=other.length())
     def __ge__(self, other):
         """
+        Implements the ``>=`` operator
+
+        A Merkle-tree is greater than or equal to another Merkle-ree iff the latter may be detected
+        inside the former as a previous state of it.
         """
         return isinstance(
             other,
-            MerkleTree) and validateProof(self.rootHash(), self.consistencyProof(
+            MerkleTree) and self.inclusionTest(
             old_hash=other.rootHash(),
-            sublength=other.length()))
+            sublength=other.length())
 
-    # def __gt__(self, other):
-    #     """
-    #     """
-    #     return isinstance(
-    #         other,
-    #         MerkleTree) and self.inclusionTest(
-    #         old_hash=other.rootHash(),
-    #         sublength=other.length())
+    def __gt__(self, other):
+        """
+        Implements the ``>`` operator
+
+        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
+        the former as a previous state of it and their current root-hashes do not coincide (or,
+        equivalently, their current lengths do not coincide).
+        """
+        return self >= other and self.rootHash() != other.rootHash()
 
 # ---------------------------------- Updating ----------------------------
 
