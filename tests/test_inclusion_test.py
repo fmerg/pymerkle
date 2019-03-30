@@ -43,7 +43,7 @@ tree.encryptLog("RED_HAT_LINUX_log")
 def test_inclusion_test_edge_success_case():
     assert tree.inclusionTest(tree.rootHash(), tree.length()) is True
 
-# --------------- Failure tests cases with standard Merkle-tree ---------------
+# --------------- Failure tests cases with standard Merkle-tree ----------
 
 
 def test_inclusion_test_with_zero_sublength():
@@ -61,3 +61,56 @@ def test_inclusion_test_with_invalid_old_hash(sublength):
         sublength) is False
 
 # -------------- Test inclusion for sublength equal to power of 2 --------
+
+# ~ Passing the following tests indicates that the bug concerning inclusion
+# ~ tests (or, implicitly, consistency proofs) for sublengths equal to
+# ~ powers of 2 has been fixed (in particular, the ``multi_hash``
+# ~ functionality has been modified appropriately for the case of
+# ~ one-member-sequences, so that this issue does not arise)
+
+
+# Initialize parametrization with the empty tree
+trees_and_later_states = [(
+    MerkleTree(), MerkleTree(*[str(k) for k in range(1, j)])
+) for j in range(0, 10)]
+
+# Parametrize for the first 10 powers of 2
+for power in range(0, 10):
+    tree = MerkleTree(*[str(i) for i in range(1, 2**power + 1)])
+    for j in range(0, 10):
+        trees_and_later_states.append((
+            tree,
+            MerkleTree(*[str(k) for k in range(1, 2**power + 1 + j)])
+        ))
+
+
+@pytest.mark.parametrize('tree, later_state', trees_and_later_states)
+def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
+    assert later_state.inclusionTest(
+        old_hash=tree.rootHash(),
+        sublength=tree.length()) is True
+
+
+# a = MerkleTree()
+# i = 0
+# while i >= 0:
+#     b = MerkleTree(*[str(k) for k in range(1, a.length() + 1)])
+#     j = 0
+#     while j < 24:
+#         t = b.inclusionTest(
+#             old_hash=a.rootHash(),
+#             sublength=a.length())
+#         v = validateProof(
+#             target_hash=b.rootHash(),
+#             proof=b.consistencyProof(
+#                 old_hash=a.rootHash(),
+#                 sublength=a.length()))
+#         if not t or not v:
+#             time.sleep(0.2)
+#             left_roots = b.principal_subroots(sublength=a.length())
+#             left_path = tuple([(-1, r[1].stored_hash) for r in left_roots])
+#             print(t, v, a.length(), b.length(), len(left_roots))
+#         j += 1
+#         b.update(str(j))
+#     i += 1
+#     a.update(str(i))
