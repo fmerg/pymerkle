@@ -5,7 +5,7 @@ import pymerkle
 with open("README.md", "r") as f:
     long_description = f.read()
 
-python_requires='>=3.6'
+python_requires = '>=3.6'
 
 setup(
     name="pymerkle",
