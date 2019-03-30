@@ -199,8 +199,8 @@ class MerkleTree(object):
         """
         Implements the ``==`` operator
 
-        Since Merkle-trees with the same number of leaves have always identical structure, equality
-        between trees is established by just comparing their current root-hashes.
+        Since trees with the same number of leaves have always identical structure, equality
+        between Merkle-trees is established by just comparing their current root-hashes.
         """
         return isinstance(other, MerkleTree) and \
             self.rootHash() == other.rootHash()
@@ -223,7 +223,7 @@ class MerkleTree(object):
         Implements the ``>`` operator
 
         A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
-        the former as a previous state of it and their current root-hashes do not coincide (or,
+        the former as a previous state of it *and* their current root-hashes do not coincide (or,
         equivalently, their current lengths do not coincide).
         """
         return self >= other and self.rootHash() != other.rootHash()
