@@ -27,9 +27,10 @@ def validateProof(target_hash, proof):
     """
 
     if proof.header['generation'][:7] == 'SUCCESS':
-        
+
         # Handle separately zero sublength case as always True
-        if proof.header['generation'][9: -1] == 'Subtree provided by Client was empty':
+        if proof.header['generation'][9: -
+                                      1] == 'Subtree provided by Client was empty':
             proof.header['status'] = True
             return True
 

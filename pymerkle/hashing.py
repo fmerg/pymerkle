@@ -238,6 +238,7 @@ class hash_machine(object):
                         i -= 1
                 return signed_hashes[0][1]
             # signed_hashes contained one element
-            return self.hash(signed_hashes[0][1]) #return signed_hashes[0][1]
+            return self.hash(signed_hashes[0][1])
+            # return signed_hashes[0][1]
         # signed_hashes was empty
         return None

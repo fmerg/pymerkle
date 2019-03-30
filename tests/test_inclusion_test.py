@@ -47,7 +47,7 @@ def test_inclusion_test_edge_success_case():
 
 
 def test_inclusion_test_with_zero_sublength():
-    assert tree.inclusionTest(b'anything...', 0) is False
+    assert tree.inclusionTest(b'anything...', 0) is True
 
 
 def test_inclusion_test_with_sublength_exceeding_length():

@@ -471,7 +471,8 @@ class MerkleTree(object):
             # Perform hash-test
             return old_hash == self.multi_hash(left_path, len(left_path) - 1)
 
-        return False  # No path of hashes was generated
+        # return False  # No path of hashes was generated
+        return True if sublength == 0 else False  # No path of hashes was generated
 
 
 # ------------------------------ Path generation ------------------------------
