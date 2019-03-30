@@ -5,6 +5,7 @@ lint.sh
 cpu*
 *.pyc
 /tests/logs/NASA*
+detect*
 
 # Packaging
 *.egg-info/

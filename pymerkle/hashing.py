@@ -194,8 +194,12 @@ class hash_machine(object):
 
             ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``
 
-        is equivalent to ``hash(hash(a, hash(b, c)), d)``.
+        is equivalent to ``hash(hash(a, hash(b, c)), d)``. If the given sequence of signed hashes
+        contains only one member, then this one hash is returned (without sign). That is,
 
+            ``multi_hash(signed_hashes=((+/-1, a)), start=1)``
+
+        is the same as ``a`` (no hashing over unique elements)
         .. warning:: When using this method, make sure that the combination of signs corresponds indeed
                      to a valid parenthetization
 
@@ -238,6 +242,6 @@ class hash_machine(object):
                         i -= 1
                 return signed_hashes[0][1]
             # signed_hashes contained one element
-            return self.hash(signed_hashes[0][1])
+            return signed_hashes[0][1]
         # signed_hashes was empty
         return None

@@ -168,7 +168,7 @@ def test_multi_hash_with_one_arg(hash_machine):
     for all possible combinations of hash and encoding types
     """
     assert hash_machine.multi_hash(
-        [(+1, message)], start=0) == hash_machine.hash(message)
+        [(+1, hash_machine.hash(message))], start=0) == hash_machine.hash(message)
 
 
 @pytest.mark.parametrize('hash_machine', hash_machines)

@@ -1,6 +1,6 @@
 import pytest
 import os
-from pymerkle import MerkleTree, hashing, encodings
+from pymerkle import MerkleTree, hashing, encodings, validateProof
 
 # --------- Test intermediate success case for all possible tree types ---
 
@@ -43,11 +43,11 @@ tree.encryptLog("RED_HAT_LINUX_log")
 def test_inclusion_test_edge_success_case():
     assert tree.inclusionTest(tree.rootHash(), tree.length()) is True
 
-# ---------------- Test failure cases with standard Merkle-tree ----------
+# --------------- Failure tests cases with standard Merkle-tree ----------
 
 
 def test_inclusion_test_with_zero_sublength():
-    assert tree.inclusionTest(b'anything...', 0) is False
+    assert tree.inclusionTest(b'anything...', 0) is True
 
 
 def test_inclusion_test_with_sublength_exceeding_length():
@@ -59,3 +59,44 @@ def test_inclusion_test_with_invalid_old_hash(sublength):
     assert tree.inclusionTest(
         b'anything except for the hash corresponding to the provided sublength',
         sublength) is False
+
+# -------------- Test inclusion for sublength equal to power of 2 --------
+
+# ~ Passing the following tests indicates that the bug concerning inclusion
+# ~ tests (or, implicitly, consistency proofs) for sublengths equal to
+# ~ powers of 2 has been fixed (in particular, the ``multi_hash``
+# ~ functionality has been modified appropriately for the case of
+# ~ one-member-sequences, so that this issue does not arise)
+
+
+# Initialize parametrization with the empty tree (edge case)
+trees_and_later_states = [(
+    MerkleTree(), MerkleTree(*[str(k) for k in range(1, j)])
+) for j in range(0, 10)]
+
+# Parametrize for the first 10 powers of 2
+for power in range(0, 10):
+    tree = MerkleTree(*[str(i) for i in range(1, 2**power + 1)])
+    for j in range(0, 10):
+        trees_and_later_states.append((
+            tree,
+            MerkleTree(*[str(k) for k in range(1, 2**power + 1 + j)])
+        ))
+
+
+@pytest.mark.parametrize('tree, later_state', trees_and_later_states)
+def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
+    assert later_state.inclusionTest(
+        old_hash=tree.rootHash(),
+        sublength=tree.length()) is True
+
+
+@pytest.mark.parametrize('tree, later_state', trees_and_later_states)
+def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(
+        tree,
+        later_state):
+    assert validateProof(
+        target_hash=later_state.rootHash(),
+        proof=later_state.consistencyProof(
+            old_hash=tree.rootHash(),
+            sublength=tree.length())) is True

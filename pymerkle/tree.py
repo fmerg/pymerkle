@@ -39,7 +39,7 @@ class MerkleTree(object):
     :ivar security:   (*bool*) Iff ``True``, security measures against second-preimage attack are activated
     :ivar hash:       (*method*) Core hash functionality of the Merkle-tree
     :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion tests
-                      (explicitely or implicitely upon a request for consistency proof)
+                      (explicitly or implicitly upon a request for consistency proof)
     :ivar .log_dir:   (*bool*) See the constructor's homonymous argument
     """
 
@@ -393,7 +393,7 @@ class MerkleTree(object):
 
         # Return proof nice formatted along with validation parameters
         if consistency_path is not None and\
-           consistency_path[0] is not -1:  # Excludes zero leaves
+           consistency_path[0] is not -1:  # Excludes zero leaves case
             proof_index, left_path, full_path = consistency_path
 
             # Root hash test
@@ -418,8 +418,20 @@ class MerkleTree(object):
                 proof_index=None,
                 proof_path=None)
 
-        # Handles incompatibility case (includes the zero leaves and zero
-        # `sublength` case)
+        # Handles zero `sublength` separately as success, so that
+        # proof validation is always True in this case (see the
+        # `validations.validateProof` method)
+        if sublength == 0:
+            return Proof(
+                generation='SUCCESS (Subtree provided by Client was empty)',
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=None,
+                proof_path=None)
+
+        # Handles incompatibility case (includes the zero leaves)
         failure_message = 'Subtree provided by Client was incompatible'
         return Proof(
             generation='FAILURE ({})'.format(failure_message),
@@ -459,7 +471,8 @@ class MerkleTree(object):
             # Perform hash-test
             return old_hash == self.multi_hash(left_path, len(left_path) - 1)
 
-        return False  # No path of hashes was generated
+        # return False  # No path of hashes was generated
+        return True if sublength == 0 else False  # No path of hashes was generated
 
 
 # ------------------------------ Path generation ------------------------------
