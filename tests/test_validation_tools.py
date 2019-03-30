@@ -69,7 +69,7 @@ def test_proof_validation_for_empty_tree(tree):
         target_hash=b'anything...',
         proof=audit_proof) is False and validateProof(
         target_hash=b'anything...',
-        proof=consistency_proof) is False
+        proof=consistency_proof) is True
 
 # ------------------------ Test audit proof validation ------------------------
 

@@ -69,7 +69,7 @@ def test_inclusion_test_with_invalid_old_hash(sublength):
 # ~ one-member-sequences, so that this issue does not arise)
 
 
-# Initialize parametrization with the empty tree
+# Initialize parametrization with the empty tree (edge case)
 trees_and_later_states = [(
     MerkleTree(), MerkleTree(*[str(k) for k in range(1, j)])
 ) for j in range(0, 10)]
