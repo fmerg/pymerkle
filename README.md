@@ -59,7 +59,7 @@ validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
 
 ## Tree structure
 
-Contrary to most implementations, the Merkle-tree is here always _binary balanced_, with all nodes except for the exterior ones (_leaves_) having _two_ parents. This is achieved as follows: upon appending a block of new leaves, instead of promoting a lonely leaf or duplicating it, a *bifurcation* node gets created **_so that trees with the same number of leaves have always identical structure and input clashes among growing strategies be avoided_** (independently of the configured hash and encoding types). This standardization is further crucial for:
+Contrary to most implementations, the Merkle-tree is here always _binary balanced_, with all nodes except for the exterior ones (_leaves_) having _two_ parents. This is achieved as follows: upon appending a block of new leaves, instead of promoting a lonely leaf to the next level or duplicating it, a *bifurcation* node gets created **_so that trees with the same number of leaves have always identical structure and input clashes among growing strategies be avoided_** (independently of the configured hash and encoding types). This standardization is further crucial for:
 
 - fast generation of consistency-proof paths (based on additive decompositions in decreasing powers of _2_)
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's left-most branch need be recalculated_
@@ -85,6 +85,18 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
 (See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or [**here**](https://news.ycombinator.com/item?id=16572793) for some insight). Read the [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file inside the project's repository to see how to perform second-preimage attacks against the current implementation.
+
+
+
+## File encryption modes
+
+#### [Work in progress]
+
+
+
+## Exporting and reloading the tree from a file
+
+#### [Work in progress]
 
 
 
