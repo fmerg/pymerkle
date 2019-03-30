@@ -43,7 +43,7 @@ tree.encryptLog("RED_HAT_LINUX_log")
 def test_inclusion_test_edge_success_case():
     assert tree.inclusionTest(tree.rootHash(), tree.length()) is True
 
-# ---------------- Test failure cases with standard Merkle-tree ----------
+# --------------- Failure tests cases with standard Merkle-tree ---------------
 
 
 def test_inclusion_test_with_zero_sublength():
@@ -59,3 +59,5 @@ def test_inclusion_test_with_invalid_old_hash(sublength):
     assert tree.inclusionTest(
         b'anything except for the hash corresponding to the provided sublength',
         sublength) is False
+
+# -------------- Test inclusion for sublength equal to power of 2 --------

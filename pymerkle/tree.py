@@ -39,7 +39,7 @@ class MerkleTree(object):
     :ivar security:   (*bool*) Iff ``True``, security measures against second-preimage attack are activated
     :ivar hash:       (*method*) Core hash functionality of the Merkle-tree
     :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion tests
-                      (explicitely or implicitely upon a request for consistency proof)
+                      (explicitly or implicitly upon a request for consistency proof)
     :ivar .log_dir:   (*bool*) See the constructor's homonymous argument
     """
 
