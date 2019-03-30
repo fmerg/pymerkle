@@ -193,6 +193,41 @@ class MerkleTree(object):
         """
         print(self.__str__(indent=indent))
 
+# --------------------------------- Comparison ---------------------------
+
+    def __eq__(self, other):
+        """
+        Implements the ``==`` operator
+
+        Since trees with the same number of leaves have always identical structure, equality
+        between Merkle-trees is established by just comparing their current root-hashes.
+        """
+        return isinstance(other, MerkleTree) and \
+            self.rootHash() == other.rootHash()
+
+    def __ge__(self, other):
+        """
+        Implements the ``>=`` operator
+
+        A Merkle-tree is greater than or equal to another Merkle-ree iff the latter may be detected
+        inside the former as a previous state of it.
+        """
+        return isinstance(
+            other,
+            MerkleTree) and self.inclusionTest(
+            old_hash=other.rootHash(),
+            sublength=other.length())
+
+    def __gt__(self, other):
+        """
+        Implements the ``>`` operator
+
+        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
+        the former as a previous state of it *and* their current root-hashes do not coincide (or,
+        equivalently, their current lengths do not coincide).
+        """
+        return self >= other and self.rootHash() != other.rootHash()
+
 # ---------------------------------- Updating ----------------------------
 
     def update(self, record):
@@ -476,6 +511,7 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
