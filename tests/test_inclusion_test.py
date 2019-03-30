@@ -1,6 +1,6 @@
 import pytest
 import os
-from pymerkle import MerkleTree, hashing, encodings
+from pymerkle import MerkleTree, hashing, encodings, validateProof
 
 # --------- Test intermediate success case for all possible tree types ---
 
@@ -89,3 +89,14 @@ def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
     assert later_state.inclusionTest(
         old_hash=tree.rootHash(),
         sublength=tree.length()) is True
+
+
+@pytest.mark.parametrize('tree, later_state', trees_and_later_states)
+def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(
+        tree,
+        later_state):
+    assert validateProof(
+        target_hash=later_state.rootHash(),
+        proof=later_state.consistencyProof(
+            old_hash=tree.rootHash(),
+            sublength=tree.length())) is True
