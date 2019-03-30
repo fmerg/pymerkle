@@ -89,28 +89,3 @@ def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
     assert later_state.inclusionTest(
         old_hash=tree.rootHash(),
         sublength=tree.length()) is True
-
-
-# a = MerkleTree()
-# i = 0
-# while i >= 0:
-#     b = MerkleTree(*[str(k) for k in range(1, a.length() + 1)])
-#     j = 0
-#     while j < 24:
-#         t = b.inclusionTest(
-#             old_hash=a.rootHash(),
-#             sublength=a.length())
-#         v = validateProof(
-#             target_hash=b.rootHash(),
-#             proof=b.consistencyProof(
-#                 old_hash=a.rootHash(),
-#                 sublength=a.length()))
-#         if not t or not v:
-#             time.sleep(0.2)
-#             left_roots = b.principal_subroots(sublength=a.length())
-#             left_path = tuple([(-1, r[1].stored_hash) for r in left_roots])
-#             print(t, v, a.length(), b.length(), len(left_roots))
-#         j += 1
-#         b.update(str(j))
-#     i += 1
-#     a.update(str(i))
