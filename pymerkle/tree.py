@@ -293,11 +293,42 @@ class MerkleTree(object):
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
 
-    def encryptLog(self, log_file):
-        """Encrypts the data of the provided log-file into the Merkle-tree
+# ------------------------------ File encryption ------------------------------
 
-        More accurately, it successively updates the Merkle-tree with each line
-        of the provided log-file (cf. doc of the ``.update`` method)
+    def encrypt(self, file):
+        """Encrypts the provided file as a single new leaf into the Merkle-tree
+
+        More accurately, it updates the Merkle-tree with *one* newly created leaf storing
+        the digest of the provided file's content (cf. doc of the ``.update`` method)
+
+        :param file: relative path of the file under enryption, specified with respect
+                     to the configured Merkle-tree's directory ``.log_dir``
+        :type file:  str
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        """
+        pass
+
+    def encryptPerObject(self, json_file):
+        """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
+
+        More accurately, it successively updates the Merkle-tree with each newly created leaf
+        storing the digest of the respective JSON object from the list of the provided file
+
+        :param json_file: relative path of a ``.json``, specified with respect to the
+                          configured Merkle-tree's directory ``.log_dir``, whose
+                          content consists in a list of objects
+        :type json_file:  str
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        """
+        pass
+
+    def encryptPerLog(self, log_file):
+        """Encrypts per log the data of the provided file into the Merkle-tree
+
+        More accurately, it successively updates the Merkle-tree with each line of the
+        provided file (cf. doc of the ``.update`` method) in the respective order
 
         :param log_file: relative path of the log-file under enryption, specified with respect
                          to the configured Merkle-tree's directory ``.log_dir``

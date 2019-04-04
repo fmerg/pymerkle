@@ -71,7 +71,7 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 - **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf
 
-### __.encryptLog (*log_file*)__
+### __.encryptPerLog (*log_file*)__
 
 Encrypts the data of the provided file into the Merkle-tree, by successively updating it with each line of the provided log-file.
 

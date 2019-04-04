@@ -93,7 +93,7 @@ for bool_1 in (True, False):  # Controls index compatibility
                         encoding=encoding,
                         security=True,
                         log_dir=os.path.join(current_dir, 'logs'))
-                    tree.encryptLog('short_APACHE_log')
+                    tree.encryptPerLog('short_APACHE_log')
 
                     # Proof configuration
                     if bool_1:
@@ -174,7 +174,7 @@ for bool_1 in (
                             log_dir=os.path.join(current_dir, 'logs'))
 
                         # Append first log
-                        tree.encryptLog('short_APACHE_log')
+                        tree.encryptPerLog('short_APACHE_log')
 
                         # Old-tree-hash configuration
                         if bool_1:
@@ -191,7 +191,7 @@ for bool_1 in (
                             old_tree_length = second_log_size + first_log_size
 
                         # Update the tree by appending new log
-                        tree.encryptLog('RED_HAT_LINUX_log')
+                        tree.encryptPerLog('RED_HAT_LINUX_log')
 
                         # Generate proof for the above configurations
                         consistency_proofs.append(
@@ -241,7 +241,7 @@ target_hashes = []
 for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
     old_hash = tree.rootHash()
     old_length = len(tree.leaves)
-    tree.encryptLog(log_file)
+    tree.encryptPerLog(log_file)
     proofs.append(
         tree.consistencyProof(
             old_hash=old_hash,
