@@ -228,6 +228,25 @@ class MerkleTree(object):
         """
         return self >= other and self.rootHash() != other.rootHash()
 
+# ------------------------ Export to and load from file ------------------
+
+    def export(self, file_path):
+        """
+        :param file_path:
+        :type file_path:
+        """
+        pass
+
+    @staticmethod
+    def loadFrom(file_path):
+        """
+        :param file_path: 
+        :type file_path:
+        :returns:
+        :rtype:           tree.MerkleTree
+        """
+        return MerkleTree()
+
 # ---------------------------------- Updating ----------------------------
 
     def update(self, record):
@@ -511,7 +530,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
