@@ -1,4 +1,4 @@
-# pymerkle: Usage
+# pymerkle: Usage [Work in progress]
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
@@ -105,7 +105,10 @@ with open('structure', 'w') as f:
     f.write(tree.__str__())
 ```
 
-### New records and log encryption
+#### Exporting to and loading from file [Work in progress]
+
+
+### New records and file encryption
 
 _Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
 
@@ -116,6 +119,12 @@ tree.update('arbitrary string')               # first record
 tree.update(b'arbitrary bytes-like object')   # second record
 ...                                           # ...
 ```
+
+#### Whole file encryption [Work in progress]
+
+#### Encryption per object [Work in progress]
+
+#### Encryption per log
 
 _Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encryptLog` method to encrypt a new file as follows:
 
