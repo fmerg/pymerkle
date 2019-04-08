@@ -278,8 +278,10 @@ class MerkleTree(object):
             hash_type=obj['header']['hash_type'],
             encoding=obj['header']['encoding'],
             security=obj['header']['security'])
-        for hash in obj['hashes']:
+        tqdm.write('\nFile has been loaded')
+        for hash in tqdm(obj['hashes'], desc='Retreiving tree...'):
             t.update(stored_hash=hash)
+        tqdm.write('Tree has been retreived')
         return t
 
 # ---------------------------------- Updating ----------------------------
