@@ -269,8 +269,11 @@ class MerkleTree(object):
         :returns:
         :rtype:           tree.MerkleTree
         """
-        with open('test.json', 'r') as f:
-            obj = json.load(f)
+        try:
+            with open('test.json', 'r') as f:
+                obj = json.load(f)
+        except FileNotFoundError:
+            raise
         t = MerkleTree(
             hash_type=obj['header']['hash_type'],
             encoding=obj['header']['encoding'],
