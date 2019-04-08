@@ -266,12 +266,18 @@ class MerkleTree(object):
 
 # ---------------------------------- Updating ----------------------------
 
-    def update(self, record):
+    def update(self, record=None, stored_hash=None):
         """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
         restructeres the tree appropriately and recalculates all necessary interior hashes
 
-        :param record: the record whose hash is to be stored into a new leaf
-        :type record:  str or bytes or bytearray
+        :param record:      [optional] The record whose hash is to be stored into a new leaf.
+                            If provided, then ``stored_hash`` should *not* be provided.
+        :type record:       str or bytes or bytearray
+        :param stored_hash: [optional] The hash to be stored by the new leaf (after encoding).
+                            If provided, then ``record`` should *not* be provided.
+        :type stored_hash:  str
+
+        .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
         """
         if self:
 
@@ -284,9 +290,10 @@ class MerkleTree(object):
 
             # Store new record to new leaf
             new_leaf = Leaf(
-                record=record,
                 hash_function=self.hash,
-                encoding=self.encoding)
+                encoding=self.encoding,
+                record=record,
+                stored_hash=stored_hash)
 
             # Assimilate new leaf
             self.leaves.append(new_leaf)
@@ -323,9 +330,10 @@ class MerkleTree(object):
 
         else:  # void case
             new_leaf = Leaf(
-                record=record,
                 hash_function=self.hash,
-                encoding=self.encoding)
+                encoding=self.encoding,
+                record=record,
+                stored_hash=stored_hash)
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
 
