@@ -272,7 +272,7 @@ class MerkleTree(object):
         try:
             with open('test.json', 'r') as f:
                 obj = json.load(f)
-        except FileNotFoundError:
+        except (FileNotFoundError, JSONDecodeError):
             raise
         t = MerkleTree(
             hash_type=obj['header']['hash_type'],
