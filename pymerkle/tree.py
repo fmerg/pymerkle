@@ -314,7 +314,7 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            with open(file_path, 'rb') as f:
+            with open(os.path.abspath(file_path), 'rb') as f:
                 # ~ NOTE: File should be opened in binary mode so that its content remains
                 # ~ bytes and no decoding is thus needed during hashing (otherwise byte
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
@@ -329,36 +329,37 @@ class MerkleTree(object):
         More accurately, it successively updates the Merkle-tree with each line of the
         provided file (cf. doc of the ``.update`` method) in the respective order
 
-        :param log_file: relative path of the log-file under enryption, specified with respect
-                         to the configured Merkle-tree's directory ``.log_dir``
+        :param log_file: relative path of the log-file under enryption with respect to
+                         the current working directory
         :type log_file:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
+        absolute_file_path = os.path.abspath(log_file_path)
+
+        # ~ tqdm needs to know in advance the total number of
+        # ~ lines so that it can display the progress bar
+        number_of_lines = 0
         try:
-            absolute_file_path = os.path.join(self.log_dir, log_file)
-        except FileNotFoundError:
-            raise
-        else:
-            # ~ tqdm needs to know in advance the total number of
-            # ~ lines so that it can display the progress bar
-            number_of_lines = 0
             with open(absolute_file_path, 'r+') as file:
                 # Use memory-mapped file support to count lines
                 buffer = mmap.mmap(file.fileno(), 0)
-                while buffer.readline():
-                    number_of_lines += 1
+        except FileNotFoundError:
+            raise
+        else:
+            while buffer.readline():
+                number_of_lines += 1
 
-            tqdm.write('')
-            # Start line by line encryption
-            for line in tqdm(open(absolute_file_path, 'rb'),
-                             # ~ NOTE: File should be opened in binary mode so that its content remains
-                             # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                             # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                             desc='Encrypting log file',
-                             total=number_of_lines):
-                self.update(record=line)
-            tqdm.write('Encryption complete\n')
+        tqdm.write('')
+        # Start line by line encryption
+        for line in tqdm(open(absolute_file_path, 'rb'),
+                         # ~ NOTE: File should be opened in binary mode so that its content remains
+                         # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                         # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                         desc='Encrypting log file',
+                         total=number_of_lines):
+            self.update(record=line)
+        tqdm.write('Encryption complete\n')
 
     def encryptObject(self, object, sort_keys=False, indent=0):
         """
@@ -375,7 +376,7 @@ class MerkleTree(object):
                 sort_keys=sort_keys,
                 indent=indent))
 
-    encryptObjectFromFile(self, json_file_path, sort_keys=False, indent=0):
+    def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
         """Encrypts the data of the provided ``.json`` file as a single object into the Merkle-tree
 
         More accurately, the Merkle-tree will be updated with a newly created leaf storing
@@ -394,13 +395,13 @@ class MerkleTree(object):
         .. note:: Does nothing if the object loaded from file is not a list
         """
         try:
-            with open('test.json', 'r') as f:
+            with open(os.path.abspath(file_path), 'r') as f:
                 object = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
         self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
 
-    def encryptFilePerObject(self, json_file_path, sort_keys=False, indent=0):
+    def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
         """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
 
         More accurately, it successively updates the Merkle-tree with each newly created leaf
@@ -421,7 +422,7 @@ class MerkleTree(object):
         # with open('objects.json', 'rb') as f:
         #     list_of_objects = json.load(f.read())
         try:
-            with open('objects.json', 'r') as f:
+            with open(os.path.abspath(file_path), 'r') as f:
                 list_of_objects = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
