@@ -293,38 +293,36 @@ class MerkleTree(object):
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
 
-# ------------------------------ File encryption ------------------------------
+# --------------------------------- Encryption ---------------------------
 
-    def encrypt(self, file):
+    def encryptRecord(self, record):
+        """
+        :param record:
+        :type record:  str or bytes or bytearray
+        """
+        self.update(record=record)
+
+    def encryptFileContent(self, file_path):
         """Encrypts the provided file as a single new leaf into the Merkle-tree
 
         More accurately, it updates the Merkle-tree with *one* newly created leaf storing
         the digest of the provided file's content (cf. doc of the ``.update`` method)
 
-        :param file: relative path of the file under enryption, specified with respect
-                     to the configured Merkle-tree's directory ``.log_dir``
-        :type file:  str
+        :param file_path: ...
+        :type file_path:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
-        pass
+        try:
+            content = open(file_path, 'rb').read()  # bytes
+            # ~ NOTE: File should be opened in binary mode so that its content remains
+            # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+            # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+        except FileNotFoundError:
+            raise
+        self.update(record=content)
 
-    def encryptPerObject(self, json_file):
-        """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
-
-        More accurately, it successively updates the Merkle-tree with each newly created leaf
-        storing the digest of the respective JSON object from the list of the provided file
-
-        :param json_file: relative path of a ``.json``, specified with respect to the
-                          configured Merkle-tree's directory ``.log_dir``, whose
-                          content consists in a list of objects
-        :type json_file:  str
-
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        """
-        pass
-
-    def encryptPerLog(self, log_file):
+    def encryptFilePerLog(self, log_file_path):
         """Encrypts per log the data of the provided file into the Merkle-tree
 
         More accurately, it successively updates the Merkle-tree with each line of the
@@ -360,6 +358,76 @@ class MerkleTree(object):
                              total=number_of_lines):
                 self.update(record=line)
             tqdm.write('Encryption complete\n')
+
+    def encryptObject(self, object, sort_keys=False, indent=0):
+        """
+        :param object:
+        :type object:    dict
+        :param sort_kes: [optional] -> True
+        :type sort_kes:  bool
+        :param indent:   [optional] -> 4
+        :type indent:    int
+        """
+        self.update(
+            record=json.dumps(
+                object,
+                sort_keys=sort_keys,
+                indent=indent))
+
+    encryptObjectFromFile(self, json_file_path, sort_keys=False, indent=0):
+        """Encrypts the data of the provided ``.json`` file as a single object into the Merkle-tree
+
+        More accurately, the Merkle-tree will be updated with a newly created leaf storing
+        the digest of the stringified version of the object inside the provided file.
+
+        :param json_file: relative path of a ``.json``, specified with respect to the
+                          configured Merkle-tree's directory ``.log_dir``, whose
+                          content consists in a list of objects
+        :type json_file:  str
+        :param sort_kes:  [optional] -> True
+        :type sort_kes:   bool
+        :param indent:    [optional] -> 4
+        :type indent:     int
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        .. note:: Does nothing if the object loaded from file is not a list
+        """
+        try:
+            object = json.load(open('test.json', 'r'))
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
+
+    def encryptFilePerObject(self, json_file_path, sort_keys=False, indent=0):
+        """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
+
+        More accurately, it successively updates the Merkle-tree with each newly created leaf
+        storing the digest of the respective JSON object from the list of the provided file
+
+        :param json_file: relative path of a ``.json``, specified with respect to the
+                          configured Merkle-tree's directory ``.log_dir``, whose
+                          content consists in a list of objects
+        :type json_file:  str
+        :param sort_kes:  [optional] -> True
+        :type sort_kes:   bool
+        :param indent:    [optional] -> 4
+        :type indent:     int
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        .. note:: Does nothing if the object loaded from file is not a list
+        """
+        # with open('objects.json', 'rb') as f:
+        #     list_of_objects = json.load(f.read())
+        try:
+            list_of_objects = json.load(open('objects.json', 'r'))
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        if isinstance(list_of_objects, list):
+            for object in list_of_objects:
+                self.encryptObject(
+                    object=object,
+                    sort_keys=sort_keys,
+                    indent=indent)
 
 # ------------------------------ Proof generation ------------------------
 
@@ -542,7 +610,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
