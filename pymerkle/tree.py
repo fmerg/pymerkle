@@ -314,10 +314,11 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            content = open(file_path, 'rb').read()  # bytes
-            # ~ NOTE: File should be opened in binary mode so that its content remains
-            # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-            # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+            with open(file_path, 'rb') as f:
+                # ~ NOTE: File should be opened in binary mode so that its content remains
+                # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                content = f.read()  # bytes
         except FileNotFoundError:
             raise
         self.update(record=content)
@@ -339,8 +340,8 @@ class MerkleTree(object):
         except FileNotFoundError:
             raise
         else:
-            # ~ tqdm needs to know the total number of lines
-            # ~ so that it can display the progress bar
+            # ~ tqdm needs to know in advance the total number of
+            # ~ lines so that it can display the progress bar
             number_of_lines = 0
             with open(absolute_file_path, 'r+') as file:
                 # Use memory-mapped file support to count lines
@@ -393,7 +394,8 @@ class MerkleTree(object):
         .. note:: Does nothing if the object loaded from file is not a list
         """
         try:
-            object = json.load(open('test.json', 'r'))
+            with open('test.json', 'r') as f:
+                object = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
         self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
@@ -419,7 +421,8 @@ class MerkleTree(object):
         # with open('objects.json', 'rb') as f:
         #     list_of_objects = json.load(f.read())
         try:
-            list_of_objects = json.load(open('objects.json', 'r'))
+            with open('objects.json', 'r') as f:
+                list_of_objects = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
         if isinstance(list_of_objects, list):
