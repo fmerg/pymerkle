@@ -14,8 +14,15 @@ VERTICAL_BAR = u'\u2502'                    # │
 class Node(object):
     """Base class for the nodes of a Merkle-tree
 
+    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
+                          method of the containing Merkle-tree
+    :type hash_function:  method
+    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
+                          Should coincide with the containing Merkle-tree's encoding type.
+    :type encoding:       str
     :param record:        [optional] the record to be encrypted within the node. If provided,
-                          then the node is considered to be a leaf
+                          then the node is considered to be a leaf and ``stored_hash`` should
+                          *not* be provided.
     :type record:         str or bytes or bytearray
     :param left:          [optional] the node's left parent. If not provided, then the node
                           is considered to be a leaf
@@ -23,12 +30,11 @@ class Node(object):
     :param right:         [optional] the node's right parent. If not provided, then the node
                           is considered to be a leaf
     :type right:          nodes.Node
-    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          method of the containing Merkle-tree
-    :type hash_function:  method
-    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
-                          Should coincide with the containing Merkle-tree's encoding type.
-    :type encoding:       str
+    :param stored_hash:   [optional] The hash to be stored at creation by the node (after encoding).
+                          If provided, then ``record`` should *not* be provided.
+    :type stored_hash:    str
+
+    .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
 
     :ivar stored_hash:   (*bytes*) The hash currently stored by the node
     :ivar left:          (*nodes.Node*) The node's left parent. Defaults to ``None`` if the node is a leaf
@@ -43,14 +49,16 @@ class Node(object):
             encoding,
             record=None,
             left=None,
-            right=None):
+            right=None,
+            stored_hash=None):
         self.left, self.right, self.child = None, None, None
 
         # Stored for decoding when printing
         self.encoding = encoding
 
         if left is None and right is None:  # leaf case (parentless node)
-            self.stored_hash = hash_function(record)
+            self.stored_hash = hash_function(record) if stored_hash is None\
+                else bytes(stored_hash, encoding)
         # Interior case (node with exactly two parents)
         elif record is None:
             left.child, right.child = self, self
@@ -211,7 +219,6 @@ class Node(object):
 
 # ------------------------------- JSON serialization ------------------------
 
-
     def serialize(self):
         """ Returns a JSON structure with the node's attributes as key-value pairs
 
@@ -248,7 +255,7 @@ class Leaf(Node):
     :type encoding:       str
     """
 
-    def __init__(self, record, hash_function, encoding):
+    def __init__(self, record, hash_function, encoding, stored_hash=None):
         Node.__init__(
             self,
             record=record,

@@ -209,7 +209,7 @@ class MerkleTree(object):
         """
         Implements the ``>=`` operator
 
-        A Merkle-tree is greater than or equal to another Merkle-ree iff the latter may be detected
+        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
         inside the former as a previous state of it.
         """
         return isinstance(
@@ -235,17 +235,34 @@ class MerkleTree(object):
         :param file_path:
         :type file_path:
         """
-        pass
+        with open('test.json', 'w') as f:
+            json.dump({
+                "header": {
+                    "encoding": self.encoding,
+                    "hash_type": self.hash_type,
+                    "security": self.security},
+                "hashes": [leaf.stored_hash.decode(encoding=self.encoding) for leaf in self.leaves]},
+                f,
+                indent=4)
+        # return {
+        #     "header": {
+        #         "encoding": self.encoding,
+        #         "hash_type": self.hash_type,
+        #         "security": self.security},
+        #     "hashes": [
+        #         leaf.stored_hash for leaf in self.leaves]}
 
     @staticmethod
     def loadFrom(file_path):
         """
-        :param file_path: 
+        :param file_path:
         :type file_path:
         :returns:
         :rtype:           tree.MerkleTree
         """
-        return MerkleTree()
+        with open('test.json', 'r') as f:
+            obj = json.load(f)
+        return obj
 
 # ---------------------------------- Updating ----------------------------
 
@@ -530,6 +547,7 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
