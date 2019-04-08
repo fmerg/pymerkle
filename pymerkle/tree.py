@@ -199,6 +199,9 @@ class MerkleTree(object):
         """
         Implements the ``==`` operator
 
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
         Since trees with the same number of leaves have always identical structure, equality
         between Merkle-trees is established by just comparing their current root-hashes.
         """
@@ -208,6 +211,9 @@ class MerkleTree(object):
     def __ge__(self, other):
         """
         Implements the ``>=`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
 
         A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
         inside the former as a previous state of it.
@@ -221,6 +227,9 @@ class MerkleTree(object):
     def __gt__(self, other):
         """
         Implements the ``>`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
 
         A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
         the former as a previous state of it *and* their current root-hashes do not coincide (or,
@@ -262,7 +271,13 @@ class MerkleTree(object):
         """
         with open('test.json', 'r') as f:
             obj = json.load(f)
-        return obj
+        t = MerkleTree(
+            hash_type=obj['header']['hash_type'],
+            encoding=obj['header']['encoding'],
+            security=obj['header']['security'])
+        for hash in obj['hashes']:
+            t.update(stored_hash=hash)
+        return t
 
 # ---------------------------------- Updating ----------------------------
 
