@@ -245,24 +245,31 @@ class Node(object):
 class Leaf(Node):
     """Class for the leafs of Merkle-tree (parentless nodes)
 
-    :param record:        the record to be encrypted within the leaf
-    :type record:         str or bytes or bytearray
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
                           attribute of the containing Merkle-tree
     :type hash_function:  method
     :param encoding:      Encoding type to be used when decoding the hash stored by the node.
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
+    :param record:        [optional] The record to be encrypted within the leaf. If provided, then
+                          ``stored_hash`` should *not* be provided.
+    :type record:         str or bytes or bytearray
+    :param stored_hash:   [optional] The hash to be stored at creation by the leaf (after encoding).
+                          If provided, then ``record`` should *not* be provided.
+    :type stored_hash:    str
+
+    .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
     """
 
-    def __init__(self, record, hash_function, encoding, stored_hash=None):
+    def __init__(self, hash_function, encoding, record=None, stored_hash=None):
         Node.__init__(
             self,
             record=record,
             left=None,
             right=None,
             hash_function=hash_function,
-            encoding=encoding)
+            encoding=encoding,
+            stored_hash=stored_hash)
 
 # ------------------------------- JSON encoders --------------------------
 
