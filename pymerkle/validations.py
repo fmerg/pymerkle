@@ -62,20 +62,12 @@ class ProofValidator(object):
 
     Employs the ``validations.ValidationReceipt`` class in order to organize validation results
     in an easy storable way
-
-    :param validations_dir: [optional] Sets the homonymous attribute
-                            of this class
-    :type validations_dir:  str
-
-    :ivar validations_dir: (*str*) absolute path of the directory where validation receipts will be stored as
-                           ``.json`` files. Defaults to ``None`` if unspecified at construction, in which case
-                           validation receipts are not to be automatically stored
     """
 
-    def __init__(self, validations_dir=None):
-        self.validations_dir = validations_dir
+    def __init__(self):
+        pass
 
-    def validate(self, target_hash, proof):
+    def validate(self, target_hash, proof, save_dir=None):
         """Wraps ``validations.validateProof``, returning a validation receipt instead of a boolean
 
         If a ``validations_dir`` has been specified at construction, then the receipt is automatically
@@ -85,6 +77,12 @@ class ProofValidator(object):
                             acclaimed top-hash of the Merkle-tree having provided the proof)
         :type target_hash:  bytes
         :param proof:       the proof to be validated
+        :type save_dir:     [optional] Relative path with respect to the current working directory of the
+                            directory where to save the generated receipt. More accurately, if specified,
+                            the generated receipt will be saved within this directory as a ``.json`` file
+                            named with the receipt's uuid. If not specified, then generated receipt will
+                            *not* be automatically stored in any file.
+        :param save_dir:    str
         :type proof:        proof.Proof
         :rtype:             validations.ValidationReceipt
         """
@@ -96,10 +94,10 @@ class ProofValidator(object):
             result=validated
         )
 
-        if self.validations_dir:
+        if save_dir:
             with open(
                 os.path.join(
-                    self.validations_dir,
+                    save_dir,
                     '{}.json'.format(receipt.header['uuid'])
                 ),
                 'w'

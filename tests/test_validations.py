@@ -33,15 +33,23 @@ ENCODINGS = ['utf_7',
              'utf_32_be',
              'utf_32_le']
 
-# Directory containing this script
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# Files to encrypt
+short_APACHE_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/short_APACHE_log')
+RED_HAT_LINUX_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/RED_HAT_LINUX_log')
+large_APACHE_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/large_APACHE_log')
 
 # Store first log size
-with open(os.path.join(current_dir, 'logs/short_APACHE_log')) as first_log_file:
+with open(short_APACHE_log) as first_log_file:
     first_log_size = sum(1 for line in first_log_file)
 
 # Store second log size
-with open(os.path.join(current_dir, 'logs/RED_HAT_LINUX_log')) as second_log_file:
+with open(RED_HAT_LINUX_log) as second_log_file:
     second_log_size = sum(1 for line in second_log_file)
 
 # ------------------- Test validate proof for empty tree case ------------
@@ -52,8 +60,7 @@ for encoding in ENCODINGS:
         tree = MerkleTree(
             hash_type=hash_type,
             encoding=encoding,
-            security=True,
-            log_dir=os.path.join(current_dir, 'logs'))
+            security=True)
         trees.append(tree)
 
 
@@ -91,9 +98,8 @@ for bool_1 in (True, False):  # Controls index compatibility
                     tree = MerkleTree(
                         hash_type=hash_type,
                         encoding=encoding,
-                        security=True,
-                        log_dir=os.path.join(current_dir, 'logs'))
-                    tree.encryptPerLog('short_APACHE_log')
+                        security=True)
+                    tree.encryptFilePerLog(short_APACHE_log)
 
                     # Proof configuration
                     if bool_1:
@@ -170,11 +176,10 @@ for bool_1 in (
                         tree = MerkleTree(
                             hash_type=hash_type,
                             encoding=encoding,
-                            security=True,
-                            log_dir=os.path.join(current_dir, 'logs'))
+                            security=True)
 
                         # Append first log
-                        tree.encryptPerLog('short_APACHE_log')
+                        tree.encryptFilePerLog(short_APACHE_log)
 
                         # Old-tree-hash configuration
                         if bool_1:
@@ -191,7 +196,7 @@ for bool_1 in (
                             old_tree_length = second_log_size + first_log_size
 
                         # Update the tree by appending new log
-                        tree.encryptPerLog('RED_HAT_LINUX_log')
+                        tree.encryptFilePerLog(RED_HAT_LINUX_log)
 
                         # Generate proof for the above configurations
                         consistency_proofs.append(
@@ -221,27 +226,25 @@ def test_consistency_proof_validation_for_non_empty_tree(
 
 # Proof provider (a typical SHA256/UTF-8 Merkle-Tree with defense against
 # second-preimage attack)
-tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
+tree = MerkleTree()
+
+file_dir = os.path.dirname(__file__)
 
 # Proof validator
-validator = ProofValidator(
-    validations_dir=os.path.join(
-        current_dir, 'validations_dir'))
+validator = ProofValidator()
 
 # Clean validations directory before running the test
-file_list = os.listdir(os.path.join(
-    current_dir, 'validations_dir'))
+file_list = os.listdir(os.path.join(file_dir, 'validations'))
 for file in file_list:
-    os.remove(os.path.join(
-        current_dir, 'validations_dir', file))
+    os.remove(os.path.join(file_dir, 'validations', file))
 
 # Feed tree with logs gradually and generate consistency proof for each step
 proofs = []
 target_hashes = []
-for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
+for log_file in (large_APACHE_log, RED_HAT_LINUX_log, short_APACHE_log):
     old_hash = tree.rootHash()
     old_length = len(tree.leaves)
-    tree.encryptPerLog(log_file)
+    tree.encryptFilePerLog(log_file)
     proofs.append(
         tree.consistencyProof(
             old_hash=old_hash,
@@ -254,10 +257,15 @@ for log_file in ('large_APACHE_log', 'RED_HAT_LINUX_log', 'short_APACHE_log'):
         (proofs[i], target_hashes[i]) for i in range(
             len(proofs))])
 def test_ProofValidator(proof, target_hash):
-    receipt = validator.validate(proof=proof, target_hash=target_hash)
+    receipt = validator.validate(
+        proof=proof,
+        target_hash=target_hash,
+        save_dir=os.path.join(
+            file_dir,
+            'validations'))
     receipt_file_path = os.path.join(
-        current_dir,
-        'validations_dir',
+        file_dir,
+        'validations',
         '{}.json'.format(
             receipt.header['uuid']))
     with open(receipt_file_path) as receipt_file:
