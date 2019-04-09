@@ -264,18 +264,18 @@ class MerkleTree(object):
         """
         try:
             with open(file_path, 'r') as f:
-                obj = json.load(f)
+                loaded_object = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
-        t = MerkleTree(
-            hash_type=obj['header']['hash_type'],
-            encoding=obj['header']['encoding'],
-            security=obj['header']['security'])
+        loaded_tree = MerkleTree(
+            hash_type=loaded_object['header']['hash_type'],
+            encoding=loaded_object['header']['encoding'],
+            security=loaded_object['header']['security'])
         tqdm.write('\nFile has been loaded')
-        for hash in tqdm(obj['hashes'], desc='Retreiving tree...'):
-            t.update(stored_hash=hash)
+        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
+            loaded_tree.update(stored_hash=hash)
         tqdm.write('Tree has been retreived')
-        return t
+        return loaded_tree
 
 # ---------------------------------- Updating ----------------------------
 

@@ -3,6 +3,20 @@ import os
 import json
 from pymerkle import MerkleTree
 
+# Clean exports dir before running the test
+file_list = os.listdir(
+    os.path.join(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        'exports'))
+for file in file_list:
+    os.remove(
+        os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)),
+            'exports',
+            file))
+
 tree = MerkleTree()
 for i in range(12):
     tree.update(record='{}-th record'.format(i))
@@ -14,6 +28,7 @@ export_path = os.path.join(
 tree.export(file_path=export_path)
 with open(export_path, 'r') as f:
     exported_version = json.load(f)
+
 
 def test_export():
     assert exported_version == {
@@ -40,5 +55,5 @@ def test_export():
 
 
 def test_loadFromFile():
-    loaded_tree = MerkleTree.loadFromFile(file_path=export_path)
-    assert loaded_tree.rootHash() == tree.rootHash()
+    assert tree.rootHash() == MerkleTree.loadFromFile(
+        file_path=export_path).rootHash()
