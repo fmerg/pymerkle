@@ -47,7 +47,7 @@ top_hash = tree.rootHash()
 length = tree.length()
 
 # Update the tree by encrypting a new log
-tree.encryptLog('logs/sample_log')
+tree.encryptPerLog('logs/sample_log')
 
 # Generate consistency-proof for the stage before encrypting the log
 r = tree.consistencyProof(old_hash=top_hash, sublength=length)

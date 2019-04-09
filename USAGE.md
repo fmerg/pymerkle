@@ -43,7 +43,7 @@ tree = MerkleTree(log_dir=os.path.join(script_dir, 'logs'))
 You can then encrypt any file `log_sample` inside the `/logs` directory by
 
 ```python
-tree.encryptLog(log_sample)
+tree.encryptPerLog(log_sample)
 ```
 
 without need to specify its absolute path.
@@ -129,7 +129,7 @@ tree.update(b'arbitrary bytes-like object')   # second record
 _Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encryptLog` method to encrypt a new file as follows:
 
 ```shell
->>> tree.encryptLog('large_APACHE_log')
+>>> tree.encryptPerLog('large_APACHE_log')
 
 Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
@@ -140,7 +140,7 @@ Encryption complete
 This presupposes that the file `large_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would reside in a nested directory `/APACHE_logs`, you could easily encrypt it with
 
 ```shell
->>> tree.encryptLog('APACHE_logs/large_APACHE_log')
+>>> tree.encryptPerLog('APACHE_logs/large_APACHE_log')
 
 Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
@@ -148,7 +148,7 @@ Encryption complete
 >>>
 ```
 
-In other words, the argument of `.encryptLog` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. The latter can be accessed as the tree's `.log_dir` attribute.
+In other words, the argument of `.encryptPerLog` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. The latter can be accessed as the tree's `.log_dir` attribute.
 
 ### Generating Log proofs (Server's Side)
 
@@ -306,7 +306,7 @@ old_hash = tree.rootHash() # a bytes object
 sublength = tree.length()
 
 # Server encrypts some new log (modifying the top-hash and length of the tree)
-tree.encryptLog('sample_log')
+tree.encryptPerLog('sample_log')
 
 # Upon Client's request, the server provides consistency proof for the requested stage
 q = tree.consistencyProof(old_hash, sublength)

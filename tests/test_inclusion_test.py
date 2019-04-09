@@ -7,8 +7,13 @@ from pymerkle import MerkleTree, hashing, encodings, validateProof
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = encodings.ENCODINGS
 
-# Directory containing this script
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# Files to encrypt
+short_APACHE_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/short_APACHE_log')
+RED_HAT_LINUX_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/RED_HAT_LINUX_log')
 
 # Generate trees (for all combinations of hash and encoding types)
 # along with valid parameters for inclusion test
@@ -19,11 +24,10 @@ for security in (True, False):
             tree = MerkleTree(
                 hash_type=hash_type,
                 encoding=encoding,
-                security=security,
-                log_dir=os.path.join(current_dir, 'logs'))
-            tree.encryptLog('short_APACHE_log')
+                security=security)
+            tree.encryptFilePerLog(short_APACHE_log)
             old_hash, sublength = tree.rootHash(), tree.length()
-            tree.encryptLog('RED_HAT_LINUX_log')
+            tree.encryptFilePerLog(RED_HAT_LINUX_log)
             trees_and_subtrees.append((tree, old_hash, sublength))
 
 
@@ -34,16 +38,16 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 # -------------- Test success edge case with standard Merkle-Tree --------
 
 
-tree = MerkleTree(log_dir=os.path.join(current_dir, 'logs'))
-tree.encryptLog('short_APACHE_log')
+tree = MerkleTree()
+tree.encryptFilePerLog(short_APACHE_log)
 old_hash, sublength = tree.rootHash(), tree.length()
-tree.encryptLog("RED_HAT_LINUX_log")
+tree.encryptFilePerLog(RED_HAT_LINUX_log)
 
 
 def test_inclusion_test_edge_success_case():
     assert tree.inclusionTest(tree.rootHash(), tree.length()) is True
 
-# --------------- Failure tests cases with standard Merkle-tree ----------
+# ---------------- Test failure cases with standard Merkle-tree ----------
 
 
 def test_inclusion_test_with_zero_sublength():
