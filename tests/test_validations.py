@@ -265,7 +265,7 @@ def test_ProofValidator(proof, target_hash):
             'receipts'))
     receipt_file_path = os.path.join(
         file_dir,
-        'validations',
+        'receipts',
         '{}.json'.format(
             receipt.header['uuid']))
     with open(receipt_file_path) as receipt_file:
