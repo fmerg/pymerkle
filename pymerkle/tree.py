@@ -244,7 +244,7 @@ class MerkleTree(object):
         :param file_path:
         :type file_path:
         """
-        with open('test.json', 'w') as f:
+        with open(file_path, 'w') as f:
             json.dump({
                 "header": {
                     "encoding": self.encoding,
@@ -253,16 +253,9 @@ class MerkleTree(object):
                 "hashes": [leaf.stored_hash.decode(encoding=self.encoding) for leaf in self.leaves]},
                 f,
                 indent=4)
-        # return {
-        #     "header": {
-        #         "encoding": self.encoding,
-        #         "hash_type": self.hash_type,
-        #         "security": self.security},
-        #     "hashes": [
-        #         leaf.stored_hash for leaf in self.leaves]}
 
     @staticmethod
-    def loadFromFilePath(file_path):
+    def loadFromFile(file_path):
         """
         :param file_path:
         :type file_path:
@@ -270,7 +263,7 @@ class MerkleTree(object):
         :rtype:           tree.MerkleTree
         """
         try:
-            with open('test.json', 'r') as f:
+            with open(file_path, 'r') as f:
                 obj = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
