@@ -296,8 +296,10 @@ class MerkleTree(object):
 # --------------------------------- Encryption ---------------------------
 
     def encryptRecord(self, record):
-        """
-        :param record:
+        """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
+        restructeres the tree appropriately and recalculates all necessary interior hashes
+
+        :param record: the record whose hash is to be stored into a new leaf
         :type record:  str or bytes or bytearray
         """
         self.update(record=record)
@@ -306,9 +308,10 @@ class MerkleTree(object):
         """Encrypts the provided file as a single new leaf into the Merkle-tree
 
         More accurately, it updates the Merkle-tree with *one* newly created leaf storing
-        the digest of the provided file's content (cf. doc of the ``.update`` method)
+        the digest of the provided file's content (cf. doc of the ``.update`` method).
 
-        :param file_path: ...
+        :param file_path: relative path of the file under encryption with respect to the
+                          current working directory
         :type file_path:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
@@ -323,19 +326,19 @@ class MerkleTree(object):
             raise
         self.update(record=content)
 
-    def encryptFilePerLog(self, log_file_path):
+    def encryptFilePerLog(self, file_path):
         """Encrypts per log the data of the provided file into the Merkle-tree
 
         More accurately, it successively updates the Merkle-tree with each line of the
         provided file (cf. doc of the ``.update`` method) in the respective order
 
-        :param log_file: relative path of the log-file under enryption with respect to
-                         the current working directory
-        :type log_file:  str
+        :param file_path: relative path of the file under enryption with respect to
+                          the current working directory
+        :type file_path:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
-        absolute_file_path = os.path.abspath(log_file_path)
+        absolute_file_path = os.path.abspath(file_path)
 
         # ~ tqdm needs to know in advance the total number of
         # ~ lines so that it can display the progress bar
@@ -362,13 +365,19 @@ class MerkleTree(object):
         tqdm.write('Encryption complete\n')
 
     def encryptObject(self, object, sort_keys=False, indent=0):
-        """
-        :param object:
-        :type object:    dict
-        :param sort_kes: [optional] -> True
-        :type sort_kes:  bool
-        :param indent:   [optional] -> 4
-        :type indent:    int
+        """"Encrypts the provided object as a single new leaf into the Merkle-tree
+
+        More accurately, it updates the Merkle-tree with *one* newly created leaf storing the digest
+        of the provided object's stringified version (cf. doc of the ``.update`` method).
+
+        :param object:    the JSON entiry under encryption
+        :type objec:      dict
+        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
+                          before its stringification. Defaults to ``False``.
+        :type sort_keys:  bool
+        :param indent:    [optional] Specifies key indentaion upon stringification of the
+                          provided object. Defaults to ``0``.
+        :type indent:     int
         """
         self.update(
             record=json.dumps(
@@ -377,22 +386,23 @@ class MerkleTree(object):
                 indent=indent))
 
     def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
-        """Encrypts the data of the provided ``.json`` file as a single object into the Merkle-tree
+        """Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree
 
-        More accurately, the Merkle-tree will be updated with a newly created leaf storing
-        the digest of the stringified version of the object inside the provided file.
+        More accurately, the Merkle-tree will be updated with *one* newly created leaf storing
+        the digest of the stringified version of the object within the provided file.
 
-        :param json_file: relative path of a ``.json``, specified with respect to the
-                          configured Merkle-tree's directory ``.log_dir``, whose
-                          content consists in a list of objects
-        :type json_file:  str
-        :param sort_kes:  [optional] -> True
-        :type sort_kes:   bool
-        :param indent:    [optional] -> 4
+        :param file_path: relative path of a ``.json`` file with respect to the current working directory,
+                          containing *one* JSON entity.
+        :type file_path:  str
+        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
+                          before its stringification. Defaults to ``False``.
+        :type sort_keys:  bool
+        :param indent:    [optional] Specifies key indentaion upon stringification of the
+                          provided object. Defaults to ``0``.
         :type indent:     int
 
+        .. warning:: Raises ``JSONDecodeError`` if the provided file is not as prescribed
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        .. note:: Does nothing if the object loaded from file is not a list
         """
         try:
             with open(os.path.abspath(file_path), 'r') as f:
@@ -404,34 +414,36 @@ class MerkleTree(object):
     def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
         """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
 
-        More accurately, it successively updates the Merkle-tree with each newly created leaf
-        storing the digest of the respective JSON object from the list of the provided file
+        More accurately, it successively updates the Merkle-tree with each newly created leaf storing the
+        digest of the respective JSON entity from the list within the provided file.
 
-        :param json_file: relative path of a ``.json``, specified with respect to the
-                          configured Merkle-tree's directory ``.log_dir``, whose
-                          content consists in a list of objects
-        :type json_file:  str
-        :param sort_kes:  [optional] -> True
-        :type sort_kes:   bool
-        :param indent:    [optional] -> 4
+        :param file_path: relative path of a ``.json`` file with respect to the current working directory,
+                          containing a *list* of JSON entities.
+        :type file_path:  str
+        :param sort_keys: [optional] If ``True``, then the all objects' keys are alphabetically stored
+                          before stringification. Defaults to ``False``.
+        :type sort_keys:  bool
+        :param indent:    [optional] Specifies uniform key indentaion upon stringification of objects.
+                          Defaults to ``0``.
         :type indent:     int
 
+        .. warning:: Raises ``ValueError`` if the provided file's content is not as prescribed
+        .. note:: Raises ``JSONDecodeError`` if the provided file cannot be deserialized
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        .. note:: Does nothing if the object loaded from file is not a list
         """
-        # with open('objects.json', 'rb') as f:
-        #     list_of_objects = json.load(f.read())
         try:
             with open(os.path.abspath(file_path), 'r') as f:
                 list_of_objects = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
-        if isinstance(list_of_objects, list):
-            for object in list_of_objects:
-                self.encryptObject(
-                    object=object,
-                    sort_keys=sort_keys,
-                    indent=indent)
+        if not isinstance(list_of_objects, list):
+            raise ValueError('oops..')
+        for object in list_of_objects:
+            self.encryptObject(
+                object=object,
+                sort_keys=sort_keys,
+                indent=indent)
+
 
 # ------------------------------ Proof generation ------------------------
 
