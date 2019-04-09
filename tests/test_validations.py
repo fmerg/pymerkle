@@ -234,9 +234,9 @@ file_dir = os.path.dirname(__file__)
 validator = ProofValidator()
 
 # Clean validations directory before running the test
-file_list = os.listdir(os.path.join(file_dir, 'validations'))
+file_list = os.listdir(os.path.join(file_dir, 'receipts'))
 for file in file_list:
-    os.remove(os.path.join(file_dir, 'validations', file))
+    os.remove(os.path.join(file_dir, 'receipts', file))
 
 # Feed tree with logs gradually and generate consistency proof for each step
 proofs = []
@@ -262,7 +262,7 @@ def test_ProofValidator(proof, target_hash):
         target_hash=target_hash,
         save_dir=os.path.join(
             file_dir,
-            'validations'))
+            'receipts'))
     receipt_file_path = os.path.join(
         file_dir,
         'validations',
