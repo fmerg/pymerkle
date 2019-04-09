@@ -29,9 +29,6 @@ class MerkleTree(object):
                        If provided, the tree is constructed with as many leafs from the beginning, storing the hashes
                        of the inserted records in the respective order.
     :type \*records:   str or bytes or bytearray
-    :param log_dir:    [optional] Absolute path of the directory, where the Merkle-tree will receive log files
-                       to encrypt from. Defaults to the current working directory if unspecified.
-    :type log_dir:     str
 
     :ivar uuid:       (*str*) uuid of the Merkle-tree (time-based)
     :ivar hash_type:  (*str*) See the constructor's homonymous argument
@@ -40,7 +37,6 @@ class MerkleTree(object):
     :ivar hash:       (*method*) Core hash functionality of the Merkle-tree
     :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion tests
                       (explicitly or implicitly upon a request for consistency proof)
-    :ivar .log_dir:   (*bool*) See the constructor's homonymous argument
     """
 
     def __init__(
@@ -48,8 +44,8 @@ class MerkleTree(object):
             *records,
             hash_type='sha256',
             encoding='utf-8',
-            security=True,
-            log_dir=os.getcwd()):
+            security=True):
+
         self.uuid = str(uuid.uuid1())
 
         # Hash type, encoding type and security mode configuration
@@ -65,11 +61,6 @@ class MerkleTree(object):
         self.hash = machine.hash
         self.multi_hash = machine.multi_hash
         del machine
-
-        # Logs directory configuration
-        if not os.path.isdir(log_dir):
-            os.mkdir(log_dir)
-        self.log_dir = log_dir
 
         # Initialized here so that consistency-proof works in some edge cases
         self.leaves, self.nodes = [], set()
