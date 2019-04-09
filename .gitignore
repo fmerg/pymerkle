@@ -6,6 +6,7 @@ cpu*
 *.pyc
 /tests/logs/NASA*
 detect*
+*.json
 
 # Packaging
 *.egg-info/

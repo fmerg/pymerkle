@@ -190,6 +190,9 @@ class MerkleTree(object):
         """
         Implements the ``==`` operator
 
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
         Since trees with the same number of leaves have always identical structure, equality
         between Merkle-trees is established by just comparing their current root-hashes.
         """
@@ -200,7 +203,10 @@ class MerkleTree(object):
         """
         Implements the ``>=`` operator
 
-        A Merkle-tree is greater than or equal to another Merkle-ree iff the latter may be detected
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
         inside the former as a previous state of it.
         """
         return isinstance(
@@ -213,20 +219,85 @@ class MerkleTree(object):
         """
         Implements the ``>`` operator
 
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
         A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
         the former as a previous state of it *and* their current root-hashes do not coincide (or,
         equivalently, their current lengths do not coincide).
         """
         return self >= other and self.rootHash() != other.rootHash()
 
+# ------------------------ Export to and load from file ------------------
+
+    def export(self, file_path):
+        """
+        Exports enough internal info of the Merkle-tree into the provided file,
+        so that the Merkle-tree can be reloaded from that file.
+
+        :param file_path: relative path of the file to export to with respect to
+                          the current working directory
+        :type file_path:  str
+        """
+        with open(file_path, 'w') as f:
+            json.dump({
+                "header": {
+                    "encoding": self.encoding,
+                    "hash_type": self.hash_type,
+                    "security": self.security},
+                "hashes": [leaf.stored_hash.decode(encoding=self.encoding) for leaf in self.leaves]},
+                f,
+                indent=4)
+
+    @staticmethod
+    def loadFromFile(file_path):
+        """
+        Loads a Merkle-tree from the provided file, the latter being the result of an export
+        (cf. the ``MerkleTree.export`` method).
+
+        :param file_path: relative path of the file to load from with respect to the current
+                          working directory
+        :type file_path:  str
+        :returns:         the Merkle-tree laoded from the provided file
+        :rtype:           tree.MerkleTree
+
+        :warning:: Raises ``KeyError`` if the provided file is not as prescribed
+                   (i.e., like a result of the ``MerkleTree.export()`` method)
+        :note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
+        :note :: Raises ``FileNotFoundError`` if the provided file does not exist
+        """
+        try:
+            with open(file_path, 'r') as f:
+                loaded_object = json.load(f)
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        try:
+            loaded_tree = MerkleTree(
+                hash_type=loaded_object['header']['hash_type'],
+                encoding=loaded_object['header']['encoding'],
+                security=loaded_object['header']['security'])
+        except KeyError:
+            raise
+        tqdm.write('\nFile has been loaded')
+        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
+            loaded_tree.update(stored_hash=hash)
+        tqdm.write('Tree has been retreived')
+        return loaded_tree
+
 # ---------------------------------- Updating ----------------------------
 
-    def update(self, record):
+    def update(self, record=None, stored_hash=None):
         """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
         restructeres the tree appropriately and recalculates all necessary interior hashes
 
-        :param record: the record whose hash is to be stored into a new leaf
-        :type record:  str or bytes or bytearray
+        :param record:      [optional] The record whose hash is to be stored into a new leaf.
+                            If provided, then ``stored_hash`` should *not* be provided.
+        :type record:       str or bytes or bytearray
+        :param stored_hash: [optional] The hash to be stored by the new leaf (after encoding).
+                            If provided, then ``record`` should *not* be provided.
+        :type stored_hash:  str
+
+        .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
         """
         if self:
 
@@ -239,9 +310,10 @@ class MerkleTree(object):
 
             # Store new record to new leaf
             new_leaf = Leaf(
-                record=record,
                 hash_function=self.hash,
-                encoding=self.encoding)
+                encoding=self.encoding,
+                record=record,
+                stored_hash=stored_hash)
 
             # Assimilate new leaf
             self.leaves.append(new_leaf)
@@ -278,9 +350,10 @@ class MerkleTree(object):
 
         else:  # void case
             new_leaf = Leaf(
-                record=record,
                 hash_function=self.hash,
-                encoding=self.encoding)
+                encoding=self.encoding,
+                record=record,
+                stored_hash=stored_hash)
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
 
