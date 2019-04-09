@@ -241,8 +241,12 @@ class MerkleTree(object):
 
     def export(self, file_path):
         """
-        :param file_path:
-        :type file_path:
+        Exports enough internal info of the Merkle-tree into the provided file,
+        so that the Merkle-tree can be reloaded from that file.
+
+        :param file_path: relative path of the file to export to with respect to
+                          the current working directory
+        :type file_path:  str
         """
         with open(file_path, 'w') as f:
             json.dump({
@@ -257,20 +261,32 @@ class MerkleTree(object):
     @staticmethod
     def loadFromFile(file_path):
         """
-        :param file_path:
-        :type file_path:
-        :returns:
+        Loads a Merkle-tree from the provided file, the latter being the result of an export
+        (cf. the ``MerkleTree.export`` method).
+
+        :param file_path: relative path of the file to load from with respect to the current
+                          working directory
+        :type file_path:  str
+        :returns:         the Merkle-tree laoded from the provided file
         :rtype:           tree.MerkleTree
+
+        :warning:: Raises ``KeyError`` if the provided file is not as prescribed
+                   (i.e., like a result of the ``MerkleTree.export()`` method)
+        :note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
+        :note :: Raises ``FileNotFoundError`` if the provided file does not exist
         """
         try:
             with open(file_path, 'r') as f:
                 loaded_object = json.load(f)
         except (FileNotFoundError, JSONDecodeError):
             raise
-        loaded_tree = MerkleTree(
-            hash_type=loaded_object['header']['hash_type'],
-            encoding=loaded_object['header']['encoding'],
-            security=loaded_object['header']['security'])
+        try:
+            loaded_tree = MerkleTree(
+                hash_type=loaded_object['header']['hash_type'],
+                encoding=loaded_object['header']['encoding'],
+                security=loaded_object['header']['security'])
+        except KeyError:
+            raise
         tqdm.write('\nFile has been loaded')
         for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
             loaded_tree.update(stored_hash=hash)
