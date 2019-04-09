@@ -262,7 +262,7 @@ class MerkleTree(object):
         #         leaf.stored_hash for leaf in self.leaves]}
 
     @staticmethod
-    def loadFrom(file_path):
+    def loadFromFilePath(file_path):
         """
         :param file_path:
         :type file_path:
