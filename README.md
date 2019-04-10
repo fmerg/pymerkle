@@ -26,10 +26,10 @@ pip3 install pymerkle --pre
 **See also [_Usage_](USAGE.md) and [_API_](API.md)**
 
 ```python
-from pymerkle import *           # Import MerkleTree, validateProof and ProofValidator
+from pymerkle import *                    # Import MerkleTree, validateProof and ProofValidator
 
-tree = MerkleTree()              # Create empty SHA256/UTF-8 Merkle-tree with
-                                 # defense against second-preimage attack
+tree = MerkleTree()                       # Create empty SHA256/UTF-8 Merkle-tree with
+                                          # defense against second-preimage attack
 
 # Successively update the Merkle-tree with one hundred records
 
@@ -38,8 +38,8 @@ for i in range(100):
 
 # Generate some audit-proofs
 
-p = tree.auditProof(b'12-th record') # Audit proof based on a given record
-q = tree.auditProof(55)              # Audit-proof based upon the 56-th leaf
+p = tree.auditProof(b'12-th record')      # Audit proof based on a given record
+q = tree.auditProof(55)                   # Audit-proof based upon the 56-th leaf
 
 # Quick validation of the above proofs
 
@@ -53,8 +53,7 @@ sublength = tree.length()
 
 # Further encryption of files and objects
 
-tree.encryptObject({'a': 0, 'b': 1})      # One new leaf storing the digest of the given object's
-                                          # stringified version
+tree.encryptObject({'a': 0, 'b': 1})      # One new leaf storing the digest of the given object
 tree.encryptFileContent('path_to_file')   # One new leaf storing the digest of the given file's content
 tree.encryptFilePerLog('logs/sample_log') # Encrypt file per log (one new leaf for each line)
 
