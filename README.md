@@ -1,4 +1,4 @@
-# pymerkle: A Python library for constructing Merkle Trees and validating Log Proofs
+# pymerkle: A Python library for constructing Merkle Trees and validating Proofs
 [![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
@@ -6,13 +6,14 @@
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
-This library implements
+This library implements a class for **binary balanced** Merkle-trees (with possibly **odd** number of leaves) capable of generating **audit-proofs** _and_ **consistency-proofs** (along with **inclusion-tests**). It supports all hash functions (including **SHA3** variations) and encoding types, and **defense against second-preimage attack** is by default activated. It further provides flexible mechanisms for validating the generated proofs and easy verification of encrypted data.
 
-- a class for _binary balanced_ Merkle-Trees (with possibly _odd_ number of leaves) capable of generating _consistency-proofs_ except for _audit-proofs_ (along with _inclusion-tests_), supporting all hashing algorithms (including _SHA3_ variations) and most encoding types provided by `Python>=3.6`
+<!-- - a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of generating _consistency-proofs_ except for _audit-proofs_ (along with _inclusion-tests_), supporting all hashing algorithms (including _SHA3_ variations) and most encoding types provided by `Python>=3.6`
 - defense against _second-preimage attack_
-- flexible mechanisms for validating the generated proofs
+- flexible mechanisms for validating Merkle-proofs -->
 
-It is currently the only Python library implementing all the above features, with an eye on protocols like [_Certificate Transparency_](https://tools.ietf.org/html/rfc6962) and real-life applications.
+It is a *zero dependency* library (with the inessential exception of `tqdm` for displaying progress bars).
+<!-- It is currently the only Python library implementing all the above features, with an eye on protocols like [_Certificate Transparency_](https://tools.ietf.org/html/rfc6962) and real-life applications. -->
 
 ## Installation
 
@@ -103,10 +104,14 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 ## Running tests
 
 
-In order to run all integration tests, execute
+You need to have installed ``pytest``. From inside the root directory run the command
 
 ```shell
-./run_tests.sh
+pytest tests/
 ```
 
-from inside the root directory of the project. Alternatively, run the command `pytest tests/`. You can run only a specific test file, e.g., `test_log_encryption.py`, with the command `pytest tests/test_log_encryption.py`.
+to run all tests. You can run only a specific test file, e.g., `test_encryption.py`, with the command
+
+```shell
+pytest tests/test_encryption.py
+```
