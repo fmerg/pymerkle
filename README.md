@@ -6,7 +6,7 @@
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
-This library implements a class for **binary balanced** Merkle-trees (with possibly **odd** number of leaves) capable of generating **audit-proofs** _and_ **consistency-proofs** (along with **inclusion-tests**). It supports all hash functions (including **SHA3** variations) and encoding types, and **defense against second-preimage attack** is by default activated. It further provides flexible mechanisms for validating the generated proofs and easy verification of encrypted data.
+This library implements a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of generating _audit-proofs_ **and** _consistency-proofs_ (along with _inclusion-tests_). It supports all hash functions (including _SHA3_ variations) and encoding types, and _defense against second-preimage attack_ is by default activated. It further provides flexible mechanisms for validating the generated proofs and easy verification of encrypted data.
 
 <!-- - a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of generating _consistency-proofs_ except for _audit-proofs_ (along with _inclusion-tests_), supporting all hashing algorithms (including _SHA3_ variations) and most encoding types provided by `Python>=3.6`
 - defense against _second-preimage attack_
