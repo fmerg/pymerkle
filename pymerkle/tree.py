@@ -507,7 +507,6 @@ class MerkleTree(object):
 
 # ------------------------------ Proof generation ------------------------
 
-
     def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
         the given argument
@@ -676,7 +675,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
@@ -904,7 +902,7 @@ class MerkleTree(object):
         self.nodes = set()
         self.root = None
 
-# ----------------------------- JSON serialization -----------------------
+# ------------------------------- Serialization --------------------------
 
     def serialize(self):
         """ Returns a JSON structure with the Merkle-trees's current characteristics as key-value pairs

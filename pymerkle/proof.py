@@ -153,7 +153,7 @@ class Proof(object):
             else 'VALID' if self.header['status'] is True
             else 'NON VALID')
 
-# ------------------------------ JSON formatting -------------------------
+# ------------------------------- Serialization --------------------------
 
     def serialize(self):
         """ Returns a JSON structure with the proof's current characteristics as key-value pairs

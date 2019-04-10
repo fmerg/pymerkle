@@ -199,7 +199,7 @@ class ValidationReceipt(object):
             proof_provider=self.body['proof_provider'],
             result='VALID' if self.body['result'] else 'NON VALID')
 
-# ------------------------------ JSON formatting -------------------------
+# ------------------------------- Serialization --------------------------
 
     def serialize(self):
         """ Returns a JSON structure with the receipt's attributes as key-value pairs

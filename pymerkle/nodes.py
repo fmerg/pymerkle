@@ -218,7 +218,8 @@ class Node(object):
             self.left.stored_hash, self.right.stored_hash)
 
 
-# ------------------------------- JSON serialization ------------------------
+# ------------------------------- Serialization --------------------------
+
 
     def serialize(self):
         """ Returns a JSON structure with the node's attributes as key-value pairs
