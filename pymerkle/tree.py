@@ -17,6 +17,10 @@ from tqdm import tqdm
 class MerkleTree(object):
     """Class for Merkle-trees
 
+    :param \*records:  [optional] The records initially stored by the Merkle-tree; usually empty at construction. If
+                       If provided, the tree is constructed with as many leafs from the beginning, storing the hashes
+                       of the inserted records in the respective order.
+    :type \*records:   str or bytes or bytearray
     :param hash_type:  [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper-
                        or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type hash_type:   str
@@ -25,10 +29,6 @@ class MerkleTree(object):
     :type encoding:    str
     :param security:   [optional] If ``False``, it deactivates defense against second-preimage attack. Defaults to ``True``.
     :type security:    bool
-    :param \*records:  [optional] The records initially stored by the Merkle-tree; usually empty at construction. If
-                       If provided, the tree is constructed with as many leafs from the beginning, storing the hashes
-                       of the inserted records in the respective order.
-    :type \*records:   str or bytes or bytearray
 
     :ivar uuid:       (*str*) uuid of the Merkle-tree (time-based)
     :ivar hash_type:  (*str*) See the constructor's homonymous argument
@@ -187,8 +187,7 @@ class MerkleTree(object):
 # --------------------------------- Comparison ---------------------------
 
     def __eq__(self, other):
-        """
-        Implements the ``==`` operator
+        """Implements the ``==`` operator
 
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
@@ -200,8 +199,7 @@ class MerkleTree(object):
             self.rootHash() == other.rootHash()
 
     def __ge__(self, other):
-        """
-        Implements the ``>=`` operator
+        """Implements the ``>=`` operator
 
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
@@ -216,8 +214,7 @@ class MerkleTree(object):
             sublength=other.length())
 
     def __gt__(self, other):
-        """
-        Implements the ``>`` operator
+        """Implements the ``>`` operator
 
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
@@ -231,9 +228,8 @@ class MerkleTree(object):
 # ------------------------ Export to and load from file ------------------
 
     def export(self, file_path):
-        """
-        Exports enough internal info of the Merkle-tree into the provided file,
-        so that the Merkle-tree can be reloaded from that file.
+        """Exports enough internal info of the Merkle-tree into the provided file, so
+        that the Merkle-tree can be reloaded in its current state from that file.
 
         :param file_path: relative path of the file to export to with respect to
                           the current working directory
@@ -251,8 +247,7 @@ class MerkleTree(object):
 
     @staticmethod
     def loadFromFile(file_path):
-        """
-        Loads a Merkle-tree from the provided file, the latter being the result of an export
+        """Loads a Merkle-tree from the provided file, the latter being the result of an export
         (cf. the ``MerkleTree.export`` method).
 
         :param file_path: relative path of the file to load from with respect to the current
@@ -511,6 +506,7 @@ class MerkleTree(object):
 
 # ------------------------------ Proof generation ------------------------
 
+
     def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
         the given argument
@@ -632,29 +628,39 @@ class MerkleTree(object):
                 proof_index=None,
                 proof_path=None)
 
-        # Handles zero `sublength` separately as success, so that
-        # proof validation is always True in this case (see the
-        # `validations.validateProof` method)
-        if sublength == 0:
-            return Proof(
-                generation='SUCCESS (Subtree provided by Client was empty)',
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                proof_index=None,
-                proof_path=None)
-
-        # Handles incompatibility case (includes the zero leaves)
-        failure_message = 'Subtree provided by Client was incompatible'
+        # Handles a. zero `sublength` separately as success, so that proof
+        # validation is always True in this case (cf. the `validations.validateProof`
+        # method) b. incompatibility case as failure (includes the zero leaves)
         return Proof(
-            generation='FAILURE ({})'.format(failure_message),
+            generation='SUCCESS (Subtree provided by Client was empty)'
+            if sublength == 0 else 'Subtree provided by Client was incompatible',
             provider=self.uuid,
             hash_type=self.hash_type,
             encoding=self.encoding,
             security=self.security,
             proof_index=None,
             proof_path=None)
+
+        # if sublength == 0:
+        #     return Proof(
+        #         generation='SUCCESS (Subtree provided by Client was empty)',
+        #         provider=self.uuid,
+        #         hash_type=self.hash_type,
+        #         encoding=self.encoding,
+        #         security=self.security,
+        #         proof_index=None,
+        #         proof_path=None)
+        #
+        # # Handles incompatibility case (includes the zero leaves)
+        # failure_message = 'Subtree provided by Client was incompatible'
+        # return Proof(
+        #     generation='FAILURE ({})'.format(failure_message),
+        #     provider=self.uuid,
+        #     hash_type=self.hash_type,
+        #     encoding=self.encoding,
+        #     security=self.security,
+        #     proof_index=None,
+        #     proof_path=None)
 
 # ------------------------------ Inclusion tests ------------------------------
 
@@ -690,6 +696,7 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.

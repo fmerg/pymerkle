@@ -5,10 +5,10 @@ Provides the base class for the Merkle-tree's nodes and an inheriting class for 
 import json
 
 # Prefices to be used for nice tree printing
-L_BRACKET_SHORT = u'\u2514' + u'\u2500'     # └─
-L_BRACKET_LONG = u'\u2514' + 2 * u'\u2500'  # └──
-T_BRACKET = u'\u251C' + 2 * u'\u2500'       # ├──
-VERTICAL_BAR = u'\u2502'                    # │
+L_BRACKET_SHORT = '\u2514' + '\u2500'           # └─
+L_BRACKET_LONG = '\u2514' + 2 * '\u2500'        # └──
+T_BRACKET = '\u251C' + 2 * '\u2500'             # ├──
+VERTICAL_BAR = '\u2502'                         # │
 
 
 class Node(object):

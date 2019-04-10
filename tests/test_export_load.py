@@ -4,16 +4,11 @@ import json
 from pymerkle import MerkleTree
 
 # Clean exports dir before running the test
-file_list = os.listdir(
-    os.path.join(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'exports'))
-for file in file_list:
+for file in os.listdir(os.path.join(os.path.dirname(__file__), 'exports')):
     os.remove(
         os.path.join(
             os.path.dirname(
-                os.path.abspath(__file__)),
+                __file__),
             'exports',
             file))
 
@@ -21,7 +16,7 @@ tree = MerkleTree()
 for i in range(12):
     tree.update(record='{}-th record'.format(i))
 export_path = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
+    os.path.dirname(__file__),
     'exports',
     '{}.json'.format(
         tree.uuid))
