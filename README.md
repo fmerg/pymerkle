@@ -26,34 +26,45 @@ pip3 install pymerkle --pre
 **See also [_Usage_](USAGE.md) and [_API_](API.md)**
 
 ```python
-from pymerkle import *           # Import MerkleTree, validateProof
-                                 # and ProofValidator
+from pymerkle import *           # Import MerkleTree, validateProof and ProofValidator
+
 tree = MerkleTree()              # Create empty SHA256/UTF-8 Merkle-tree with
                                  # defense against second-preimage attack
-validator = ProofValidator()     # Create object for validating proofs
 
-# Successively update the tree with one hundred records
+# Successively update the Merkle-tree with one hundred records
+
 for i in range(100):
-    tree.update(bytes('{}-th record'.format(i), 'utf-8'))
+    tree.encryptRecord(bytes('{}-th record'.format(i), 'utf-8'))
 
-p = tree.auditProof(b'12-th record') # Generate audit-proof for the given record
-q = tree.auditProof(55) # Generate audit-proof based upon the 56-th leaf
+# Generate some audit-proofs
+
+p = tree.auditProof(b'12-th record') # Audit proof based on a given record
+q = tree.auditProof(55)              # Audit-proof based upon the 56-th leaf
 
 # Quick validation of the above proofs
+
 validateProof(target_hash=tree.rootHash(), proof=p) # True
 validateProof(target_hash=tree.rootHash(), proof=q) # True
 
 # Store the tree's current state (root-hash and length) for later use
-top_hash = tree.rootHash()
-length = tree.length()
 
-# Update the tree by encrypting a new log
-tree.encryptPerLog('logs/sample_log')
+old_hash = tree.rootHash()
+sublength = tree.length()
 
-# Generate consistency-proof for the stage before encrypting the log
-r = tree.consistencyProof(old_hash=top_hash, sublength=length)
+# Further encryption of files and objects
 
-# Validate consistency-proof and generate receipt
+tree.encryptObject({'a': 0, 'b': 1})      # One new leaf storing the digest of the given object's
+                                          # stringified version
+tree.encryptFileContent('path_to_file')   # One new leaf storing the digest of the given file's content
+tree.encryptFilePerLog('logs/sample_log') # Encrypt file per log (one new leaf for each line)
+
+# Generate consistency-proof for the stage before the above encryptions
+
+r = tree.consistencyProof(old_hash, sublength)
+
+# Create object for refined proof validation, validate proof and generate receipt
+
+validator = ProofValidator()     
 validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
 ```
 
