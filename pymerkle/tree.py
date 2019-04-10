@@ -5,6 +5,7 @@ from .hashing import hash_machine
 from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
+from .serializers import MerkleTreeSerializer
 import json
 import uuid
 import os
@@ -506,7 +507,6 @@ class MerkleTree(object):
 
 # ------------------------------ Proof generation ------------------------
 
-
     def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
         the given argument
@@ -641,27 +641,6 @@ class MerkleTree(object):
             proof_index=None,
             proof_path=None)
 
-        # if sublength == 0:
-        #     return Proof(
-        #         generation='SUCCESS (Subtree provided by Client was empty)',
-        #         provider=self.uuid,
-        #         hash_type=self.hash_type,
-        #         encoding=self.encoding,
-        #         security=self.security,
-        #         proof_index=None,
-        #         proof_path=None)
-        #
-        # # Handles incompatibility case (includes the zero leaves)
-        # failure_message = 'Subtree provided by Client was incompatible'
-        # return Proof(
-        #     generation='FAILURE ({})'.format(failure_message),
-        #     provider=self.uuid,
-        #     hash_type=self.hash_type,
-        #     encoding=self.encoding,
-        #     security=self.security,
-        #     proof_index=None,
-        #     proof_path=None)
-
 # ------------------------------ Inclusion tests ------------------------------
 
     def inclusionTest(self, old_hash, sublength):
@@ -696,7 +675,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
@@ -924,7 +902,7 @@ class MerkleTree(object):
         self.nodes = set()
         self.root = None
 
-# ----------------------------- JSON serialization -----------------------
+# ------------------------------- Serialization --------------------------
 
     def serialize(self):
         """ Returns a JSON structure with the Merkle-trees's current characteristics as key-value pairs
@@ -935,7 +913,7 @@ class MerkleTree(object):
                   about the tree's current state (*size*, *length*, *height*, *root-hash*) and
                   fixed configs (*hash type*, *encoding type*, *security mode*, *uuid*)
         """
-        encoder = MerkleTreeEncoder()
+        encoder = MerkleTreeSerializer()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -947,38 +925,6 @@ class MerkleTree(object):
         """
         return json.dumps(
             self,
-            cls=MerkleTreeEncoder,
+            cls=MerkleTreeSerializer,
             sort_keys=True,
             indent=4)
-
-# ------------------------------- JSON encoders --------------------------
-
-
-class MerkleTreeEncoder(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of Merkle-trees. Extends the built-in
-    JSON encoder for data structures.
-    """
-
-    def default(self, obj):
-        """ Overrides the built-in method of JSON encoders according to the needs of this library
-        """
-        try:
-            uuid = obj.uuid
-            hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security
-            leaves, nodes = obj.leaves, obj.nodes
-            try:
-                root = obj.root.serialize()
-            except AttributeError:  # tree is empty and thus have no root
-                root = None
-        except TypeError:
-            return json.JSONEncoder.default(self, obj)
-        else:
-            return {
-                'uuid': uuid,
-                'hash_type': hash_type,
-                'encoding': encoding,
-                'security': security,
-                'leaves': [leaf.serialize() for leaf in leaves],
-                'nodes': [node.serialize() for node in nodes],
-                'root': root
-            }

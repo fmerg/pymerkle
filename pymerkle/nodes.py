@@ -2,6 +2,7 @@
 Provides the base class for the Merkle-tree's nodes and an inheriting class for its leaves
 """
 
+from .serializers import NodeSerializer
 import json
 
 # Prefices to be used for nice tree printing
@@ -217,7 +218,8 @@ class Node(object):
             self.left.stored_hash, self.right.stored_hash)
 
 
-# ------------------------------- JSON serialization ------------------------
+# ------------------------------- Serialization --------------------------
+
 
     def serialize(self):
         """ Returns a JSON structure with the node's attributes as key-value pairs
@@ -227,7 +229,7 @@ class Node(object):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
-        encoder = NodeEncoder()
+        encoder = NodeSerializer()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -237,7 +239,7 @@ class Node(object):
 
         :rtype: str
         """
-        return json.dumps(self, cls=NodeEncoder, sort_keys=True, indent=4)
+        return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)
 
 # -------------------------------- End of class --------------------------
 
@@ -270,30 +272,3 @@ class Leaf(Node):
             hash_function=hash_function,
             encoding=encoding,
             stored_hash=stored_hash)
-
-# ------------------------------- JSON encoders --------------------------
-
-
-class NodeEncoder(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of nodes. Extends the built-in
-    JSON encoder for data structures.
-    """
-
-    def default(self, obj):
-        """ Overrides the built-in method of JSON encoders according to the needs of this library.
-        """
-        try:
-            left, right = obj.left, obj.right
-            hash = obj.stored_hash
-        except TypeError:
-            return json.JSONEncoder.default(self, obj)
-        else:
-            if isinstance(obj, Leaf):
-                return {
-                    'hash': hash.decode(encoding=obj.encoding)
-                }
-            return {
-                'left': left.serialize(),
-                'right': right.serialize(),
-                'hash': hash.decode(encoding=obj.encoding)
-            }  # Non-leaf case
