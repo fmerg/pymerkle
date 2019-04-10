@@ -31,22 +31,11 @@ For example, in order to create a Merkle-tree with hash algorithm _SHA512_ and e
 tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
-An extra argument `log_dir` would specify the absolute path of the directory, where the Merkle-tree will receive files to encrypt from. If unspecified, it defaults the _current working directory_. For example, in order to configure a standard Merkle-tree to accept log-files from an existing directory `/logs` inside the directory containing the script, write:
+... [initial records]
 
-```python
-import os
+#### Exporting to and loading from file [Work in progress]
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-tree = MerkleTree(log_dir=os.path.join(script_dir, 'logs'))
-```
-
-You can then encrypt any file `log_sample` inside the `/logs` directory by
-
-```python
-tree.encryptPerLog(log_sample)
-```
-
-without need to specify its absolute path.
+...
 
 #### Tree display
 
@@ -105,31 +94,41 @@ with open('structure', 'w') as f:
     f.write(tree.__str__())
 ```
 
-#### Exporting to and loading from file [Work in progress]
-
 
 ### New records and file encryption
 
 _Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
 
 ```python
-tree = MerkleTree()                          # initially empty SHA256/UTF-8 Merkle-tree
+tree = MerkleTree()                                  # initially empty SHA256/UTF-8 Merkle-tree
 
-tree.update('arbitrary string')               # first record
-tree.update(b'arbitrary bytes-like object')   # second record
-...                                           # ...
+tree.update(record='arbitrary string')               # first record
+tree.update(record=b'arbitrary bytes-like object')   # second record
+...                                                  # ...
 ```
 
-#### Whole file encryption [Work in progress]
+Note that the `record` keyword is here necessary, since this is only one of the two possible usages of the
+core `.update` functionality. For the external user, the above lines are equivalent to  
 
-#### Encryption per object [Work in progress]
+```python
+tree.encryptRecord('arbitrary string')               # first record
+tree.encryptRecord(b'arbitrary bytes-like object')   # second record
+...                                                  # ...
+```
 
-#### Encryption per log
+invoking `.update` internally. The latter is also invoked by the following methods.
 
-_Encrypting a log-file into_ the Merkle-tree means updating it with each line of that file successively. Use the `.encryptLog` method to encrypt a new file as follows:
+#### Whole file encryption
+
+...
+
+#### File encryption per log
+
+_Encrypting per log a file into_ the Merkle-tree means updating it with each line of that file successively. Use
+the `.encryptFilePerLog` method to encrypt a file in this way as follows:
 
 ```shell
->>> tree.encryptPerLog('large_APACHE_log')
+>>> tree.encryptFilePerLog('APACHE_logs/large_APACHE_log')
 
 Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
@@ -137,20 +136,22 @@ Encryption complete
 >>>
 ```
 
-This presupposes that the file `large_APACHE_log` resides inside the configured log directory, where the tree receives its files to encrypt from, otherwise a `FileNotFoundError` is thrown. Similarly, if the log-file would reside in a nested directory `/APACHE_logs`, you could easily encrypt it with
+This presupposes that the file `APACHE_logs/large_APACHE_log` is the relative path of the file to encrypt with
+respect to the current working directory.
 
-```shell
->>> tree.encryptPerLog('APACHE_logs/large_APACHE_log')
+#### Direct object encryption
 
-Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
-Encryption complete
+...
 
->>>
-```
+#### File based object encryption
 
-In other words, the argument of `.encryptPerLog` should always be the relative path of the file to encrypt with respect to the tree's configured log directory. The latter can be accessed as the tree's `.log_dir` attribute.
+...
 
-### Generating Log proofs (Server's Side)
+#### File encryption per object
+
+...
+
+### Generating proofs (Server's Side)
 
 A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current top-hash of the tree. Requesting, providing and validating log proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
 
@@ -306,7 +307,7 @@ old_hash = tree.rootHash() # a bytes object
 sublength = tree.length()
 
 # Server encrypts some new log (modifying the top-hash and length of the tree)
-tree.encryptPerLog('sample_log')
+tree.encryptFilePerLog('sample_log')
 
 # Upon Client's request, the server provides consistency proof for the requested stage
 q = tree.consistencyProof(old_hash, sublength)
@@ -341,7 +342,7 @@ old_hash = tree.rootHash()
 sublength = tree.length()
 
 # Server encrypts new records into the Merkle-tree
-tree.encrypt('large_APACHE_log')
+tree.encryptFilePerLog('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
@@ -351,7 +352,7 @@ tree.inclusionTest(old_hash=old_hash, sublength=sublength + 1)     # False
 ```
 
 
-### Validating Log proofs (Client's Side)
+### Validating proofs (Client's Side)
 
 In what follows, let `tree` be a Merkle-tree and `p` a log proof (audit or consistency indifferently) generated by it.
 
@@ -413,10 +414,10 @@ where `proof-provider` refers to the Merkle-tree having generated the proof. The
   }
 ```
 
-and will be stored in a `.json` file if the validator object has been configured upon construction appropriately. More specifically,
+and would be automatically stored in a `.json` file if the function had been called as
 
 ```python
-v = ProofValidator(validations_dir=...)
+receipt = v.validate(tree.rootHash(), p, save_dir='some_relative_path')
 ```
 
-configures the validator to save receipts upon validation inside the specified directory as `.json` files, each bearing as name the corresponding receipt's uuid (see [**here**](https://github.com/FoteinosMerg/pymerkle/tree/master/tests/validations_dir) for example).
+In particular ...
