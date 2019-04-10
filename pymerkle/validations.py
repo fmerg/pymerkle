@@ -2,11 +2,12 @@
 Provides a core function for validating proofs along with a wrapper
 """
 
+from .hashing import hash_machine
+from .serializers import ValidationReceiptSerializer
 import uuid
 import time
 import json
 import os
-from .hashing import hash_machine
 
 # -------------------------------- Validation ---------------------------------
 
@@ -205,7 +206,7 @@ class ValidationReceipt(object):
 
         :rtype: dict
         """
-        encoder = validationReceiptEncoder()
+        encoder = ValidationReceiptSerializer()
         return encoder.default(self)
 
     def JSONstring(self):
@@ -217,40 +218,6 @@ class ValidationReceipt(object):
         """
         return json.dumps(
             self,
-            cls=validationReceiptEncoder,
+            cls=ValidationReceiptSerializer,
             sort_keys=True,
             indent=4)
-
-# ------------------------------- JSON encoders --------------------------
-
-
-class validationReceiptEncoder(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of proof receipts. Extends the built-in
-    JSON encoder for data structures.
-    """
-
-    def default(self, obj):
-        """ Overrides the built-in method of JSON encoders according to the needs of this library
-        """
-        try:
-            uuid = obj.header['uuid']
-            timestamp = obj.header['timestamp']
-            validation_moment = obj.header['validation_moment']
-            proof_uuid = obj.body['proof_uuid']
-            proof_provider = obj.body['proof_provider']
-            result = obj.body['result']
-        except TypeError:
-            return json.JSONEncoder.default(self, obj)
-        else:
-            return {
-                'header': {
-                    'uuid': uuid,
-                    'timestamp': timestamp,
-                    'validation_moment': validation_moment
-                },
-                'body': {
-                    'proof_uuid': proof_uuid,
-                    'proof_provider': proof_provider,
-                    'result': result
-                }
-            }
