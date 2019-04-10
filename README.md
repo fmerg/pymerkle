@@ -85,13 +85,13 @@ Direct validation of a Merkle-proof is performed usind the ``validateProof()`` f
 receipt with the validation result and storing at will the generated receipt as a ``.json`` file. This is achieved using the
 ``.validate`` method of the ``ProofValidator`` like in the above quick example.
 
-See [_API_](API.md) for details about the arguments and precise functionality.
+See [_API_](API.md) for details about their arguments and precise functionality.
 
 ## Exporting and reloading the tree from a file
 
-Given an instance of the ``MekleTree`` class, the minimum required information can be exported using the ``.export`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state from that file using the ``.loadFromFile`` static method. This can be useful for transmitting the tree's current state to a trusted party or retrieving the tree from a backup file. Reconstruction of the tree is uniquely determined by the sequence of stored hashes (see the next section _Tree structure_ to understand why). 
+Given an instance of the ``MekleTree`` class, the minimum required information can be exported using the ``.export`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state from that file using the ``.loadFromFile`` static method. This can be useful for transmitting the tree's current state to a trusted party or retrieving the tree from a backup file. Reconstruction of the tree is uniquely determined by the sequence of stored hashes (see the next section _Tree structure_ to understand why).
 
-See [_API_](API.md) for details about the arguments and precise functionality.
+See [_API_](API.md) for details about their arguments and precise functionality.
 
 
 ## Tree structure
@@ -136,7 +136,7 @@ You need to have installed ``pytest``. From inside the root directory run the co
 pytest tests/
 ```
 
-to run all tests. This might take up to 2-4 minutes, since crucial parts of the code are tested against all possible combinations of hash algorithm and encoding type. You can run only a specific test file, e.g., `test_encryption.py`, with the command
+to run all tests. This might take up to 2-4 minutes, since crypto parts of the code are tested against all possible combinations of hash algorithm and encoding type. You can run only a specific test file, e.g., `test_encryption.py`, with the command
 
 ```shell
 pytest tests/test_encryption.py
