@@ -229,11 +229,18 @@ class MerkleTree(object):
 # ------------------------ Export to and load from file ------------------
 
     def export(self, file_path):
-        """Exports enough internal info of the Merkle-tree into the provided file, so
-        that the Merkle-tree can be reloaded in its current state from that file.
+        """Exports the minimum required information into the provided file, so that the Merkle-tree can be
+        reloaded in its current state from that file.
 
-        :param file_path: relative path of the file to export to with respect to
-                          the current working directory
+        In particular, the final file will contain a JSON entity with keys ``header`` (containing the parameters
+        ``hash_type``, ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests
+        currently stored by the tree's leaves in respective order.
+
+        :note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
+                by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
+
+        :param file_path: relative path of the file to export to with respect to the current
+                          working directory
         :type file_path:  str
         """
         with open(file_path, 'w') as f:
@@ -249,7 +256,7 @@ class MerkleTree(object):
     @staticmethod
     def loadFromFile(file_path):
         """Loads a Merkle-tree from the provided file, the latter being the result of an export
-        (cf. the ``MerkleTree.export`` method).
+        (cf. the ``.export`` method).
 
         :param file_path: relative path of the file to load from with respect to the current
                           working directory
@@ -257,8 +264,7 @@ class MerkleTree(object):
         :returns:         the Merkle-tree laoded from the provided file
         :rtype:           tree.MerkleTree
 
-        :warning:: Raises ``KeyError`` if the provided file is not as prescribed
-                   (i.e., like a result of the ``MerkleTree.export()`` method)
+        :warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
         :note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
         :note :: Raises ``FileNotFoundError`` if the provided file does not exist
         """
@@ -430,7 +436,7 @@ class MerkleTree(object):
         More accurately, it updates the Merkle-tree with *one* newly created leaf storing the digest
         of the provided object's stringified version (cf. doc of the ``.update`` method).
 
-        :param object:    the JSON entiry under encryption
+        :param object:    the JSON entity under encryption
         :type objec:      dict
         :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
                           before its stringification. Defaults to ``False``.

@@ -73,16 +73,25 @@ validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
 
 ## Encryption modes
 
-#### [Work in progress]
+Encryption of _plain text_ (``string``, ``bytes``, ``bytearray``), _JSON_ objects (``dict``) and _files_ is supported. Use according to convenience any of the following methods of the ``MerkleTree`` class (all of them invoking internally the ``.update`` method for appending newly created leaves):
+
+``.encryptRecord()``, ``.encryptFileConent()``, ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``
+
+See [_API_](API.md) for details about the arguments and precise functionality.
 
 ## Proof validation
 
-#### [Work in progress]
+Direct validation of a Merkle-proof is performed usind the ``validateProof()`` function, modifying the status of the inserted proof appropriately and returning the corresponding boolean. A more elaborate validation procedure includes generating a
+receipt with the validation result and storing at will the generated receipt as a ``.json`` file. This is achieved using the
+``.validate`` method of the ``ProofValidator`` like in the above quick example.
 
+See [_API_](API.md) for details about the arguments and precise functionality.
 
 ## Exporting and reloading the tree from a file
 
-#### [Work in progress]
+Given an instance of the ``MekleTree`` class, the minimum required information can be exported using the ``.export`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state from that file using the ``.loadFromFile`` static method. This can be useful for transmitting the tree's current state to a trusted party or retrieving the tree from a backup file. Reconstruction of the tree is uniquely determined by the sequence of stored hashes (see the next section _Tree structure_ to understand why). 
+
+See [_API_](API.md) for details about the arguments and precise functionality.
 
 
 ## Tree structure
@@ -93,9 +102,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes in the present implementation, whereas the total number of nodes in the structure described [**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
 
-The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the [`MerkleTree.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update) method for further insight, or the gradual development exposed in the [`tests/test_tree_structure.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_tree_structure.py) file inside the project's repository.
-
-
+The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the [`MerkleTree.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update) method for further insight.
 
 ### Deviation from bitcoin specification
 
@@ -129,7 +136,7 @@ You need to have installed ``pytest``. From inside the root directory run the co
 pytest tests/
 ```
 
-to run all tests. You can run only a specific test file, e.g., `test_encryption.py`, with the command
+to run all tests. This might take up to 2-4 minutes, since crucial parts of the code are tested against all possible combinations of hash algorithm and encoding type. You can run only a specific test file, e.g., `test_encryption.py`, with the command
 
 ```shell
 pytest tests/test_encryption.py
