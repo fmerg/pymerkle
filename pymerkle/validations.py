@@ -71,18 +71,18 @@ class ProofValidator(object):
     def validate(self, target_hash, proof, save_dir=None):
         """Wraps ``validations.validateProof``, returning a validation receipt instead of a boolean
 
-        If a ``validations_dir`` has been specified at construction, then the receipt is automatically
-        stored in the configured directory as a ``.json`` file named with the receipt's uuid
+        If a ``save_dir`` has been specified, then the receipt is automatically stored in the given
+        directory as a ``.json`` file named with the receipt's uuid
 
         :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
                             acclaimed top-hash of the Merkle-tree having provided the proof)
         :type target_hash:  bytes
         :param proof:       the proof to be validated
         :type save_dir:     [optional] Relative path with respect to the current working directory of the
-                            directory where to save the generated receipt. More accurately, if specified,
-                            the generated receipt will be saved within this directory as a ``.json`` file
-                            named with the receipt's uuid. If not specified, then generated receipt will
-                            *not* be automatically stored in any file.
+                            directory where to save the generated receipt. If specified, the generated
+                            receipt will be saved within this directory as a ``.json`` file named with
+                            the receipt's uuid. Otherwise, then generated receipt will *not* be
+                            automatically stored in any file.
         :param save_dir:    str
         :type proof:        proof.Proof
         :rtype:             validations.ValidationReceipt

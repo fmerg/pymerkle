@@ -4,33 +4,33 @@ This section describes the recommended use of _pymerkle_ made by an external use
 
 ## `class` __MerkleTree ( [ *hash_type = 'sha256', encoding = 'utf-8', security=True* ] )__
 
-- **hash_type** (_str_) [optional] Defaults to `'sha256'`. Specifies the hash algorithm used by the Merkle-tree. Should be among `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown.
+- **hash_type** (_str_) – [optional] Defaults to `'sha256'`. Specifies the hash algorithm used by the Merkle-tree. Should be among `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown.
 
-- **encoding** (_str_) [optional]. Defaults to `'utf_8'`. Specifies the encoding used by the Merkle-tree before hashing. Should be among the following (upper- or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown: `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
+- **encoding** (_str_) – [optional] Defaults to `'utf_8'`. Specifies the encoding used by the Merkle-tree before hashing. Should be among the following (upper- or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown: `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
 
-- **security** (_bool_) [optional], specifies the security mode of the Merkle-tree. If `False`, it deactivates defense against second-preimage attack. Defaults to `True`.
+- **security** (_bool_) – [optional] Specifies the security mode of the Merkle-tree. If `False`, it deactivates defense against second-preimage attack. Defaults to `True`.
 
 Instances of the `MerkleTree` class have the following attributes for external reference:
 
 
-### __.uuid__
+### `str` __.uuid__
 
-(_str_) Time-based _uuid_ of the Merkle-tree
+Time-based _uuid_ of the Merkle-tree
 
-### __.hash_type__
+### `str` __.hash_type__
 
-(_str_) See the constructor's homonymous argument
+See the constructor's homonymous argument
 
-### __.encoding__
+### `str` __.encoding__
 
-(_str_) See the constructor's homonymous argument
+See the constructor's homonymous argument
 
-### __.security__
+### `bool` __.security__
 
-(_bool_) Iff `True` security measures against second-preimage attack are activated
+Iff `True` security measures against second-preimage attack are activated
 
 
-### __.height ( )__
+### `method` __.height ( )__
 
 Calculates and returns the Merkle-tree’s current height
 
@@ -40,20 +40,20 @@ Calculates and returns the Merkle-tree’s current height
 
 _Note:_ Since the tree is by construction binary balanced, its height coincides with the length of its leftmost branch
 
-### __.length ( )__
+### `method` __.length ( )__
 
 - **Returns**: the Merkle-tree’s current length (i.e., the number of its leaves)
 
 - **Return type**: _int_
 
-### __.size ( )__
+### `method` __.size ( )__
 
 - **Returns**: the current number of the Merkle-tree’s nodes
 
 - **Return type**: _int_
 
 
-### __.rootHash ( )__
+### `method` __.rootHash ( )__
 
 Returns the current root-hash of the Merkle-tree (i.e., the hash stored by its current root)
 
@@ -65,7 +65,7 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 - **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf -->
 
-### __.encryptRecord (*record*)__
+### `method` __.encryptRecord (*record*)__
 
 ...
 
@@ -73,7 +73,7 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 _Note:_ ...
 
-### __.encryptFileContent (*file_path*)__
+### `method` __.encryptFileContent (*file_path*)__
 
 ...
 
@@ -81,7 +81,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.encryptFilePerLog (*log_file*)__
+### `method` __.encryptFilePerLog (*log_file*)__
 
 ...
 
@@ -89,7 +89,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.encryptObject (*object*)__
+### `method` __.encryptObject (*object*)__
 
 ...
 
@@ -97,7 +97,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.encryptObjectFromFile (*file_path*)__
+### `method` __.encryptObjectFromFile (*file_path*)__
 
 ...
 
@@ -105,7 +105,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.export (*file_path*)__
+### `method` __.export (*file_path*)__
 
 ...
 
@@ -113,7 +113,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### `static` __.loadFromFile (*file_path*)__
+### `static function` __.loadFromFile (*file_path*)__
 
 ...
 
@@ -125,7 +125,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.auditProof (*arg*)__
+### `method` __.auditProof (*arg*)__
 
 ...
 
@@ -137,7 +137,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.consistencyProof (*old_hash, sublength*)__
+### `method` __.consistencyProof (*old_hash, sublength*)__
 
 ...
 
@@ -151,7 +151,7 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.inclusionTest (*old_hash, sublength*)__
+### `method` __.inclusionTest (*old_hash, sublength*)__
 
 ...
 
@@ -165,15 +165,15 @@ _Note:_ ...
 
 _Note:_ ...
 
-### __.clear ()__
+### `method` __.clear ( )__
 
 ...
 
-### __.serialize ()__
+### `method` __.serialize ( )__
 
 ...
 
-### __.JSONstring ()__
+### `method` __.JSONstring ( )__
 
 ...
 
@@ -219,27 +219,23 @@ Validates the inserted proof by comparing to the provided target hash, modifies 
 
 - **Return type**: _bool_
 
-## `class` __ProofValidator ( [ *validations_dir* ] )__
+## `class` __ProofValidator ( )__
 
 Wrapper for the `validateProof` function, employing the `validations.ValidationReceipt` class in order to organize validation results in an easy storable way.
 
-- **validations_dir** (_str_) [optional] absolute path of the directory where validation receipts will be stored as `.json` files. Defaults to `None` if unspecified at construction, in which case validation receipts are not to be automatically stored
-
-Instances of the `MerkleTree` class have the following attributes for external reference:
-
-
-### __.validations_dir__
-
-See the constructor's homonymous argument
-
-### __.validate (*target_hash, proof*)__
+### `method` __.validate (*target_hash, proof* [*, save_dir=None*] )__
 
 Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file, bearing as name the corresponding receipt's uuid.
 
-- **target_hash** (_str_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
+- **target_hash** (_bytes_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 
 - **proof** (_proof.Proof_) – the proof to be validated
 
+- **save_dir** (_str_) – [optional] Relative path with respect to the current working directory of the
+directory where to save the generated receipt. If specified, the generated receipt will
+be saved within this directory as a ``.json`` file named with the receipt's uuid. Otherwise,
+then generated receipt will *not* be automatically stored in any file.
+
 - **Returns**: a receipt containing the result of validation (along with _time-stamp_ and _uuid_)
 
-- **Return type**: _validations.validationReceipt_
+- **Return type**: _validations.ValidationReceipt_
