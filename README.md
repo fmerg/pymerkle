@@ -21,6 +21,10 @@ It is a *zero dependency* library (with the inessential exception of `tqdm` for 
 pip3 install pymerkle --pre
 ```
 
+## Warning!
+
+The version currently available under *PyPI* is **incompatible** with the present docs and examples, as well as the complete documentation at *ReadTheDocs*.
+
 ## Quick example
 
 **See also [_Usage_](USAGE.md) and [_API_](API.md)**
@@ -57,7 +61,7 @@ tree.encryptObject({'a': 0, 'b': 1})      # One new leaf storing the digest of t
 tree.encryptFileContent('path_to_file')   # One new leaf storing the digest of the given file's content
 tree.encryptFilePerLog('logs/sample_log') # Encrypt file per log (one new leaf for each line)
 
-# Generate consistency-proof for the stage before the above encryptions
+# Generate consistency-proof for the state before the above encryptions
 
 r = tree.consistencyProof(old_hash, sublength)
 
@@ -66,6 +70,19 @@ r = tree.consistencyProof(old_hash, sublength)
 validator = ProofValidator()     
 validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
 ```
+
+## Encryption modes
+
+#### [Work in progress]
+
+## Proof validation
+
+#### [Work in progress]
+
+
+## Exporting and reloading the tree from a file
+
+#### [Work in progress]
 
 
 ## Tree structure
@@ -85,7 +102,6 @@ The topology is namely identical to that of a binary _Sekura tree_, depicted in 
 In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead, creating bifurcation nodes at the rightmost branch allows the tree to remain balanced upon any update. As a consequence, even if security against second-preimage attack (see below) were deactivated, the current implementation is by structure invulnerable to the kind of attack that is described [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp).
 
 
-
 ## Defense against second-preimage attack
 
 
@@ -95,20 +111,13 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
-(See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or [**here**](https://news.ycombinator.com/item?id=16572793) for some insight). Read the [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file inside the project's repository to see how to perform second-preimage attacks against the current implementation.
+(See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or [**here**](https://news.ycombinator.com/item?id=16572793) for some insight). In order to deactivate defense against second-preimage attack, set the ``security`` kwarg equal to ``False`` at construction:
 
+```python
+tree = MerkleTree(security=False)
+```
 
-
-## File encryption modes
-
-#### [Work in progress]
-
-
-
-## Exporting and reloading the tree from a file
-
-#### [Work in progress]
-
+Read the [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file inside the project's repository to see how to perform second-preimage attacks against the current implementation.
 
 
 ## Running tests
