@@ -580,7 +580,7 @@ class MerkleTree(object):
         and length respectively) provided from Client's Side
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   bytes or None
+        :type old_hash:   bytes
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
