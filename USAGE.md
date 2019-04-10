@@ -95,7 +95,7 @@ with open('structure', 'w') as f:
 ```
 
 
-### New records and file encryption
+### New records. File and object encryption.
 
 _Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
 
@@ -124,8 +124,9 @@ invoking `.update` internally. The latter is also invoked by the following metho
 
 #### File encryption per log
 
-_Encrypting per log a file into_ the Merkle-tree means updating it with each line of that file successively. Use
-the `.encryptFilePerLog` method to encrypt a file in this way as follows:
+_Encrypting per log a file into_ the Merkle-tree means updating it with each line of that file successively
+(i.e., one newly created leaf for each line of the given file respectively). Use the `.encryptFilePerLog`
+method to encrypt a file in this way as follows:
 
 ```shell
 >>> tree.encryptFilePerLog('APACHE_logs/large_APACHE_log')
@@ -153,7 +154,7 @@ respect to the current working directory.
 
 ### Generating proofs (Server's Side)
 
-A Merkle-tree (Server) generates _log proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current top-hash of the tree. Requesting, providing and validating log proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
+A Merkle-tree (Server) generates _Merkle-proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current root-hash of the tree. Requesting, providing and validating proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
 
 ### Audit-proof
 
@@ -283,7 +284,7 @@ the correpsonding JSON format being
 }
 ```
 
-If the argument requested by Client exceeds the tree's current length or isn't among the latter's encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
+If the argument requested by the Client exceeds the tree's current length or isn't among the latter's encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
 
 #### Consistency-proof
 

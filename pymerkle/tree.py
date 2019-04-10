@@ -236,8 +236,8 @@ class MerkleTree(object):
         ``hash_type``, ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests
         currently stored by the tree's leaves in respective order.
 
-        :note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
-                by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
+        .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
+                 by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
 
         :param file_path: relative path of the file to export to with respect to the current
                           working directory
@@ -264,9 +264,9 @@ class MerkleTree(object):
         :returns:         the Merkle-tree laoded from the provided file
         :rtype:           tree.MerkleTree
 
-        :warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
-        :note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
-        :note :: Raises ``FileNotFoundError`` if the provided file does not exist
+        .. warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
+        .. note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
+        .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
         """
         try:
             with open(file_path, 'r') as f:
