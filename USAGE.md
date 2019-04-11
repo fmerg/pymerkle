@@ -31,13 +31,76 @@ For example, in order to create a Merkle-tree with hash algorithm _SHA512_ and e
 tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
-... [initial records]
+We can also create a non-empty Merkle-tree by specifying initial records at construction. The following
+statement creates a SHA256/UTF-8 Merkle-tree with three leaves from the outset (specified by the
+non-keyword arguments, which may be of type `str`, `bytes` or `bytearray` indifferently):
 
-#### Exporting to and loading from file [Work in progress]
+```python
+tree = MerkleTree('first_record', b'second_record', b'third_record')
+```
 
-...
+The corresponding statement for a SHA512/UTF-32 Merkle-tree is
+
+```python
+tree = MerkleTree('first_record', bytes('second_record', 'utf-32'), bytes('third_record', 'utf-32'), hash_type='sha512', encoding='utf-32')
+```
+
+The ``.encoding`` attribute of a Merkle-tree (set directly by the homonymous argument of the
+constructor) specifies the encoding, to which any new record of type ``str`` will be submitted before getting hashed and stored into a newly created leaf. New records, passed either to the constructor or more commonly to the `.encryptRecord()` method (see below
+the _New Records_ section), are namely meant to be `str` or valid `bytes` objects falling under the corresponding encoding type.
+
+#### Exporting to and loading from file
+
+The minimum required information may be extracted into a specified file, so that the Merkle-tree can be
+reloaded in its current state from that file. Use the `.export()` method as follows:
+
+```python
+tree.export('relative_path/save_tree.json')
+```
+
+The file `save_tree.json` (which will be created if it does not exist) will contain a JSON entity with keys ``header``, containing the tree's fixed configurations,
+and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order:
+
+```json
+{
+    "header": {
+        "encoding": "utf_8",
+        "hash_type": "sha256",
+        "security": true
+    },
+    "hashes": [
+        "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
+        "3dbbc4898d7e909de7fc7bb1c0af36feba78abc802102556e4ea52c28ccb517f",
+        "45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20",
+        "b5db666b0b34e92c2e6c1d55ba83e98ff37d6a98dda532b125f049b43d67f802",
+        "69df93cbafa946cfb27c4c65ae85222ad5c7659237124c813ed7900a7be83e81",
+        "9d6761f55a3e87166d2ea6d00db9c88159c893674a8420cb8d32c35dbb791fd4",
+        "e718ae6ea64cb37a593654f9c0d7ec81d11498fdd94fc5473b999cd6c00d05c6",
+        "ad2c93dd91eafb31ad91deb8c1b318b126957608d13bfdba209a5f17ecf22503",
+        "cdc94791cd56543e1b28b21587c76f7cb45203fa7b1b8aa219e6ccc527a0d0d9",
+        "828a54ce62ae58e01271a3bde442e0fa6bfa758b2816dd39f873718dfa27634a",
+        "5ebc41746c5fbcfd8d32eef74f1aaaf02d6da8ff94426855393732db8b73126a",
+        "b70665abe265a88bc68ec625154746457a2ba7ecb5a7fc792e9443f618fc93fd"
+    ]
+}
+```
+
+To retrieve the Merkle-tree in its stored state from that file, we then only need use the `.loadFromFile`
+static method as follows.
+
+```python
+laoded_tree = MerkleTree.loadFromFile('relative_path/save_tree.json')
+```
+
+It must be stressed that reconstruction of the tree is uniquely determined by the sequence of ``hashes``
+within the given file due to the specific design of the ``MerkleTree.update()`` method. See the
+_Tree structure_ section of [README](README.md) for some insight.
 
 #### Tree display
+
+Exporting a Merkle-tree exposes only the necessary info for reconstructing it, without
+however revealing insight about its structure and current state. To this end, the
+following tricks come in handy.
 
 Invoking a Merkle-tree with its name inside the Python interpreter displays info about its fixed configurations
 (_uuid, hash and encoding types, security mode_) and current state (_size, length, height, top-hash_):
@@ -58,14 +121,15 @@ Invoking a Merkle-tree with its name inside the Python interpreter displays info
     height    : 3
 
 ```
-You can save this info in a file called `current_state` by
+This info can be saved in a file called `current_state` by
 
 ```python
 with open('current_state', 'w') as f:
     f.write(tree.__repr__())
 ```
 
-Feeding a Merkle-tree to the `print()` function displays it in a format similar to the output of the `tree` command of Unix based systems:
+Similarly, feeding a Merkle-tree to the `print()` function displays it in a format
+similar to the output of the `tree` command of Unix based systems:
 
 ```shell
 >>> print(tree)
@@ -87,7 +151,8 @@ Feeding a Merkle-tree to the `print()` function displays it in a format similar 
 >>>
 ```
 
-where each node is represented by the hash it currently stores. You can save this format in a file called `structure` by
+where each node is represented by the hash it currently stores. This format
+can a file called `structure` by
 
 ```python
 with open('structure', 'w') as f:
@@ -97,7 +162,7 @@ with open('structure', 'w') as f:
 
 ### New records. File and object encryption.
 
-_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the hash of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
+_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the digest of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
 
 ```python
 tree = MerkleTree()                                  # initially empty SHA256/UTF-8 Merkle-tree
@@ -116,7 +181,7 @@ tree.encryptRecord(b'arbitrary bytes-like object')   # second record
 ...                                                  # ...
 ```
 
-invoking `.update` internally. The latter is also invoked by the following methods.
+invoking `.update` internally. The latter is also internally invoked by the following methods.
 
 #### Whole file encryption
 
@@ -351,7 +416,6 @@ tree.inclusionTest(old_hash=old_hash, sublength=sublength)         # True
 tree.inclusionTest(old_hash=b'anything else', sublength=sublength) # False
 tree.inclusionTest(old_hash=old_hash, sublength=sublength + 1)     # False
 ```
-
 
 ### Validating proofs (Client's Side)
 

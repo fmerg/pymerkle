@@ -140,7 +140,7 @@ As a consequence, even if security against second-preimage attack (see below) we
 implementation is by structure invulnerable to length-extension attacks due to the vulnerability described
 [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
 (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)). Using Merkle-trees
-without duplicate entries further reduces the risk of bugs in protocols using them.
+without duplicate entries further reduces the risk of bugs in protocols based upon them.
 
 
 ## Defense against second-preimage attack

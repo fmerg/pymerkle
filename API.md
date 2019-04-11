@@ -57,7 +57,9 @@ _Note:_ Since the tree is by construction binary balanced, its height coincides 
 
 Returns the current root-hash of the Merkle-tree (i.e., the hash stored by its current root)
 
-- **Return type**: _bytes_ or _None_ (in case of empty tree)
+- **Return type**: _bytes_
+
+_Note:_ Returns `None` if the Merkle-tree is empty
 
 <!-- ### __.update (*record*)__
 
@@ -107,23 +109,28 @@ _Note:_ ...
 
 ### `method` __.export (*file_path*)__
 
-...
+Exports the minimum required information into the provided file, so that the Merkle-tree can be
+reloaded in its current state from that file. The final file will contain a JSON entity with keys
+``header`` (containing the parameters ``hash_type``, ``encoding`` and ``security`` of the tree)
+and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order.
 
-- **file_path** (_str_) – ...
+- **file_path** (_str_) – relative path of the file to export to with respect to the current working directory
 
-_Note:_ ...
+_Note:_ Reconstruction of the tree is (cf. the ``.loadFromFile()`` static method) is uniquely determined
+        by the sequence of ``hashes`` due to the specific design of the ``MerkleTree.update()`` method.
+        See the _Tree structure_ section of [_README_](README.md) for some insight.
 
 ### `static method` __.loadFromFile (*file_path*)__
 
-...
+Loads a Merkle-tree from the provided file, the latter being the result of an export (cf. the ``.export`` method).
 
-- **file_path** (_str_) – ...
+- **file_path** (_str_) – relative path of the file to load from with respect to the current working directory
 
-- **Returns**: ...
+- **Returns**: the Merkle-tree laoded from the provided file
 
 - **Return type**: _tree.MerkleTree_
 
-_Note:_ ...
+_Notes:_ Raises ``KeyError`` if the provided file is not as prescribed, ``JSONDecodeError`` if the provided file could not be deserialized, and ``FileNotFoundError`` if the provided file does not exist
 
 ### `method` __.auditProof (*arg*)__
 
