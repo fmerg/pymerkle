@@ -185,7 +185,16 @@ invoking `.update` internally. The latter is also internally invoked by the foll
 
 #### Whole file encryption
 
-...
+_Encrypting the content of a file into_ the Merkle-tree means updating it with one
+newly created leaf storing the digest of that content. Use the `.encryptFileContent`
+method to encrypt a file in this way as follows:
+
+```python
+ree.encryptFileContent('relative_path/sample_file')
+```
+
+where `relative_path/sample_file` is the relative path of the file to encrypt with
+respect to the current working directory.
 
 #### File encryption per log
 
@@ -207,15 +216,53 @@ respect to the current working directory.
 
 #### Direct object encryption
 
-...
+_Encrypting an object_ (a JSON entity) _into_ the Merkle-tree means updating it with
+a newly created leaf storing the digest of the given object's stringified version. Use the
+`.encryptObject` to encrypt any dictionary (`dict`) as follows:
+
+```python
+tree.encryptObject({'a': 0, 'b': 1})
+```
+
+Upon stringification of the given object (so that it can be encoded and then hashed), its keys
+are not sorted (`sort_keys=False`) and no indentation is applied (`indent=0`).
+These parameters can be controlled via kwargs as follows:
+
+```python
+tree.encryptObject({'a': 0, 'b': 1}, sort_keys=True, indent=4)
+```
+
+In this case, the final digest will be different. Since this might lead to unnecessary
+headaches upon requesting audit-proofs, it is recommended that `sort_keys` and `indent`
+are left to their default values.
+
 
 #### File based object encryption
 
-...
+_File based encryption of an object_ (a JSON entity) _into_ the Merkle-tree means
+encrypting into the tree the object stored in a `.json` file by just providing the relative path of that file. Use the `.encryptObjectFromFile` method as follows:
+
+```python
+tree.encryptObjectFromFile('relative_path/sample.json')
+```
+
+The file must here contain a single JSON entity, otherwise a `JSONDecodeError` is thrown.
 
 #### File encryption per object
 
-...
+_Encrypting a_ `.json` _file per object into_ the Merkle-tree means successively updating the tree
+with each newly created leaf storing the digest of the respective JSON entity from the list within
+the provided file. Use the `encryptFilePerObject` method as follows:
+
+```python
+tree.encryptFilePerObject('relative_path/sample-list.json')
+```
+
+The provided `.json` file's content must here be a single list of objects
+(like [here](pymerkle/tests/objects/sample-list.json)),
+otherwise a `ValueError` is thrown
+(or a `JSONDecodeError` if the file's content cannot be even deserialized).
+
 
 ### Generating proofs (Server's Side)
 
@@ -278,9 +325,9 @@ The generated object `p` is an instance of the `proof.Proof`, class consisting o
 >>>
 ```
 
-the correpsonding JSON format being
+the corresponding JSON format being
 
-```json
+```shell
 {
     "body": {
         "proof_index": 5,
@@ -293,42 +340,9 @@ the correpsonding JSON format being
                 -1,
                 "e340cdb8257dad85310c31e967236532355b029d5c0fcc0c113f28cfd2a6329f"
             ],
-            [
-                1,
-                "5856af7bc848332425381cd76ab815d511cde305f592c3aef457c036045f2180"
-            ],
-            [
-                -1,
-                "f8dbb155ba43f868c4a5870730811ff9373d474ff48c480ac7f447b836195682"
-            ],
-            [
-                -1,
-                "b0bc9f503496125931ec9e5ee46584967cfedabe510292206bfdfc18479d03f1"
-            ],
-            [
-                -1,
-                "6690b39e3b8b4995b1ac05e26c87722943951bd088162fa3a573f896f8a3391b"
-            ],
-            [
-                -1,
-                "868ca4852e16fa69b59c0541ff2c39c0c123070ea53161cc2f4bbcfa9bda526b"
-            ],
-            [
-                1,
-                "4ed02d875bd6c5abcda7ecd124eeb7e715bcf4bf02b520bd387eebeef365db6b"
-            ],
-            [
-                1,
-                "05d002e899a11e4e829725aa291c97de71bc5600888b8d2fb8ac4d65731cee5f"
-            ],
-            [
-                1,
-                "2f843e357090f2d82fbb8a63a19089e23b9cfc5ec4c0d0de23f7af54ab3850bb"
-            ],
-            [
-                1,
-                "37828d35c131a6803f8d25da8e9a31e2b24e7289a134dc187ef605f7f41f45dd"
-            ],
+
+            ...
+
             [
                 -1,
                 "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
@@ -479,10 +493,9 @@ where `proof-provider` refers to the Merkle-tree having generated the proof. The
   }
 ```
 
-and would be automatically stored in a `.json` file if the function had been called as
+It could have been automatically stored in a `.json` file named with the receipt's uuid within
+a specified directory, if the function had been called as
 
 ```python
 receipt = v.validate(tree.rootHash(), p, save_dir='some_relative_path')
 ```
-
-In particular ...
