@@ -81,7 +81,7 @@ _Note:_ Raises ``FileNotFoundError`` if the specified file does not exist
 
 ### `method` __.encryptFilePerLog (*file_path*)__
 
-Encrypts per log the data of the provided file into the Merkle-tree. More accurately,
+Encrypts per the data of the provided file into the Merkle-tree. More accurately,
 it successively updates the Merkle-tree with each line of the provided file in the
 respective order.
 
@@ -230,7 +230,7 @@ Validates the inserted proof by comparing to target-hash, modifies the proof's s
 - **save_dir** (_str_) – [optional] Relative path with respect to the current working directory of the
 directory where to save the generated receipt. If specified, the generated receipt will
 be saved within this directory as a ``.json`` file named with the receipt's uuid. Otherwise,
-then generated receipt will *not* be automatically stored in any file.
+the generated receipt will *not* be automatically stored in any file.
 
 - **Returns**: a receipt containing the result of validation (along with _time-stamp_ and _uuid_)
 
