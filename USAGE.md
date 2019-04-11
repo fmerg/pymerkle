@@ -1,4 +1,4 @@
-# pymerkle: Usage [Work in progress]
+# pymerkle: Usage
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
@@ -103,7 +103,7 @@ however revealing insight about its structure and current state. To this end, th
 following tricks come in handy.
 
 Invoking a Merkle-tree with its name inside the Python interpreter displays info about its fixed configurations
-(_uuid, hash and encoding types, security mode_) and current state (_size, length, height, top-hash_):
+(_uuid, hash and encoding types, security mode_) and current state (_size, length, height, root-hash_):
 
 ```shell
 >>> tree
@@ -259,7 +259,7 @@ tree.encryptFilePerObject('relative_path/sample-list.json')
 ```
 
 The provided `.json` file's content must here be a single list of objects
-(like [here](pymerkle/tests/objects/sample-list.json)),
+(like [here](tests/objects/sample-list.json)),
 otherwise a `ValueError` is thrown
 (or a `JSONDecodeError` if the file's content cannot be even deserialized).
 
@@ -284,7 +284,7 @@ p = tree.auditProof(arg=record)
 
 where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
 
-The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed top-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
+The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
 ```shell
 >>> p
@@ -377,7 +377,7 @@ q = tree.consistencyProof(
       sublength=1546)
 ```
 
-Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the top-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available top-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
+Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available root-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
 
 A typical session would be as follows:
 
@@ -386,14 +386,14 @@ A typical session would be as follows:
 old_hash = tree.rootHash() # a bytes object
 sublength = tree.length()
 
-# Server encrypts some new log (modifying the top-hash and length of the tree)
+# Server encrypts some new log (modifying the root-hash and length of the tree)
 tree.encryptFilePerLog('sample_log')
 
 # Upon Client's request, the server provides consistency proof for the requested stage
 q = tree.consistencyProof(old_hash, sublength)
 ```
 
-The generated object `q` is an instance of the `proof.Proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current top-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
+The generated object `q` is an instance of the `proof.Proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
 
 ### Inclusion-tests
 
