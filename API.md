@@ -144,7 +144,7 @@ argument
 (provided from the "Client's Side").
 
 - **Returns**: Audit proof appropriately formatted along with its validation parameters (so that
-it can be passed in as the second argument to the ``validations.validateProof`` function)
+it can be passed in as the second argument to the ``validations.validateProof()`` function)
 
 - **Return type**: _proof.Proof_
 
@@ -160,7 +160,7 @@ Response of the Merkle-tree to the request of providing a consistency-proof for 
 - **sublength** (_int_) – presumable length (number of leaves) for the afore-mentioned state of the Merkle-tree
 
 - **Returns**: Consistency proof appropriately formatted along with its validation parameters (so
-that can be passed in as the second argument to the ``validations.validateProof`` function)
+that can be passed in as the second argument to the ``validations.validateProof()`` function)
 
 - **Return type**: _proof.Proof_
 
@@ -193,7 +193,7 @@ currently stored by its leaves.
 
 _Note:_ This method does *not* serialize the tree structure itself, but only the info
 about the tree's fixed configs and current leaves, so that the tree can be
-retrieved from that using the ``.update`` method
+retrieved from that using the ``.update()`` method
 
 ### `method` __.JSONstring ( )__
 
@@ -217,11 +217,11 @@ Validates the inserted proof by comparing to the provided target hash, modifies 
 
 ## `class` __ProofValidator ( )__
 
-Wrapper for the `validateProof` function, employing the `validations.ValidationReceipt` class in order to organize validation results in an easy storable way.
+Wrapper for the `validateProof()` function, employing the `validations.ValidationReceipt` class in order to organize validation results in an easy storable way.
 
 ### `method` __.validate (*target_hash, proof* [*, save_dir=None*] )__
 
-Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `validations_dir` has been specified at construction, then each validation receipt is automatically stored in that directory as a `.json` file, bearing as name the corresponding receipt's uuid.
+Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `save_dir` has been specified, then the generated receipt is automatically stored in that directory as a `.json` file, bearing as name the receipt's uuid.
 
 - **target_hash** (_bytes_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 

@@ -69,7 +69,7 @@ validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
 
 Encryption of _plain text_ (``string``, ``bytes``, ``bytearray``), _JSON_ objects (``dict``) and _files_ is supported.
 Use according to convenience any of the following methods of the ``MerkleTree`` class (all of them invoking internally
-  the ``.update`` method for appending newly created leaves):
+  the ``.update()`` method for appending newly created leaves):
 
 ``.encryptRecord()``, ``.encryptFileConent()``, ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``
 
@@ -88,8 +88,8 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 ## Exporting and reloading the tree from a file
 
 Given an instance of the ``MekleTree`` class, the minimum required information can be exported using the
-``.export`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state
-from that file using the ``.loadFromFile`` static method. This can be useful for transmitting the tree's
+``.export()`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state
+from that file using the ``.loadFromFile()`` static method. This can be useful for transmitting the tree's
 current state to a trusted party or retrieving the tree from a backup file. Reconstruction of the tree
 is uniquely determined by the sequence of stored hashes (see the next section _Tree structure_ to understand why).
 
@@ -115,7 +115,7 @@ whereas the total number of nodes in the structure described
 
 The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of
 [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the
-[`MerkleTree.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update)
+[`MerkleTree.update()`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update)
 method for further insight.
 
 ### Deviation from bitcoin specification
