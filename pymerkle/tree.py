@@ -226,66 +226,6 @@ class MerkleTree(object):
         """
         return self >= other and self.rootHash() != other.rootHash()
 
-# ------------------------ Export to and load from file ------------------
-
-    def export(self, file_path):
-        """Exports the minimum required information into the provided file, so that the Merkle-tree can be
-        reloaded in its current state from that file.
-
-        The final file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``,
-        ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests currently stored by
-        the tree's leaves in respective order.
-
-        .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
-                  by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
-
-        :param file_path: relative path of the file to export to with respect to the current
-                          working directory
-        :type file_path:  str
-        """
-        with open(file_path, 'w') as f:
-            json.dump({
-                "header": {
-                    "encoding": self.encoding,
-                    "hash_type": self.hash_type,
-                    "security": self.security},
-                "hashes": [leaf.stored_hash.decode(encoding=self.encoding) for leaf in self.leaves]},
-                f,
-                indent=4)
-
-    @staticmethod
-    def loadFromFile(file_path):
-        """Loads a Merkle-tree from the provided file, the latter being the result of an export
-        (cf. the ``.export`` method).
-
-        :param file_path: relative path of the file to load from with respect to the current
-                          working directory
-        :type file_path:  str
-        :returns:         the Merkle-tree laoded from the provided file
-        :rtype:           tree.MerkleTree
-
-        .. warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
-        .. note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
-        .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
-        """
-        try:
-            with open(file_path, 'r') as f:
-                loaded_object = json.load(f)
-        except (FileNotFoundError, JSONDecodeError):
-            raise
-        try:
-            loaded_tree = MerkleTree(
-                hash_type=loaded_object['header']['hash_type'],
-                encoding=loaded_object['header']['encoding'],
-                security=loaded_object['header']['security'])
-        except KeyError:
-            raise
-        tqdm.write('\nFile has been loaded')
-        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
-            loaded_tree.update(stored_hash=hash)
-        tqdm.write('Tree has been retreived')
-        return loaded_tree
-
 # ---------------------------------- Updating ----------------------------
 
     def update(self, record=None, stored_hash=None):
@@ -358,6 +298,59 @@ class MerkleTree(object):
                 stored_hash=stored_hash)
             self.leaves, self.nodes, self.root = [
                 new_leaf], set([new_leaf]), new_leaf
+
+# ------------------------ Export to and load from file ------------------
+
+    def export(self, file_path):
+        """Exports the minimum required information into the provided file, so that the Merkle-tree can be
+        reloaded in its current state from that file.
+
+        The final file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``,
+        ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests currently stored by
+        the tree's leaves in respective order.
+
+        .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
+                  by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
+
+        :param file_path: relative path of the file to export to with respect to the current
+                          working directory
+        :type file_path:  str
+        """
+        with open(file_path, 'w') as f:
+            json.dump(self.serialize(), f, indent=4)
+
+    @staticmethod
+    def loadFromFile(file_path):
+        """Loads a Merkle-tree from the provided file, the latter being the result of an export
+        (cf. the ``.export`` method).
+
+        :param file_path: relative path of the file to load from with respect to the current
+                          working directory
+        :type file_path:  str
+        :returns:         the Merkle-tree laoded from the provided file
+        :rtype:           tree.MerkleTree
+
+        .. warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
+        .. note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
+        .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
+        """
+        try:
+            with open(file_path, 'r') as f:
+                loaded_object = json.load(f)
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        try:
+            loaded_tree = MerkleTree(
+                hash_type=loaded_object['header']['hash_type'],
+                encoding=loaded_object['header']['encoding'],
+                security=loaded_object['header']['security'])
+        except KeyError:
+            raise
+        tqdm.write('\nFile has been loaded')
+        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
+            loaded_tree.update(stored_hash=hash)
+        tqdm.write('Tree has been retreived')
+        return loaded_tree
 
 # --------------------------------- Encryption ---------------------------
 
@@ -512,6 +505,7 @@ class MerkleTree(object):
 
 
 # ------------------------------ Proof generation ------------------------
+
 
     def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
@@ -681,6 +675,7 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
+
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
@@ -919,8 +914,8 @@ class MerkleTree(object):
                   about the tree's current state (*size*, *length*, *height*, *root-hash*) and
                   fixed configs (*hash type*, *encoding type*, *security mode*, *uuid*)
         """
-        encoder = MerkleTreeSerializer()
-        return encoder.default(self)
+        serializer = MerkleTreeSerializer()
+        return serializer.default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the Merkle-tree's JSON serialized form
