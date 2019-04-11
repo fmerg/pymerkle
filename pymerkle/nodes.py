@@ -229,8 +229,8 @@ class Node(object):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
-        encoder = NodeSerializer()
-        return encoder.default(self)
+        serializer = NodeSerializer()
+        return serializer.default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the node's JSON serialized form

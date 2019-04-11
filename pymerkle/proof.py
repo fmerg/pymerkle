@@ -160,8 +160,8 @@ class Proof(object):
 
         :rtype: dict
         """
-        encoder = ProofSerializer()
-        return encoder.default(self)
+        serializer = ProofSerializer()
+        return serializer.default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the proof's JSON serialized form

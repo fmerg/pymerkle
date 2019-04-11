@@ -206,8 +206,8 @@ class ValidationReceipt(object):
 
         :rtype: dict
         """
-        encoder = ValidationReceiptSerializer()
-        return encoder.default(self)
+        serializer = ValidationReceiptSerializer()
+        return serializer.default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the receipt's JSON serialized form

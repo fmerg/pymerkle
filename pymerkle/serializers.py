@@ -13,25 +13,19 @@ class MerkleTreeSerializer(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library
         """
         try:
-            uuid = obj.uuid
             hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security
-            leaves, nodes = obj.leaves, obj.nodes
-            try:
-                root = obj.root.serialize()
-            except AttributeError:  # tree is empty and thus have no root
-                root = None
+            leaves = obj.leaves
         except TypeError:
             return json.JSONEncoder.default(self, obj)
         else:
             return {
-                'uuid': uuid,
-                'hash_type': hash_type,
-                'encoding': encoding,
-                'security': security,
-                'leaves': [leaf.serialize() for leaf in leaves],
-                'nodes': [node.serialize() for node in nodes],
-                'root': root
-            }
+                'header': {
+                    'hash_type': hash_type,
+                    'encoding': encoding,
+                    'security': security},
+                'hashes': [
+                    leaf.stored_hash.decode(
+                        encoding=encoding) for leaf in leaves]}
 
 
 class NodeSerializer(json.JSONEncoder):
