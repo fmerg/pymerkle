@@ -190,7 +190,7 @@ newly created leaf storing the digest of that content. Use the `.encryptFileCont
 method to encrypt a file in this way as follows:
 
 ```python
-ree.encryptFileContent('relative_path/sample_file')
+tree.encryptFileContent('relative_path/sample_file')
 ```
 
 where `relative_path/sample_file` is the relative path of the file to encrypt with
@@ -268,7 +268,7 @@ otherwise a `ValueError` is thrown
 
 A Merkle-tree (Server) generates _Merkle-proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current root-hash of the tree. Requesting, providing and validating proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
 
-### Audit-proof
+#### Audit-proof
 
 Given a Merkle-tree `tree`, use the `.auditProof` method to generate the audit proof based upon, say, the 56-th leaf as follows:
 
