@@ -61,12 +61,6 @@ Returns the current root-hash of the Merkle-tree (i.e., the hash stored by its c
 
 _Note:_ Returns `None` if the Merkle-tree is empty
 
-<!-- ### __.update (*record*)__
-
-Updates the Merkle-tree by storing the hash of the inserted record into a newly-appended leaf. Restructures the tree appropriately and recalculates hashes at the _right-most_ branch.
-
-- **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf -->
-
 ### `method` __.encryptRecord (*record*)__
 
 Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
@@ -76,35 +70,44 @@ restructeres the tree appropriately and recalculates all necessary interior hash
 
 ### `method` __.encryptFileContent (*file_path*)__
 
-...
+Encrypts the provided file as a single new leaf into the Merkle-tree. More accurately,
+it updates the Merkle-tree with *one* newly created leaf storing the digest of the
+provided file's content.
 
-- **file_path** (_str_) – ...
+- **file_path** (_str_) – relative path of the file under encryption with respect to the
+current working directory
 
-_Note:_ ...
+_Note:_ Raises ``FileNotFoundError`` if the specified file does not exist
 
 ### `method` __.encryptFilePerLog (*file_path*)__
 
-...
+Encrypts per log the data of the provided file into the Merkle-tree. More accurately,
+it successively updates the Merkle-tree with each line of the provided file in the
+respective order.
 
-- **file_path** (_str_) – ...
+- **file_path** (_str_) – relative path of the file under enryption with respect to
+the current working directory
 
-_Note:_ ...
+_Note:_ Raises ``FileNotFoundError`` if the specified file does not exist
 
 ### `method` __.encryptObject (*object*)__
 
-...
+Encrypts the provided object as a single new leaf into the Merkle-tree. More accurately,
+it updates the Merkle-tree with *one* newly created leaf storing the digest of the
+provided object's stringified version.
 
-- **object** (_dict_) – ...
-
-_Note:_ ...
+- **object** (_dict_) – the JSON entity under encryption
 
 ### `method` __.encryptObjectFromFile (*file_path*)__
 
-...
+Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree.
+More accurately, the Merkle-tree will be updated with *one* newly created leaf storing the
+digest of the stringified version of the object within the provided file.
 
-- **object** (_str_) – ...
+- **object** (_str_) – relative path of a ``.json`` file with respect to the current working directory, containing *one* JSON entity.
 
-_Note:_ ...
+_Note:_ Raises ``JSONDecodeError`` if the provided file is not as prescribed,
+``FileNotFoundError`` if the specified file does not exist.
 
 ### `method` __.export (*file_path*)__
 
@@ -133,55 +136,72 @@ _Notes:_ Raises ``KeyError`` if the provided file is not as prescribed, ``JSONDe
 
 ### `method` __.auditProof (*arg*)__
 
-...
+Response of the Merkle-tree to the request of providing an audit-proof based upon the given
+argument
 
-- **arg** (_str_ or _bytes_ or _bytearray_ or _int_) – ...
+- **arg** (_str_ or _bytes_ or _bytearray_ or _int_) – the record (if type is *str* or *bytes* or
+*bytearray*) or index of leaf (if type is *int*) where the proof calculation must be based upon
+(provided from the "Client's Side").
 
-- **Returns**: ...
+- **Returns**: Audit proof appropriately formatted along with its validation parameters (so that
+it can be passed in as the second argument to the ``validations.validateProof`` function)
 
 - **Return type**: _proof.Proof_
 
-_Note:_ ...
+_Note:_ Raises ``TypeError`` if the argument's type is not as prescribed
 
 ### `method` __.consistencyProof (*old_hash, sublength*)__
 
-...
+Response of the Merkle-tree to the request of providing a consistency-proof for the given parameters. Arguments of this function amount to a presumed previous state of the Merkle-tree
+(root-hash and length respectively, provided from the "Client's Side").
 
-- **old_hash** (_bytes_ or _None_) – ...
+- **old_hash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
 
-- **sublength** (_int_) – ...
+- **sublength** (_int_) – presumable length (number of leaves) for the afore-mentioned state of the Merkle-tree
 
-- **Returns**: ...
+- **Returns**: Consistency proof appropriately formatted along with its validation parameters (so
+that can be passed in as the second argument to the ``validations.validateProof`` function)
 
 - **Return type**: _proof.Proof_
 
-_Note:_ ...
+_Note:_ Raises ``TypeError`` if any of the arguments' type is not as prescribed
 
 ### `method` __.inclusionTest (*old_hash, sublength*)__
 
-...
+Verifies that the parameters provided correspond to a previous state of the Merkle-tree
 
-- **old_hash** (_bytes_ or _None_) – ...
+- **old_hash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
 
-- **sublength** (_int_) – ...
+- **sublength** (_int_) – presumable length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
 
-- **Returns**: ...
+- **Returns**: `True` iff an appropriate path of negatively signed hashes, generated internally for the provided `sublength`, leads indeed to the provided `old_hash`
 
 - **Return type**: _bool_
 
-_Note:_ ...
+_Note:_ Raises ``TypeError`` if any of the arguments' type is not as prescribed
 
 ### `method` __.clear ( )__
 
-...
+Deletes all nodes of the Merkle-tree, so that its root-hash becomes `None`.
 
 ### `method` __.serialize ( )__
 
-...
+Returns a JSON entity with the Merkle-trees's current characteristics and hashes
+currently stored by its leaves.
+
+- **Return type**: _dict_
+
+_Note:_ This method does *not* serialize the tree structure itself, but only the info
+about the tree's fixed configs and current leaves, so that the tree can be
+retrieved from that using the ``.update`` method
 
 ### `method` __.JSONstring ( )__
 
-...
+Returns a nicely stringified version of the Merkle-tree's JSON serialized form
+
+- **Return type**: _str_
+
+_Note:_ The output of this method is to be passed into the ``print()`` function
 
 ## `function` __validateProof (*target_hash, proof*)__
 

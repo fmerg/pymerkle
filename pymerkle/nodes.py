@@ -222,7 +222,7 @@ class Node(object):
 
 
     def serialize(self):
-        """ Returns a JSON structure with the node's attributes as key-value pairs
+        """ Returns a JSON entity with the node's attributes as key-value pairs
 
         :rtype: dict
 

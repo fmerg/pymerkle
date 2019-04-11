@@ -424,7 +424,7 @@ class MerkleTree(object):
         tqdm.write('Encryption complete\n')
 
     def encryptObject(self, object, sort_keys=False, indent=0):
-        """"Encrypts the provided object as a single new leaf into the Merkle-tree
+        """Encrypts the provided object as a single new leaf into the Merkle-tree
 
         More accurately, it updates the Merkle-tree with *one* newly created leaf storing the digest
         of the provided object's stringified version (cf. doc of the ``.update`` method).
@@ -514,8 +514,8 @@ class MerkleTree(object):
         :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
                     is *int*) where the proof calculation must be based upon (provided from Client's Side)
         :type arg:  str or bytes or bytearray or int
-        :returns:   audit-proof appropriately formatted along with its validation parameters (so that it
-                    can be passed in as the second argument to the ``validations.validateProof`` method)
+        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
+                    can be passed in as the second argument to the ``validations.validateProof`` function)
         :rtype:     proof.Proof
 
         .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
@@ -578,7 +578,7 @@ class MerkleTree(object):
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
-                          it can be passed in as the second argument to the ``validations.validateProof`` method)
+                          can be passed in as the second argument to the ``validations.validateProof`` function)
         :rtype:           proof.Proof
 
         .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
@@ -644,11 +644,11 @@ class MerkleTree(object):
 # ------------------------------ Inclusion tests ------------------------------
 
     def inclusionTest(self, old_hash, sublength):
-        """Verifies that the parameters provided from Client's Side correspond to a previous state of the Merkle-tree
+        """Verifies that the parameters provided correspond to a previous state of the Merkle-tree
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
         :type old_hash:   bytes
-        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
+        :param sublength: presumable length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
         :type sublength:  int
         :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for
                           the provided ``sublength``, leads indeed to the provided ``old_hash``
@@ -897,7 +897,7 @@ class MerkleTree(object):
 # ---------------------------------- Clearance ---------------------------
 
     def clear(self):
-        """Deletes all nodes of the Merkle-tree
+        """Deletes all nodes of the Merkle-tree, so that its root-hash becomes ``None``
         """
         self.leaves = []
         self.nodes = set()
@@ -906,13 +906,14 @@ class MerkleTree(object):
 # ------------------------------- Serialization --------------------------
 
     def serialize(self):
-        """ Returns a JSON structure with the Merkle-trees's current characteristics as key-value pairs
+        """ Returns a JSON entity with the Merkle-trees's current characteristics and
+        hashes currently stored by its leaves.
 
         :rtype: dict
 
         .. note:: This method does *not* serialize the tree structure itself, but only the info
-                  about the tree's current state (*size*, *length*, *height*, *root-hash*) and
-                  fixed configs (*hash type*, *encoding type*, *security mode*, *uuid*)
+                  about the tree's fixed configs and current state, so that the tree can be
+                  retrieved from that using the ``.update`` method
         """
         serializer = MerkleTreeSerializer()
         return serializer.default(self)
@@ -920,7 +921,7 @@ class MerkleTree(object):
     def JSONstring(self):
         """Returns a nicely stringified version of the Merkle-tree's JSON serialized form
 
-        .. note:: The output of this function is to be passed into the ``print`` function
+        .. note:: The output of this method is to be passed into the ``print()`` function
 
         :rtype: str
         """

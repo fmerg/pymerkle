@@ -202,7 +202,7 @@ class ValidationReceipt(object):
 # ------------------------------- Serialization --------------------------
 
     def serialize(self):
-        """ Returns a JSON structure with the receipt's attributes as key-value pairs
+        """ Returns a JSON entity with the receipt's attributes as key-value pairs
 
         :rtype: dict
         """

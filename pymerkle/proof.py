@@ -156,7 +156,7 @@ class Proof(object):
 # ------------------------------- Serialization --------------------------
 
     def serialize(self):
-        """ Returns a JSON structure with the proof's current characteristics as key-value pairs
+        """ Returns a JSON entity with the proof's current characteristics as key-value pairs
 
         :rtype: dict
         """
