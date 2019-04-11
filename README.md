@@ -7,30 +7,17 @@
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
 This library implements a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of
-generating _audit-proofs_ **_and_** _consistency-proofs_ (along with _inclusion-tests_). It supports all hash functions
+generating _audit-proofs_, _consistency-proofs_ and _inclusion-tests_. It supports all hash functions
 (including _SHA3_ variations) and encoding types, whereas _defense against second-preimage attack_ is by default activated.
 It further provides flexible mechanisms for validating the generated proofs and thus easy verification of encrypted data.
 
-<!-- - a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of generating
-_consistency-proofs_ except for _audit-proofs_ (along with _inclusion-tests_), supporting all hashing algorithms
-(including _SHA3_ variations) and most encoding types provided by `Python>=3.6`
-- defense against _second-preimage attack_
-- flexible mechanisms for validating Merkle-proofs -->
-
 It is a *zero dependency* library (with the inessential exception of `tqdm` for displaying progress bars).
-<!-- It is currently the only Python library implementing all the above features, with an eye on protocols like
-[_Certificate Transparency_](https://tools.ietf.org/html/rfc6962) and real-life applications. -->
 
 ## Installation
 
 ```bash
 pip3 install pymerkle --pre
 ```
-
-## Warning!
-
-The version currently available under *PyPI* is **incompatible** with the present docs and examples,
-as well as the complete documentation found at *ReadTheDocs*.
 
 ## Quick example
 
