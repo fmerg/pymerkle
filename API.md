@@ -69,11 +69,10 @@ Updates the Merkle-tree by storing the hash of the inserted record into a newly-
 
 ### `method` __.encryptRecord (*record*)__
 
-...
+Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
+restructeres the tree appropriately and recalculates all necessary interior hashes.
 
-- **record** (_str_ or _bytes_ or _bytearray_) – ...
-
-_Note:_ ...
+- **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf
 
 ### `method` __.encryptFileContent (*file_path*)__
 
@@ -183,36 +182,6 @@ _Note:_ ...
 ### `method` __.JSONstring ( )__
 
 ...
-
-<!-- ### __.auditProof (*arg*)__
-
-Returns an instance of the `proof.Proof` class, thought of as the audit-proof based upon the specified argument
-
-- **arg** (_int_ or _str_ or _bytes_ or _bytearray_). If integer, indicates the leaf where the audit-proof should be based upon; in any other case, the proof generation is based upon the _first_ leaf storing the hash of the given record (if any)
-
-*NOTE*: since different leaves might encrypt the same record, __it is suggested that records under encryption include a timestamp referring to the encryption moment, so that distinct leaves store technically distinct records and audit proofs are uniquely ascribed to each__.
-
-### __.consistencyProof (*old_hash, sublength*)__
-
-Returns an instance of the `proof.Proof` class, thought of as the consistency-proof for the presumed previous state of the Merkle-tree corresponding to the inserted hash-length combination
-
-- **old_hash** (_str_), hexadecimal form of the top-hash of the tree to be presumably detected as a previous state of the Merkle-tree
-
-- **sublength** (_int_), length of the tree to be presumably detected as a previous state of the Merkle-tree
-
-### __.clear ( )__
-
-Deletes all the nodes of the Merkle-tree
-
-### __.display ( [ *indent=3* ] )__
-
-Prints the Merkle-tree in a terminal friendly way; in particular, printing the tree at console is similar to what you get by running the `tree` command on Unix based platforms. When called with its default parameter, it is equivalent to printing the tree with `print`
-
-- **indent** (_int_) [optional], depth at which each level is indented with respect to its above one
-
-_NOTE_: The left parent of each node is printed *above* its right one
-
-### _Quick proof validation_ -->
 
 ## `function` __validateProof (*target_hash, proof*)__
 
