@@ -10,8 +10,7 @@ from pymerkle.validations import ValidationReceipt
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                     for i in range(0, 1000)))
 p = tree.auditProof(666)
-v = ProofValidator()
-r = v.validate(target_hash=tree.rootHash(), proof=p)
+r = validateProofWithReceipt(target_hash=tree.rootHash(), proof=p)
 r_1 = ValidationReceipt(from_json=r.JSONstring())
 r_2 = ValidationReceipt(from_dict=json.loads(r.JSONstring()))
 
@@ -253,8 +252,8 @@ for log_file in (large_APACHE_log, RED_HAT_LINUX_log, short_APACHE_log):
     'proof, target_hash', [
         (proofs[i], target_hashes[i]) for i in range(
             len(proofs))])
-def test_ProofValidator(proof, target_hash):
-    receipt = validator.validate(
+def test_validateProofWithReceipt(proof, target_hash):
+    receipt = validateProofWithReceipt(
         proof=proof,
         target_hash=target_hash,
         save_dir=os.path.join(
