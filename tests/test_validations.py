@@ -2,18 +2,17 @@ import pytest
 import os
 import json
 import time
-from pymerkle import MerkleTree, hashing, validateProof, ProofValidator
-from pymerkle.validations import ValidationReceipt
+from pymerkle import MerkleTree, hashing, validateProof, validationReceipt
+from pymerkle.validations import Receipt
 
 # ---------------- Check receipt replicates in all possible ways ---------
 
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                     for i in range(0, 1000)))
 p = tree.auditProof(666)
-v = ProofValidator()
-r = v.validate(target_hash=tree.rootHash(), proof=p)
-r_1 = ValidationReceipt(from_json=r.JSONstring())
-r_2 = ValidationReceipt(from_dict=json.loads(r.JSONstring()))
+r = validationReceipt(target_hash=tree.rootHash(), proof=p)
+r_1 = Receipt(from_json=r.JSONstring())
+r_2 = Receipt(from_dict=json.loads(r.JSONstring()))
 
 
 @pytest.mark.parametrize('replicate', (r_1, r_2))
@@ -230,9 +229,6 @@ tree = MerkleTree()
 
 file_dir = os.path.dirname(__file__)
 
-# Proof validator
-validator = ProofValidator()
-
 # Clean validations directory before running the test
 file_list = os.listdir(os.path.join(file_dir, 'receipts'))
 for file in file_list:
@@ -256,8 +252,8 @@ for log_file in (large_APACHE_log, RED_HAT_LINUX_log, short_APACHE_log):
     'proof, target_hash', [
         (proofs[i], target_hashes[i]) for i in range(
             len(proofs))])
-def test_ProofValidator(proof, target_hash):
-    receipt = validator.validate(
+def test_validationReceipt(proof, target_hash):
+    receipt = validationReceipt(
         proof=proof,
         target_hash=target_hash,
         save_dir=os.path.join(

@@ -3,7 +3,7 @@ Provides a core function for validating proofs along with a wrapper
 """
 
 from .hashing import hash_machine
-from .serializers import ValidationReceiptSerializer
+from .serializers import ReceiptSerializer
 import uuid
 import time
 import json
@@ -55,65 +55,52 @@ def validateProof(target_hash, proof):
     proof.header['status'] = False
     return False
 
-# ---------------------------------- Classes ----------------------------------
+def validationReceipt(target_hash, proof, save_dir=None):
+    """Wraps the ``validateProof()`` method, returning a validation receipt instead of a boolean
 
+    If a ``save_dir`` has been specified, then the receipt is automatically stored in the given
+    directory as a ``.json`` file named with the receipt's uuid
 
-class ProofValidator(object):
-    """Wrapper for the ``validations.validateProof`` function
-
-    Employs the ``validations.ValidationReceipt`` class in order to organize validation results
-    in an easy storable way
+    :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
+                        acclaimed top-hash of the Merkle-tree having provided the proof)
+    :type target_hash:  bytes
+    :param proof:       the proof to be validated
+    :type save_dir:     [optional] Relative path with respect to the current working directory of the
+                        directory where to save the generated receipt. If specified, the generated
+                        receipt will be saved within this directory as a ``.json`` file named with
+                        the receipt's uuid. Otherwise, then generated receipt will *not* be
+                        automatically stored in any file.
+    :param save_dir:    str
+    :type proof:        proof.Proof
+    :rtype:             validations.Receipt
     """
+    validated = validateProof(target_hash=target_hash, proof=proof)
 
-    def __init__(self):
-        pass
+    receipt = Receipt(
+        proof_uuid=proof.header['uuid'],
+        proof_provider=proof.header['provider'],
+        result=validated
+    )
 
-    def validate(self, target_hash, proof, save_dir=None):
-        """Wraps ``validations.validateProof``, returning a validation receipt instead of a boolean
+    if save_dir:
+        with open(
+            os.path.join(
+                save_dir,
+                '{}.json'.format(receipt.header['uuid'])
+            ),
+            'w'
+        ) as output_file:
+            json.dump(
+                receipt.serialize(),
+                output_file,
+                sort_keys=True,
+                indent=4)
 
-        If a ``save_dir`` has been specified, then the receipt is automatically stored in the given
-        directory as a ``.json`` file named with the receipt's uuid
-
-        :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
-                            acclaimed top-hash of the Merkle-tree having provided the proof)
-        :type target_hash:  bytes
-        :param proof:       the proof to be validated
-        :type save_dir:     [optional] Relative path with respect to the current working directory of the
-                            directory where to save the generated receipt. If specified, the generated
-                            receipt will be saved within this directory as a ``.json`` file named with
-                            the receipt's uuid. Otherwise, then generated receipt will *not* be
-                            automatically stored in any file.
-        :param save_dir:    str
-        :type proof:        proof.Proof
-        :rtype:             validations.ValidationReceipt
-        """
-        validated = validateProof(target_hash=target_hash, proof=proof)
-
-        receipt = ValidationReceipt(
-            proof_uuid=proof.header['uuid'],
-            proof_provider=proof.header['provider'],
-            result=validated
-        )
-
-        if save_dir:
-            with open(
-                os.path.join(
-                    save_dir,
-                    '{}.json'.format(receipt.header['uuid'])
-                ),
-                'w'
-            ) as output_file:
-                json.dump(
-                    receipt.serialize(),
-                    output_file,
-                    sort_keys=True,
-                    indent=4)
-
-        return receipt
+    return receipt
 
 
-class ValidationReceipt(object):
-    """Encapsulates the result of proof validation
+class Receipt(object):
+    """Provides info about proof validation
 
     :param proof_uuid:     uuid of the validated proof (time-based)
     :type proof_uuid:      str
@@ -122,13 +109,13 @@ class ValidationReceipt(object):
     :param result:         Validation result (``True`` iff the proof was found to be valid)
     :type result:          bool
 
-    Instead of providing the above arguments corresponding to `*args`, a ``ValidationReceipt`` object may also
+    Instead of providing the above arguments corresponding to `*args`, a ``Receipt`` object may also
     be constructed in the following ways by employing `**kwargs` in order to load the JSON string of a
     given validation-receipt ``r``:
 
-    >>> from pymerkle.valiation_receipts import ValidationReceipt
-    >>> s = ValidationReceipt(from_json=r.JSONstring())
-    >>> t = ValidationReceipt(from_dict=json.loads(r.JSONstring()))
+    >>> from pymerkle.valiation_receipts import Receipt
+    >>> s = Receipt(from_json=r.JSONstring())
+    >>> t = Receipt(from_dict=json.loads(r.JSONstring()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*, since the constructed
               receipts ``s`` and ``t`` have the same *uuid* and *timestamps* as ``r``
@@ -206,7 +193,7 @@ class ValidationReceipt(object):
 
         :rtype: dict
         """
-        serializer = ValidationReceiptSerializer()
+        serializer = ReceiptSerializer()
         return serializer.default(self)
 
     def JSONstring(self):
@@ -218,6 +205,6 @@ class ValidationReceipt(object):
         """
         return json.dumps(
             self,
-            cls=ValidationReceiptSerializer,
+            cls=ReceiptSerializer,
             sort_keys=True,
             indent=4)
