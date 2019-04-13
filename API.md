@@ -215,9 +215,9 @@ Validates the inserted proof by comparing to the provided target hash, modifies 
 
 - **Return type**: _bool_
 
-## `function` __.validateProofWithReceipt (*target_hash, proof* [*, save_dir=None*] )__
+## `function` __.validationReceipt (*target_hash, proof* [*, save_dir=None*] )__
 
-Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `save_dir` has been specified, then the generated receipt is automatically stored in that directory as a `.json` file, bearing as name the receipt's uuid.
+Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.Receipt` object. If a `save_dir` has been specified, then the generated receipt is automatically stored in that directory as a `.json` file, bearing as name the receipt's uuid.
 
 - **target_hash** (_bytes_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 
@@ -230,4 +230,4 @@ the generated receipt will *not* be automatically stored in any file.
 
 - **Returns**: a receipt containing the result of validation (along with _time-stamp_ and _uuid_)
 
-- **Return type**: _validations.ValidationReceipt_
+- **Return type**: _validations.Receipt_

@@ -98,7 +98,7 @@ class ProofSerializer(json.JSONEncoder):
             }
 
 
-class ValidationReceiptSerializer(json.JSONEncoder):
+class ReceiptSerializer(json.JSONEncoder):
     """Used implicitly in the JSON serialization of validation receipts.
     Extends the built-in JSON encoder for data structures.
     """

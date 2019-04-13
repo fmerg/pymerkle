@@ -487,13 +487,13 @@ Here the result is of course `True`, whereas any other choice of `target_hash` w
 
 #### Validation with receipt
 
-A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `validateProofWithReceipt()` method as follows:
+A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `validationReceipt()` method as follows:
 
 ```python
-receipt = validateProofWithReceipt(target_hash=tree.rootHash(), proof=p)
+receipt = validationReceipt(target_hash=tree.rootHash(), proof=p)
 ```
 
-Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.ValidationReceipt` class. It looks like
+Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.Receipt` class. It looks like
 
 ```bash
 >>> receipt
@@ -535,5 +535,5 @@ It could have been automatically stored in a `.json` file named with the receipt
 a specified directory, if the function had been called as
 
 ```python
-receipt = validateProofWithReceipt(tree.rootHash(), p, save_dir='some_relative_path')
+receipt = validationReceipt(tree.rootHash(), p, save_dir='some_relative_path')
 ```
