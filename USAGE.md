@@ -152,7 +152,7 @@ similar to the output of the `tree` command of Unix based systems:
 ```
 
 where each node is represented by the hash it currently stores. This format
-can a file called `structure` by
+can be saved in a file called `structure` by
 
 ```python
 with open('structure', 'w') as f:
@@ -162,7 +162,7 @@ with open('structure', 'w') as f:
 
 ### New records. File and object encryption.
 
-_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the digest of this record. A _record_ can be a string (_str_) or a bytes-like object (_bytes_ or _bytearray_) indifferently. Use the `.update` method to successively update with new records as follows:
+_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the digest of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update` method to successively update with new records as follows:
 
 ```python
 tree = MerkleTree()                                  # initially empty SHA256/UTF-8 Merkle-tree
@@ -282,7 +282,7 @@ You can instead generate the proof based upon a presumed record `record` with
 p = tree.auditProof(arg=record)
 ```
 
-where the argument can be of type _str_, _bytes_ or _bytearray_ indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _first_ (i.e., leftmost) leaf storing the hash of the given record (if any); since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
+where the argument can be of type `str`, `bytes` or `bytearray` indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _leftmost_ leaf storing the hash of the given record (if any). Since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
 
 The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 

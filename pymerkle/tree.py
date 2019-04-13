@@ -588,7 +588,7 @@ class MerkleTree(object):
                   (whose implementation differs in that no full path of signed hashes,
                   as generated here by the ``.consistency_path`` method, needs be taken into account.)
 
-        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens
+        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens to
                   be the empty one
 
         .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed

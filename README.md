@@ -80,8 +80,8 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 Direct validation of a Merkle-proof is performed usind the ``validateProof()`` function, modifying the status
 of the inserted proof appropriately and returning the corresponding boolean. A more elaborate validation
 procedure includes generating a receipt with the validation result and storing at will the generated receipt
-as a ``.json`` file. This is achieved using the ``.validate()`` method of the ``ProofValidator`` like
-in the above quick example.
+as a ``.json`` file. This is achieved using the ``.validate()`` method of the ``ProofValidator``
+class like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
 
@@ -161,7 +161,7 @@ pytest tests/
 ```
 
 to run all tests. This might take up to 2-4 minutes, since crypto parts of the code are tested against all possible
-combinations of hash algorithm and encoding type. You can run only a specific test file, e.g., `test_encryption.py`,
+combinations of hash algorithm, encoding type and security mode. You can run only a specific test file, e.g., `test_encryption.py`,
 with the command
 
 ```shell
