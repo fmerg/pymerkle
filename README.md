@@ -59,7 +59,7 @@ tree.encryptFilePerLog('logs/sample_log') # Encrypt file per log (one new leaf f
 
 r = tree.consistencyProof(old_hash, sublength)
 
-# Create object for refined proof validation, validate proof and generate receipt
+# Validate proof and generate corresponding receipt
 
 validation_receipt = validationReceipt(target_hash=tree.rootHash(), proof=r)
 ```
