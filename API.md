@@ -215,11 +215,7 @@ Validates the inserted proof by comparing to the provided target hash, modifies 
 
 - **Return type**: _bool_
 
-## `class` __ProofValidator ( )__
-
-Wrapper for the `validateProof()` function, employing the `validations.ValidationReceipt` class in order to organize validation results in an easy storable way.
-
-### `method` __.validate (*target_hash, proof* [*, save_dir=None*] )__
+## `function` __.validateProofWithReceipt (*target_hash, proof* [*, save_dir=None*] )__
 
 Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.ValidationReceipt` object. If a `save_dir` has been specified, then the generated receipt is automatically stored in that directory as a `.json` file, bearing as name the receipt's uuid.
 

@@ -24,7 +24,7 @@ pip3 install pymerkle --pre
 **See also [_Usage_](USAGE.md) and [_API_](API.md)**
 
 ```python
-from pymerkle import *                    # Import MerkleTree, validateProof and ProofValidator
+from pymerkle import *                    # Import MerkleTree, validateProof and validateProofWithReceipt
 
 tree = MerkleTree()                       # Create empty SHA256/UTF-8 Merkle-tree with
                                           # defense against second-preimage attack
@@ -61,8 +61,7 @@ r = tree.consistencyProof(old_hash, sublength)
 
 # Create object for refined proof validation, validate proof and generate receipt
 
-validator = ProofValidator()     
-validation_receipt = validator.validate(target_hash=tree.rootHash(), proof=r)
+validation_receipt = validateProofWithReceipt(target_hash=tree.rootHash(), proof=r)
 ```
 
 ## Encryption modes
@@ -80,8 +79,7 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 Direct validation of a Merkle-proof is performed usind the ``validateProof()`` function, modifying the status
 of the inserted proof appropriately and returning the corresponding boolean. A more elaborate validation
 procedure includes generating a receipt with the validation result and storing at will the generated receipt
-as a ``.json`` file. This is achieved using the ``.validate()`` method of the ``ProofValidator``
-class like in the above quick example.
+as a ``.json`` file. This is achieved using the ``validateProofWithReceipt``like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
 

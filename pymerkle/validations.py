@@ -100,7 +100,7 @@ def validateProofWithReceipt(target_hash, proof, save_dir=None):
 
 
 class ValidationReceipt(object):
-    """Encapsulates the result of proof validation
+    """Provides info about proof validation
 
     :param proof_uuid:     uuid of the validated proof (time-based)
     :type proof_uuid:      str
