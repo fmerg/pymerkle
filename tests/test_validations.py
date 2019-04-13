@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 import time
-from pymerkle import MerkleTree, hashing, validateProof, ProofValidator
+from pymerkle import MerkleTree, hashing, validateProof, validateProofWithReceipt
 from pymerkle.validations import ValidationReceipt
 
 # ---------------- Check receipt replicates in all possible ways ---------
@@ -229,9 +229,6 @@ def test_consistency_proof_validation_for_non_empty_tree(
 tree = MerkleTree()
 
 file_dir = os.path.dirname(__file__)
-
-# Proof validator
-validator = ProofValidator()
 
 # Clean validations directory before running the test
 file_list = os.listdir(os.path.join(file_dir, 'receipts'))
