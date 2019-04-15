@@ -200,6 +200,7 @@ class hash_machine(object):
             ``multi_hash(signed_hashes=((+/-1, a)), start=1)``
 
         is the same as ``a`` (no hashing over unique elements)
+        
         .. warning:: When using this method, make sure that the combination of signs corresponds indeed
                      to a valid parenthetization
 

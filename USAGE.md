@@ -10,7 +10,7 @@ Type
 from pymerkle import *
 ```
 
-to import the classes `MerkleTree` and `ProofValidator`, as well as the `validateProof` function.
+to import `MerkleTree`, `validateProof()` and `validationReceipt()`.
 
 ### Merkle-tree construction
 
