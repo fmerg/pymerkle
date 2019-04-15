@@ -476,13 +476,13 @@ In what follows, let `tree` be a Merkle-tree and `p` a proof (audit or consisten
 
 #### Quick validation
 
-The quickest way to validate a proof is by applying the `validateProof` function, returning `True` or `False` according to whether the proof was found to be valid, resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
+The quickest way to validate a proof is by applying the `validateProof()` function, returning `True` or `False` according to whether the proof was found to be valid, resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
 
 ```python
 validateProof(target_hash=tree.rootHash(), proof=p)
 ```
 
-Here the result is of course `True`, whereas any other choice of `target_hash` would return `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to `p`.
+Here the result is of course `True`, whereas any other choice of `target_hash` would have returned `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to `p`.
 
 
 #### Validation with receipt
