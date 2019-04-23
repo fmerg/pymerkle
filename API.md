@@ -1,8 +1,8 @@
-## API [Work In progress]
+## API
 
 This section describes the recommended use of _pymerkle_ made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference for the totality of classes, methods and their possible arguments.
 
-## `class` __MerkleTree ([ *hash_type='sha256', encoding='utf-8', security=True* ])__
+## `class` __MerkleTree ([*hash_type='sha256', encoding='utf-8', security=True*])__
 
 - **hash_type** (_str_) – [optional] Defaults to `'sha256'`. Specifies the hash algorithm used by the Merkle-tree. Should be among `'md5'`, `'sha224'`, `'sha256'`, `'sha384'`, `'sha512'` (upper- or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown.
 
