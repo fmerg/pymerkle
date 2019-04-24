@@ -89,7 +89,7 @@ To retrieve the Merkle-tree in its stored state from that file, we then only nee
 static method as follows.
 
 ```python
-laoded_tree = MerkleTree.loadFromFile('relative_path/save_tree.json')
+loaded_tree = MerkleTree.loadFromFile('relative_path/save_tree.json')
 ```
 
 It must be stressed that reconstruction of the tree is uniquely determined by the sequence of ``hashes``
