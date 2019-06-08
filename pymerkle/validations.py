@@ -55,6 +55,7 @@ def validateProof(target_hash, proof):
     proof.header['status'] = False
     return False
 
+
 def validationReceipt(target_hash, proof, save_dir=None):
     """Wraps the ``validateProof()`` method, returning a validation receipt instead of a boolean
 
