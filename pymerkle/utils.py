@@ -18,7 +18,7 @@ def log_2(num):
     :returns:   the computed logarithm
     :rtype:     int
 
-    .. note:: By convention, it returns 0 for zero argument
+    .. note:: By convention, it returns 0 for the zero argument
 
     :raises ValueError: for arguments smaller than zero
     """
