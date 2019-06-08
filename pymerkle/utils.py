@@ -69,7 +69,7 @@ def stringify_path(signed_hashes, encoding):
 
     :param signed_hashes: a sequence of signed hashes
     :type signed_hashes:  tuple of (+1/-1, bytes) pairs
-    :param encoding:      type to be used for decoding
+    :param encoding:      encoding type to be used for decoding
     :type encoding:       str
     :rtype:               str
     """
