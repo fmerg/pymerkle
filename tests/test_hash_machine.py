@@ -3,7 +3,7 @@ from pymerkle import hashing, encodings
 
 import hashlib
 
-HASH_TYPES = tuple(hashing.HASH_TYPES)
+HASH_TYPES = hashing.HASH_TYPES
 excluded_ENCODINGS = (
     'utf_16',
     'utf_16_be',
