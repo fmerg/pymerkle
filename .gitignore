@@ -6,7 +6,6 @@ cpu*
 *.pyc
 /tests/logs/NASA*
 detect*
-*.json
 *profile*
 
 # Packaging
