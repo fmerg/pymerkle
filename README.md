@@ -32,7 +32,7 @@ tree = MerkleTree()                       # Create empty SHA256/UTF-8 Merkle-tre
 # Successively update the Merkle-tree with one hundred records
 
 for i in range(100):
-    tree.encryptRecord(bytes('{}-th record'.format(i), 'utf-8'))
+    tree.encryptRecord(bytes('%d-th record' % i, 'utf-8'))
 
 # Generate some audit-proofs
 
@@ -67,7 +67,7 @@ validation_receipt = validationReceipt(target_hash=tree.rootHash(), proof=r)
 ## Encryption modes
 
 Encryption of _plain text_ (``string``, ``bytes``, ``bytearray``), _JSON_ objects (``dict``) and _files_ is supported.
-Use according to convenience any of the following methods of the ``MerkleTree`` class (all of them invoking internally
+Use according to convenience any of the following methods of the ``MerkleTree`` class (all of them internally invoking
   the ``.update()`` method for appending newly created leaves):
 
 ``.encryptRecord()``, ``.encryptFileConent()``, ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``
@@ -79,7 +79,7 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 Direct validation of a Merkle-proof is performed usind the ``validateProof()`` function, modifying the status
 of the inserted proof appropriately and returning the corresponding boolean. A more elaborate validation
 procedure includes generating a receipt with the validation result and storing at will the generated receipt
-as a ``.json`` file. This is achieved using the ``validationReceipt``like in the above quick example.
+as a ``.json`` file. This is achieved utilizing the ``validationReceipt`` class like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
 
@@ -120,11 +120,11 @@ method for further insight.
 
 In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification
 for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead,
-creating bifurcation nodes at the rightmost branch allows the tree to remain balanced upon any update.
+creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update.
 As a consequence, even if security against second-preimage attack (see below) were deactivated, the current
-implementation is by structure invulnerable to length-extension attacks due to the vulnerability described
+implementation is by structure invulnerable to length-extension attacks exploiting the
 [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
-(reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)). Using Merkle-trees
+described vulnerability (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)). Using Merkle-trees
 without duplicate entries further reduces the risk of bugs in protocols based upon them.
 
 

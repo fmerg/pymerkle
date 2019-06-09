@@ -16,7 +16,7 @@ Attack Schema
 records:       d   e   f   g               d   e
 
 
-Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result (i.e., its hash)
+Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result (i.e., its digest)
 as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
 """
 import pytest

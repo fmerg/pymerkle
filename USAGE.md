@@ -7,10 +7,11 @@
 Type
 
 ```python
-from pymerkle import *
+from pymerkle import MerkleTree, validateProof, validationReceipt
 ```
 
-to import `MerkleTree`, `validateProof()` and `validationReceipt()`.
+to import the most basic components of the API, the `MerkleTree` class as well as the functions
+ `validateProof()` and `validationReceipt()`.
 
 ### Merkle-tree construction
 
@@ -85,7 +86,7 @@ and ``hashes``, mapping to the digests currently stored by the tree's leaves in 
 }
 ```
 
-To retrieve the Merkle-tree in its stored state from that file, we then only need use the `.loadFromFile`
+To retrieve the Merkle-tree in its stored state, we need only use the `.loadFromFile`
 static method as follows.
 
 ```python
@@ -121,7 +122,7 @@ Invoking a Merkle-tree with its name inside the Python interpreter displays info
     height    : 3
 
 ```
-This info can be saved in a file called `current_state` by
+This info can be saved in a file called `current_state` as follows:
 
 ```python
 with open('current_state', 'w') as f:
@@ -151,8 +152,8 @@ similar to the output of the `tree` command of Unix based systems:
 >>>
 ```
 
-where each node is represented by the hash it currently stores. This format
-can be saved in a file called `structure` by
+where each node is represented by the digest it currently stores. It can be saved
+in a file called `structure` as follows:
 
 ```python
 with open('structure', 'w') as f:
@@ -162,7 +163,9 @@ with open('structure', 'w') as f:
 
 ### New records. File and object encryption.
 
-_Updating_ the Merkle-tree with a _record_ means appending a new leaf with the digest of this record. A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently. Use the `.update` method to successively update with new records as follows:
+_Updating_ the Merkle-tree with a _record_ means appending a newly created leaf with the digest of this record.
+A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently.
+Use the `.update()` method to successively update with new records as follows:
 
 ```python
 tree = MerkleTree()                                  # initially empty SHA256/UTF-8 Merkle-tree
@@ -172,8 +175,8 @@ tree.update(record=b'arbitrary bytes-like object')   # second record
 ...                                                  # ...
 ```
 
-Note that the `record` keyword is here necessary, since this is only one of the two possible usages of the
-core `.update` functionality. For the external user, the above lines are equivalent to  
+Note that the `record` keyword is here necessary, since this is only one of the two possible usages of `.update()`.
+For the external user, the above lines are equivalent to  
 
 ```python
 tree.encryptRecord('arbitrary string')               # first record
@@ -181,12 +184,12 @@ tree.encryptRecord(b'arbitrary bytes-like object')   # second record
 ...                                                  # ...
 ```
 
-invoking `.update` internally. The latter is also internally invoked by the following methods.
+invoking `.update()` internally. The latter is also internally invoked by the following methods.
 
 #### Whole file encryption
 
 _Encrypting the content of a file into_ the Merkle-tree means updating it with one
-newly created leaf storing the digest of that content. Use the `.encryptFileContent`
+newly created leaf storing the digest of that content. Use the `.encryptFileContent()`
 method to encrypt a file in this way as follows:
 
 ```python
@@ -199,8 +202,8 @@ respect to the current working directory.
 #### File encryption per log
 
 _Encrypting per log a file into_ the Merkle-tree means updating it with each line of that file successively
-(i.e., one newly created leaf for each line of the given file respectively). Use the `.encryptFilePerLog`
-method to encrypt a file in this way as follows:
+(i.e., one newly created leaf for each line of the given file in respective order). Use the `.encryptFilePerLog()`
+method to encrypt a file this way as follows:
 
 ```shell
 >>> tree.encryptFilePerLog('APACHE_logs/large_APACHE_log')
@@ -211,14 +214,14 @@ Encryption complete
 >>>
 ```
 
-This presupposes that the file `APACHE_logs/large_APACHE_log` is the relative path of the file to encrypt with
+where `APACHE_logs/large_APACHE_log` is the relative path of the file under encryption with
 respect to the current working directory.
 
 #### Direct object encryption
 
 _Encrypting an object_ (a JSON entity) _into_ the Merkle-tree means updating it with
 a newly created leaf storing the digest of the given object's stringified version. Use the
-`.encryptObject` to encrypt any dictionary (`dict`) as follows:
+`.encryptObject()` method to encrypt any dictionary (`dict`) as follows:
 
 ```python
 tree.encryptObject({'a': 0, 'b': 1})
@@ -237,10 +240,11 @@ headaches upon requesting audit-proofs, it is recommended that `sort_keys` and `
 are left to their default values.
 
 
-#### File based object encryption
+#### File-based object encryption
 
 _File based encryption of an object_ (a JSON entity) _into_ the Merkle-tree means
-encrypting into the tree the object stored in a `.json` file by just providing the relative path of that file. Use the `.encryptObjectFromFile` method as follows:
+encrypting into the tree the object stored in a `.json` file by just providing the relative path of that file.
+Use the `.encryptObjectFromFile` method as follows:
 
 ```python
 tree.encryptObjectFromFile('relative_path/sample.json')
@@ -250,9 +254,9 @@ The file must here contain a single JSON entity, otherwise a `JSONDecodeError` i
 
 #### File encryption per object
 
-_Encrypting a_ `.json` _file per object into_ the Merkle-tree means successively updating the tree
-with each newly created leaf storing the digest of the respective JSON entity from the list within
-the provided file. Use the `encryptFilePerObject` method as follows:
+_Encrypting a_ `.json` _file per object into_ the Merkle-tree means successively updating the tree,
+with each newly created leaf storing the digest of the respective JSON entity from provided file
+(containing a list of objects). Use the `.encryptFilePerObject()` method as follows:
 
 ```python
 tree.encryptFilePerObject('relative_path/sample-list.json')
@@ -260,17 +264,16 @@ tree.encryptFilePerObject('relative_path/sample-list.json')
 
 The provided `.json` file's content must here be a single list of objects
 (like [here](tests/objects/sample-list.json)),
-otherwise a `ValueError` is thrown
-(or a `JSONDecodeError` if the file's content cannot be even deserialized).
+otherwise a `ValueError` is thrown, or a `JSONDecodeError` if the file's content cannot be even deserialized.
 
 
 ### Generating proofs (Server's Side)
 
-A Merkle-tree (Server) generates _Merkle-proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current root-hash of the tree. Requesting, providing and validating proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
+A Merkle-tree (Server) generates _Merkle-proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current root-hash of the Merkle-tree. Requesting, providing and validating proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
 
 #### Audit-proof
 
-Given a Merkle-tree `tree`, use the `.auditProof` method to generate the audit proof based upon, say, the 56-th leaf as follows:
+Given a Merkle-tree `tree`, use the `.auditProof()` method to generate the audit proof based upon, say, the 56-th leaf as follows:
 
 ```python
 p = tree.auditProof(arg=55)
@@ -282,7 +285,7 @@ You can instead generate the proof based upon a presumed record `record` with
 p = tree.auditProof(arg=record)
 ```
 
-where the argument can be of type `str`, `bytes` or `bytearray` indifferently (otherwise a `TypeError` is thrown). In the second case, the proof generation is based upon the _leftmost_ leaf storing the hash of the given record (if any). Since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
+where the argument can be of type `str`, `bytes` or `bytearray` indifferently (otherwise a `TypeError` is thrown). In the second variation, the proof generation is based upon the _leftmost_ leaf storing the hash of the given record (if any). Since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
 
 The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
@@ -363,11 +366,11 @@ the corresponding JSON format being
 }
 ```
 
-If the argument requested by the Client exceeds the tree's current length or isn't among the latter's encrypted records, then the audit path is empty and `p` is predestined to be found invalid upon validation.
+If the argument requested by the Client exceeds the tree's current length or isn't among the latter's encrypted records, then the generated path is empty and `p` is predestined to be found invalid.
 
 #### Consistency-proof
 
-Similarly, use the `.consistencyProof` method to generate a consistency proof as follows:
+Similarly, use the `.consistencyProof()` method to generate a consistency proof as follows:
 
 ```python
 q = tree.consistencyProof(
@@ -377,7 +380,7 @@ q = tree.consistencyProof(
       sublength=1546)
 ```
 
-Here the parameters `old_hash` and `sublength` provided from Client's Side refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available root-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
+Here the parameters `old_hash` and `sublength` (meant to be provided from Client's Side) refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available root-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
 
 A typical session would be as follows:
 
@@ -393,7 +396,7 @@ tree.encryptFilePerLog('sample_log')
 q = tree.consistencyProof(old_hash, sublength)
 ```
 
-The generated object `q` is an instance of the `proof.Proof` class consisting of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
+The generated object `q` (similarly an instance of the `proof.Proof` class) consists of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
 
 ### Inclusion-tests
 
@@ -414,7 +417,7 @@ More specifically, upon generating any consistency-proof requested by a Client, 
 - inclusion-test _failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
 internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
 
-In versions later than _0.2.0_, the above implicit check has been abstracted from the `.consistencyProof` method and explicitly implemented within the `.inclusionTest` method of the `MerkleTree` object. A typical session would then be as follows:
+In versions later than _0.2.0_, the above implicit check has been abstracted from `.consistencyProof()` method and explicitly implemented within the `.inclusionTest()` method of the `MerkleTree` object. A typical session would then be as follows:
 
 ```python
 # Client requests and stores the Merkle-tree's current state
@@ -458,7 +461,7 @@ do not coincide.
 
 Finally, since trees with the same number of leaves have always identical structure
 (cf. the _Tree structure_ section of [README](README.md)), equality between Merkle-trees
-amounts to identification of their current root-hashes, i.e.,
+amounts to identification of their current root-hashes, that is,
 
 ```python
 tree_1 == tree_2
@@ -472,17 +475,17 @@ tree_1.rootHash() == tree_2.rootHash()
 
 ### Validating proofs (Client's Side)
 
-In what follows, let `tree` be a Merkle-tree and `p` a proof (audit or consistency indifferently) generated by it.
+In what follows, let `tree` be a Merkle-tree and `p` a proof (audit- or consistency-proof indifferently) generated by it.
 
 #### Quick validation
 
-The quickest way to validate a proof is by applying the `validateProof()` function, returning `True` or `False` according to whether the proof was found to be valid, resp. invalid. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
+The quickest way to validate a proof is by applying the `validateProof()` function, returning `True` or `False` according to whether the proof was found to be _valid_, resp. _invalid_. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
 
 ```python
 validateProof(target_hash=tree.rootHash(), proof=p)
 ```
 
-Here the result is of course `True`, whereas any other choice of `target_hash` would have returned `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to `p`.
+Here the result is of course `True`, whereas any other choice of `target_hash` would have returned `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to the second argument `proof`.
 
 
 #### Validation with receipt
@@ -493,7 +496,7 @@ A more elaborate validation procedure includes generating a receipt with info ab
 receipt = validationReceipt(target_hash=tree.rootHash(), proof=p)
 ```
 
-Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is instant of the `validations.Receipt` class. It looks like
+Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is an instant of the `validations.Receipt` class. It looks like
 
 ```bash
 >>> receipt

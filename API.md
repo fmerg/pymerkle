@@ -8,7 +8,7 @@ This section describes the recommended use of _pymerkle_ made by an external use
 
 - **encoding** (_str_) – [optional] Defaults to `'utf_8'`. Specifies the encoding used by the Merkle-tree before hashing. Should be among the following (upper- or mixed-case with ‘-‘ instead of ‘_’ allowed), otherwise an exception is thrown: `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`, `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`, `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`, `'utf_7'`, `'mac_roman'`, `'shift_jis'`, `'cp1251'`, `'iso8859_5'`, `'utf_32_be'`, `'cp037'`, `'iso2022_jp_1'`, `'cp855'`, `'cp850'`, `'gb2312'`, `'iso8859_9'`, `'cp775'`, `'utf_32_le'`, `'iso8859_11'`, `'cp1140'`, `'iso8859_10'`, `'cp857'`, `'johab'`, `'cp1252'`, `'mac_greek'`, `'utf_8'`, `'euc_jis_2004'`, `'cp1254'`, `'iso8859_4'`, `'utf_32'`, `'iso2022_jp_3'`, `'iso2022_jp_2004'`, `'cp1125'`, `'tis_620'`, `'cp950'`, `'hz'`, `'iso8859_13'`, `'iso8859_7'`, `'iso8859_6'`, `'cp862'`, `'iso8859_15'`, `'mac_cyrillic'`, `'iso2022_jp_ext'`, `'cp437'`, `'gbk'`, `'iso8859_16'`, `'iso8859_14'`, `'cp1255'`, `'cp949'`, `'cp1026'`, `'cp866'`, `'gb18030'`, `'utf_16'`, `'iso8859_2'`, `'cp865'`, `'cp500'`, `'shift_jis_2004'`, `'mac_turkish'`, `'cp1257'`, `'big5'`, `'cp864'`, `'shift_jisx0213'`, `'cp273'`, `'cp861'`, `'cp424'`, `'mac_latin2'`, `'cp1258'`, `'koi8_r'`, `'cp863'`, `'latin_1'`, `'iso2022_jp_2'`, `'utf_16_le'`, `'cp1250'`, `'euc_jp'`, `'utf_16_be'`, `'cp1253'`, `'iso2022_jp'`
 
-- **security** (_bool_) – [optional] Specifies the security mode of the Merkle-tree. If `False`, it deactivates defense against second-preimage attack. Defaults to `True`.
+- **security** (_bool_) – [optional] Defaults to `True`. Specifies the security mode of the Merkle-tree. If `False`, it deactivates defense against second-preimage attack.
 
 Instances of the `MerkleTree` class have the following attributes for external reference:
 
@@ -27,7 +27,7 @@ See the constructor's homonymous argument
 
 ### `bool` __.security__
 
-Iff `True` security measures against second-preimage attack are activated
+See the constructor's homonymous argument
 
 
 ### `method` __.height ( )__
@@ -55,7 +55,7 @@ _Note:_ Since the tree is by construction binary balanced, its height coincides 
 
 ### `method` __.rootHash ( )__
 
-Returns the current root-hash of the Merkle-tree (i.e., the hash stored by its current root)
+Returns the current root-hash of the Merkle-tree (i.e., the digest stored by its current root)
 
 - **Return type**: _bytes_
 
@@ -81,11 +81,11 @@ _Note:_ Raises ``FileNotFoundError`` if the specified file does not exist
 
 ### `method` __.encryptFilePerLog (*file_path*)__
 
-Encrypts per the data of the provided file into the Merkle-tree. More accurately,
-it successively updates the Merkle-tree with each line of the provided file in the
+Encrypts per log the data of the provided file into the Merkle-tree. More accurately,
+it successively updates the Merkle-tree with each line of the provided file in
 respective order.
 
-- **file_path** (_str_) – relative path of the file under enryption with respect to
+- **file_path** (_str_) – relative path of the file under encryption with respect to
 the current working directory
 
 _Note:_ Raises ``FileNotFoundError`` if the specified file does not exist
@@ -106,25 +106,25 @@ digest of the stringified version of the object within the provided file.
 
 - **object** (_str_) – relative path of a ``.json`` file with respect to the current working directory, containing *one* JSON entity.
 
-_Note:_ Raises ``JSONDecodeError`` if the provided file is not as prescribed,
-``FileNotFoundError`` if the specified file does not exist.
+_Note:_ Raises ``JSONDecodeError``, if the provided file is not as prescribed or
+``FileNotFoundError``, if the specified file does not exist.
 
 ### `method` __.export (*file_path*)__
 
-Exports the minimum required information into the provided file, so that the Merkle-tree can be
+Exports the minimum required information into the specified file, so that the Merkle-tree can be
 reloaded in its current state from that file. The final file will contain a JSON entity with keys
 ``header`` (containing the parameters ``hash_type``, ``encoding`` and ``security`` of the tree)
 and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order.
 
 - **file_path** (_str_) – relative path of the file to export to with respect to the current working directory
 
-_Note:_ Reconstruction of the tree is (cf. the ``.loadFromFile()`` static method) is uniquely determined
+_Note:_ Reconstruction of the tree (cf. the ``.loadFromFile()`` static method) is uniquely determined
         by the sequence of ``hashes`` due to the specific design of the ``MerkleTree.update()`` method.
         See the _Tree structure_ section of [_README_](README.md) for some insight.
 
 ### `static method` __.loadFromFile (*file_path*)__
 
-Loads a Merkle-tree from the provided file, the latter being the result of an export (cf. the ``.export`` method).
+Loads a Merkle-tree from the provided file, the latter being the result of an export (cf. the ``.export()`` method).
 
 - **file_path** (_str_) – relative path of the file to load from with respect to the current working directory
 
@@ -144,7 +144,7 @@ argument
 (provided from the "Client's Side").
 
 - **Returns**: Audit proof appropriately formatted along with its validation parameters (so that
-it can be passed in as the second argument to the ``validations.validateProof()`` function)
+it can be passed in as the second argument to the ``validateProof()`` function)
 
 - **Return type**: _proof.Proof_
 
@@ -152,15 +152,14 @@ _Note:_ Raises ``TypeError`` if the argument's type is not as prescribed
 
 ### `method` __.consistencyProof (*old_hash, sublength*)__
 
-Response of the Merkle-tree to the request of providing a consistency-proof for the given parameters. Arguments of this function amount to a presumed previous state of the Merkle-tree
-(root-hash and length respectively, provided from the "Client's Side").
+Response of the Merkle-tree to the request of providing a consistency-proof for the given parameters. Arguments for this method amount to a presumed previous state of the Merkle-tree (root-hash and length respectively, provided from the "Client's Side").
 
 - **old_hash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
 
 - **sublength** (_int_) – presumable length (number of leaves) for the afore-mentioned state of the Merkle-tree
 
 - **Returns**: Consistency proof appropriately formatted along with its validation parameters (so
-that can be passed in as the second argument to the ``validations.validateProof()`` function)
+that it can be passed in as the second argument to the ``validateProof()`` function)
 
 - **Return type**: _proof.Proof_
 
