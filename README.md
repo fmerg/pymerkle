@@ -111,7 +111,7 @@ is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes
 whereas the total number of nodes in the structure described
 [**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
 
-The topology is namely identical to that of a binary _Sekura tree_, depicted in Section 5.4 of
+This topology turns out to be identical with that of a binary _Sekura tree_, depicted in Section 5.4 of
 [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the
 [`MerkleTree.update()`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update)
 method for further insight.
@@ -121,11 +121,9 @@ method for further insight.
 In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification
 for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead,
 creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update.
-As a consequence, even if security against second-preimage attack (see below) were deactivated, the current
-implementation is by structure invulnerable to length-extension attacks exploiting the
+As a consequence, the current implementation is structurally invulnerable to _denial-of-service attacks_ exploiting the
 [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
-described vulnerability (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)). Using Merkle-trees
-without duplicate entries further reduces the risk of bugs in protocols based upon them.
+described vulnerability (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)).
 
 
 ## Defense against second-preimage attack
