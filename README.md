@@ -121,12 +121,21 @@ method for further insight.
 In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification
 for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead,
 creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update.
-As a consequence, the current implementation is structurally invulnerable to _denial-of-service attacks_ exploiting the
+As a consequence, even if strict security mode were deactivated (see below),
+the current implementation is structurally invulnerable to _denial-of-service attacks_ exploiting the
 [**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
 described vulnerability (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)).
 
 
-## Defense against second-preimage attack
+## Security
+
+All following features are by default activated. In order to disable them, set the ``security`` kwarg equal to ``False`` at construction:
+
+```python
+tree = MerkleTree(security=False)
+```
+
+### Defense against second-preimage attack
 
 
 Defense against second-preimage attack is by default activated. Roughly speaking, it consists in the following security measures:
@@ -136,15 +145,14 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
 (See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or
-[**here**](https://news.ycombinator.com/item?id=16572793) for some insight). In order to deactivate defense against
-second-preimage attack, set the ``security`` kwarg equal to ``False`` at construction:
-
-```python
-tree = MerkleTree(security=False)
-```
-
-Read the [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
+[**here**](https://news.ycombinator.com/item?id=16572793) for some insight). Read the
+[`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
 inside the project's repository to see how to perform second-preimage attacks against the current implementation.
+
+
+### Defense against length-extension and birtday attack
+
+[Work in progress] 
 
 
 ## Running tests
