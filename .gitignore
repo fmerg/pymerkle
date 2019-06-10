@@ -7,6 +7,8 @@ cpu*
 /tests/logs/NASA*
 detect*
 *profile*
+*.svg
+.benchmark/
 
 # Packaging
 *.egg-info/
