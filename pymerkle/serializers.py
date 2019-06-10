@@ -42,7 +42,7 @@ class NodeSerializer(json.JSONEncoder):
         except TypeError:
             return json.JSONEncoder.default(self, obj)
         else:
-            if isinstance(obj, Leaf):
+            if not left and not right:  # indicates leaf
                 return {
                     'hash': hash.decode(encoding=obj.encoding)
                 }

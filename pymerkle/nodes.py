@@ -54,7 +54,7 @@ class Node(object):
             stored_hash=None):
         self.left, self.right, self.child = None, None, None
 
-        # Stored for decoding when printing
+        # Used for decoding upon printing
         self.encoding = encoding
 
         if left is None and right is None:  # leaf case (parentless node)
@@ -260,15 +260,31 @@ class Leaf(Node):
                           If provided, then ``record`` should *not* be provided.
     :type stored_hash:    str
 
-    .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
+    .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
+                 otherwise a TypeError is thrown
     """
 
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
-        Node.__init__(
-            self,
-            record=record,
-            left=None,
-            right=None,
-            hash_function=hash_function,
-            encoding=encoding,
-            stored_hash=stored_hash)
+        if record:
+            if stored_hash is None:
+                Node.__init__(
+                    self,
+                    record=record,
+                    left=None,
+                    right=None,
+                    hash_function=hash_function,
+                    encoding=encoding,
+                    stored_hash=None)
+            else:
+                raise TypeError
+        elif stored_hash is None:
+            raise TypeError
+        else:
+            Node.__init__(
+                self,
+                stored_hash=stored_hash,
+                left=None,
+                right=None,
+                hash_function=hash_function,
+                encoding=encoding,
+                record=None)
