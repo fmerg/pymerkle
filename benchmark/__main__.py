@@ -6,7 +6,6 @@ import logging
 
 from numbers import Number
 from collections import Set, Mapping, deque
-
 from datetime import datetime
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
@@ -47,7 +46,7 @@ def getsize(obj_0):
 def _time_elapsed(start):
     """
     """
-    (datetime.now() - start).total_seconds()
+    return (datetime.now() - start).total_seconds()
 
 
 def get_logger():
@@ -62,9 +61,18 @@ def get_logger():
     logger.addHandler(streamHandler)
     return logger
 
+from pymerkle import MerkleTree
+
+def tree_benchmark():
+    t = MerkleTree()
+    print(getsize(t))
+    start = datetime.now()
+    for i in range(100000):
+        t.encryptRecord('%d-th record' % i)
+    print(_time_elapsed(start))
+    print(getsize(t))
+
 
 if __name__ == "__main__":
-
-    logger = get_logger()
-    sys.stdout.write('test benchmark\n')
+    tree_benchmark()
     sys.exit(0)
