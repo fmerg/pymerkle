@@ -67,7 +67,7 @@ def tree_benchmark():
     t = MerkleTree()
     print(getsize(t))
     start = datetime.now()
-    for i in range(100000):
+    for i in range(200000):
         t.encryptRecord('%d-th record' % i)
     print(_time_elapsed(start))
     print(getsize(t))

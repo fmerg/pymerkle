@@ -13,6 +13,13 @@ T_BRACKET = '\u251C' + 2 * '\u2500'             # ├──
 VERTICAL_BAR = '\u2502'                         # │
 
 
+# class _Node(object):
+#     """
+#     """
+#     def __init__(self, hash_function, encoding):
+#         self.encoding = encoding
+
+
 class Node(object):
     """Base class for the nodes of a Merkle-tree
 
