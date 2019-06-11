@@ -2,7 +2,7 @@ import pytest
 from pymerkle.nodes import Node, Leaf
 from pymerkle.hashing import hash_machine
 from pymerkle.serializers import NodeSerializer
-
+from pymerkle.exceptions import NodeConstructionError, LeafConstructionError
 
 MACHINE = hash_machine()        # prepends security prefices by default
 ENCODING = MACHINE.ENCODING     # utf-8
@@ -15,7 +15,7 @@ def test_leaf_construction_with_neither_record_nor_stored_hash():
     """Tests that the Leaf constructor raises `TypeError`
     if neither `record` nor `stored_hash` is provided
     """
-    with pytest.raises(TypeError):
+    with pytest.raises(LeafConstructionError):
         Leaf(hash_function=HASH, encoding=ENCODING)
 
 
@@ -23,7 +23,7 @@ def test_leaf_construction_with_both_record_and_stored_hash():
     """Tests that the Leaf constructor raises `TypeError`
     if both `record` and `stored_hash` are provided
     """
-    with pytest.raises(TypeError):
+    with pytest.raises(LeafConstructionError):
         Leaf(hash_function=HASH,
              encoding=ENCODING,
              record=b'anything...',

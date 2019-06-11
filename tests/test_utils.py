@@ -20,7 +20,7 @@ for p in tuple(range(0, 11)):                                # 0 <= p <= 10
             combination.append(p)
             mixed_powers.append(combination)
 
-            # 2 ^ i_1 + ... + 2 ^ i_k + 2 ^ p, i_1 < ... < i_k < p,   0 <= p <= 10
+            # 2 ^ i_1 + ... + 2 ^ i_k + 2 ^ p,   i_1 < ... < i_k < p,   0 <= p <= 10
             nums.append(sum((map(lambda x: 2**x, combination))))
 
             logarithms.append(p)

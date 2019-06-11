@@ -3,6 +3,7 @@ Provides the base class for the Merkle-tree's nodes and an inheriting class for 
 """
 
 from .serializers import NodeSerializer
+from .exceptions import LeafConstructionError, NodeConstructionError
 import json
 
 # Prefices to be used for nice tree printing
@@ -21,21 +22,19 @@ class Node(object):
     :param encoding:      Encoding type to be used when decoding the hash stored by the node.
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
-    :param record:        [optional] the record to be encrypted within the node. If provided,
-                          then the node is considered to be a leaf and ``stored_hash`` should
-                          *not* be provided.
-    :type record:         str or bytes or bytearray
     :param left:          [optional] the node's left parent. If not provided, then the node
                           is considered to be a leaf
     :type left:           nodes.Node
     :param right:         [optional] the node's right parent. If not provided, then the node
                           is considered to be a leaf
     :type right:          nodes.Node
-    :param stored_hash:   [optional] The hash to be stored at creation by the node (after encoding).
-                          If provided, then ``record`` should *not* be provided.
-    :type stored_hash:    str
+    :param record:        [optional] the record to be encrypted within the node. If provided,
+                          then the node is considered to be a leaf and ``stored_hash`` should
+                          *not* be provided.
+    :type record:         str or bytes or bytearray
 
-    .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
+    .. warning:: Either *both* ``left`` *and* ``right`` or *only* ``record`` should be provided,
+                 otherwise a ``NodeConstructionError`` is thrown
 
     :ivar stored_hash:   (*bytes*) The hash currently stored by the node
     :ivar left:          (*nodes.Node*) The node's left parent. Defaults to ``None`` if the node is a leaf
@@ -48,24 +47,32 @@ class Node(object):
             self,
             hash_function,
             encoding,
-            record=None,
             left=None,
             right=None,
+            record=None,
             stored_hash=None):
-        self.left, self.right, self.child = None, None, None
 
-        # Used for decoding upon printing
-        self.encoding = encoding
+        self.encoding = encoding  # Needed for decoding upon printing
+        self.child = None
 
-        if left is None and right is None:  # leaf case (parentless node)
-            self.stored_hash = hash_function(record) if stored_hash is None\
-                else bytes(stored_hash, encoding)
-        # Interior case (node with exactly two parents)
-        elif record is None:
-            left.child, right.child = self, self
-            self.left, self.right = left, right
+        if left and right and record is None and stored_hash is None:
+            left.child = self
+            right.child = self
+            self.left = left
+            self.right = right
             self.stored_hash = hash_function(
                 left.stored_hash, right.stored_hash)
+        elif record and stored_hash is None and left is None and right is None:
+            self.left = None
+            self.right = None
+            self.stored_hash = hash_function(record)
+        elif stored_hash and record is None and left is None and right is None:
+            self.left = None
+            self.right = None
+            self.stored_hash = bytes(stored_hash, encoding)
+        else:
+            raise NodeConstructionError(
+                'Either both `left` and `right` or one of either `record` or `stored_hash` should be provided')
 
 # ------------------------- Representation formatting --------------------
 
@@ -261,30 +268,19 @@ class Leaf(Node):
     :type stored_hash:    str
 
     .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
-                 otherwise a TypeError is thrown
+                 otherwise a ``NodeConstructionError`` is thrown
     """
 
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
-        if record:
-            if stored_hash is None:
-                Node.__init__(
-                    self,
-                    record=record,
-                    left=None,
-                    right=None,
-                    hash_function=hash_function,
-                    encoding=encoding,
-                    stored_hash=None)
-            else:
-                raise TypeError
-        elif stored_hash is None:
-            raise TypeError
-        else:
+        try:
             Node.__init__(
                 self,
-                stored_hash=stored_hash,
-                left=None,
-                right=None,
                 hash_function=hash_function,
                 encoding=encoding,
-                record=None)
+                left=None,
+                right=None,
+                record=record,
+                stored_hash=stored_hash)
+        except NodeConstructionError:
+            raise LeafConstructionError(
+                'Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided')
