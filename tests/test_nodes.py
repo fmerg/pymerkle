@@ -1,12 +1,25 @@
 import pytest
-from pymerkle.nodes import Node, Leaf
+from pymerkle.nodes import _Node, Node, Leaf
 from pymerkle.hashing import hash_machine
 from pymerkle.serializers import NodeSerializer
-from pymerkle.exceptions import NodeConstructionError, LeafConstructionError
+from pymerkle.exceptions import NoChildException, NodeConstructionError, LeafConstructionError
 
 MACHINE = hash_machine()        # prepends security prefices by default
 ENCODING = MACHINE.ENCODING     # utf-8
 HASH = MACHINE.hash             # SHA256
+
+
+# --------------------- .child attribute of abstract class ---------------------
+
+def test_child_attribute_for_childless__Node():
+    _node = _Node(0, 1)
+    with pytest.raises(NoChildException):
+        _node.child
+
+def test_child_attribute_for__Node_with_child():
+    _node = _Node(0, 1)
+    _node._child = 'some child...'
+    assert _node.child == 'some child...'
 
 
 # ----------------------------- Leaf construction -----------------------------

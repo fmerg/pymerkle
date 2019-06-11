@@ -3,7 +3,7 @@ Provides the base class for the Merkle-tree's nodes and an inheriting class for 
 """
 
 from .serializers import NodeSerializer
-from .exceptions import LeafConstructionError, NodeConstructionError
+from .exceptions import NoChildException, LeafConstructionError, NodeConstructionError
 import json
 
 # Prefices to be used for nice tree printing
@@ -13,11 +13,21 @@ T_BRACKET = '\u251C' + 2 * '\u2500'             # ├──
 VERTICAL_BAR = '\u2502'                         # │
 
 
-# class _Node(object):
-#     """
-#     """
-#     def __init__(self, hash_function, encoding):
-#         self.encoding = encoding
+class _Node(object):
+    """
+    """
+    def __init__(self, encoding):
+        self.encoding = encoding
+
+    @property
+    def child(self):
+        """
+        """
+        try:
+            return self._child
+        except AttributeError:
+            raise NoChildException
+
 
 
 class Node(object):
