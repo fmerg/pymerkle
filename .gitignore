@@ -8,7 +8,7 @@ cpu*
 detect*
 *profile*
 *.svg
-.benchmark/
+.benchmarks/
 /benchmark
 
 # Packaging
