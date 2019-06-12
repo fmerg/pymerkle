@@ -91,12 +91,12 @@ def leaf_benchmark():
 
 def node_benchmark():
 
-    def get_set_delete_fn(obj):
-        def get_set_delete():
+    def set_get_delete_fn(obj):
+        def set_get_delete():
             obj.stored_hash = 'foo'
             obj.stored_hash
             del obj.stored_hash
-        return get_set_delete
+        return set_get_delete
 
     left = Leaf(hash_function=HASH,
          encoding=ENCODING,
@@ -114,8 +114,8 @@ def node_benchmark():
     # print(repr(right))
     print(getsize(node))
     # print(repr(node))
-    print(timeit(get_set_delete_fn(left), number=1000))#get_set_delete_fn(slotted))
-    print(timeit(get_set_delete_fn(node), number=1000))#get_set_delete_fn(slotted))
+    print(timeit(set_get_delete_fn(left), number=1000))#set_get_delete_fn(slotted))
+    print(timeit(set_get_delete_fn(node), number=1000))#set_get_delete_fn(slotted))
 
 if __name__ == "__main__":
     # tree_benchmark()
