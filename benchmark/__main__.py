@@ -91,7 +91,10 @@ def node_benchmark():
     right = Leaf(hash_function=HASH,
          encoding=ENCODING,
          record=b'second record...')
-    node = Node(left=left, right=right)
+    node = Node(hash_function=HASH,
+         encoding=ENCODING,
+         left=left,
+         right=right)
     print(getsize(left))
     print(getsize(right))
     print(getsize(node))
