@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+import pymerkle
+
 from pymerkle import MerkleTree
 from pymerkle.hashing import hash_machine
 from pymerkle.nodes import Node, Leaf
+
 import sys
 import logging
 
@@ -96,8 +103,12 @@ def node_benchmark():
          left=left,
          right=right)
     print(getsize(left))
+    # print(repr(left))
     print(getsize(right))
+    # print(repr(right))
     print(getsize(node))
+    # print(repr(node))
+
 
 if __name__ == "__main__":
     # tree_benchmark()
