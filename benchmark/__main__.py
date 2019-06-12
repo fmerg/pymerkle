@@ -98,5 +98,6 @@ def node_benchmark():
 
 if __name__ == "__main__":
     # tree_benchmark()
-    leaf_benchmark()
+    # leaf_benchmark()
+    node_benchmark()
     sys.exit(0)
