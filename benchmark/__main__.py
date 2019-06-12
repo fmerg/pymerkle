@@ -2,6 +2,8 @@
 #!/usr/bin/env python
 
 from pymerkle import MerkleTree
+from pymerkle.hashing import hash_machine
+from pymerkle.nodes import Node, Leaf
 import sys
 import logging
 
@@ -72,7 +74,18 @@ def tree_benchmark():
     print(_time_elapsed(start))
     print(getsize(t))
 
+MACHINE = hash_machine()        # prepends security prefices by default
+ENCODING = MACHINE.ENCODING     # utf-8
+HASH = MACHINE.hash             # SHA256
+
+def leaf_benchmark():
+    _leaf = Leaf(hash_function=HASH,
+         encoding=ENCODING,
+         record=b'some record...'),
+    print(getsize(_leaf))
+
 
 if __name__ == "__main__":
-    tree_benchmark()
+    # tree_benchmark()
+    leaf_benchmark()
     sys.exit(0)
