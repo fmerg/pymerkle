@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
+from pymerkle import MerkleTree
 import sys
 import logging
 
@@ -61,7 +62,6 @@ def get_logger():
     logger.addHandler(streamHandler)
     return logger
 
-from pymerkle import MerkleTree
 
 def tree_benchmark():
     t = MerkleTree()

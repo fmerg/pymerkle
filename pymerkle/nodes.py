@@ -2,8 +2,8 @@
 Provides the base class for the Merkle-tree's nodes and an inheriting class for its leaves
 """
 
-from .serializers import NodeSerializer
-from .exceptions import NoChildException, LeafConstructionError, NodeConstructionError
+from .serializers import NodeSerializer, LeafSerializer
+from .exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError
 import json
 
 # Prefices to be used for nice tree printing
@@ -16,6 +16,7 @@ VERTICAL_BAR = '\u2502'                         # │
 class _Node(object):
     """
     """
+
     def __init__(self, encoding):
         self.encoding = encoding
 
@@ -28,70 +29,89 @@ class _Node(object):
         except AttributeError:
             raise NoChildException
 
+    @property
+    def left(self):
+        """
+        """
+        try:
+            return self._left
+        except AttributeError:
+            raise NoParentException
 
+    @property
+    def right(self):
+        """
+        """
+        try:
+            return self._right
+        except AttributeError:
+            raise NoParentException
 
-class Node(object):
-    """Base class for the nodes of a Merkle-tree
+    def isLeftParent(self):
+        """Checks if the node is a left parent
 
-    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          method of the containing Merkle-tree
-    :type hash_function:  method
-    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
-                          Should coincide with the containing Merkle-tree's encoding type.
-    :type encoding:       str
-    :param left:          [optional] the node's left parent. If not provided, then the node
-                          is considered to be a leaf
-    :type left:           nodes.Node
-    :param right:         [optional] the node's right parent. If not provided, then the node
-                          is considered to be a leaf
-    :type right:          nodes.Node
-    :param record:        [optional] the record to be encrypted within the node. If provided,
-                          then the node is considered to be a leaf and ``stored_hash`` should
-                          *not* be provided.
-    :type record:         str or bytes or bytearray
-
-    .. warning:: Either *both* ``left`` *and* ``right`` or *only* ``record`` should be provided,
-                 otherwise a ``NodeConstructionError`` is thrown
-
-    :ivar stored_hash:   (*bytes*) The hash currently stored by the node
-    :ivar left:          (*nodes.Node*) The node's left parent. Defaults to ``None`` if the node is a leaf
-    :ivar right:         (*nodes.Node*) The node's right parent. Defaults to ``None`` if the node is a leaf
-    :ivar child:         (*nodes.Node*) The node's child parent. Defaults to ``None`` if the node is a root
-    :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
-    """
-
-    def __init__(
-            self,
-            hash_function,
-            encoding,
-            left=None,
-            right=None,
-            record=None,
-            stored_hash=None):
-
-        self.encoding = encoding  # Needed for decoding upon printing
-        self.child = None
-
-        if left and right and record is None and stored_hash is None:
-            left.child = self
-            right.child = self
-            self.left = left
-            self.right = right
-            self.stored_hash = hash_function(
-                left.stored_hash, right.stored_hash)
-        elif record and stored_hash is None and left is None and right is None:
-            self.left = None
-            self.right = None
-            self.stored_hash = hash_function(record)
-        elif stored_hash and record is None and left is None and right is None:
-            self.left = None
-            self.right = None
-            self.stored_hash = bytes(stored_hash, encoding)
+        :returns: ``True`` iff the node is the ``.left`` attribute of some other
+                  node inside the containing Merkle-tree
+        :rtype:   bool
+        """
+        try:
+            _child = self.child
+        except NoChildException:
+            return False
         else:
-            raise NodeConstructionError(
-                'Either both `left` and `right` or one of either `record` or `stored_hash` should be provided')
+            return self == _child.left
 
-# ------------------------- Representation formatting --------------------
+    def isRightParent(self):
+        """Checks if the node is a right parent
+
+        :returns: ``True`` iff the node is the ``.right`` attribute of some other
+                  node inside the containing Merkle-tree
+        :rtype:   bool
+        """
+        try:
+            _child = self.child
+        except NoChildException:
+            return False
+        else:
+            self == _child.right
+
+    def isParent(self):
+        """Checks if the node is a parent
+
+        :returns: ``True`` iff the node is the ``.right`` attribute of some other
+                  node inside the containing Merkle-tree
+        :rtype:   bool
+        """
+        try:
+            _child = self.child
+        except NoChildException:
+            return False
+        else:
+            return True
+
+    def descendant(self, degree):
+        """ Detects and returns the node that is ``degree`` steps upwards within
+        the containing Merkle-tree
+
+        .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``
+                  is the node's child, etc.
+
+        :param degree: depth of descendancy. Must be non-negative
+        :type degree:  int
+        :returns:      the descendant corresdponding to the requested depth
+        :rtype:        nodes.Node
+
+        .. note:: Returns ``None`` if the requested depth of dependancy exceeds possibilities
+        """
+        if degree == 0:
+            return self
+        else:
+            try:
+                _child = self.child
+            except NoChildException:
+                raise NoDescendantException
+            else:
+                return _child.descendant(degree - 1)
 
     def __repr__(self):
         """Overrides the default implementation
@@ -100,18 +120,30 @@ class Node(object):
 
         .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
-        def memory_id(obj): return str(
-            hex(id(obj))) if obj else '{} ({})'.format(None, hex(id(obj)))
+        def memory_id(obj): return str(hex(id(obj)))
 
-        return '\n    memory-id    : {memory_id}\
-                \n    left parent  : {left}\
-                \n    right parent : {right}\
-                \n    child        : {child}\
+        try:
+            child_id = memory_id(self.child)
+        except NoChildException:
+            child_id = '[None]'
+
+        try:
+            left_id = memory_id(self.left)
+        except NoParentException:
+            left_id = '[None]'
+            right_id = '[None]'
+        else:
+            right_id = memory_id(self.right)
+
+        return '\n    memory-id    : {self_id}\
+                \n    left parent  : {left_id}\
+                \n    right parent : {right_id}\
+                \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
-                .format(memory_id=memory_id(self),
-                        left=memory_id(self.left),
-                        right=memory_id(self.right),
-                        child=memory_id(self.child),
+                .format(self_id=memory_id(self),
+                        left_id=left_id,
+                        right_id=right_id,
+                        child_id=child_id,
                         hash=self.stored_hash.decode(self.encoding))
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
@@ -141,7 +173,7 @@ class Node(object):
         """
         if level == 0:
             output = '\n'
-            if not self.isLeftParent() and not self.isRightParent():  # root case
+            if not self.isParent():  # root case
                 output += ' ' + L_BRACKET_SHORT
         else:
             output = (indent + 1) * ' '
@@ -154,7 +186,7 @@ class Node(object):
             output += indent * ' '
 
         new_ignore = ignore[:]
-        del ignore
+        # del ignore
 
         if self.isLeftParent():
             output += ' ' + T_BRACKET
@@ -164,7 +196,9 @@ class Node(object):
 
         encoding = encoding if encoding else self.encoding
         output += self.stored_hash.decode(encoding=encoding) + '\n'
-        if not isinstance(self, Leaf):  # Recursive step
+        if isinstance(
+                self,
+                Node):  # Recursive step if the current node is internal (no leaf)
             output += self.left.__str__(
                 encoding=encoding,
                 level=level + 1,
@@ -177,60 +211,54 @@ class Node(object):
                 ignore=new_ignore)
         return output
 
-# ----------------------------- Boolean functions ------------------------
 
-    def isLeftParent(self):
-        """Checks if the node is a left parent
+class Node(_Node):
+    """Base class for the nodes of a Merkle-tree
 
-        :returns: ``True`` iff the node is the ``.left`` attribute of some other
-                  node inside the containing Merkle-tree
-        :rtype:   bool
-        """
-        if self.child is not None:
-            return self == self.child.left
-        return False
+    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
+                          method of the containing Merkle-tree
+    :type hash_function:  method
+    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
+                          Should coincide with the containing Merkle-tree's encoding type.
+    :type encoding:       str
+    :param left:          [optional] the node's left parent. If not provided, then the node
+                          is considered to be a leaf
+    :type left:           nodes.Node
+    :param right:         [optional] the node's right parent. If not provided, then the node
+                          is considered to be a leaf
+    :type right:          nodes.Node
+    :param record:        [optional] the record to be encrypted within the node. If provided,
+                          then the node is considered to be a leaf and ``stored_hash`` should
+                          *not* be provided.
+    :type record:         str or bytes or bytearray
 
-    def isRightParent(self):
-        """Checks if the node is a right parent
+    # .. warning:: Either *both* ``left`` *and* ``right`` or *only* ``record`` should be provided,
+    #              otherwise a ``NodeConstructionError`` is thrown
 
-        :returns: ``True`` iff the node is the ``.right`` attribute of some other
-                  node inside the containing Merkle-tree
-        :rtype:   bool
-        """
-        if self.child is not None:
-            return self == self.child.right
-        return False
+    :ivar stored_hash:   (*bytes*) The hash currently stored by the node
+    :ivar left:          (*nodes.Node*) The node's left parent. Defaults to ``None`` if the node is a leaf
+    :ivar right:         (*nodes.Node*) The node's right parent. Defaults to ``None`` if the node is a leaf
+    :ivar child:         (*nodes.Node*) The node's child parent. Defaults to ``None`` if the node is a root
+    :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
+    """
 
-# ------------------------- Merkle-tree updating tools -------------------
+    def __init__(self, hash_function, encoding, left, right):
+        super().__init__(encoding=encoding)
 
-    def descendant(self, degree):
-        """ Detects and returns the node that is ``degree`` steps upwards within
-        the containing Merkle-tree
+        # Establish descendancy relation between child and parents
+        left._child = self
+        right._child = self
+        self._left = left
+        self._right = right
 
-        .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``
-                  is the node's child, etc.
-
-        :param degree: depth of descendancy. Must be non-negative
-        :type degree:  int
-        :returns:      the descendant corresdponding to the requested depth
-        :rtype:        nodes.Node
-
-        .. note:: Returns ``None`` if the requested depth of dependancy exceeds possibilities
-        """
-        if degree == 0:
-            descendant = self
-        else:
-            try:
-                descendant = self.child.descendant(degree - 1)
-            except AttributeError:
-                descendant = None
-        return descendant
+        # Calculate the digest to be stored by the node currently created
+        self.stored_hash = hash_function(left.stored_hash, right.stored_hash)
 
     def recalculate_hash(self, hash_function):
-        """Recalculates the node's hash under account of its parents' new hashes
+        """Recalculates the node's hash under account of the (possible new) digests stored by its parents
 
-        This method is to be invoked for all non-leaf nodes of the Merkle-tree's rightmost branch
-        every time a new leaf is appended into the tree
+        This method is to be invoked for all internal nodes of the Merkle-tree's rightmost branch
+        every time a newly-created leaf is appended into the tree
 
         :param hash_function: hash function to be used during recalculation (thought of as
                               the ``.hash`` method of the containing Merkle-tree)
@@ -243,7 +271,6 @@ class Node(object):
 
 
 # ------------------------------- Serialization --------------------------
-
 
     def serialize(self):
         """ Returns a JSON entity with the node's attributes as key-value pairs
@@ -268,7 +295,7 @@ class Node(object):
 # -------------------------------- End of class --------------------------
 
 
-class Leaf(Node):
+class Leaf(_Node):
     """Class for the leafs of Merkle-tree (parentless nodes)
 
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
@@ -284,20 +311,42 @@ class Leaf(Node):
                           If provided, then ``record`` should *not* be provided.
     :type stored_hash:    str
 
-    .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
-                 otherwise a ``NodeConstructionError`` is thrown
+    # .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
+    #              otherwise a ``NodeConstructionError`` is thrown
     """
 
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
-        try:
-            Node.__init__(
-                self,
-                hash_function=hash_function,
-                encoding=encoding,
-                left=None,
-                right=None,
-                record=record,
-                stored_hash=stored_hash)
-        except NodeConstructionError:
+
+        if record and stored_hash is None:
+            super().__init__(encoding=encoding)
+            self.stored_hash = hash_function(record)
+
+        elif stored_hash and record is None:
+            super().__init__(encoding=encoding)
+            self.stored_hash = bytes(stored_hash, encoding)
+
+        else:
             raise LeafConstructionError(
                 'Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided')
+
+# ------------------------------- Serialization --------------------------
+
+    def serialize(self):
+        """ Returns a JSON entity with the node's attributes as key-value pairs
+
+        :rtype: dict
+
+        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
+                  for circular reference error to be avoided.
+        """
+        serializer = LeafSerializer()
+        return serializer.default(self)
+
+    def JSONstring(self):
+        """Returns a nicely stringified version of the node's JSON serialized form
+
+        .. note:: The output of this function is to be passed into the ``print`` function
+
+        :rtype: str
+        """
+        return json.dumps(self, cls=LeafSerializer, sort_keys=True, indent=4)

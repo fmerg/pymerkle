@@ -61,7 +61,7 @@ class MerkleTree(object):
         self.security = security
         self.hash = machine.hash
         self.multi_hash = machine.multi_hash
-        del machine
+        # del machine
 
         # Initialized here so that consistency-proof works in some edge cases
         self.leaves, self.nodes = [], set()

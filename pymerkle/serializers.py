@@ -29,7 +29,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
 
 
 class NodeSerializer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of nodes.
+    """Used implicitly in the JSON serialization of nodes (``nodes.Node``).
     Extends the built-in JSON encoder for data structures.
     """
 
@@ -37,20 +37,36 @@ class NodeSerializer(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library.
         """
         try:
-            left, right = obj.left, obj.right
+            left = left.right
+            right = obj.right
             hash = obj.stored_hash
         except TypeError:
             return json.JSONEncoder.default(self, obj)
         else:
-            if not left and not right:  # indicates leaf
-                return {
-                    'hash': hash.decode(encoding=obj.encoding)
-                }
             return {
                 'left': left.serialize(),
                 'right': right.serialize(),
                 'hash': hash.decode(encoding=obj.encoding)
-            }  # Non-leaf case
+            }
+
+
+class LeafSerializer(json.JSONEncoder):
+    """Used implicitly in the JSON serialization of leafs (``nodes.Leaf``).
+    Extends the built-in JSON encoder for data structures.
+    """
+
+    def default(self, obj):
+        """ Overrides the built-in method of JSON encoders according to the needs of this library.
+        """
+        try:
+            encoding = obj.encoding
+            hash = obj.stored_hash
+        except TypeError:
+            return json.JSONEncoder.default(self, obj)
+        else:
+            return {
+                'hash': hash.decode(encoding=obj.encoding)
+            }
 
 
 class ProofSerializer(json.JSONEncoder):
