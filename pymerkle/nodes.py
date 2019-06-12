@@ -17,13 +17,13 @@ class _Node(object):
     """
     """
 
+    __slots__ = ('encoding', '_child',)
+
     def __init__(self, encoding):
         self.encoding = encoding
 
     @property
     def child(self):
-        """
-        """
         try:
             return self._child
         except AttributeError:
@@ -31,8 +31,6 @@ class _Node(object):
 
     @property
     def left(self):
-        """
-        """
         try:
             return self._left
         except AttributeError:
@@ -40,8 +38,6 @@ class _Node(object):
 
     @property
     def right(self):
-        """
-        """
         try:
             return self._right
         except AttributeError:
@@ -242,6 +238,8 @@ class Node(_Node):
     :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
     """
 
+    __slots__ = ('stored_hash', '_left', '_right', '__dict__')
+
     def __init__(self, hash_function, encoding, left, right):
         super().__init__(encoding=encoding)
 
@@ -314,6 +312,8 @@ class Leaf(_Node):
     # .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
     #              otherwise a ``NodeConstructionError`` is thrown
     """
+
+    __slots__ = ('stored_hash', '__dict__')
 
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
 

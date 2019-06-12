@@ -55,24 +55,24 @@ _leaves = (
         stored_hash='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
 
 
-def test_leaf_constuction_with_record():
-    """Tests leaf construction when `record` is provided
-    """
-    assert _leaves[0].__dict__ == {
-        'encoding': ENCODING,
-        'stored_hash': bytes(
-            HASH('some record...').decode(ENCODING),
-            ENCODING)}
-
-
-def test_leaf_construction_with_stored_hash():
-    """Tests leaf construction when `stored_hash` is provided
-    """
-    assert _leaves[1].__dict__ == {
-        'encoding': ENCODING,
-        'stored_hash': bytes(
-            '5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
-            ENCODING)}
+# def test_leaf_constuction_with_record():
+#     """Tests leaf construction when `record` is provided
+#     """
+#     assert _leaves[0].__dict__ == {
+#         'encoding': ENCODING,
+#         'stored_hash': bytes(
+#             HASH('some record...').decode(ENCODING),
+#             ENCODING)}
+#
+#
+# def test_leaf_construction_with_stored_hash():
+#     """Tests leaf construction when `stored_hash` is provided
+#     """
+#     assert _leaves[1].__dict__ == {
+#         'encoding': ENCODING,
+#         'stored_hash': bytes(
+#             '5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
+#             ENCODING)}
 
 
 @pytest.mark.parametrize("_leaf", _leaves)
