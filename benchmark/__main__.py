@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-import os,sys,inspect
+import os, sys, inspect, logging
+from timeit import timeit
+from numbers import Number
+from collections import Set, Mapping, deque
+from datetime import datetime
+
+# Make pymerkle importable
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
-import pymerkle
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import hash_machine
 from pymerkle.nodes import Node, Leaf
-
-import sys
-import logging
-
-from numbers import Number
-from collections import Set, Mapping, deque
-from datetime import datetime
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
@@ -92,6 +90,14 @@ def leaf_benchmark():
     print(getsize(_leaf))
 
 def node_benchmark():
+
+    def get_set_delete_fn(obj):
+        def get_set_delete():
+            obj.stored_hash = 'foo'
+            obj.stored_hash
+            del obj.stored_hash
+        return get_set_delete
+
     left = Leaf(hash_function=HASH,
          encoding=ENCODING,
          record=b'first record...')
@@ -108,6 +114,7 @@ def node_benchmark():
     # print(repr(right))
     print(getsize(node))
     # print(repr(node))
+    print(timeit(get_set_delete_fn(left), number=1000))#get_set_delete_fn(slotted))
 
 
 if __name__ == "__main__":
