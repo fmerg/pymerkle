@@ -238,7 +238,7 @@ class Node(_Node):
     :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
     """
 
-    __slots__ = ('stored_hash', '_left', '_right', '__dict__')
+    __slots__ = ('stored_hash', '_left', '_right')
 
     def __init__(self, hash_function, encoding, left, right):
         super().__init__(encoding=encoding)
@@ -313,7 +313,7 @@ class Leaf(_Node):
     #              otherwise a ``NodeConstructionError`` is thrown
     """
 
-    __slots__ = ('stored_hash', '__dict__')
+    __slots__ = ('stored_hash')
 
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
 
