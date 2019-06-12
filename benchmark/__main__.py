@@ -115,7 +115,7 @@ def node_benchmark():
     print(getsize(node))
     # print(repr(node))
     print(timeit(get_set_delete_fn(left), number=1000))#get_set_delete_fn(slotted))
-
+    print(timeit(get_set_delete_fn(node), number=1000))#get_set_delete_fn(slotted))
 
 if __name__ == "__main__":
     # tree_benchmark()
