@@ -81,9 +81,20 @@ HASH = MACHINE.hash             # SHA256
 def leaf_benchmark():
     _leaf = Leaf(hash_function=HASH,
          encoding=ENCODING,
-         record=b'some record...'),
+         record=b'some record...')
     print(getsize(_leaf))
 
+def node_benchmark():
+    left = Leaf(hash_function=HASH,
+         encoding=ENCODING,
+         record=b'first record...')
+    right = Leaf(hash_function=HASH,
+         encoding=ENCODING,
+         record=b'second record...')
+    node = Node(left=left, right=right)
+    print(getsize(left))
+    print(getsize(right))
+    print(getsize(node))
 
 if __name__ == "__main__":
     # tree_benchmark()
