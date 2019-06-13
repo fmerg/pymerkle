@@ -5,6 +5,8 @@ Instances of this class should receive their configuration parameters from the `
 """
 
 import pymerkle.encodings  # Load encoding types
+from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError
+
 import hashlib
 
 ENCODINGS = pymerkle.encodings.ENCODINGS
@@ -85,9 +87,9 @@ class hash_machine(object):
         """
         if hash_type in HASH_TYPES:
             return getattr(hashlib, hash_type)
-        else:
-            message = f'\n\n * Hash type {hash_type} is not supported\n'
-            raise Exception(message)
+        raise NotSupportedHashTypeError(
+            'Hash type %s is not supported' %
+            hash_type)
 
     @staticmethod
     def select_encoding(encoding):
@@ -102,9 +104,9 @@ class hash_machine(object):
         """
         if encoding in ENCODINGS:
             return encoding
-        else:
-            raise Exception(
-                '\n\n * Encoding type {encoding} is not supported\n'.format(encoding=encoding))
+        raise NotSupportedEncodingError(
+            'Encoding type %s is not supported' %
+            encoding)
 
     # ------------------------------- Hash utils -----------------------------
 

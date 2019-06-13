@@ -3,25 +3,44 @@
 
 
 class LeafConstructionError(BaseException):
-    """Raised when arguments are not as prescribed
-    upon construction of a leaf (``nodes.Leaf``)
+    """Raised when arguments are not as prescribed upon construction of a leaf (``nodes.Leaf``)
     """
     pass
 
 
 class NoChildException(BaseException):
-    """Raised when the non-existent child property of a node is invoked
+    """Raised when the non-existent child property of a node (``nodes._Node``) is invoked
     """
     pass
 
 
 class NoDescendantException(BaseException):
-    """Raised when the non-existent descentant of a node is requested
-    (i.e., with a descendancy-degree that exceeds possibilities)
+    """Raised when the non-existent descentant of a node is requested (i.e., with a
+    descendancy-degree that exceeds possibilities)
     """
 
 
 class NoParentException(BaseException):
     """Raised when the non-existent left or right parent of a node is invoked
+    """
+    pass
+
+
+class EmptyTreeException(BaseException):
+    """Raised for example when the root-hash of an empty Merkle-tree is requested
+    """
+    pass
+
+
+class NotSupportedEncodingError(BaseException):
+    """Raised when a hash-machine (``hashing.hash_machine``) or a Merkle-Tree (``tree.MerkleTree``)
+    with unsupported encoding type is requested
+    """
+    pass
+
+
+class NotSupportedHashTypeError(BaseException):
+    """Raised when a hash-machine (``hashing.hash_machine``) or a Merkle-Tree (``tree.MerkleTree``)
+    with unsupported hash type is requested
     """
     pass

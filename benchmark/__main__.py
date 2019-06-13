@@ -2,6 +2,9 @@
 #!/usr/bin/env python
 
 
+from pymerkle import MerkleTree
+from pymerkle.hashing import hash_machine
+from pymerkle.nodes import Node, Leaf
 import os
 import sys
 import inspect
@@ -19,9 +22,6 @@ current_dir = os.path.dirname(
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from pymerkle.nodes import Node, Leaf
-from pymerkle.hashing import hash_machine
-from pymerkle import MerkleTree
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
@@ -120,6 +120,7 @@ def node_benchmark():
     print(timeit(access_attribute_fn(left), number=10000))
     # access_attribute_fn(slotted))
     print(timeit(access_attribute_fn(node), number=10000))
+
 
 def tree_benchmark():
     """

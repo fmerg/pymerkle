@@ -1,3 +1,7 @@
+"""Utilizes hash comparison to verify that the the .update() method of the tree.MerkleTree class
+behaves as prescribed (preserves the tree's property of being binary-balanced) by hash comparison
+"""
+
 import pytest
 from pymerkle import MerkleTree
 from pymerkle.hashing import hash_machine
@@ -8,7 +12,7 @@ def test_tree_constructor_with_records():
                           for i in range(0, 1000)))
     tree_2 = MerkleTree()
     for i in range(1000):
-        tree_2.update('{}-th record'.format(i))
+        tree_2.update(record='{}-th record'.format(i))
     assert tree_1.rootHash == tree_2.rootHash
 
 
@@ -27,12 +31,12 @@ def test_0_leaves():
 
 
 def test_1_leaves():
-    tree.update(t_1)
+    tree.update(record=t_1)
     assert tree.rootHash == hash(t_1)
 
 
 def test_2_leaves():
-    tree.update(t_2)
+    tree.update(record=t_2)
     assert tree.rootHash == hash(
         hash(t_1),
         hash(t_2)
@@ -40,7 +44,7 @@ def test_2_leaves():
 
 
 def test_3_leaves():
-    tree.update(t_3)
+    tree.update(record=t_3)
     assert tree.rootHash == hash(
         hash(
             hash(t_1),
@@ -51,7 +55,7 @@ def test_3_leaves():
 
 
 def test_4_leaves():
-    tree.update(t_4)
+    tree.update(record=t_4)
     assert tree.rootHash == hash(
         hash(
             hash(t_1),
@@ -65,7 +69,7 @@ def test_4_leaves():
 
 
 def test_5_leaves():
-    tree.update(t_5)
+    tree.update(record=t_5)
     assert tree.rootHash == hash(
         hash(
             hash(
@@ -82,8 +86,8 @@ def test_5_leaves():
 
 
 def test_7_leaves():
-    tree.update(t_6)
-    tree.update(t_7)
+    tree.update(record=t_6)
+    tree.update(record=t_7)
     assert tree.rootHash == hash(
         hash(
             hash(
@@ -106,10 +110,10 @@ def test_7_leaves():
 
 
 def test_11_leaves():
-    tree.update(t_8)
-    tree.update(t_9)
-    tree.update(t_10)
-    tree.update(t_11)
+    tree.update(record=t_8)
+    tree.update(record=t_9)
+    tree.update(record=t_10)
+    tree.update(record=t_11)
     assert tree.rootHash == hash(
         hash(
             hash(

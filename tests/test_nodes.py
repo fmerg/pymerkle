@@ -175,6 +175,7 @@ def test_no_parent_exception_for_left(_node):
     with pytest.raises(NoParentException):
         _node.left
 
+
 @pytest.mark.parametrize("_node", (leaf_1, leaf_2, leaf_3, leaf_4))
 def test_no_parent_exception_for_right(_node):
     """Tests NoParentException with `.right` for all parentless cases
@@ -495,8 +496,8 @@ def test_hash_recalculation():
     """
 
     new_leaf = Leaf(hash_function=HASH,
-                  encoding=ENCODING,
-                  record=b'new record...')
+                    encoding=ENCODING,
+                    record=b'new record...')
     node_34.set_right(new_leaf)
 
     node_34.recalculate_hash(hash_function=HASH)

@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException
+from .exceptions import NoChildException, EmptyTreeException
 import json
 import uuid
 import os
@@ -95,139 +95,7 @@ class MerkleTree(object):
         """
         if self:
             return self.root.stored_hash
-        return None
-
-# ------------------------------- Representation -------------------------
-
-    def __repr__(self):
-        """Overrides the default implementation.
-
-        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
-
-        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
-        """
-
-        return '\n    uuid      : {uuid}\
-                \n\
-                \n    hash-type : {hash_type}\
-                \n    encoding  : {encoding}\
-                \n    security  : {security}\
-                \n\
-                \n    root-hash : {root_hash}\
-                \n\
-                \n    size      : {size}\
-                \n    length    : {length}\
-                \n    height    : {height}\n' .format(
-            uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', '-'),
-            encoding=self.encoding.upper().replace('_', '-'),
-            security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash.decode(
-                encoding=self.encoding) if self else '',
-            size=len(self.nodes),
-            length=len(self.leaves),
-            height=self.height())
-
-    def length(self):
-        """Returns the Merkle-tree's current length, i.e., the number of its leaves
-
-        :rtype: int
-        """
-        return len(self.leaves)
-
-    def size(self):
-        """Returns the current number of the Merkle-tree's nodes
-
-        :rtype: int
-        """
-        return len(self.nodes)
-
-    def height(self):
-        """Calculates and returns the Merkle-tree's current height
-
-        .. note:: Since the tree is by construction binary *balanced*, its height coincides
-                  with the length of its leftmost branch
-
-        :rtype: int
-        """
-        length = len(self.leaves)
-        if length > 0:
-            return log_2(length) + 1\
-                if length != 2**log_2(length) else log_2(length)
-        return 0
-
-    def __str__(self, indent=3):
-        """Overrides the default implementation.
-
-        Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal
-        friendly way. In particular, printing the tree is similar to what is printed at console when running
-        the ``tree`` command of Unix based platforms.
-
-        :param indent: [optional] The horizontal depth at which each level will be indented with respect to
-                       its previous one. Defaults to ``3``.
-        :type indent:  int
-        :rtype:        str
-
-        .. note:: The left parent of each node is printed *above* the right one
-        """
-        if self:
-            return self.root.__str__(indent=indent, encoding=self.encoding)
-        return ''
-
-    def display(self, indent=3):
-        """Prints the Merkle-tree in a terminal friendy way
-
-        Printing the tree is similar to what is printed at console when running the ``tree`` command of
-        Unix based platforms
-
-        :param indent: [optional] the horizontal depth at which each level will be indented with respect to
-                       its previous one. Defaults to ``3``.
-        :type indent:  int
-
-        .. note:: The left parent of each node is printed *above* the right one
-        """
-        print(self.__str__(indent=indent))
-
-# --------------------------------- Comparison ---------------------------
-
-    def __eq__(self, other):
-        """Implements the ``==`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        Since trees with the same number of leaves have always identical structure, equality
-        between Merkle-trees is established by just comparing their current root-hashes.
-        """
-        return isinstance(other, MerkleTree) and \
-            self.rootHash == other.rootHash
-
-    def __ge__(self, other):
-        """Implements the ``>=`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
-        inside the former as a previous state of it.
-        """
-        return isinstance(
-            other,
-            MerkleTree) and self.inclusionTest(
-            old_hash=other.rootHash,
-            sublength=other.length())
-
-    def __gt__(self, other):
-        """Implements the ``>`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
-        the former as a previous state of it *and* their current root-hashes do not coincide (or,
-        equivalently, their current lengths do not coincide).
-        """
-        return self >= other and self.rootHash != other.rootHash
+        raise EmptyTreeException('Empty Merkle-trees have no root-hash')
 
 # ---------------------------------- Updating ----------------------------
 
@@ -313,210 +181,6 @@ class MerkleTree(object):
             self.leaves = [new_leaf]
             self.nodes = set([new_leaf])
             self.root = new_leaf
-
-# ------------------------ Export to and load from file ------------------
-
-    def export(self, file_path):
-        """Exports the minimum required information into the provided file, so that the Merkle-tree can be
-        reloaded in its current state from that file.
-
-        The final file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``,
-        ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests currently stored by
-        the tree's leaves in respective order.
-
-        .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
-                  by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
-
-        :param file_path: relative path of the file to export to with respect to the current
-                          working directory
-        :type file_path:  str
-        """
-        with open(file_path, 'w') as f:
-            json.dump(self.serialize(), f, indent=4)
-
-    @staticmethod
-    def loadFromFile(file_path):
-        """Loads a Merkle-tree from the provided file, the latter being the result of an export
-        (cf. the ``.export`` method).
-
-        :param file_path: relative path of the file to load from with respect to the current
-                          working directory
-        :type file_path:  str
-        :returns:         the Merkle-tree laoded from the provided file
-        :rtype:           tree.MerkleTree
-
-        .. warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
-        .. note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
-        .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
-        """
-        try:
-            with open(file_path, 'r') as f:
-                loaded_object = json.load(f)
-        except (FileNotFoundError, JSONDecodeError):
-            raise
-        try:
-            loaded_tree = MerkleTree(
-                hash_type=loaded_object['header']['hash_type'],
-                encoding=loaded_object['header']['encoding'],
-                security=loaded_object['header']['security'])
-        except KeyError:
-            raise
-        tqdm.write('\nFile has been loaded')
-        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
-            loaded_tree.update(stored_hash=hash)
-        tqdm.write('Tree has been retreived')
-        return loaded_tree
-
-# --------------------------------- Encryption ---------------------------
-
-    def encryptRecord(self, record):
-        """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
-        restructeres the tree appropriately and recalculates all necessary interior hashes
-
-        :param record: the record whose hash is to be stored into a new leaf
-        :type record:  str or bytes or bytearray
-        """
-        self.update(record=record)
-
-    def encryptFileContent(self, file_path):
-        """Encrypts the provided file as a single new leaf into the Merkle-tree
-
-        More accurately, it updates the Merkle-tree with *one* newly created leaf storing
-        the digest of the provided file's content (cf. doc of the ``.update`` method).
-
-        :param file_path: relative path of the file under encryption with respect to the
-                          current working directory
-        :type file_path:  str
-
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        """
-        try:
-            with open(os.path.abspath(file_path), 'rb') as f:
-                # ~ NOTE: File should be opened in binary mode so that its content remains
-                # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                content = f.read()  # bytes
-        except FileNotFoundError:
-            raise
-        self.update(record=content)
-
-    def encryptFilePerLog(self, file_path):
-        """Encrypts per log the data of the provided file into the Merkle-tree
-
-        More accurately, it successively updates the Merkle-tree with each line of the
-        provided file (cf. doc of the ``.update`` method) in the respective order
-
-        :param file_path: relative path of the file under enryption with respect to
-                          the current working directory
-        :type file_path:  str
-
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        """
-        absolute_file_path = os.path.abspath(file_path)
-
-        # ~ tqdm needs to know in advance the total number of
-        # ~ lines so that it can display the progress bar
-        number_of_lines = 0
-        try:
-            with open(absolute_file_path, 'r+') as file:
-                # Use memory-mapped file support to count lines
-                buffer = mmap.mmap(file.fileno(), 0)
-        except FileNotFoundError:
-            raise
-        else:
-            while buffer.readline():
-                number_of_lines += 1
-
-        tqdm.write('')
-        # Start line by line encryption
-        for line in tqdm(open(absolute_file_path, 'rb'),
-                         # ~ NOTE: File should be opened in binary mode so that its content remains
-                         # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                         # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                         desc='Encrypting log file',
-                         total=number_of_lines):
-            self.update(record=line)
-        tqdm.write('Encryption complete\n')
-
-    def encryptObject(self, object, sort_keys=False, indent=0):
-        """Encrypts the provided object as a single new leaf into the Merkle-tree
-
-        More accurately, it updates the Merkle-tree with *one* newly created leaf storing the digest
-        of the provided object's stringified version (cf. doc of the ``.update`` method).
-
-        :param object:    the JSON entity under encryption
-        :type objec:      dict
-        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
-                          before its stringification. Defaults to ``False``.
-        :type sort_keys:  bool
-        :param indent:    [optional] Specifies key indentaion upon stringification of the
-                          provided object. Defaults to ``0``.
-        :type indent:     int
-        """
-        self.update(
-            record=json.dumps(
-                object,
-                sort_keys=sort_keys,
-                indent=indent))
-
-    def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
-        """Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree
-
-        More accurately, the Merkle-tree will be updated with *one* newly created leaf storing
-        the digest of the stringified version of the object within the provided file.
-
-        :param file_path: relative path of a ``.json`` file with respect to the current working directory,
-                          containing *one* JSON entity.
-        :type file_path:  str
-        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
-                          before its stringification. Defaults to ``False``.
-        :type sort_keys:  bool
-        :param indent:    [optional] Specifies key indentaion upon stringification of the
-                          provided object. Defaults to ``0``.
-        :type indent:     int
-
-        .. warning:: Raises ``JSONDecodeError`` if the provided file is not as prescribed
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        """
-        try:
-            with open(os.path.abspath(file_path), 'r') as f:
-                object = json.load(f)
-        except (FileNotFoundError, JSONDecodeError):
-            raise
-        self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
-
-    def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
-        """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
-
-        More accurately, it successively updates the Merkle-tree with each newly created leaf storing the
-        digest of the respective JSON entity from the list within the provided file.
-
-        :param file_path: relative path of a ``.json`` file with respect to the current working directory,
-                          containing a *list* of JSON entities.
-        :type file_path:  str
-        :param sort_keys: [optional] If ``True``, then the all objects' keys are alphabetically stored
-                          before stringification. Defaults to ``False``.
-        :type sort_keys:  bool
-        :param indent:    [optional] Specifies uniform key indentaion upon stringification of objects.
-                          Defaults to ``0``.
-        :type indent:     int
-
-        .. warning:: Raises ``ValueError`` if the provided file's content is not as prescribed
-        .. note:: Raises ``JSONDecodeError`` if the provided file cannot be deserialized
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
-        """
-        try:
-            with open(os.path.abspath(file_path), 'r') as f:
-                list_of_objects = json.load(f)
-        except (FileNotFoundError, JSONDecodeError):
-            raise
-        if not isinstance(list_of_objects, list):
-            raise ValueError('oops..')
-        for object in list_of_objects:
-            self.encryptObject(
-                object=object,
-                sort_keys=sort_keys,
-                indent=indent)
 
 
 # ------------------------------ Proof generation ------------------------
@@ -909,6 +573,210 @@ class MerkleTree(object):
         # Subroot successfully detected
         return subroot
 
+# --------------------------------- Encryption ---------------------------
+
+    def encryptRecord(self, record):
+        """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
+        restructeres the tree appropriately and recalculates all necessary interior hashes
+
+        :param record: the record whose hash is to be stored into a new leaf
+        :type record:  str or bytes or bytearray
+        """
+        self.update(record=record)
+
+    def encryptFileContent(self, file_path):
+        """Encrypts the provided file as a single new leaf into the Merkle-tree
+
+        More accurately, it updates the Merkle-tree with *one* newly created leaf storing
+        the digest of the provided file's content (cf. doc of the ``.update`` method).
+
+        :param file_path: relative path of the file under encryption with respect to the
+                          current working directory
+        :type file_path:  str
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        """
+        try:
+            with open(os.path.abspath(file_path), 'rb') as f:
+                # ~ NOTE: File should be opened in binary mode so that its content remains
+                # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                content = f.read()  # bytes
+        except FileNotFoundError:
+            raise
+        self.update(record=content)
+
+    def encryptFilePerLog(self, file_path):
+        """Encrypts per log the data of the provided file into the Merkle-tree
+
+        More accurately, it successively updates the Merkle-tree with each line of the
+        provided file (cf. doc of the ``.update`` method) in the respective order
+
+        :param file_path: relative path of the file under enryption with respect to
+                          the current working directory
+        :type file_path:  str
+
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        """
+        absolute_file_path = os.path.abspath(file_path)
+
+        # ~ tqdm needs to know in advance the total number of
+        # ~ lines so that it can display the progress bar
+        number_of_lines = 0
+        try:
+            with open(absolute_file_path, 'r+') as file:
+                # Use memory-mapped file support to count lines
+                buffer = mmap.mmap(file.fileno(), 0)
+        except FileNotFoundError:
+            raise
+        else:
+            while buffer.readline():
+                number_of_lines += 1
+
+        tqdm.write('')
+        # Start line by line encryption
+        for line in tqdm(open(absolute_file_path, 'rb'),
+                         # ~ NOTE: File should be opened in binary mode so that its content remains
+                         # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                         # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                         desc='Encrypting log file',
+                         total=number_of_lines):
+            self.update(record=line)
+        tqdm.write('Encryption complete\n')
+
+    def encryptObject(self, object, sort_keys=False, indent=0):
+        """Encrypts the provided object as a single new leaf into the Merkle-tree
+
+        More accurately, it updates the Merkle-tree with *one* newly created leaf storing the digest
+        of the provided object's stringified version (cf. doc of the ``.update`` method).
+
+        :param object:    the JSON entity under encryption
+        :type objec:      dict
+        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
+                          before its stringification. Defaults to ``False``.
+        :type sort_keys:  bool
+        :param indent:    [optional] Specifies key indentaion upon stringification of the
+                          provided object. Defaults to ``0``.
+        :type indent:     int
+        """
+        self.update(
+            record=json.dumps(
+                object,
+                sort_keys=sort_keys,
+                indent=indent))
+
+    def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
+        """Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree
+
+        More accurately, the Merkle-tree will be updated with *one* newly created leaf storing
+        the digest of the stringified version of the object within the provided file.
+
+        :param file_path: relative path of a ``.json`` file with respect to the current working directory,
+                          containing *one* JSON entity.
+        :type file_path:  str
+        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
+                          before its stringification. Defaults to ``False``.
+        :type sort_keys:  bool
+        :param indent:    [optional] Specifies key indentaion upon stringification of the
+                          provided object. Defaults to ``0``.
+        :type indent:     int
+
+        .. warning:: Raises ``JSONDecodeError`` if the provided file is not as prescribed
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        """
+        try:
+            with open(os.path.abspath(file_path), 'r') as f:
+                object = json.load(f)
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
+
+    def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
+        """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
+
+        More accurately, it successively updates the Merkle-tree with each newly created leaf storing the
+        digest of the respective JSON entity from the list within the provided file.
+
+        :param file_path: relative path of a ``.json`` file with respect to the current working directory,
+                          containing a *list* of JSON entities.
+        :type file_path:  str
+        :param sort_keys: [optional] If ``True``, then the all objects' keys are alphabetically stored
+                          before stringification. Defaults to ``False``.
+        :type sort_keys:  bool
+        :param indent:    [optional] Specifies uniform key indentaion upon stringification of objects.
+                          Defaults to ``0``.
+        :type indent:     int
+
+        .. warning:: Raises ``ValueError`` if the provided file's content is not as prescribed
+        .. note:: Raises ``JSONDecodeError`` if the provided file cannot be deserialized
+        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        """
+        try:
+            with open(os.path.abspath(file_path), 'r') as f:
+                list_of_objects = json.load(f)
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        if not isinstance(list_of_objects, list):
+            raise ValueError('oops..')
+        for object in list_of_objects:
+            self.encryptObject(
+                object=object,
+                sort_keys=sort_keys,
+                indent=indent)
+
+# ------------------------ Export to and load from file ------------------
+
+    def export(self, file_path):
+        """Exports the minimum required information into the provided file, so that the Merkle-tree can be
+        reloaded in its current state from that file.
+
+        The final file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``,
+        ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests currently stored by
+        the tree's leaves in respective order.
+
+        .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
+                  by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
+
+        :param file_path: relative path of the file to export to with respect to the current
+                          working directory
+        :type file_path:  str
+        """
+        with open(file_path, 'w') as f:
+            json.dump(self.serialize(), f, indent=4)
+
+    @staticmethod
+    def loadFromFile(file_path):
+        """Loads a Merkle-tree from the provided file, the latter being the result of an export
+        (cf. the ``.export`` method).
+
+        :param file_path: relative path of the file to load from with respect to the current
+                          working directory
+        :type file_path:  str
+        :returns:         the Merkle-tree laoded from the provided file
+        :rtype:           tree.MerkleTree
+
+        .. warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
+        .. note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
+        .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
+        """
+        try:
+            with open(file_path, 'r') as f:
+                loaded_object = json.load(f)
+        except (FileNotFoundError, JSONDecodeError):
+            raise
+        try:
+            loaded_tree = MerkleTree(
+                hash_type=loaded_object['header']['hash_type'],
+                encoding=loaded_object['header']['encoding'],
+                security=loaded_object['header']['security'])
+        except KeyError:
+            raise
+        tqdm.write('\nFile has been loaded')
+        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
+            loaded_tree.update(stored_hash=hash)
+        tqdm.write('Tree has been retreived')
+        return loaded_tree
+
 # ---------------------------------- Clearance ---------------------------
 
     def clear(self):
@@ -917,6 +785,138 @@ class MerkleTree(object):
         self.leaves = []
         self.nodes = set()
         self.root = None
+
+# ------------------------------- Representation -------------------------
+
+    def __repr__(self):
+        """Overrides the default implementation.
+
+        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
+
+        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
+        """
+
+        return '\n    uuid      : {uuid}\
+                \n\
+                \n    hash-type : {hash_type}\
+                \n    encoding  : {encoding}\
+                \n    security  : {security}\
+                \n\
+                \n    root-hash : {root_hash}\
+                \n\
+                \n    size      : {size}\
+                \n    length    : {length}\
+                \n    height    : {height}\n' .format(
+            uuid=self.uuid,
+            hash_type=self.hash_type.upper().replace('_', '-'),
+            encoding=self.encoding.upper().replace('_', '-'),
+            security='ACTIVATED' if self.security else 'DEACTIVATED',
+            root_hash=self.rootHash.decode(
+                encoding=self.encoding) if self else '',
+            size=len(self.nodes),
+            length=len(self.leaves),
+            height=self.height())
+
+    def length(self):
+        """Returns the Merkle-tree's current length, i.e., the number of its leaves
+
+        :rtype: int
+        """
+        return len(self.leaves)
+
+    def size(self):
+        """Returns the current number of the Merkle-tree's nodes
+
+        :rtype: int
+        """
+        return len(self.nodes)
+
+    def height(self):
+        """Calculates and returns the Merkle-tree's current height
+
+        .. note:: Since the tree is by construction binary *balanced*, its height coincides
+                  with the length of its leftmost branch
+
+        :rtype: int
+        """
+        length = len(self.leaves)
+        if length > 0:
+            return log_2(length) + 1\
+                if length != 2**log_2(length) else log_2(length)
+        return 0
+
+    def __str__(self, indent=3):
+        """Overrides the default implementation.
+
+        Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal
+        friendly way. In particular, printing the tree is similar to what is printed at console when running
+        the ``tree`` command of Unix based platforms.
+
+        :param indent: [optional] The horizontal depth at which each level will be indented with respect to
+                       its previous one. Defaults to ``3``.
+        :type indent:  int
+        :rtype:        str
+
+        .. note:: The left parent of each node is printed *above* the right one
+        """
+        if self:
+            return self.root.__str__(indent=indent, encoding=self.encoding)
+        return ''
+
+    def display(self, indent=3):
+        """Prints the Merkle-tree in a terminal friendy way
+
+        Printing the tree is similar to what is printed at console when running the ``tree`` command of
+        Unix based platforms
+
+        :param indent: [optional] the horizontal depth at which each level will be indented with respect to
+                       its previous one. Defaults to ``3``.
+        :type indent:  int
+
+        .. note:: The left parent of each node is printed *above* the right one
+        """
+        print(self.__str__(indent=indent))
+
+# --------------------------------- Comparison ---------------------------
+
+    def __eq__(self, other):
+        """Implements the ``==`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        Since trees with the same number of leaves have always identical structure, equality
+        between Merkle-trees is established by just comparing their current root-hashes.
+        """
+        return isinstance(other, MerkleTree) and \
+            self.rootHash == other.rootHash
+
+    def __ge__(self, other):
+        """Implements the ``>=`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
+        inside the former as a previous state of it.
+        """
+        return isinstance(
+            other,
+            MerkleTree) and self.inclusionTest(
+            old_hash=other.rootHash,
+            sublength=other.length())
+
+    def __gt__(self, other):
+        """Implements the ``>`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
+        the former as a previous state of it *and* their current root-hashes do not coincide (or,
+        equivalently, their current lengths do not coincide).
+        """
+        return self >= other and self.rootHash != other.rootHash
 
 # ------------------------------- Serialization --------------------------
 
