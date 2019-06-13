@@ -29,7 +29,7 @@ for security in (True, False):
             len(trees))])
 def test_encryptRecord(tree, hash_machine):
     tree.encryptRecord('some kind of record...')
-    assert tree.rootHash() == hash_machine.hash(
+    assert tree.rootHash == hash_machine.hash(
         'some kind of record...')
 
 
@@ -49,7 +49,7 @@ def test_encryptFileContent(tree, hash_machine):
     tree.clear()
     tree.encryptFileContent(large_APACHE_log_path)
 
-    assert tree.rootHash() == hash_machine.hash(content)
+    assert tree.rootHash == hash_machine.hash(content)
 
 
 short_APACHE_log_path = os.path.join(
@@ -76,7 +76,7 @@ def test_encryptFilePerLog(tree):
     for record in records:
         clone_tree.update(record)
 
-    assert tree.rootHash() == clone_tree.rootHash()
+    assert tree.rootHash == clone_tree.rootHash
 
 
 @pytest.mark.parametrize(
@@ -87,7 +87,7 @@ def test_encryptObject(tree, hash_machine):
     tree.clear()
     tree.encryptObject(object={'a': 0, 'b': 1}, sort_keys=False, indent=0)
 
-    assert tree.rootHash() == hash_machine.hash(
+    assert tree.rootHash == hash_machine.hash(
         json.dumps({'a': 0, 'b': 1}, sort_keys=False, indent=0))
 
 
@@ -107,7 +107,7 @@ def test_encryptObjectFromFile(tree, hash_machine):
     tree.clear()
     tree.encryptObjectFromFile(object_file_path, sort_keys=False, indent=0)
 
-    assert tree.rootHash() == hash_machine.hash(
+    assert tree.rootHash == hash_machine.hash(
         json.dumps(object_from_file, sort_keys=False, indent=0))
 
 
@@ -135,4 +135,4 @@ def test_encryptFilePerObject(tree, hash_machine):
     for object in list_of_objects:
         clone_tree.update(record=json.dumps(object, sort_keys=False, indent=0))
 
-    assert tree.rootHash() == clone_tree.rootHash()
+    assert tree.rootHash == clone_tree.rootHash

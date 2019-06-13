@@ -10,7 +10,7 @@ from pymerkle.validations import Receipt
 tree = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
                     for i in range(0, 1000)))
 p = tree.auditProof(666)
-r = validationReceipt(target_hash=tree.rootHash(), proof=p)
+r = validationReceipt(target_hash=tree.rootHash, proof=p)
 r_1 = Receipt(from_json=r.JSONstring())
 r_2 = Receipt(from_dict=json.loads(r.JSONstring()))
 
@@ -69,7 +69,7 @@ def test_proof_validation_for_empty_tree(tree):
     """
     audit_proof = tree.auditProof(arg=0)
     consistency_proof = tree.consistencyProof(
-        old_hash=tree.rootHash(), sublength=0)
+        old_hash=tree.rootHash, sublength=0)
 
     assert validateProof(
         target_hash=b'anything...',
@@ -109,7 +109,7 @@ for bool_1 in (True, False):  # Controls index compatibility
 
                     # Target-hash configuration
                     if bool_2:
-                        target_hashes.append(tree.rootHash())
+                        target_hashes.append(tree.rootHash)
                     else:
                         target_hashes.append(b'anything else...')
 
@@ -145,7 +145,7 @@ for bool in (True, False):
 def test_record_based_audit_proof_validation_for_non_empty_tree(
         audit_proof, expected):
     assert validateProof(
-        target_hash=small_tree.rootHash(),
+        target_hash=small_tree.rootHash,
         proof=audit_proof) is expected
 
 # --------------------- Test consistency proof validation ---------------------
@@ -182,7 +182,7 @@ for bool_1 in (
 
                         # Old-tree-hash configuration
                         if bool_1:
-                            old_hash = tree.rootHash()
+                            old_hash = tree.rootHash
                         else:
                             old_hash = b'anything else...'
 
@@ -205,7 +205,7 @@ for bool_1 in (
 
                         # Target-hash configuration
                         if bool_4:
-                            target_hashes.append(tree.rootHash())
+                            target_hashes.append(tree.rootHash)
                         else:
                             target_hashes.append(b'anything else...')
 
@@ -238,14 +238,14 @@ for file in file_list:
 proofs = []
 target_hashes = []
 for log_file in (large_APACHE_log, RED_HAT_LINUX_log, short_APACHE_log):
-    old_hash = tree.rootHash()
+    old_hash = tree.rootHash
     old_length = len(tree.leaves)
     tree.encryptFilePerLog(log_file)
     proofs.append(
         tree.consistencyProof(
             old_hash=old_hash,
             sublength=old_length))
-    target_hashes.append(tree.rootHash())
+    target_hashes.append(tree.rootHash)
 
 
 @pytest.mark.parametrize(

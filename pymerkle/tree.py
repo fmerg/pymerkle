@@ -122,7 +122,7 @@ class MerkleTree(object):
             hash_type=self.hash_type.upper().replace('_', '-'),
             encoding=self.encoding.upper().replace('_', '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash().decode(
+            root_hash=self.rootHash.decode(
                 encoding=self.encoding) if self else '',
             size=len(self.nodes),
             length=len(self.leaves),
@@ -200,7 +200,7 @@ class MerkleTree(object):
         between Merkle-trees is established by just comparing their current root-hashes.
         """
         return isinstance(other, MerkleTree) and \
-            self.rootHash() == other.rootHash()
+            self.rootHash == other.rootHash
 
     def __ge__(self, other):
         """Implements the ``>=`` operator
@@ -214,7 +214,7 @@ class MerkleTree(object):
         return isinstance(
             other,
             MerkleTree) and self.inclusionTest(
-            old_hash=other.rootHash(),
+            old_hash=other.rootHash,
             sublength=other.length())
 
     def __gt__(self, other):
@@ -227,7 +227,7 @@ class MerkleTree(object):
         the former as a previous state of it *and* their current root-hashes do not coincide (or,
         equivalently, their current lengths do not coincide).
         """
-        return self >= other and self.rootHash() != other.rootHash()
+        return self >= other and self.rootHash != other.rootHash
 
 # ---------------------------------- Updating ----------------------------
 

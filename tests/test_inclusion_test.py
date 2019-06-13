@@ -26,7 +26,7 @@ for security in (True, False):
                 encoding=encoding,
                 security=security)
             tree.encryptFilePerLog(short_APACHE_log)
-            old_hash, sublength = tree.rootHash(), tree.length()
+            old_hash, sublength = tree.rootHash, tree.length()
             tree.encryptFilePerLog(RED_HAT_LINUX_log)
             trees_and_subtrees.append((tree, old_hash, sublength))
 
@@ -40,12 +40,12 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 
 tree = MerkleTree()
 tree.encryptFilePerLog(short_APACHE_log)
-old_hash, sublength = tree.rootHash(), tree.length()
+old_hash, sublength = tree.rootHash, tree.length()
 tree.encryptFilePerLog(RED_HAT_LINUX_log)
 
 
 def test_inclusion_test_edge_success_case():
-    assert tree.inclusionTest(tree.rootHash(), tree.length()) is True
+    assert tree.inclusionTest(tree.rootHash, tree.length()) is True
 
 # ---------------- Test failure cases with standard Merkle-tree ----------
 
@@ -91,7 +91,7 @@ for power in range(0, 10):
 @pytest.mark.parametrize('tree, later_state', trees_and_later_states)
 def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
     assert later_state.inclusionTest(
-        old_hash=tree.rootHash(),
+        old_hash=tree.rootHash,
         sublength=tree.length()) is True
 
 
@@ -100,7 +100,7 @@ def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(
         tree,
         later_state):
     assert validateProof(
-        target_hash=later_state.rootHash(),
+        target_hash=later_state.rootHash,
         proof=later_state.consistencyProof(
-            old_hash=tree.rootHash(),
+            old_hash=tree.rootHash,
             sublength=tree.length())) is True

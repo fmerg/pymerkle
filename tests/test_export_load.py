@@ -50,5 +50,5 @@ def test_export():
 
 
 def test_loadFromFile():
-    assert tree.rootHash() == MerkleTree.loadFromFile(
-        file_path=export_path).rootHash()
+    assert tree.rootHash == MerkleTree.loadFromFile(
+        file_path=export_path).rootHash
