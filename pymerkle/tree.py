@@ -289,12 +289,9 @@ class MerkleTree(object):
                     right=new_leaf)
                 self.nodes.add(new_child)
 
-                print(old_child)
-                print(type(old_child))
-
                 # Interject bifurcation node
-                old_child.__right = new_child
-                new_child.__child = old_child
+                old_child.set_right(new_child)
+                new_child.set_child(old_child)
 
                 # Recalculate hashes only at the rightmost branch of the tree
                 current_node = old_child
@@ -304,9 +301,6 @@ class MerkleTree(object):
                         current_node = current_node.child
                     except NoChildException:
                         break
-                # while current_node:
-                #     current_node.recalculate_hash(self.hash)
-                #     current_node = current_node.child
 
         else:  # Empty tree case
 
