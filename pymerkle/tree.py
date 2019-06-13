@@ -61,12 +61,13 @@ class MerkleTree(object):
         self.security = security
         self.hash = machine.hash
         self.multi_hash = machine.multi_hash
-        # del machine
+        del machine
 
         # Initialized here so that consistency-proof works in some edge cases
-        self.leaves, self.nodes = [], set()
+        self.leaves = []
+        self.nodes = set()
 
-        # nodes generation
+        # Tree generation
         for record in records:
             self.update(record)
 
@@ -708,20 +709,20 @@ class MerkleTree(object):
             return None, None  # Covers also the zero leaves case
         else:
             initial_sign = +1
-            if current_node.isRightParent():
+            if current_node.is_right_parent():
                 initial_sign = -1
             path = [(initial_sign, current_node.stored_hash)]
             start = 0
             while current_node.child is not None:
-                if current_node.isLeftParent():
+                if current_node.is_left_parent():
                     next_hash = current_node.child.right.stored_hash
-                    if current_node.child.isLeftParent():
+                    if current_node.child.is_left_parent():
                         path.append((+1, next_hash))
                     else:
                         path.append((-1, next_hash))
                 else:
                     next_hash = current_node.child.left.stored_hash
-                    if current_node.child.isRightParent():
+                    if current_node.child.is_right_parent():
                         path.insert(0, (-1, next_hash))
                     else:
                         path.insert(0, (+1, next_hash))
@@ -788,7 +789,7 @@ class MerkleTree(object):
             while subroots[-1].child is not None:
                 last_root = subroots[-1]
                 if last_root is last_root.child.left:
-                    if last_root.child.isRightParent():
+                    if last_root.child.is_right_parent():
                         complement.append((-1, last_root.child.right))
                     else:
                         complement.append((+1, last_root.child.right))
@@ -825,12 +826,12 @@ class MerkleTree(object):
                 next_subroot = self.subroot(start, powers[i])
                 if next_subroot is not None:  # No incompatibility issue
                     if next_subroot.child and next_subroot.child.child:
-                        if next_subroot.child.isLeftParent():
+                        if next_subroot.child.is_left_parent():
                             principal_subroots.append((+1, next_subroot))
                         else:
                             principal_subroots.append((-1, next_subroot))
                     else:
-                        if next_subroot.isLeftParent():
+                        if next_subroot.is_left_parent():
                             principal_subroots.append((+1, next_subroot))
                         else:
                             principal_subroots.append((-1, next_subroot))

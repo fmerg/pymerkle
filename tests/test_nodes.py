@@ -112,23 +112,23 @@ def test_leaf_child_exception(_leaf):
 
 @pytest.mark.parametrize("_leaf", _leaves)
 def test_childless_leaf_is_not_left_parent(_leaf):
-    """Tests that ``.isLeftParent`` returns ``False`` for a leaf without a child
+    """Tests that ``.is_left_parent`` returns ``False`` for a leaf without a child
     """
-    assert not _leaf.isLeftParent()
+    assert not _leaf.is_left_parent()
 
 
 @pytest.mark.parametrize("_leaf", _leaves)
 def test_childless_leaf_is_not_right_parent(_leaf):
-    """Tests that ``.isLeftParent`` returns ``False`` for a leaf without a child
+    """Tests that ``.is_left_parent`` returns ``False`` for a leaf without a child
     """
-    assert not _leaf.isRightParent()
+    assert not _leaf.is_right_parent()
 
 
 @pytest.mark.parametrize("_leaf", _leaves)
 def test_childless_leaf_is_not_parent(_leaf):
-    """Tests that ``.isLeftParent`` returns ``False`` for a leaf without a child
+    """Tests that ``.is_left_parent`` returns ``False`` for a leaf without a child
     """
-    assert not _leaf.isParent()
+    assert not _leaf.is_parent()
 
 
 @pytest.mark.parametrize("_leaf", _leaves)
@@ -210,27 +210,27 @@ def test_right_parent(_node, right):
 
 
 @pytest.mark.parametrize("_node", (leaf_1, leaf_3, node_12))
-def test_isLeftParent(_node):
+def test_is_left_parent(_node):
     """Tests a node's property of being a left parent
     (excluding the possibility of being right parent)
     """
-    assert _node.isLeftParent() and not _node.isRightParent()
+    assert _node.is_left_parent() and not _node.is_right_parent()
 
 
 @pytest.mark.parametrize("_node", (leaf_2, leaf_4, node_34))
-def test_isRightParent(_node):
+def test_is_right_parent(_node):
     """Tests a node's property of being a right parent
     (excluding the possibility of being left parent)
     """
-    assert _node.isRightParent() and not _node.isLeftParent()
+    assert _node.is_right_parent() and not _node.is_left_parent()
 
 
 @pytest.mark.parametrize("_node, expected", ((leaf_1, True), (leaf_2, True), (
     leaf_4, True), (leaf_4, True), (node_12, True), (node_34, True), (root, False)))
-def test_isParent(_node, expected):
+def test_is_parent(_node, expected):
     """Tests a node's property of being a parent
     """
-    assert _node.isParent() is expected
+    assert _node.is_parent() is expected
 
 
 # Descendancy tests
