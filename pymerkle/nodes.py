@@ -17,7 +17,7 @@ class _Node(object):
     """
     """
 
-    __slots__ = ('encoding', '_child',)
+    __slots__ = ('encoding', '__child',)
 
     def __init__(self, encoding):
         self.encoding = encoding
@@ -25,21 +25,21 @@ class _Node(object):
     @property
     def child(self):
         try:
-            return self._child
+            return self.__child
         except AttributeError:
             raise NoChildException
 
     @property
     def left(self):
         try:
-            return self._left
+            return self.__left
         except AttributeError:
             raise NoParentException
 
     @property
     def right(self):
         try:
-            return self._right
+            return self.__right
         except AttributeError:
             raise NoParentException
 
@@ -233,16 +233,16 @@ class Node(_Node):
     :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
     """
 
-    __slots__ = ('stored_hash', '_left', '_right')
+    __slots__ = ('stored_hash', '__left', '__right')
 
     def __init__(self, hash_function, encoding, left, right):
         super().__init__(encoding=encoding)
 
         # Establish descendancy relation between child and parents
-        left._child = self
-        right._child = self
-        self._left = left
-        self._right = right
+        left.__child = self
+        right.__child = self
+        self.__left = left
+        self.__right = right
 
         # Calculate the digest to be stored by the node currently created
         self.stored_hash = hash_function(left.stored_hash, right.stored_hash)
