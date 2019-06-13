@@ -37,7 +37,7 @@ class NodeSerializer(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library.
         """
         try:
-            left = left.right
+            left = obj.left
             right = obj.right
             hash = obj.stored_hash
         except TypeError:

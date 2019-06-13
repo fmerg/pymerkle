@@ -69,7 +69,7 @@ class _Node(object):
         except NoChildException:
             return False
         else:
-            self == _child.right
+            return self == _child.right
 
     def isParent(self):
         """Checks if the node is a parent
@@ -145,10 +145,8 @@ class _Node(object):
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
         """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``
         displays the subtree having that node as root.
-
         Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way,
         similar to what is printed at console when running the ``tree`` command of Unix based platforms.
-
         :param encoding: [optional] encoding type to be used for decoding the node's current stored hash
         :type encoding:  str
         :param level:    [optional] Defaults to ``0``. Should be always left equal to the *default* value
@@ -164,12 +162,11 @@ class _Node(object):
                          called so that track be kept of the positions where vertical bars should be omitted
         :type ignore:    list of integers
         :rtype:          str
-
         .. note:: The left parent of each node is printed *above* the right one
         """
         if level == 0:
             output = '\n'
-            if not self.isParent():  # root case
+            if not self.isLeftParent() and not self.isRightParent():  # root case
                 output += ' ' + L_BRACKET_SHORT
         else:
             output = (indent + 1) * ' '
@@ -182,7 +179,7 @@ class _Node(object):
             output += indent * ' '
 
         new_ignore = ignore[:]
-        # del ignore
+        del ignore
 
         if self.isLeftParent():
             output += ' ' + T_BRACKET
@@ -192,9 +189,7 @@ class _Node(object):
 
         encoding = encoding if encoding else self.encoding
         output += self.stored_hash.decode(encoding=encoding) + '\n'
-        if isinstance(
-                self,
-                Node):  # Recursive step if the current node is internal (no leaf)
+        if not isinstance(self, Leaf):  # Recursive step
             output += self.left.__str__(
                 encoding=encoding,
                 level=level + 1,
@@ -269,6 +264,7 @@ class Node(_Node):
 
 
 # ------------------------------- Serialization --------------------------
+
 
     def serialize(self):
         """ Returns a JSON entity with the node's attributes as key-value pairs
