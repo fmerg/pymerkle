@@ -494,15 +494,16 @@ def test_hash_recalculation():
     after modifying the hash stored by leaf_4
     """
 
-    leaf_4.stored_hash = bytes(
-        '5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
-        'utf-8')
+    new_leaf = Leaf(hash_function=HASH,
+                  encoding=ENCODING,
+                  record=b'new record...')
+    node_34.set_right(new_leaf)
 
     node_34.recalculate_hash(hash_function=HASH)
     root.recalculate_hash(hash_function=HASH)
 
     assert node_34.stored_hash == HASH(
         leaf_3.stored_hash,
-        leaf_4.stored_hash) and root.stored_hash == HASH(
+        new_leaf.stored_hash) and root.stored_hash == HASH(
         node_12.stored_hash,
         node_34.stored_hash)

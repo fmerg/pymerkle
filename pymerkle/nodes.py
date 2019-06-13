@@ -17,10 +17,14 @@ class _Node(object):
     """
     """
 
-    __slots__ = ('encoding', '__child',)
+    __slots__ = ('__encoding', '__child',)
 
     def __init__(self, encoding):
-        self.encoding = encoding
+        self.__encoding = encoding
+
+    @property
+    def encoding(self):
+        return self.__encoding
 
     @property
     def child(self):
@@ -28,6 +32,9 @@ class _Node(object):
             return self.__child
         except AttributeError:
             raise NoChildException
+
+    def set_child(self, child):
+        self.__child = child
 
     @property
     def left(self):
@@ -79,7 +86,7 @@ class _Node(object):
         :rtype:   bool
         """
         try:
-            _child = self.child
+            self.child
         except NoChildException:
             return False
         else:
@@ -233,7 +240,7 @@ class Node(_Node):
     :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
     """
 
-    __slots__ = ('stored_hash', '__left', '__right')
+    __slots__ = ('__stored_hash', '__left', '__right')
 
     def __init__(self, hash_function, encoding, left, right):
         super().__init__(encoding=encoding)
@@ -245,7 +252,17 @@ class Node(_Node):
         self.__right = right
 
         # Calculate the digest to be stored by the node currently created
-        self.stored_hash = hash_function(left.stored_hash, right.stored_hash)
+        self.__stored_hash = hash_function(left.stored_hash, right.stored_hash)
+
+    @property
+    def stored_hash(self):
+        return self.__stored_hash
+
+    def set_left(self, left):
+        self.__left = left
+
+    def set_right(self, right):
+        self.__right = right
 
     def recalculate_hash(self, hash_function):
         """Recalculates the node's hash under account of the (possible new) digests stored by its parents
@@ -259,7 +276,7 @@ class Node(_Node):
 
         .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
-        self.stored_hash = hash_function(
+        self.__stored_hash = hash_function(
             self.left.stored_hash, self.right.stored_hash)
 
 
@@ -309,21 +326,25 @@ class Leaf(_Node):
     #              otherwise a ``NodeConstructionError`` is thrown
     """
 
-    __slots__ = ('stored_hash')
+    __slots__ = ('__stored_hash')
 
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
 
         if record and stored_hash is None:
             super().__init__(encoding=encoding)
-            self.stored_hash = hash_function(record)
+            self.__stored_hash = hash_function(record)
 
         elif stored_hash and record is None:
             super().__init__(encoding=encoding)
-            self.stored_hash = bytes(stored_hash, encoding)
+            self.__stored_hash = bytes(stored_hash, encoding)
 
         else:
             raise LeafConstructionError(
                 'Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided')
+
+    @property
+    def stored_hash(self):
+        return self.__stored_hash
 
 # ------------------------------- Serialization --------------------------
 

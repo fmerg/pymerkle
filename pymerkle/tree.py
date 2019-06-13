@@ -6,6 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
+from .exceptions import NoChildException
 import json
 import uuid
 import os
@@ -83,6 +84,7 @@ class MerkleTree(object):
 
 # ------------------------------------ Root ------------------------------
 
+    @property
     def rootHash(self):
         """Returns the current root-hash of the Merkle-tree, i.e., the hash stored by its current root
 
@@ -244,8 +246,8 @@ class MerkleTree(object):
         """
         if self:
 
-            # Height of *full* binary subtree with maximum
-            # possible length containing the rightmost leaf
+            # ~ Height of *full* binary subtree with maximum
+            # ~ possible length containing the rightmost leaf
             last_power = decompose(len(self.leaves))[-1]
 
             # Detect root of the above rightmost *full* binary subtree
@@ -262,43 +264,61 @@ class MerkleTree(object):
             self.leaves.append(new_leaf)
             self.nodes.add(new_leaf)
 
-            # Save child info before bifurcation
-            old_child = last_subroot.child
+            try:
 
-            # Create bifurcation node
-            new_child = Node(
-                record=None,
-                left=last_subroot,
-                right=new_leaf,
-                hash_function=self.hash,
-                encoding=self.encoding)
-            self.nodes.add(new_child)
+                # Save child info before bifurcation
+                old_child = last_subroot.child
 
-            # Bifurcate
-            if not old_child:  # last_subroot was previously root
+            except NoChildException:
 
-                self.root = new_child
+                # last_subroot was previously root
+                self.root = Node(
+                    hash_function=self.hash,
+                    encoding=self.encoding,
+                    left=last_subroot,
+                    right=new_leaf)
 
-            else:  # last_subroot was previously right parent
+            else:
+                # Bifurcate
+
+                # Create bifurcation node
+                new_child = Node(
+                    hash_function=self.hash,
+                    encoding=self.encoding,
+                    left=last_subroot,
+                    right=new_leaf)
+                self.nodes.add(new_child)
+
+                print(old_child)
+                print(type(old_child))
 
                 # Interject bifurcation node
-                old_child.right = new_child
-                new_child.child = old_child
+                old_child.__right = new_child
+                new_child.__child = old_child
 
                 # Recalculate hashes only at the rightmost branch of the tree
                 current_node = old_child
-                while current_node:
-                    current_node.recalculate_hash(self.hash)
-                    current_node = current_node.child
+                while True:
+                    current_node.recalculate_hash(hash_function=self.hash)
+                    try:
+                        current_node = current_node.child
+                    except NoChildException:
+                        break
+                # while current_node:
+                #     current_node.recalculate_hash(self.hash)
+                #     current_node = current_node.child
 
-        else:  # void case
+        else:  # Empty tree case
+
             new_leaf = Leaf(
                 hash_function=self.hash,
                 encoding=self.encoding,
                 record=record,
                 stored_hash=stored_hash)
-            self.leaves, self.nodes, self.root = [
-                new_leaf], set([new_leaf]), new_leaf
+
+            self.leaves = [new_leaf]
+            self.nodes = set([new_leaf])
+            self.root = new_leaf
 
 # ------------------------ Export to and load from file ------------------
 

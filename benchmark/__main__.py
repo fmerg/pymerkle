@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-from pymerkle.nodes import Node, Leaf
-from pymerkle.hashing import hash_machine
-from pymerkle import MerkleTree
+
 import os
 import sys
 import inspect
@@ -21,6 +19,9 @@ current_dir = os.path.dirname(
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
+from pymerkle.nodes import Node, Leaf
+from pymerkle.hashing import hash_machine
+from pymerkle import MerkleTree
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
@@ -76,16 +77,6 @@ def get_logger():
     return logger
 
 
-def tree_benchmark():
-    t = MerkleTree()
-    print(getsize(t))
-    start = datetime.now()
-    for i in range(200000):
-        t.encryptRecord('%d-th record' % i)
-    print(_time_elapsed(start))
-    print(getsize(t))
-
-
 MACHINE = hash_machine()        # prepends security prefices by default
 ENCODING = MACHINE.ENCODING     # utf-8
 HASH = MACHINE.hash             # SHA256
@@ -99,13 +90,15 @@ def leaf_benchmark():
 
 
 def node_benchmark():
+    """
+    """
 
-    def set_get_delete_fn(obj):
-        def set_get_delete():
-            obj.stored_hash = 'foo'
+    def access_attribute_fn(obj):
+        def access_attribute():
+            # obj.stored_hash = 'foo'
             obj.stored_hash
-            del obj.stored_hash
-        return set_get_delete
+            # del obj.stored_hash
+        return access_attribute
 
     left = Leaf(hash_function=HASH,
                 encoding=ENCODING,
@@ -123,14 +116,25 @@ def node_benchmark():
     # print(repr(right))
     print(getsize(node))
     # print(repr(node))
-    # set_get_delete_fn(slotted))
-    print(timeit(set_get_delete_fn(left), number=1000))
-    # set_get_delete_fn(slotted))
-    print(timeit(set_get_delete_fn(node), number=1000))
+    # access_attribute_fn(slotted))
+    print(timeit(access_attribute_fn(left), number=10000))
+    # access_attribute_fn(slotted))
+    print(timeit(access_attribute_fn(node), number=10000))
+
+def tree_benchmark():
+    """
+    """
+    t = MerkleTree()
+    print(getsize(t))
+    start = datetime.now()
+    for i in range(200000):
+        t.encryptRecord('%d-th record' % i)
+    print(_time_elapsed(start))
+    print(getsize(t))
 
 
 if __name__ == "__main__":
-    # tree_benchmark()
     # leaf_benchmark()
     node_benchmark()
+    # tree_benchmark()
     sys.exit(0)
