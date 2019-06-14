@@ -1,20 +1,29 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-import os, sys, inspect, logging
+
+
+import os
+import sys
+import inspect
+import logging
 from timeit import timeit
 from numbers import Number
 from collections import Set, Mapping, deque
 from datetime import datetime
 
 # Make pymerkle importable
-current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+current_dir = os.path.dirname(
+    os.path.abspath(
+        inspect.getfile(
+            inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import hash_machine
 from pymerkle.nodes import Node, Leaf
+
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
@@ -70,56 +79,65 @@ def get_logger():
     return logger
 
 
-def tree_benchmark():
-    t = MerkleTree()
-    print(getsize(t))
-    start = datetime.now()
-    for i in range(200000):
-        t.encryptRecord('%d-th record' % i)
-    print(_time_elapsed(start))
-    print(getsize(t))
-
 MACHINE = hash_machine()        # prepends security prefices by default
 ENCODING = MACHINE.ENCODING     # utf-8
 HASH = MACHINE.hash             # SHA256
 
+
 def leaf_benchmark():
     _leaf = Leaf(hash_function=HASH,
-         encoding=ENCODING,
-         record=b'some record...')
+                 encoding=ENCODING,
+                 record=b'some record...')
     print(getsize(_leaf))
 
-def node_benchmark():
 
-    def get_set_delete_fn(obj):
-        def get_set_delete():
-            obj.stored_hash = 'foo'
+def node_benchmark():
+    """
+    """
+
+    def access_attribute_fn(obj):
+        def access_attribute():
+            # obj.stored_hash = 'foo'
             obj.stored_hash
-            del obj.stored_hash
-        return get_set_delete
+            # del obj.stored_hash
+        return access_attribute
 
     left = Leaf(hash_function=HASH,
-         encoding=ENCODING,
-         record=b'first record...')
+                encoding=ENCODING,
+                record=b'first record...')
     right = Leaf(hash_function=HASH,
-         encoding=ENCODING,
-         record=b'second record...')
+                 encoding=ENCODING,
+                 record=b'second record...')
     node = Node(hash_function=HASH,
-         encoding=ENCODING,
-         left=left,
-         right=right)
+                encoding=ENCODING,
+                left=left,
+                right=right)
     print(getsize(left))
     # print(repr(left))
     print(getsize(right))
     # print(repr(right))
     print(getsize(node))
     # print(repr(node))
-    print(timeit(get_set_delete_fn(left), number=1000))#get_set_delete_fn(slotted))
-    print(timeit(get_set_delete_fn(node), number=1000))#get_set_delete_fn(slotted))
+    # access_attribute_fn(slotted))
+    print(timeit(access_attribute_fn(left), number=10000))
+    # access_attribute_fn(slotted))
+    print(timeit(access_attribute_fn(node), number=10000))
+
+
+def tree_benchmark():
+    """
+    """
+    t = MerkleTree()
+    print(getsize(t))
+    start = datetime.now()
+    for i in range(10000):
+        t.encryptRecord('%d-th record' % i)
+    print(_time_elapsed(start))
+    print(getsize(t))
 
 
 if __name__ == "__main__":
-    # tree_benchmark()
     # leaf_benchmark()
-    node_benchmark()
+    # node_benchmark()
+    tree_benchmark()
     sys.exit(0)
