@@ -2,7 +2,9 @@
 #!/usr/bin/env python
 
 
-
+from pymerkle.nodes import Node, Leaf
+from pymerkle.hashing import hash_machine
+from pymerkle import MerkleTree
 import os
 import sys
 import inspect
@@ -19,10 +21,6 @@ current_dir = os.path.dirname(
             inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
-
-from pymerkle import MerkleTree
-from pymerkle.hashing import hash_machine
-from pymerkle.nodes import Node, Leaf
 
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
@@ -130,7 +128,7 @@ def tree_benchmark():
     t = MerkleTree()
     print(getsize(t))
     start = datetime.now()
-    for i in range(10000):
+    for i in range(100000):
         t.encryptRecord('%d-th record' % i)
     print(_time_elapsed(start))
     print(getsize(t))

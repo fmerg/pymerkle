@@ -12,6 +12,8 @@ L_BRACKET_LONG = '\u2514' + 2 * '\u2500'        # └──
 T_BRACKET = '\u251C' + 2 * '\u2500'             # ├──
 VERTICAL_BAR = '\u2502'                         # │
 
+NONE = '[None]'
+
 
 class _Node(object):
     """
@@ -128,13 +130,13 @@ class _Node(object):
         try:
             child_id = memory_id(self.child)
         except NoChildException:
-            child_id = '[None]'
+            child_id = NONE
 
         try:
             left_id = memory_id(self.left)
         except NoParentException:
-            left_id = '[None]'
-            right_id = '[None]'
+            left_id = NONE
+            right_id = NONE
         else:
             right_id = memory_id(self.right)
 
@@ -243,6 +245,7 @@ class Node(_Node):
     __slots__ = ('__stored_hash', '__left', '__right')
 
     def __init__(self, hash_function, encoding, left, right):
+
         super().__init__(encoding=encoding)
 
         # Establish descendancy relation between child and parents
@@ -291,8 +294,7 @@ class Node(_Node):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
-        serializer = NodeSerializer()
-        return serializer.default(self)
+        return NodeSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the node's JSON serialized form
@@ -331,10 +333,12 @@ class Leaf(_Node):
     def __init__(self, hash_function, encoding, record=None, stored_hash=None):
 
         if record and stored_hash is None:
+
             super().__init__(encoding=encoding)
             self.__stored_hash = hash_function(record)
 
         elif stored_hash and record is None:
+
             super().__init__(encoding=encoding)
             self.__stored_hash = bytes(stored_hash, encoding)
 
@@ -356,8 +360,7 @@ class Leaf(_Node):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
-        serializer = LeafSerializer()
-        return serializer.default(self)
+        return LeafSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the node's JSON serialized form

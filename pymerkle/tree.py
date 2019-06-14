@@ -13,6 +13,9 @@ import os
 import mmap
 from tqdm import tqdm
 
+NONE = '[None]'
+NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
+
 # -------------------------------- Main class ----------------------------
 
 
@@ -41,12 +44,11 @@ class MerkleTree(object):
                       (explicitly or implicitly upon a request for consistency proof)
     """
 
-    def __init__(
-            self,
-            *records,
-            hash_type='sha256',
-            encoding='utf-8',
-            security=True):
+    def __init__(self,
+                 *records,
+                 hash_type='sha256',
+                 encoding='utf-8',
+                 security=True):
 
         self.uuid = str(uuid.uuid1())
 
@@ -70,7 +72,7 @@ class MerkleTree(object):
 
         # Tree generation
         for record in records:
-            self.update(record)
+            self.update(record=record)
 
 # --------------------------- Boolean implementation ---------------------
 
@@ -82,7 +84,7 @@ class MerkleTree(object):
         """
         return bool(self.nodes)
 
-# ------------------------------------ Root ------------------------------
+# ------------------------------------ Properties ------------------------
 
     @property
     def rootHash(self):
@@ -96,6 +98,37 @@ class MerkleTree(object):
         if self:
             return self.root.stored_hash
         raise EmptyTreeException('Empty Merkle-trees have no root-hash')
+
+    @property
+    def length(self):
+        """Returns the Merkle-tree's current length, i.e., the number of its leaves
+
+        :rtype: int
+        """
+        return len(self.leaves)
+
+    @property
+    def size(self):
+        """Returns the current number of the Merkle-tree's nodes
+
+        :rtype: int
+        """
+        return len(self.nodes)
+
+    @property
+    def height(self):
+        """Calculates and returns the Merkle-tree's current height
+
+        .. note:: Since the tree is by construction binary *balanced*, its height coincides
+                  with the length of its leftmost branch
+
+        :rtype: int
+        """
+        length = len(self.leaves)
+        if length > 0:
+            return log_2(length) + 1\
+                if length != 2**log_2(length) else log_2(length)
+        return 0
 
 # ---------------------------------- Updating ----------------------------
 
@@ -122,11 +155,10 @@ class MerkleTree(object):
             last_subroot = self.leaves[-1].descendant(degree=last_power)
 
             # Store new record to new leaf
-            new_leaf = Leaf(
-                hash_function=self.hash,
-                encoding=self.encoding,
-                record=record,
-                stored_hash=stored_hash)
+            new_leaf = Leaf(hash_function=self.hash,
+                            encoding=self.encoding,
+                            record=record,
+                            stored_hash=stored_hash)
 
             # Assimilate new leaf
             self.leaves.append(new_leaf)
@@ -140,21 +172,22 @@ class MerkleTree(object):
             except NoChildException:
 
                 # last_subroot was previously root
-                self.root = Node(
-                    hash_function=self.hash,
-                    encoding=self.encoding,
-                    left=last_subroot,
-                    right=new_leaf)
+                self.root = Node(hash_function=self.hash,
+                                 encoding=self.encoding,
+                                 left=last_subroot,
+                                 right=new_leaf)
+
+                self.nodes.add(self.root)
 
             else:
                 # Bifurcate
 
                 # Create bifurcation node
-                new_child = Node(
-                    hash_function=self.hash,
-                    encoding=self.encoding,
-                    left=last_subroot,
-                    right=new_leaf)
+                new_child = Node(hash_function=self.hash,
+                                 encoding=self.encoding,
+                                 left=last_subroot,
+                                 right=new_leaf)
+
                 self.nodes.add(new_child)
 
                 # Interject bifurcation node
@@ -172,11 +205,10 @@ class MerkleTree(object):
 
         else:  # Empty tree case
 
-            new_leaf = Leaf(
-                hash_function=self.hash,
-                encoding=self.encoding,
-                record=record,
-                stored_hash=stored_hash)
+            new_leaf = Leaf(hash_function=self.hash,
+                            encoding=self.encoding,
+                            record=record,
+                            stored_hash=stored_hash)
 
             self.leaves = [new_leaf]
             self.nodes = set([new_leaf])
@@ -184,7 +216,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Proof generation ------------------------
-
 
     def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
@@ -354,7 +385,6 @@ class MerkleTree(object):
 
 
 # ------------------------------ Path generation ------------------------------
-
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
@@ -573,47 +603,6 @@ class MerkleTree(object):
         # Subroot successfully detected
         return subroot
 
-# --------------------------------- Comparison ---------------------------
-
-    def __eq__(self, other):
-        """Implements the ``==`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        Since trees with the same number of leaves have always identical structure, equality
-        between Merkle-trees is established by just comparing their current root-hashes.
-        """
-        return isinstance(other, MerkleTree) and \
-            self.rootHash == other.rootHash
-
-    def __ge__(self, other):
-        """Implements the ``>=`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
-        inside the former as a previous state of it.
-        """
-        return isinstance(
-            other,
-            MerkleTree) and self.inclusionTest(
-            old_hash=other.rootHash,
-            sublength=other.length())
-
-    def __gt__(self, other):
-        """Implements the ``>`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
-        the former as a previous state of it *and* their current root-hashes do not coincide (or,
-        equivalently, their current lengths do not coincide).
-        """
-        return self >= other and self.rootHash != other.rootHash
-
 # --------------------------------- Encryption ---------------------------
 
     def encryptRecord(self, record):
@@ -818,14 +807,46 @@ class MerkleTree(object):
         tqdm.write('Tree has been retreived')
         return loaded_tree
 
-# ---------------------------------- Clearance ---------------------------
+# --------------------------------- Comparison ---------------------------
 
-    def clear(self):
-        """Deletes all nodes of the Merkle-tree, so that its root-hash becomes ``None``
+    def __eq__(self, other):
+        """Implements the ``==`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        Since trees with the same number of leaves have always identical structure, equality
+        between Merkle-trees is established by just comparing their current root-hashes.
         """
-        self.leaves = []
-        self.nodes = set()
-        self.root = None
+        return isinstance(other, MerkleTree) and \
+            self.rootHash == other.rootHash
+
+    def __ge__(self, other):
+        """Implements the ``>=`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
+        inside the former as a previous state of it.
+        """
+        return isinstance(
+            other,
+            MerkleTree) and self.inclusionTest(
+            old_hash=other.rootHash,
+            sublength=other.length())
+
+    def __gt__(self, other):
+        """Implements the ``>`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
+        the former as a previous state of it *and* their current root-hashes do not coincide (or,
+        equivalently, their current lengths do not coincide).
+        """
+        return self >= other and self.rootHash != other.rootHash
 
 # ------------------------------- Representation -------------------------
 
@@ -845,48 +866,22 @@ class MerkleTree(object):
                 \n\
                 \n    root-hash : {root_hash}\
                 \n\
-                \n    size      : {size}\
                 \n    length    : {length}\
+                \n    size      : {size}\
                 \n    height    : {height}\n'.format(
             uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', '-'),
-            encoding=self.encoding.upper().replace('_', '-'),
+            hash_type=self.hash_type.upper().replace(
+                '_',
+                '-'),
+            encoding=self.encoding.upper().replace(
+                '_',
+                '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash.decode(self.encoding) if self else '',
-            size=self.size,
+            root_hash=self.rootHash.decode(
+                self.encoding) if self else '[None]',
             length=self.length,
+            size=self.size,
             height=self.height)
-
-    @property
-    def length(self):
-        """Returns the Merkle-tree's current length, i.e., the number of its leaves
-
-        :rtype: int
-        """
-        return len(self.leaves)
-
-    @property
-    def size(self):
-        """Returns the current number of the Merkle-tree's nodes
-
-        :rtype: int
-        """
-        return len(self.nodes)
-
-    @property
-    def height(self):
-        """Calculates and returns the Merkle-tree's current height
-
-        .. note:: Since the tree is by construction binary *balanced*, its height coincides
-                  with the length of its leftmost branch
-
-        :rtype: int
-        """
-        length = len(self.leaves)
-        if length > 0:
-            return log_2(length) + 1\
-                if length != 2**log_2(length) else log_2(length)
-        return 0
 
     def __str__(self, indent=3):
         """Overrides the default implementation.
@@ -894,8 +889,8 @@ class MerkleTree(object):
         Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal
         friendly way. Printing the tree resembles the output of the ``tree`` command at Unix based platforms.
 
-        :param indent: [optional] The horizontal depth at which each level will be indented with respect to
-                       its previous one. Defaults to ``3``
+        :param indent: [optional] Defaults to ``3``. The horizontal depth at which each level will be indented
+                       with respect to its previous one.
         :type indent:  int
         :rtype:        str
 
@@ -903,15 +898,15 @@ class MerkleTree(object):
         """
         return self.root.__str__(
             indent=indent,
-            encoding=self.encoding) if self else ''
+            encoding=self.encoding) if self else NONE_BAR
 
     def display(self, indent=3):
         """Prints the Merkle-tree in a terminal friendy way
 
         Printing the tree resembles the output of the ``tree`` command at Unix based platforms
 
-        :param indent: [optional] the horizontal depth at which each level will be indented with respect to
-                       its previous one. Defaults to ``3``
+        :param indent: [optional] Defaults to ``3``. the horizontal depth at which each level will be indented
+                       with respect to its previous one.
         :type indent:  int
 
         .. note:: The left parent of each node is printed *above* the right one
@@ -930,8 +925,7 @@ class MerkleTree(object):
                   about the tree's fixed configs and current state, so that the tree can be
                   retrieved from that using the ``.update`` method
         """
-        serializer = MerkleTreeSerializer()
-        return serializer.default(self)
+        return MerkleTreeSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the Merkle-tree's JSON serialized form
@@ -945,3 +939,12 @@ class MerkleTree(object):
             cls=MerkleTreeSerializer,
             sort_keys=True,
             indent=4)
+
+# ---------------------------------- Clearance ---------------------------
+
+    def clear(self):
+        """Deletes all nodes of the Merkle-tree, so that its root-hash becomes ``None``
+        """
+        self.leaves = []
+        self.nodes = set()
+        self.root = None
