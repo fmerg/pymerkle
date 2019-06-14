@@ -5,6 +5,7 @@ behaves as prescribed (preserves the tree's property of being binary-balanced) b
 import pytest
 from pymerkle import MerkleTree
 from pymerkle.hashing import hash_machine
+from pymerkle.exceptions import EmptyTreeException
 
 
 def test_tree_constructor_with_records():
@@ -27,7 +28,8 @@ t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
 
 
 def test_0_leaves():
-    assert tree.rootHash is None
+    with pytest.raises(EmptyTreeException):
+        tree.rootHash
 
 
 def test_1_leaves():
