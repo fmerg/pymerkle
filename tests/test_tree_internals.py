@@ -100,6 +100,7 @@ def test_rootHash_of_non_empty_MerkleTree():
 # ~ Note: The .update() method of the tree.MerkleTree class is
 # ~ extensively tested within the test_tree_structure module
 
+
 def test_LeafConstructionError_upon_update():
     """Tests that a `LeafConstructionError` is raised if both `record` and `stored_hash`
     are provided as arguments to the `MerkleTree.update()` method
@@ -110,6 +111,7 @@ def test_LeafConstructionError_upon_update():
             record='some record',
             stored_hash='540ef8fc9eefa3ec0fbe55bc5d10dbea03d5bac5591b3d7db3af79ec24b3f74c'
         )
+
 
 def test_uniqueness_of_structure():
     """Tests that encrypting  101 records upon construction at once leads to
@@ -123,3 +125,5 @@ def test_uniqueness_of_structure():
         tree_2.update(record='%d-th record' % i)
 
     assert tree_1.rootHash == tree_2.rootHash
+
+# Representation tests

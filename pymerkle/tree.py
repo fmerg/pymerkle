@@ -573,6 +573,47 @@ class MerkleTree(object):
         # Subroot successfully detected
         return subroot
 
+# --------------------------------- Comparison ---------------------------
+
+    def __eq__(self, other):
+        """Implements the ``==`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        Since trees with the same number of leaves have always identical structure, equality
+        between Merkle-trees is established by just comparing their current root-hashes.
+        """
+        return isinstance(other, MerkleTree) and \
+            self.rootHash == other.rootHash
+
+    def __ge__(self, other):
+        """Implements the ``>=`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
+        inside the former as a previous state of it.
+        """
+        return isinstance(
+            other,
+            MerkleTree) and self.inclusionTest(
+            old_hash=other.rootHash,
+            sublength=other.length())
+
+    def __gt__(self, other):
+        """Implements the ``>`` operator
+
+        :param other: the Merkle-tree to compare with
+        :type other:  tree.MerkleTree
+
+        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
+        the former as a previous state of it *and* their current root-hashes do not coincide (or,
+        equivalently, their current lengths do not coincide).
+        """
+        return self >= other and self.rootHash != other.rootHash
+
 # --------------------------------- Encryption ---------------------------
 
     def encryptRecord(self, record):
@@ -791,7 +832,7 @@ class MerkleTree(object):
     def __repr__(self):
         """Overrides the default implementation.
 
-        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.
+        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
         """
@@ -806,17 +847,17 @@ class MerkleTree(object):
                 \n\
                 \n    size      : {size}\
                 \n    length    : {length}\
-                \n    height    : {height}\n' .format(
+                \n    height    : {height}\n'.format(
             uuid=self.uuid,
             hash_type=self.hash_type.upper().replace('_', '-'),
             encoding=self.encoding.upper().replace('_', '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash.decode(
-                encoding=self.encoding) if self else '',
-            size=len(self.nodes),
-            length=len(self.leaves),
-            height=self.height())
+            root_hash=self.rootHash.decode(self.encoding) if self else '',
+            size=self.size,
+            length=self.length,
+            height=self.height)
 
+    @property
     def length(self):
         """Returns the Merkle-tree's current length, i.e., the number of its leaves
 
@@ -824,6 +865,7 @@ class MerkleTree(object):
         """
         return len(self.leaves)
 
+    @property
     def size(self):
         """Returns the current number of the Merkle-tree's nodes
 
@@ -831,6 +873,7 @@ class MerkleTree(object):
         """
         return len(self.nodes)
 
+    @property
     def height(self):
         """Calculates and returns the Merkle-tree's current height
 
@@ -849,74 +892,31 @@ class MerkleTree(object):
         """Overrides the default implementation.
 
         Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal
-        friendly way. In particular, printing the tree is similar to what is printed at console when running
-        the ``tree`` command of Unix based platforms.
+        friendly way. Printing the tree resembles the output of the ``tree`` command at Unix based platforms.
 
         :param indent: [optional] The horizontal depth at which each level will be indented with respect to
-                       its previous one. Defaults to ``3``.
+                       its previous one. Defaults to ``3``
         :type indent:  int
         :rtype:        str
 
         .. note:: The left parent of each node is printed *above* the right one
         """
-        if self:
-            return self.root.__str__(indent=indent, encoding=self.encoding)
-        return ''
+        return self.root.__str__(
+            indent=indent,
+            encoding=self.encoding) if self else ''
 
     def display(self, indent=3):
         """Prints the Merkle-tree in a terminal friendy way
 
-        Printing the tree is similar to what is printed at console when running the ``tree`` command of
-        Unix based platforms
+        Printing the tree resembles the output of the ``tree`` command at Unix based platforms
 
         :param indent: [optional] the horizontal depth at which each level will be indented with respect to
-                       its previous one. Defaults to ``3``.
+                       its previous one. Defaults to ``3``
         :type indent:  int
 
         .. note:: The left parent of each node is printed *above* the right one
         """
         print(self.__str__(indent=indent))
-
-# --------------------------------- Comparison ---------------------------
-
-    def __eq__(self, other):
-        """Implements the ``==`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        Since trees with the same number of leaves have always identical structure, equality
-        between Merkle-trees is established by just comparing their current root-hashes.
-        """
-        return isinstance(other, MerkleTree) and \
-            self.rootHash == other.rootHash
-
-    def __ge__(self, other):
-        """Implements the ``>=`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        A Merkle-tree is greater than or equal to another Merkle-tree iff the latter may be detected
-        inside the former as a previous state of it.
-        """
-        return isinstance(
-            other,
-            MerkleTree) and self.inclusionTest(
-            old_hash=other.rootHash,
-            sublength=other.length())
-
-    def __gt__(self, other):
-        """Implements the ``>`` operator
-
-        :param other: the Merkle-tree to compare with
-        :type other:  tree.MerkleTree
-
-        A Merkle-tree is strictly greater than another Merkle-ree iff the latter may be detected inside
-        the former as a previous state of it *and* their current root-hashes do not coincide (or,
-        equivalently, their current lengths do not coincide).
-        """
-        return self >= other and self.rootHash != other.rootHash
 
 # ------------------------------- Serialization --------------------------
 
