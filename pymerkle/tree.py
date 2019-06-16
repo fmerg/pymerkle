@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException, EmptyTreeException
+from .exceptions import NoChildException, EmptyTreeException, NoSubtreeException
 import json
 import uuid
 import os
@@ -214,176 +214,6 @@ class MerkleTree(object):
             self.nodes = set([new_leaf])
             self.root = new_leaf
 
-
-# ------------------------------ Proof generation ------------------------
-
-    def auditProof(self, arg):
-        """Response of the Merkle-tree to the request of providing an audit-proof based upon
-        the given argument
-
-        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
-                    is *int*) where the proof calculation must be based upon (provided from Client's Side)
-        :type arg:  str or bytes or bytearray or int
-        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
-                    can be passed in as the second argument to the ``validations.validateProof`` function)
-        :rtype:     proof.Proof
-
-        .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
-        """
-
-        if type(arg) in (str, bytes, bytearray):
-            # ~ Find the index of the first leaf having recorded the inserted argument;
-            # ~ if no such leaf exists (i.e., the inserted argument has not been
-            # ~ recorded into the tree), set index equal to -1 so that
-            # ~ no genuine path be generated
-            arg_hash = self.hash(arg)
-            index = -1
-            leaf_hashes = (leaf.stored_hash for leaf in self.leaves)
-            count = 0
-            for hash in leaf_hashes:
-                if hash == arg_hash:
-                    index = count
-                    break
-                count += 1
-        elif isinstance(arg, int):
-            index = arg  # Inserted type was integer
-        else:
-            raise TypeError
-
-        # Calculate proof path
-        proof_index, audit_path = self.audit_path(index=index)
-
-        # Return proof nice formatted along with validation parameters
-        if proof_index is not None:
-            return Proof(
-                generation='SUCCESS',
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                proof_index=proof_index,
-                proof_path=audit_path)
-
-        # Handles indexError case (`arg` provided by Client was not among
-        # possibilities)
-        failure_message = 'Index provided by Client was out of range'
-        return Proof(
-            generation='FAILURE ({})'.format(failure_message),
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            proof_index=None,
-            proof_path=None)
-
-    def consistencyProof(self, old_hash, sublength):
-        """Response of the Merkle-tree to the request of providing a consistency-proof for the
-        given parameters
-
-        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
-        and length respectively) provided from Client's Side
-
-        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   bytes
-        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
-        :type sublength:  int
-        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
-                          can be passed in as the second argument to the ``validations.validateProof`` function)
-        :rtype:           proof.Proof
-
-        .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
-                  of the Merke-tree corresponding to the provided parameters (If that test fails,
-                  then the returned proof is predestined to be found invalid upon validation).
-                  This is done implicitly and not by calling the ``.inclusionTest`` method
-                  (whose implementation differs in that no full path of signed hashes,
-                  as generated here by the ``.consistency_path`` method, needs be taken into account.)
-
-        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens to
-                  be the empty one
-
-        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
-        """
-
-        if type(old_hash) not in (bytes, type(None)) \
-                or not isinstance(sublength, int):
-            raise TypeError
-
-        # Calculate proof path
-        consistency_path = self.consistency_path(sublength=sublength)
-
-        # Return proof nice formatted along with validation parameters
-        if consistency_path is not None and\
-           consistency_path[0] is not -1:  # Excludes zero leaves case
-            proof_index, left_path, full_path = consistency_path
-
-            # Root hash test
-            if old_hash == self.multi_hash(left_path, len(left_path) - 1):
-                return Proof(
-                    generation='SUCCESS',
-                    provider=self.uuid,
-                    hash_type=self.hash_type,
-                    encoding=self.encoding,
-                    security=self.security,
-                    proof_index=proof_index,
-                    proof_path=full_path)
-
-            # Handles inclusion test failure
-            failure_message = 'Subtree provided by Client failed to be detected'
-            return Proof(
-                generation='FAILURE ({})'.format(failure_message),
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                proof_index=None,
-                proof_path=None)
-
-        # Handles a. zero `sublength` separately as success, so that proof
-        # validation is always True in this case (cf. the `validations.validateProof`
-        # method) b. incompatibility case as failure (includes the zero leaves)
-        return Proof(
-            generation='SUCCESS (Subtree provided by Client was empty)'
-            if sublength == 0 else 'Subtree provided by Client was incompatible',
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            proof_index=None,
-            proof_path=None)
-
-# ------------------------------ Inclusion tests ------------------------------
-
-    def inclusionTest(self, old_hash, sublength):
-        """Verifies that the parameters provided correspond to a previous state of the Merkle-tree
-
-        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   bytes
-        :param sublength: presumable length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
-        :type sublength:  int
-        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for
-                          the provided ``sublength``, leads indeed to the provided ``old_hash``
-        :rtype:           bool
-
-        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
-        """
-
-        if type(old_hash) not in (bytes, type(None)) \
-                or not isinstance(sublength, int):
-            raise TypeError
-
-        if 0 < sublength <= len(self.leaves):
-
-            # Generate corresponding path of negatively signed hashes
-            left_roots = self.principal_subroots(sublength)
-            left_path = tuple([(-1, r[1].stored_hash) for r in left_roots])
-
-            # Perform hash-test
-            return old_hash == self.multi_hash(left_path, len(left_path) - 1)
-
-        # return False  # No path of hashes was generated
-        return True if sublength == 0 else False  # No path of hashes was generated
-
-
 # ------------------------------ Path generation ------------------------------
 
     def audit_path(self, index):
@@ -560,34 +390,35 @@ class MerkleTree(object):
         Returns the root of the unique *full* binary subtree of the Merkle-tree, whose leftmost leaf is located
         at the given position ``start`` and whose height is equal to the given ``height``
 
-        :param start:  index of leaf where detection of subtree should start from
+        :param start:  index of leaf where detection of subtree should start from (zero based)
         :type start:   int
         :param height: height of candidate subtree to be detected
         :type height:  int
         :returns:      root of the detected subtree
         :rtype:        nodes.Node
 
-        .. note:: Returns ``None`` if the requested ``start`` is out of range
+        .. note:: Returns ``NoSubtreeException`` if a subtree does not exist for the
+                  given parameters
         """
-        subroot = None
 
         # Detect candidate subroot
+
         try:
             subroot = self.leaves[start]
-            i = 0
-            while i < height:
-                try:
-                    next_node = subroot.child
-                    if next_node.left is not subroot:
-                        raise AttributeError
-                    else:
-                        subroot = subroot.child
-                except AttributeError:
-                    return None
-                else:
-                    i += 1
         except IndexError:
-            return None
+            raise NoSubtreeException
+
+        i = 0
+        while i < height:
+            try:
+                next_node = subroot.child
+            except NoChildException:
+                raise NoSubtreeException
+            else:
+                if next_node.left is not subroot:
+                    raise NoSubtreeException
+                subroot = subroot.child
+                i += 1
 
         # ~ Verify existence of *full* binary subtree for the above
         # ~ detected candidate subroot
@@ -595,15 +426,186 @@ class MerkleTree(object):
         i = 0
         while i < height:
             if isinstance(right_parent, Leaf):
-                return None  # Subtree failed to be detected
-            else:
-                right_parent = right_parent.right
-                i += 1
+                raise NoSubtreeException  # return None  # Subtree failed to be detected
+            right_parent = right_parent.right
+            i += 1
 
         # Subroot successfully detected
         return subroot
 
+
+# ------------------------------ Proof generation ------------------------
+
+
+    def auditProof(self, arg):
+        """Response of the Merkle-tree to the request of providing an audit-proof based upon
+        the given argument
+
+        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
+                    is *int*) where the proof calculation must be based upon (provided from Client's Side)
+        :type arg:  str or bytes or bytearray or int
+        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
+                    can be passed in as the second argument to the ``validations.validateProof`` function)
+        :rtype:     proof.Proof
+
+        .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
+        """
+
+        if type(arg) in (str, bytes, bytearray):
+            # ~ Find the index of the first leaf having recorded the inserted argument;
+            # ~ if no such leaf exists (i.e., the inserted argument has not been
+            # ~ recorded into the tree), set index equal to -1 so that
+            # ~ no genuine path be generated
+            arg_hash = self.hash(arg)
+            index = -1
+            leaf_hashes = (leaf.stored_hash for leaf in self.leaves)
+            count = 0
+            for hash in leaf_hashes:
+                if hash == arg_hash:
+                    index = count
+                    break
+                count += 1
+        elif isinstance(arg, int):
+            index = arg  # Inserted type was integer
+        else:
+            raise TypeError
+
+        # Calculate proof path
+        proof_index, audit_path = self.audit_path(index=index)
+
+        # Return proof nice formatted along with validation parameters
+        if proof_index is not None:
+            return Proof(
+                generation='SUCCESS',
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=proof_index,
+                proof_path=audit_path)
+
+        # Handles indexError case (`arg` provided by Client was not among
+        # possibilities)
+        failure_message = 'Index provided by Client was out of range'
+        return Proof(
+            generation='FAILURE ({})'.format(failure_message),
+            provider=self.uuid,
+            hash_type=self.hash_type,
+            encoding=self.encoding,
+            security=self.security,
+            proof_index=None,
+            proof_path=None)
+
+    def consistencyProof(self, old_hash, sublength):
+        """Response of the Merkle-tree to the request of providing a consistency-proof for the
+        given parameters
+
+        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
+        and length respectively) provided from Client's Side
+
+        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
+        :type old_hash:   bytes
+        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
+        :type sublength:  int
+        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
+                          can be passed in as the second argument to the ``validations.validateProof`` function)
+        :rtype:           proof.Proof
+
+        .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
+                  of the Merke-tree corresponding to the provided parameters (If that test fails,
+                  then the returned proof is predestined to be found invalid upon validation).
+                  This is done implicitly and not by calling the ``.inclusionTest`` method
+                  (whose implementation differs in that no full path of signed hashes,
+                  as generated here by the ``.consistency_path`` method, needs be taken into account.)
+
+        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens to
+                  be the empty one
+
+        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
+        """
+
+        if type(old_hash) not in (bytes, type(None)) \
+                or not isinstance(sublength, int):
+            raise TypeError
+
+        # Calculate proof path
+        consistency_path = self.consistency_path(sublength=sublength)
+
+        # Return proof nice formatted along with validation parameters
+        if consistency_path is not None and\
+           consistency_path[0] is not -1:  # Excludes zero leaves case
+            proof_index, left_path, full_path = consistency_path
+
+            # Root hash test
+            if old_hash == self.multi_hash(left_path, len(left_path) - 1):
+                return Proof(
+                    generation='SUCCESS',
+                    provider=self.uuid,
+                    hash_type=self.hash_type,
+                    encoding=self.encoding,
+                    security=self.security,
+                    proof_index=proof_index,
+                    proof_path=full_path)
+
+            # Handles inclusion test failure
+            failure_message = 'Subtree provided by Client failed to be detected'
+            return Proof(
+                generation='FAILURE ({})'.format(failure_message),
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=None,
+                proof_path=None)
+
+        # Handles a. zero `sublength` separately as success, so that proof
+        # validation is always True in this case (cf. the `validations.validateProof`
+        # method) b. incompatibility case as failure (includes the zero leaves)
+        return Proof(
+            generation='SUCCESS (Subtree provided by Client was empty)'
+            if sublength == 0 else 'Subtree provided by Client was incompatible',
+            provider=self.uuid,
+            hash_type=self.hash_type,
+            encoding=self.encoding,
+            security=self.security,
+            proof_index=None,
+            proof_path=None)
+
+# ------------------------------ Inclusion tests ------------------------------
+
+    def inclusionTest(self, old_hash, sublength):
+        """Verifies that the parameters provided correspond to a previous state of the Merkle-tree
+
+        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
+        :type old_hash:   bytes
+        :param sublength: presumable length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
+        :type sublength:  int
+        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for
+                          the provided ``sublength``, leads indeed to the provided ``old_hash``
+        :rtype:           bool
+
+        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
+        """
+
+        if type(old_hash) not in (bytes, type(None)) \
+                or not isinstance(sublength, int):
+            raise TypeError
+
+        if 0 < sublength <= len(self.leaves):
+
+            # Generate corresponding path of negatively signed hashes
+            left_roots = self.principal_subroots(sublength)
+            left_path = tuple([(-1, r[1].stored_hash) for r in left_roots])
+
+            # Perform hash-test
+            return old_hash == self.multi_hash(left_path, len(left_path) - 1)
+
+        # return False  # No path of hashes was generated
+        return True if sublength == 0 else False  # No path of hashes was generated
+
+
 # --------------------------------- Encryption ---------------------------
+
 
     def encryptRecord(self, record):
         """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,

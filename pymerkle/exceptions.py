@@ -44,3 +44,9 @@ class NotSupportedHashTypeError(BaseException):
     with unsupported hash type is requested
     """
     pass
+
+
+class NoSubtreeException(BaseException):
+    """Raised when the full binary subtree of a specified height and based on a specified leaf
+    does not exist
+    """

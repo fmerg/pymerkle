@@ -1,6 +1,6 @@
 import pytest
 from pymerkle.tree import MerkleTree
-from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError
+from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError, NoSubtreeException
 
 # ----------------------- Merkle-tree construction tests -----------------
 
@@ -222,6 +222,24 @@ def test_serialization(tree, serialization):
 
 
 stringifications = [
+    (empty_tree,
+     '\n └─[None]'),
+    (one_leaf_tree,
+     '\n └─a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d\n'),
+    (three_leaves_tree,
+     '\n └─2427940ec5c9197add5f33423ba3971c3524f4b78f349ee45094b52d0d550fea\n\
+     ├──a84762b529735022ce1d7bdc3f24e94aba96ad8b3f6e4866bca76899da094df3\n\
+     │    ├──a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d\n\
+     │    └──a94dd4d3c2c6d2548ca4e560d72727bab5d795500191f5b85579130dd3b14603\n\
+     └──656d3e8f544238cdf6e32d640f51ba0914959b14edd7a52d0b8b99ab4c8ac6c6\n')]
+
+
+@pytest.mark.parametrize('tree, stringification', stringifications)
+def test___str__(tree, stringification):
+    assert tree.__str__() == stringification
+
+
+JSONstrings = [
     (
         empty_tree,
         '{\n    "hashes": [],\n    "header": {\n        "encoding": "utf_8",\n        "hash_type": "sha256",\n        "security": true\n    }\n}'
@@ -237,6 +255,47 @@ stringifications = [
 ]
 
 
-@pytest.mark.parametrize('tree, stringification', stringifications)
-def test_stringification(tree, stringification):
-    assert tree.JSONstring() == stringification
+@pytest.mark.parametrize('tree, json_string', JSONstrings)
+def test_JSONstring(tree, json_string):
+    assert tree.JSONstring() == json_string
+
+# Path generation
+
+
+t = MerkleTree('a', 'b', 'c', 'd', 'e')
+"""
+ └─8cf34678b314f881eaa44dd75ba339c8ef32f6248b74f975b2770abf9b37ef9f
+     ├──22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417
+     │    ├──9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20
+     │    │    ├──022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c
+     │    │    └──57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31
+     │    └──e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138
+     │         ├──597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8
+     │         └──d070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d
+     └──2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4
+"""
+
+
+@pytest.mark.parametrize('start, height', ((t.length + 1, 'anything'),
+                                           (0, 3), (0, 4), (1, 1),
+                                           (2, 2), (3, 1), (4, 1)))
+def test_NoSubtreeException(start, height):
+    with pytest.raises(NoSubtreeException):
+        t.subroot(start, height)
+
+
+_subroots = [
+    (0, 0, t.leaves[0]),
+    (0, 1, t.leaves[0].child),
+    (0, 2, t.leaves[0].child.child),
+    (1, 0, t.leaves[1]),
+    (2, 0, t.leaves[2]),
+    (2, 1, t.leaves[2].child),
+    (3, 0, t.leaves[3]),
+    (4, 0, t.leaves[4]),
+]
+
+
+@pytest.mark.parametrize('start, height, _subroot', _subroots)
+def test_subroot(start, height, _subroot):
+    assert t.subroot(start, height) is _subroot
