@@ -20,12 +20,12 @@ Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result 
 as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
 """
 import pytest
-from pymerkle import MerkleTree, hashing, encodings
+from pymerkle import MerkleTree, hashing
 
 # Generate trees for all combinations of hash and encoding types
 # (including both security modes for each)
 HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = encodings.ENCODINGS
+ENCODINGS = hashing.ENCODINGS
 trees = []
 for security in (True, False):
     for hash_type in HASH_TYPES:

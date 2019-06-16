@@ -1,10 +1,10 @@
 import pytest
 import os
 import json
-from pymerkle import MerkleTree, hashing, encodings
+from pymerkle import MerkleTree, hashing
 
 HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = encodings.ENCODINGS
+ENCODINGS = hashing.ENCODINGS
 
 # Generate trees and corresoponding hash machines for all combinations of
 # hash and encoding types (including both security modes for each)

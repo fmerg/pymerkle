@@ -1,5 +1,5 @@
 import pytest
-from pymerkle import hashing, encodings
+from pymerkle import hashing
 
 import hashlib
 
@@ -11,7 +11,7 @@ excluded_ENCODINGS = (
     'utf_32',
     'utf_32_be',
     'utf_32_le')
-ENCODINGS = (e for e in encodings.ENCODINGS if e not in excluded_ENCODINGS)
+ENCODINGS = (e for e in hashing.ENCODINGS if e not in excluded_ENCODINGS)
 
 # Hard-coded string to be used for testing
 message = 'oculusnonviditnecaurisaudivit'

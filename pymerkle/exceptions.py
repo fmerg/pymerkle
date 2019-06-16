@@ -50,3 +50,16 @@ class NoSubtreeException(BaseException):
     """Raised when the full binary subtree of a specified height and based on a specified leaf
     does not exist
     """
+    pass
+
+
+class NoPathException(BaseException):
+    """Raised when the proof-path requested from a Merkle-tree for specific parameters cannot be
+    generated (indicates authorization failure from the client's side)
+    """
+    pass
+
+class InvalidProofRequest(BaseException):
+    """Raised when a proof is requested with arguments whose type is not as prescribed
+    """
+    pass

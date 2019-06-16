@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException, EmptyTreeException, NoSubtreeException
+from .exceptions import NoChildException, EmptyTreeException, NoSubtreeException, NoPathException, InvalidProofRequest
 import json
 import uuid
 import os
@@ -214,7 +214,8 @@ class MerkleTree(object):
             self.nodes = set([new_leaf])
             self.root = new_leaf
 
-# ------------------------------ Path generation ------------------------------
+
+# ---------------------------- Audit proof utilities ---------------------
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
@@ -236,37 +237,156 @@ class MerkleTree(object):
                   (``IndexError``), then the nonsensical tuple ``(None, None)`` is returned.
         """
 
-        # ~ Handle negative index case separately like an IndexError, since certain
-        # ~ negative indices might otherwise be considered as valid positions
         if index < 0:
-            return None, None
+            # ~ Handle negative index case separately NoPathException, since certain
+            # ~ negative indices might otherwise be considered as valid positions
+            raise NoPathException
+        else:
+            try:
+                current_node = self.leaves[index]
+            except IndexError:
+                raise NoPathException  # Covers also the zero leaves case
+            else:
+                initial_sign = +1
+                if current_node.is_right_parent():
+                    initial_sign = -1
+                path = [(initial_sign, current_node.stored_hash)]
+                start = 0
+
+                while True:
+                    try:
+                        current_child = current_node.child
+                    except NoChildException:
+                        break
+                    else:
+                        if current_node.is_left_parent():
+                            next_hash = current_child.right.stored_hash
+                            if current_child.is_left_parent():
+                                path.append((+1, next_hash))
+                            else:
+                                path.append((-1, next_hash))
+                        else:
+                            next_hash = current_child.left.stored_hash
+                            if current_child.is_right_parent():
+                                path.insert(0, (-1, next_hash))
+                            else:
+                                path.insert(0, (+1, next_hash))
+                            start += 1
+                        current_node = current_child
+
+                return start, tuple(path)
+
+    def auditProof(self, arg):
+        """Response of the Merkle-tree to the request of providing an audit-proof based upon
+        the given argument
+
+        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
+                    is *int*) where the proof calculation must be based upon (provided from Client's Side)
+        :type arg:  str or bytes or bytearray or int
+        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
+                    can be passed in as the second argument to the ``validations.validateProof`` function)
+        :rtype:     proof.Proof
+
+        .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
+        """
+
+        if type(arg) not in (int, str, bytes, bytearray):
+            raise InvalidProofRequest
+        elif isinstance(arg, int):
+            index = arg
+        else:
+            # ~ arg is of type str, or bytes or bytearray; in this case, detect the index
+            # ~ of the first leaf having recorded the inserted argument; if no such leaf
+            # ~ exists (i.e., the inserted argument has not been encrypted into the tree),
+            # ~ set index equal to -1 so that a NoPathException be subsequently raised
+            index = -1
+            count = 0
+            _hash = self.hash(arg)
+            _leaves = (leaf for leaf in self.leaves)
+            while True:
+                try:
+                    _leaf = next(_leaves)
+                except StopIteration:
+                    break
+                else:
+                    if _hash == _leaf.hash:
+                        index = count
+                        break
+                    count += 1
 
         try:
-            current_node = self.leaves[index]
-        except IndexError:
-            return None, None  # Covers also the zero leaves case
+            # Calculate proof path
+            proof_index, audit_path = self.audit_path(index=index)
+
+        except NoPathException:
+
+            failure_message = 'Index provided by Client was out of range'
+            return Proof(generation='FAILURE ({})'.format(failure_message),
+                    provider=self.uuid,
+                    hash_type=self.hash_type,
+                    encoding=self.encoding,
+                    security=self.security,
+                    proof_index=None,
+                    proof_path=None)
         else:
-            initial_sign = +1
-            if current_node.is_right_parent():
-                initial_sign = -1
-            path = [(initial_sign, current_node.stored_hash)]
-            start = 0
-            while current_node.child is not None:
-                if current_node.is_left_parent():
-                    next_hash = current_node.child.right.stored_hash
-                    if current_node.child.is_left_parent():
-                        path.append((+1, next_hash))
-                    else:
-                        path.append((-1, next_hash))
-                else:
-                    next_hash = current_node.child.left.stored_hash
-                    if current_node.child.is_right_parent():
-                        path.insert(0, (-1, next_hash))
-                    else:
-                        path.insert(0, (+1, next_hash))
-                    start += 1
-                current_node = current_node.child
-            return start, tuple(path)
+
+            return Proof(generation='SUCCESS',
+                    provider=self.uuid,
+                    hash_type=self.hash_type,
+                    encoding=self.encoding,
+                    security=self.security,
+                    proof_index=proof_index,
+                    proof_path=audit_path)
+
+
+# ------------------------------ Path generation ------------------------------
+
+    def subroot(self, start, height):
+        """
+        Returns the root of the unique *full* binary subtree of the Merkle-tree, whose leftmost leaf is located
+        at the given position ``start`` and whose height is equal to the given ``height``
+
+        :param start:  index of leaf where detection of subtree should start from (zero based)
+        :type start:   int
+        :param height: height of candidate subtree to be detected
+        :type height:  int
+        :returns:      root of the detected subtree
+        :rtype:        nodes.Node
+
+        .. note:: Returns ``NoSubtreeException`` if a subtree does not exist for the
+                  given parameters
+        """
+
+        # Detect candidate subroot
+
+        try:
+            subroot = self.leaves[start]
+        except IndexError:
+            raise NoSubtreeException
+
+        i = 0
+        while i < height:
+            try:
+                next_node = subroot.child
+            except NoChildException:
+                raise NoSubtreeException
+            else:
+                if next_node.left is not subroot:
+                    raise NoSubtreeException
+                subroot = subroot.child
+                i += 1
+
+        # ~ Verify existence of *full* binary subtree for the above
+        # ~ detected candidate subroot
+        right_parent = subroot
+        i = 0
+        while i < height:
+            if isinstance(right_parent, Leaf):
+                raise NoSubtreeException
+            right_parent = right_parent.right
+            i += 1
+
+        return subroot
 
     def consistency_path(self, sublength):
         """Computes and returns the body for any consistency-proof based upon the requested sublength.
@@ -385,116 +505,9 @@ class MerkleTree(object):
         else:  # Negative input handled as `incompatibility`
             return None
 
-    def subroot(self, start, height):
-        """
-        Returns the root of the unique *full* binary subtree of the Merkle-tree, whose leftmost leaf is located
-        at the given position ``start`` and whose height is equal to the given ``height``
-
-        :param start:  index of leaf where detection of subtree should start from (zero based)
-        :type start:   int
-        :param height: height of candidate subtree to be detected
-        :type height:  int
-        :returns:      root of the detected subtree
-        :rtype:        nodes.Node
-
-        .. note:: Returns ``NoSubtreeException`` if a subtree does not exist for the
-                  given parameters
-        """
-
-        # Detect candidate subroot
-
-        try:
-            subroot = self.leaves[start]
-        except IndexError:
-            raise NoSubtreeException
-
-        i = 0
-        while i < height:
-            try:
-                next_node = subroot.child
-            except NoChildException:
-                raise NoSubtreeException
-            else:
-                if next_node.left is not subroot:
-                    raise NoSubtreeException
-                subroot = subroot.child
-                i += 1
-
-        # ~ Verify existence of *full* binary subtree for the above
-        # ~ detected candidate subroot
-        right_parent = subroot
-        i = 0
-        while i < height:
-            if isinstance(right_parent, Leaf):
-                raise NoSubtreeException  # return None  # Subtree failed to be detected
-            right_parent = right_parent.right
-            i += 1
-
-        # Subroot successfully detected
-        return subroot
-
 
 # ------------------------------ Proof generation ------------------------
 
-
-    def auditProof(self, arg):
-        """Response of the Merkle-tree to the request of providing an audit-proof based upon
-        the given argument
-
-        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
-                    is *int*) where the proof calculation must be based upon (provided from Client's Side)
-        :type arg:  str or bytes or bytearray or int
-        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
-                    can be passed in as the second argument to the ``validations.validateProof`` function)
-        :rtype:     proof.Proof
-
-        .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
-        """
-
-        if type(arg) in (str, bytes, bytearray):
-            # ~ Find the index of the first leaf having recorded the inserted argument;
-            # ~ if no such leaf exists (i.e., the inserted argument has not been
-            # ~ recorded into the tree), set index equal to -1 so that
-            # ~ no genuine path be generated
-            arg_hash = self.hash(arg)
-            index = -1
-            leaf_hashes = (leaf.stored_hash for leaf in self.leaves)
-            count = 0
-            for hash in leaf_hashes:
-                if hash == arg_hash:
-                    index = count
-                    break
-                count += 1
-        elif isinstance(arg, int):
-            index = arg  # Inserted type was integer
-        else:
-            raise TypeError
-
-        # Calculate proof path
-        proof_index, audit_path = self.audit_path(index=index)
-
-        # Return proof nice formatted along with validation parameters
-        if proof_index is not None:
-            return Proof(
-                generation='SUCCESS',
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                proof_index=proof_index,
-                proof_path=audit_path)
-
-        # Handles indexError case (`arg` provided by Client was not among
-        # possibilities)
-        failure_message = 'Index provided by Client was out of range'
-        return Proof(
-            generation='FAILURE ({})'.format(failure_message),
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            proof_index=None,
-            proof_path=None)
 
     def consistencyProof(self, old_hash, sublength):
         """Response of the Merkle-tree to the request of providing a consistency-proof for the
