@@ -63,7 +63,7 @@ class NoSubtreeException(BaseException):
     """
     pass
 
-class NoSubrootsException(BaseException):
+class NoPrincipalSubrootsException(BaseException):
     """Raised when the sequence of subroots corresponding to a specified length do not exist
     """
     pass

@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoSubrootsException
+from .exceptions import NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException
 import json
 import uuid
 import os
@@ -400,12 +400,12 @@ class MerkleTree(object):
                           of consistency-proofs
         :rtype:           list of *(+1/-1, nodes.Node)*
 
-        .. note:: Raises ``NoSubrootsException`` if the specified sublength is not as prescribed (e.g., incompatibility
+        .. note:: Raises ``NoPrincipalSubrootsException`` if the specified sublength is not as prescribed (e.g., incompatibility
                   issue is detected or given index is out of range)
         """
 
         if sublength < 0:
-            raise NoSubrootsException # Mask negative input case as incompatibility
+            raise NoPrincipalSubrootsException # Mask negative input case as incompatibility
 
         principal_subroots = []
         powers = decompose(sublength)
@@ -415,7 +415,7 @@ class MerkleTree(object):
             try:
                 _subroot = self.subroot(start, _power)
             except NoSubtreeException:
-                raise NoSubrootsException # Incompatibility issue detected
+                raise NoPrincipalSubrootsException # Incompatibility issue detected
 
             else:
                 try:

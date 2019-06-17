@@ -1,6 +1,6 @@
 import pytest
 from pymerkle.tree import MerkleTree
-from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError, NoSubtreeException, NoPathException, InvalidProofRequest
+from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError, NoSubtreeException, NoPathException, InvalidProofRequest, NoPrincipalSubrootsException
 
 # ----------------------- Merkle-tree construction tests -----------------
 
@@ -535,12 +535,48 @@ _subroots = [
 def test_subroot(tree, start, height, _subroot):
     assert tree.subroot(start, height) is _subroot
 
-no_subroots_exceptions = []
+_no_principal_subroots_exceptions = [
+    (_1_leaves_tree, -1),
+    (_1_leaves_tree, +2),
+    (_2_leaves_tree, -1),
+    (_2_leaves_tree, +3),
+    (_3_leaves_tree, -1),
+    (_3_leaves_tree, +4),
+    (_4_leaves_tree, -1),
+    (_4_leaves_tree, +5),
+    (_5_leaves_tree, -1),
+    (_5_leaves_tree, +6),
+]
 
-def test_NoSubrootsException():
-    pass
+@pytest.mark.parametrize("tree, sublength", _no_principal_subroots_exceptions)
+def test_NoSubrootsException(tree, sublength):
+    with pytest.raises(NoPrincipalSubrootsException):
+        tree.principal_subroots(sublength)
 
-_principal_subroots = []
+_principal_subroots = [
+    (_0_leaves_tree, 0, []),
+    (_1_leaves_tree, 0, []),
+    (_1_leaves_tree, 1, [(+1, _1_leaves_tree.root)]),
+    (_2_leaves_tree, 0, []),
+    (_2_leaves_tree, 1, [(+1, _2_leaves_tree.leaves[0])]),
+    (_2_leaves_tree, 2, [(+1, _2_leaves_tree.root)]),
+    (_3_leaves_tree, 0, []),
+    (_3_leaves_tree, 1, [(+1, _3_leaves_tree.leaves[0])]),
+    (_3_leaves_tree, 2, [(+1, _3_leaves_tree.leaves[0].child)]),
+    (_3_leaves_tree, 3, [(+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])]),
+    (_4_leaves_tree, 0, []),
+    (_4_leaves_tree, 1, [(+1, _4_leaves_tree.leaves[0])]),
+    (_4_leaves_tree, 2, [(+1, _4_leaves_tree.leaves[0].child)]),
+    (_4_leaves_tree, 3, [(+1, _4_leaves_tree.leaves[0].child), (+1, _4_leaves_tree.leaves[2])]),
+    (_4_leaves_tree, 4, [(+1, _4_leaves_tree.root)]),
+    (_5_leaves_tree, 0, []),
+    (_5_leaves_tree, 1, [(+1, _5_leaves_tree.leaves[0])]),
+    (_5_leaves_tree, 2, [(+1, _5_leaves_tree.leaves[0].child)]),
+    (_5_leaves_tree, 3, [(+1, _5_leaves_tree.leaves[0].child), (+1, _5_leaves_tree.leaves[2])]),
+    (_5_leaves_tree, 4, [(+1, _5_leaves_tree.leaves[0].child.child)]),
+    (_5_leaves_tree, 5, [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[-1])]),
+]
 
-def test_principalSubroots():
-    pass
+@pytest.mark.parametrize("tree, sublength, _principal_subroots", _principal_subroots)
+def test_principalSubroots(tree, sublength, _principal_subroots):
+    assert tree.principal_subroots(sublength) == _principal_subroots
