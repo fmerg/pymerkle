@@ -4,10 +4,8 @@ Instances of this class should receive their configuration parameters from the `
 ``HASH_TYPES`` global variables of this module
 """
 
-# import pymerkle.encodings  # Load encoding types
-from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError
-
 import hashlib
+from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError
 
 ENCODINGS = (
     'euc_jisx0213',

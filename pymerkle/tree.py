@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException, EmptyTreeException, NoSubtreeException, NoPathException, InvalidProofRequest
+from .exceptions import NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoSubrootsException
 import json
 import uuid
 import os
@@ -353,8 +353,7 @@ class MerkleTree(object):
         :returns:      root of the detected subtree
         :rtype:        nodes.Node
 
-        .. note:: Returns ``NoSubtreeException`` if a subtree does not exist for the
-                  given parameters
+        .. note:: Returns ``NoSubtreeException`` if a subtree does not exist for the given parameters
         """
 
         # Detect candidate subroot
@@ -387,6 +386,89 @@ class MerkleTree(object):
             i += 1
 
         return subroot
+
+    def principal_subroots(self, sublength):
+        """Detects and returns in corresponding order the roots of the *successive*, *rightmost*, *full* binary
+        subtrees of maximum (and thus decreasing) length, whose lengths sum up to the inserted argument
+
+        Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying information used in the generation of
+        consistency-proofs after extracting hashes
+
+        :param sublength: Should be a non-negative integer smaller than or equal to the Merkle-tree's current length,
+                          such that the corresponding sequence of subroots exists
+        :returns:         The (signed) roots of the detected subtrees, whose hashes are to be used for the generation
+                          of consistency-proofs
+        :rtype:           list of *(+1/-1, nodes.Node)*
+
+        .. note:: Raises ``NoSubrootsException`` if the specified sublength is not as prescribed (e.g., incompatibility
+                  issue is detected or given index is out of range)
+        """
+
+        if sublength < 0:
+            raise NoSubrootsException # Mask negative input case as incompatibility
+
+        principal_subroots = []
+        powers = decompose(sublength)
+        start = 0
+        for _power in powers:
+
+            try:
+                _subroot = self.subroot(start, _power)
+            except NoSubtreeException:
+                raise NoSubrootsException # Incompatibility issue detected
+
+            else:
+                try:
+                    _child = _subroot.child
+                    _grandchild = _child.child
+                except NoChildException:
+
+                    if _subroot.is_left_parent():
+                        principal_subroots.append((+1, _subroot))
+                    else:
+                        principal_subroots.append((-1, _subroot))
+
+                else:
+
+                    if _child.is_left_parent():
+                        principal_subroots.append((+1, _subroot))
+                    else:
+                        principal_subroots.append((-1, _subroot))
+
+                finally:
+                    start += 2**_power
+
+        if len(principal_subroots) > 0:
+            principal_subroots[-1] = (+1, principal_subroots[-1][1]) # Modify last sign
+
+        return principal_subroots
+
+
+    def minimal_complement(self, subroots):
+        """Complements optimally the subroot hashes detected by ``.principal_subroots`` with all necessary
+        interior hashes of the Merkle-tree, so that a full consistency-path can be generated
+
+        :param subroots: Should be some output of the ``.principal_subroots`` method
+        :type subroots:  list of nodes.Node
+        :returns:        a list of signed hashes complementing optimally the hashes detected by
+                         ``.principal_subroots``, so that a full consistency-path be generated
+        :rtype:          list of (+1/-1, bytes) pairs
+        """
+        if len(subroots) != 0:
+            complement = []
+            while subroots[-1].child is not None:
+                last_root = subroots[-1]
+                if last_root is last_root.child.left:
+                    if last_root.child.is_right_parent():
+                        complement.append((-1, last_root.child.right))
+                    else:
+                        complement.append((+1, last_root.child.right))
+                    subroots = subroots[:-1]
+                else:
+                    subroots = subroots[:-2]
+                subroots.append(last_root.child)
+            return complement
+        return self.principal_subroots(len(self.leaves))
 
     def consistency_path(self, sublength):
         """Computes and returns the body for any consistency-proof based upon the requested sublength.
@@ -431,79 +513,6 @@ class MerkleTree(object):
             return proof_index, tuple(left_path), tuple(full_path)
 
         return None  # Incompatibility issue detected
-
-    def minimal_complement(self, subroots):
-        """Complements optimally the subroot hashes detected by ``.principal_subroots`` with all necessary
-        interior hashes of the Merkle-tree, so that a full consistency-path can be generated
-
-        :param subroots: Should be some output of the ``.principal_subroots`` method
-        :type subroots:  list of nodes.Node
-        :returns:        a list of signed hashes complementing optimally the hashes detected by
-                         ``.principal_subroots``, so that a full consistency-path be generated
-        :rtype:          list of (+1/-1, bytes) pairs
-        """
-        if len(subroots) != 0:
-            complement = []
-            while subroots[-1].child is not None:
-                last_root = subroots[-1]
-                if last_root is last_root.child.left:
-                    if last_root.child.is_right_parent():
-                        complement.append((-1, last_root.child.right))
-                    else:
-                        complement.append((+1, last_root.child.right))
-                    subroots = subroots[:-1]
-                else:
-                    subroots = subroots[:-2]
-                subroots.append(last_root.child)
-            return complement
-        return self.principal_subroots(len(self.leaves))
-
-    def principal_subroots(self, sublength):
-        """Detects and returns in corresponding order the roots of the *successive*, *rightmost*, *full* binary
-        subtrees of maximum (and thus decreasing) ength, whose lengths sum up to the inserted argument
-
-        Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying information used in
-        consistency-proof generation after extracting hashes
-
-        :param sublength: Should be a non-negative integer smaller than or equal to the Merkle-tree's current length
-        :returns:         The (signed) roots of the detected subtrees, whose hashes
-                          are to be used for the generation of consistency-proofs
-        :rtype:           list of *(+1/-1, nodes.Node)*
-
-        .. note:: Returns ``None`` if the provided ``sublength`` does not fulfill the required condition
-        """
-
-        if sublength == 0:
-            return []
-        elif sublength > 0:
-            principal_subroots = []
-            powers = decompose(sublength)
-            start = 0
-            i = 0
-            for i in range(0, len(powers)):
-                next_subroot = self.subroot(start, powers[i])
-                if next_subroot is not None:  # No incompatibility issue
-                    if next_subroot.child and next_subroot.child.child:
-                        if next_subroot.child.is_left_parent():
-                            principal_subroots.append((+1, next_subroot))
-                        else:
-                            principal_subroots.append((-1, next_subroot))
-                    else:
-                        if next_subroot.is_left_parent():
-                            principal_subroots.append((+1, next_subroot))
-                        else:
-                            principal_subroots.append((-1, next_subroot))
-                    start += 2**powers[i]
-                else:
-                    # Incompatibility issue detected; break loop and return
-                    return None
-            # Principal subroot successfully detected
-            if len(principal_subroots) > 0:
-                # modify last sign
-                principal_subroots[-1] = (+1, principal_subroots[-1][1])
-            return principal_subroots
-        else:  # Negative input handled as `incompatibility`
-            return None
 
 
 # ------------------------------ Proof generation ------------------------

@@ -276,13 +276,22 @@ _3_leaves_tree = MerkleTree('a', 'b', 'c')
 _4_leaves_tree = MerkleTree('a', 'b', 'c', 'd')
 _5_leaves_tree = MerkleTree('a', 'b', 'c', 'd', 'e')
 
+_no_path_exceptions = [
+    (_0_leaves_tree, +0),
+    (_1_leaves_tree, -1),
+    (_1_leaves_tree, +1),
+    (_2_leaves_tree, -1),
+    (_2_leaves_tree, +2),
+    (_3_leaves_tree, -1),
+    (_3_leaves_tree, +3),
+    (_4_leaves_tree, -1),
+    (_4_leaves_tree, +4),
+    (_5_leaves_tree, -1),
+    (_5_leaves_tree, +5)
+]
 
-@pytest.mark.parametrize("tree, index", [(_0_leaves_tree, 0),
-                                         (_1_leaves_tree, -1), (_1_leaves_tree, 1),
-                                         (_2_leaves_tree, -1), (_2_leaves_tree, 2),
-                                         (_3_leaves_tree, -1), (_3_leaves_tree, 3),
-                                         (_4_leaves_tree, -1), (_4_leaves_tree, 4),
-                                         (_5_leaves_tree, -1), (_5_leaves_tree, 5)])
+
+@pytest.mark.parametrize("tree, index", _no_path_exceptions)
 def test_audit_NoPathException(tree, index):
     """Tests that ``NoPathException`` is raised when an audit-path is requested from an empty
     Merkle-tree or based upon an index either negative or exceeding the tree's current length
@@ -291,7 +300,7 @@ def test_audit_NoPathException(tree, index):
         tree.audit_path(index)
 
 
-audit_paths = [
+_audit_paths = [
     (
         _1_leaves_tree, 0,
         (
@@ -439,7 +448,7 @@ audit_paths = [
         (
             2,
             (
-                (1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                (+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
                 (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8'),
                 (-1, b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d'),
                 (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')
@@ -459,49 +468,79 @@ audit_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, index, _path', audit_paths)
+@pytest.mark.parametrize('tree, index, _path', _audit_paths)
 def test_audit_path(tree, index, _path):
-    """
-    """
     assert tree.audit_path(index) == _path
 
 # Consistency-proof utils testing
 
+_no_subtree_exceptions = [
+    (_0_leaves_tree, 0, 'anything'),
+    (_1_leaves_tree, 1, 'anything'),
+    (_2_leaves_tree, 2, 'anything'),
+    (_2_leaves_tree, 0, 2),
+    (_2_leaves_tree, 1, 1),
+    (_3_leaves_tree, 3, 'anything'),
+    (_3_leaves_tree, 0, 3),
+    (_3_leaves_tree, 1, 1),
+    (_3_leaves_tree, 2, 1),
+    (_4_leaves_tree, 4, 'anything'),
+    (_4_leaves_tree, 0, 3),
+    (_4_leaves_tree, 1, 1),
+    (_4_leaves_tree, 2, 2),
+    (_4_leaves_tree, 3, 1),
+    (_5_leaves_tree, 5, 'anything'),
+    (_5_leaves_tree, 0, 3),
+    (_5_leaves_tree, 0, 4),
+    (_5_leaves_tree, 1, 1),
+    (_5_leaves_tree, 2, 2),
+    (_5_leaves_tree, 3, 1),
+    (_5_leaves_tree, 4, 1),
+]
 
-t = MerkleTree('a', 'b', 'c', 'd', 'e')
-"""
- └─8cf34678b314f881eaa44dd75ba339c8ef32f6248b74f975b2770abf9b37ef9f
-     ├──22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417
-     │    ├──9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20
-     │    │    ├──022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c
-     │    │    └──57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31
-     │    └──e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138
-     │         ├──597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8
-     │         └──d070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d
-     └──2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4
-"""
-
-
-@pytest.mark.parametrize('start, height', ((t.length + 1, 'anything'),
-                                           (0, 3), (0, 4), (1, 1),
-                                           (2, 2), (3, 1), (4, 1)))
-def test_NoSubtreeException(start, height):
+@pytest.mark.parametrize('tree, start, height', _no_subtree_exceptions)
+def test_NoSubtreeException(tree, start, height):
     with pytest.raises(NoSubtreeException):
-        t.subroot(start, height)
+        tree.subroot(start, height)
 
 
 _subroots = [
-    (0, 0, t.leaves[0]),
-    (0, 1, t.leaves[0].child),
-    (0, 2, t.leaves[0].child.child),
-    (1, 0, t.leaves[1]),
-    (2, 0, t.leaves[2]),
-    (2, 1, t.leaves[2].child),
-    (3, 0, t.leaves[3]),
-    (4, 0, t.leaves[4]),
+    (_1_leaves_tree, 0, 0, _1_leaves_tree.leaves[0]),
+    (_2_leaves_tree, 0, 0, _2_leaves_tree.leaves[0]),
+    (_2_leaves_tree, 0, 1, _2_leaves_tree.root),
+    (_2_leaves_tree, 1, 0, _2_leaves_tree.leaves[1]),
+    (_3_leaves_tree, 0, 0, _3_leaves_tree.leaves[0]),
+    (_3_leaves_tree, 0, 1, _3_leaves_tree.leaves[0].child),
+    (_3_leaves_tree, 1, 0, _3_leaves_tree.leaves[1]),
+    (_3_leaves_tree, 2, 0, _3_leaves_tree.leaves[2]),
+    (_4_leaves_tree, 0, 0, _4_leaves_tree.leaves[0]),
+    (_4_leaves_tree, 0, 1, _4_leaves_tree.leaves[0].child),
+    (_4_leaves_tree, 0, 2, _4_leaves_tree.root),
+    (_4_leaves_tree, 1, 0, _4_leaves_tree.leaves[1]),
+    (_4_leaves_tree, 2, 0, _4_leaves_tree.leaves[2]),
+    (_4_leaves_tree, 2, 1, _4_leaves_tree.leaves[2].child),
+    (_4_leaves_tree, 3, 0, _4_leaves_tree.leaves[3]),
+    (_5_leaves_tree, 0, 0, _5_leaves_tree.leaves[0]),
+    (_5_leaves_tree, 0, 1, _5_leaves_tree.leaves[0].child),
+    (_5_leaves_tree, 0, 2, _5_leaves_tree.leaves[0].child.child),
+    (_5_leaves_tree, 1, 0, _5_leaves_tree.leaves[1]),
+    (_5_leaves_tree, 2, 0, _5_leaves_tree.leaves[2]),
+    (_5_leaves_tree, 2, 1, _5_leaves_tree.leaves[2].child),
+    (_5_leaves_tree, 3, 0, _5_leaves_tree.leaves[3]),
+    (_5_leaves_tree, 4, 0, _5_leaves_tree.leaves[4]),
 ]
 
 
-@pytest.mark.parametrize('start, height, _subroot', _subroots)
-def test_subroot(start, height, _subroot):
-    assert t.subroot(start, height) is _subroot
+@pytest.mark.parametrize('tree, start, height, _subroot', _subroots)
+def test_subroot(tree, start, height, _subroot):
+    assert tree.subroot(start, height) is _subroot
+
+no_subroots_exceptions = []
+
+def test_NoSubrootsException():
+    pass
+
+_principal_subroots = []
+
+def test_principalSubroots():
+    pass
