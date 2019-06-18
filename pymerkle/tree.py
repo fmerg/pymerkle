@@ -454,21 +454,45 @@ class MerkleTree(object):
                          ``.principal_subroots``, so that a full consistency-path be generated
         :rtype:          list of (+1/-1, bytes) pairs
         """
-        if len(subroots) != 0:
-            complement = []
-            while subroots[-1].child is not None:
-                last_root = subroots[-1]
-                if last_root is last_root.child.left:
-                    if last_root.child.is_right_parent():
-                        complement.append((-1, last_root.child.right))
+        if len(subroots) == 0:
+            return self.principal_subroots(self.length)
+
+        complement = []
+        while True:
+            try:
+                subroots[-1][1].child
+            except NoChildException:
+                break
+            else:
+                _subroot = subroots[-1][1]
+
+                if _subroot.is_left_parent(): # is _subroot.child.left:
+
+                    if _subroot.child.is_right_parent():
+                        complement.append((-1, _subroot.child.right))
                     else:
-                        complement.append((+1, last_root.child.right))
+                        complement.append((+1, _subroot.child.right))
+
                     subroots = subroots[:-1]
                 else:
                     subroots = subroots[:-2]
-                subroots.append(last_root.child)
-            return complement
-        return self.principal_subroots(len(self.leaves))
+
+                subroots.append((+1, _subroot.child)) # ---> SIGN
+
+        return complement
+
+        # while subroots[-1].child is not None:
+        #     last_root = subroots[-1]
+        #     if last_root is last_root.child.left:
+        #         if last_root.child.is_right_parent():
+        #             complement.append((-1, last_root.child.right))
+        #         else:
+        #             complement.append((+1, last_root.child.right))
+        #         subroots = subroots[:-1]
+        #     else:
+        #         subroots = subroots[:-2]
+        #     subroots.append(last_root.child)
+        # return complement
 
     def consistency_path(self, sublength):
         """Computes and returns the body for any consistency-proof based upon the requested sublength.

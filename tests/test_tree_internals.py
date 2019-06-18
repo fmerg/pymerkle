@@ -580,3 +580,32 @@ _principal_subroots = [
 @pytest.mark.parametrize("tree, sublength, _principal_subroots", _principal_subroots)
 def test_principalSubroots(tree, sublength, _principal_subroots):
     assert tree.principal_subroots(sublength) == _principal_subroots
+
+
+_minimal_complements = [
+    (_0_leaves_tree, [], []),
+    (_1_leaves_tree, [], [(+1, _1_leaves_tree.leaves[0])]),
+    (_1_leaves_tree, [(+1, _1_leaves_tree.root)], []),
+    (_2_leaves_tree, [], [(+1, _2_leaves_tree.root)]),
+    (_2_leaves_tree, [(+1, _2_leaves_tree.leaves[0])], [(+1, _2_leaves_tree.leaves[1])]),
+    (_2_leaves_tree, [(+1, _2_leaves_tree.root)], []),
+    (_3_leaves_tree, [], [(+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0])], [(+1, _3_leaves_tree.leaves[1]), (+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].child)], [(+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])], []),
+    (_4_leaves_tree, [], [(+1, _4_leaves_tree.root)]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0])], [(+1, _4_leaves_tree.leaves[1]), (+1, _4_leaves_tree.leaves[2].child)]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].child)], [(+1, _4_leaves_tree.leaves[2].child)]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].child), (+1, _4_leaves_tree.leaves[2])], [(-1, _4_leaves_tree.leaves[3])]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.root)], []),
+    (_5_leaves_tree, [], [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0])], [(+1, _5_leaves_tree.leaves[1]), (+1, _5_leaves_tree.leaves[2].child), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child)], [(+1, _5_leaves_tree.leaves[2].child), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child), (+1, _5_leaves_tree.leaves[2])], [(-1, _5_leaves_tree.leaves[3]), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child)], [(+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[4])], []),
+]
+
+@pytest.mark.parametrize("tree, subroots, _minimal_complement", _minimal_complements)
+def test_minimal_complement(tree, subroots, _minimal_complement):
+    assert tree.minimal_complement(subroots) == _minimal_complement
