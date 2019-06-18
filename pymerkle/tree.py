@@ -215,7 +215,7 @@ class MerkleTree(object):
             self.root = new_leaf
 
 
-# ---------------------------- Audit proof utilities ---------------------
+# ---------------------------- Audit-proof utilities ---------------------
 
     def audit_path(self, index):
         """Computes and returns the body for the audit-proof based upon the requested index.
@@ -339,7 +339,7 @@ class MerkleTree(object):
                     proof_path=audit_path)
 
 
-# ------------------------------ Path generation ------------------------------
+# --------------------------- Consistency-proof utils ---------------------------
 
     def subroot(self, start, height):
         """
@@ -367,8 +367,10 @@ class MerkleTree(object):
         while i < height:
             try:
                 next_node = subroot.child
+
             except NoChildException:
                 raise NoSubtreeException
+
             else:
                 if next_node.left is not subroot:
                     raise NoSubtreeException
@@ -405,7 +407,7 @@ class MerkleTree(object):
         """
 
         if sublength < 0:
-            raise NoPrincipalSubrootsException # Mask negative input case as incompatibility
+            raise NoPrincipalSubrootsException                            # Mask negative input case as incompatibility
 
         principal_subroots = []
         powers = decompose(sublength)
@@ -414,22 +416,22 @@ class MerkleTree(object):
 
             try:
                 _subroot = self.subroot(start, _power)
+
             except NoSubtreeException:
-                raise NoPrincipalSubrootsException # Incompatibility issue detected
+                raise NoPrincipalSubrootsException                        # Incompatibility issue detected
 
             else:
                 try:
                     _child = _subroot.child
                     _grandchild = _child.child
-                except NoChildException:
 
+                except NoChildException:
                     if _subroot.is_left_parent():
                         principal_subroots.append((+1, _subroot))
                     else:
                         principal_subroots.append((-1, _subroot))
 
                 else:
-
                     if _child.is_left_parent():
                         principal_subroots.append((+1, _subroot))
                     else:
@@ -439,7 +441,7 @@ class MerkleTree(object):
                     start += 2**_power
 
         if len(principal_subroots) > 0:
-            principal_subroots[-1] = (+1, principal_subroots[-1][1]) # Modify last sign
+            principal_subroots[-1] = (+1, principal_subroots[-1][1])      # Modify last sign
 
         return principal_subroots
 
@@ -461,38 +463,27 @@ class MerkleTree(object):
         while True:
             try:
                 subroots[-1][1].child
+
             except NoChildException:
                 break
+
             else:
                 _subroot = subroots[-1][1]
 
-                if _subroot.is_left_parent(): # is _subroot.child.left:
-
+                if _subroot.is_left_parent():
                     if _subroot.child.is_right_parent():
                         complement.append((-1, _subroot.child.right))
                     else:
                         complement.append((+1, _subroot.child.right))
 
                     subroots = subroots[:-1]
+
                 else:
                     subroots = subroots[:-2]
 
                 subroots.append((+1, _subroot.child)) # ---> SIGN
 
         return complement
-
-        # while subroots[-1].child is not None:
-        #     last_root = subroots[-1]
-        #     if last_root is last_root.child.left:
-        #         if last_root.child.is_right_parent():
-        #             complement.append((-1, last_root.child.right))
-        #         else:
-        #             complement.append((+1, last_root.child.right))
-        #         subroots = subroots[:-1]
-        #     else:
-        #         subroots = subroots[:-2]
-        #     subroots.append(last_root.child)
-        # return complement
 
     def consistency_path(self, sublength):
         """Computes and returns the body for any consistency-proof based upon the requested sublength.
@@ -508,38 +499,34 @@ class MerkleTree(object):
 
         .. note::  Returns ``None`` for ``sublength`` equal to ``0``
         """
-        if sublength is 0:
-            return None  # so that it be handled as special incompatibility case
+        if sublength < 0:
+            raise NoPathException
 
-        left_roots = self.principal_subroots(sublength)
-        if left_roots is not None:
-            # No incompatibility issue
+        try:
+            left_subroots = self.principal_subroots(sublength)
 
-            right_roots = self.minimal_complement(
-                subroots=[r[1] for r in left_roots])
-            all_roots = left_roots + right_roots
+        except NoPrincipalSubrootsException:
+            raise NoPathException                                    # Incompatibility issue detected
 
-            # Check if left_roots or right_roots is empty
-            if sublength == 0 or sublength == len(self.leaves):
+        else:
 
-                # Reset all signs to minus
-                all_roots = [(-1, r[1]) for r in all_roots]
+            right_subroots = self.minimal_complement([_[1] for _ in left_subroots])
+            all_subroots = left_subroots + right_subroots
 
-                # Will start hashing successively from the end
-                proof_index = len(all_roots) - 1
+            if right_subroots == [] or left_subroots == []:
 
-            else:  # i.e., neither left_roots nor right_roots is empty
-                proof_index = len(left_roots) - 1
+                all_subroots = [(-1, _[1]) for _ in all_subroots]    # Reset all signs to minus
+                proof_index = len(all_subroots) - 1                  # Will start multi-hashing from endpoint
 
-            # Collect and return only sign and hash pairs
-            left_path = [(-1, r[1].stored_hash) for r in left_roots]
-            full_path = [(r[0], r[1].stored_hash) for r in all_roots]
-            return proof_index, tuple(left_path), tuple(full_path)
+            else:
+                proof_index = len(left_subroots) - 1                 # Will start multi-hashing from midpoint
 
-        return None  # Incompatibility issue detected
+            # Collect only sign and hashes
 
+            left_path = tuple([(-1, _[1].stored_hash) for _ in left_subroots])
+            full_path = tuple([(_[0], _[1].stored_hash) for _ in all_roots])
 
-# ------------------------------ Proof generation ------------------------
+        return proof_index, left_path, full_path
 
 
     def consistencyProof(self, old_hash, sublength):
