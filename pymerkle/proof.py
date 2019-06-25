@@ -158,7 +158,7 @@ class Proof(object):
             encoding=self.header['encoding'].upper().replace('_', '-'),
             security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
             proof_index=self.body['proof_index'] if self.body['proof_index'] is not None else NONE,
-            proof_path=stringify_path(self.body['proof_path'], self.header['encoding'] if self.body['proof_path'] is not None else ''),
+            proof_path=stringify_path(self.body['proof_path'], self.header['encoding']) if self.body['proof_path'] is not None else '',
             status='UNVALIDATED' if self.header['status'] is None else 'VALID' if self.header['status'] is True else 'NON VALID')
 
 # ------------------------------- Serialization --------------------------

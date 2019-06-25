@@ -190,10 +190,8 @@ def test_Proof_construction_from_dict(_proof, _generation, _proof_index, _proof_
         }
     }
 
-SUCCESS = 'SUCCESS'
-FAILURE = 'FAILURE'
-@pytest.mark.parametrize('_proof, _generation', ((proof_11, SUCCESS), (proof_12, SUCCESS), (proof_13, SUCCESS), (proof_14, SUCCESS),
-                                                 (proof_21, FAILURE), (proof_22, FAILURE), (proof_23, FAILURE), (proof_24, FAILURE)))
+@pytest.mark.parametrize('_proof, _generation', ((proof_11, True), (proof_12, True), (proof_13, True), (proof_14, True),
+                                                 (proof_21, False), (proof_22, False), (proof_23, False), (proof_24, False)))
 def test___repr__(_proof, _generation):
     assert _proof.__repr__() == '\n    ----------------------------------- PROOF ------------------------------------\
                 \n\
@@ -216,10 +214,10 @@ def test___repr__(_proof, _generation):
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n' % (
                     _proof.header['uuid'],
-                    _generation,
+                    'SUCCESS' if _generation else 'FAILURE',
                     _proof.header['timestamp'],
                     _proof.header['creation_moment'],
                     provider,
-                    5 if _generation==SUCCESS else '[None]',
-                    stringify_path(proof_path, 'urf_8') if _generation==SUCCESS else '',
+                    5 if _generation else '[None]',
+                    stringify_path(proof_path, 'utf_8') if _generation else '',
                 )
