@@ -7,6 +7,7 @@ import json
 from .serializers import ProofSerializer
 from .utils import stringify_path
 
+NONE = '[None]'
 
 # -------------------------------- Main class --------------------------------
 
@@ -66,42 +67,53 @@ class Proof(object):
     """
 
     def __init__(self, *args, **kwargs):
-        if args:                                    # Assuming positional arguments by default
+        if args:                                                                # Assuming positional arguments by default
             self.header = {
-                'uuid': str(uuid.uuid1()),      # Time based proof idW
+                'uuid': str(uuid.uuid1()),                                      # Time based proof idW
                 'timestamp': int(time.time()),
                 'creation_moment': time.ctime(),
-                'generation': args[0],
-                'provider': args[1],
-                'hash_type': args[2],
+                'generation': args[4] is not None and args[5] is not None,
+                'provider': args[0],
+                'hash_type': args[1],
+                'encoding': args[2],
                 'security': args[3],
-                'encoding': args[4],
-                'status': None                  # Will change to True or False after validation
+                'status': None                                                  # Will change to True or False after validation
             }
 
             self.body = {
-                'proof_index': args[5],
-                'proof_path': args[6]
+                'proof_index': args[4],
+                'proof_path': args[5]
             }
         else:
-            if kwargs.get('from_dict'):             # Importing proof from dict
+            if kwargs.get('from_dict'):                                         # Importing proof from dict
                 self.header = kwargs.get('from_dict')['header']
-                self.body = kwargs.get('from_dict')['body']
-            elif kwargs.get('from_json'):           # Importing proof from JSON text
+
+                _body = kwargs.get('from_dict')['body']
+                self.body = {
+                    'proof_index': _body['proof_index'],
+                    'proof_path': None if _body['proof_path'] == [] else tuple(tuple(pair) for pair in _body['proof_path'])
+                }
+            elif kwargs.get('from_json'):                                       # Importing proof from JSON text
                 proof_dict = json.loads(kwargs.get('from_json'))
+
                 self.header = proof_dict['header']
-                self.body = proof_dict['body']
-            else:                                   # Standard creation of a proof
+
+                _body = proof_dict['body']
+                self.body = {
+                    'proof_index': _body['proof_index'],
+                    'proof_path': None if _body['proof_path'] == [] else tuple(tuple(pair) for pair in _body['proof_path'])
+                }
+            else:                                                               # Standard creation of a proof
                 self.header = {
-                    'uuid': str(uuid.uuid1()),      # Time based proof idW
+                    'uuid': str(uuid.uuid1()),                                  # Time based proof idW
                     'timestamp': int(time.time()),
                     'creation_moment': time.ctime(),
-                    'generation': kwargs.get('generation'),
+                    'generation': kwargs.get('proof_index') is not None and kwargs.get('proof_path') is not None,
                     'provider': kwargs.get('provider'),
                     'hash_type': kwargs.get('hash_type'),
-                    'security': kwargs.get('security'),
                     'encoding': kwargs.get('encoding'),
-                    'status': None                  # Will change to True or False after validation
+                    'security': kwargs.get('security'),
+                    'status': None                                              # Will change to True or False after validation
                 }
 
                 self.body = {
@@ -122,7 +134,6 @@ class Proof(object):
                 \n    uuid        : {uuid}\
                 \n\
                 \n    generation  : {generation}\
-                \n\
                 \n    timestamp   : {timestamp} ({creation_moment})\
                 \n    provider    : {provider}\
                 \n\
@@ -139,19 +150,16 @@ class Proof(object):
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n'.format(
             uuid=self.header['uuid'],
-            generation=self.header['generation'],
+            generation='SUCCESS' if self.header['generation'] else 'FAILURE',
             timestamp=self.header['timestamp'],
             creation_moment=self.header['creation_moment'],
             provider=self.header['provider'],
             hash_type=self.header['hash_type'].upper().replace('_', '-'),
             encoding=self.header['encoding'].upper().replace('_', '-'),
             security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
-            proof_index=self.body['proof_index'] if self.body['proof_index'] is not None else '',
-            proof_path=stringify_path(
-                signed_hashes=self.body['proof_path'], encoding=self.header['encoding']),
-            status='UNVALIDATED' if self.header['status'] is None
-            else 'VALID' if self.header['status'] is True
-            else 'NON VALID')
+            proof_index=self.body['proof_index'] if self.body['proof_index'] is not None else NONE,
+            proof_path=stringify_path(self.body['proof_path'], self.header['encoding'] if self.body['proof_path'] is not None else ''),
+            status='UNVALIDATED' if self.header['status'] is None else 'VALID' if self.header['status'] is True else 'NON VALID')
 
 # ------------------------------- Serialization --------------------------
 
@@ -160,8 +168,7 @@ class Proof(object):
 
         :rtype: dict
         """
-        serializer = ProofSerializer()
-        return serializer.default(self)
+        return ProofSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the proof's JSON serialized form

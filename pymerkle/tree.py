@@ -309,7 +309,7 @@ class MerkleTree(object):
                 except StopIteration:
                     break
                 else:
-                    if _hash == _leaf.hash:
+                    if _hash == _leaf.stored_hash:
                         index = count
                         break
                     count += 1
@@ -850,9 +850,9 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidCOmparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
         """
-        if not isinstance(other, MerkleTree):
+        if not isinstance(other, self.__class__):
             raise InvalidComparison
 
         if not other:
@@ -866,9 +866,9 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidCOmparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
         """
-        if not isinstance(other, MerkleTree):
+        if not isinstance(other, self.__class__):
             raise InvalidComparison
 
         if not other:
@@ -882,15 +882,15 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidCOmparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
         """
-        if not isinstance(other, MerkleTree):
+        if not isinstance(other, self.__class__):
             raise InvalidComparison
 
         if not other:
             return True
         else:
-            return False if not self else self.inclusionTest(old_hash=other.rootHash, sublength=other.length)
+            return False if not self else self.inclusionTest(other.rootHash, other.length)
 
     def __le__(self, other):
         """Implements the ``<=`` operator
@@ -898,10 +898,10 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidCOmparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
         """
 
-        if not isinstance(other, MerkleTree):
+        if not isinstance(other, self.__class__):
             raise InvalidComparison
         else:
             return other.__ge__(self)
@@ -912,9 +912,9 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidCOmparison`` if compared with an object that is not instance of the ```` class
+        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
         """
-        if not isinstance(other, MerkleTree):
+        if not isinstance(other, self.__class__):
             raise InvalidComparison
 
         if not other:
@@ -922,7 +922,7 @@ class MerkleTree(object):
         elif not self or self.rootHash == other.rootHash:
             return False
         else:
-            return self.inclusionTest(old_hash=other.rootHash, sublength=other.length)
+            return self.inclusionTest(other.rootHash, other.length)
 
     def __lt__(self, other):
         """Implements the ``<`` operator
@@ -930,9 +930,9 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidCOmparison`` if compared with an object that is not instance of the ```` class
+        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
         """
-        if not isinstance(other, MerkleTree):
+        if not isinstance(other, self.__class__):
             raise InvalidComparison
         else:
             return other.__gt__(self)
