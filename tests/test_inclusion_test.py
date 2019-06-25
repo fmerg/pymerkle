@@ -1,11 +1,19 @@
 import pytest
 import os
-from pymerkle import MerkleTree, hashing, encodings, validateProof
+from pymerkle import MerkleTree, hashing, validateProof
+from pymerkle.exceptions import InvalidTypesException, InvalidComparison
+
+# --------------------------- Test exception cases  ---------------------------
+
+@pytest.mark.parametrize("first, second", [(b'bytes', 'no_integer'), ('no_bytes', 0)])
+def test_inclusion_test_InvalidTypesException(first, second):
+    with pytest.raises(InvalidTypesException):
+        MerkleTree().inclusionTest(first, second)
 
 # --------- Test intermediate success case for all possible tree types ---
 
 HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = encodings.ENCODINGS
+ENCODINGS = hashing.ENCODINGS
 
 # Files to encrypt
 short_APACHE_log = os.path.join(
@@ -26,7 +34,7 @@ for security in (True, False):
                 encoding=encoding,
                 security=security)
             tree.encryptFilePerLog(short_APACHE_log)
-            old_hash, sublength = tree.rootHash, tree.length()
+            old_hash, sublength = tree.rootHash, tree.length
             tree.encryptFilePerLog(RED_HAT_LINUX_log)
             trees_and_subtrees.append((tree, old_hash, sublength))
 
@@ -40,12 +48,12 @@ def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
 
 tree = MerkleTree()
 tree.encryptFilePerLog(short_APACHE_log)
-old_hash, sublength = tree.rootHash, tree.length()
+old_hash, sublength = tree.rootHash, tree.length
 tree.encryptFilePerLog(RED_HAT_LINUX_log)
 
 
 def test_inclusion_test_edge_success_case():
-    assert tree.inclusionTest(tree.rootHash, tree.length()) is True
+    assert tree.inclusionTest(tree.rootHash, tree.length) is True
 
 # ---------------- Test failure cases with standard Merkle-tree ----------
 
@@ -55,14 +63,108 @@ def test_inclusion_test_with_zero_sublength():
 
 
 def test_inclusion_test_with_sublength_exceeding_length():
-    assert tree.inclusionTest(b'anything...', tree.length()) is False
+    assert tree.inclusionTest(b'anything...', tree.length) is False
 
 
-@pytest.mark.parametrize('sublength', list(i for i in range(1, tree.length())))
+@pytest.mark.parametrize('sublength', list(i for i in range(1, tree.length)))
 def test_inclusion_test_with_invalid_old_hash(sublength):
     assert tree.inclusionTest(
         b'anything except for the hash corresponding to the provided sublength',
         sublength) is False
+
+# ------------------------- Test comparison operators -------------------------
+
+_0_leaves_tree  = MerkleTree()
+_0_leaves_tree_ = MerkleTree()
+_1_leaves_tree  = MerkleTree('a')
+_1_leaves_tree_ = MerkleTree('a')
+_2_leaves_tree  = MerkleTree('a', 'b')
+_2_leaves_tree_ = MerkleTree('a', 'b')
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
+                                            (_1_leaves_tree, _1_leaves_tree_),
+                                            (_2_leaves_tree, _2_leaves_tree_)])
+def test___eq__(tree_1, tree_2):
+    assert tree_1 == tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _1_leaves_tree_),
+                                            (_1_leaves_tree, _2_leaves_tree_),
+                                            (_0_leaves_tree, _2_leaves_tree_)])
+def test___ne__(tree_1, tree_2):
+    assert tree_1 != tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
+                                            (_1_leaves_tree, _0_leaves_tree_),
+                                            (_2_leaves_tree, _0_leaves_tree_),
+                                            (_1_leaves_tree, _1_leaves_tree_),
+                                            (_2_leaves_tree, _1_leaves_tree_),
+                                            (_2_leaves_tree, _2_leaves_tree_)])
+def test___ge__(tree_1, tree_2):
+    assert tree_1 >= tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _1_leaves_tree_),
+                                            (_0_leaves_tree, _2_leaves_tree_),
+                                            (_1_leaves_tree, _2_leaves_tree_)])
+def test_not___ge__(tree_1, tree_2):
+    assert not tree_1 >= tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_1_leaves_tree, _0_leaves_tree_),
+                                            (_2_leaves_tree, _0_leaves_tree_),
+                                            (_2_leaves_tree, _1_leaves_tree_)])
+def test___gt__(tree_1, tree_2):
+    assert tree_1 > tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
+                                            (_0_leaves_tree, _1_leaves_tree_),
+                                            (_1_leaves_tree, _1_leaves_tree_),
+                                            (_0_leaves_tree, _2_leaves_tree_),
+                                            (_1_leaves_tree, _2_leaves_tree_),
+                                            (_2_leaves_tree, _2_leaves_tree_)])
+def test_not___gt__(tree_1, tree_2):
+    assert not tree_1 > tree_2
+
+# Invalid comparison tests
+
+def test___eq___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        MerkleTree() == 'anything except for a Merkle-tree'
+
+def test_not___eq___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        MerkleTree() != 'anything except for a Merkle-tree'
+
+def test___ge___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        MerkleTree() >= 'anything except for a Merkle-tree'
+
+def test_not___ge___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        not MerkleTree() >= 'anything except for a Merkle-tree'
+
+def test___le___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        MerkleTree() <= 'anything except for a Merkle-tree'
+
+def test_not___le___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        not MerkleTree() <= 'anything except for a Merkle-tree'
+
+def test___gt___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        MerkleTree() > 'anything except for a Merkle-tree'
+
+def test_not___gt___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        not MerkleTree() > 'anything except for a Merkle-tree'
+
+def test___lt___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        MerkleTree() < 'anything except for a Merkle-tree'
+
+def test_not___lt___InvalidComparison():
+    with pytest.raises(InvalidComparison):
+        not MerkleTree() < 'anything except for a Merkle-tree'
+
 
 # -------------- Test inclusion for sublength equal to power of 2 --------
 
@@ -73,18 +175,18 @@ def test_inclusion_test_with_invalid_old_hash(sublength):
 # ~ one-member-sequences, so that this issue does not arise)
 
 
-# Initialize parametrization with the empty tree (edge case)
+# Initialize parametrization with the one-leaf tree
 trees_and_later_states = [(
-    MerkleTree(), MerkleTree(*[str(k) for k in range(1, j)])
-) for j in range(0, 10)]
+    MerkleTree('1'), MerkleTree(*[str(k) for k in range(1, j)])
+) for j in range(2, 10)]
 
-# Parametrize for the first 10 powers of 2
-for power in range(0, 10):
-    tree = MerkleTree(*[str(i) for i in range(1, 2**power + 1)])
-    for j in range(0, 10):
+# Parametrize for the first 9 powers of 2 beginning from 2^1
+for power in range(1, 10):
+    tree = MerkleTree(*[str(i) for i in range(2, 2**power + 1)])
+    for j in range(1, 10):
         trees_and_later_states.append((
             tree,
-            MerkleTree(*[str(k) for k in range(1, 2**power + 1 + j)])
+            MerkleTree(*[str(k) for k in range(2, 2**power + 1 + j)])
         ))
 
 
@@ -92,7 +194,7 @@ for power in range(0, 10):
 def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
     assert later_state.inclusionTest(
         old_hash=tree.rootHash,
-        sublength=tree.length()) is True
+        sublength=tree.length) is True
 
 
 @pytest.mark.parametrize('tree, later_state', trees_and_later_states)
@@ -103,4 +205,4 @@ def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(
         target_hash=later_state.rootHash,
         proof=later_state.consistencyProof(
             old_hash=tree.rootHash,
-            sublength=tree.length())) is True
+            sublength=tree.length)) is True

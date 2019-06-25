@@ -67,3 +67,13 @@ class NoPrincipalSubrootsException(BaseException):
     """Raised when the sequence of subroots corresponding to a specified length do not exist
     """
     pass
+
+class InvalidTypesException(BaseException):
+    """Raised when the types of arguments given for consistency proof or inclusion tests is not as prescribed
+    """
+    pass
+
+class InvalidComparison(BaseException):
+    """Raised when a Merkle-tree is compared with an object that is not instance of the MerkleTree class
+    """
+    pass
