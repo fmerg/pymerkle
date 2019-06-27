@@ -210,6 +210,70 @@ class _Node(object):
                 indent=indent,
                 ignore=new_ignore)
         return output
+        
+
+class Leaf(_Node):
+    """Class for the leafs of Merkle-tree (parentless nodes)
+
+    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
+                          attribute of the containing Merkle-tree
+    :type hash_function:  method
+    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
+                          Should coincide with the containing Merkle-tree's encoding type.
+    :type encoding:       str
+    :param record:        [optional] The record to be encrypted within the leaf. If provided, then
+                          ``stored_hash`` should *not* be provided.
+    :type record:         str or bytes or bytearray
+    :param stored_hash:   [optional] The hash to be stored at creation by the leaf (after encoding).
+                          If provided, then ``record`` should *not* be provided.
+    :type stored_hash:    str
+
+    # .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
+    #              otherwise a ``NodeConstructionError`` is thrown
+    """
+
+    __slots__ = ('__stored_hash')
+
+    def __init__(self, hash_function, encoding, record=None, stored_hash=None):
+
+        if record and stored_hash is None:
+
+            super().__init__(encoding=encoding)
+            self.__stored_hash = hash_function(record)
+
+        elif stored_hash and record is None:
+
+            super().__init__(encoding=encoding)
+            self.__stored_hash = bytes(stored_hash, encoding)
+
+        else:
+            raise LeafConstructionError(
+                'Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided')
+
+    @property
+    def stored_hash(self):
+        return self.__stored_hash
+
+# ------------------------------- Serialization --------------------------
+
+    def serialize(self):
+        """ Returns a JSON entity with the node's attributes as key-value pairs
+
+        :rtype: dict
+
+        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
+                  for circular reference error to be avoided.
+        """
+        return LeafSerializer().default(self)
+
+    def JSONstring(self):
+        """Returns a nicely stringified version of the node's JSON serialized form
+
+        .. note:: The output of this function is to be passed into the ``print`` function
+
+        :rtype: str
+        """
+        return json.dumps(self, cls=LeafSerializer, sort_keys=True, indent=4)
 
 
 class Node(_Node):
@@ -304,69 +368,3 @@ class Node(_Node):
         :rtype: str
         """
         return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)
-
-# -------------------------------- End of class --------------------------
-
-
-class Leaf(_Node):
-    """Class for the leafs of Merkle-tree (parentless nodes)
-
-    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
-                          attribute of the containing Merkle-tree
-    :type hash_function:  method
-    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
-                          Should coincide with the containing Merkle-tree's encoding type.
-    :type encoding:       str
-    :param record:        [optional] The record to be encrypted within the leaf. If provided, then
-                          ``stored_hash`` should *not* be provided.
-    :type record:         str or bytes or bytearray
-    :param stored_hash:   [optional] The hash to be stored at creation by the leaf (after encoding).
-                          If provided, then ``record`` should *not* be provided.
-    :type stored_hash:    str
-
-    # .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
-    #              otherwise a ``NodeConstructionError`` is thrown
-    """
-
-    __slots__ = ('__stored_hash')
-
-    def __init__(self, hash_function, encoding, record=None, stored_hash=None):
-
-        if record and stored_hash is None:
-
-            super().__init__(encoding=encoding)
-            self.__stored_hash = hash_function(record)
-
-        elif stored_hash and record is None:
-
-            super().__init__(encoding=encoding)
-            self.__stored_hash = bytes(stored_hash, encoding)
-
-        else:
-            raise LeafConstructionError(
-                'Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided')
-
-    @property
-    def stored_hash(self):
-        return self.__stored_hash
-
-# ------------------------------- Serialization --------------------------
-
-    def serialize(self):
-        """ Returns a JSON entity with the node's attributes as key-value pairs
-
-        :rtype: dict
-
-        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
-                  for circular reference error to be avoided.
-        """
-        return LeafSerializer().default(self)
-
-    def JSONstring(self):
-        """Returns a nicely stringified version of the node's JSON serialized form
-
-        .. note:: The output of this function is to be passed into the ``print`` function
-
-        :rtype: str
-        """
-        return json.dumps(self, cls=LeafSerializer, sort_keys=True, indent=4)
