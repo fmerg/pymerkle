@@ -3,13 +3,13 @@
 
 
 class LeafConstructionError(BaseException):
-    """Raised when arguments are not as prescribed upon construction of a leaf (``nodes.Leaf``)
+    """Raised when arguments are not as prescribed upon construction of a leaf
     """
     pass
 
 
 class NoChildException(BaseException):
-    """Raised when the non-existent child property of a node (``nodes._Node``) is invoked
+    """Raised when the non-existent child of a node is requested
     """
     pass
 
@@ -27,39 +27,35 @@ class NoParentException(BaseException):
 
 
 class EmptyTreeException(BaseException):
-    """Raised for example when the root-hash of an empty Merkle-tree is requested
+    """Raised when the root-hash of an empty Merkle-tree is requested
     """
     pass
 
 
 class NotSupportedEncodingError(BaseException):
-    """Raised when a hash-machine (``hashing.hash_machine``) or a Merkle-Tree (``tree.MerkleTree``)
-    with unsupported encoding type is requested
+    """Raised when a hash-machine or a Merkle-tree with unsupported encoding-type is requested
     """
     pass
 
 
 class NotSupportedHashTypeError(BaseException):
-    """Raised when a hash-machine (``hashing.hash_machine``) or a Merkle-Tree (``tree.MerkleTree``)
-    with unsupported hash type is requested
+    """Raised when a hash-machine or a Merkle-tree with unsupported hash-type is requested
     """
     pass
 
 
 class NoPathException(BaseException):
-    """Raised when the proof-path requested from a Merkle-tree for specific parameters cannot be
-    generated (indicates authorization failure from the client's side)
+    """Raised when a proof-path is requested for valid parameters that cannot be generated
     """
     pass
 
 class NoSubtreeException(BaseException):
-    """Raised when the full binary subtree of a specified height and based on a specified leaf
-    does not exist
+    """Raised when a full-binary subtree is requested for valid parameters that does not exist
     """
     pass
 
 class NoPrincipalSubrootsException(BaseException):
-    """Raised when the sequence of subroots corresponding to a specified length do not exist
+    """Raised when a sequence of subroots corresponding for valid parameters that does not exist
     """
     pass
 
@@ -69,7 +65,7 @@ class InvalidProofRequest(BaseException):
     pass
 
 class InvalidTypesException(BaseException):
-    """Raised when inclusion test is requested with arguments whose type is not as prescribed
+    """Raised when an inclusion-test is requested with arguments whose type is not as prescribed
     """
     pass
 
