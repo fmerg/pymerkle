@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison
+from .exceptions import NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat
 import json
 import uuid
 import os
@@ -126,9 +126,9 @@ class MerkleTree(object):
         """
         length = len(self.leaves)
         if length > 0:
-            return log_2(length) + 1\
-                if length != 2**log_2(length) else log_2(length)
-        return 0
+            return log_2(length) + 1 if length != 2**log_2(length) else log_2(length)
+        else:
+            return 0
 
 # ---------------------------------- Updating ----------------------------
 
@@ -183,6 +183,7 @@ class MerkleTree(object):
                 # Bifurcate
 
                 # Create bifurcation node
+
                 new_child = Node(hash_function=self.hash,
                                  encoding=self.encoding,
                                  left=last_subroot,
@@ -191,10 +192,12 @@ class MerkleTree(object):
                 self.nodes.add(new_child)
 
                 # Interject bifurcation node
+
                 old_child.set_right(new_child)
                 new_child.set_child(old_child)
 
                 # Recalculate hashes only at the rightmost branch of the tree
+
                 current_node = old_child
                 while True:
                     current_node.recalculate_hash(hash_function=self.hash)
@@ -292,7 +295,8 @@ class MerkleTree(object):
 
         if type(arg) not in (int, str, bytes, bytearray):
             raise InvalidProofRequest
-        elif isinstance(arg, int):
+
+        elif type(arg) is int:
             index = arg
         else:
             # ~ arg is of type str, or bytes or bytearray; in this case, detect the index
@@ -320,18 +324,14 @@ class MerkleTree(object):
 
         except NoPathException:
 
-            failure_message = 'Index provided by Client was out of range'
-            return Proof(generation='FAILURE ({})'.format(failure_message),
-                    provider=self.uuid,
+            return Proof(provider=self.uuid,
                     hash_type=self.hash_type,
                     encoding=self.encoding,
                     security=self.security,
                     proof_index=None,
                     proof_path=None)
         else:
-
-            return Proof(generation='SUCCESS',
-                    provider=self.uuid,
+            return Proof(provider=self.uuid,
                     hash_type=self.hash_type,
                     encoding=self.encoding,
                     security=self.security,
@@ -360,6 +360,7 @@ class MerkleTree(object):
 
         try:
             subroot = self.leaves[start]
+
         except IndexError:
             raise NoSubtreeException
 
@@ -499,7 +500,7 @@ class MerkleTree(object):
 
         .. note::  Returns ``None`` for ``sublength`` equal to ``0``
         """
-        if sublength < 0:
+        if sublength < 0 or self.length == 0:
             raise NoPathException
 
         try:
@@ -557,52 +558,33 @@ class MerkleTree(object):
         .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
         """
 
-        if type(old_hash) not in (bytes, type(None)) \
-                or not isinstance(sublength, int):
-            raise InvalidTypesException
+        if type(old_hash) is not bytes or type(sublength) is not int or sublength <= 0:
+            raise InvalidProofRequest
 
-        # Calculate proof path
-        consistency_path = self.consistency_path(sublength=sublength)
+        try:
+            # Calculate proof path
+            proof_index, left_path, fool_path = self.consistency_path(sublength=sublength)
 
-        # Return proof nice formatted along with validation parameters
-        if consistency_path is not None and\
-           consistency_path[0] is not -1:  # Excludes zero leaves case
-            proof_index, left_path, full_path = consistency_path
+        except NoPathException:
+            raise InvalidProofRequest   # Includes the zero-leaves case
 
-            # Root hash test
-            if old_hash == self.multi_hash(left_path, len(left_path) - 1):
-                return Proof(
-                    generation='SUCCESS',
-                    provider=self.uuid,
-                    hash_type=self.hash_type,
-                    encoding=self.encoding,
-                    security=self.security,
-                    proof_index=proof_index,
-                    proof_path=full_path)
+        # Inclusion test
 
-            # Handles inclusion test failure
-            failure_message = 'Subtree provided by Client failed to be detected'
-            return Proof(
-                generation='FAILURE ({})'.format(failure_message),
-                provider=self.uuid,
+        if old_hash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1):
+
+            return Proof(provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=proof_index,
+                proof_path=full_path)
+        else:
+            return Proof(provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
                 proof_index=None,
                 proof_path=None)
-
-        # Handles a. zero `sublength` separately as success, so that proof
-        # validation is always True in this case (cf. the `validations.validateProof`
-        # method) b. incompatibility case as failure (includes the zero leaves)
-        return Proof(
-            generation='SUCCESS (Subtree provided by Client was empty)'
-            if sublength == 0 else 'Subtree provided by Client was incompatible',
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            proof_index=None,
-            proof_path=None)
 
 # ------------------------------ Inclusion tests ------------------------------
 
@@ -620,21 +602,26 @@ class MerkleTree(object):
         .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
         """
 
-        if not isinstance(old_hash, bytes) or not isinstance(sublength, int):
+        if type(old_hash) is not bytes or type(sublength) is not int or sublength < 0:
             raise InvalidTypesException
 
-        if 0 < sublength <= len(self.leaves):
+        if sublength == 0:
+            raise InvalidComparison
 
-                # Generate corresponding path of negatively signed hashes
+        if sublength <= len(self.leaves):
+
+            # Generate corresponding path of negatively signed hashes
 
             left_roots = self.principal_subroots(sublength)
             left_path = tuple([(-1, _[1].stored_hash) for _ in left_roots])
 
             # Perform hash-test
 
-            return old_hash == self.multi_hash(left_path, len(left_path) - 1)
+            return old_hash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1)
 
-        return True if sublength == 0 else False  # No path of hashes was generated
+        else: # sublength exceeds the tree's current length (includes the zero-leaves case)
+
+            return False
 
 
 # --------------------------------- Encryption ---------------------------
@@ -662,13 +649,15 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            with open(os.path.abspath(file_path), 'rb') as f:
+            with open(os.path.abspath(file_path), 'rb') as _file:
                 # ~ NOTE: File should be opened in binary mode so that its content remains
                 # ~ bytes and no decoding is thus needed during hashing (otherwise byte
                 # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                content = f.read()  # bytes
+                content = _file.read()  # bytes
+
         except FileNotFoundError:
             raise
+
         self.update(record=content)
 
     def encryptFilePerLog(self, file_path):
@@ -689,25 +678,28 @@ class MerkleTree(object):
         # ~ lines so that it can display the progress bar
         number_of_lines = 0
         try:
-            with open(absolute_file_path, 'r+') as file:
-                # Use memory-mapped file support to count lines
-                buffer = mmap.mmap(file.fileno(), 0)
+            with open(absolute_file_path, 'r+') as _file:
+                buffer = mmap.mmap(_file.fileno(), 0)        # Use memory-mapped file support to count lines
+
         except FileNotFoundError:
             raise
+
         else:
             while buffer.readline():
                 number_of_lines += 1
 
-        tqdm.write('')
-        # Start line by line encryption
-        for line in tqdm(open(absolute_file_path, 'rb'),
-                         # ~ NOTE: File should be opened in binary mode so that its content remains
-                         # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                         # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                         desc='Encrypting log file',
-                         total=number_of_lines):
-            self.update(record=line)
-        tqdm.write('Encryption complete\n')
+            tqdm.write('')
+
+            # Perform line by line encryption
+            for line in tqdm(open(absolute_file_path, 'rb'),
+                             # ~ NOTE: File should be opened in binary mode so that its content remains
+                             # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                             # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                             desc='Encrypting log file',
+                             total=number_of_lines):
+                self.update(record=line)
+
+            tqdm.write('Encryption complete\n')
 
     def encryptObject(self, object, sort_keys=False, indent=0):
         """Encrypts the provided object as a single new leaf into the Merkle-tree
@@ -725,10 +717,9 @@ class MerkleTree(object):
         :type indent:     int
         """
         self.update(
-            record=json.dumps(
-                object,
-                sort_keys=sort_keys,
-                indent=indent))
+            record=json.dumps(object,
+            sort_keys=sort_keys,
+            indent=indent))
 
     def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
         """Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree
@@ -750,11 +741,14 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            with open(os.path.abspath(file_path), 'r') as f:
-                object = json.load(f)
+            with open(os.path.abspath(file_path), 'r') as _file:
+                object = json.load(_file)
+
         except (FileNotFoundError, JSONDecodeError):
             raise
-        self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
+
+        else:
+            self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
 
     def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
         """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
@@ -777,17 +771,19 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            with open(os.path.abspath(file_path), 'r') as f:
-                list_of_objects = json.load(f)
+            with open(os.path.abspath(file_path), 'r') as _file:
+                list_of_objects = json.load(_file)
         except (FileNotFoundError, JSONDecodeError):
             raise
-        if not isinstance(list_of_objects, list):
-            raise ValueError('oops..')
+
+        if type(list_of_objects) is not list:
+            raise WrongJSONFormat
+
         for object in list_of_objects:
             self.encryptObject(
-                object=object,
-                sort_keys=sort_keys,
-                indent=indent)
+                        object=object,
+                        sort_keys=sort_keys,
+                        indent=indent)
 
 # ------------------------ Export to and load from file ------------------
 
@@ -806,8 +802,8 @@ class MerkleTree(object):
                           working directory
         :type file_path:  str
         """
-        with open(file_path, 'w') as f:
-            json.dump(self.serialize(), f, indent=4)
+        with open(file_path, 'w') as _file:
+            json.dump(self.serialize(), _file, indent=4)
 
     @staticmethod
     def loadFromFile(file_path):
@@ -825,22 +821,26 @@ class MerkleTree(object):
         .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
         """
         try:
-            with open(file_path, 'r') as f:
-                loaded_object = json.load(f)
+            with open(file_path, 'r') as _file:
+                loaded_object = json.load(_file)
         except (FileNotFoundError, JSONDecodeError):
             raise
+
         try:
-            loaded_tree = MerkleTree(
-                hash_type=loaded_object['header']['hash_type'],
-                encoding=loaded_object['header']['encoding'],
-                security=loaded_object['header']['security'])
+            _header = loaded_object['header']
+            _tree = MerkleTree(hash_type=_header['hash_type'],
+                        encoding=_header['encoding'],
+                        security=_header['security'])
         except KeyError:
-            raise
+            raise WrongJSONFormat
+
         tqdm.write('\nFile has been loaded')
         for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
-            loaded_tree.update(stored_hash=hash)
+            _tree.update(stored_hash=hash)
+
         tqdm.write('Tree has been retreived')
-        return loaded_tree
+
+        return _tree
 
 # --------------------------------- Comparison ---------------------------
 
@@ -959,15 +959,10 @@ class MerkleTree(object):
                 \n    size      : {size}\
                 \n    height    : {height}\n'.format(
             uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace(
-                '_',
-                '-'),
-            encoding=self.encoding.upper().replace(
-                '_',
-                '-'),
+            hash_type=self.hash_type.upper().replace('_', '-'),
+            encoding=self.encoding.upper().replace('_', '-'),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash.decode(
-                self.encoding) if self else '[None]',
+            root_hash=self.rootHash.decode(self.encoding) if self else '[None]',
             length=self.length,
             size=self.size,
             height=self.height)
@@ -985,22 +980,7 @@ class MerkleTree(object):
 
         .. note:: The left parent of each node is printed *above* the right one
         """
-        return self.root.__str__(
-            indent=indent,
-            encoding=self.encoding) if self else NONE_BAR
-
-    def display(self, indent=3):
-        """Prints the Merkle-tree in a terminal friendy way
-
-        Printing the tree resembles the output of the ``tree`` command at Unix based platforms
-
-        :param indent: [optional] Defaults to ``3``. the horizontal depth at which each level will be indented
-                       with respect to its previous one.
-        :type indent:  int
-
-        .. note:: The left parent of each node is printed *above* the right one
-        """
-        print(self.__str__(indent=indent))
+        return self.root.__str__(indent=indent, encoding=self.encoding) if self else NONE_BAR
 
 # ------------------------------- Serialization --------------------------
 

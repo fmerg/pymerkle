@@ -203,8 +203,7 @@ def test_consistency_proof_validation_for_non_empty_tree(
 
 # ------------------------- Test proof validator object ------------------
 
-# Proof provider (a typical SHA256/UTF-8 Merkle-Tree with defense against
-# second-preimage attack)
+# Proof provider (a typical SHA256/UTF-8 Merkle-Tree with defense against second-preimage attack)
 tree = MerkleTree()
 
 file_dir = os.path.dirname(__file__)

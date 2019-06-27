@@ -52,11 +52,6 @@ class NoPathException(BaseException):
     """
     pass
 
-class InvalidProofRequest(BaseException):
-    """Raised when a proof is requested with arguments whose type is not as prescribed
-    """
-    pass
-
 class NoSubtreeException(BaseException):
     """Raised when the full binary subtree of a specified height and based on a specified leaf
     does not exist
@@ -68,12 +63,22 @@ class NoPrincipalSubrootsException(BaseException):
     """
     pass
 
+class InvalidProofRequest(BaseException):
+    """Raised when a proof is requested with arguments whose type is not as prescribed
+    """
+    pass
+
 class InvalidTypesException(BaseException):
-    """Raised when the types of arguments given for consistency proof or inclusion tests is not as prescribed
+    """Raised when inclusion test is requested with arguments whose type is not as prescribed
     """
     pass
 
 class InvalidComparison(BaseException):
-    """Raised when a Merkle-tree is compared with an object that is not instance of the MerkleTree class
+    """Raised when a Merkle-tree is compared with an object that is not instance of the ``MerkleTree`` class
+    """
+    pass
+
+class WrongJSONFormat(BaseException):
+    """Raised when the deserialized object is not as expected
     """
     pass

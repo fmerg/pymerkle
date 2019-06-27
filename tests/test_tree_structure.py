@@ -8,15 +8,6 @@ from pymerkle.hashing import hash_machine
 from pymerkle.exceptions import EmptyTreeException
 
 
-def test_tree_constructor_with_records():
-    tree_1 = MerkleTree(*(bytes('{}-th record'.format(i), 'utf-8')
-                          for i in range(0, 1000)))
-    tree_2 = MerkleTree()
-    for i in range(1000):
-        tree_2.update(record='{}-th record'.format(i))
-    assert tree_1.rootHash == tree_2.rootHash
-
-
 # Construct standard Merkle-tree and hash function
 tree = MerkleTree()
 machine = hash_machine()

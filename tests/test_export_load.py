@@ -13,14 +13,18 @@ for file in os.listdir(os.path.join(os.path.dirname(__file__), 'exports')):
             file))
 
 tree = MerkleTree()
+
 for i in range(12):
     tree.update(record='{}-th record'.format(i))
+
 export_path = os.path.join(
     os.path.dirname(__file__),
     'exports',
     '{}.json'.format(
         tree.uuid))
+
 tree.export(file_path=export_path)
+
 with open(export_path, 'r') as f:
     exported_version = json.load(f)
 

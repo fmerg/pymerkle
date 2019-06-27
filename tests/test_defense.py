@@ -24,6 +24,7 @@ from pymerkle import MerkleTree, hashing
 
 # Generate trees for all combinations of hash and encoding types
 # (including both security modes for each)
+
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = hashing.ENCODINGS
 trees = []
@@ -59,6 +60,7 @@ def test_defense_against_second_preimage_attack(original_tree):
     )
 
     # Check if the attacker has found the original root-hash
+    
     if original_tree.security:
         assert original_tree.rootHash != attacker_tree.rootHash
     else:

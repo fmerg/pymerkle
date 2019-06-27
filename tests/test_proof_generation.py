@@ -19,9 +19,15 @@ ENCODINGS = ['utf_7',
              'utf_32_le']
 
 # Files to encrypt
-short_APACHE_log = os.path.join(os.path.dirname(__file__), 'logs/short_APACHE_log')
-RED_HAT_LINUX_log = os.path.join(os.path.dirname(__file__), 'logs/RED_HAT_LINUX_log')
-large_APACHE_log = os.path.join(os.path.dirname(__file__), 'logs/large_APACHE_log')
+short_APACHE_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/short_APACHE_log')
+RED_HAT_LINUX_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/RED_HAT_LINUX_log')
+large_APACHE_log = os.path.join(
+    os.path.dirname(__file__),
+    'logs/large_APACHE_log')
 
 # Store first log size
 with open(short_APACHE_log) as first_log_file:
