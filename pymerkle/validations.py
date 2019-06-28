@@ -132,9 +132,10 @@ class Receipt(object):
     """
 
     def __init__(self, *args, **kwargs):
-        if args:                            # Assuming positional arguments by default
+
+        if args:                                                                # Assuming positional arguments by default
             self.header = {
-                'uuid': str(uuid.uuid1()),  # Time based receipt id
+                'uuid': str(uuid.uuid1()),                                      # Time based receipt id
                 'timestamp': int(time.time()),
                 'validation_moment': time.ctime(),
             }
@@ -144,17 +145,24 @@ class Receipt(object):
                 'proof_provider': args[1],
                 'result': args[2]
             }
+
         else:
-            if kwargs.get('from_dict'):     # Importing receipt from dict
+
+            if kwargs.get('from_dict'):                                         # Importing receipt from dict
+
                 self.header = kwargs.get('from_dict')['header']
                 self.body = kwargs.get('from_dict')['body']
-            elif kwargs.get('from_json'):   # Importing receipt form JSON text
-                receipt_dict = json.loads(kwargs.get('from_json'))
-                self.header = receipt_dict['header']
-                self.body = receipt_dict['body']
-            else:                           # Standard creation of a receipt
+
+            elif kwargs.get('from_json'):                                       # Importing receipt form JSON text
+
+                _dict = json.loads(kwargs.get('from_json'))
+
+                self.header = _dict['header']
+                self.body = _dict['body']
+
+            else:                                                               # Standard creation of a receipt
                 self.header = {
-                    'uuid': str(uuid.uuid1()),  # Time based receipt id
+                    'uuid': str(uuid.uuid1()),                                  # Time based receipt id
                     'timestamp': int(time.time()),
                     'validation_moment': time.ctime(),
                 }
@@ -194,8 +202,7 @@ class Receipt(object):
 
         :rtype: dict
         """
-        serializer = ReceiptSerializer()
-        return serializer.default(self)
+        return ReceiptSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the receipt's JSON serialized form
