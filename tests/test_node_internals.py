@@ -27,35 +27,36 @@ _leaves = (
 
 # A full binary structure (child-parent relations) -4 leaves, 7 nodes in total
 
-leaf_1 = Leaf(hash_function=HASH,
-              encoding=ENCODING,
-              record=b'first record...')
+leaf_1  = Leaf(hash_function=HASH,
+               encoding=ENCODING,
+               record=b'first record...')
 
-leaf_2 = Leaf(hash_function=HASH,
-              encoding=ENCODING,
-              record=b'second record...')
+leaf_2  = Leaf(hash_function=HASH,
+               encoding=ENCODING,
+               record=b'second record...')
 
-leaf_3 = Leaf(hash_function=HASH,
-              encoding=ENCODING,
-              record=b'third record...')
+leaf_3  = Leaf(hash_function=HASH,
+               encoding=ENCODING,
+               record=b'third record...')
 
-leaf_4 = Leaf(hash_function=HASH,
-              encoding=ENCODING,
-              record=b'fourth record...')
+leaf_4  = Leaf(hash_function=HASH,
+               encoding=ENCODING,
+               record=b'fourth record...')
 
-node_12 = Node(
-    hash_function=HASH,
-    encoding=ENCODING,
-    left=leaf_1,
-    right=leaf_2)
+node_12 = Node(hash_function=HASH,
+               encoding=ENCODING,
+               left=leaf_1,
+               right=leaf_2)
 
-node_34 = Node(
-    hash_function=HASH,
-    encoding=ENCODING,
-    left=leaf_3,
-    right=leaf_4)
+node_34 = Node(hash_function=HASH,
+               encoding=ENCODING,
+               left=leaf_3,
+               right=leaf_4)
 
-root = Node(hash_function=HASH, encoding=ENCODING, left=node_12, right=node_34)
+root    = Node(hash_function=HASH,
+               encoding=ENCODING,
+               left=node_12,
+               right=node_34)
 
 
 # ------------------------- Tests for childless leaves -------------------

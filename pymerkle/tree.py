@@ -95,9 +95,10 @@ class MerkleTree(object):
 
         .. note:: Returns ``None`` if the Merkle-tree is currently empty
         """
-        if self:
-            return self.root.stored_hash
-        raise EmptyTreeException('Empty Merkle-trees have no root-hash')
+        if not self:
+            raise EmptyTreeException
+
+        return self.root.stored_hash
 
     @property
     def length(self):
@@ -322,7 +323,7 @@ class MerkleTree(object):
             # Calculate proof path
             proof_index, audit_path = self.audit_path(index=index)
 
-        except NoPathException:
+        except NoPathException: # Includes case of negative index provided
 
             return Proof(provider=self.uuid,
                     hash_type=self.hash_type,
@@ -563,7 +564,7 @@ class MerkleTree(object):
 
         try:
             # Calculate proof path
-            proof_index, left_path, fool_path = self.consistency_path(sublength=sublength)
+            proof_index, left_path, full_path = self.consistency_path(sublength=sublength)
 
         except NoPathException:
             raise InvalidProofRequest   # Includes the zero-leaves case

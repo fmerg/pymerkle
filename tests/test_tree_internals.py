@@ -112,20 +112,6 @@ def test_LeafConstructionError_upon_update():
             stored_hash='540ef8fc9eefa3ec0fbe55bc5d10dbea03d5bac5591b3d7db3af79ec24b3f74c'
         )
 
-
-def test_uniqueness_of_structure():
-    """Tests that encrypting  101 records upon construction at once leads to
-    to the same Merkle-tree as if the same records were successively
-    encrypted in the same order (verfied by means of root-hash comparison)
-    """
-    tree_1 = MerkleTree(*['%d-th record' % i for i in range(0, 100)])
-
-    tree_2 = MerkleTree()
-    for i in range(0, 100):
-        tree_2.update(record='%d-th record' % i)
-
-    assert tree_1.rootHash == tree_2.rootHash
-
 # Representation tests
 
 
@@ -612,6 +598,7 @@ def test_minimal_complement(tree, subroots, _minimal_complement):
 
 _no_path_exceptions = [
     (_0_leaves_tree, -1),
+    (_0_leaves_tree, +0),
     (_0_leaves_tree, +1),
     (_1_leaves_tree, -1),
     (_1_leaves_tree, +2),
@@ -634,7 +621,6 @@ def test_consistency_NoPathException(tree, sublength):
         tree.consistency_path(sublength)
 
 _consistency_paths = [
-    (_0_leaves_tree, 0, (-1, (), ())),
     (_1_leaves_tree, 0, (+0, (),
                              ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
     (_1_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),

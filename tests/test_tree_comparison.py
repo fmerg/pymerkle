@@ -3,14 +3,7 @@ import os
 from pymerkle import MerkleTree, hashing, validateProof
 from pymerkle.exceptions import InvalidTypesException, InvalidComparison
 
-# --------------------------- Test exception cases  ---------------------------
-
-@pytest.mark.parametrize("first, second", [(b'bytes', 'no_integer'), ('no_bytes', 0)])
-def test_inclusion_test_InvalidTypesException(first, second):
-    with pytest.raises(InvalidTypesException):
-        MerkleTree().inclusionTest(first, second)
-
-# --------- Test intermediate success case for all possible tree types ---
+# ----------------------------------- Setuo -----------------------------------
 
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = hashing.ENCODINGS
@@ -37,22 +30,23 @@ for security in (True, False):
             trees_and_subtrees.append((tree, old_hash, sublength))
 
 
-@pytest.mark.parametrize("tree, old_hash, sublength", trees_and_subtrees)
-def test_inclusion_test_with_valid_parameters(tree, old_hash, sublength):
-    assert tree.inclusionTest(old_hash, sublength) is True
+# --------------------------- Test exception cases  ---------------------------
+
+@pytest.mark.parametrize("first, second", [(b'bytes', 'no_integer'), ('no_bytes', 0)])
+def test_inclusion_test_InvalidTypesException(first, second):
+    with pytest.raises(InvalidTypesException):
+        MerkleTree().inclusionTest(first, second)
 
 # -------------- Test success edge case with standard Merkle-Tree --------
 
 def test_inclusion_test_failure_for_zero_leaves_case():
     assert MerkleTree().inclusionTest(old_hash=b'something', sublength=1) is False
 
-tree = MerkleTree()
-tree.encryptFilePerLog(short_APACHE_log)
-old_hash, sublength = tree.rootHash, tree.length
-tree.encryptFilePerLog(RED_HAT_LINUX_log)
-
-
 def test_inclusion_test_edge_success_case():
+    tree = MerkleTree()
+    tree.encryptFilePerLog(short_APACHE_log)
+    old_hash, sublength = tree.rootHash, tree.length
+    tree.encryptFilePerLog(RED_HAT_LINUX_log)
     assert tree.inclusionTest(tree.rootHash, tree.length) is True
 
 # ---------------- Test failure cases with standard Merkle-tree ----------
@@ -72,6 +66,12 @@ def test_inclusion_test_with_invalid_old_hash(sublength):
     assert tree.inclusionTest(
         b'anything except for the hash corresponding to the provided sublength',
         sublength) is False
+
+# --------- Test intermediate success case for all possible tree types ---
+
+@pytest.mark.parametrize("tree, old_hash, sublength", trees_and_subtrees)
+def test_inclusion_test_success(tree, old_hash, sublength):
+    assert tree.inclusionTest(old_hash, sublength) is True
 
 # ------------------------- Test comparison operators -------------------------
 
@@ -176,28 +176,28 @@ def test_not___lt___InvalidComparison():
 # ~ one-member-sequences, so that this issue does not arise)
 
 
-# # Initialize parametrization with the one-leaf tree
-# trees_and_later_states = [(
-#     MerkleTree('1'), MerkleTree(*[str(k) for k in range(1, j)])
-# ) for j in range(2, 10)]
-#
-# # Parametrize for the first 9 powers of 2 beginning from 2^1
-# for power in range(1, 10):
-#     tree = MerkleTree(*[str(i) for i in range(2, 2**power + 1)])
-#     for j in range(1, 10):
-#         trees_and_later_states.append((
-#             tree,
-#             MerkleTree(*[str(k) for k in range(2, 2**power + 1 + j)])
-#         ))
-#
-#
-# @pytest.mark.parametrize('tree, later_state', trees_and_later_states)
-# def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
-#     assert later_state.inclusionTest(
-#         old_hash=tree.rootHash,
-#         sublength=tree.length) is True
-#
-#
+# Initialize parametrization with the one-leaf tree
+trees_and_later_states = [(
+    MerkleTree('1'), MerkleTree(*[str(k) for k in range(1, j)])
+) for j in range(2, 10)]
+
+# Parametrize for the first 9 powers of 2 beginning from 2^1
+for power in range(1, 10):
+    tree = MerkleTree(*[str(i) for i in range(2, 2**power + 1)])
+    for j in range(1, 10):
+        trees_and_later_states.append((
+            tree,
+            MerkleTree(*[str(k) for k in range(2, 2**power + 1 + j)])
+        ))
+
+
+@pytest.mark.parametrize('tree, later_state', trees_and_later_states)
+def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
+    assert later_state.inclusionTest(
+        old_hash=tree.rootHash,
+        sublength=tree.length) is True
+
+
 # @pytest.mark.parametrize('tree, later_state', trees_and_later_states)
 # def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(
 #         tree,
