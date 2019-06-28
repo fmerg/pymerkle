@@ -27,7 +27,7 @@ class NoParentException(BaseException):
 
 
 class EmptyTreeException(BaseException):
-    """Raised when the root-hash of an empty Merkle-tree is requested
+    """Raised when the root or the root-hash of an empty Merkle-tree is requested
     """
     pass
 

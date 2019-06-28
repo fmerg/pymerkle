@@ -27,75 +27,75 @@ def validateProof(target_hash, proof):
     :rtype:             bool
     """
 
-    if proof.header['generation'][:7] == 'SUCCESS':
+    _header = proof.header
 
-        # Handle separately zero sublength case as always True
-        if proof.header['generation'][9: -
-                                      1] == 'Subtree provided by Client was empty':
-            proof.header['status'] = True
-            return True
+    if not _header['generation']:      # Empty proof-path case
+
+        _header['status'] = False
+        return False
+
+    else:
 
         # Configure hashing parameters
+
         machine = hash_machine(
-            hash_type=proof.header['hash_type'],
-            encoding=proof.header['encoding'],
-            security=proof.header['security'])
+            hash_type=_header['hash_type'],
+            encoding=_header['encoding'],
+            security=_header['security']
+        )
 
-        # Perform calculation
-        validated = target_hash == machine.multi_hash(
-            proof.body['proof_path'], proof.body['proof_index'])
+        # Perform hash-comparison
 
-        # Inscribe new proof status according to the above calculation
-        proof.header['status'] = validated
+        result = target_hash == machine.multi_hash(
+            signed_hashes=proof.body['proof_path'],
+            start=proof.body['proof_index']
+        )
 
-        # Print and return result
-        return validated
+        # Inscribe new status according to the above calculation and return
 
-    # generation was `FAILURE`
-    proof.header['status'] = False
-    return False
+        proof.header['status'] = result
+        return result
 
 
-def validationReceipt(target_hash, proof, save_dir=None):
+def validationReceipt(target_hash, proof, dirpath=None):
     """Wraps the ``validateProof()`` method, returning a validation receipt instead of a boolean
 
-    If a ``save_dir`` has been specified, then the receipt is automatically stored in the given
+    If a ``dirpath`` has been specified, then the receipt is automatically stored in the given
     directory as a ``.json`` file named with the receipt's uuid
 
     :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
                         acclaimed top-hash of the Merkle-tree having provided the proof)
     :type target_hash:  bytes
     :param proof:       the proof to be validated
-    :type save_dir:     [optional] Relative path with respect to the current working directory of the
+    :type dirpath:     [optional] Relative path with respect to the current working directory of the
                         directory where to save the generated receipt. If specified, the generated
                         receipt will be saved within this directory as a ``.json`` file named with
                         the receipt's uuid. Otherwise, then generated receipt will *not* be
                         automatically stored in any file.
-    :param save_dir:    str
+    :param dirpath:    str
     :type proof:        proof.Proof
     :rtype:             validations.Receipt
     """
-    validated = validateProof(target_hash=target_hash, proof=proof)
+
+    result  = validateProof(target_hash=target_hash, proof=proof)
+
+    _header = proof.header
 
     receipt = Receipt(
-        proof_uuid=proof.header['uuid'],
-        proof_provider=proof.header['provider'],
+        proof_uuid=_header['uuid'],
+        proof_provider=_header['provider'],
         result=validated
     )
 
-    if save_dir:
+    if dirpath:
         with open(
             os.path.join(
-                save_dir,
-                '{}.json'.format(receipt.header['uuid'])
+                dirpath,
+                '%s.json' % receipt.header['uuid']
             ),
             'w'
-        ) as output_file:
-            json.dump(
-                receipt.serialize(),
-                output_file,
-                sort_keys=True,
-                indent=4)
+        ) as _file:
+            json.dump(receipt.serialize(), _file, sort_keys=True, indent=4)
 
     return receipt
 

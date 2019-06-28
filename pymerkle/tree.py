@@ -113,8 +113,8 @@ class MerkleTree(object):
             _root = self.root
         except EmptyTreeException:
             raise
-        else:
-            return _root.stored_hash
+
+        return _root.stored_hash
 
     @property
     def length(self):

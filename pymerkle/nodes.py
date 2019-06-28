@@ -7,16 +7,17 @@ from .exceptions import NoChildException, NoDescendantException, NoParentExcepti
 import json
 
 # Prefices to be used for nice tree printing
+
 L_BRACKET_SHORT = '\u2514' + '\u2500'           # └─
-L_BRACKET_LONG = '\u2514' + 2 * '\u2500'        # └──
-T_BRACKET = '\u251C' + 2 * '\u2500'             # ├──
-VERTICAL_BAR = '\u2502'                         # │
+L_BRACKET_LONG  = '\u2514' + 2 * '\u2500'       # └──
+T_BRACKET       = '\u251C' + 2 * '\u2500'       # ├──
+VERTICAL_BAR    = '\u2502'                      # │
 
 NONE = '[None]'
 
 
 class _Node(object):
-    """
+    """Base class for ``Leaf`` and ``Node``
     """
 
     __slots__ = ('__encoding', '__child',)
@@ -63,8 +64,8 @@ class _Node(object):
             _child = self.child
         except NoChildException:
             return False
-        else:
-            return self == _child.left
+
+        return self == _child.left
 
     def is_right_parent(self):
         """Checks if the node is a right parent
@@ -77,8 +78,8 @@ class _Node(object):
             _child = self.child
         except NoChildException:
             return False
-        else:
-            return self == _child.right
+
+        return self == _child.right
 
     def is_parent(self):
         """Checks if the node is a parent
@@ -91,8 +92,8 @@ class _Node(object):
             self.child
         except NoChildException:
             return False
-        else:
-            return True
+
+        return True
 
     def descendant(self, degree):
         """ Detects and returns the node that is ``degree`` steps upwards within
@@ -111,12 +112,13 @@ class _Node(object):
         if degree == 0:
             return self
         else:
+
             try:
                 _child = self.child
             except NoChildException:
                 raise NoDescendantException
-            else:
-                return _child.descendant(degree - 1)
+
+            return _child.descendant(degree - 1)
 
     def __repr__(self):
         """Overrides the default implementation
@@ -210,7 +212,7 @@ class _Node(object):
                 indent=indent,
                 ignore=new_ignore)
         return output
-        
+
 
 class Leaf(_Node):
     """Class for the leafs of Merkle-tree (parentless nodes)
@@ -252,6 +254,7 @@ class Leaf(_Node):
 
     @property
     def stored_hash(self):
+
         return self.__stored_hash
 
 # ------------------------------- Serialization --------------------------
@@ -264,6 +267,7 @@ class Leaf(_Node):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
+
         return LeafSerializer().default(self)
 
     def JSONstring(self):
@@ -273,6 +277,7 @@ class Leaf(_Node):
 
         :rtype: str
         """
+
         return json.dumps(self, cls=LeafSerializer, sort_keys=True, indent=4)
 
 
@@ -323,12 +328,15 @@ class Node(_Node):
 
     @property
     def stored_hash(self):
+
         return self.__stored_hash
 
     def set_left(self, left):
+
         self.__left = left
 
     def set_right(self, right):
+
         self.__right = right
 
     def recalculate_hash(self, hash_function):
@@ -343,8 +351,8 @@ class Node(_Node):
 
         .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
-        self.__stored_hash = hash_function(
-            self.left.stored_hash, self.right.stored_hash)
+
+        self.__stored_hash = hash_function(self.left.stored_hash, self.right.stored_hash)
 
 
 # ------------------------------- Serialization --------------------------
@@ -358,6 +366,7 @@ class Node(_Node):
         .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
                   for circular reference error to be avoided.
         """
+
         return NodeSerializer().default(self)
 
     def JSONstring(self):
@@ -367,4 +376,5 @@ class Node(_Node):
 
         :rtype: str
         """
+
         return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)
