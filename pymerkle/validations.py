@@ -84,7 +84,7 @@ def validationReceipt(target_hash, proof, dirpath=None):
     receipt = Receipt(
         proof_uuid=_header['uuid'],
         proof_provider=_header['provider'],
-        result=validated
+        result=result
     )
 
     if dirpath:

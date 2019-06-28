@@ -107,9 +107,14 @@ class ProofSerializer(json.JSONEncoder):
                 'body': {
                     'proof_index': proof_index,
                     'proof_path': [
-                        [sign, hash
-                            if isinstance(hash, str) else hash.decode(encoding=encoding)
-                         ] for (sign, hash) in proof_path]if proof_path is not None else []
+
+                        [
+                            sign,
+                            hash if type(hash) is str else hash.decode(encoding=encoding)
+
+                        ] for (sign, hash) in proof_path
+
+                    ] if proof_path is not None else []
                 }
             }
 

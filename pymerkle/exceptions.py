@@ -15,8 +15,8 @@ class NoChildException(BaseException):
 
 
 class NoDescendantException(BaseException):
-    """Raised when the non-existent descentant of a node is requested (i.e., with a
-    descendancy-degree that exceeds possibilities)
+    """Raised when the non-existent descentant of a node is requested
+    (i.e., with a descendancy-degree exceeding current possibilities)
     """
 
 

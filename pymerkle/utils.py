@@ -51,11 +51,13 @@ def decompose(num):
     .. note:: Returns the nonsensical empty tuple for arguments equal to or
               smaller than zero
     """
+
     powers = []
     while num > 0:
-        power = log_2(num)
-        num -= 2**power
-        powers.append(power)
+        _power = log_2(num)
+        num -= 2**_power
+        powers.append(_power)
+
     return tuple(powers)
 
 
@@ -78,19 +80,26 @@ def stringify_path(signed_hashes, encoding):
     def get_with_sign(num): return str(num) if num < 0 else '+' + str(num)
 
     stringified_elems = []
+
     for i in range(len(signed_hashes)):
+
         elem = signed_hashes[i]
+
         stringified_elems.append(
-            ('\n' +
-             (7 - order_of_magnitude(i)) * ' ' +
-             '[{i}]' +
-             3 * ' ' +
-             '{sign}' +
-             2 * ' ' +
-             '{hash}'). format(
-                 i=i,
-                 sign=get_with_sign(elem[0]),
-                 hash=elem[1].decode(encoding=encoding)
-                 if not isinstance(elem[1], str) else elem[1]))
-                 
+            (
+                '\n' +
+                 (7 - order_of_magnitude(i)) * ' ' +
+                 '[{i}]' +
+                 3 * ' ' +
+                 '{sign}' +
+                 2 * ' ' +
+                 '{hash}'
+            ).format(
+                i=i,
+                sign=get_with_sign(elem[0]),
+                hash=elem[1].decode(encoding=encoding)
+                if not isinstance(elem[1], str) else elem[1]
+             )
+        )
+
     return ''.join(elem for elem in stringified_elems)

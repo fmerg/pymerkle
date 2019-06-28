@@ -369,9 +369,9 @@ stringifications = [
 ]
 
 
-@pytest.mark.parametrize("_node, stringification", stringifications)
-def test___str__(_node, stringification):
-    assert _node.__str__() == stringification
+@pytest.mark.parametrize("_node, _stringification", stringifications)
+def test___str__(_node, _stringification):
+    assert _node.__str__() == _stringification
 
 
 # Serialization tests
@@ -428,13 +428,13 @@ serializations = [
 ]
 
 
-@pytest.mark.parametrize("node, serialization", serializations)
-def test_node_serialization(node, serialization):
+@pytest.mark.parametrize("_node, _serialization", serializations)
+def test_node_serialization(_node, _serialization):
     """Tests that node serialization has the appropriate form (this is independent
     of childlessness, since the ``._child`` is excluded from JSON formatting in
     order for circular reference error to be avoided)
     """
-    assert node.serialize() == serialization
+    assert _node.serialize() == _serialization
 
 
 JSONstrings = [
@@ -482,26 +482,27 @@ JSONstrings = [
 
 # Recalculation tests
 
-@pytest.mark.parametrize("node, JSONstring", JSONstrings)
-def test_node_JSONstring(node, JSONstring):
+@pytest.mark.parametrize("_node, _json_string", JSONstrings)
+def test_node_JSONstring(_node, _json_string):
     """Tests that node JSON string has the appropriate form (this is independent
     of childlessness, since the ``._child`` is excluded from JSON formatting in
     order for circular reference error to be avoided)
     """
-    assert node.JSONstring() == JSONstring
+    assert _node.JSONstring() == _json_string
 
 
 def test_hash_recalculation():
-    """Tests hash recalculation at the node_34 and root
-    after modifying the hash stored by leaf_4
+    """Tests hash recalculation at the node_34 and root after modifying the hash stored by leaf_4
     """
 
     new_leaf = Leaf(hash_function=HASH,
                     encoding=ENCODING,
                     record=b'new record...')
+
     node_34.set_right(new_leaf)
 
     node_34.recalculate_hash(hash_function=HASH)
+
     root.recalculate_hash(hash_function=HASH)
 
     assert node_34.stored_hash == HASH(
