@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat
+from .exceptions import LeafConstructionError, NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat
 import json
 import uuid
 import os
@@ -172,10 +172,15 @@ class MerkleTree(object):
             last_subroot = self.leaves[-1].descendant(degree=last_power)
 
             # Store new record to new leaf
-            new_leaf = Leaf(hash_function=self.hash,
-                            encoding=self.encoding,
-                            record=record,
-                            stored_hash=stored_hash)
+
+            try:
+                new_leaf = Leaf(hash_function=self.hash,
+                                encoding=self.encoding,
+                                record=record,
+                                stored_hash=stored_hash)
+
+            except LeafConstructionError:
+                raise
 
             # Assimilate new leaf
             self.leaves.append(new_leaf)
@@ -225,10 +230,13 @@ class MerkleTree(object):
 
         else:  # Empty tree case
 
-            new_leaf = Leaf(hash_function=self.hash,
-                            encoding=self.encoding,
-                            record=record,
-                            stored_hash=stored_hash)
+            try:
+                new_leaf = Leaf(hash_function=self.hash,
+                                encoding=self.encoding,
+                                record=record,
+                                stored_hash=stored_hash)
+            except LeafConstructionError:
+                raise
 
             self.leaves = [new_leaf]
             self.nodes = set([new_leaf])
