@@ -87,6 +87,20 @@ class MerkleTree(object):
 # ------------------------------------ Properties ------------------------
 
     @property
+    def root(self):
+        """Returns the current root of the Merkle-tree
+
+        :returns: the tree's current root
+        :rtype:   nodes._Node
+
+        .. note:: Raises ``EmptyTreeException`` if the Merkle-tree is currently empty
+        """
+        if not self:
+            raise EmptyTreeException
+
+        return self._root
+
+    @property
     def rootHash(self):
         """Returns the current root-hash of the Merkle-tree, i.e., the hash stored by its current root
 
@@ -95,10 +109,12 @@ class MerkleTree(object):
 
         .. note:: Returns ``None`` if the Merkle-tree is currently empty
         """
-        if not self:
-            raise EmptyTreeException
-
-        return self.root.stored_hash
+        try:
+            _root = self.root
+        except EmptyTreeException:
+            raise
+        else:
+            return _root.stored_hash
 
     @property
     def length(self):
@@ -173,12 +189,12 @@ class MerkleTree(object):
             except NoChildException:
 
                 # last_subroot was previously root
-                self.root = Node(hash_function=self.hash,
+                self._root = Node(hash_function=self.hash,
                                  encoding=self.encoding,
                                  left=last_subroot,
                                  right=new_leaf)
 
-                self.nodes.add(self.root)
+                self.nodes.add(self._root)
 
             else:
                 # Bifurcate
@@ -216,7 +232,7 @@ class MerkleTree(object):
 
             self.leaves = [new_leaf]
             self.nodes = set([new_leaf])
-            self.root = new_leaf
+            self._root = new_leaf
 
 
 # ---------------------------- Audit-proof utilities ---------------------
@@ -981,7 +997,12 @@ class MerkleTree(object):
 
         .. note:: The left parent of each node is printed *above* the right one
         """
-        return self.root.__str__(indent=indent, encoding=self.encoding) if self else NONE_BAR
+        try:
+            _root = self.root
+        except EmptyTreeException:
+            return NONE_BAR
+        else:
+            return _root.__str__(indent=indent, encoding=self.encoding)
 
 # ------------------------------- Serialization --------------------------
 
@@ -1017,4 +1038,4 @@ class MerkleTree(object):
         """
         self.leaves = []
         self.nodes = set()
-        self.root = None
+        del self._root
