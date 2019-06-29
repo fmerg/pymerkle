@@ -1,249 +1,185 @@
+"""Tests the .validateProof() and .validationReceipt() functions from the validations.py module
+"""
+
 import pytest
 import os
 import json
-import time
 from pymerkle import MerkleTree, hashing, validateProof, validationReceipt
 from pymerkle.validations import Receipt
 
-# ---------------------- Validation tests parametrization ----------------
+def test_validationReceipt():
+
+    _tree = MerkleTree(*['%d-th record' % i for i in range(5)])
+
+    _audit_proof = _tree.auditProof(3)
+    _receipt = validationReceipt(
+        target_hash=_tree.rootHash,
+        proof=_audit_proof,
+        dirpath=os.path.join(os.path.dirname(__file__), 'receipts')
+    )
+
+    _receipt_path = os.path.join(
+        os.path.dirname(__file__),
+        'receipts',
+        '%s.json' % _receipt.header['uuid']
+    )
+
+    with open(_receipt_path) as _file:
+        _clone = json.load(_file)
+        assert _receipt.serialize() == _clone
+
+# -------------------------------- Common setup --------------------------------
 
 
 HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = ['utf_7',
-             'utf_8',
-             'utf_16',
-             'utf_16_be',
-             'utf_16_le',
-             'utf_32',
-             'utf_32_be',
-             'utf_32_le']
+ENCODINGS  = hashing.ENCODINGS
 
-# Files to encrypt
-short_APACHE_log = os.path.join(os.path.dirname(__file__), 'logs/short_APACHE_log')
-RED_HAT_LINUX_log = os.path.join(os.path.dirname(__file__), 'logs/RED_HAT_LINUX_log')
-large_APACHE_log = os.path.join(os.path.dirname(__file__), 'logs/large_APACHE_log')
-
-# Store first log size
-with open(short_APACHE_log) as first_log_file:
-    first_log_size = sum(1 for line in first_log_file)
-
-# Store second log size
-with open(RED_HAT_LINUX_log) as second_log_file:
-    second_log_size = sum(1 for line in second_log_file)
-
-# ------------------- Test validate proof for empty tree case ------------
+MAX_LENGTH = 5
 
 trees = []
-for encoding in ENCODINGS:
-    for hash_type in HASH_TYPES:
-        tree = MerkleTree(
-            hash_type=hash_type,
-            encoding=encoding,
-            security=True)
-        trees.append(tree)
 
+for security in (True, False):
+    for _length in range(1, MAX_LENGTH + 1):
+        for hash_type in HASH_TYPES:
+            for encoding in ENCODINGS:
 
-@pytest.mark.parametrize('tree', trees)
-def test_proof_validation_for_empty_tree(tree):
-    """Tests proof-validation for proofs provided by empty trees
-    """
-    audit_proof = tree.auditProof(arg=0)
-    consistency_proof = tree.consistencyProof(
-        old_hash=tree.rootHash, sublength=0)
-
-    assert validateProof(
-        target_hash=b'anything...',
-        proof=audit_proof) is False and validateProof(
-        target_hash=b'anything...',
-        proof=consistency_proof) is True
-
-# ------------------------ Test audit proof validation ------------------------
-
-
-audit_proofs = []
-target_hashes = []
-expecteds = []
-
-for bool_1 in (True, False):  # Controls index compatibility
-    for bool_2 in (True, False):  # Controls validity of target hash
-        for encoding in ENCODINGS:
-            for hash_type in HASH_TYPES:
-                for arg in range(first_log_size):
-
-                    # Expected value configuration
-                    expecteds.append(bool_1 and bool_2)
-
-                    # Proof-provider configuration
-                    tree = MerkleTree(
+                trees.append(
+                    MerkleTree(
+                        *['%d-th record' %i for i in range(_length)],
                         hash_type=hash_type,
                         encoding=encoding,
-                        security=True)
-                    tree.encryptFilePerLog(short_APACHE_log)
-
-                    # Proof configuration
-                    if bool_1:
-                        audit_proofs.append(tree.auditProof(arg=arg))
-                    else:
-                        audit_proofs.append(tree.auditProof(
-                            arg=first_log_size + arg))
-
-                    # Target-hash configuration
-                    if bool_2:
-                        target_hashes.append(tree.rootHash)
-                    else:
-                        target_hashes.append(b'anything else...')
+                        security=security
+                    )
+                )
 
 
-@pytest.mark.parametrize(
-    'audit_proof, target_hash, expected', [
-        (audit_proofs[i], target_hashes[i], expecteds[i]) for i in range(
-            len(audit_proofs))])
-def test_index_based_audit_proof_validation_for_non_empty_tree(
-        audit_proof, target_hash, expected):
-    assert validateProof(
-        target_hash=target_hash,
-        proof=audit_proof) is expected
+# --------------------------- Audit-proof validation ---------------------------
 
 
-small_tree = MerkleTree('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-audit_proofs = []
-expecteds = []
+_false__audit_proofs = []
+_true__audit_proofs  = []
 
-for bool in (True, False):
-    for i in range(0, 10):
-        if bool:
-            audit_proofs.append(small_tree.auditProof(arg=str(i)))
-        else:
-            audit_proofs.append(small_tree.auditProof(arg=str(10 + i)))
-        expecteds.append(bool)
+for _tree in trees:
 
+    _false__audit_proofs.extend(
+        [
+            (
+                _tree,
+                _tree.auditProof(-1),                                           # Based upon negative index
+            ),
+            (
+                _tree,
+                _tree.auditProof(_tree.length),                                 # Based upon index exceeding current length
+            ),
+            (
+                _tree,
+                _tree.auditProof('anything that has not been recorded')         # Based upon non encrypted record
+            )
+        ]
+    )
 
-@pytest.mark.parametrize(
-    'audit_proof, expected', [
-        (audit_proofs[i], expecteds[i]) for i in range(
-            len(audit_proofs))])
-def test_record_based_audit_proof_validation_for_non_empty_tree(
-        audit_proof, expected):
-    assert validateProof(
-        target_hash=small_tree.rootHash,
-        proof=audit_proof) is expected
+    for _index in range(0, _tree.length):
+        _true__audit_proofs.extend(
+            [
+                (
+                    _tree,
+                    _tree.auditProof(_index),                                   # Index based proof
+                ),
+                (
+                    _tree,
+                    _tree.auditProof('%d-th record' % _index),                  # String based proof
+                ),
+                # (
+                #     _tree,
+                #     _tree.auditProof(
+                #         bytes(
+                #             '%d-th record' % _index,
+                #             _tree.encoding
+                #         )
+                #     )                                                           # Bytes based proof
+                # ),
+                # (
+                #     _tree,
+                #     _tree.auditProof(
+                #         bytearray(
+                #             '%d-th record' % _index,
+                #             _tree.encoding
+                #         )
+                #     )                                                           # Bytearray based proof
+                # )
+            ]
+        )
 
-# --------------------- Test consistency proof validation ---------------------
+@pytest.mark.parametrize("_tree, _audit_proof", _false__audit_proofs)
+def test_false_audit_validateProof(_tree, _audit_proof):
 
+    assert not validateProof(_tree.rootHash, _audit_proof)
 
-consistency_proofs = []
-target_hashes = []
-expecteds = []
+@pytest.mark.parametrize("_tree, _audit_proof", _true__audit_proofs)
+def test_true_audit_validateProof(_tree, _audit_proof):
 
-for bool_1 in (
-        True,
-        False):  # Controls subtree detection via validity of old tree hash
-    for bool_2 in (
-            True, False):  # Controls subtree detection via its length
-        for bool_3 in (
-                True, False):  # Controls subtree compatibility
-            for bool_4 in (
-                    True, False):  # Controls validity of target hash
-                for encoding in ENCODINGS:
-                    for hash_type in HASH_TYPES:
-
-                        # Expected value configuration
-                        expecteds.append(
-                            bool_1 and bool_2 and bool_3 and bool_4)
-
-                        # Proof-provider configuration
-                        tree = MerkleTree(
-                            hash_type=hash_type,
-                            encoding=encoding,
-                            security=True)
-
-                        # Append first log
-                        tree.encryptFilePerLog(short_APACHE_log)
-
-                        # Old-tree-hash configuration
-                        if bool_1:
-                            old_hash = tree.rootHash
-                        else:
-                            old_hash = b'anything else...'
-
-                        # Subtree-detection configuration
-                        if bool_2 and bool_3:
-                            old_tree_length = first_log_size
-                        elif not bool_2 and bool_3:
-                            old_tree_length = first_log_size - 1
-                        else:
-                            old_tree_length = second_log_size + first_log_size
-
-                        # Update the tree by appending new log
-                        tree.encryptFilePerLog(RED_HAT_LINUX_log)
-
-                        # Generate proof for the above configurations
-                        consistency_proofs.append(
-                            tree.consistencyProof(
-                                old_hash=old_hash,
-                                sublength=old_tree_length))
-
-                        # Target-hash configuration
-                        if bool_4:
-                            target_hashes.append(tree.rootHash)
-                        else:
-                            target_hashes.append(b'anything else...')
+    assert validateProof(_tree.rootHash, _audit_proof)
 
 
-@pytest.mark.parametrize(
-    'consistency_proof, target_hash, expected', [
-        (consistency_proofs[i], target_hashes[i], expecteds[i]) for i in range(
-            len(consistency_proofs))])
-def test_consistency_proof_validation_for_non_empty_tree(
-        consistency_proof, target_hash, expected):
-    assert validateProof(
-        target_hash=target_hash,
-        proof=consistency_proof) is expected
+# ------------------------ Consistency-proof validation ------------------------
 
+trees_and_subtrees = []
 
-# ------------------------- Test proof validator object ------------------
+for _tree in trees:
+    for _sublength in range(1, _tree.length + 1):
 
-# Proof provider (a typical SHA256/UTF-8 Merkle-Tree with defense against
-# second-preimage attack)
-tree = MerkleTree()
+        trees_and_subtrees.append(
+            (
+                _tree,
+                MerkleTree(
+                    *['%d-th record' %_ for _ in range(_sublength)],
+                    hash_type=_tree.hash_type,
+                    encoding=_tree.encoding,
+                    security=_tree.security
+                )
+            )
+        )
 
-file_dir = os.path.dirname(__file__)
+_false__consistency_proofs = []
+_true__consistency_proofs  = []
 
-# Clean validations directory before running the test
-file_list = os.listdir(os.path.join(file_dir, 'receipts'))
-for file in file_list:
-    os.remove(os.path.join(file_dir, 'receipts', file))
+for (_tree, _subtree) in trees_and_subtrees:
 
-# Feed tree with logs gradually and generate consistency proof for each step
-proofs = []
-target_hashes = []
-for log_file in (large_APACHE_log, RED_HAT_LINUX_log, short_APACHE_log):
-    old_hash = tree.rootHash
-    old_length = len(tree.leaves)
-    tree.encryptFilePerLog(log_file)
-    proofs.append(
-        tree.consistencyProof(
-            old_hash=old_hash,
-            sublength=old_length))
-    target_hashes.append(tree.rootHash)
+        _false__consistency_proofs.extend(
+            [
+                (
+                    _tree,
+                    _tree.consistencyProof(
+                        b'anything except for the right hash',
+                        _subtree.length
+                    )                                                           # Based upon wrong target-hash
+                ),
+                (
+                    _tree,
+                    _tree.consistencyProof(
+                        _subtree.rootHash,
+                        _subtree.length + 1
+                    )                                                           # Based upon wrong sublength
+                )
+            ]
+        )
 
+        _true__consistency_proofs.append(
+            (
+                _tree,
+                _tree.consistencyProof(
+                    _subtree.rootHash,
+                    _subtree.length
+                )
+            )
+        )
 
-@pytest.mark.parametrize(
-    'proof, target_hash', [
-        (proofs[i], target_hashes[i]) for i in range(
-            len(proofs))])
-def test_validationReceipt(proof, target_hash):
-    receipt = validationReceipt(
-        proof=proof,
-        target_hash=target_hash,
-        save_dir=os.path.join(
-            file_dir,
-            'receipts'))
-    receipt_file_path = os.path.join(
-        file_dir,
-        'receipts',
-        '{}.json'.format(
-            receipt.header['uuid']))
-    with open(receipt_file_path) as receipt_file:
-        receipt_clone = json.load(receipt_file)
-    assert receipt.serialize() == receipt_clone
+@pytest.mark.parametrize("_tree, _consistency_proof", _false__consistency_proofs)
+def test_false_consistency_validateProof(_tree, _consistency_proof):
+
+    assert not validateProof(_tree.rootHash, _consistency_proof)
+
+@pytest.mark.parametrize("_tree, _consistency_proof", _true__consistency_proofs)
+def test_true_consistency_validateProof(_tree, _consistency_proof):
+
+    assert validateProof(_tree.rootHash, _consistency_proof)

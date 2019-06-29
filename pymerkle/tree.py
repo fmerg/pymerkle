@@ -590,8 +590,14 @@ class MerkleTree(object):
             # Calculate proof path
             proof_index, left_path, full_path = self.consistency_path(sublength=sublength)
 
-        except NoPathException:
-            raise InvalidProofRequest   # Includes the zero-leaves case
+        except NoPathException:                  # Includes the empty-tree case
+
+            return Proof(provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=None,
+                proof_path=None)
 
         # Inclusion test
 

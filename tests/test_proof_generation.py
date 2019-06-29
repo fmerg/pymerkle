@@ -13,15 +13,20 @@ ENCODINGS  = hashing.ENCODINGS
 MAX_LENGTH = 5
 
 trees = []
+
 for security in (True, False):
-    for _length in range(1, MAX_LENGTH + 1):
+    for _length in range(0, MAX_LENGTH + 1):
         for hash_type in HASH_TYPES:
             for encoding in ENCODINGS:
-                _tree = MerkleTree(*['%d-th record' %i for i in range(_length)],
-                    hash_type=hash_type,
-                    encoding=encoding,
-                    security=security)
-                trees.append(_tree)
+
+                trees.append(
+                    MerkleTree(
+                        *['%d-th record' %i for i in range(_length)],
+                        hash_type=hash_type,
+                        encoding=encoding,
+                        security=security
+                    )
+                )
 
 
 # ---------------------------- Audit-proof testing ----------------------------
@@ -87,7 +92,7 @@ for _tree in trees:
                 #     bytes(
                 #         '%d-th record' % _index,
                 #         _tree.encoding
-                #     )                                 # Bytes based proofindex
+                #     )                                 # Bytes based proof
                 # ),
                 # (
                 #     _tree,
