@@ -69,6 +69,26 @@ def test_non_defautl_MerkleTree_constructor_without_initial_records():
         'nodes': set()
     }
 
+
+# Test clearance
+
+def test_clear():
+
+    tree = MerkleTree('a', 'b', 'c')
+    tree.clear()
+
+    assert tree.__dict__ == {
+         'uuid': tree.uuid,
+         'hash_type': 'sha256',
+         'encoding': 'utf_8',
+         'security': True,
+         'hash': tree.hash,
+         'multi_hash': tree.multi_hash,
+         'leaves': [],
+         'nodes': set(),
+         '_root': None
+    }
+
 # Boolean and root-hash tests
 
 

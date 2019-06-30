@@ -72,7 +72,7 @@ class Proof(object):
                 'uuid': str(uuid.uuid1()),                                      # Time based proof idW
                 'timestamp': int(time.time()),
                 'creation_moment': time.ctime(),
-                'generation': args[4] is not None and args[5] is not None,
+                'generation': args[4] != -1 and args[5] != (),
                 'provider': args[0],
                 'hash_type': args[1],
                 'encoding': args[2],
@@ -91,7 +91,7 @@ class Proof(object):
                 _body = kwargs.get('from_dict')['body']
                 self.body = {
                     'proof_index': _body['proof_index'],
-                    'proof_path': None if _body['proof_path'] == [] else tuple(tuple(pair) for pair in _body['proof_path'])
+                    'proof_path': tuple(tuple(pair) for pair in _body['proof_path'])
                 }
             elif kwargs.get('from_json'):                                       # Importing proof from JSON text
                 proof_dict = json.loads(kwargs.get('from_json'))
@@ -101,14 +101,14 @@ class Proof(object):
                 _body = proof_dict['body']
                 self.body = {
                     'proof_index': _body['proof_index'],
-                    'proof_path': None if _body['proof_path'] == [] else tuple(tuple(pair) for pair in _body['proof_path'])
+                    'proof_path': tuple(tuple(pair) for pair in _body['proof_path'])
                 }
             else:                                                               # Standard creation of a proof
                 self.header = {
                     'uuid': str(uuid.uuid1()),                                  # Time based proof idW
                     'timestamp': int(time.time()),
                     'creation_moment': time.ctime(),
-                    'generation': kwargs.get('proof_index') is not None and kwargs.get('proof_path') is not None,
+                    'generation': kwargs.get('proof_index') != -1 and kwargs.get('proof_path') != (),
                     'provider': kwargs.get('provider'),
                     'hash_type': kwargs.get('hash_type'),
                     'encoding': kwargs.get('encoding'),
@@ -157,8 +157,8 @@ class Proof(object):
             hash_type=self.header['hash_type'].upper().replace('_', '-'),
             encoding=self.header['encoding'].upper().replace('_', '-'),
             security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
-            proof_index=self.body['proof_index'] if self.body['proof_index'] is not None else NONE,
-            proof_path=stringify_path(self.body['proof_path'], self.header['encoding']) if self.body['proof_path'] is not None else '',
+            proof_index=self.body['proof_index'],
+            proof_path=stringify_path(self.body['proof_path'], self.header['encoding']),
             status='UNVALIDATED' if self.header['status'] is None else 'VALID' if self.header['status'] is True else 'NON VALID')
 
 # ------------------------------- Serialization --------------------------

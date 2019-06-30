@@ -20,10 +20,10 @@ proof_path = (
     (-1, '2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8'))
 
 proof_11 = Proof(provider, 'sha_256', 'utf_8', True, 5, proof_path)
-proof_21 = Proof(provider, 'sha_256', 'utf_8', True, None, None)
+proof_21 = Proof(provider, 'sha_256', 'utf_8', True, -1, ())
 
 @pytest.mark.parametrize('_proof, _generation, _proof_index, _proof_path', ((proof_11, True, 5, proof_path),
-                                                                            (proof_21, False, None, None)))
+                                                                            (proof_21, False, -1, ())))
 def test_Proof_construction_with_positional_arguments(_proof, _generation, _proof_index, _proof_path):
     assert _proof.__dict__ == {
         'header': {
@@ -43,11 +43,25 @@ def test_Proof_construction_with_positional_arguments(_proof, _generation, _proo
         }
     }
 
-proof_12 = Proof(provider=provider, hash_type='sha_256', encoding='utf_8', security=True, proof_index=5, proof_path=proof_path)
-proof_22 = Proof(provider=provider, hash_type='sha_256', encoding='utf_8', security=True, proof_index=None, proof_path=None)
+proof_12 = Proof(
+    provider=provider,
+    hash_type='sha_256',
+    encoding='utf_8',
+    security=True,
+    proof_index=5,
+    proof_path=proof_path
+)
+proof_22 = Proof(
+    provider=provider,
+    hash_type='sha_256',
+    encoding='utf_8',
+    security=True,
+    proof_index=-1,
+    proof_path=()
+)
 
 @pytest.mark.parametrize('_proof, _generation, _proof_index, _proof_path', ((proof_12, True, 5, proof_path),
-                                                                            (proof_22, False, None, None)))
+                                                                            (proof_22, False, -1, ())))
 def test_Proof_construction_with_keyword_arguments(_proof, _generation, _proof_index, _proof_path):
     assert _proof.__dict__ == {
         'header': {
@@ -116,7 +130,7 @@ serializations = [
                 'status': None
             },
              'body': {
-                'proof_index': None,
+                'proof_index': -1,
                 'proof_path': []
              }
         }
@@ -133,7 +147,7 @@ JSONstrings = [
     ),
     (
         proof_21,
-        '{\n    "body": {\n        "proof_index": null,\n        "proof_path": []\n    },\n    "header": {\n        "creation_moment": "%s",\n        "encoding": "utf_8",\n        "generation": false,\n        "hash_type": "sha_256",\n        "provider": "%s",\n        "security": true,\n        "status": null,\n        "timestamp": %d,\n        "uuid": "%s"\n    }\n}' % (proof_21.header['creation_moment'], provider, proof_21.header['timestamp'], proof_21.header['uuid'])
+        '{\n    "body": {\n        "proof_index": -1,\n        "proof_path": []\n    },\n    "header": {\n        "creation_moment": "%s",\n        "encoding": "utf_8",\n        "generation": false,\n        "hash_type": "sha_256",\n        "provider": "%s",\n        "security": true,\n        "status": null,\n        "timestamp": %d,\n        "uuid": "%s"\n    }\n}' % (proof_21.header['creation_moment'], provider, proof_21.header['timestamp'], proof_21.header['uuid'])
     )
 ]
 
@@ -146,7 +160,7 @@ proof_13 = Proof(from_json=proof_11.JSONstring())
 proof_23 = Proof(from_json=proof_21.JSONstring())
 
 @pytest.mark.parametrize('_proof, _generation, _proof_index, _proof_path', ((proof_13, True, 5, proof_path),
-                                                                            (proof_23, False, None, None)))
+                                                                            (proof_23, False, -1, ())))
 def test_Proof_construction_from_json(_proof, _generation, _proof_index, _proof_path):
     assert _proof.__dict__ == {
         'header': {
@@ -170,7 +184,7 @@ proof_14 = Proof(from_dict=json.loads(proof_11.JSONstring()))
 proof_24 = Proof(from_dict=json.loads(proof_21.JSONstring()))
 
 @pytest.mark.parametrize('_proof, _generation, _proof_index, _proof_path', ((proof_14, True, 5, proof_path),
-                                                                            (proof_24, False, None, None)))
+                                                                            (proof_24, False, -1, ())))
 def test_Proof_construction_from_dict(_proof, _generation, _proof_index, _proof_path):
     assert _proof.__dict__ == {
         'header': {
@@ -205,7 +219,7 @@ def test___repr__(_proof, _generation):
                 \n    encoding    : UTF-8\
                 \n    security    : ACTIVATED\
                 \n\
-                \n    proof-index : %s\
+                \n    proof-index : %d\
                 \n    proof-path  :\
                 \n    %s\
                 \n\
@@ -218,6 +232,6 @@ def test___repr__(_proof, _generation):
                     _proof.header['timestamp'],
                     _proof.header['creation_moment'],
                     provider,
-                    5 if _generation else '[None]',
+                    5 if _generation else -1,
                     stringify_path(proof_path, 'utf_8') if _generation else '',
                 )

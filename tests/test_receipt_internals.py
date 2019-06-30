@@ -2,8 +2,10 @@ import pytest
 import json
 from pymerkle.validations import Receipt
 
+
 proof_provider = '1a0894bc-9755-11e9-a651-70c94e89b637'
-proof_uuid = 'e60394c2-98c7-11e9-ac41-70c94e89b637'
+proof_uuid     = 'e60394c2-98c7-11e9-ac41-70c94e89b637'
+
 
 receipt_11 = Receipt(proof_uuid, proof_provider, True)
 receipt_12 = Receipt(proof_uuid, proof_provider, False)
@@ -22,6 +24,7 @@ def test_Receipt_construction_with_positional_arguments(_receipt, _result):
             'result': _result
         }
     }
+
 
 receipt_21 = Receipt(proof_uuid=proof_uuid, proof_provider=proof_provider, result=True)
 receipt_22 = Receipt(proof_uuid=proof_uuid, proof_provider=proof_provider, result=False)
@@ -80,6 +83,7 @@ serializations = [
 def test_serialization(_receipt, _serialization):
     assert _receipt.serialize() == _serialization
 
+
 JSONstrings = [
     (
         receipt_11,
@@ -93,11 +97,10 @@ JSONstrings = [
     )
 ]
 
-
 @pytest.mark.parametrize('_receipt, _json_string', JSONstrings)
 def test_JSONstring(_receipt, _json_string):
     assert _receipt.JSONstring() == _json_string
-    
+
 
 receipt_31 = Receipt(from_json=receipt_11.JSONstring())
 receipt_32 = Receipt(from_json=receipt_12.JSONstring())
@@ -116,7 +119,7 @@ def test_Receipt_construction_from_json(_receipt, _result):
             'result': _result
         }
     }
-    
+
 
 receipt_41 = Receipt(from_dict=json.loads(receipt_11.JSONstring()))
 receipt_42 = Receipt(from_dict=json.loads(receipt_12.JSONstring()))

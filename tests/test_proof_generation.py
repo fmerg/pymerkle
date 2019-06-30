@@ -122,8 +122,8 @@ def test_empty_auditProof(_tree, _arg):
             'status': None
         },
         'body': {
-            'proof_index': None,
-            'proof_path': None
+            'proof_index': -1,
+            'proof_path': ()
         }
     }
 

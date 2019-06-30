@@ -114,7 +114,7 @@ class ProofSerializer(json.JSONEncoder):
 
                         ] for (sign, hash) in proof_path
 
-                    ] if proof_path is not None else []
+                    ]
                 }
             }
 

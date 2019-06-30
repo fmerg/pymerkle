@@ -68,7 +68,7 @@ class MerkleTree(object):
 
         # Initialized here so that consistency-proof works in some edge cases
         self.leaves = []
-        self.nodes = set()
+        self.nodes  = set()
 
         # Tree generation
         for record in records:
@@ -347,21 +347,25 @@ class MerkleTree(object):
             # Calculate proof path
             proof_index, audit_path = self.audit_path(index=index)
 
-        except NoPathException: # Includes case of negative index provided
+        except NoPathException: # Includes case of negative `arg`
 
-            return Proof(provider=self.uuid,
-                    hash_type=self.hash_type,
-                    encoding=self.encoding,
-                    security=self.security,
-                    proof_index=None,
-                    proof_path=None)
+            return Proof(
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=-1,
+                proof_path=()
+            )
         else:
-            return Proof(provider=self.uuid,
-                    hash_type=self.hash_type,
-                    encoding=self.encoding,
-                    security=self.security,
-                    proof_index=proof_index,
-                    proof_path=audit_path)
+            return Proof(
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                proof_index=proof_index,
+                proof_path=audit_path
+            )
 
 
 # --------------------------- Consistency-proof utils ---------------------------
@@ -592,30 +596,36 @@ class MerkleTree(object):
 
         except NoPathException:                  # Includes the empty-tree case
 
-            return Proof(provider=self.uuid,
+            return Proof(
+                provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
-                proof_index=None,
-                proof_path=None)
+                proof_index=-1,
+                proof_path=()
+            )
 
         # Inclusion test
 
         if old_hash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1):
 
-            return Proof(provider=self.uuid,
+            return Proof(
+                provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
                 proof_index=proof_index,
-                proof_path=full_path)
+                proof_path=full_path
+            )
         else:
-            return Proof(provider=self.uuid,
+            return Proof(
+                provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
-                proof_index=None,
-                proof_path=None)
+                proof_index=-1,
+                proof_path=()
+            )
 
 # ------------------------------ Inclusion tests ------------------------------
 
@@ -1051,5 +1061,5 @@ class MerkleTree(object):
         """Deletes all nodes of the Merkle-tree, so that its root-hash becomes ``None``
         """
         self.leaves = []
-        self.nodes = set()
-        del self._root
+        self.nodes  = set()
+        self._root  = None
