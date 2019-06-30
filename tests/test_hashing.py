@@ -4,14 +4,7 @@ from pymerkle import hashing
 import hashlib
 
 HASH_TYPES = hashing.HASH_TYPES
-excluded_ENCODINGS = (
-    'utf_16',
-    'utf_16_be',
-    'utf_16_le',
-    'utf_32',
-    'utf_32_be',
-    'utf_32_le')
-ENCODINGS = [e for e in hashing.ENCODINGS if e not in excluded_ENCODINGS]
+ENCODINGS  = hashing.ENCODINGS
 
 # Hard-coded string to be used for testing
 message = 'oculusnonviditnecaurisaudivit'

@@ -89,24 +89,24 @@ for _tree in trees:
                     _tree,
                     _tree.auditProof('%d-th record' % _index),                  # String based proof
                 ),
-                # (
-                #     _tree,
-                #     _tree.auditProof(
-                #         bytes(
-                #             '%d-th record' % _index,
-                #             _tree.encoding
-                #         )
-                #     )                                                           # Bytes based proof
-                # ),
-                # (
-                #     _tree,
-                #     _tree.auditProof(
-                #         bytearray(
-                #             '%d-th record' % _index,
-                #             _tree.encoding
-                #         )
-                #     )                                                           # Bytearray based proof
-                # )
+                (
+                    _tree,
+                    _tree.auditProof(
+                        bytes(
+                            '%d-th record' % _index,
+                            _tree.encoding
+                        )
+                    )                                                           # Bytes based proof
+                ),
+                (
+                    _tree,
+                    _tree.auditProof(
+                        bytearray(
+                            '%d-th record' % _index,
+                            _tree.encoding
+                        )
+                    )                                                           # Bytearray based proof
+                )
             ]
         )
 

@@ -147,11 +147,13 @@ class _Node(object):
                 \n    right parent : {right_id}\
                 \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
-                .format(self_id=memory_id(self),
-                        left_id=left_id,
-                        right_id=right_id,
-                        child_id=child_id,
-                        hash=self.stored_hash.decode(self.encoding))
+                .format(
+                    self_id=memory_id(self),
+                    left_id=left_id,
+                    right_id=right_id,
+                    child_id=child_id,
+                    hash=self.stored_hash.decode(self.encoding)
+                )
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
         """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``

@@ -188,12 +188,13 @@ class Receipt(object):
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\
                 \n'.format(
-            uuid=self.header['uuid'],
-            timestamp=self.header['timestamp'],
-            validation_moment=self.header['validation_moment'],
-            proof_uuid=self.body['proof_uuid'],
-            proof_provider=self.body['proof_provider'],
-            result='VALID' if self.body['result'] else 'NON VALID')
+                    uuid=self.header['uuid'],
+                    timestamp=self.header['timestamp'],
+                    validation_moment=self.header['validation_moment'],
+                    proof_uuid=self.body['proof_uuid'],
+                    proof_provider=self.body['proof_provider'],
+                    result='VALID' if self.body['result'] else 'NON VALID'
+                )
 
 # ------------------------------- Serialization --------------------------
 
@@ -215,4 +216,5 @@ class Receipt(object):
             self,
             cls=ReceiptSerializer,
             sort_keys=True,
-            indent=4)
+            indent=4
+        )

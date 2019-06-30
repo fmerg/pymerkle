@@ -113,6 +113,9 @@ HASH_TYPES = (
 )
 """Supported hash types"""
 
+PREFIX_0 = '\x00'
+PREFIX_1 = '\x01'
+
 
 class hash_machine(object):
     """Encapsulates the two basic hash utilities used accross this library.
@@ -149,55 +152,29 @@ class hash_machine(object):
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
 
-        # Hash algorithm used by the machine
-        self.HASH_ALGORITHM = hash_machine.select_hash_algorithm(
-            hash_type=hash_type.lower().replace('-', '_'))
+        # Select hash-algorithm
 
-        # Encoding type used by this machine before hashing
-        self.ENCODING = hash_machine.select_encoding(
-            encoding=encoding.lower().replace('-', '_'))
+        _hash_type = hash_type.lower().replace('-', '_')
 
+        if _hash_type not in HASH_TYPES:
+            raise NotSupportedHashTypeError('Hash type %s is not supported' % hash_type)
+
+        self.HASH_ALGORITHM = getattr(hashlib, _hash_type)
+
+        # Select encoding
+
+        _encoding = encoding.lower().replace('-', '_')
+
+        if _encoding not in ENCODINGS:
+            raise NotSupportedEncodingError('Encoding type %s is not supported' % encoding)
+
+        self.ENCODING = _encoding
+
+        # ~ If True, security prefices will be prepended before
+        # ~ hashing for defense against second-preimage attack
         self.SECURITY = security
-        if self.SECURITY:
-            # Prefices will be prepended before hashing for defense against
-            # second-preimage attack
-            self.PREFIX_0, self.PREFIX_1 = '\x00', '\x01'
 
-    @staticmethod
-    def select_hash_algorithm(hash_type):
-        """Extracts from the ``hashlib`` module the desired hash algorithm according to the inserted label
 
-        :param hash_type: label indicating the desired hash algorithm
-        :type hash_type:  str
-        :returns:         the desired hash algorithm; e.g. ``hashlib.sha256``
-        :rtype:           builtin_function_or_method
-
-        :raises Exception: if ``hash_type`` is not contained in ``hashing.HASH_TYPES``
-        """
-        if hash_type in HASH_TYPES:
-            return getattr(hashlib, hash_type)
-        raise NotSupportedHashTypeError(
-            'Hash type %s is not supported' %
-            hash_type)
-
-    @staticmethod
-    def select_encoding(encoding):
-        """Sole purpose of this function is to throw an exception if the inserted encoding type is not supported
-
-        :param encoding: label indicating the desired encoding type
-        :type encoding:  str
-        :returns:        just the inserted argument
-        :rtype:          str
-
-        :raises Exception: if ``encoding`` is not contained in ``hashing.ENCODINGS``
-        """
-        if encoding in ENCODINGS:
-            return encoding
-        raise NotSupportedEncodingError(
-            'Encoding type %s is not supported' %
-            encoding)
-
-    # ------------------------------- Hash utils -----------------------------
 
     def hash(self, first, second=None):
         """Core hash utility
@@ -220,62 +197,95 @@ class hash_machine(object):
         if not second:  # one arg case
 
             if isinstance(first, (bytes, bytearray)):
+
                 # bytes-like input
 
                 if self.SECURITY:
+
                     # Apply security stadards
+
                     hex_hash = self.HASH_ALGORITHM(
                         bytes(
-                            self.PREFIX_0,
-                            encoding=self.ENCODING) +
-                        first).hexdigest()
-                    return bytes(hex_hash, encoding=self.ENCODING)
+                            '%s%s' % (
+                                PREFIX_0,
+                                first.decode(self.ENCODING)
+                            ),
+                            self.ENCODING
+                        )
+                    ).hexdigest()
+
+                    return bytes(hex_hash, self.ENCODING)
 
                 # No security standards
-                hex_hash = self.HASH_ALGORITHM(first).hexdigest()
-                return bytes(hex_hash, encoding=self.ENCODING)
+
+                return bytes(
+                    self.HASH_ALGORITHM(first).hexdigest(),
+                    self.ENCODING
+                )
 
             # Non bytes-like input
 
             if self.SECURITY:
 
                 # Apply security standards
+
                 hex_hash = self.HASH_ALGORITHM(
                     bytes(
-                        '{}{}'.format(
-                            self.PREFIX_0,
-                            first),
-                        encoding=self.ENCODING)).hexdigest()
-                return bytes(hex_hash, encoding=self.ENCODING)
+                        '%s%s' % (
+                            PREFIX_0,
+                            first
+                        ),
+                        self.ENCODING)
+                    ).hexdigest()
+
+                return bytes(hex_hash, self.ENCODING)
 
             # No security standards
-            hex_hash = self.HASH_ALGORITHM(
-                bytes(first, encoding=self.ENCODING)).hexdigest()
-            return bytes(hex_hash, encoding=self.ENCODING)
+
+            return bytes(
+                self.HASH_ALGORITHM(
+                    bytes(
+                        first,
+                        self.ENCODING
+                    )
+                ).hexdigest(),
+                self.ENCODING
+            )
 
         # two args case
 
         if self.SECURITY:
 
             # Apply security standards
+
             hex_hash = self.HASH_ALGORITHM(
                 bytes(
-                    '{}{}{}{}'.format(
-                        self.PREFIX_1,
-                        first.decode(encoding=self.ENCODING),
-                        self.PREFIX_1,
-                        second.decode(encoding=self.ENCODING)),
-                    encoding=self.ENCODING)).hexdigest()
-            return bytes(hex_hash, encoding=self.ENCODING)
+                    '%s%s%s%s' % (
+                        PREFIX_1,
+                        first.decode(self.ENCODING),
+                        PREFIX_1,
+                        second.decode(self.ENCODING)
+                    ),
+                    self.ENCODING
+                )
+            ).hexdigest()
+
+            return bytes(hex_hash, self.ENCODING)
 
         # No security standards
+
         hex_hash = self.HASH_ALGORITHM(
             bytes(
-                '{}{}'.format(
-                    first.decode(encoding=self.ENCODING),
-                    second.decode(encoding=self.ENCODING)),
-                encoding=self.ENCODING)).hexdigest()
-        return bytes(hex_hash, encoding=self.ENCODING)
+                '%s%s' % (
+                    first.decode(self.ENCODING),
+                    second.decode(self.ENCODING)
+                ),
+                self.ENCODING
+            )
+        ).hexdigest()
+
+        return bytes(hex_hash, self.ENCODING)
+
 
     def multi_hash(self, signed_hashes, start):
         """Hash utility used in proof validation
@@ -307,31 +317,48 @@ class hash_machine(object):
 
         signed_hashes = list(signed_hashes)
 
-        # Calculate and return
-        if signed_hashes != []:
-            if len(signed_hashes) > 1:
-                i = start
-                while len(signed_hashes) > 1:
-                    if signed_hashes[i][0] == +1:
-                        # Pair with the right neighbour
-                        if i == 0:
-                            new_sign = +1
-                        else:
-                            new_sign = signed_hashes[i + 1][0]
-                        new_hash = self.hash(
-                            signed_hashes[i][1], signed_hashes[i + 1][1])
-                        move = +1
+        if signed_hashes == []:
+            return None                                                         # Empty case
+
+        elif len(signed_hashes) == 1:                                           # One-element case
+            return signed_hashes[0][1]
+
+        else:
+
+            i = start
+            while len(signed_hashes) > 1:
+
+                if signed_hashes[i][0] == +1:                                   # Pair with the right neighbour
+
+                    if i == 0:
+
+                        new_sign = +1
                     else:
-                        # Pair with the left neighbour
-                        new_sign = signed_hashes[i - 1][0]
-                        new_hash = self.hash(
-                            signed_hashes[i - 1][1], signed_hashes[i][1])
-                        move = -1
-                    # Store and shrink
-                    signed_hashes[i] = (new_sign, new_hash)
-                    del signed_hashes[i + move]
-                    if move < 0:
-                        i -= 1
-                return signed_hashes[0][1] # signed_hashes contained one element
-            return signed_hashes[0][1] # signed_hashes was empty
-        return None
+                        new_sign = signed_hashes[i + 1][0]
+
+                    new_hash = self.hash(
+                        signed_hashes[i][1],
+                        signed_hashes[i + 1][1]
+                    )
+                    move = +1
+
+                else:                                                           # Pair with the left neighbour
+                    new_sign = signed_hashes[i - 1][0]
+
+                    new_hash = self.hash(
+                        signed_hashes[i - 1][1],
+                        signed_hashes[i][1]
+                    )
+                    move = -1
+
+                # Store and shrink
+
+                signed_hashes[i] = (new_sign, new_hash)
+                del signed_hashes[i + move]
+
+                if move < 0:
+                    i -= 1
+
+            # Return the unique element having remained after shrinking
+
+            return signed_hashes[0][1]

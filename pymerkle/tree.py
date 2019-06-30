@@ -46,33 +46,31 @@ class MerkleTree(object):
                       (explicitly or implicitly upon a request for consistency proof)
     """
 
-    def __init__(self,
-                 *records,
-                 hash_type='sha256',
-                 encoding='utf-8',
-                 security=True):
+    def __init__(self, *records, hash_type='sha256', encoding='utf-8', security=True):
 
         self.uuid = str(uuid.uuid1())
 
         # Hash type, encoding type and security mode configuration
+
         machine = hash_machine(
             hash_type=hash_type,
             encoding=encoding,
-            security=security)
+            security=security
+        )
 
-        # Export hash and encoding type configuration
-        self.hash_type = hash_type.lower().replace('-', '_')
-        self.encoding = encoding.lower().replace('-', '_')
-        self.security = security
-        self.hash = machine.hash
+        self.hash_type  = hash_type.lower().replace('-', '_')
+        self.encoding   = encoding.lower().replace('-', '_')
+        self.security   = security
+        self.hash       = machine.hash
         self.multi_hash = machine.multi_hash
-        del machine
 
         # Initialized here so that consistency-proof works in some edge cases
+
         self.leaves = []
         self.nodes  = set()
 
         # Tree generation
+
         for record in records:
             self.update(record=record)
 
@@ -84,6 +82,7 @@ class MerkleTree(object):
         :returns: ``False`` iff the Merkle-tree has no nodes
         :rtype:   bool
         """
+
         return bool(self.nodes)
 
 # ------------------------------------ Properties ------------------------
@@ -143,7 +142,9 @@ class MerkleTree(object):
 
         :rtype: int
         """
+
         length = len(self.leaves)
+
         if length > 0:
             return log_2(length) + 1 if length != 2**log_2(length) else log_2(length)
         else:
@@ -185,17 +186,16 @@ class MerkleTree(object):
                 raise
 
             # Assimilate new leaf
+
             self.leaves.append(new_leaf)
             self.nodes.add(new_leaf)
 
             try:
-
                 # Save child info before bifurcation
+
                 old_child = last_subroot.child
 
-            except NoChildException:
-
-                # last_subroot was previously root
+            except NoChildException:                                            # last_subroot was previously root
                 self._root = Node(hash_function=self.hash,
                                  encoding=self.encoding,
                                  left=last_subroot,
@@ -223,26 +223,29 @@ class MerkleTree(object):
                 # Recalculate hashes only at the rightmost branch of the tree
 
                 current_node = old_child
+
                 while True:
                     current_node.recalculate_hash(hash_function=self.hash)
+
                     try:
                         current_node = current_node.child
                     except NoChildException:
                         break
 
-        else:  # Empty tree case
+        else:                                                                   # Empty tree case
 
             try:
                 new_leaf = Leaf(hash_function=self.hash,
                                 encoding=self.encoding,
                                 record=record,
                                 stored_hash=stored_hash)
+
             except LeafConstructionError:
                 raise
 
             self.leaves = [new_leaf]
-            self.nodes = set([new_leaf])
-            self._root = new_leaf
+            self.nodes  = set([new_leaf])
+            self._root  = new_leaf
 
 
 # ---------------------------- Audit-proof utilities ---------------------
@@ -271,12 +274,16 @@ class MerkleTree(object):
             # ~ Handle negative index case separately NoPathException, since certain
             # ~ negative indices might otherwise be considered as valid positions
             raise NoPathException
+
         else:
+
             try:
                 current_node = self.leaves[index]
             except IndexError:
-                raise NoPathException  # Covers also the zero leaves case
+                raise NoPathException                                           # Covers also the zero leaves case
+
             else:
+
                 initial_sign = +1
                 if current_node.is_right_parent():
                     initial_sign = -1
@@ -284,27 +291,38 @@ class MerkleTree(object):
                 start = 0
 
                 while True:
+
                     try:
                         current_child = current_node.child
+
                     except NoChildException:
                         break
+
                     else:
+
                         if current_node.is_left_parent():
                             next_hash = current_child.right.stored_hash
+
                             if current_child.is_left_parent():
+
                                 path.append((+1, next_hash))
                             else:
                                 path.append((-1, next_hash))
+
                         else:
                             next_hash = current_child.left.stored_hash
+
                             if current_child.is_right_parent():
+
                                 path.insert(0, (-1, next_hash))
                             else:
                                 path.insert(0, (+1, next_hash))
                             start += 1
+
                         current_node = current_child
 
                 return start, tuple(path)
+
 
     def auditProof(self, arg):
         """Response of the Merkle-tree to the request of providing an audit-proof based upon
@@ -349,7 +367,7 @@ class MerkleTree(object):
             # Calculate proof path
             proof_index, audit_path = self.audit_path(index=index)
 
-        except NoPathException: # Includes case of negative `arg`
+        except NoPathException:                                                 # Includes case of negative `arg`
 
             return Proof(
                 provider=self.uuid,
@@ -404,18 +422,24 @@ class MerkleTree(object):
                 raise NoSubtreeException
 
             else:
+
                 if next_node.left is not subroot:
                     raise NoSubtreeException
+
                 subroot = subroot.child
                 i += 1
 
         # ~ Verify existence of *full* binary subtree for the above
         # ~ detected candidate subroot
+
         right_parent = subroot
         i = 0
+
         while i < height:
+
             if isinstance(right_parent, Leaf):
                 raise NoSubtreeException
+
             right_parent = right_parent.right
             i += 1
 
@@ -439,7 +463,7 @@ class MerkleTree(object):
         """
 
         if sublength < 0:
-            raise NoPrincipalSubrootsException                            # Mask negative input case as incompatibility
+            raise NoPrincipalSubrootsException                                  # Mask negative input case as incompatibility
 
         principal_subroots = []
         powers = decompose(sublength)
@@ -450,7 +474,7 @@ class MerkleTree(object):
                 _subroot = self.subroot(start, _power)
 
             except NoSubtreeException:
-                raise NoPrincipalSubrootsException                        # Incompatibility issue detected
+                raise NoPrincipalSubrootsException                              # Incompatibility issue detected
 
             else:
                 try:
@@ -458,12 +482,14 @@ class MerkleTree(object):
                     _grandchild = _child.child
 
                 except NoChildException:
+
                     if _subroot.is_left_parent():
                         principal_subroots.append((+1, _subroot))
                     else:
                         principal_subroots.append((-1, _subroot))
 
                 else:
+
                     if _child.is_left_parent():
                         principal_subroots.append((+1, _subroot))
                     else:
@@ -473,7 +499,7 @@ class MerkleTree(object):
                     start += 2**_power
 
         if len(principal_subroots) > 0:
-            principal_subroots[-1] = (+1, principal_subroots[-1][1])      # Modify last sign
+            principal_subroots[-1] = (+1, principal_subroots[-1][1])            # Modify last sign
 
         return principal_subroots
 
@@ -492,6 +518,7 @@ class MerkleTree(object):
             return self.principal_subroots(self.length)
 
         complement = []
+
         while True:
             try:
                 subroots[-1][1].child
@@ -500,9 +527,11 @@ class MerkleTree(object):
                 break
 
             else:
+
                 _subroot = subroots[-1][1]
 
                 if _subroot.is_left_parent():
+
                     if _subroot.child.is_right_parent():
                         complement.append((-1, _subroot.child.right))
                     else:
@@ -538,7 +567,7 @@ class MerkleTree(object):
             left_subroots = self.principal_subroots(sublength)
 
         except NoPrincipalSubrootsException:
-            raise NoPathException                                    # Incompatibility issue detected
+            raise NoPathException                                               # Incompatibility issue detected
 
         else:
 
@@ -547,11 +576,11 @@ class MerkleTree(object):
 
             if right_subroots == [] or left_subroots == []:
 
-                all_subroots = [(-1, _[1]) for _ in all_subroots]    # Reset all signs to minus
-                proof_index = len(all_subroots) - 1                  # Will start multi-hashing from endpoint
+                all_subroots = [(-1, _[1]) for _ in all_subroots]               # Reset all signs to minus
+                proof_index = len(all_subroots) - 1                             # Will start multi-hashing from endpoint
 
             else:
-                proof_index = len(left_subroots) - 1                 # Will start multi-hashing from midpoint
+                proof_index = len(left_subroots) - 1                            # Will start multi-hashing from midpoint
 
             # Collect sign-hash pairs
 
@@ -596,7 +625,7 @@ class MerkleTree(object):
             # Calculate proof path
             proof_index, left_path, full_path = self.consistency_path(sublength=sublength)
 
-        except NoPathException:                  # Includes the empty-tree case
+        except NoPathException:                                                 # Includes the empty-tree case
 
             return Proof(
                 provider=self.uuid,
@@ -807,7 +836,11 @@ class MerkleTree(object):
             raise
 
         else:
-            self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
+            self.encryptObject(
+                object=object,
+                sort_keys=sort_keys,
+                indent=indent
+            )
 
 
     def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
@@ -1022,14 +1055,15 @@ class MerkleTree(object):
                 \n    length    : {length}\
                 \n    size      : {size}\
                 \n    height    : {height}\n'.format(
-            uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', '-'),
-            encoding=self.encoding.upper().replace('_', '-'),
-            security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash.decode(self.encoding) if self else '[None]',
-            length=self.length,
-            size=self.size,
-            height=self.height)
+                    uuid=self.uuid,
+                    hash_type=self.hash_type.upper().replace('_', '-'),
+                    encoding=self.encoding.upper().replace('_', '-'),
+                    security='ACTIVATED' if self.security else 'DEACTIVATED',
+                    root_hash=self.rootHash.decode(self.encoding) if self else '[None]',
+                    length=self.length,
+                    size=self.size,
+                    height=self.height
+                )
 
     def __str__(self, indent=3):
         """Overrides the default implementation.
@@ -1076,7 +1110,8 @@ class MerkleTree(object):
             self,
             cls=MerkleTreeSerializer,
             sort_keys=True,
-            indent=4)
+            indent=4
+        )
 
 # ---------------------------------- Clearance ---------------------------
 

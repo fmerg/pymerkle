@@ -149,17 +149,18 @@ class Proof(object):
                 \n\
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n'.format(
-            uuid=self.header['uuid'],
-            generation='SUCCESS' if self.header['generation'] else 'FAILURE',
-            timestamp=self.header['timestamp'],
-            creation_moment=self.header['creation_moment'],
-            provider=self.header['provider'],
-            hash_type=self.header['hash_type'].upper().replace('_', '-'),
-            encoding=self.header['encoding'].upper().replace('_', '-'),
-            security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
-            proof_index=self.body['proof_index'],
-            proof_path=stringify_path(self.body['proof_path'], self.header['encoding']),
-            status='UNVALIDATED' if self.header['status'] is None else 'VALID' if self.header['status'] is True else 'NON VALID')
+                    uuid=self.header['uuid'],
+                    generation='SUCCESS' if self.header['generation'] else 'FAILURE',
+                    timestamp=self.header['timestamp'],
+                    creation_moment=self.header['creation_moment'],
+                    provider=self.header['provider'],
+                    hash_type=self.header['hash_type'].upper().replace('_', '-'),
+                    encoding=self.header['encoding'].upper().replace('_', '-'),
+                    security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
+                    proof_index=self.body['proof_index'],
+                    proof_path=stringify_path(self.body['proof_path'], self.header['encoding']),
+                    status='UNVALIDATED' if self.header['status'] is None else 'VALID' if self.header['status'] is True else 'NON VALID'
+                )
 
 # ------------------------------- Serialization --------------------------
 
@@ -181,4 +182,5 @@ class Proof(object):
             self,
             cls=ProofSerializer,
             sort_keys=True,
-            indent=4)
+            indent=4
+        )

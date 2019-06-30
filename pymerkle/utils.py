@@ -22,7 +22,7 @@ def log_2(num):
 
     :raises ValueError: for arguments smaller than zero
     """
-    return 0 if num == 0 else int(math.log(num, 2))
+    return int(math.log(num, 2)) if num != 0 else 0
 
 
 def decompose(num):
@@ -75,9 +75,9 @@ def stringify_path(signed_hashes, encoding):
     :type encoding:       str
     :rtype:               str
     """
-    def order_of_magnitude(num): return 0 if num == 0 else int(math.log10(num))
 
-    def get_with_sign(num): return str(num) if num < 0 else '+' + str(num)
+    order_of_magnitude = lambda num: int(math.log10(num)) if num != 0 else 0
+    get_with_sign      = lambda num: '%s%d' % ('+' if num >=0 else '', num)
 
     stringified_elems = []
 
@@ -86,20 +86,16 @@ def stringify_path(signed_hashes, encoding):
         elem = signed_hashes[i]
 
         stringified_elems.append(
-            (
-                '\n' +
-                 (7 - order_of_magnitude(i)) * ' ' +
-                 '[{i}]' +
-                 3 * ' ' +
-                 '{sign}' +
-                 2 * ' ' +
-                 '{hash}'
-            ).format(
+            '\n%s[{i}]%s{sign}%s{hash}'.format(
                 i=i,
                 sign=get_with_sign(elem[0]),
                 hash=elem[1].decode(encoding=encoding)
                 if not isinstance(elem[1], str) else elem[1]
-             )
+            ) % (
+                (7 - order_of_magnitude(i)) * ' ',
+                3 * ' ',
+                2 * ' '
+            )
         )
 
     return ''.join(elem for elem in stringified_elems)
