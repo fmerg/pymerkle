@@ -103,3 +103,28 @@ def stringify_path(signed_hashes, encoding):
         )
 
     return ''.join(elem for elem in stringified_elems)
+
+
+import mmap
+import contextlib
+
+def line_generator(file_path):
+    """
+    """
+    try:
+        with open('file_path', 'r') as _file:
+
+            buffer= mmap.mmap(
+                    _file.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
+
+            while True:
+                _line = _buffer.readline()
+                if not _line:
+                    break
+                yield _line
+
+    except FileNotFoundError:
+        raise

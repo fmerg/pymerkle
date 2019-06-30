@@ -11,6 +11,7 @@ import json
 import uuid
 import os
 import mmap
+import contextlib
 from tqdm import tqdm
 
 NONE = '[None]'
@@ -675,7 +676,9 @@ class MerkleTree(object):
         :param record: the record whose hash is to be stored into a new leaf
         :type record:  str or bytes or bytearray
         """
+
         self.update(record=record)
+
 
     def encryptFileContent(self, file_path):
         """Encrypts the provided file as a single new leaf into the Merkle-tree
@@ -690,16 +693,19 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            with open(os.path.abspath(file_path), 'rb') as _file:
-                # ~ NOTE: File should be opened in binary mode so that its content remains
-                # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                content = _file.read()  # bytes
+            with open(os.path.abspath(file_path), 'r') as _file:
+                with contextlib.closing(
+                    mmap.mmap(
+                        _file.fileno(),
+                        0,
+                        access=mmap.ACCESS_READ
+                    )
+                ) as _buffer:
+                    self.update(record=_buffer.read())
 
         except FileNotFoundError:
             raise
 
-        self.update(record=content)
 
     def encryptFilePerLog(self, file_path):
         """Encrypts per log the data of the provided file into the Merkle-tree
@@ -713,32 +719,50 @@ class MerkleTree(object):
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
+
         absolute_file_path = os.path.abspath(file_path)
 
-        # ~ tqdm needs to know in advance the total number of
-        # ~ lines so that it can display the progress bar
-        number_of_lines = 0
         try:
             with open(absolute_file_path, 'r+') as _file:
-                buffer = mmap.mmap(_file.fileno(), 0)        # Use memory-mapped file support to count lines
+                buffer = mmap.mmap(
+                    _file.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
 
         except FileNotFoundError:
             raise
 
         else:
-            while buffer.readline():
+
+            lines = []
+            number_of_lines = 0
+
+            while True:
+                _line = buffer.readline()
+                if not _line:
+                    break
+                lines.append(_line)
                 number_of_lines += 1
 
             tqdm.write('')
 
             # Perform line by line encryption
-            for line in tqdm(open(absolute_file_path, 'rb'),
-                             # ~ NOTE: File should be opened in binary mode so that its content remains
-                             # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                             # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                             desc='Encrypting log file',
-                             total=number_of_lines):
+            for line in tqdm(
+                (_line for _line in lines),
+                desc='Encrypting log file', 
+                total=number_of_lines
+            ):
                 self.update(record=line)
+
+            # # Perform line by line encryption
+            # for line in tqdm(open(absolute_file_path, 'rb'),
+            #                  # ~ NOTE: File should be opened in binary mode so that its content remains
+            #                  # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+            #                  # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+            #                  desc='Encrypting log file',
+            #                  total=number_of_lines):
+            #     self.update(record=line)
 
             tqdm.write('Encryption complete\n')
 

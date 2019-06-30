@@ -108,10 +108,10 @@ with open(short_APACHE_log, 'rb') as _file:
     for _line in _file:
         records.append(_line)
 
-with open(single_object_file, 'r') as _file:
+with open(single_object_file, 'rb') as _file:
     single_object = json.load(_file)
 
-with open(objects_list_file, 'r') as _file:
+with open(objects_list_file, 'rb') as _file:
     objects_list = json.load(_file)
 
 
