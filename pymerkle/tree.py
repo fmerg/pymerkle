@@ -8,6 +8,7 @@ from .proof import Proof
 from .serializers import MerkleTreeSerializer
 from .exceptions import LeafConstructionError, NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat
 import json
+from json import JSONDecodeError
 import uuid
 import os
 import mmap
@@ -735,36 +736,23 @@ class MerkleTree(object):
 
         else:
 
-            lines = []
             number_of_lines = 0
-
-            while True:
-                _line = buffer.readline()
-                if not _line:
-                    break
-                lines.append(_line)
+            while buffer.readline():
                 number_of_lines += 1
 
             tqdm.write('')
 
             # Perform line by line encryption
-            for line in tqdm(
-                (_line for _line in lines),
-                desc='Encrypting log file', 
-                total=number_of_lines
-            ):
+            for line in tqdm(open(absolute_file_path, 'rb'),
+                             # ~ NOTE: File should be opened in binary mode so that its content remains
+                             # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+                             # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+                             desc='Encrypting log file',
+                             total=number_of_lines):
                 self.update(record=line)
 
-            # # Perform line by line encryption
-            # for line in tqdm(open(absolute_file_path, 'rb'),
-            #                  # ~ NOTE: File should be opened in binary mode so that its content remains
-            #                  # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-            #                  # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-            #                  desc='Encrypting log file',
-            #                  total=number_of_lines):
-            #     self.update(record=line)
-
             tqdm.write('Encryption complete\n')
+
 
     def encryptObject(self, object, sort_keys=False, indent=0):
         """Encrypts the provided object as a single new leaf into the Merkle-tree
@@ -781,10 +769,15 @@ class MerkleTree(object):
                           provided object. Defaults to ``0``.
         :type indent:     int
         """
+
         self.update(
-            record=json.dumps(object,
-            sort_keys=sort_keys,
-            indent=indent))
+            record=json.dumps(
+                object,
+                sort_keys=sort_keys,
+                indent=indent
+            )
+        )
+
 
     def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
         """Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree
@@ -805,8 +798,9 @@ class MerkleTree(object):
         .. warning:: Raises ``JSONDecodeError`` if the provided file is not as prescribed
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
+
         try:
-            with open(os.path.abspath(file_path), 'r') as _file:
+            with open(os.path.abspath(file_path), 'rb') as _file:
                 object = json.load(_file)
 
         except (FileNotFoundError, JSONDecodeError):
@@ -814,6 +808,7 @@ class MerkleTree(object):
 
         else:
             self.encryptObject(object=object, sort_keys=sort_keys, indent=indent)
+
 
     def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
         """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
@@ -835,9 +830,11 @@ class MerkleTree(object):
         .. note:: Raises ``JSONDecodeError`` if the provided file cannot be deserialized
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
+
         try:
-            with open(os.path.abspath(file_path), 'r') as _file:
+            with open(os.path.abspath(file_path), 'rb') as _file:
                 list_of_objects = json.load(_file)
+
         except (FileNotFoundError, JSONDecodeError):
             raise
 
@@ -846,9 +843,11 @@ class MerkleTree(object):
 
         for object in list_of_objects:
             self.encryptObject(
-                        object=object,
-                        sort_keys=sort_keys,
-                        indent=indent)
+                object=object,
+                sort_keys=sort_keys,
+                indent=indent
+            )
+
 
 # ------------------------ Export to and load from file ------------------
 

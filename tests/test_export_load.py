@@ -4,32 +4,34 @@ import json
 from pymerkle import MerkleTree
 
 # Clean exports dir before running the test
-for file in os.listdir(os.path.join(os.path.dirname(__file__), 'exports')):
+
+for _file in os.listdir(os.path.join(os.path.dirname(__file__), 'exports')):
     os.remove(
         os.path.join(
-            os.path.dirname(
-                __file__),
+            os.path.dirname(__file__),
             'exports',
-            file))
+            _file
+        )
+    )
 
-tree = MerkleTree()
+# Make tree
 
-for i in range(12):
-    tree.update(record='{}-th record'.format(i))
+tree = MerkleTree(*['%d-th record' % i for i in range(12)])
 
 export_path = os.path.join(
     os.path.dirname(__file__),
     'exports',
-    '{}.json'.format(
-        tree.uuid))
+    '%s.json' % tree.uuid
+)
 
 tree.export(file_path=export_path)
 
-with open(export_path, 'r') as f:
-    exported_version = json.load(f)
+with open(export_path, 'rb') as _filef:
+    exported_version = json.load(_filef)
 
 
 def test_export():
+
     assert exported_version == {
         "header": {
             "encoding": "utf_8",
@@ -54,5 +56,5 @@ def test_export():
 
 
 def test_loadFromFile():
-    assert tree.rootHash == MerkleTree.loadFromFile(
-        file_path=export_path).rootHash
+
+    assert tree.serialize() == MerkleTree.loadFromFile(export_path).serialize()

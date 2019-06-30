@@ -2,6 +2,7 @@ import pytest
 import os
 import json
 from pymerkle import MerkleTree, hashing
+from pymerkle.exceptions import WrongJSONFormat
 
 
 HASH_TYPES = hashing.HASH_TYPES
@@ -142,6 +143,20 @@ def test_encryptFilePerLog(_tree):
     assert _tree.rootHash == _clone.rootHash
 
 
+def test_deserialization_error():
+    """Tests that the .encryptObjectFromFile() method raises JSONDecodeError
+    when the provided .json file cannot be deserialized
+    """
+
+    tree = MerkleTree()
+
+    with pytest.raises(json.JSONDecodeError):
+        tree.encryptObjectFromFile(
+            os.path.join(os.path.dirname(__file__),
+            'objects/bad.json')
+        )
+
+
 @pytest.mark.parametrize("_tree, _hash_machine", _trees_and__hash_machines)
 def test_encryptObjectFromFile(_tree, _hash_machine):
 
@@ -150,6 +165,19 @@ def test_encryptObjectFromFile(_tree, _hash_machine):
     assert _tree.leaves[-1].stored_hash == _hash_machine.hash(
         json.dumps(single_object, sort_keys=False, indent=0))
 
+
+def test_WronJSONFormat():
+    """Tests that the .encryptFilePerObject() method raises WrongJSONFormat
+    when the deserialized object loaded from the provided file is not a list
+    """
+
+    tree = MerkleTree()
+
+    with pytest.raises(WrongJSONFormat):
+        tree.encryptFilePerObject(
+            os.path.join(os.path.dirname(__file__),
+            'objects/sample.json')
+        )
 
 
 @pytest.mark.parametrize("_tree, _hash_machine", _trees_and__hash_machines)

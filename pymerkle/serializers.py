@@ -13,7 +13,9 @@ class MerkleTreeSerializer(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library
         """
         try:
-            hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
             leaves = obj.leaves
         except TypeError:
             return json.JSONEncoder.default(self, obj)
@@ -23,9 +25,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
                     'hash_type': hash_type,
                     'encoding': encoding,
                     'security': security},
-                'hashes': [
-                    leaf.stored_hash.decode(
-                        encoding=encoding) for leaf in leaves]}
+                'hashes': [leaf.stored_hash.decode(encoding=encoding) for leaf in leaves]}
 
 
 class NodeSerializer(json.JSONEncoder):
