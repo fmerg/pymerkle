@@ -10,6 +10,7 @@ detect*
 *.svg
 .benchmarks/
 /benchmark
+*notes*
 
 # Packaging
 *.egg-info/

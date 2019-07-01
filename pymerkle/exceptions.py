@@ -31,6 +31,10 @@ class EmptyTreeException(BaseException):
     """
     pass
 
+class EmptyPathException(BaseException):
+    """Raised when the .multi_hash() method is called with an empty `signed_hashes` argument
+    """
+    pass
 
 class NotSupportedEncodingError(BaseException):
     """Raised when a hash-machine or a Merkle-tree with unsupported encoding-type is requested

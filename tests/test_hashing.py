@@ -1,554 +1,667 @@
 import pytest
 from pymerkle import hashing
+from pymerkle.exceptions import EmptyPathException
 
 import hashlib
 
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS  = hashing.ENCODINGS
 
-# Hard-coded string to be used for testing
-message = 'oculusnonviditnecaurisaudivit'
+MESSAGE = 'oculusnonviditnecaurisaudivit'
 
-# Generate hash machines for any combination of hash and encoding types
-# (including both security modes for each )
-hash_machines = []
-hash_types = []
-encodings = []
-securities = []
-bytes_messages = []
-bytearray_messages = []
-for security in (True, False):
-    for hash_type in HASH_TYPES:
-        for encoding in ENCODINGS:
-            hash_machines.append(hashing.hash_machine(
-                hash_type=hash_type,
-                encoding=encoding,
-                security=security))
-            hash_types.append(hash_type)
-            encodings.append(encoding)
-            securities.append(security)
-            bytes_messages.append(bytes(message, encoding=encoding))
-            bytearray_messages.append(bytearray(message, encoding=encoding))
+_machines                                    = []
+_machines__hash_types__encodings__securities = []
+_machines__single_args                       = []
+
+for _security in (True, False):
+    for _hash_type in HASH_TYPES:
+        for _encoding in ENCODINGS:
+
+            _machine = hashing.hash_machine(
+                hash_type=_hash_type,
+                encoding=_encoding,
+                security=_security
+            )
+
+            _machines.append(_machine)
+
+            _machines__hash_types__encodings__securities.extend(
+                [
+                    (
+                        _machine,
+                        _hash_type,
+                        _encoding,
+                        _security
+                    )
+                ]
+            )
+
+            _machines__single_args.extend(
+                [
+                    (
+                        _machine,
+                        MESSAGE
+                    ),
+                    (
+                        _machine,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        _machine,
+                        bytearray(MESSAGE, _encoding)
+                    )
+                ]
+            )
 
 
-@pytest.mark.parametrize(
-    "hash_machine, hash_type, encoding, security", [
-        (hash_machines[i], hash_types[i], encodings[i], securities[i]) for i in range(
-            len(hash_machines))])
-def test_string_hash(hash_machine, hash_type, encoding, security):
-    """Tests single string hashing for all combinations of hash and encoding types
+# ------------------------------ .hash() testing ------------------------------
+
+
+@pytest.mark.parametrize("_machine, _hash_type, _encoding, _security", _machines__hash_types__encodings__securities)
+def test_single_string_hash(_machine, _hash_type, _encoding, _security):
+    """Tests single string hashing
     """
-    if hash_type == 'sha256' and encoding == 'utf_8' and security:  # Genuinely activated security standards
-        assert hash_machine.hash(message) == bytes(
-            getattr(hashlib, hash_type)(
-                ('\x00' + message).encode(encoding=encoding)
-            ).hexdigest(), encoding=encoding)
+
+    if _security:
+        assert _machine.hash(MESSAGE) == bytes(
+            getattr(hashlib, _hash_type)(('\x00%s' % MESSAGE).encode(_encoding)).hexdigest(),
+            _encoding
+        )
     else:
-        assert hash_machine.hash(message) == bytes(
-            getattr(hashlib, hash_type)(
-                message.encode(encoding=encoding)
-            ).hexdigest(), encoding=encoding)
+        assert _machine.hash(MESSAGE) == bytes(
+            getattr(hashlib, _hash_type)(bytes(MESSAGE, _encoding)).hexdigest(),
+            _encoding
+        )
 
 
-@pytest.mark.parametrize(
-    "hash_machine, bytes_message, hash_type, encoding, security", [
-        (hash_machines[i], bytes_messages[i], hash_types[i], encodings[i], securities[i]) for i in range(
-            len(hash_machines))])
-def test_bytes_hash(
-        hash_machine,
-        bytes_message,
-        hash_type,
-        encoding,
-        security):
-    """Tests single bytes hashing for all combinations of hash and encoding types
+@pytest.mark.parametrize("_machine, _hash_type, _encoding, _security", _machines__hash_types__encodings__securities)
+def test_single_bytes_hash(_machine, _hash_type, _encoding, _security):
+    """Tests single bytes object hashing
     """
-    if hash_type == 'sha256' and encoding == 'utf_8' and security:  # Genuinely activated security standards
-        assert hash_machine.hash(bytes_message) == bytes(
-            getattr(hashlib, hash_type)(
-                bytes('\x00' + message, encoding=encoding)
-            ).hexdigest(), encoding=encoding)
+
+    if _security:
+        assert _machine.hash(bytes(MESSAGE, _encoding)) == bytes(
+            getattr(hashlib, _hash_type)(bytes('\x00%s' % MESSAGE, _encoding)).hexdigest(),
+            _encoding
+        )
     else:
-        assert hash_machine.hash(bytes_message) == bytes(
-            getattr(hashlib, hash_type)(
-                bytes(message, encoding=encoding)
-            ).hexdigest(), encoding=encoding)
+        assert _machine.hash(bytes(MESSAGE, _encoding)) == bytes(
+            getattr(hashlib, _hash_type)(bytes(MESSAGE, _encoding)).hexdigest(),
+            _encoding
+        )
 
 
-@pytest.mark.parametrize(
-    "hash_machine, bytearray_message, hash_type, encoding, security",
-    [
-        (hash_machines[i],
-         bytearray_messages[i],
-         hash_types[i],
-         encodings[i],
-         securities[i]) for i in range(
-            len(hash_machines))])
-def test_bytearray_hash(
-        hash_machine,
-        bytearray_message,
-        hash_type,
-        encoding,
-        security):
-    """Tests single bytearray hashing for all combinations of hash and encoding types
+@pytest.mark.parametrize("_machine, _hash_type, _encoding, _security", _machines__hash_types__encodings__securities)
+def test_single_bytearray_hash(_machine, _hash_type, _encoding, _security):
+    """Tests single bytearray object hashing
     """
-    if hash_type == 'sha256' and encoding == 'utf_8' and security:
-        # Genuinely activated security standards
-        assert hash_machine.hash(bytearray_message) == bytes(
-            getattr(hashlib, hash_type)(
-                bytearray('\x00' + message, encoding=encoding)
-            ).hexdigest(), encoding=encoding)
+
+    if _security:
+        assert _machine.hash(bytearray(MESSAGE, _encoding)) == bytearray(
+            getattr(hashlib, _hash_type)(bytearray('\x00%s' % MESSAGE, _encoding)).hexdigest(),
+            _encoding
+        )
     else:
-        assert hash_machine.hash(bytearray_message) == bytes(
-            getattr(hashlib, hash_type)(
-                bytearray(message, encoding=encoding)
-            ).hexdigest(), encoding=encoding)
+        assert _machine.hash(bytearray(MESSAGE, _encoding)) == bytearray(
+            getattr(hashlib, _hash_type)(bytearray(MESSAGE, _encoding)).hexdigest(),
+            _encoding
+        )
 
 
-@pytest.mark.parametrize(
-    "hash_machine, hash_type, encoding, security", [
-        (hash_machines[i], hash_types[i], encodings[i], securities[i]) for i in range(
-            len(hash_machines))])
-def test_double_bytearray_hash(hash_machine, hash_type, encoding, security):
-    """Tests two arguments hashing for all combinations of hash and encoding types
+@pytest.mark.parametrize("_machine, _hash_type, _encoding, _security", _machines__hash_types__encodings__securities)
+def test_double_bytes_hash(_machine, _hash_type, _encoding, _security):
+    """Tests double-argument hashing for given bytes objects
     """
-    if hash_type == 'sha256' and encoding == 'utf_8' and security:
-        # Genuinely activated security standards
-        assert hash_machine.hash(
-            bytearray(
-                message,
-                encoding=encoding),
-            bytearray(
-                message,
-                encoding=encoding)) == bytes(
-            getattr(
-                hashlib,
-                hash_type)(
+
+    if _security:
+
+        assert _machine.hash(
+            bytes(MESSAGE, _encoding),
+            bytes(MESSAGE, _encoding)) == bytes(
+            getattr(hashlib,_hash_type)(
                 bytes(
-                    '\x01' +
-                    message +
-                    '\x01' +
-                    message,
-                    encoding=encoding)).hexdigest(),
-            encoding=encoding)
+                    '\x01%s\x01%s' % (MESSAGE, MESSAGE),
+                    _encoding)
+            ).hexdigest(),
+            _encoding
+        )
     else:
-        assert hash_machine.hash(
-            bytearray(
-                message,
-                encoding=encoding),
-            bytearray(
-                message,
-                encoding=encoding)) == bytes(
-            getattr(
-                hashlib,
-                hash_type)(
-                bytes(
-                    message +
-                    message,
-                    encoding=encoding)).hexdigest(),
-            encoding=encoding)
+        assert _machine.hash(
+            bytes(MESSAGE, _encoding),
+            bytes(MESSAGE, _encoding)) == bytes(
+                getattr(hashlib, _hash_type)(
+                    bytes(
+                        MESSAGE + MESSAGE,
+                        _encoding
+                    )).hexdigest(),
+                _encoding
+            )
 
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_empty_multi_hash(hash_machine):
-    """Tests multi_hash with edge case argument for all combinations of hash and encoding types
+@pytest.mark.parametrize("_machine, _hash_type, _encoding, _security", _machines__hash_types__encodings__securities)
+def test_double_bytearray_hash(_machine, _hash_type, _encoding, _security):
+    """Tests double-argument hashing for given bytearray objects
     """
-    assert hash_machine.multi_hash([], start='anything') is None
 
+    if _security:
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_with_one_arg(hash_machine):
-    """Tests that multi_hash output with one arg coincides with that of hash
-    for all possible combinations of hash and encoding types
-    """
-    assert hash_machine.multi_hash(
-        [(+1, hash_machine.hash(message))], start=0) == hash_machine.hash(message)
-
-
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_with_two_args(hash_machine):
-    """Tests that multi_hash output with two args coincides with that of hash
-    for all possible combinations of hash and encoding types
-    """
-    multi_hash = hash_machine.multi_hash
-    hash = hash_machine.hash
-    if hash_machine.SECURITY:
-        # Genuinely activated security standards
-        assert multi_hash(
-            [
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=0) == multi_hash(
-            [
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=1) == hash(
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING),
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING))  # integrates security prefices
+        assert _machine.hash(
+            bytearray(MESSAGE, _encoding),
+            bytearray(MESSAGE, _encoding)) == bytearray(
+            getattr(hashlib,_hash_type)(
+                bytearray(
+                    '\x01%s\x01%s' % (MESSAGE, MESSAGE),
+                    _encoding)
+            ).hexdigest(),
+            _encoding
+        )
     else:
-        assert multi_hash([(+1,
-                            bytes(message,
-                                  encoding=hash_machine.ENCODING)),
-                           (-1,
-                            bytes(message,
-                                  encoding=hash_machine.ENCODING))],
-                          start=0) == multi_hash([(+1,
-                                                   bytes(message,
-                                                         encoding=hash_machine.ENCODING)),
-                                                  (-1,
-                                                   bytes(message,
-                                                         encoding=hash_machine.ENCODING))],
-                                                 start=1) == hash(message + message)
+        assert _machine.hash(
+            bytearray(MESSAGE, _encoding),
+            bytearray(MESSAGE, _encoding)) == bytearray(
+                getattr(hashlib, _hash_type)(
+                    bytearray(
+                        MESSAGE + MESSAGE,
+                        _encoding
+                    )).hexdigest(),
+                _encoding
+            )
 
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_with_three_args_first_case(hash_machine):
-    """Tests first case output of multi_hash with three args for all possible
-    combinations of hash and encoding types
+# --------------------------- .multi_hash() testing ---------------------------
+
+
+@pytest.mark.parametrize('_machine', _machines)
+def test_0_elems_multi_hash(_machine):
+    """Tests that the EmptyPathException is raised then the .multi_hash() method
+    is called with an empty first argument
     """
-    multi_hash = hash_machine.multi_hash
-    hash = hash_machine.hash
-    if hash_machine.SECURITY:
-        # Genuinely activated security standards
-        assert multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                ('_anything_',
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=0) == multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                ('_anything_',
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=1) == hash(
-            hash(
-                bytes(
-                    message,
-                    encoding=hash_machine.ENCODING),
-                bytes(
-                    message,
-                    encoding=hash_machine.ENCODING)),
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING))  # integrates security prefices
+
+    with pytest.raises(EmptyPathException):
+        assert _machine.multi_hash((), start='anything')
+
+
+@pytest.mark.parametrize('_machine, _single_arg', _machines__single_args)
+def test_1_elems_multi_hash(_machine, _single_arg):
+
+    assert _machine.multi_hash(
+        ((+1, _machine.hash(_single_arg)),), start=0
+    ) == _machine.hash(_single_arg)
+
+
+@pytest.mark.parametrize('_machine', _machines)
+def test_2_elems_multi_hash(_machine):
+
+    _hash       = _machine.hash
+    _multi_hash = _machine.multi_hash
+    _encoding   = _machine.ENCODING
+
+    if _machine.SECURITY:
+
+        assert _multi_hash(
+
+                (
+                    (
+                        +1,
+                         bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                         bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=0
+
+        ) == _multi_hash(
+
+                (
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=1
+
+        ) == _hash(bytes(MESSAGE, _encoding), bytes(MESSAGE, _encoding))
     else:
-        assert multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                ('_anything_',
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=0) == multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                ('_anything_',
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=1) == hash(
-            hash(
-                message + message),
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING))
+        assert _multi_hash(
+
+                (
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE,_encoding)
+                    )
+                ),
+                start=0
+
+        ) == _multi_hash(
+
+                (
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=1
+
+        ) == _hash('%s%s' % (MESSAGE, MESSAGE))
 
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_with_three_args_second_case(hash_machine):
-    """Tests second case output of multi_hash with three args for all possible
-    combinations of hash and encoding types
-    """
-    multi_hash = hash_machine.multi_hash
-    hash = hash_machine.hash
-    if hash_machine.SECURITY:
-        # Genuinely activated security standards
-        assert multi_hash(
-            signed_hashes=[
-                ('_anything_',
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING))],
-            start=2) == multi_hash(
-            signed_hashes=[
-                ('_anything_',
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING))],
-            start=1) == hash(
-            bytes(
-                message,
-                hash_machine.ENCODING),
-            hash(
-                bytes(
-                    message,
-                    hash_machine.ENCODING),
-                bytes(
-                    message,
-                    hash_machine.ENCODING)))  # integrates security prefices
+@pytest.mark.parametrize('_machine', _machines)
+def test_3_elems_multi_hash_case_1(_machine):
+
+    _hash       = _machine.hash
+    _multi_hash = _machine.multi_hash
+    _encoding   = _machine.ENCODING
+
+    if _machine.SECURITY:
+
+        assert _multi_hash(
+
+                    signed_hashes=(
+                        (
+                            +1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            +1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            '_anything_',
+                            bytes(MESSAGE, _encoding)
+                        )
+                    ),
+                    start=0
+
+            ) == _multi_hash(
+
+                    signed_hashes=(
+                        (
+                            +1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            -1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            '_anything_',
+                            bytes(MESSAGE, _encoding)
+                        )
+                    ),
+                    start=1
+
+            ) == _hash(
+                    _hash(
+                        bytes(MESSAGE, _encoding),
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    bytes(MESSAGE, _encoding)
+                )
     else:
-        assert multi_hash(
-            signed_hashes=[
-                ('_anything_',
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING))],
-            start=2) == multi_hash(
-            signed_hashes=[
-                ('_anything_',
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     hash_machine.ENCODING))],
-            start=1) == hash(
-            bytes(
-                message,
-                hash_machine.ENCODING),
-            hash(
-                message + message))
+        assert _multi_hash(
+
+                    signed_hashes=(
+                        (
+                            +1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            +1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            '_anything_',
+                            bytes(MESSAGE, _encoding)
+                        )
+                    ),
+                    start=0
+
+            ) == _multi_hash(
+
+                    signed_hashes=(
+                        (
+                            +1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            -1,
+                            bytes(MESSAGE, _encoding)
+                        ),
+                        (
+                            '_anything_',
+                            bytes(MESSAGE, _encoding)
+                        )
+                    ),
+                    start=1
+
+            ) == _hash(
+                    _hash('%s%s' % (MESSAGE, MESSAGE)),
+                    bytes(MESSAGE, _encoding)
+                )
 
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_four_args_first_edge_case(hash_machine):
-    """Tests first edge case of multi_hash with four args
-    """
-    multi_hash = hash_machine.multi_hash
-    hash = hash_machine.hash
-    if hash_machine.SECURITY:
-        # Genuinely activated security standards
-        assert multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                ('_anything_',
-                 bytes(message, encoding=hash_machine.ENCODING))],
-            start=0) == hash(
-            hash(
-                hash(
-                    bytes(message, encoding=hash_machine.ENCODING),
-                    bytes(message, encoding=hash_machine.ENCODING)),
-                bytes(message, encoding=hash_machine.ENCODING)),
-            bytes(message, encoding=hash_machine.ENCODING))  # integrates security prefices
+@pytest.mark.parametrize('_machine', _machines)
+def test_3_elems_multi_hash_case_2(_machine):
+
+    _hash       = _machine.hash
+    _multi_hash = _machine.multi_hash
+    _encoding   = _machine.ENCODING
+
+    if _machine.SECURITY:
+
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        '_anything_',
+                         bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=2
+
+        ) == _multi_hash(
+
+                signed_hashes=(
+                    (
+                        '_anything_',
+                         bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=1
+
+        ) == _hash(
+                bytes(MESSAGE, _encoding),
+                _hash(
+                    bytes(MESSAGE, _encoding),
+                    bytes(MESSAGE, _encoding)
+                )
+            )
     else:
-        assert multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                ('_anything_',
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=0) == hash(
-            hash(
-                hash(
-                    message + message),
-                bytes(
-                    message,
-                    encoding=hash_machine.ENCODING)),
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING))
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        '_anything_',
+                         bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=2
+
+        ) == _multi_hash(
+
+                signed_hashes=(
+                    (
+                        '_anything_',
+                         bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=1
+
+        ) == _hash(
+                bytes(MESSAGE, _encoding),
+                _hash('%s%s' % (MESSAGE, MESSAGE))
+            )
 
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_four_args_second_edge_case(hash_machine):
-    """Tests second edge case of multi_hash with four args
-    """
-    multi_hash = hash_machine.multi_hash
-    hash = hash_machine.hash
-    if hash_machine.SECURITY:
-        # Genuinely activated security standards
-        assert multi_hash(
-            signed_hashes=[
-                ('_anything_',
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(message, encoding=hash_machine.ENCODING))],
-            start=3) == hash(
-            bytes(message, encoding=hash_machine.ENCODING),
-            hash(
-                bytes(message, encoding=hash_machine.ENCODING),
-                hash(
-                    bytes(message, encoding=hash_machine.ENCODING),
-                    bytes(message, encoding=hash_machine.ENCODING))))  # integrates security prefices
+@pytest.mark.parametrize('_machine', _machines)
+def test_4_elems_multi_hash_edge_case_1(_machine):
+
+    _hash       = _machine.hash
+    _multi_hash = _machine.multi_hash
+    _encoding   = _machine.ENCODING
+
+    if _machine.SECURITY:
+
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        '_anything_',
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=0
+
+        ) == _hash(
+                _hash(
+                    _hash(
+                        bytes(MESSAGE, _encoding),
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    bytes(MESSAGE, _encoding)
+                ),
+                bytes(MESSAGE, _encoding)
+            )
     else:
-        assert multi_hash(
-            signed_hashes=[
-                ('_anything_',
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=3) == hash(
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING),
-            hash(
-                bytes(
-                    message,
-                    encoding=hash_machine.ENCODING),
-                hash(
-                    message + message)))
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        '_anything_',
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=0
+
+        ) == _hash(
+                _hash(
+                    _hash('%s%s' % (MESSAGE, MESSAGE)),
+                    bytes(MESSAGE, _encoding)
+                ),
+                bytes(MESSAGE, _encoding)
+            )
 
 
-@pytest.mark.parametrize('hash_machine', hash_machines)
-def test_multi_hash_with_four_args(hash_machine):
-    """Tests multi_hash for some non-edge case of four args
-    """
-    multi_hash = hash_machine.multi_hash
-    hash = hash_machine.hash
-    if hash_machine.SECURITY:
-        # Genuinely activated security standards
-        assert multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(message, encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(message, encoding=hash_machine.ENCODING))],
-            start=1) == hash(
-            hash(
-                bytes(message, encoding=hash_machine.ENCODING),
-                hash(
-                    bytes(message, encoding=hash_machine.ENCODING),
-                    bytes(message, encoding=hash_machine.ENCODING))),
-            bytes(message, encoding=hash_machine.ENCODING))  # integrates security prefices
+@pytest.mark.parametrize('_machine', _machines)
+def test_4_elems_multi_hash_edge_case_2(_machine):
+
+    _hash       = _machine.hash
+    _multi_hash = _machine.multi_hash
+    _encoding   = _machine.ENCODING
+
+    if _machine.SECURITY:
+
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        '_anything_',
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=3
+
+            ) == _hash(
+                    bytes(MESSAGE, _encoding),
+                    _hash(
+                        bytes(MESSAGE, _encoding),
+                        _hash(
+                            bytes(MESSAGE, _encoding),
+                            bytes(MESSAGE, _encoding)
+                        )
+                    )
+                )
     else:
-        assert multi_hash(
-            signed_hashes=[
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (+1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING)),
-                (-1,
-                 bytes(
-                     message,
-                     encoding=hash_machine.ENCODING))],
-            start=1) == hash(
-            hash(
-                bytes(
-                    message,
-                    encoding=hash_machine.ENCODING),
-                hash(
-                    message + message)),
-            bytes(
-                message,
-                encoding=hash_machine.ENCODING))
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        '_anything_',
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=3
+
+            ) == _hash(
+                    bytes(MESSAGE, _encoding),
+                    _hash(
+                        bytes(MESSAGE, _encoding),
+                        _hash('%s%s' % (MESSAGE, MESSAGE))
+                    )
+                )
+
+
+@pytest.mark.parametrize('_machine', _machines)
+def test_4_elems_multi_hash(_machine):
+
+    _hash       = _machine.hash
+    _multi_hash = _machine.multi_hash
+    _encoding   = _machine.ENCODING
+
+    if _machine.SECURITY:
+
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=1
+
+        ) == _hash(
+                _hash(
+                    bytes(MESSAGE, _encoding),
+                    _hash(
+                        bytes(MESSAGE, _encoding),
+                        bytes(MESSAGE, _encoding))
+                    ),
+                bytes(MESSAGE, _encoding)
+            )
+    else:
+        assert _multi_hash(
+
+                signed_hashes=(
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        +1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    ),
+                    (
+                        -1,
+                        bytes(MESSAGE, _encoding)
+                    )
+                ),
+                start=1
+
+        ) == _hash(
+                _hash(
+                    bytes(MESSAGE, _encoding),
+                    _hash('%s%s' % (MESSAGE, MESSAGE))
+                ),
+                bytes(MESSAGE, _encoding)
+            )

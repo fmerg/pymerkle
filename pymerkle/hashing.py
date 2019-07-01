@@ -5,7 +5,7 @@ Instances of this class should receive their configuration parameters from the `
 """
 
 import hashlib
-from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError
+from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError, EmptyPathException
 
 ENCODINGS = (
     'euc_jisx0213',
@@ -317,8 +317,8 @@ class hash_machine(object):
 
         signed_hashes = list(signed_hashes)
 
-        if signed_hashes == []:
-            return None                                                         # Empty case
+        if signed_hashes == []:                                                 # Empty-tuple case
+            raise EmptyPathException
 
         elif len(signed_hashes) == 1:                                           # One-element case
             return signed_hashes[0][1]

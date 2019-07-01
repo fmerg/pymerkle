@@ -723,7 +723,7 @@ class MerkleTree(object):
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
         """
         try:
-            with open(os.path.abspath(file_path), 'r') as _file:
+            with open(os.path.abspath(file_path), 'rb') as _file:
                 with contextlib.closing(
                     mmap.mmap(
                         _file.fileno(),
@@ -925,9 +925,11 @@ class MerkleTree(object):
 
         try:
             _header = loaded_object['header']
-            _tree = MerkleTree(hash_type=_header['hash_type'],
-                        encoding=_header['encoding'],
-                        security=_header['security'])
+            _tree = MerkleTree(
+                hash_type=_header['hash_type'],
+                encoding=_header['encoding'],
+                security=_header['security']
+            )
         except KeyError:
             raise WrongJSONFormat
 
