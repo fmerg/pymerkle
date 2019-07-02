@@ -113,9 +113,6 @@ HASH_TYPES = (
 )
 """Supported hash types"""
 
-PREFIX_0 = '\x00'
-PREFIX_1 = '\x01'
-
 
 class hash_machine(object):
     """Encapsulates the two basic hash utilities used accross this library.
@@ -173,7 +170,8 @@ class hash_machine(object):
         # ~ If True, security prefices will be prepended before
         # ~ hashing for defense against second-preimage attack
         self.SECURITY = security
-
+        self.PREFIX_0 = '\x00' if security else ''
+        self.PREFIX_1 = '\x01' if security else ''
 
 
     def hash(self, first, second=None):
@@ -194,97 +192,50 @@ class hash_machine(object):
         :rtype:        bytes
         """
 
-        if not second:  # one arg case
+        if not second:                                                          # single argument case
 
-            if isinstance(first, (bytes, bytearray)):
+            if isinstance(first, (bytes, bytearray)):                           # bytes-like input
 
-                # bytes-like input
-
-                if self.SECURITY:
-
-                    # Apply security stadards
-
-                    hex_hash = self.HASH_ALGORITHM(
-                        bytes(
-                            '%s%s' % (
-                                PREFIX_0,
-                                first.decode(self.ENCODING)
-                            ),
-                            self.ENCODING
-                        )
-                    ).hexdigest()
-
-                    return bytes(hex_hash, self.ENCODING)
-
-                # No security standards
-
-                return bytes(
-                    self.HASH_ALGORITHM(first).hexdigest(),
-                    self.ENCODING
-                )
-
-            # Non bytes-like input
-
-            if self.SECURITY:
-
-                # Apply security standards
-
-                hex_hash = self.HASH_ALGORITHM(
+                _hexdigest = self.HASH_ALGORITHM(
                     bytes(
                         '%s%s' % (
-                            PREFIX_0,
+                            self.PREFIX_0,
+                            first.decode(self.ENCODING)
+                        ),
+                        self.ENCODING
+                    )
+                ).hexdigest()
+
+                return bytes(_hexdigest, self.ENCODING)
+
+            else:                                                               # string input
+
+                _hexdigest = self.HASH_ALGORITHM(
+                    bytes(
+                        '%s%s' % (
+                            self.PREFIX_0,
                             first
                         ),
                         self.ENCODING)
                     ).hexdigest()
 
-                return bytes(hex_hash, self.ENCODING)
+                return bytes(_hexdigest, self.ENCODING)
 
-            # No security standards
+        else:                                                                   # two arguments case
 
-            return bytes(
-                self.HASH_ALGORITHM(
-                    bytes(
-                        first,
-                        self.ENCODING
-                    )
-                ).hexdigest(),
-                self.ENCODING
-            )
-
-        # two args case
-
-        if self.SECURITY:
-
-            # Apply security standards
-
-            hex_hash = self.HASH_ALGORITHM(
+            _hexdigest = self.HASH_ALGORITHM(
                 bytes(
                     '%s%s%s%s' % (
-                        PREFIX_1,
+                        self.PREFIX_1,
                         first.decode(self.ENCODING),
-                        PREFIX_1,
+                        self.PREFIX_1,
                         second.decode(self.ENCODING)
                     ),
                     self.ENCODING
                 )
             ).hexdigest()
 
-            return bytes(hex_hash, self.ENCODING)
-
-        # No security standards
-
-        hex_hash = self.HASH_ALGORITHM(
-            bytes(
-                '%s%s' % (
-                    first.decode(self.ENCODING),
-                    second.decode(self.ENCODING)
-                ),
-                self.ENCODING
-            )
-        ).hexdigest()
-
-        return bytes(hex_hash, self.ENCODING)
+            return bytes(_hexdigest, self.ENCODING)
 
 
     def multi_hash(self, signed_hashes, start):

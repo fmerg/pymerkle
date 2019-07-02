@@ -167,20 +167,21 @@ class MerkleTree(object):
         """
         if self:
 
-            # ~ Height of *full* binary subtree with maximum
+            # ~ Height and root of the *full* binary subtree with maximum
             # ~ possible length containing the rightmost leaf
-            last_power = decompose(len(self.leaves))[-1]
 
-            # Detect root of the above rightmost *full* binary subtree
+            last_power   = decompose(len(self.leaves))[-1]
             last_subroot = self.leaves[-1].descendant(degree=last_power)
 
             # Store new record to new leaf
 
             try:
-                new_leaf = Leaf(hash_function=self.hash,
-                                encoding=self.encoding,
-                                record=record,
-                                stored_hash=stored_hash)
+                new_leaf = Leaf(
+                    hash_function=self.hash,
+                    encoding=self.encoding,
+                    record=record,
+                    stored_hash=stored_hash
+                )
 
             except LeafConstructionError:
                 raise
@@ -196,10 +197,12 @@ class MerkleTree(object):
                 old_child = last_subroot.child
 
             except NoChildException:                                            # last_subroot was previously root
-                self._root = Node(hash_function=self.hash,
-                                 encoding=self.encoding,
-                                 left=last_subroot,
-                                 right=new_leaf)
+                self._root = Node(
+                    hash_function=self.hash,
+                    encoding=self.encoding,
+                    left=last_subroot,
+                    right=new_leaf
+                )
 
                 self.nodes.add(self._root)
 
@@ -208,10 +211,12 @@ class MerkleTree(object):
 
                 # Create bifurcation node
 
-                new_child = Node(hash_function=self.hash,
-                                 encoding=self.encoding,
-                                 left=last_subroot,
-                                 right=new_leaf)
+                new_child = Node(
+                    hash_function=self.hash,
+                    encoding=self.encoding,
+                    left=last_subroot,
+                    right=new_leaf
+                )
 
                 self.nodes.add(new_child)
 
@@ -235,10 +240,12 @@ class MerkleTree(object):
         else:                                                                   # Empty tree case
 
             try:
-                new_leaf = Leaf(hash_function=self.hash,
-                                encoding=self.encoding,
-                                record=record,
-                                stored_hash=stored_hash)
+                new_leaf = Leaf(
+                    hash_function=self.hash,
+                    encoding=self.encoding,
+                    record=record,
+                    stored_hash=stored_hash
+                )
 
             except LeafConstructionError:
                 raise
@@ -353,10 +360,12 @@ class MerkleTree(object):
             _hash = self.hash(arg)
             _leaves = (leaf for leaf in self.leaves)
             while True:
+
                 try:
                     _leaf = next(_leaves)
                 except StopIteration:
                     break
+
                 else:
                     if _hash == _leaf.stored_hash:
                         index = count
@@ -542,7 +551,7 @@ class MerkleTree(object):
                 else:
                     subroots = subroots[:-2]
 
-                subroots.append((+1, _subroot.child)) # ---> SIGN
+                subroots.append((+1, _subroot.child))
 
         return complement
 
@@ -1061,7 +1070,7 @@ class MerkleTree(object):
                     hash_type=self.hash_type.upper().replace('_', '-'),
                     encoding=self.encoding.upper().replace('_', '-'),
                     security='ACTIVATED' if self.security else 'DEACTIVATED',
-                    root_hash=self.rootHash.decode(self.encoding) if self else '[None]',
+                    root_hash=self.rootHash.decode(self.encoding) if self else NONE,
                     length=self.length,
                     size=self.size,
                     height=self.height
