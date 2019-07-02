@@ -169,6 +169,7 @@ class hash_machine(object):
 
         # ~ If True, security prefices will be prepended before
         # ~ hashing for defense against second-preimage attack
+
         self.SECURITY = security
         self.PREFIX_0 = '\x00' if security else ''
         self.PREFIX_1 = '\x01' if security else ''
@@ -196,27 +197,32 @@ class hash_machine(object):
 
             if isinstance(first, (bytes, bytearray)):                           # bytes-like input
 
-                _hexdigest = self.HASH_ALGORITHM(
-                    bytes(
-                        '%s%s' % (
-                            self.PREFIX_0,
-                            first.decode(self.ENCODING)
-                        ),
-                        self.ENCODING
-                    )
-                ).hexdigest()
+                try:
+                    _hexdigest = self.HASH_ALGORITHM(
+                            bytes(
+                                '%s%s' % (
+                                    self.PREFIX_0,
+                                    first.decode(self.ENCODING)
+                                ),
+                                self.ENCODING
+                            )
+                        ).hexdigest()
+
+                except UnicodeDecodeError:                                      # incompatible encoding type
+                    raise
 
                 return bytes(_hexdigest, self.ENCODING)
 
             else:                                                               # string input
 
                 _hexdigest = self.HASH_ALGORITHM(
-                    bytes(
-                        '%s%s' % (
-                            self.PREFIX_0,
-                            first
-                        ),
-                        self.ENCODING)
+                        bytes(
+                            '%s%s' % (
+                                self.PREFIX_0,
+                                first
+                            ),
+                            self.ENCODING
+                        )
                     ).hexdigest()
 
                 return bytes(_hexdigest, self.ENCODING)
@@ -224,16 +230,16 @@ class hash_machine(object):
         else:                                                                   # two arguments case
 
             _hexdigest = self.HASH_ALGORITHM(
-                bytes(
-                    '%s%s%s%s' % (
-                        self.PREFIX_1,
-                        first.decode(self.ENCODING),
-                        self.PREFIX_1,
-                        second.decode(self.ENCODING)
-                    ),
-                    self.ENCODING
-                )
-            ).hexdigest()
+                    bytes(
+                        '%s%s%s%s' % (
+                            self.PREFIX_1,
+                            first.decode(self.ENCODING),
+                            self.PREFIX_1,
+                            second.decode(self.ENCODING)
+                        ),
+                        self.ENCODING
+                    )
+                ).hexdigest()
 
             return bytes(_hexdigest, self.ENCODING)
 
