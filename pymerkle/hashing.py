@@ -5,7 +5,7 @@ Instances of this class should receive their configuration parameters from the `
 """
 
 import hashlib
-from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError, EmptyPathException
+from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError, EmptyPathException, UndecodableArgumentError
 
 ENCODINGS = (
     'euc_jisx0213',
@@ -209,7 +209,7 @@ class hash_machine(object):
                         ).hexdigest()
 
                 except UnicodeDecodeError:                                      # incompatible encoding type
-                    raise
+                    raise UndecodableArgumentError
 
                 return bytes(_hexdigest, self.ENCODING)
 
@@ -229,17 +229,21 @@ class hash_machine(object):
 
         else:                                                                   # two arguments case
 
-            _hexdigest = self.HASH_ALGORITHM(
-                    bytes(
-                        '%s%s%s%s' % (
-                            self.PREFIX_1,
-                            first.decode(self.ENCODING),
-                            self.PREFIX_1,
-                            second.decode(self.ENCODING)
-                        ),
-                        self.ENCODING
-                    )
-                ).hexdigest()
+            try:
+                _hexdigest = self.HASH_ALGORITHM(
+                        bytes(
+                            '%s%s%s%s' % (
+                                self.PREFIX_1,
+                                first.decode(self.ENCODING),
+                                self.PREFIX_1,
+                                second.decode(self.ENCODING)
+                            ),
+                            self.ENCODING
+                        )
+                    ).hexdigest()
+
+            except UnicodeDecodeError:                                          # incompatible encoding type
+                raise UndecodableArgumentError
 
             return bytes(_hexdigest, self.ENCODING)
 

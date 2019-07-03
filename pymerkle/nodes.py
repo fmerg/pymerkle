@@ -3,7 +3,7 @@ Provides the base class for the Merkle-tree's nodes and an inheriting class for 
 """
 
 from .serializers import NodeSerializer, LeafSerializer
-from .exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError
+from .exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError, UndecodableArgumentError, UndecodableRecordError
 import json
 
 # Prefices to be used for nice tree printing
@@ -135,9 +135,9 @@ class _Node(object):
             child_id = NONE
 
         try:
-            left_id = memory_id(self.left)
+            left_id  = memory_id(self.left)
         except NoParentException:
-            left_id = NONE
+            left_id  = NONE
             right_id = NONE
         else:
             right_id = memory_id(self.right)
@@ -179,40 +179,52 @@ class _Node(object):
         """
         if level == 0:
             output = '\n'
-            if not self.is_left_parent() and not self.is_right_parent():  # root case
-                output += ' ' + L_BRACKET_SHORT
+
+            if not self.is_left_parent() and not self.is_right_parent():        # root case
+                output += ' %s' % L_BRACKET_SHORT
         else:
             output = (indent + 1) * ' '
 
-        for i in range(1, level):
-            if i not in ignore:
-                output += ' ' + VERTICAL_BAR  # Include vertical bar
+        for _ in range(1, level):
+            if _ not in ignore:
+
+                output += ' %s' % VERTICAL_BAR                                  # Include vertical bar
             else:
                 output += 2 * ' '
+
             output += indent * ' '
 
         new_ignore = ignore[:]
         del ignore
 
         if self.is_left_parent():
-            output += ' ' + T_BRACKET
+
+            output += ' %s' % T_BRACKET
+
         if self.is_right_parent():
-            output += ' ' + L_BRACKET_LONG
+
+            output += ' %s' % L_BRACKET_LONG
             new_ignore.append(level)
 
         encoding = encoding if encoding else self.encoding
-        output += self.stored_hash.decode(encoding=encoding) + '\n'
-        if not isinstance(self, Leaf):  # Recursive step
+        output += '%s\n' % self.stored_hash.decode(encoding=encoding)
+
+        if not isinstance(self, Leaf):                                          # Recursive step
+
             output += self.left.__str__(
                 encoding=encoding,
                 level=level + 1,
                 indent=indent,
-                ignore=new_ignore)
+                ignore=new_ignore
+            )
+
             output += self.right.__str__(
                 level=level + 1,
                 encoding=encoding,
                 indent=indent,
-                ignore=new_ignore)
+                ignore=new_ignore
+            )
+
         return output
 
 
@@ -242,8 +254,17 @@ class Leaf(_Node):
 
         if record and stored_hash is None:
 
-            super().__init__(encoding=encoding)
-            self.__stored_hash = hash_function(record)
+            try:
+                _digest = hash_function(record)
+
+            except UndecodableArgumentError:
+                # ~ Provided record cannot be decoded with the configured
+                # ~ encoding type of the provided hash function
+                raise UndecodableRecordError
+
+            else:
+                super().__init__(encoding=encoding)
+                self.__stored_hash = _digest
 
         elif stored_hash and record is None:
 
@@ -317,16 +338,27 @@ class Node(_Node):
 
     def __init__(self, hash_function, encoding, left, right):
 
-        super().__init__(encoding=encoding)
+        try:
+            _digest = hash_function(left.stored_hash, right.stored_hash)
 
-        # Establish descendancy relation between child and parents
-        left.__child = self
-        right.__child = self
-        self.__left = left
-        self.__right = right
+        except UndecodableArgumentError:
+            # ~ Hash stored by some parent could not be decoded with the
+            # ~ configured encoding type of the provided hash function
+            raise UndecodableRecordError
 
-        # Calculate the digest to be stored by the node currently created
-        self.__stored_hash = hash_function(left.stored_hash, right.stored_hash)
+        else:
+            super().__init__(encoding=encoding)
+
+            # Establish descendancy relation between child and parents
+
+            left.__child = self
+            right.__child = self
+            self.__left = left
+            self.__right = right
+
+            # Store hash
+
+            self.__stored_hash = _digest
 
     @property
     def stored_hash(self):
@@ -354,7 +386,13 @@ class Node(_Node):
         .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
 
-        self.__stored_hash = hash_function(self.left.stored_hash, self.right.stored_hash)
+        try:
+            _new_digest = hash_function(self.left.stored_hash, self.right.stored_hash)
+            
+        except UndecodableRecordError:
+            raise
+
+        self.__stored_hash = _new_digest
 
 
 # ------------------------------- Serialization --------------------------

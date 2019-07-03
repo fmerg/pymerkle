@@ -2,61 +2,83 @@ import pytest
 from pymerkle.nodes import _Node, Node, Leaf
 from pymerkle.hashing import hash_machine
 from pymerkle.serializers import NodeSerializer
-from pymerkle.exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError
+from pymerkle.exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError, UndecodableArgumentError, UndecodableRecordError
 
 
 # ----------------------------------- Setup -----------------------------------
 
-MACHINE = hash_machine()        # prepends security prefices by default
+MACHINE  = hash_machine()       # prepends security prefices by default
 ENCODING = MACHINE.ENCODING     # utf-8
-HASH = MACHINE.hash             # SHA256
+HASH     = MACHINE.hash         # SHA256
 
 
 # A pair of childless leaves
 
 _leaves = (
+
     # Leaf constructed by providing a record to digest
-    Leaf(hash_function=HASH,
-         encoding=ENCODING,
-         record=b'some record...'),
-    # Leaf constructed by providing a digest directly
+
     Leaf(
         hash_function=HASH,
         encoding=ENCODING,
-        stored_hash='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
+        record=b'some record...'
+    ),
 
-# A full binary structure (child-parent relations) -4 leaves, 7 nodes in total
+    # Leaf constructed by providing the digest directly
 
-leaf_1  = Leaf(hash_function=HASH,
-               encoding=ENCODING,
-               record=b'first record...')
+    Leaf(
+        hash_function=HASH,
+        encoding=ENCODING,
+        stored_hash='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'
+    )
+)
 
-leaf_2  = Leaf(hash_function=HASH,
-               encoding=ENCODING,
-               record=b'second record...')
+# A full binary structure (child-parent relations): 4 leaves, 7 nodes in total
 
-leaf_3  = Leaf(hash_function=HASH,
-               encoding=ENCODING,
-               record=b'third record...')
+leaf_1  = Leaf(
+    hash_function=HASH,
+    encoding=ENCODING,
+    record=b'first record...'
+)
 
-leaf_4  = Leaf(hash_function=HASH,
-               encoding=ENCODING,
-               record=b'fourth record...')
+leaf_2  = Leaf(
+    hash_function=HASH,
+    encoding=ENCODING,
+    record=b'second record...'
+)
 
-node_12 = Node(hash_function=HASH,
-               encoding=ENCODING,
-               left=leaf_1,
-               right=leaf_2)
+leaf_3  = Leaf(
+    hash_function=HASH,
+    encoding=ENCODING,
+    record=b'third record...'
+)
 
-node_34 = Node(hash_function=HASH,
-               encoding=ENCODING,
-               left=leaf_3,
-               right=leaf_4)
+leaf_4  = Leaf(
+    hash_function=HASH,
+    encoding=ENCODING,
+    record=b'fourth record...'
+)
 
-root    = Node(hash_function=HASH,
-               encoding=ENCODING,
-               left=node_12,
-               right=node_34)
+node_12 = Node(
+    hash_function=HASH,
+    encoding=ENCODING,
+    left=leaf_1,
+    right=leaf_2
+)
+
+node_34 = Node(
+    hash_function=HASH,
+    encoding=ENCODING,
+    left=leaf_3,
+    right=leaf_4
+)
+
+root = Node(
+    hash_function=HASH,
+    encoding=ENCODING,
+    left=node_12,
+    right=node_34
+)
 
 
 # ------------------------- Tests for childless leaves -------------------
@@ -75,10 +97,12 @@ def test_leaf_construction_exception_with_both_record_and_stored_hash():
     if both `record` and `stored_hash` are provided
     """
     with pytest.raises(LeafConstructionError):
-        Leaf(hash_function=HASH,
-             encoding=ENCODING,
-             record=b'anything...',
-             stored_hash=HASH('whatever...'))
+        Leaf(
+            hash_function=HASH,
+            encoding=ENCODING,
+            record=b'anything...',
+            stored_hash=HASH('whatever...')
+        )
 
 
 @pytest.mark.parametrize("_leaf", _leaves)
@@ -150,11 +174,13 @@ def test_childless_leaf___repr__(_leaf):
                 \n    right parent : {right_id}\
                 \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(_leaf))),
-                        left_id='[None]',
-                        right_id='[None]',
-                        child_id='[None]',
-                        hash=_leaf.stored_hash.decode(_leaf.encoding))
+                .format(
+                    self_id=str(hex(id(_leaf))),
+                    left_id='[None]',
+                    right_id='[None]',
+                    child_id='[None]',
+                    hash=_leaf.stored_hash.decode(_leaf.encoding)
+                )
 
 
 # ---------------- Tests for leaves with children and internal nodes -----
@@ -285,11 +311,13 @@ def test___repr__for_leafs_with_child(_leaf):
                 \n    right parent : {right_id}\
                 \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(_leaf))),
-                        left_id='[None]',
-                        right_id='[None]',
-                        child_id=str(hex(id(_leaf.child))),
-                        hash=_leaf.stored_hash.decode(_leaf.encoding))
+                .format(
+                    self_id=str(hex(id(_leaf))),
+                    left_id='[None]',
+                    right_id='[None]',
+                    child_id=str(hex(id(_leaf.child))),
+                    hash=_leaf.stored_hash.decode(_leaf.encoding)
+                )
 
 
 @pytest.mark.parametrize("node", (node_12, node_34))
@@ -301,11 +329,13 @@ def test___repr__for_nodes_with_child(node):
                 \n    right parent : {right_id}\
                 \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(node))),
-                        left_id=str(hex(id(node.left))),
-                        right_id=str(hex(id(node.right))),
-                        child_id=str(hex(id(node.child))),
-                        hash=node.stored_hash.decode(node.encoding))
+                .format(
+                    self_id=str(hex(id(node))),
+                    left_id=str(hex(id(node.left))),
+                    right_id=str(hex(id(node.right))),
+                    child_id=str(hex(id(node.child))),
+                    hash=node.stored_hash.decode(node.encoding)
+                )
 
 
 def test___repr__for_node_without_child():
@@ -316,11 +346,13 @@ def test___repr__for_node_without_child():
                 \n    right parent : {right_id}\
                 \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(root))),
-                        left_id=str(hex(id(root.left))),
-                        right_id=str(hex(id(root.right))),
-                        child_id='[None]',
-                        hash=root.stored_hash.decode(root.encoding))
+                .format(
+                    self_id=str(hex(id(root))),
+                    left_id=str(hex(id(root.left))),
+                    right_id=str(hex(id(root.right))),
+                    child_id='[None]',
+                    hash=root.stored_hash.decode(root.encoding)
+                )
 
 
 # .__str__() tests
@@ -480,7 +512,7 @@ JSONstrings = [
 ]
 
 
-# Recalculation tests
+# Hash-recalculation tests
 
 @pytest.mark.parametrize("_node, _json_string", JSONstrings)
 def test_node_JSONstring(_node, _json_string):
@@ -495,9 +527,11 @@ def test_hash_recalculation():
     """Tests hash recalculation at the node_34 and root after modifying the hash stored by leaf_4
     """
 
-    new_leaf = Leaf(hash_function=HASH,
-                    encoding=ENCODING,
-                    record=b'new record...')
+    new_leaf = Leaf(
+        hash_function=HASH,
+        encoding=ENCODING,
+        record=b'new record...'
+    )
 
     node_34.set_right(new_leaf)
 
@@ -506,7 +540,122 @@ def test_hash_recalculation():
     root.recalculate_hash(hash_function=HASH)
 
     assert node_34.stored_hash == HASH(
-        leaf_3.stored_hash,
-        new_leaf.stored_hash) and root.stored_hash == HASH(
-        node_12.stored_hash,
-        node_34.stored_hash)
+        leaf_3.stored_hash, new_leaf.stored_hash
+    ) and root.stored_hash == HASH(
+        node_12.stored_hash, node_34.stored_hash
+    )
+
+# -------------------------- Decoding errors testing --------------------------
+
+_bytes__machines = [
+
+    (b'\xc2', hash_machine(encoding='ascii',           security=True)),
+    (b'\xc2', hash_machine(encoding='ascii',           security=False)),
+    (b'\x72', hash_machine(encoding='cp424',           security=True)),
+    (b'\x72', hash_machine(encoding='cp424',           security=False)),
+    (b'\xc2', hash_machine(encoding='hz',              security=True)),
+    (b'\xc2', hash_machine(encoding='hz',              security=False)),
+    (b'\xc2', hash_machine(encoding='utf_7',           security=True)),
+    (b'\xc2', hash_machine(encoding='utf_7',           security=False)),
+    (b'\x74', hash_machine(encoding='utf_16',          security=True)),
+    (b'\x74', hash_machine(encoding='utf_16',          security=False)),
+    (b'\x74', hash_machine(encoding='utf_16_le',       security=True)),
+    (b'\x74', hash_machine(encoding='utf_16_le',       security=False)),
+    (b'\x74', hash_machine(encoding='utf_16_be',       security=True)),
+    (b'\x74', hash_machine(encoding='utf_16_be',       security=False)),
+    (b'\x74', hash_machine(encoding='utf_32',          security=True)),
+    (b'\x74', hash_machine(encoding='utf_32',          security=False)),
+    (b'\x74', hash_machine(encoding='utf_32_le',       security=True)),
+    (b'\x74', hash_machine(encoding='utf_32_le',       security=False)),
+    (b'\x74', hash_machine(encoding='utf_32_be',       security=True)),
+    (b'\x74', hash_machine(encoding='utf_32_be',       security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp',      security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp',      security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_1',    security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_1',    security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_2',    security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_2',    security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_3',    security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_3',    security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_ext',  security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_ext',  security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_2004', security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_jp_2004', security=False)),
+    (b'\xc2', hash_machine(encoding='iso2022_kr',      security=True)),
+    (b'\xc2', hash_machine(encoding='iso2022_kr',      security=False)),
+    (b'\xae', hash_machine(encoding='iso8859_3',       security=True)),
+    (b'\xae', hash_machine(encoding='iso8859_3',       security=False)),
+    (b'\xb6', hash_machine(encoding='iso8859_6',       security=True)),
+    (b'\xb6', hash_machine(encoding='iso8859_6',       security=False)),
+    (b'\xae', hash_machine(encoding='iso8859_7',       security=True)),
+    (b'\xae', hash_machine(encoding='iso8859_7',       security=False)),
+    (b'\xc2', hash_machine(encoding='iso8859_8',       security=True)),
+    (b'\xc2', hash_machine(encoding='iso8859_8',       security=False)),
+]
+
+@pytest.mark.parametrize('_byte, _machine', _bytes__machines)
+def test_leaf_UndecodableRecordError(_byte, _machine):
+    with pytest.raises(UndecodableRecordError):
+        Leaf(
+            record=_byte,
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash
+        )
+
+@pytest.mark.parametrize('_byte, _machine', _bytes__machines)
+def test_node_UndecodableArgumentError(_byte, _machine):
+    with pytest.raises(UndecodableRecordError):
+
+        _left = Leaf(
+            record=_byte,
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash
+        )
+
+        _right = Leaf(
+            record=_byte,
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash
+        )
+
+        with pytest.raises(UndecodableRecordError):
+            Node(
+                left=_left,
+                right=_right,
+                encoding=_machine.ENCODING,
+                hash_function=_machine.hash
+            )
+
+@pytest.mark.parametrize('_byte, _machine', _bytes__machines)
+def test_hash_recalculation_UndecodableRecordError(_byte, _machine):
+    with pytest.raises(UndecodableRecordError):
+
+        _left = Leaf(
+            record='left record',
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash
+        )
+
+        _right = Leaf(
+            record='right record',
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash
+        )
+
+        _node  = Node(
+            left=_left,
+            right=_right,
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash
+        )
+
+        _left = Leaf(
+            record=_byte,
+            encoding=_machine.ENCODING,
+            hash_function=_machine.hash,
+        )
+
+        _node.set_left(_left)
+
+        with pytest.raises(UndecodableRecordError):
+            _node.recalculate_hash(_machine.hash)

@@ -82,3 +82,15 @@ class WrongJSONFormat(BaseException):
     """Raised when the deserialized object is not as expected
     """
     pass
+
+class UndecodableArgumentError(BaseException):
+    """Raised when a ``bytes`` or ``bytearray`` argument is passed into the ``.hash()`` function, that
+    cannot be decoded by the machine's configured encoding type
+    """
+    pass
+
+class UndecodableRecordError(BaseException):
+    """Raised when a ``bytes`` or ``bytearray`` argument is passed into the constructor of ``Leaf`` or ``Node``,
+    that cannot be decoded with the configured encoding type of the provided hash-function
+    """
+    pass
