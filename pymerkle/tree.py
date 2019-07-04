@@ -6,7 +6,7 @@ from .utils import log_2, decompose
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import LeafConstructionError, NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat
+from .exceptions import LeafConstructionError, NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat, UndecodableRecordError, NotSupportedEncodingError, NotSupportedHashTypeError
 import json
 from json import JSONDecodeError
 import uuid
@@ -50,13 +50,17 @@ class MerkleTree(object):
 
         self.uuid = str(uuid.uuid1())
 
-        # Hash type, encoding type and security mode configuration
+        try:
+            # Hash type, encoding type and security mode configuration
 
-        machine = hash_machine(
-            hash_type=hash_type,
-            encoding=encoding,
-            security=security
-        )
+            machine = hash_machine(
+                hash_type=hash_type,
+                encoding=encoding,
+                security=security
+            )
+
+        except (NotSupportedEncodingError, NotSupportedHashTypeError):
+            raise
 
         self.hash_type  = hash_type.lower().replace('-', '_')
         self.encoding   = encoding.lower().replace('-', '_')
@@ -72,8 +76,13 @@ class MerkleTree(object):
         # Tree generation
 
         for record in records:
-            self.update(record=record)
 
+            try:
+                self.update(record=record)
+
+            except UndecodableRecordError:
+                raise
+                
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
@@ -183,7 +192,7 @@ class MerkleTree(object):
                     stored_hash=stored_hash
                 )
 
-            except LeafConstructionError:
+            except (LeafConstructionError, UndecodableRecordError):
                 raise
 
             # Assimilate new leaf
@@ -193,10 +202,10 @@ class MerkleTree(object):
 
             try:
                 # Save child info before bifurcation
-
                 old_child = last_subroot.child
 
             except NoChildException:                                            # last_subroot was previously root
+
                 self._root = Node(
                     hash_function=self.hash,
                     encoding=self.encoding,
@@ -247,7 +256,7 @@ class MerkleTree(object):
                     stored_hash=stored_hash
                 )
 
-            except LeafConstructionError:
+            except (LeafConstructionError, UndecodableRecordError):
                 raise
 
             self.leaves = [new_leaf]
@@ -281,7 +290,6 @@ class MerkleTree(object):
             # ~ Handle negative index case separately NoPathException, since certain
             # ~ negative indices might otherwise be considered as valid positions
             raise NoPathException
-
         else:
 
             try:
@@ -294,6 +302,7 @@ class MerkleTree(object):
                 initial_sign = +1
                 if current_node.is_right_parent():
                     initial_sign = -1
+
                 path = [(initial_sign, current_node.stored_hash)]
                 start = 0
 
@@ -311,7 +320,6 @@ class MerkleTree(object):
                             next_hash = current_child.right.stored_hash
 
                             if current_child.is_left_parent():
-
                                 path.append((+1, next_hash))
                             else:
                                 path.append((-1, next_hash))
@@ -320,7 +328,6 @@ class MerkleTree(object):
                             next_hash = current_child.left.stored_hash
 
                             if current_child.is_right_parent():
-
                                 path.insert(0, (-1, next_hash))
                             else:
                                 path.insert(0, (+1, next_hash))
