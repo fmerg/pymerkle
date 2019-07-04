@@ -82,7 +82,7 @@ class MerkleTree(object):
 
             except UndecodableRecordError:
                 raise
-                
+
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
@@ -723,7 +723,11 @@ class MerkleTree(object):
         :type record:  str or bytes or bytearray
         """
 
-        self.update(record=record)
+        try:
+            self.update(record=record)
+
+        except UndecodableRecordError:
+            raise
 
 
     def encryptFileContent(self, file_path):
@@ -747,7 +751,14 @@ class MerkleTree(object):
                         access=mmap.ACCESS_READ
                     )
                 ) as _buffer:
-                    self.update(record=_buffer.read())
+
+                    try:
+                        self.update(record=_buffer.read())
+
+                    except UndecodableRecordError:
+                        return 1
+                    else:
+                        return 0
 
         except FileNotFoundError:
             raise
@@ -769,7 +780,7 @@ class MerkleTree(object):
         absolute_file_path = os.path.abspath(file_path)
 
         try:
-            with open(absolute_file_path, 'r+') as _file:
+            with open(absolute_file_path, 'rb') as _file:
                 buffer = mmap.mmap(
                     _file.fileno(),
                     0,
@@ -781,22 +792,65 @@ class MerkleTree(object):
 
         else:
 
-            number_of_lines = 0
-            while buffer.readline():
-                number_of_lines += 1
+            records = []
+
+            while True:
+                _record = buffer.readline()
+
+                if not _record:
+                    break
+
+                else:
+
+                    try:
+                        _record.decode(self.encoding)
+                    except UnicodeDecodeError:
+                        return 1
+
+                    else:
+                        records.append(_record)
 
             tqdm.write('')
 
             # Perform line by line encryption
-            for line in tqdm(open(absolute_file_path, 'rb'),
-                             # ~ NOTE: File should be opened in binary mode so that its content remains
-                             # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-                             # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-                             desc='Encrypting log file',
-                             total=number_of_lines):
-                self.update(record=line)
+            for _record in tqdm(records, desc='Encrypting log file', total=len(records)):
+                self.update(record=_record)
 
             tqdm.write('Encryption complete\n')
+
+            return 0
+
+        # absolute_file_path = os.path.abspath(file_path)
+        #
+        # try:
+        #     with open(absolute_file_path, 'r+') as _file:
+        #         buffer = mmap.mmap(
+        #             _file.fileno(),
+        #             0,
+        #             access=mmap.ACCESS_READ
+        #         )
+        #
+        # except FileNotFoundError:
+        #     raise
+        #
+        # else:
+        #
+        #     number_of_lines = 0
+        #     while buffer.readline():
+        #         number_of_lines += 1
+        #
+        #     tqdm.write('')
+        #
+        #     # Perform line by line encryption
+        #     for line in tqdm(open(absolute_file_path, 'rb'),
+        #                      # ~ NOTE: File should be opened in binary mode so that its content remains
+        #                      # ~ bytes and no decoding is thus needed during hashing (otherwise byte
+        #                      # ~ 0x80 would for example be unreadable by 'utf-8' codec)
+        #                      desc='Encrypting log file',
+        #                      total=number_of_lines):
+        #         self.update(record=line)
+        #
+        #     tqdm.write('Encryption complete\n')
 
 
     def encryptObject(self, object, sort_keys=False, indent=0):

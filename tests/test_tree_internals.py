@@ -2,6 +2,54 @@ import pytest
 from pymerkle.tree import MerkleTree
 from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError, NoSubtreeException, NoPathException, InvalidProofRequest, NoPrincipalSubrootsException, InvalidTypesException, UndecodableRecordError
 
+
+_undecodableArgumentErrors = [
+
+    (b'\xc2', 'ascii', True),
+    (b'\xc2', 'ascii', False),
+    (b'\x72', 'cp424', True),
+    (b'\x72', 'cp424', False),
+    (b'\xc2', 'hz', True),
+    (b'\xc2', 'hz', False),
+    (b'\xc2', 'utf_7', True),
+    (b'\xc2', 'utf_7', False),
+    (b'\x74', 'utf_16', True),
+    (b'\x74', 'utf_16', False),
+    (b'\x74', 'utf_16_le', True),
+    (b'\x74', 'utf_16_le', False),
+    (b'\x74', 'utf_16_be', True),
+    (b'\x74', 'utf_16_be', False),
+    (b'\x74', 'utf_32', True),
+    (b'\x74', 'utf_32', False),
+    (b'\x74', 'utf_32_le', True),
+    (b'\x74', 'utf_32_le', False),
+    (b'\x74', 'utf_32_be', True),
+    (b'\x74', 'utf_32_be', False),
+    (b'\xc2', 'iso2022_jp', True),
+    (b'\xc2', 'iso2022_jp', False),
+    (b'\xc2', 'iso2022_jp_1', True),
+    (b'\xc2', 'iso2022_jp_1', False),
+    (b'\xc2', 'iso2022_jp_2', True),
+    (b'\xc2', 'iso2022_jp_2', False),
+    (b'\xc2', 'iso2022_jp_3', True),
+    (b'\xc2', 'iso2022_jp_3', False),
+    (b'\xc2', 'iso2022_jp_ext', True),
+    (b'\xc2', 'iso2022_jp_ext', False),
+    (b'\xc2', 'iso2022_jp_2004', True),
+    (b'\xc2', 'iso2022_jp_2004', False),
+    (b'\xc2', 'iso2022_kr', True),
+    (b'\xc2', 'iso2022_kr', False),
+    (b'\xae', 'iso8859_3', True),
+    (b'\xae', 'iso8859_3', False),
+    (b'\xb6', 'iso8859_6', True),
+    (b'\xb6', 'iso8859_6', False),
+    (b'\xae', 'iso8859_7', True),
+    (b'\xae', 'iso8859_7', False),
+    (b'\xc2', 'iso8859_8', True),
+    (b'\xc2', 'iso8859_8', False),
+]
+
+
 # ----------------------- Merkle-tree construction tests -----------------
 
 
@@ -9,6 +57,7 @@ def test_NotSupportedHashTypeError():
     """Tests that a `NotSupportedHashTypeError` is raised when a Merkle-tree
     for an unsupported hash-type is requested
     """
+
     with pytest.raises(NotSupportedHashTypeError):
         MerkleTree(hash_type='anything unsupported...')
 
@@ -17,9 +66,16 @@ def test_NotSupportedEncodingError():
     """Tests that a `NotSupportedEncodingError` is raised when a Merkle-tree
     for an unsupported encoding type is requested
     """
+
     with pytest.raises(NotSupportedEncodingError):
         MerkleTree(encoding='anything unsupported...')
 
+
+@pytest.mark.parametrize('_byte, _encoding, _security', _undecodableArgumentErrors)
+def test_UndecodableRecordError_upon_tree_construction(_byte, _encoding, _security):
+
+    with pytest.raises(UndecodableRecordError):
+        MerkleTree('a', _byte, encoding=_encoding, security=_security)
 
 def test_defautl_MerkleTree_constructor_without_initial_records():
 
@@ -129,60 +185,15 @@ def test_LeafConstructionError_upon_update():
     """Tests that a `LeafConstructionError` is raised if both `record` and `stored_hash`
     are provided as arguments to the `MerkleTree.update()` method
     """
-    
+
     t = MerkleTree()
-    
+
     with pytest.raises(LeafConstructionError):
         t.update(
             record='some record',
             stored_hash='540ef8fc9eefa3ec0fbe55bc5d10dbea03d5bac5591b3d7db3af79ec24b3f74c'
         )
 
-_undecodableArgumentErrors = [
-
-    (b'\xc2', 'ascii', True),
-    (b'\xc2', 'ascii', False),
-    (b'\x72', 'cp424', True),
-    (b'\x72', 'cp424', False),
-    (b'\xc2', 'hz', True),
-    (b'\xc2', 'hz', False),
-    (b'\xc2', 'utf_7', True),
-    (b'\xc2', 'utf_7', False),
-    (b'\x74', 'utf_16', True),
-    (b'\x74', 'utf_16', False),
-    (b'\x74', 'utf_16_le', True),
-    (b'\x74', 'utf_16_le', False),
-    (b'\x74', 'utf_16_be', True),
-    (b'\x74', 'utf_16_be', False),
-    (b'\x74', 'utf_32', True),
-    (b'\x74', 'utf_32', False),
-    (b'\x74', 'utf_32_le', True),
-    (b'\x74', 'utf_32_le', False),
-    (b'\x74', 'utf_32_be', True),
-    (b'\x74', 'utf_32_be', False),
-    (b'\xc2', 'iso2022_jp', True),
-    (b'\xc2', 'iso2022_jp', False),
-    (b'\xc2', 'iso2022_jp_1', True),
-    (b'\xc2', 'iso2022_jp_1', False),
-    (b'\xc2', 'iso2022_jp_2', True),
-    (b'\xc2', 'iso2022_jp_2', False),
-    (b'\xc2', 'iso2022_jp_3', True),
-    (b'\xc2', 'iso2022_jp_3', False),
-    (b'\xc2', 'iso2022_jp_ext', True),
-    (b'\xc2', 'iso2022_jp_ext', False),
-    (b'\xc2', 'iso2022_jp_2004', True),
-    (b'\xc2', 'iso2022_jp_2004', False),
-    (b'\xc2', 'iso2022_kr', True),
-    (b'\xc2', 'iso2022_kr', False),
-    (b'\xae', 'iso8859_3', True),
-    (b'\xae', 'iso8859_3', False),
-    (b'\xb6', 'iso8859_6', True),
-    (b'\xb6', 'iso8859_6', False),
-    (b'\xae', 'iso8859_7', True),
-    (b'\xae', 'iso8859_7', False),
-    (b'\xc2', 'iso8859_8', True),
-    (b'\xc2', 'iso8859_8', False),
-]
 
 @pytest.mark.parametrize('_byte, _encoding, _security', _undecodableArgumentErrors)
 def test_UndecodableRecordError_upon_update(_byte, _encoding, _security):
@@ -191,6 +202,7 @@ def test_UndecodableRecordError_upon_update(_byte, _encoding, _security):
 
     with pytest.raises(UndecodableRecordError):
         t.update(record=_byte)
+
 
 # Representation tests
 

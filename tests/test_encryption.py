@@ -2,13 +2,92 @@ import pytest
 import os
 import json
 from pymerkle import MerkleTree, hashing
-from pymerkle.exceptions import WrongJSONFormat
+from pymerkle.exceptions import WrongJSONFormat, UndecodableRecordError
 
 
 HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = hashing.ENCODINGS
+ENCODINGS  = hashing.ENCODINGS
+EXCLUDED   = [
+    'cp424',
+    'utf_16',
+    'utf_16_le',
+    'utf_16_be',
+    'utf_32',
+    'utf_32_le',
+    'utf_32_be'
+]
 
-# Setyp
+EXTENDED   = [
+    'iso8859_8',
+    'iso2022_kr',
+    'iso8859_3',
+    'ascii',
+    'utf_7',
+    'utf_32_be',
+    'iso2022_jp_1',
+    'utf_32_le',
+    'utf_32',
+    'iso2022_jp_3',
+    'iso2022_jp_2004',
+    'hz',
+    'iso8859_7',
+    'iso8859_6',
+    'iso2022_jp_ext',
+    'utf_16',
+    'cp424',
+    'iso2022_jp_2',
+    'utf_16_le',
+    'utf_16_be',
+    'iso2022_jp'
+]
+
+_undecodableArgumentErrors = [
+
+    (b'\xc2', 'ascii', True),
+    (b'\xc2', 'ascii', False),
+    (b'\x72', 'cp424', True),
+    (b'\x72', 'cp424', False),
+    (b'\xc2', 'hz', True),
+    (b'\xc2', 'hz', False),
+    (b'\xc2', 'utf_7', True),
+    (b'\xc2', 'utf_7', False),
+    (b'\x74', 'utf_16', True),
+    (b'\x74', 'utf_16', False),
+    (b'\x74', 'utf_16_le', True),
+    (b'\x74', 'utf_16_le', False),
+    (b'\x74', 'utf_16_be', True),
+    (b'\x74', 'utf_16_be', False),
+    (b'\x74', 'utf_32', True),
+    (b'\x74', 'utf_32', False),
+    (b'\x74', 'utf_32_le', True),
+    (b'\x74', 'utf_32_le', False),
+    (b'\x74', 'utf_32_be', True),
+    (b'\x74', 'utf_32_be', False),
+    (b'\xc2', 'iso2022_jp', True),
+    (b'\xc2', 'iso2022_jp', False),
+    (b'\xc2', 'iso2022_jp_1', True),
+    (b'\xc2', 'iso2022_jp_1', False),
+    (b'\xc2', 'iso2022_jp_2', True),
+    (b'\xc2', 'iso2022_jp_2', False),
+    (b'\xc2', 'iso2022_jp_3', True),
+    (b'\xc2', 'iso2022_jp_3', False),
+    (b'\xc2', 'iso2022_jp_ext', True),
+    (b'\xc2', 'iso2022_jp_ext', False),
+    (b'\xc2', 'iso2022_jp_2004', True),
+    (b'\xc2', 'iso2022_jp_2004', False),
+    (b'\xc2', 'iso2022_kr', True),
+    (b'\xc2', 'iso2022_kr', False),
+    (b'\xae', 'iso8859_3', True),
+    (b'\xae', 'iso8859_3', False),
+    (b'\xb6', 'iso8859_6', True),
+    (b'\xb6', 'iso8859_6', False),
+    (b'\xae', 'iso8859_7', True),
+    (b'\xae', 'iso8859_7', False),
+    (b'\xc2', 'iso8859_8', True),
+    (b'\xc2', 'iso8859_8', False),
+]
+
+# Setup
 
 trees = []
 hash_machines = []
@@ -70,6 +149,15 @@ def test_encryptRecord(_tree, _hash_machine, _record):
     assert _tree.rootHash == _hash_machine.hash(_record)
 
 
+@pytest.mark.parametrize('_byte, _encoding, _security', _undecodableArgumentErrors)
+def test_UndecodableRecordError_with_encryptRecord(_byte, _encoding, _security):
+
+    t = MerkleTree('a', 'b', 'c', encoding=_encoding, security=_security)
+
+    with pytest.raises(UndecodableRecordError):
+        t.encryptRecord(_byte)
+
+
 @pytest.mark.parametrize("_tree, _hash_machine", _trees_and__hash_machines)
 def test_encryptObject(_tree, _hash_machine):
 
@@ -94,7 +182,7 @@ def test_encryptObject(_tree, _hash_machine):
     )
 
 
-# Concent to encrypt
+# Content to encrypt
 
 large_APACHE_log   = os.path.join(os.path.dirname(__file__), 'logs/large_APACHE_log')
 short_APACHE_log   = os.path.join(os.path.dirname(__file__), 'logs/short_APACHE_log')
@@ -120,27 +208,32 @@ with open(objects_list_file, 'rb') as _file:
 @pytest.mark.parametrize("_tree, _hash_machine", _trees_and__hash_machines)
 def test_encryptFileContent(_tree, _hash_machine):
 
-    _tree.encryptFileContent(large_APACHE_log)
+    _output = _tree.encryptFileContent(large_APACHE_log)
 
-    assert _tree.leaves[-1].stored_hash == _hash_machine.hash(content)
+    if _tree.encoding not in EXCLUDED:
+        assert _output == 0 and _tree.leaves[-1].stored_hash == _hash_machine.hash(content)
+    else:
+        assert _output == 1 and _tree.length == 2
 
 
 @pytest.mark.parametrize("_tree", [_trees_and__hash_machines[_][0] for _ in range(len(_trees_and__hash_machines))])
 def test_encryptFilePerLog(_tree):
 
     _tree.clear()
-    _tree.encryptFilePerLog(short_APACHE_log)
+    _output = _tree.encryptFilePerLog(short_APACHE_log)
 
-    _clone = MerkleTree(
-        hash_type=_tree.hash_type,
-        encoding=_tree.encoding,
-        security=_tree.security
-    )
+    if _tree.encoding not in EXTENDED:
 
-    for record in records:
-        _clone.update(record)
+        _clone = MerkleTree(*records,
+            hash_type=_tree.hash_type,
+            encoding=_tree.encoding,
+            security=_tree.security
+        )
 
-    assert _tree.rootHash == _clone.rootHash
+        assert _output == 0 and _tree.rootHash == _clone.rootHash
+
+    else:
+        assert _output == 1 and not _tree
 
 
 def test_deserialization_error():
@@ -163,7 +256,12 @@ def test_encryptObjectFromFile(_tree, _hash_machine):
     _tree.encryptObjectFromFile(single_object_file, sort_keys=False, indent=0)
 
     assert _tree.leaves[-1].stored_hash == _hash_machine.hash(
-        json.dumps(single_object, sort_keys=False, indent=0))
+        json.dumps(
+            single_object,
+            sort_keys=False,
+            indent=0
+        )
+    )
 
 
 def test_WronJSONFormat():
