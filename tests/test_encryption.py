@@ -144,19 +144,18 @@ for (_tree, _hash_machine) in _trees_and__hash_machines:
 def test_encryptRecord(_tree, _hash_machine, _record):
 
     _tree.clear()
-    _tree.encryptRecord(_record)
+    _output = _tree.encryptRecord(_record)
 
-    assert _tree.rootHash == _hash_machine.hash(_record)
+    assert _output == 0 and _tree.rootHash == _hash_machine.hash(_record)
 
 
 @pytest.mark.parametrize('_byte, _encoding, _security', _undecodableArgumentErrors)
 def test_UndecodableRecordError_with_encryptRecord(_byte, _encoding, _security):
 
-    t = MerkleTree('a', 'b', 'c', encoding=_encoding, security=_security)
+    _tree = MerkleTree('a', 'b', 'c', encoding=_encoding, security=_security)
+    _output = _tree.encryptRecord(_byte)
 
-    with pytest.raises(UndecodableRecordError):
-        t.encryptRecord(_byte)
-
+    assert _output == 1 and _tree.length == 3
 
 @pytest.mark.parametrize("_tree, _hash_machine", _trees_and__hash_machines)
 def test_encryptObject(_tree, _hash_machine):

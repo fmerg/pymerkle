@@ -727,7 +727,9 @@ class MerkleTree(object):
             self.update(record=record)
 
         except UndecodableRecordError:
-            raise
+            return 1
+
+        return 0
 
 
     def encryptFileContent(self, file_path):
@@ -803,7 +805,7 @@ class MerkleTree(object):
                 else:
 
                     try:
-                        _record.decode(self.encoding)
+                        _record = _record.decode(self.encoding)
                     except UnicodeDecodeError:
                         return 1
 
@@ -813,44 +815,13 @@ class MerkleTree(object):
             tqdm.write('')
 
             # Perform line by line encryption
+
             for _record in tqdm(records, desc='Encrypting log file', total=len(records)):
                 self.update(record=_record)
 
             tqdm.write('Encryption complete\n')
 
             return 0
-
-        # absolute_file_path = os.path.abspath(file_path)
-        #
-        # try:
-        #     with open(absolute_file_path, 'r+') as _file:
-        #         buffer = mmap.mmap(
-        #             _file.fileno(),
-        #             0,
-        #             access=mmap.ACCESS_READ
-        #         )
-        #
-        # except FileNotFoundError:
-        #     raise
-        #
-        # else:
-        #
-        #     number_of_lines = 0
-        #     while buffer.readline():
-        #         number_of_lines += 1
-        #
-        #     tqdm.write('')
-        #
-        #     # Perform line by line encryption
-        #     for line in tqdm(open(absolute_file_path, 'rb'),
-        #                      # ~ NOTE: File should be opened in binary mode so that its content remains
-        #                      # ~ bytes and no decoding is thus needed during hashing (otherwise byte
-        #                      # ~ 0x80 would for example be unreadable by 'utf-8' codec)
-        #                      desc='Encrypting log file',
-        #                      total=number_of_lines):
-        #         self.update(record=line)
-        #
-        #     tqdm.write('Encryption complete\n')
 
 
     def encryptObject(self, object, sort_keys=False, indent=0):
@@ -906,10 +877,12 @@ class MerkleTree(object):
             raise
 
         else:
-            self.encryptObject(
-                object=object,
-                sort_keys=sort_keys,
-                indent=indent
+            self.update(
+                record=json.dumps(
+                    object,
+                    sort_keys=sort_keys,
+                    indent=indent
+                )
             )
 
 
@@ -936,19 +909,21 @@ class MerkleTree(object):
 
         try:
             with open(os.path.abspath(file_path), 'rb') as _file:
-                list_of_objects = json.load(_file)
+                objects = json.load(_file)
 
         except (FileNotFoundError, JSONDecodeError):
             raise
 
-        if type(list_of_objects) is not list:
+        if type(objects) is not list:
             raise WrongJSONFormat
 
-        for object in list_of_objects:
-            self.encryptObject(
-                object=object,
-                sort_keys=sort_keys,
-                indent=indent
+        for _object in objects:
+            self.update(
+                record=json.dumps(
+                    _object,
+                    sort_keys=sort_keys,
+                    indent=indent
+                )
             )
 
 
@@ -970,7 +945,11 @@ class MerkleTree(object):
         :type file_path:  str
         """
         with open(file_path, 'w') as _file:
-            json.dump(self.serialize(), _file, indent=4)
+            json.dump(
+                self.serialize(),
+                _file,
+                indent=4
+            )
 
     @staticmethod
     def loadFromFile(file_path):
@@ -1154,8 +1133,8 @@ class MerkleTree(object):
             _root = self.root
         except EmptyTreeException:
             return NONE_BAR
-        else:
-            return _root.__str__(indent=indent, encoding=self.encoding)
+
+        return _root.__str__(indent=indent, encoding=self.encoding)
 
 # ------------------------------- Serialization --------------------------
 

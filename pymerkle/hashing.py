@@ -1,106 +1,106 @@
 """
-Provides a class ``hash_machine`` encapsulating the two basic hash utilities used accross the library.
-Instances of this class should receive their configuration parameters from the ``ENCODINGS`` and
-``HASH_TYPES`` global variables of this module
+Provides a class ``hash_machine`` encapsulating the hash utilities used accross the library. Instances of this class
+should receive their configuration parameters from the ``ENCODINGS`` and ``HASH_TYPES`` global variables of this module
 """
 
 import hashlib
 from pymerkle.exceptions import NotSupportedEncodingError, NotSupportedHashTypeError, EmptyPathException, UndecodableArgumentError
 
-ENCODINGS = (
-    'euc_jisx0213',
-    'euc_kr',
-    'ptcp154',
-    'hp_roman8',
-    'cp852',
-    'iso8859_8',
-    'cp858',
-    'big5hkscs',
-    'cp860',
-    'iso2022_kr',
-    'iso8859_3',
-    'mac_iceland',
-    'cp1256',
-    'kz1048',
-    'cp869',
+ENCODINGS = [
     'ascii',
-    'cp932',
-    'utf_7',
-    'mac_roman',
-    'shift_jis',
-    'cp1251',
-    'iso8859_5',
-    'utf_32_be',
-    'cp037',
-    'iso2022_jp_1',
-    'cp855',
-    'cp850',
-    'gb2312',
-    'iso8859_9',
-    'cp775',
-    'utf_32_le',
-    'iso8859_11',
-    'cp1140',
-    'iso8859_10',
-    'cp857',
-    'johab',
-    'cp1252',
-    'mac_greek',
-    'utf_8',
-    'euc_jis_2004',
-    'cp1254',
-    'iso8859_4',
-    'utf_32',
-    'iso2022_jp_3',
-    'iso2022_jp_2004',
-    'cp1125',
-    'tis_620',
-    'cp950',
-    'hz',
-    'iso8859_13',
-    'iso8859_7',
-    'iso8859_6',
-    'cp862',
-    'iso8859_15',
-    'mac_cyrillic',
-    'iso2022_jp_ext',
-    'cp437',
-    'gbk',
-    'iso8859_16',
-    'iso8859_14',
-    'cp1255',
-    'cp949',
-    'cp1026',
-    'cp866',
-    'gb18030',
-    'utf_16',
-    'iso8859_2',
-    'cp865',
-    'cp500',
-    'shift_jis_2004',
-    'mac_turkish',
-    'cp1257',
     'big5',
-    'cp864',
-    'shift_jisx0213',
-    'cp273',
-    'cp861',
-    'cp424',
-    'mac_latin2',
-    'cp1258',
-    'koi8_r',
-    'cp863',
-    'latin_1',
-    'iso2022_jp_2',
-    'utf_16_le',
+    'big5hkscs',
+    'cp037',
+    'cp1026',
+    'cp1125',
+    'cp1140',
     'cp1250',
-    'euc_jp',
-    'utf_16_be',
+    'cp1251',
+    'cp1252',
     'cp1253',
-    'iso2022_jp')
+    'cp1254',
+    'cp1255',
+    'cp1256',
+    'cp1257',
+    'cp1258',
+    'cp273',
+    'cp424',
+    'cp437',
+    'cp500',
+    'cp775',
+    'cp850',
+    'cp852',
+    'cp855',
+    'cp857',
+    'cp858',
+    'cp860',
+    'cp861',
+    'cp862',
+    'cp863',
+    'cp864',
+    'cp865',
+    'cp866',
+    'cp869',
+    'cp932',
+    'cp949',
+    'cp950',
+    'euc_jis_2004',
+    'euc_jisx0213',
+    'euc_jp',
+    'euc_kr',
+    'gb18030',
+    'gb2312',
+    'gbk',
+    'hp_roman8',
+    'hz',
+    'iso2022_jp',
+    'iso2022_jp_1',
+    'iso2022_jp_2',
+    'iso2022_jp_2004',
+    'iso2022_jp_3',
+    'iso2022_jp_ext',
+    'iso2022_kr',
+    'iso8859_10',
+    'iso8859_11',
+    'iso8859_13',
+    'iso8859_14',
+    'iso8859_15',
+    'iso8859_16',
+    'iso8859_2',
+    'iso8859_3',
+    'iso8859_4',
+    'iso8859_5',
+    'iso8859_6',
+    'iso8859_7',
+    'iso8859_8',
+    'iso8859_9',
+    'johab',
+    'koi8_r',
+    'kz1048',
+    'latin_1',
+    'mac_cyrillic',
+    'mac_greek',
+    'mac_iceland',
+    'mac_latin2',
+    'mac_roman',
+    'mac_turkish',
+    'ptcp154',
+    'shift_jis',
+    'shift_jis_2004',
+    'shift_jisx0213',
+    'tis_620',
+    'utf_16',
+    'utf_16_be',
+    'utf_16_le',
+    'utf_32',
+    'utf_32_be',
+    'utf_32_le',
+    'utf_7',
+    'utf_8'
+]
 """Supported encoding types"""
 
-HASH_TYPES = (
+HASH_TYPES = [
     'md5',
     'sha224',
     'sha256',
@@ -110,39 +110,36 @@ HASH_TYPES = (
     'sha3_256',
     'sha3_384',
     'sha3_512'
-)
+]
 """Supported hash types"""
 
 
 class hash_machine(object):
-    """Encapsulates the two basic hash utilities used accross this library.
+    """Encapsulates the basic hash utilities used accross this library.
 
-    Sole purpose of this class is to fix at construction the hash and encoding types used for encryption,
-    so that these parameters need not be redefined every time a hash utility is invoked. Instances
-    of this class are thus to be initialized with every new construction of a Merkle-tree or every time
-    a proof validation is about to be performed
+    Sole purpose of this class is to fix at construction the hash and encoding types used for encryption, so that these parameters
+    need not be redefined every time a hash utility is invoked. Instances of this class are thus to be initialized with every new
+    construction of a Merkle-tree or every time a proof validation is about to be performed
 
-    :param hash_type: specifies the hash algorithm to be used by the machine; must be among the elements of the ``HASH_TYPES``
-                      global variable (upper- or mixed-case with '-' instead of '_' allowed). Defaults to ``'sha256'``
-                      if unspecified
+    :param hash_type: Defaults to ``'sha256'``. Specifies the hash algorithm to be used by the machine. Must must be among the
+                      elements of ``HASH_TYPES`` (upper- or mixed-case with '-' instead of '_' allowed).
     :type hash_type:  str
-    :param encoding:  specifies the encoding algorithm to be used by machine before hashing; must be among the elements of the
-                      ENCODINGS global variable (upper- or mixed-case with ``-`` instead of ``_`` allowed). Defaults to ``'utf_8'``
-                      if unspecified
+    :param encoding:  Defaults to ``'utf_8'``. Specifies the encoding algorithm to be used by machine before hashing. Must be
+                      among the elements of ``ENCODINGS`` (upper- or mixed-case with ``-`` instead of ``_`` allowed).
     :type encoding:   str
-    :param security:  defaults to ``True``, in which case security standards are applied against second-preimage attack, i.e.,
-                      single, resp. double arguments of the ``.hash`` method will be prepended with ``'\\x00'``, resp. ``'\\x01'``
-                      before hashing
+    :param security:  Defaults to ``True``. Specifies whether the machine applies security standards against second-preimage attack
+                      (i.e., whether single, resp. double arguments passed into the ``.hash`` method will be prepended with ``'0x00'``,
+                      resp. ``'0x01'`` before hashing
     :type security:   bool
 
-    :raises Exception: if ``hash_type``, resp. ``encoding`` is not contained in ``hashing.HASH_TYPES``, resp. ``hashing.ENCODINGS``
+    :raises NotSupportedHashTypeError: if ``hash_type`` is not contained in ``HASH_TYPES``
+    :raises NotSupportedEncodingType : if ``encoding`` is not contained in ``ENCODINGS``
 
-    :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine, specified in the obvious way
-                          by the ``hash_type`` argument at construction
-    :ivar ENCODING:       (*str*) Encoding type used by the machine before hashing, specified in the obvious way
-                          by the ``encoding`` argument at construction
-    :ivar SECURITY:       (*bool*) Indicates whether defense against second-preimage attack is activated, specified in the
-                          obvious way by the ``security`` argument at construction
+    :ivar HASH_ALGORITHM: (*builtin_function_or_method*) Hash algorithm used by the machine
+    :ivar ENCODING:       (*str*) Encoding type used by the machine before hashing
+    :ivar SECURITY:       (*bool*) Indicates whether defense against second-preimage attack is activated
+    :self.PREFIX_0:       (*str*) ``'\x00'`` if defense against second-preimage attack is activated, else ``''``
+    :self.PREFIX_1:       (*str*) ``'\x01'`` if defense against second-preimage attack is activated, else ``''``
     """
 
     # -------------------------------- Construction --------------------------
@@ -175,34 +172,33 @@ class hash_machine(object):
         self.PREFIX_1 = '\x01' if security else ''
 
 
-    def hash(self, first, second=None):
+    def hash(self, left, right=None):
         """Core hash utility
 
-        Returns the hash of the object occuring by concatenation of arguments in the given order.
-        If only one argument is passed in, then the hash of this single argument is returned
+        Returns the digest of given arguments' concatenation. If only one argument
+        is passed in, then the disgest of this single argument is returned
 
-        :param first:  left member of the pair to be hashed
-        :type first:   str or bytes or bytearray
-        :param second: [optional] right member of the pair to be hashed
-        :type second:  bytes or bytearray
+        :param left:  left member of the pair to be hashed
+        :type left:   str or bytes or bytearray
+        :param right: [optional] right member of the pair to be hashed
+        :type right:  bytes or bytearray
 
-        .. warning:: if ``second`` is provided, then ``first`` *must* also be of `bytes`
-                    or `byetarray` type
+        .. warning:: if ``right`` is provided, then ``left`` *must* also be of `bytes` or `byetarray` type
 
-        :returns:      the hash of the provided pair
+        :returns:      the digest of the entity occuring after concatenation of the given arguments
         :rtype:        bytes
         """
 
-        if not second:                                                          # single argument case
+        if not right:                                                           # single argument case
 
-            if isinstance(first, (bytes, bytearray)):                           # bytes-like input
+            if isinstance(left, (bytes, bytearray)):                            # bytes-like input
 
                 try:
                     _hexdigest = self.HASH_ALGORITHM(
                             bytes(
                                 '%s%s' % (
                                     self.PREFIX_0,
-                                    first.decode(self.ENCODING)
+                                    left.decode(self.ENCODING)
                                 ),
                                 self.ENCODING
                             )
@@ -219,7 +215,7 @@ class hash_machine(object):
                         bytes(
                             '%s%s' % (
                                 self.PREFIX_0,
-                                first
+                                left
                             ),
                             self.ENCODING
                         )
@@ -234,9 +230,9 @@ class hash_machine(object):
                         bytes(
                             '%s%s%s%s' % (
                                 self.PREFIX_1,
-                                first.decode(self.ENCODING),
+                                left.decode(self.ENCODING),
                                 self.PREFIX_1,
-                                second.decode(self.ENCODING)
+                                right.decode(self.ENCODING)
                             ),
                             self.ENCODING
                         )
@@ -249,31 +245,30 @@ class hash_machine(object):
 
 
     def multi_hash(self, signed_hashes, start):
-        """Hash utility used in proof validation
+        """Extended hash utility used in proof validation
 
-        Repeatedly applies the ``.hash`` method over a tuple of signed hashes parenthesized in pairs
-        as specified by accompanying signs. Schematically speaking, the result of
+        Repeatedly applies the ``.hash()`` method over a tuple of signed digests parenthesized as specified
+        by accompanying signs. Schematically speaking, the result of
 
             ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``
 
-        is equivalent to ``hash(hash(a, hash(b, c)), d)``. If the given sequence of signed hashes
-        contains only one member, then this one hash is returned (without sign). That is,
+        equals ``hash(hash(a, hash(b, c)), d)``. If the provided sequence contains only one member, then this
+        one hash is returned (without sign). That is,
 
             ``multi_hash(signed_hashes=((+/-1, a)), start=1)``
 
-        is the same as ``a`` (no hashing over unique elements)
+        equals ``a`` (no hashing over single elements)
 
-        .. warning:: When using this method, make sure that the combination of signs corresponds indeed
-                     to a valid parenthetization
+        .. warning:: When using this method, make sure that the combination of signs corresponds to a valid parenthetization
 
         :param signed_hashes: a sequence of signed hashes
         :type signed_hashes:  tuple of (+1/-1, bytes) pairs
-        :param start:         position where the application of ``.hash`` will start from
+        :param start:         position where the application of ``.hash()`` will start from
         :type start:          int
-        :returns:             the computed hash
+        :returns:             the computed digest
         :rtype:               bytes
 
-        .. note:: Returns ``None`` if the inserted sequence of signed hashes was empty
+        :raises EmptyPathException: if the provided sequence was empty
         """
 
         signed_hashes = list(signed_hashes)

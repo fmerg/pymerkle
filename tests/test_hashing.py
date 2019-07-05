@@ -1,3 +1,6 @@
+"""Tests the hashing module
+"""
+
 import pytest
 from pymerkle import hashing
 from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
@@ -239,8 +242,7 @@ def test_double_undecodableArgumentError(_byte, _encoding, _security):
 
 @pytest.mark.parametrize('_machine', _machines)
 def test_0_elems_multi_hash(_machine):
-    """Tests that the EmptyPathException is raised then the .multi_hash() method
-    is called with an empty first argument
+    """Tests that the EmptyPathException is raised then the .multi_hash() method is called with an empty sequence
     """
 
     with pytest.raises(EmptyPathException):
