@@ -31,6 +31,9 @@ class _Node(object):
 
     @property
     def child(self):
+        """
+        :raises NoChildException: if the node has no ``__child`` attribute
+        """
         try:
             return self.__child
         except AttributeError:
@@ -41,6 +44,9 @@ class _Node(object):
 
     @property
     def left(self):
+        """
+        :raises NoChildException: if the node has no ``__left`` attribute
+        """
         try:
             return self.__left
         except AttributeError:
@@ -48,6 +54,9 @@ class _Node(object):
 
     @property
     def right(self):
+        """
+        :raises NoChildException: if the node has no ``__right`` attribute
+        """
         try:
             return self.__right
         except AttributeError:
@@ -56,8 +65,7 @@ class _Node(object):
     def is_left_parent(self):
         """Checks if the node is a left parent
 
-        :returns: ``True`` iff the node is the ``.left`` attribute of some other
-                  node inside the containing Merkle-tree
+        :returns: ``True`` iff the node is the ``.left`` attribute of some other node inside the containing Merkle-tree
         :rtype:   bool
         """
         try:
@@ -70,8 +78,7 @@ class _Node(object):
     def is_right_parent(self):
         """Checks if the node is a right parent
 
-        :returns: ``True`` iff the node is the ``.right`` attribute of some other
-                  node inside the containing Merkle-tree
+        :returns: ``True`` iff the node is the ``.right`` attribute of some other node inside the containing Merkle-tree
         :rtype:   bool
         """
         try:
@@ -84,8 +91,7 @@ class _Node(object):
     def is_parent(self):
         """Checks if the node is a parent
 
-        :returns: ``True`` iff the node is the ``.right`` attribute of some other
-                  node inside the containing Merkle-tree
+        :returns: ``True`` iff the node is the ``.right`` attribute of some other node inside the containing Merkle-tree
         :rtype:   bool
         """
         try:
@@ -96,18 +102,16 @@ class _Node(object):
         return True
 
     def descendant(self, degree):
-        """ Detects and returns the node that is ``degree`` steps upwards within
-        the containing Merkle-tree
+        """ Detects and returns the node that is ``degree`` steps upwards within the containing Merkle-tree
 
-        .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1``
-                  is the node's child, etc.
+        .. note:: Descendant of degree ``0`` is the node itself, descendant of degree ``1`` is the node's child, etc.
 
         :param degree: depth of descendancy. Must be non-negative
         :type degree:  int
         :returns:      the descendant corresdponding to the requested depth
         :rtype:        nodes.Node
 
-        .. note:: Returns ``None`` if the requested depth of dependancy exceeds possibilities
+        :raises NoDescendantException: if the provided degree exceeds possibilities
         """
         if degree == 0:
             return self
@@ -125,7 +129,7 @@ class _Node(object):
 
         Sole purpose of this function is to easy print info about a node by just invoking it at console
 
-        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
+        .. warning:: Contrary to convention, the output of this implementation is *not* insertible into the ``eval`` function
         """
         def memory_id(obj): return str(hex(id(obj)))
 
@@ -156,25 +160,27 @@ class _Node(object):
                 )
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
-        """Overrides the default implementation. Designed so that inserting the node as an argument to ``print``
-        displays the subtree having that node as root.
-        Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way,
-        similar to what is printed at console when running the ``tree`` command of Unix based platforms.
+        """Overrides the default implementation. Designed so that inserting the node as an argument to ``print` displays
+        the subtree having that node as root.
+
+        Sole purpose of this function is to be used for printing Merkle-trees in a terminal friendly way, similar to what
+        is printed at console when running the ``tree`` command of Unix based platforms.
+
         :param encoding: [optional] encoding type to be used for decoding the node's current stored hash
         :type encoding:  str
-        :param level:    [optional] Defaults to ``0``. Should be always left equal to the *default* value
-                         when called externally by the user. Increased by one whenever the function is
-                         recursively called so that track be kept of depth while printing
+        :param level:    [optional] Defaults to ``0``. Must be left equal to the *default* value when called externally by the
+                         user. Increased by one whenever the function is recursively called, in order for track be kept of depth
+                         while printing
         :type level:     int
-        :param indent:   [optional] the horizontal depth at which each level of the tree will be indented with
-                         respect to the previous one; increase it to achieve better visibility of the tree's structure.
-                         Defaults to 3.
+        :param indent:   [optional] Defaults to ``3``. The horizontal depth at which each level of the tree will be indented with
+                         respect to the previous one. Increase it to achieve better visibility of the tree's structure.
         :type indent:    int
-        :param ignore:   [optional] Defaults to the empty list ``[]``. Should be always left equal to the *default* value
-                         when called externally by the user. Augmented appropriately whenever the function is recursively
-                         called so that track be kept of the positions where vertical bars should be omitted
+        :param ignore:   [optional] Defaults to ``[]``. Must be left equal to the *default* value when called externally by the
+                         user. Augmented appropriately whenever the function is recursively called, in order for track to be kept
+                         of the positions where vertical bars should be omitted
         :type ignore:    list of integers
         :rtype:          str
+
         .. note:: The left parent of each node is printed *above* the right one
         """
         if level == 0:
@@ -229,7 +235,7 @@ class _Node(object):
 
 
 class Leaf(_Node):
-    """Class for the leafs of Merkle-tree (parentless nodes)
+    """Class for the leafs of Merkle-tree (i.e., parentless nodes storing digests of encrypted records)
 
     :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
                           attribute of the containing Merkle-tree
@@ -244,8 +250,15 @@ class Leaf(_Node):
                           If provided, then ``record`` should *not* be provided.
     :type stored_hash:    str
 
-    # .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided,
-    #              otherwise a ``NodeConstructionError`` is thrown
+    .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided
+
+    :raises LeafConstructionError:  if both ``record`` and ``stored_hash`` were provided
+    :raises UndecodableRecordError: if the provided ``record`` is a bytes-like object which could not be decoded with
+                                    the provided hash-function's configured encoding type
+
+    :ivar stored_hash:   (*bytes*) The digest stored by the leaf
+    :ivar child:         (*nodes.Node*) The leaf's current child (if any)
+    :ivar encoding:      (*str*) The leaf's encoding type. Used for decoding its digest upon printing
     """
 
     __slots__ = ('__stored_hash')
@@ -283,20 +296,15 @@ class Leaf(_Node):
 # ------------------------------- Serialization --------------------------
 
     def serialize(self):
-        """ Returns a JSON entity with the node's attributes as key-value pairs
+        """ Returns a JSON entity with the leaf's attributes as key-value pairs
 
         :rtype: dict
-
-        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
-                  for circular reference error to be avoided.
         """
 
         return LeafSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the node's JSON serialized form
-
-        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """
@@ -305,33 +313,27 @@ class Leaf(_Node):
 
 
 class Node(_Node):
-    """Base class for the nodes of a Merkle-tree
+    """Base class for the internal nodes of a Merkle-tree (i.e., nodes having both parents)
 
-    :param hash_function: hash function to be used for encryption. Should be the ``.hash``
-                          method of the containing Merkle-tree
+    :param hash_function: hash function to be used for encryption. Should be the ``.hash`` method of the containing Merkle-tree
     :type hash_function:  method
     :param encoding:      Encoding type to be used when decoding the hash stored by the node.
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
-    :param left:          [optional] the node's left parent. If not provided, then the node
-                          is considered to be a leaf
-    :type left:           nodes.Node
-    :param right:         [optional] the node's right parent. If not provided, then the node
-                          is considered to be a leaf
-    :type right:          nodes.Node
-    :param record:        [optional] the record to be encrypted within the node. If provided,
-                          then the node is considered to be a leaf and ``stored_hash`` should
-                          *not* be provided.
-    :type record:         str or bytes or bytearray
+    :param left:          [optional] the node's left parent
+    :type left:           nodes._Node
+    :param right:         [optional] the node's right parent
+    :type right:          nodes._Node
 
-    # .. warning:: Either *both* ``left`` *and* ``right`` or *only* ``record`` should be provided,
-    #              otherwise a ``NodeConstructionError`` is thrown
+    :raises LeafConstructionError:  if both ``record`` and ``stored_hash`` were provided
+    :raises UndecodableRecordError: if the digest stored by some of the provided nodes could not be decoded with the provided
+                                    hash-function's configured encoding type
 
-    :ivar stored_hash:   (*bytes*) The hash currently stored by the node
-    :ivar left:          (*nodes.Node*) The node's left parent. Defaults to ``None`` if the node is a leaf
-    :ivar right:         (*nodes.Node*) The node's right parent. Defaults to ``None`` if the node is a leaf
-    :ivar child:         (*nodes.Node*) The node's child parent. Defaults to ``None`` if the node is a root
-    :ivar encoding:      (*str*) The node's encoding type. Used for decoding its stored hash when printing
+    :ivar stored_hash:   (*bytes*) The digest currently stored by the node
+    :ivar left:          (*nodes.Node*) The node's left parent
+    :ivar right:         (*nodes.Node*) The node's right parent
+    :ivar child:         (*nodes.Node*) The node's (always exists unless the node is currently root of the Merkle-tree)
+    :ivar encoding:      (*str*) The node's encoding type. Used for decoding its digest upon printing
     """
 
     __slots__ = ('__stored_hash', '__left', '__right')
@@ -388,7 +390,7 @@ class Node(_Node):
 
         try:
             _new_digest = hash_function(self.left.stored_hash, self.right.stored_hash)
-            
+
         except UndecodableRecordError:
             raise
 

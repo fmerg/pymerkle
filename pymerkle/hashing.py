@@ -127,9 +127,9 @@ class hash_machine(object):
     :param encoding:  Defaults to ``'utf_8'``. Specifies the encoding algorithm to be used by machine before hashing. Must be
                       among the elements of ``ENCODINGS`` (upper- or mixed-case with ``-`` instead of ``_`` allowed).
     :type encoding:   str
-    :param security:  Defaults to ``True``. Specifies whether the machine applies security standards against second-preimage attack
-                      (i.e., whether single, resp. double arguments passed into the ``.hash`` method will be prepended with ``'0x00'``,
-                      resp. ``'0x01'`` before hashing
+    :param security:  Defaults to ``True``. Specifies whether the machine applies security standards against second-preimage
+                      attack (i.e., whether single, resp. double arguments passed into the ``.hash`` method will be prepended
+                      with ``'0x00'``, resp. ``'0x01'`` before hashing)
     :type security:   bool
 
     :raises NotSupportedHashTypeError: if ``hash_type`` is not contained in ``HASH_TYPES``
@@ -141,8 +141,6 @@ class hash_machine(object):
     :self.PREFIX_0:       (*str*) ``'\x00'`` if defense against second-preimage attack is activated, else ``''``
     :self.PREFIX_1:       (*str*) ``'\x01'`` if defense against second-preimage attack is activated, else ``''``
     """
-
-    # -------------------------------- Construction --------------------------
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
 
