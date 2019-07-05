@@ -124,7 +124,7 @@ class hash_machine(object):
     :param hash_type: Defaults to ``'sha256'``. Specifies the hash algorithm to be used by the machine. Must must be among the
                       elements of ``HASH_TYPES`` (upper- or mixed-case with '-' instead of '_' allowed).
     :type hash_type:  str
-    :param encoding:  Defaults to ``'utf_8'``. Specifies the encoding algorithm to be used by machine before hashing. Must be
+    :param encoding:  Defaults to ``'utf_8'``. Specifies the encoding algorithm to be used by the machine before hashing. Must be
                       among the elements of ``ENCODINGS`` (upper- or mixed-case with ``-`` instead of ``_`` allowed).
     :type encoding:   str
     :param security:  Defaults to ``True``. Specifies whether the machine applies security standards against second-preimage

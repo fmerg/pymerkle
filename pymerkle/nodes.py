@@ -325,7 +325,6 @@ class Node(_Node):
     :param right:         [optional] the node's right parent
     :type right:          nodes._Node
 
-    :raises LeafConstructionError:  if both ``record`` and ``stored_hash`` were provided
     :raises UndecodableRecordError: if the digest stored by some of the provided nodes could not be decoded with the provided
                                     hash-function's configured encoding type
 
@@ -353,10 +352,10 @@ class Node(_Node):
 
             # Establish descendancy relation between child and parents
 
-            left.__child = self
+            left.__child  = self
             right.__child = self
-            self.__left = left
-            self.__right = right
+            self.__left   = left
+            self.__right  = right
 
             # Store hash
 
@@ -376,16 +375,11 @@ class Node(_Node):
         self.__right = right
 
     def recalculate_hash(self, hash_function):
-        """Recalculates the node's hash under account of the (possible new) digests stored by its parents
+        """Recalculates the node's hash under account of the (possibly new) digests stored by its parents
 
-        This method is to be invoked for all internal nodes of the Merkle-tree's rightmost branch
-        every time a newly-created leaf is appended into the tree
-
-        :param hash_function: hash function to be used during recalculation (thought of as
-                              the ``.hash`` method of the containing Merkle-tree)
+        :param hash_function: hash function to be used for recalculation (should be the ``.hash()`` method
+                              of the containing Merkle-tree)
         :type hash_function:  method
-
-        .. warning:: Only for interior nodes (i.e., with two parents), fails in case of leaf nodes
         """
 
         try:
@@ -405,16 +399,13 @@ class Node(_Node):
 
         :rtype: dict
 
-        .. note:: The ``.child`` attribute is excluded from JSON formatting of nodes in order
-                  for circular reference error to be avoided.
+        .. note:: The ``.child`` attribute is excluded node serialization in order for circular reference error to be avoided.
         """
 
         return NodeSerializer().default(self)
 
     def JSONstring(self):
         """Returns a nicely stringified version of the node's JSON serialized form
-
-        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """

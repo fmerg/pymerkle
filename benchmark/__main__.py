@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-
-from pymerkle.nodes import Node, Leaf
-from pymerkle.hashing import hash_machine
-from pymerkle import MerkleTree
 import os
 import sys
 import inspect
@@ -14,6 +10,8 @@ from numbers import Number
 from collections import Set, Mapping, deque
 from datetime import datetime
 
+
+
 # Make pymerkle importable
 current_dir = os.path.dirname(
     os.path.abspath(
@@ -21,6 +19,10 @@ current_dir = os.path.dirname(
             inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
+
+from pymerkle.nodes import Node, Leaf
+from pymerkle.hashing import hash_machine
+from pymerkle import MerkleTree
 
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
@@ -121,21 +123,32 @@ def node_benchmark():
     # access_attribute_fn(slotted))
     print(timeit(access_attribute_fn(node), number=10000))
 
+LENGTH = 10000
+hash_type = 'sha256'
+encoding = 'utf-32'
 
 def tree_benchmark():
     """
     """
-    t = MerkleTree()
-    print(getsize(t))
+
+    tree = MerkleTree(hash_type='sha256', encoding=encoding)
+
+    sys.stdout.write('\nTree size with 0 nodes (bytes): %d' % getsize(tree))
+
     start = datetime.now()
-    for i in range(100000):
-        t.encryptRecord('%d-th record' % i)
-    print(_time_elapsed(start))
-    print(getsize(t))
+
+    for _ in range(LENGTH):
+        tree.encryptRecord('%d-th record' % _)
+
+    sys.stdout.write('\nTime needed to genereate tree with %d nodes (secs): %f' % (LENGTH, _time_elapsed(start)))
+    sys.stdout.write('\nTree size with %d leaves (bytes): %d' % (LENGTH, getsize(tree)))
+    sys.stdout.write('\nRoot size of tree with %d leaves (bytes): %d' % (LENGTH, getsize(tree.root)))
+    sys.stdout.write('\nLast leaf size of tree with %d leaves (bytes): %d' % (LENGTH, getsize(tree.leaves[-1])))
+    sys.stdout.write('\nIntermediate node size of tree with %d leaves (bytes): %d' % (LENGTH, getsize(tree.leaves[10].child)))
 
 
 if __name__ == "__main__":
-    # leaf_benchmark()
-    # node_benchmark()
+    leaf_benchmark()
+    node_benchmark()
     tree_benchmark()
     sys.exit(0)
