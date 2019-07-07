@@ -271,7 +271,7 @@ class MerkleTree(object):
 # ---------------------------- Audit-proof utilities ---------------------
 
     def audit_path(self, index):
-        """Computes and returns the main body for the audit-proof requested upon the requested index
+        """Computes and returns the main body for the audit-proof requested upon the provided index
 
         Body of an audit-proof consist of an *audit-path* (a sequence of signed hashes) and a *proof-index* (the position
         within the above sequence where a subsequent proof-validation should start from)
@@ -282,7 +282,7 @@ class MerkleTree(object):
                       *(+1/-1, bytes)*, the sign ``+1`` or ``-1`` indicating pairing with the right resp. left neighbour)
         :rtype:       (int, tuple<(+1/-1, bytes)>)
 
-        :raises NoPathException: If the provided index is out of range (including the empty Merkle-tree case)
+        :raises NoPathException: if the provided index is out of range (including the empty Merkle-tree case)
         """
 
         if index < 0:
@@ -573,7 +573,8 @@ class MerkleTree(object):
                           with the left resp. right neigbour during proof validation)
         :rtype:           (int, tuple<(-1, bytes)>, tuple<(+1/-1 bytes)>)
 
-        :raises NoPathException:
+        :raises NoPathException: if the provided ``sublength`` is non-positive or no subroot sequence corresponds to it
+                                 (i.e., if a ``NoPrincipalSubrootsException`` is implicitely raised)
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
@@ -606,31 +607,24 @@ class MerkleTree(object):
 
 
     def consistencyProof(self, old_hash, sublength):
-        """Response of the Merkle-tree to the request of providing a consistency-proof for the
-        given parameters
+        """Response of the Merkle-tree to the request of providing a consistency-proof for the provided parameters
 
-        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
-        and length respectively) provided from Client's Side
+        Arguments of this function amount to a presumed previous state (root-hash and length) of the Merkle-tree
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
         :type old_hash:   bytes
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
-        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it
-                          can be passed in as the second argument to the ``validations.validateProof`` function)
+        :returns:         consistency-proof appropriately formatted along with its validation parameters (so that it
+                          can be passed in as the second argument to the ``validations.validateProof()`` function)
         :rtype:           proof.Proof
 
-        .. note:: During proof generation, an inclusion-test is performed for the presumed previous state
-                  of the Merke-tree corresponding to the provided parameters (If that test fails,
-                  then the returned proof is predestined to be found invalid upon validation).
-                  This is done implicitly and not by calling the ``.inclusionTest`` method
-                  (whose implementation differs in that no full path of signed hashes,
-                  as generated here by the ``.consistency_path`` method, needs be taken into account.)
+        .. note:: If no proof-path corresponds to the provided parameters (i.e., a ``NoPathException`` is raised implicitely)
+                  or the provided parameters do not correpond to a valid previous state of the Merkle-tree (i.e., the
+                  corresponding inclusion-test fails), then the proof generated contains an empty proof-path, or, equivalently
+                  a negative proof-index ``-1`` is inscribed in it, so that it is predestined to be found invalid.
 
-        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens to
-                  be the empty one
-
-        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
+        :raises InvalidProofRequest: if the type of any of the provided arguments is not as prescribed
         """
 
         if type(old_hash) is not bytes or type(sublength) is not int or sublength <= 0:
@@ -676,17 +670,17 @@ class MerkleTree(object):
 # ------------------------------ Inclusion tests ------------------------------
 
     def inclusionTest(self, old_hash, sublength):
-        """Verifies that the parameters provided correspond to a previous state of the Merkle-tree
+        """Verifies that the parameters provided correspond to a valid previous state of the Merkle-tree
 
         :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
         :type old_hash:   bytes
-        :param sublength: presumable length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
+        :param sublength: length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
         :type sublength:  int
-        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for
-                          the provided ``sublength``, leads indeed to the provided ``old_hash``
+        :returns:         ``True`` if the appropriate path of negatively signed hashes, generated implicitely for the provided
+                          ``sublength``, leads indeed to the provided ``old_hash``; otherwise ``False``
         :rtype:           bool
 
-        .. warning:: Raises ``TypeError`` if any of the arguments' type is not as prescribed
+        :raises InvalidProofRequest: if the type of any of the provided arguments is not as prescribed
         """
 
         if type(old_hash) is not bytes or type(sublength) is not int or sublength < 0:
@@ -706,7 +700,7 @@ class MerkleTree(object):
 
             return old_hash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1)
 
-        else: # sublength exceeds the tree's current length (includes the zero-leaves case)
+        else: # sublength exceeds the tree's current length (includes the empty-tree case)
 
             return False
 
@@ -716,10 +710,14 @@ class MerkleTree(object):
 
     def encryptRecord(self, record):
         """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
-        restructeres the tree appropriately and recalculates all necessary interior hashes
+        restrucuring the tree appropriately and recalculating all necessary interior hashes
 
         :param record: the record whose hash is to be stored into a new leaf
         :type record:  str or bytes or bytearray
+        :returns:      ``0`` if the provided ``record`` was successfully encrypted, ``1`` othewise
+        :rtype:        int
+
+        .. note:: Return-value ``1`` means that ``UndecodableRecordError`` has been implicitely raised
         """
 
         try:
@@ -734,13 +732,17 @@ class MerkleTree(object):
     def encryptFileContent(self, file_path):
         """Encrypts the provided file as a single new leaf into the Merkle-tree
 
-        More accurately, it updates the Merkle-tree with *one* newly created leaf storing
-        the digest of the provided file's content (cf. doc of the ``.update`` method).
+        More accurately, it updates the Merkle-tree with *one* newly-created leaf (cf. doc of the ``.update()`` method)
+        storing the digest of the provided file's content
 
         :param file_path: relative path of the file under encryption with respect to the current working directory
         :type file_path:  str
+        :returns:         ``0`` if the provided file was successfully encrypted, ``1`` othewise
+        :rtype:           int
 
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        .. note:: Return-value ``1`` means that ``UndecodableRecordError`` has been implicitely raised
+
+        :raises FileNotFoundError: if the specified file does not exist
         """
         try:
             with open(os.path.abspath(file_path), 'rb') as _file:
@@ -767,13 +769,18 @@ class MerkleTree(object):
     def encryptFilePerLog(self, file_path):
         """Encrypts per log the data of the provided file into the Merkle-tree
 
-        More accurately, it successively updates the Merkle-tree with each line of the
-        provided file (cf. doc of the ``.update`` method) in the respective order
+        More accurately, it successively updates the Merkle-tree (cf. doc of the ``.update()`` method)
+        with each line of the provided file in the respective order
 
         :param file_path: relative path of the file under enryption with respect to the current working directory
         :type file_path:  str
+        :returns:         ``0`` if the provided file was successfully encrypted, ``1`` othewise
+        :rtype:           int
 
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        .. note:: Return-value ``1`` means that some line of the provided log-file is undecodable with the Merkle-tree's
+                  encoding type (i.e., a ``UnicodeDecodeError`` has been implicitely raised)
+
+        :raises FileNotFoundError: if the specified file does not exist
         """
 
         absolute_file_path = os.path.abspath(file_path)
@@ -824,16 +831,15 @@ class MerkleTree(object):
     def encryptObject(self, object, sort_keys=False, indent=0):
         """Encrypts the provided object as a single new leaf into the Merkle-tree
 
-        More accurately, it updates the Merkle-tree with *one* newly created leaf storing the digest
-        of the provided object's stringified version (cf. doc of the ``.update`` method).
+        More accurately, it updates (cf. doc of the ``.update()`` method) the Merkle-tree with *one* newly-created leaf
+        storing the digest of the provided object's stringified version
 
         :param object:    the JSON entity under encryption
         :type objec:      dict
-        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
-                          before its stringification. Defaults to ``False``.
+        :param sort_keys: [optional] Defaults to ``False``. If ``True``, then the object's keys get alphabetically sorted
+                          before its stringification.
         :type sort_keys:  bool
-        :param indent:    [optional] Specifies key indentaion upon stringification of the
-                          provided object. Defaults to ``0``.
+        :param indent:    [optional] Defaults to ``0``. Specifies key indentation upon stringification of the provided object.
         :type indent:     int
         """
 
@@ -849,21 +855,21 @@ class MerkleTree(object):
     def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
         """Encrypts the object within the provided ``.json`` file as a single new leaf into the Merkle-tree
 
-        More accurately, the Merkle-tree will be updated with *one* newly created leaf storing
-        the digest of the stringified version of the object within the provided file.
+        More accurately, the Merkle-tree is updated with *one* newly-created leaf (cf. doc of the ``.update()`` method)
+        storing the digest of the stringified version of the object loaded from within the provided file
 
         :param file_path: relative path of a ``.json`` file with respect to the current working directory,
-                          containing *one* JSON entity.
+                          containing *one* JSON entity
         :type file_path:  str
-        :param sort_keys: [optional] If ``True``, then the object's keys are alphabetically stored
-                          before its stringification. Defaults to ``False``.
+        :param sort_keys: [optional] Defaults to ``False``. If ``True``, then the object's keys get alphabetically sorted
+                          before its stringification
         :type sort_keys:  bool
-        :param indent:    [optional] Specifies key indentaion upon stringification of the
-                          provided object. Defaults to ``0``.
+        :param indent:    [optional] Defaults to ``0``. Specifies key indentation upon stringification of the object
+                          under encryption
         :type indent:     int
 
-        .. warning:: Raises ``JSONDecodeError`` if the provided file is not as prescribed
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        :raises FileNotFoundError: if the specified file does not exist
+        :raises JSONDecodeError: if the specified file is not as prescribed (includes *deserialization* failure)
         """
 
         try:
@@ -886,22 +892,21 @@ class MerkleTree(object):
     def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
         """Encrypts per object the data of the provided ``.json`` file into the Merkle-tree
 
-        More accurately, it successively updates the Merkle-tree with each newly created leaf storing the
-        digest of the respective JSON entity from the list within the provided file.
+        More accurately, it successively updates the Merkle-tree (cf. doc of the ``.update()`` method) with each newly
+        created leaf storing the digest of the respective JSON entity in the list loaded from the provided file
 
         :param file_path: relative path of a ``.json`` file with respect to the current working directory,
-                          containing a *list* of JSON entities.
+                          containing a *list* of JSON entities
         :type file_path:  str
-        :param sort_keys: [optional] If ``True``, then the all objects' keys are alphabetically stored
-                          before stringification. Defaults to ``False``.
+        :param sort_keys: [optional] Defaults to ``False``. If ``True``, then the all objects' keys get alphabetically sorted
+                          before stringification
         :type sort_keys:  bool
-        :param indent:    [optional] Specifies uniform key indentaion upon stringification of objects.
-                          Defaults to ``0``.
+        :param indent:    [optional] Defaults to ``0``. Specifies uniform key indentation upon stringification of objects
         :type indent:     int
 
-        .. warning:: Raises ``ValueError`` if the provided file's content is not as prescribed
-        .. note:: Raises ``JSONDecodeError`` if the provided file cannot be deserialized
-        .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
+        :raises FileNotFoundError: if the specified file does not exist
+        :raises JSONDecodeError: if the specified file is not as prescribed (includes *deserialization* failure)
+        :raises WrongJSONFormat: if the JSON object loaded from within the provided file is not a list
         """
 
         try:
@@ -927,6 +932,9 @@ class MerkleTree(object):
 # ------------------------ Export to and load from file ------------------
 
     def export(self, file_path):
+
+        # CONTINUE HERE --------
+        
         """Exports the minimum required information into the provided file, so that the Merkle-tree can be
         reloaded in its current state from that file.
 
