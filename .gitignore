@@ -9,7 +9,6 @@ detect*
 *profile*
 *.svg
 .benchmarks/
-/benchmark
 *notes*
 *_test*
 
