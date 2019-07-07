@@ -1,5 +1,6 @@
 """Provides the main class for Merkle-trees and related functionalites
 """
+
 from .hashing import hash_machine
 from .utils import log_2, decompose
 from .nodes import Node, Leaf
@@ -14,7 +15,7 @@ import mmap
 import contextlib
 from tqdm import tqdm
 
-NONE = '[None]'
+NONE     = '[None]'
 NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
 
 # -------------------------------- Main class ----------------------------
@@ -23,26 +24,30 @@ NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
 class MerkleTree(object):
     """Class for Merkle-trees
 
-    :param \*records:  [optional] The records initially stored by the Merkle-tree; usually empty at construction. If
-                       If provided, the tree is constructed with as many leafs from the beginning, storing the hashes
-                       of the inserted records in the respective order.
+    :param \*records:  [optional] The records initially stored by the Merkle-tree. If provided, the tree is constructed with
+                       as many leafs from the beginning, storing the hashes of the inserted records in the respective order.
     :type \*records:   str or bytes or bytearray
-    :param hash_type:  [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper-
-                       or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
+    :param hash_type:  [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper- or mixed-case
+                       with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type hash_type:   str
-    :param encoding:   [optional] Defaults to ``'utf_8'``. Should be included in ``hashing.ENCODINGS`` (upper-
-                       or mixed-case with '-' instead of '_' allowed), otherwise an exception is thrown.
+    :param encoding:   [optional] Defaults to ``'utf_8'``. Should be included in ``hashing.ENCODINGS`` (upper- or mixed-case
+                       with '-' instead of '_' allowed), otherwise an exception is thrown.
     :type encoding:    str
-    :param security:   [optional] If ``False``, it deactivates defense against second-preimage attack. Defaults to ``True``.
+    :param security:   [optional] Defaults to ``True``.If ``False``, defense against second-preimage attack will be disabled
     :type security:    bool
+
+    :raises UndecodableRecordError:    if any of the provided ``records`` is a bytes-like object which cannot be decoded with
+                                       the provided encoding type
+    :raises NotSupportedHashTypeError: if ``hash_type`` is not contained in ``hashing.HASH_TYPES``
+    :raises NotSupportedEncodingType : if ``encoding`` is not contained in ``hashing.ENCODINGS``
 
     :ivar uuid:       (*str*) uuid of the Merkle-tree (time-based)
     :ivar hash_type:  (*str*) See the constructor's homonymous argument
     :ivar encoding:   (*str*) See the constructor's homonymous argument
     :ivar security:   (*bool*) Iff ``True``, security measures against second-preimage attack are activated
     :ivar hash:       (*method*) Core hash functionality of the Merkle-tree
-    :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion tests
-                      (explicitly or implicitly upon a request for consistency proof)
+    :ivar multi_hash: (*method*) Hash functionality used by the Merkle-tree for performing inclusion tests (explicitly or
+                      implicitly upon a request for consistency proof)
     """
 
     def __init__(self, *records, hash_type='sha256', encoding='utf-8', security=True):
@@ -85,8 +90,7 @@ class MerkleTree(object):
 # --------------------------- Boolean implementation ---------------------
 
     def __bool__(self):
-        """Overrides the default implementation
-
+        """
         :returns: ``False`` iff the Merkle-tree has no nodes
         :rtype:   bool
         """
@@ -102,7 +106,7 @@ class MerkleTree(object):
         :returns: the tree's current root
         :rtype:   nodes._Node
 
-        .. note:: Raises ``EmptyTreeException`` if the Merkle-tree is currently empty
+        :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
         if not self:
             raise EmptyTreeException
@@ -116,7 +120,7 @@ class MerkleTree(object):
         :returns: the tree's current root-hash
         :rtype:   bytes
 
-        .. note:: Returns ``None`` if the Merkle-tree is currently empty
+        :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
         try:
             _root = self.root
@@ -145,8 +149,7 @@ class MerkleTree(object):
     def height(self):
         """Calculates and returns the Merkle-tree's current height
 
-        .. note:: Since the tree is by construction binary *balanced*, its height coincides
-                  with the length of its leftmost branch
+        .. note:: Since the tree is binary *balanced*, its height coincides with the length of its leftmost branch
 
         :rtype: int
         """
@@ -161,17 +164,19 @@ class MerkleTree(object):
 # ---------------------------------- Updating ----------------------------
 
     def update(self, record=None, stored_hash=None):
-        """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
-        restructeres the tree appropriately and recalculates all necessary interior hashes
+        """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf, restructuring
+        the tree appropriately and recalculating all necessary interior hashes
 
         :param record:      [optional] The record whose hash is to be stored into a new leaf.
-                            If provided, then ``stored_hash`` should *not* be provided.
         :type record:       str or bytes or bytearray
         :param stored_hash: [optional] The hash to be stored by the new leaf (after encoding).
-                            If provided, then ``record`` should *not* be provided.
         :type stored_hash:  str
 
-        .. warning:: *Either* ``record`` *or* ``stored_hash`` should be provided.
+        .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided
+
+        :raises LeafConstructionError:  if both ``record`` and ``stored_hash`` were provided
+        :raises UndecodableRecordError: if the provided ``record`` is a bytes-like object which could not be decoded with
+                                        the Merkle-tree's encoding type
         """
         if self:
 
@@ -266,23 +271,18 @@ class MerkleTree(object):
 # ---------------------------- Audit-proof utilities ---------------------
 
     def audit_path(self, index):
-        """Computes and returns the body for the audit-proof based upon the requested index.
+        """Computes and returns the main body for the audit-proof requested upon the requested index
 
-        Body of an audit-proof consist of an *audit-path* (a sequence of signed hashes) and a
-        *proof-index* (the position within the above sequence where the validation procedure
-        should start from).
+        Body of an audit-proof consist of an *audit-path* (a sequence of signed hashes) and a *proof-index* (the position
+        within the above sequence where a subsequent proof-validation should start from)
 
-        :param index: index of the leaf where the audit-proof calculation should be based upon
-                      (provided from Client's Side directly or indirectly in form of a record;
-                      cf. the ``.auditProof`` method)
+        :param index: index (zero based) of the leaf where the audit-path computation should be based upon
         :type index:  int
-        :returns:     a tuple of signed hashes (pairs of the form *(+1/-1, bytes)*), the sign ``+1`` or ``-1``
-                      indicating pairing with the right or left neighbour during proof validation respectively,
-                      along with the starting point for application of hashing during proof validation.
-        :rtype:       (int, tuple)
+        :returns:     starting position for application of hashing along with the tuple of signed hashes (pairs of the form
+                      *(+1/-1, bytes)*, the sign ``+1`` or ``-1`` indicating pairing with the right resp. left neighbour)
+        :rtype:       (int, tuple<(+1/-1, bytes)>)
 
-        .. note:: If the requested index is either negative or exceeds the tree's current length
-                  (``IndexError``), then the nonsensical tuple ``(None, None)`` is returned.
+        :raises NoPathException: If the provided index is out of range (including the empty Merkle-tree case)
         """
 
         if index < 0:
@@ -294,7 +294,7 @@ class MerkleTree(object):
             try:
                 current_node = self.leaves[index]
             except IndexError:
-                raise NoPathException                                           # Covers also the zero leaves case
+                raise NoPathException                                           # Covers also the empty tree case
 
             else:
 
@@ -338,17 +338,16 @@ class MerkleTree(object):
 
 
     def auditProof(self, arg):
-        """Response of the Merkle-tree to the request of providing an audit-proof based upon
-        the given argument
+        """Response of the Merkle-tree to the request of providing an audit-proof based upon the provided argument
 
-        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type
-                    is *int*) where the proof calculation must be based upon (provided from Client's Side)
+        :param arg: the record (if type is *str* or *bytes* or *bytearray*) or index of leaf (if type is *int*) where the
+                    computation of audit-proof must be based upon
         :type arg:  str or bytes or bytearray or int
-        :returns:   Audit proof appropriately formatted along with its validation parameters (so that it
-                    can be passed in as the second argument to the ``validations.validateProof`` function)
+        :returns:   audit-proof appropriately formatted along with its validation parameters (so that it can be passed in
+                    as the second argument to the ``validations.validateProof()`` function)
         :rtype:     proof.Proof
 
-        .. warning:: Raises ``TypeError`` if the argument's type is not as prescribed
+        :raises InvalidProofRequest: if the provided argument's type is not as prescribed
         """
 
         if type(arg) not in (int, str, bytes, bytearray):
@@ -405,19 +404,19 @@ class MerkleTree(object):
 
 # --------------------------- Consistency-proof utils ---------------------------
 
-    def subroot(self, start, height):
-        """
-        Returns the root of the unique *full* binary subtree of the Merkle-tree, whose leftmost leaf is located
-        at the given position ``start`` and whose height is equal to the given ``height``
 
-        :param start:  index of leaf where detection of subtree should start from (zero based)
+    def subroot(self, start, height):
+        """Returns the root of the unique *full* binary subtree of the Merkle-tree, whose leftmost leaf is located
+        at the provded position ``start`` and whose height is equal to the provded ``height``
+
+        :param start:  index (zero based) of leaf where detection of subtree should start from
         :type start:   int
         :param height: height of candidate subtree to be detected
         :type height:  int
         :returns:      root of the detected subtree
-        :rtype:        nodes.Node
+        :rtype:        nodes._Node
 
-        .. note:: Returns ``NoSubtreeException`` if a subtree does not exist for the given parameters
+        :raises NoSubtreeException: if no subtree does exists for the given parameters
         """
 
         # Detect candidate subroot
@@ -462,19 +461,18 @@ class MerkleTree(object):
 
     def principal_subroots(self, sublength):
         """Detects and returns in corresponding order the roots of the *successive*, *rightmost*, *full* binary
-        subtrees of maximum (and thus decreasing) length, whose lengths sum up to the inserted argument
+        subtrees of maximum (and thus decreasing) length, whose lengths sum up to the provided argument
 
         Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying information used in the generation of
         consistency-proofs after extracting hashes
 
-        :param sublength: Should be a non-negative integer smaller than or equal to the Merkle-tree's current length,
-                          such that the corresponding sequence of subroots exists
-        :returns:         The (signed) roots of the detected subtrees, whose hashes are to be used for the generation
+        :param sublength: a non-negative integer smaller than or equal to the Merkle-tree's current length, such that
+                          the corresponding sequence of subroots exists
+        :returns:         The signed roots of the detected subtrees, whose hashes are to be used for the generation
                           of consistency-proofs
-        :rtype:           list of *(+1/-1, nodes.Node)*
+        :rtype:           list<(+1/-1, nodes._Node)>
 
-        .. note:: Raises ``NoPrincipalSubrootsException`` if the specified sublength is not as prescribed (e.g., incompatibility
-                  issue is detected or given index is out of range)
+        :raises NoPrincipalSubrootsException: if the provided ``sublength`` does not fulfill the prescribed conditions
         """
 
         if sublength < 0:
@@ -523,11 +521,11 @@ class MerkleTree(object):
         """Complements optimally the subroot hashes detected by ``.principal_subroots`` with all necessary
         interior hashes of the Merkle-tree, so that a full consistency-path can be generated
 
-        :param subroots: Should be some output of the ``.principal_subroots`` method
-        :type subroots:  list of nodes.Node
-        :returns:        a list of signed hashes complementing optimally the hashes detected by
-                         ``.principal_subroots``, so that a full consistency-path be generated
-        :rtype:          list of (+1/-1, bytes) pairs
+        :param subroots: output of the ``.principal_subroots()`` method
+        :type subroots:  list<nodes._Node>
+        :returns:        a list of signed hashes complementing optimally provided input,
+                         so that a full consistency-path be generated
+        :rtype:          list<(+1/-1, bytes)>
         """
         if len(subroots) == 0:
             return self.principal_subroots(self.length)
@@ -562,18 +560,20 @@ class MerkleTree(object):
         return complement
 
     def consistency_path(self, sublength):
-        """Computes and returns the body for any consistency-proof based upon the requested sublength.
+        """Computes and returns the main body for the consistency-proof requested for the provided parameters
 
-        :param sublength: length (number of leaves) for a presumably valid previous state of the Merkle-tree
+        Body of a consistency-proof consist of a *consistency-path* (a sequence of signed hashes) and a *proof-index*
+        (the position within the above sequence where a subsequent proof-validation should start from)
+
+        :param sublength: length of a presumably valid previous state of the Merkle-tree
         :type sublength:  int
-        :returns:         the starting point for application of hashing during proof validation, a tuple of hashes
-                          signed with ``-1`` (leftmost hashes for inclusion test to be performed from the Server's
-                          Side, i.e., by the Merkle-tree itself) and a tuple of signed hashes for top-hash test to
-                          be performed from the Client's Side (the sign ``+1``, resp. ``-1`` indicating pairing
-                          with the right or left neigbour respectively during proof validation)
-        :rtype:           (int, tuple of (-1 bytes) pairs, tuple of (+1/-1 bytes) pairs)
+        :returns:         starting position for application of hashing along with a tuple of hashes signed with ``-1`` (leftmost
+                          hashes for inclusion test to be performed by the Merkle-tree itself) and a tuple of signed hashes for
+                          hash test to be performed from the Client's Side (the sign ``-1``, resp. ``+1`` indicating pairing
+                          with the left resp. right neigbour during proof validation)
+        :rtype:           (int, tuple<(-1, bytes)>, tuple<(+1/-1 bytes)>)
 
-        .. note::  Returns ``None`` for ``sublength`` equal to ``0``
+        :raises NoPathException:
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
