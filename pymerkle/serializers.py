@@ -1,5 +1,4 @@
-"""
-Provides JSON encoders used implicitly for serialization accross this library
+"""Provides JSON encoders used implicitly for serialization accross this library
 """
 import json
 
@@ -143,10 +142,10 @@ class ReceiptSerializer(json.JSONEncoder):
             proof_uuid = obj.body['proof_uuid']
             proof_provider = obj.body['proof_provider']
             result = obj.body['result']
-            
+
         except TypeError:
             return json.JSONEncoder.default(self, obj)
-            
+
         else:
             return {
                 'header': {

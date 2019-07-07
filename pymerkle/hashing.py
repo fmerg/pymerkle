@@ -1,5 +1,4 @@
-"""
-Provides a class ``hash_machine`` encapsulating the hash utilities used accross the library. Instances of this class
+"""Provides a class ``hash_machine`` encapsulating the hash utilities used accross the library. Instances of this class
 should receive their configuration parameters from the ``ENCODINGS`` and ``HASH_TYPES`` global variables of this module
 """
 

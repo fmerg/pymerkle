@@ -1,5 +1,4 @@
-"""
-Provides a core function for validating proofs along with a wrapper
+"""Provides a core function for validating proofs along with a class for validation receipts
 """
 
 from .hashing import hash_machine
@@ -13,10 +12,10 @@ import os
 
 
 def validateProof(target_hash, proof):
-    """Core validation utility
+    """Core utility for validating proofs
 
     Validates the inserted proof by comparing to the provided target hash, modifies the proof's
-    status as ``True`` or ``False`` according to validation result and returns this result
+    status as ``True`` or ``False`` according to the result and returns this result
 
     :param target_hash: the hash to be presumably attained at the end of the validation procedure (i.e.,
                         acclaimed current root-hash of the Merkle-tree having provided the proof)
@@ -60,19 +59,17 @@ def validateProof(target_hash, proof):
 def validationReceipt(target_hash, proof, dirpath=None):
     """Wraps the ``validateProof()`` method, returning a validation receipt instead of a boolean
 
-    If a ``dirpath`` has been specified, then the receipt is automatically stored in the given
+    If a ``dirpath`` has been specified, then the receipt is automatically stored inside the given
     directory as a ``.json`` file named with the receipt's uuid
 
     :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
                         acclaimed top-hash of the Merkle-tree having provided the proof)
     :type target_hash:  bytes
     :param proof:       the proof to be validated
-    :type dirpath:     [optional] Relative path with respect to the current working directory of the
-                        directory where to save the generated receipt. If specified, the generated
-                        receipt will be saved within this directory as a ``.json`` file named with
-                        the receipt's uuid. Otherwise, then generated receipt will *not* be
-                        automatically stored in any file.
-    :param dirpath:    str
+    :type dirpath:      [optional] Relative path with respect to the current working directory of the directory where to save
+                        the generated receipt. If specified, the generated receipt will be saved within this directory as a
+                        ``.json`` file named with the receipt's uuid.
+    :param dirpath:     str
     :type proof:        proof.Proof
     :rtype:             validations.Receipt
     """

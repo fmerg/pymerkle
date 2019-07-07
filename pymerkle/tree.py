@@ -1,5 +1,4 @@
-"""
-Provides the main class for Merkle-tree objects and related functionalites
+"""Provides the main class for Merkle-trees and related functionalites
 """
 from .hashing import hash_machine
 from .utils import log_2, decompose
@@ -738,8 +737,7 @@ class MerkleTree(object):
         More accurately, it updates the Merkle-tree with *one* newly created leaf storing
         the digest of the provided file's content (cf. doc of the ``.update`` method).
 
-        :param file_path: relative path of the file under encryption with respect to the
-                          current working directory
+        :param file_path: relative path of the file under encryption with respect to the current working directory
         :type file_path:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
@@ -772,8 +770,7 @@ class MerkleTree(object):
         More accurately, it successively updates the Merkle-tree with each line of the
         provided file (cf. doc of the ``.update`` method) in the respective order
 
-        :param file_path: relative path of the file under enryption with respect to
-                          the current working directory
+        :param file_path: relative path of the file under enryption with respect to the current working directory
         :type file_path:  str
 
         .. note:: Raises ``FileNotFoundError`` if the specified file does not exist
@@ -933,15 +930,13 @@ class MerkleTree(object):
         """Exports the minimum required information into the provided file, so that the Merkle-tree can be
         reloaded in its current state from that file.
 
-        The final file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``,
-        ``encoding`` and ``security`` of the tree) and ``hashes``, mapping to the digests currently stored by
-        the tree's leaves in respective order.
+        The file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``, ``encoding``, and
+        ``security``) and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order.
 
         .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
                   by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
 
-        :param file_path: relative path of the file to export to with respect to the current
-                          working directory
+        :param file_path: relative path of the file to export to with respect to the current working directory
         :type file_path:  str
         """
         with open(file_path, 'w') as _file:
@@ -953,11 +948,9 @@ class MerkleTree(object):
 
     @staticmethod
     def loadFromFile(file_path):
-        """Loads a Merkle-tree from the provided file, the latter being the result of an export
-        (cf. the ``.export`` method).
+        """Loads a Merkle-tree from the provided file, the latter being the result of an export (cf. the ``.export()`` method)
 
-        :param file_path: relative path of the file to load from with respect to the current
-                          working directory
+        :param file_path: relative path of the file to load from with respect to the current working directory
         :type file_path:  str
         :returns:         the Merkle-tree laoded from the provided file
         :rtype:           tree.MerkleTree
@@ -1119,11 +1112,11 @@ class MerkleTree(object):
     def __str__(self, indent=3):
         """Overrides the default implementation.
 
-        Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal
-        friendly way. Printing the tree resembles the output of the ``tree`` command at Unix based platforms.
+        Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal friendly way.
+        Printing the tree resembles the output of the ``tree`` command at Unix based platforms.
 
-        :param indent: [optional] Defaults to ``3``. The horizontal depth at which each level will be indented
-                       with respect to its previous one.
+        :param indent: [optional] Defaults to ``3``. The horizontal depth at which each level will be indented with
+                       respect to its previous one
         :type indent:  int
         :rtype:        str
 
@@ -1139,14 +1132,12 @@ class MerkleTree(object):
 # ------------------------------- Serialization --------------------------
 
     def serialize(self):
-        """ Returns a JSON entity with the Merkle-trees's current characteristics and
-        hashes currently stored by its leaves.
+        """ Returns a JSON entity with the Merkle-trees's current characteristics and hashes currently stored by its leaves.
 
         :rtype: dict
 
-        .. note:: This method does *not* serialize the tree structure itself, but only the info
-                  about the tree's fixed configs and current state, so that the tree can be
-                  retrieved from that using the ``.update`` method
+        .. note:: This method does *not* serialize the tree structure itself, but only the info about the tree's fixed configs
+                  and current state, so that the tree can be retrieved from that using the ``.update`` method
         """
         return MerkleTreeSerializer().default(self)
 

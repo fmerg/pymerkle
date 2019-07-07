@@ -1,5 +1,4 @@
-"""
-Provides the main class for `proof` objects and related functionalities
+"""Provides the main class for proofs objects and related functionalities
 """
 import uuid
 import time

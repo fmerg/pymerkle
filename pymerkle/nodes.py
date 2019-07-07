@@ -1,5 +1,4 @@
-"""
-Provides the base class for the Merkle-tree's nodes and an inheriting class for its leaves
+"""Provides the classes for the Merkle-tree's leaves and internal nodes
 """
 
 from .serializers import NodeSerializer, LeafSerializer
