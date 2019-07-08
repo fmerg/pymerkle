@@ -32,13 +32,9 @@ tree = MerkleTree()                                                          # ~
 for _ in range(665):                                                         # Update the tree with 666 records
     tree.encryptRecord(bytes('%d-th record' % _, 'utf-8'))
 
-# Request audit-proof based upon a given record
+_audit = tree.auditProof('12-th record')                                     # Request audit-proof based upon a given record        
 
-_audit = tree.auditProof('12-th record')                                     
-
-# Quick validation of the above proof
-
-validateProof(target_hash=tree.rootHash(), proof=_audit)                     # True
+validateProof(target_hash=tree.rootHash(), proof=_audit)                     # Quick validation of the above proof (returns True)
 
 # Store the tree's current state for later use
 
@@ -51,13 +47,12 @@ tree.encryptObject({'a': 0, 'b': 1})                                         # O
 tree.encryptFileContent('../path/to/file')                                   # One new leaf storing the provided file's digest
 tree.encryptFilePerLog('../logs/sample_log')                                 # One new leaf for each line of the provided file
 
-# Generate consistency-proof for the state before the last encryptions
+_consistency = tree.consistencyProof(old_hash, sublength)                    # Request consistency-proof for the stored state
 
-_consistency = tree.consistencyProof(old_hash, sublength)
-
-# Validate proof and generate corresponding receipt
-
-_receipt = validationReceipt(target_hash=tree.rootHash(), proof=_consistency)
+_receipt = validationReceipt(
+  target_hash=tree.rootHash(),
+  proof=_consistency
+)                                                                            # Validate proof and generate corresponding receipt                                            
 ```
 
 ## Encryption modes
