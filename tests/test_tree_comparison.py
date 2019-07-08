@@ -23,15 +23,16 @@ for security in (True, False):
         for encoding in ENCODINGS:
 
             tree = MerkleTree(
+                'a', 'b', 'c', 'd', 'e',
                 hash_type=hash_type,
                 encoding=encoding,
                 security=security
             )
 
-            tree.encryptFilePerLog(short_APACHE_log)
             old_hash, sublength = tree.rootHash, tree.length
 
-            tree.encryptFilePerLog(RED_HAT_LINUX_log)
+            for _record in ('f', 'g', 'h', 'k'):
+                tree.encryptRecord(_record)
 
             trees_and_subtrees.append((tree, old_hash, sublength))
 

@@ -61,7 +61,7 @@ def stringify_path(signed_hashes, encoding):
     The printed checksums occure after decoding the given ones according to the inserted encoding type.
 
     :param signed_hashes: a sequence of signed hashes
-    :type signed_hashes:  tuple of (+1/-1, <bytes>) or (+1/-1, <string>) pairs
+    :type signed_hashes:  tuple<(+1/-1, bytes)> or tuple<(+1/-1, string)>
     :param encoding:      encoding type to be used for decoding
     :type encoding:       str
     :rtype:               str

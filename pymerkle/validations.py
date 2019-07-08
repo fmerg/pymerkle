@@ -66,9 +66,9 @@ def validationReceipt(target_hash, proof, dirpath=None):
                         acclaimed top-hash of the Merkle-tree having provided the proof)
     :type target_hash:  bytes
     :param proof:       the proof to be validated
-    :type dirpath:      [optional] Relative path with respect to the current working directory of the directory where to save
-                        the generated receipt. If specified, the generated receipt will be saved within this directory as a
-                        ``.json`` file named with the receipt's uuid.
+    :type dirpath:      [optional] Relative path with respect to the current working directory of the directory where the
+                        the generated receipt is to be saved (as a ``.json`` file named with the receipt's uuid). If
+                        unspecified, then the generated receipt does not get automatically saved.
     :param dirpath:     str
     :type proof:        proof.Proof
     :rtype:             validations.Receipt
@@ -108,8 +108,7 @@ class Receipt(object):
     :type result:          bool
 
     Instead of providing the above arguments corresponding to `*args`, a ``Receipt`` object may also
-    be constructed in the following ways by employing `**kwargs` in order to load the JSON string of a
-    given validation-receipt ``r``:
+    be constructed in the following ways given validation-receipt ``r``:
 
     >>> from pymerkle.valiation_receipts import Receipt
     >>> s = Receipt(from_json=r.JSONstring())
@@ -118,14 +117,14 @@ class Receipt(object):
     .. note:: Constructing receipts in the above ways is a genuine *replication*, since the constructed
               receipts ``s`` and ``t`` have the same *uuid* and *timestamps* as ``r``
 
-    :ivar header:                   (*dict*) Contains the keys *uuid*, *timestamp*, *validation_moment*
+    :ivar header:                   (*dict*) contains the keys *uuid*, *timestamp*, *validation_moment*
     :ivar header.uuid:              (*str*) uuid of the validation (time-based)
-    :ivar header.timestamp:         (*str*) Validation moment (msecs) from the start of time
-    :ivar header.validation_moment: (*str*) Validation moment in human readable form
-    :ivar body:                     (*dict*) Contains the keys *proof_uuid*, *proof_provider*, *result* (see below)
-    :ivar body.proof_uuid:          (*str*) See the homonymous argument of the constructor
-    :ivar body.proof_provider:      (*str*) See the homonymous argument of the constructor
-    :ivar body.result:              (*bool*) See the homonymous argument of the constructor
+    :ivar header.timestamp:         (*str*) validation moment (msecs) from the start of time
+    :ivar header.validation_moment: (*str*) validation moment in human readable form
+    :ivar body:                     (*dict*) contains the keys *proof_uuid*, *proof_provider*, *result* (see below)
+    :ivar body.proof_uuid:          (*str*) see the homonymous argument of the constructor
+    :ivar body.proof_provider:      (*str*) see the homonymous argument of the constructor
+    :ivar body.result:              (*bool*) see the homonymous argument of the constructor
     """
 
     def __init__(self, *args, **kwargs):
@@ -204,8 +203,6 @@ class Receipt(object):
 
     def JSONstring(self):
         """Returns a nicely stringified version of the receipt's JSON serialized form
-
-        .. note:: The output of this function is to be passed into the ``print`` function
 
         :rtype: str
         """

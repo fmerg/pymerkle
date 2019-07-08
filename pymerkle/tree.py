@@ -869,7 +869,7 @@ class MerkleTree(object):
         :type indent:     int
 
         :raises FileNotFoundError: if the specified file does not exist
-        :raises JSONDecodeError: if the specified file is not as prescribed (includes *deserialization* failure)
+        :raises JSONDecodeError: if the specified file could not be deserialized
         """
 
         try:
@@ -905,7 +905,7 @@ class MerkleTree(object):
         :type indent:     int
 
         :raises FileNotFoundError: if the specified file does not exist
-        :raises JSONDecodeError: if the specified file is not as prescribed (includes *deserialization* failure)
+        :raises JSONDecodeError: if the specified file could not be deserialized
         :raises WrongJSONFormat: if the JSON object loaded from within the provided file is not a list
         """
 
@@ -932,22 +932,21 @@ class MerkleTree(object):
 # ------------------------ Export to and load from file ------------------
 
     def export(self, file_path):
+        """Creates a ``.json`` file at the provided path and exports the minimum required information into it, so that the
+        Merkle-tree can be reloaded in its current state from that file
 
-        # CONTINUE HERE --------
-        
-        """Exports the minimum required information into the provided file, so that the Merkle-tree can be
-        reloaded in its current state from that file.
+        The final file will store a JSON entity with keys ``header`` (containing the parameters ``hash_type``, ``encoding``,
+        and ``security``) and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order
 
-        The file will contain a JSON entity with keys ``header`` (containing the parameters ``hash_type``, ``encoding``, and
-        ``security``) and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order.
-
-        .. note:: Reconstruction of the tree is (cf. the ``loadFromFile`` static method) is uniquely determined
-                  by the sequence of ``hashes`` due to the specific properties of the ``.update`` method.
+        .. note::    If the provided path does not end with ``.json``, then this extension is appended to it before exporting
+        .. warning:: If a file exists already for the provided path (after possibly extending with ``.json``, see above),
+                     then it gets overwritten
 
         :param file_path: relative path of the file to export to with respect to the current working directory
         :type file_path:  str
         """
-        with open(file_path, 'w') as _file:
+
+        with open('%s.json' % file_path if not file_path.endswith('.json') else file_path, 'w') as _file:
             json.dump(
                 self.serialize(),
                 _file,
@@ -963,9 +962,9 @@ class MerkleTree(object):
         :returns:         the Merkle-tree laoded from the provided file
         :rtype:           tree.MerkleTree
 
-        .. warning:: Raises ``KeyError`` if the provided file is not as prescribed (cf. the ``.export`` method)
-        .. note :: Raises ``JSONDecodeError`` if the provided file could not be deserialized
-        .. note :: Raises ``FileNotFoundError`` if the provided file does not exist
+        :raises FileNotFoundError: if the specified file does not exist
+        :raises JSONDecodeError: if the specified file could not be deserialized
+        :raises WrongJSONFormat: if the JSON object loaded from within is not a Merkle-tree export (cf. the ``.export()`` method)
         """
         try:
             with open(file_path, 'r') as _file:
@@ -999,7 +998,7 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        :raises InvalidComparison: if compared with an object that is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
@@ -1015,7 +1014,7 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        :raises InvalidComparison: if compared with an object that is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
@@ -1031,7 +1030,7 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        :raises InvalidComparison: if compared with an object that is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
@@ -1047,7 +1046,7 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        :raises InvalidComparison: if compared with an object that is not instance of the ``tree.MerkleTree`` class
         """
 
         if not isinstance(other, self.__class__):
@@ -1061,7 +1060,7 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        :raises InvalidComparison: if compared with an object that is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
@@ -1079,7 +1078,7 @@ class MerkleTree(object):
         :param other: the Merkle-tree to compare with
         :type other:  tree.MerkleTree
 
-        .. note :: Raises ``InvalidComparison`` if compared with an object that is not instance of the ``MerkleTree`` class
+        :raises InvalidComparison: if compared with an object that is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
@@ -1089,11 +1088,11 @@ class MerkleTree(object):
 # ------------------------------- Representation -------------------------
 
     def __repr__(self):
-        """Overrides the default implementation.
+        """Overrides the default implementation
 
-        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console
+        Sole purpose of this function is to easily print info about the Merkle-treee by just invoking it at console
 
-        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function
+        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval()`` function
         """
 
         return '\n    uuid      : {uuid}\
@@ -1120,8 +1119,8 @@ class MerkleTree(object):
     def __str__(self, indent=3):
         """Overrides the default implementation.
 
-        Designed so that inserting the Merkle-tree as an argument to ``print`` displays it in a terminal friendly way.
-        Printing the tree resembles the output of the ``tree`` command at Unix based platforms.
+        Designed so that inserting the Merkle-tree as an argument to ``print()`` displays it in a terminal friendly way.
+        Resembles the output of the ``tree`` command at Unix based platforms.
 
         :param indent: [optional] Defaults to ``3``. The horizontal depth at which each level will be indented with
                        respect to its previous one
@@ -1145,7 +1144,7 @@ class MerkleTree(object):
         :rtype: dict
 
         .. note:: This method does *not* serialize the tree structure itself, but only the info about the tree's fixed configs
-                  and current state, so that the tree can be retrieved from that using the ``.update`` method
+                  and current state, so that the tree be retrievable
         """
         return MerkleTreeSerializer().default(self)
 
@@ -1166,7 +1165,7 @@ class MerkleTree(object):
 # ---------------------------------- Clearance ---------------------------
 
     def clear(self):
-        """Deletes all nodes of the Merkle-tree, so that its root-hash becomes ``None``
+        """Deletes all nodes of the Merkle-tree, setting its ``root`` equal to ``None``
         """
         self.leaves = []
         self.nodes  = set()

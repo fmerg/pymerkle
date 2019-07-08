@@ -312,7 +312,7 @@ class Leaf(_Node):
 
 
 class Node(_Node):
-    """Base class for the internal nodes of a Merkle-tree (i.e., nodes having both parents)
+    """Class for the internal nodes of a Merkle-tree (i.e., nodes having both parents)
 
     :param hash_function: hash function to be used for encryption. Should be the ``.hash`` method of the containing Merkle-tree
     :type hash_function:  method
