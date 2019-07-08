@@ -2,6 +2,7 @@
 #!/usr/bin/env python
 
 import os
+import io
 from setuptools import setup, find_packages
 
 import pymerkle
