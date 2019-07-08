@@ -24,44 +24,40 @@ pip3 install pymerkle --pre
 **See also [_Usage_](USAGE.md) and [_API_](API.md)**
 
 ```python
-from pymerkle import *                    # Import MerkleTree, validateProof and validationReceipt
+from pymerkle import MerkleTree, validateProof, validationReceipt
 
-tree = MerkleTree()                       # Create empty SHA256/UTF-8 Merkle-tree with
-                                          # defense against second-preimage attack
+tree = MerkleTree()                                                          # ~ Create empty SHA256/UTF-8 Merkle-tree with
+                                                                             # ~ defense against second-preimage attack
 
-# Successively update the Merkle-tree with one hundred records
+for _ in range(665):                                                         # Update the tree with 666 records
+    tree.encryptRecord(bytes('%d-th record' % _, 'utf-8'))
 
-for i in range(100):
-    tree.encryptRecord(bytes('%d-th record' % i, 'utf-8'))
+# Request audit-proof based upon a given record
 
-# Generate some audit-proofs
+_audit = tree.auditProof('12-th record')                                     
 
-p = tree.auditProof(b'12-th record')      # Audit proof based on a given record
-q = tree.auditProof(55)                   # Audit-proof based upon the 56-th leaf
+# Quick validation of the above proof
 
-# Quick validation of the above proofs
+validateProof(target_hash=tree.rootHash(), proof=_audit)                     # True
 
-validateProof(target_hash=tree.rootHash(), proof=p) # True
-validateProof(target_hash=tree.rootHash(), proof=q) # True
+# Store the tree's current state for later use
 
-# Store the tree's current state (root-hash and length) for later use
-
-old_hash = tree.rootHash()
+old_hash  = tree.rootHash()
 sublength = tree.length()
 
 # Further encryption of files and objects
 
-tree.encryptObject({'a': 0, 'b': 1})      # One new leaf storing the digest of the given object
-tree.encryptFileContent('path_to_file')   # One new leaf storing the digest of the given file's content
-tree.encryptFilePerLog('logs/sample_log') # Encrypt file per log (one new leaf for each line)
+tree.encryptObject({'a': 0, 'b': 1})                                         # One new leaf storing the provided object's digest
+tree.encryptFileContent('../path/to/file')                                   # One new leaf storing the provided file's digest
+tree.encryptFilePerLog('../logs/sample_log')                                 # One new leaf for each line of the provided file
 
-# Generate consistency-proof for the state before the above encryptions
+# Generate consistency-proof for the state before the last encryptions
 
-r = tree.consistencyProof(old_hash, sublength)
+_consistency = tree.consistencyProof(old_hash, sublength)
 
 # Validate proof and generate corresponding receipt
 
-validation_receipt = validationReceipt(target_hash=tree.rootHash(), proof=r)
+_receipt = validationReceipt(target_hash=tree.rootHash(), proof=_consistency)
 ```
 
 ## Encryption modes
@@ -99,17 +95,17 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_, with all nodes except
 for the exterior ones (_leaves_) having _two_ parents. This is achieved as follows: upon appending a block
 of new leaves, instead of promoting a lonely leaf to the next level or duplicating it, a *bifurcation* node
-gets created **_so that trees with the same number of leaves have always identical structure and input clashes
-among growing strategies be avoided_** (independently of the configured hash and encoding types).
+gets created _so that trees with the same number of leaves have always identical structure and input clashes
+among growing strategies be avoided_ (independently of the configured hash and encoding types).
 This standardization is further crucial for:
 
 - fast generation of consistency-proof paths (based on additive decompositions in decreasing powers of _2_)
 - fast recalculation of the root-hash after appending a new leaf, since _only the hashes at the tree's
 left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length
-is controlled to the minimum. For example, a tree with _9_ leaves has _17_ nodes in the present implementation,
+is controlled to the minimum. For example, a tree with *9* leaves has *17* nodes in the present implementation,
 whereas the total number of nodes in the structure described
-[**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is _20_.
+[**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is *20*.
 
 This topology turns out to be identical with that of a binary _Sekura tree_, depicted in Section 5.4 of
 [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the

@@ -71,7 +71,7 @@ def test_inclusion_test_with_sublength_exceeding_length():
 @pytest.mark.parametrize('sublength', list(range(1, tree.length)))
 def test_inclusion_test_with_invalid_old_hash(sublength):
     assert tree.inclusionTest(
-        target_hash=b'anything except for the hash corresponding to the provided sublength',
+        old_hash=b'anything except for the hash corresponding to the provided sublength',
         sublength=sublength
     ) is False
 
