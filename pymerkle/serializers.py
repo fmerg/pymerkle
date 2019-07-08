@@ -1,6 +1,6 @@
+"""Provides JSON encoders used implicitly for serialization accross this library
 """
-Provides JSON encoders used implicitly for serialization accross this library
-"""
+
 import json
 
 
@@ -13,23 +13,26 @@ class MerkleTreeSerializer(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library
         """
         try:
-            hash_type, encoding, security = obj.hash_type, obj.encoding, obj.security
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
             leaves = obj.leaves
+
         except TypeError:
             return json.JSONEncoder.default(self, obj)
+
         else:
             return {
                 'header': {
                     'hash_type': hash_type,
                     'encoding': encoding,
                     'security': security},
-                'hashes': [
-                    leaf.stored_hash.decode(
-                        encoding=encoding) for leaf in leaves]}
+                    'hashes': [leaf.stored_hash.decode(encoding=encoding) for leaf in leaves]
+            }
 
 
 class NodeSerializer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of nodes.
+    """Used implicitly in the JSON serialization of nodes (``nodes.Node``).
     Extends the built-in JSON encoder for data structures.
     """
 
@@ -37,20 +40,40 @@ class NodeSerializer(json.JSONEncoder):
         """ Overrides the built-in method of JSON encoders according to the needs of this library.
         """
         try:
-            left, right = obj.left, obj.right
+            left = obj.left
+            right = obj.right
             hash = obj.stored_hash
+
         except TypeError:
             return json.JSONEncoder.default(self, obj)
+
         else:
-            if isinstance(obj, Leaf):
-                return {
-                    'hash': hash.decode(encoding=obj.encoding)
-                }
             return {
                 'left': left.serialize(),
                 'right': right.serialize(),
                 'hash': hash.decode(encoding=obj.encoding)
-            }  # Non-leaf case
+            }
+
+
+class LeafSerializer(json.JSONEncoder):
+    """Used implicitly in the JSON serialization of leafs (``nodes.Leaf``).
+    Extends the built-in JSON encoder for data structures.
+    """
+
+    def default(self, obj):
+        """ Overrides the built-in method of JSON encoders according to the needs of this library.
+        """
+        try:
+            encoding = obj.encoding
+            hash = obj.stored_hash
+
+        except TypeError:
+            return json.JSONEncoder.default(self, obj)
+
+        else:
+            return {
+                'hash': hash.decode(encoding=obj.encoding)
+            }
 
 
 class ProofSerializer(json.JSONEncoder):
@@ -73,8 +96,10 @@ class ProofSerializer(json.JSONEncoder):
             proof_index = obj.body['proof_index']
             proof_path = obj.body['proof_path']
             status = obj.header['status']
+
         except TypeError:
             return json.JSONEncoder.default(self, obj)
+
         else:
             return {
                 'header': {
@@ -91,9 +116,14 @@ class ProofSerializer(json.JSONEncoder):
                 'body': {
                     'proof_index': proof_index,
                     'proof_path': [
-                        [sign, hash
-                            if isinstance(hash, str) else hash.decode(encoding=encoding)
-                         ] for (sign, hash) in proof_path]if proof_path is not None else []
+
+                        [
+                            sign,
+                            hash if type(hash) is str else hash.decode(encoding=encoding)
+
+                        ] for (sign, hash) in proof_path
+
+                    ]
                 }
             }
 
@@ -113,8 +143,10 @@ class ReceiptSerializer(json.JSONEncoder):
             proof_uuid = obj.body['proof_uuid']
             proof_provider = obj.body['proof_provider']
             result = obj.body['result']
+
         except TypeError:
             return json.JSONEncoder.default(self, obj)
+
         else:
             return {
                 'header': {

@@ -258,7 +258,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isRightParent</span><span class="p">():</span>  <span class="c1"># root case</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>  <span class="c1"># root case</span>
                 <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">L_BRACKET_SHORT</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="s1">&#39; &#39;</span>
@@ -273,9 +273,9 @@
         <span class="n">new_ignore</span> <span class="o">=</span> <span class="n">ignore</span><span class="p">[:]</span>
         <span class="k">del</span> <span class="n">ignore</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">T_BRACKET</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isRightParent</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">L_BRACKET_LONG</span>
             <span class="n">new_ignore</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
 
@@ -289,7 +289,7 @@
 
 <span class="c1"># ----------------------------- Boolean functions ------------------------</span>
 
-<div class="viewcode-block" id="node.isLeftParent"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.isLeftParent">[docs]</a>    <span class="k">def</span> <span class="nf">isLeftParent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="node.is_left_parent"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.is_left_parent">[docs]</a>    <span class="k">def</span> <span class="nf">is_left_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks if the node is a left parent</span>
 
 <span class="sd">        :returns: ``True`` iff the node is the ``.left`` attribute of some other</span>
@@ -300,7 +300,7 @@
             <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">left</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="node.isRightParent"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.isRightParent">[docs]</a>    <span class="k">def</span> <span class="nf">isRightParent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="node.is_right_parent"><a class="viewcode-back" href="../../pymerkle.nodes.html#pymerkle.nodes.node.is_right_parent">[docs]</a>    <span class="k">def</span> <span class="nf">is_right_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks if the node is a right parent</span>
 
 <span class="sd">        :returns: ``True`` iff the node is the ``.right`` attribute of some other</span>

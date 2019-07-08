@@ -150,11 +150,6 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 inside the project's repository to see how to perform second-preimage attacks against the current implementation.
 
 
-### Defense against length-extension and birtday attack
-
-[Work in progress] 
-
-
 ## Running tests
 
 
@@ -171,3 +166,8 @@ with the command
 ```shell
 pytest tests/test_encryption.py
 ```
+
+
+## Benchmarks
+
+[Work in progress]

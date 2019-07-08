@@ -9,7 +9,8 @@ detect*
 *profile*
 *.svg
 .benchmarks/
-/benchmark
+*notes*
+*_test*
 
 # Packaging
 *.egg-info/

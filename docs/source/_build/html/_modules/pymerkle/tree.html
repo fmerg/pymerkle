@@ -626,20 +626,20 @@
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># Covers also the zero leaves case</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">initial_sign</span> <span class="o">=</span> <span class="o">+</span><span class="mi">1</span>
-            <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">isRightParent</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>
                 <span class="n">initial_sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">initial_sign</span><span class="p">,</span> <span class="n">current_node</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)]</span>
             <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">while</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
                     <span class="n">next_hash</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">stored_hash</span>
-                    <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">next_hash</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">stored_hash</span>
-                    <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">isRightParent</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
@@ -706,7 +706,7 @@
             <span class="k">while</span> <span class="n">subroots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">last_root</span> <span class="o">=</span> <span class="n">subroots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">last_root</span> <span class="ow">is</span> <span class="n">last_root</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">last_root</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">isRightParent</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">last_root</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>
                         <span class="n">complement</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">last_root</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">complement</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">last_root</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">right</span><span class="p">))</span>
@@ -743,12 +743,12 @@
                 <span class="n">next_subroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subroot</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">powers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">next_subroot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># No incompatibility issue</span>
                     <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span> <span class="ow">and</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">child</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
                             <span class="n">principal_subroots</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_subroot</span><span class="p">))</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">principal_subroots</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_subroot</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">isLeftParent</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">next_subroot</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
                             <span class="n">principal_subroots</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_subroot</span><span class="p">))</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">principal_subroots</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_subroot</span><span class="p">))</span>
