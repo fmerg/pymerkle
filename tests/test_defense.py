@@ -22,15 +22,17 @@ as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
 import pytest
 from pymerkle import MerkleTree, hashing
 
-# Generate trees for all combinations of hash and encoding types
-# (including both security modes for each)
+# Generate trees for all combinations of hash and encoding types (including both security modes for each)
 
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS = hashing.ENCODINGS
+
 trees = []
+
 for security in (True, False):
     for hash_type in HASH_TYPES:
         for encoding in ENCODINGS:
+
             trees.append(
                 MerkleTree(
                     'a', 'b', 'c', 'd',  # original records
@@ -60,7 +62,7 @@ def test_defense_against_second_preimage_attack(original_tree):
     )
 
     # Check if the attacker has found the original root-hash
-    
+
     if original_tree.security:
         assert original_tree.rootHash != attacker_tree.rootHash
     else:

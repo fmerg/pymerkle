@@ -34,7 +34,7 @@ def test_validationReceipt():
 HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS  = hashing.ENCODINGS
 
-MAX_LENGTH = 5
+MAX_LENGTH = 4
 
 trees = []
 

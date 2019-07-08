@@ -112,7 +112,7 @@ def test_defautl_MerkleTree_constructor_with_initial_records():
     }
 
 
-def test_non_defautl_MerkleTree_constructor_without_initial_records():
+def test_non_default_MerkleTree_constructor_without_initial_records():
 
     tree = MerkleTree(hash_type='sha512', encoding='utf-32', security=False)
 
@@ -158,24 +158,29 @@ def test_MerkleTree_bool_implementation():
 def test_root_empty_tree_exception():
     """Tests that requesting the root of an empty Merkle-tree raises an `EmptyTreeException`
     """
+    
     empty = MerkleTree()
+    
     with pytest.raises(EmptyTreeException):
         empty.root
 
 def test_rootHash_empty_tree_exception():
     """Tests that requesting the root-hash of an empty Merkle-tree raises an `EmptyTreeException`
     """
+    
     empty = MerkleTree()
+    
     with pytest.raises(EmptyTreeException):
         empty.rootHash
 
 def test_rootHash_of_non_empty_MerkleTree():
     """Tests the root-hash of a Merkle-tree with one and two leaves
     """
+
     t = MerkleTree('first record')
     s = MerkleTree('first record', 'second record')
-    assert t.rootHash == t.hash('first record') and s.rootHash == s.hash(
-        s.hash('first record'), s.hash('second record'))
+
+    assert t.rootHash == t.hash('first record') and s.rootHash == s.hash(s.hash('first record'), s.hash('second record'))
 
 # Update tests
 
