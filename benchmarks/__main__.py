@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+"""Script for benchmarking *pymerkle*
+"""
 
 import os
 import sys
+import argparse
 import inspect
 
 # Make pymerkle importable
@@ -10,10 +14,7 @@ import inspect
 current_dir = os.path.dirname(
     os.path.abspath(
         inspect.getfile(
-            inspect.currentframe()
-        )
-    )
-)
+            inspect.currentframe())))
 sys.path.insert(0, os.path.dirname(current_dir))
 
 from pymerkle.nodes import Node, Leaf
@@ -60,7 +61,7 @@ def _size(obj_0):
         if isinstance(obj, zero_depth_bases):
             pass                                                                # bypass remaining control flow and return
         elif isinstance(obj, (tuple, list, Set, deque)):
-            size += sum(inner(i) for i in obj)
+            size += sum(inner(_) for _ in obj)
         elif isinstance(obj, Mapping) or hasattr(obj, iteritems):
             size += sum(inner(k) + inner(v) for k, v in getattr(obj, iteritems)())
 
@@ -68,9 +69,11 @@ def _size(obj_0):
 
         if hasattr(obj, '__dict__'):
             size += inner(vars(obj))
+
         if hasattr(obj, '__slots__'):                                           # can have __slots__ with __dict__
-            size += sum(inner(getattr(obj, s))
-                        for s in obj.__slots__ if hasattr(obj, s))
+            size += sum(
+                inner(getattr(obj, s)) for s in obj.__slots__ if hasattr(obj, s)
+            )
         return size
 
     return inner(obj_0)
@@ -89,6 +92,14 @@ def _get_logger():
     logger.addHandler(streamHandler)
 
     return logger
+
+
+def _print_results(total, mint, maxt, mean, stdev):
+    sys.stdout.write('\nTotal time : %f' % total)
+    sys.stdout.write('\nMin time   : %f' % mint)
+    sys.stdout.write('\nMax time   : %f' % maxt)
+    sys.stdout.write('\nMean       : %f' % mean)
+    sys.stdout.write('\nStDev      : %f' % stdev)
 
 
 # --------------------------------- Benchmarks ---------------------------------
@@ -113,10 +124,24 @@ def node_benchmark():
     """
     """
 
-    def access_attribute_func(obj):
+    def access_stored_hash_func(_node):
         def access_attribute():
-            obj.stored_hash
+            _node.stored_hash
+        return access_attribute
 
+    def access_left_parent_func(_node):
+        def access_attribute():
+            _node.left
+        return access_attribute
+
+    def access_right_parent_func(_node):
+        def access_attribute():
+            _node.right
+        return access_attribute
+
+    def access_child_func(_node):
+        def access_attribute():
+            _node.child
         return access_attribute
 
     left = Leaf(
@@ -144,8 +169,8 @@ def node_benchmark():
 
     print(_size(node))
 
-    print(timeit(access_attribute_func(left), number=10000))
-    print(timeit(access_attribute_func(node), number=10000))
+    print(timeit(access_stored_hash_func(left), number=10000))
+    print(timeit(access_stored_hash_func(node), number=10000))
 
 LENGTH = 10000
 hash_type = 'sha256'
@@ -174,6 +199,59 @@ def tree_benchmark():
 # ------------------------------------ main ------------------------------------
 
 def main():
+
+    prog = sys.argv[0]
+    usage = 'python3 ... %s' % prog
+
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        usage=usage,
+        description=__doc__,
+        epilog='\n'
+    )
+
+    parser.add_argument(
+        '--hashtype',
+        help='Hashing algorithm used by the Merkle-tree',
+        dest='hashtype',
+        default='sha256'
+    )
+
+    parser.add_argument(
+        '-e', '--encoding',
+        help='Encoding used by the Merkle-tree before hashing',
+        dest='encoding',
+        default='utf_8'
+    )
+
+    parser.add_argument(
+        '-s', '--security',
+        help='Security mode of the Merkle-tree',
+        dest='security',
+        default=True
+    )
+
+    parser.add_argument(
+        '-c', '--contentpath',
+        help='Relative path to a file whose content will be encrypted',
+        dest='contentpath',
+        default='../pymerkle/tests/logs/short_APACHE_log'
+    )
+
+    parser.add_argument(
+        '--logfile',
+        help='Relative path to a log-file under encryption',
+        dest='logfile',
+        default='../pymerkle/tests/logs/short_APACHE_log'
+    )
+
+    parser.add_argument(
+        '-o', '--objectfile',
+        help='Relative path to a .json file',
+        dest='objectfile',
+        default='../pymerkle/tests/objects/sample.json'
+    )
+
     leaf_benchmark()
     node_benchmark()
     tree_benchmark()
