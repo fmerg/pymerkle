@@ -10,10 +10,10 @@ import pymerkle
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
 try:
-  with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as _file:
+  with io.open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as _file:
     long_description = '\n' + _file.read()
 except FileNotFoundError:
-    long_description = str()
+    long_description = ''
 
 try:
   with io.open(os.path.join(current_dir, 'requirements.txt'), encoding='utf-8') as _file:
