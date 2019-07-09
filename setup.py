@@ -15,11 +15,11 @@ DESCRIPTION  = "A Python library for constructing Merkle Trees and validating Pr
 AUTHOR       = "FoteinosMerg"
 AUTHOR_EMAIL = "foteinosmerg@protonmail.com"
 URL          = "https://github.com/FoteinosMerg/pymerkle"
-PROJECT_URLS = [
-    "github: %s" % URL,
-    "source: %s" % "{}/{}".format(URL, "tree/master/pymerkle"),
-    "docs  : %s" % "https://pymerkle.readthedocs.io/en/latest/"
-]
+PROJECT_URLS = {
+    "github": URL,
+    "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
+    "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__
+}
 README       = "README.md"
 CONTENT_TYPE = "text/markdown"
 REQUIREMENTS = "requirements.txt"
