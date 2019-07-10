@@ -202,11 +202,11 @@ Returns a nicely stringified version of the Merkle-tree's JSON serialized form
 
 _Note:_ The output of this method is to be passed into the ``print()`` function
 
-## `function` __validateProof (*target_hash, proof*)__
+## `function` __validateProof (*target, proof*)__
 
 Validates the inserted proof by comparing to the provided target hash, modifies the proof’s status as `True` or `False` accordingly and returns this result
 
-- **target_hash** (_str_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
+- **target** (_str_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 
 - **proof** (_proof.Proof_) – the proof to be validated
 
@@ -214,11 +214,11 @@ Validates the inserted proof by comparing to the provided target hash, modifies 
 
 - **Return type**: _bool_
 
-## `function` __validationReceipt (*target_hash, proof* [*, save_dir=None*] )__
+## `function` __validationReceipt (*target, proof* [*, save_dir=None*] )__
 
 Validates the inserted proof by comparing to target-hash, modifies the proof's status as `True` or `False` according to validation result and returns the corresponding `validations.Receipt` object. If a `save_dir` has been specified, then the generated receipt is automatically stored in that directory as a `.json` file, bearing as name the receipt's uuid.
 
-- **target_hash** (_bytes_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
+- **target** (_bytes_) – the hash to be presumably attained at the end of the validation procedure (i.e., acclaimed current root-hash of the Merkle-tree having provided the proof)
 
 - **proof** (_proof.Proof_) – the proof to be validated
 

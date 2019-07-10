@@ -13,7 +13,7 @@ ENCODING          = 'utf-8'
 HASH_TYPE         = 'sha256'
 
 TREE              = None
-TARGET_HASH       = None
+target       = None
 SUBLENGTH         = None
 oldhash          = None
 PROOF             = None
@@ -99,14 +99,14 @@ def test_consistency_proof_generation(benchmark):
         warmup_rounds=WARMUP_ROUNDS
     )
 
-    assert validateProof(target_hash=TREE.rootHash, proof=PROOF)
+    assert validateProof(target=TREE.rootHash, proof=PROOF)
 
 
 def test_proof_validation(benchmark):
 
     def validate_proof():
         global VALIDATION
-        VALIDATION = validateProof(target_hash=TREE.rootHash, proof=PROOF)
+        VALIDATION = validateProof(target=TREE.rootHash, proof=PROOF)
 
     benchmark.pedantic(
         validate_proof,

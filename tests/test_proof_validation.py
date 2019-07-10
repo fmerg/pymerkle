@@ -13,7 +13,7 @@ def test_validationReceipt():
 
     _audit_proof = _tree.auditProof(3)
     _receipt = validationReceipt(
-        target_hash=_tree.rootHash,
+        target=_tree.rootHash,
         proof=_audit_proof,
         dirpath=os.path.join(os.path.dirname(__file__), 'receipts')
     )

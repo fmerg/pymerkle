@@ -41,7 +41,7 @@ Quick example
 
     _audit = tree.auditProof('12-th record')                      # Request audit-proof for the given record
 
-    validateProof(target_hash=tree.rootHash(), proof=_audit)      # Quick validation of the above proof (True)
+    validateProof(target=tree.rootHash(), proof=_audit)      # Quick validation of the above proof (True)
 
     # Store the tree's current state for later use
 
@@ -61,7 +61,7 @@ Quick example
                                                                   # stored state of the Merkle-tree
 
     _receipt = validationReceipt(
-      target_hash=tree.rootHash(),
+      target=tree.rootHash(),
       proof=_consistency
     )                                                             # Validate proof with receipt
 

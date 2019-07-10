@@ -27,16 +27,14 @@ tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
 The ``.encoding`` attribute of a Merkle-tree (set directly by the homonymous argument of the
-constructor) specifies the encoding, to which any new record of type ``str`` will be submitted before getting hashed and stored into a newly-created leaf.
-
-For example,
+constructor) specifies the encoding, to which any new record of type ``str`` will be submitted before getting hashed and stored into a newly-created leaf. For example,
 
 ```python
 tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
 creates a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_. If the provided `hash_type` resp. `encoding` is not among the supported types, then a ``NotSupportedHashTypeError`` resp. ``NotSupportedEncodingError`` gets raised and
-the construction is canceled.
+the construction is aborted.
 
 Refer to [_API_](API.md) for the complete list of supported hash and encoding types.
 
@@ -51,12 +49,16 @@ tree = MerkleTree('first_record', bytes('second_record', 'utf-8'), bytes('third_
 The corresponding statement for a SHA512/UTF-32 Merkle-tree would be
 
 ```python
-tree = MerkleTree('first_record', bytes('second_record', 'utf-32'), bytes('third_record', 'utf-32'), hash_type='sha512', encoding='utf-32')
+tree = MerkleTree(
+  'first_record', bytes('second_record', 'utf-32'), bytes('third_record', 'utf-32'),
+  hash_type='sha512',
+  encoding='utf-32'
+)
 ```
 
-New records are of type `str` or `bytes` (or `bytearray`) objects falling under the tree's configured encoding type. In the latter
+New records are of type `str` or `bytes` (or `bytearray`), the latter falling under the tree's configured encoding type. In the latter
 case, make sure that the provided records are indeed _valid_ bytes sequences under the corresponding encoding type, otherwise
-an ``UndecodableRecordError`` gets raised and the tree construction is canceled.
+an ``UndecodableRecordError`` gets raised and the tree construction is aborted.
 
 ### Single record encryption
 
@@ -72,7 +74,7 @@ tree.update(record=bytes('valid bytes sequence', 'utf-8'))        # second recor
 ...                                                               # ...
 ```
 
-Note that the `record` keyword is here necessary, since this is only one of the two possible usages of `.update()`
+Note that the `record` keyword is here necessary, since this is only *one* of the two possible usages of `.update()`
 (Refer to [_API_](API.md) for a complete reference).
 
 The `.update()` method (used also by the constructor when initial records are provided) is completely responsible for the tree's gradual development, preserving its property of being _binary balanced_ and ensuring that trees with the same
@@ -96,16 +98,16 @@ Here the `.update()` method is invoked internally and if an ``UndecodableRecordE
 new leaf gets created and the execution of the `encryptRecord()` method terminates with `1`:
 
 ```bash
->>> tree = MerkleTree(encoding='utf-16')                          # SHA256/UTF-16 Merkle-tree
+>>> tree = MerkleTree(encoding='utf-16')             # SHA256/UTF-16 Merkle-tree
 >>> tree.leaves
-[]                                                                # tree has no leaves
+[]                                                   # tree has no leaves
 >>>
->>> output = tree.encryptRecord(b'\x74')                          # 0x74 is undecodable under UTF-16 codec
+>>> output = tree.encryptRecord(b'\x74')             # 0x74 is undecodable under UTF-16 codec
 >>>
 >>> output == 1
 True
 >>> tree.leaves
-[]                                                                # still no leaves
+[]                                                   # still no leaves
 ```
 
 ### Persistence and representation
@@ -186,7 +188,7 @@ Invoking a Merkle-tree with its name inside the Python interpreter displays info
     height    : 3
 
 ```
-This info can be saved inside a file called `current_state` as follows:
+This info can be saved inside a file called, say, `current_state` as follows:
 
 ```python
 with open('current_state', 'w') as _file:
@@ -217,7 +219,7 @@ similar to the output of the `tree` command of Unix based platforms:
 ```
 
 where each node is represented by the digest it currently stores. It can be saved
-inside a file called `tree_structure` as follows:
+inside a file called, say, `tree_structure` as follows:
 
 ```python
 with open('structure', 'w') as _file:
@@ -230,24 +232,24 @@ with open('structure', 'w') as _file:
 #### Whole file encryption
 
 _Encrypting the content of a file into_ the Merkle-tree means updating it with one
-newly created leaf storing the digest of that content. Use the `.encryptFileContent()`
-method to encrypt a file in this way as follows:
+newly-created leaf storing the digest of that content (or, equivalently, encrypting its content into the Merkle-tree).
+Use the `.encryptFileContent()` method to encrypt a file's content as follows:
 
 ```python
-tree.encryptFileContent('relative_path/sample_file')
+tree.encryptFileContent('relative_path/to/sample_file')
 ```
 
-where `relative_path/sample_file` is the relative path of the file to encrypt with
+where `relative_path/to/sample_file` is the relative path of the file to encrypt with
 respect to the current working directory.
 
 #### Per log file encryption
 
 _Encrypting per log a file into_ the Merkle-tree means updating it with each line of that file successively
-(i.e., one newly created leaf for each line of the given file in respective order). Use the `.encryptFilePerLog()`
-method to encrypt a file this way as follows:
+(or, equivalently, encrypting the file's lines in respective order).
+Use the `.encryptFilePerLog()` method to encrypt a file per log as follows:
 
 ```shell
->>> tree.encryptFilePerLog('APACHE_logs/large_APACHE_log')
+>>> tree.encryptFilePerLog('relative_path/to/logs/large_APACHE_log')
 
 Encrypting log file: 100%|███████████████████████████████| 1546/1546 [00:00<00:00, 27363.66it/s]
 Encryption complete
@@ -255,7 +257,7 @@ Encryption complete
 >>>
 ```
 
-where `APACHE_logs/large_APACHE_log` is the relative path of the file under encryption with
+where `relative_path/to/logs/large_APACHE_log` is the relative path of the file under encryption with
 respect to the current working directory.
 
 #### Direct object encryption
@@ -523,10 +525,10 @@ In what follows, let `tree` be a Merkle-tree and `p` a proof (audit- or consiste
 The quickest way to validate a proof is by applying the `validateProof()` function, returning `True` or `False` according to whether the proof was found to be _valid_, resp. _invalid_. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
 
 ```python
-validateProof(target_hash=tree.rootHash(), proof=p)
+validateProof(target=tree.rootHash(), proof=p)
 ```
 
-Here the result is of course `True`, whereas any other choice of `target_hash` would have returned `False`. In particular, a wrong choice of `target_hash` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to the second argument `proof`.
+Here the result is of course `True`, whereas any other choice of `target` would have returned `False`. In particular, a wrong choice of `target` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to the second argument `proof`.
 
 
 #### Validation with receipt
@@ -534,7 +536,7 @@ Here the result is of course `True`, whereas any other choice of `target_hash` w
 A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `validationReceipt()` method as follows:
 
 ```python
-receipt = validationReceipt(target_hash=tree.rootHash(), proof=p)
+receipt = validationReceipt(target=tree.rootHash(), proof=p)
 ```
 
 Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is an instant of the `validations.Receipt` class. It looks like

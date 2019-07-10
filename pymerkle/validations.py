@@ -11,19 +11,19 @@ import os
 # -------------------------------- Validation ---------------------------------
 
 
-def validateProof(target_hash, proof):
+def validateProof(target, proof):
     """Core utility for validating proofs
 
     Validates the inserted proof by comparing to the provided target hash, modifies the proof's
     status as ``True`` or ``False`` according to the result and returns this result
 
-    :param target_hash: the hash to be presumably attained at the end of the validation procedure (i.e.,
-                        acclaimed current root-hash of the Merkle-tree having provided the proof)
-    :type target_hash:  bytes
-    :param proof:       the proof to be validated
-    :type proof:        proof.Proof
-    :returns:           validation result
-    :rtype:             bool
+    :param target: the hash to be presumably attained at the end of the validation procedure (i.e.,
+                   acclaimed current root-hash of the Merkle-tree having provided the proof)
+    :type target:  bytes
+    :param proof:  the proof to be validated
+    :type proof:   proof.Proof
+    :returns:      validation result
+    :rtype:        bool
     """
 
     _header = proof.header
@@ -45,7 +45,7 @@ def validateProof(target_hash, proof):
 
         # Perform hash-comparison
 
-        result = target_hash == machine.multi_hash(
+        result = target == machine.multi_hash(
             signed_hashes=proof.body['proof_path'],
             start=proof.body['proof_index']
         )
@@ -56,25 +56,25 @@ def validateProof(target_hash, proof):
         return result
 
 
-def validationReceipt(target_hash, proof, dirpath=None):
+def validationReceipt(target, proof, dirpath=None):
     """Wraps the ``validateProof()`` method, returning a validation receipt instead of a boolean
 
     If a ``dirpath`` has been specified, then the receipt is automatically stored inside the given
     directory as a ``.json`` file named with the receipt's uuid
 
-    :param target_hash: hash to be presumably attained at the end of the validation procedure (i.e.,
-                        acclaimed top-hash of the Merkle-tree having provided the proof)
-    :type target_hash:  bytes
-    :param proof:       the proof to be validated
-    :type dirpath:      [optional] Relative path with respect to the current working directory of the directory where the
-                        the generated receipt is to be saved (as a ``.json`` file named with the receipt's uuid). If
-                        unspecified, then the generated receipt does not get automatically saved.
-    :param dirpath:     str
-    :type proof:        proof.Proof
-    :rtype:             validations.Receipt
+    :param target:  hash to be presumably attained at the end of the validation procedure (i.e.,
+                    acclaimed top-hash of the Merkle-tree having provided the proof)
+    :type target:   bytes
+    :param proof:   the proof to be validated
+    :type dirpath:  [optional] Relative path with respect to the current working directory of the directory where the
+                    the generated receipt is to be saved (as a ``.json`` file named with the receipt's uuid). If
+                    unspecified, then the generated receipt does not get automatically saved.
+    :param dirpath: str
+    :type proof:    proof.Proof
+    :rtype:         validations.Receipt
     """
 
-    result  = validateProof(target_hash=target_hash, proof=proof)
+    result  = validateProof(target=target, proof=proof)
 
     _header = proof.header
 

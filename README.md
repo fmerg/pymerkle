@@ -35,7 +35,7 @@ for _ in range(665):                                          # Update the tree 
 
 _audit = tree.auditProof('12-th record')                      # Request audit-proof for the given record        
 
-validateProof(target_hash=tree.rootHash(), proof=_audit)      # Quick validation of the above proof (True)
+validateProof(target=tree.rootHash(), proof=_audit)      # Quick validation of the above proof (True)
 
 # Store the tree's current state for later use
 
@@ -55,7 +55,7 @@ _consistency = tree.consistencyProof(oldhash, sublength)     # Request consisten
                                                               # stored state of the Merkle-tree
 
 _receipt = validationReceipt(
-  target_hash=tree.rootHash(),
+  target=tree.rootHash(),
   proof=_consistency
 )                                                             # Validate proof with receipt                                            
 ```
@@ -78,17 +78,6 @@ procedure includes generating a receipt with the validation result and storing a
 as a ``.json`` file. This is achieved utilizing the ``validationReceipt`` class like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
-
-## Exporting and reloading the tree from a file
-
-Given an instance of the ``MekleTree`` class, the minimum required information can be exported using the
-``.export()`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state
-from that file using the ``.loadFromFile()`` static method. This can be useful for transmitting the tree's
-current state to a trusted party or retrieving the tree from a backup file. Reconstruction of the tree
-is uniquely determined by the sequence of stored hashes (see the next section _Tree structure_ to understand why).
-
-See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
-
 
 ## Tree structure
 
@@ -145,6 +134,17 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
 inside the project's repository to see how to perform second-preimage attacks against the current implementation.
 
+## Peristence
+
+On-disc persistence is _not_ currently supported.
+
+Given an instance of the ``MekleTree`` class, the minimum required information can be exported using the
+``.export()`` method into a ``.json`` file, so that the Merkle-tree can be reloaded in its current state
+from that file using the ``.loadFromFile()`` static method. This can be useful for transmitting the tree's
+current state to a trusted party or retrieving the tree from a backup file. Reconstruction of the tree
+is uniquely determined by the sequence of stored hashes (see the section _Tree structure_ to understand why).
+
+See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
 
 ## Running tests
 
