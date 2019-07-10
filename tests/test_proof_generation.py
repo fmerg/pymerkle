@@ -179,9 +179,9 @@ _invalid_consistency_proof_requests = [
         0,                                                  # Could be any number
     )
 ]
-_tree__old_hash__sublength          = []
+_tree__oldhash__sublength          = []
 _tree__wrong_hash__sublength        = []
-_tree__old_hash__wrong_sublength    = []
+_tree__oldhash__wrong_sublength    = []
 
 for (_tree, _subtree) in trees_and_subtrees:
 
@@ -189,7 +189,7 @@ for (_tree, _subtree) in trees_and_subtrees:
             [
                 (
                     _tree,
-                    'any non bytes object',                 # Invalid type for `old_hash`
+                    'any non bytes object',                 # Invalid type for `oldhash`
                     _subtree.length
                 ),
                 (
@@ -210,7 +210,7 @@ for (_tree, _subtree) in trees_and_subtrees:
             ]
         )
 
-        _tree__old_hash__sublength.append(
+        _tree__oldhash__sublength.append(
             (
                 _tree,
                 _subtree.rootHash,
@@ -226,7 +226,7 @@ for (_tree, _subtree) in trees_and_subtrees:
             )
         )
 
-        _tree__old_hash__wrong_sublength.append(
+        _tree__oldhash__wrong_sublength.append(
             (
                 _tree,
                 _subtree.rootHash,
@@ -236,21 +236,21 @@ for (_tree, _subtree) in trees_and_subtrees:
 
 
 
-@pytest.mark.parametrize("_tree, _old_hash, _sublength", _invalid_consistency_proof_requests)
-def test_consistency_InvalidProofRequest(_tree, _old_hash, _sublength):
+@pytest.mark.parametrize("_tree, _oldhash, _sublength", _invalid_consistency_proof_requests)
+def test_consistency_InvalidProofRequest(_tree, _oldhash, _sublength):
     """Tests that InvalidProofRequest is raised when a consistency proof is requested
     with invalid arguments
     """
     with pytest.raises(InvalidProofRequest):
-        _tree.consistencyProof(_old_hash, _sublength)
+        _tree.consistencyProof(_oldhash, _sublength)
 
 
-@pytest.mark.parametrize("_tree, _old_hash, _sublength", _tree__old_hash__sublength)
-def test_non_empty_consistencyProof(_tree, _old_hash, _sublength):
+@pytest.mark.parametrize("_tree, _oldhash, _sublength", _tree__oldhash__sublength)
+def test_non_empty_consistencyProof(_tree, _oldhash, _sublength):
     """Tests that the generated non-empty consistency proof is as expected
     """
 
-    _consistency_proof = _tree.consistencyProof(_old_hash, _sublength)
+    _consistency_proof = _tree.consistencyProof(_oldhash, _sublength)
 
     assert _consistency_proof.__dict__ == {
         'header': {
@@ -270,13 +270,13 @@ def test_non_empty_consistencyProof(_tree, _old_hash, _sublength):
         }
     }
 
-@pytest.mark.parametrize("_tree, _old_hash, _sublength", _tree__old_hash__sublength)
-def test_empty_consistencyProof_with_wrong_old_hash(_tree, _old_hash, _sublength):
+@pytest.mark.parametrize("_tree, _oldhash, _sublength", _tree__oldhash__sublength)
+def test_empty_consistencyProof_with_wrong_oldhash(_tree, _oldhash, _sublength):
     """Tests that the generated empty consistency-proof, requested for a wrong hash,
     is as expected
     """
 
-    _consistency_proof = _tree.consistencyProof(_old_hash, _sublength)
+    _consistency_proof = _tree.consistencyProof(_oldhash, _sublength)
 
     assert _consistency_proof.__dict__ == {
         'header': {
@@ -296,13 +296,13 @@ def test_empty_consistencyProof_with_wrong_old_hash(_tree, _old_hash, _sublength
         }
     }
 
-@pytest.mark.parametrize("_tree, _old_hash, _sublength", _tree__old_hash__sublength)
-def test_empty_consistencyProof_with_wrong_old_hash(_tree, _old_hash, _sublength):
+@pytest.mark.parametrize("_tree, _oldhash, _sublength", _tree__oldhash__sublength)
+def test_empty_consistencyProof_with_wrong_oldhash(_tree, _oldhash, _sublength):
     """Tests that the generated empty consistency-proof, requested for a wrong sublength,
     is as expected
     """
 
-    _consistency_proof = _tree.consistencyProof(_old_hash, _sublength)
+    _consistency_proof = _tree.consistencyProof(_oldhash, _sublength)
 
     assert _consistency_proof.__dict__ == {
         'header': {

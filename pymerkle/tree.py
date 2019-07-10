@@ -606,13 +606,13 @@ class MerkleTree(object):
         return proof_index, left_path, full_path
 
 
-    def consistencyProof(self, old_hash, sublength):
+    def consistencyProof(self, oldhash, sublength):
         """Response of the Merkle-tree to the request of providing a consistency-proof for the provided parameters
 
         Arguments of this function amount to a presumed previous state (root-hash and length) of the Merkle-tree
 
-        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   bytes
+        :param oldhash:   root-hash of a presumably valid previous state of the Merkle-tree
+        :type oldhash:    bytes
         :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree
         :type sublength:  int
         :returns:         consistency-proof appropriately formatted along with its validation parameters (so that it
@@ -627,7 +627,7 @@ class MerkleTree(object):
         :raises InvalidProofRequest: if the type of any of the provided arguments is not as prescribed
         """
 
-        if type(old_hash) is not bytes or type(sublength) is not int or sublength <= 0:
+        if type(oldhash) is not bytes or type(sublength) is not int or sublength <= 0:
             raise InvalidProofRequest
 
         try:
@@ -647,7 +647,7 @@ class MerkleTree(object):
 
         # Inclusion test
 
-        if old_hash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1):
+        if oldhash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1):
 
             return Proof(
                 provider=self.uuid,
@@ -669,21 +669,21 @@ class MerkleTree(object):
 
 # ------------------------------ Inclusion tests ------------------------------
 
-    def inclusionTest(self, old_hash, sublength):
+    def inclusionTest(self, oldhash, sublength):
         """Verifies that the parameters provided correspond to a valid previous state of the Merkle-tree
 
-        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree
-        :type old_hash:   bytes
+        :param oldhash:   root-hash of a presumably valid previous state of the Merkle-tree
+        :type oldhash:    bytes
         :param sublength: length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
         :type sublength:  int
         :returns:         ``True`` if the appropriate path of negatively signed hashes, generated implicitely for the provided
-                          ``sublength``, leads indeed to the provided ``old_hash``; otherwise ``False``
+                          ``sublength``, leads indeed to the provided ``oldhash``; otherwise ``False``
         :rtype:           bool
 
         :raises InvalidProofRequest: if the type of any of the provided arguments is not as prescribed
         """
 
-        if type(old_hash) is not bytes or type(sublength) is not int or sublength < 0:
+        if type(oldhash) is not bytes or type(sublength) is not int or sublength < 0:
             raise InvalidTypesException
 
         if sublength == 0:
@@ -698,7 +698,7 @@ class MerkleTree(object):
 
             # Perform hash-test
 
-            return old_hash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1)
+            return oldhash == self.multi_hash(signed_hashes=left_path, start=len(left_path) - 1)
 
         else: # sublength exceeds the tree's current length (includes the empty-tree case)
 

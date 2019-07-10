@@ -492,15 +492,15 @@
             <span class="n">proof_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">proof_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="merkle_tree.consistency_proof"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.consistency_proof">[docs]</a>    <span class="k">def</span> <span class="nf">consistency_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_hash</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.consistency_proof"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.consistency_proof">[docs]</a>    <span class="k">def</span> <span class="nf">consistency_proof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldhash</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Response of the Merkle-tree to the request of providing a consistency-proof for the</span>
 <span class="sd">        given parameters</span>
 
 <span class="sd">        Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash</span>
 <span class="sd">        and length respectively) provided from Client&#39;s Side</span>
 
-<span class="sd">        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree</span>
-<span class="sd">        :type old_hash:   bytes or None</span>
+<span class="sd">        :param oldhash:  root-hash of a presumably valid previous state of the Merkle-tree</span>
+<span class="sd">        :type oldhash:   bytes or None</span>
 <span class="sd">        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree</span>
 <span class="sd">        :type sublength:  int</span>
 <span class="sd">        :returns:         Consistency proof appropriately formatted along with its validation parameters (so that it</span>
@@ -514,13 +514,13 @@
 <span class="sd">                  (whose implementation differs in that no full path of signed hashes,</span>
 <span class="sd">                  as generated here by the ``.consistency_path`` method, needs be taken into account.)</span>
 
-<span class="sd">        .. note:: Type of ``old_hash`` will be ``None`` iff the presumed previous state happens</span>
+<span class="sd">        .. note:: Type of ``oldhash`` will be ``None`` iff the presumed previous state happens</span>
 <span class="sd">                  be the empty one</span>
 
 <span class="sd">        .. warning:: Raises ``TypeError`` if any of the arguments&#39; type is not as prescribed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">old_hash</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span> \
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">oldhash</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span> \
                 <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sublength</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span>
 
@@ -533,7 +533,7 @@
             <span class="n">proof_index</span><span class="p">,</span> <span class="n">left_path</span><span class="p">,</span> <span class="n">full_path</span> <span class="o">=</span> <span class="n">consistency_path</span>
 
             <span class="c1"># Root hash test</span>
-            <span class="k">if</span> <span class="n">old_hash</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span><span class="p">(</span><span class="n">left_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">oldhash</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span><span class="p">(</span><span class="n">left_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">proof</span><span class="p">(</span>
                     <span class="n">generation</span><span class="o">=</span><span class="s1">&#39;SUCCESS&#39;</span><span class="p">,</span>
                     <span class="n">provider</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
@@ -568,15 +568,15 @@
 
 <span class="c1"># ------------------------------ Inclusion tests ------------------------------</span>
 
-<div class="viewcode-block" id="merkle_tree.inclusion_test"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.inclusion_test">[docs]</a>    <span class="k">def</span> <span class="nf">inclusion_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_hash</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.inclusion_test"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.inclusion_test">[docs]</a>    <span class="k">def</span> <span class="nf">inclusion_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldhash</span><span class="p">,</span> <span class="n">sublength</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Verifies that the parameters provided from Client&#39;s Side correspond to a previous state of the Merkle-tree</span>
 
-<span class="sd">        :param old_hash:  root-hash of a presumably valid previous state of the Merkle-tree</span>
-<span class="sd">        :type old_hash:   bytes</span>
+<span class="sd">        :param oldhash:  root-hash of a presumably valid previous state of the Merkle-tree</span>
+<span class="sd">        :type oldhash:   bytes</span>
 <span class="sd">        :param sublength: presumable length (number of leaves) for the above previous state of the Merkle-tree</span>
 <span class="sd">        :type sublength:  int</span>
 <span class="sd">        :returns:         ``True`` iff an appropriate path of negatively signed hashes, generated internally for</span>
-<span class="sd">                          the provided ``sublength``, leads indeed to the provided ``old_hash``</span>
+<span class="sd">                          the provided ``sublength``, leads indeed to the provided ``oldhash``</span>
 <span class="sd">        :rtype:           bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -587,7 +587,7 @@
             <span class="n">left_path</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">left_roots</span><span class="p">])</span>
 
             <span class="c1"># Perform hash-test</span>
-            <span class="k">return</span> <span class="n">old_hash</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span><span class="p">(</span><span class="n">left_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">oldhash</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span><span class="p">(</span><span class="n">left_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># No path of hashes was generated</span></div>
 

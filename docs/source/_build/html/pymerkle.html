@@ -320,7 +320,7 @@ with the right or left neigbour respectively during proof validation)</td>
 
 <dl class="method">
 <dt id="pymerkle.merkle_tree.consistency_proof">
-<code class="descname">consistency_proof</code><span class="sig-paren">(</span><em>old_hash</em>, <em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.consistency_proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.consistency_proof" title="Permalink to this definition">¶</a></dt>
+<code class="descname">consistency_proof</code><span class="sig-paren">(</span><em>oldhash</em>, <em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.consistency_proof"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.consistency_proof" title="Permalink to this definition">¶</a></dt>
 <dd><p>Response of the Merkle-tree to the request of providing a consistency-proof for the
 given parameters</p>
 <p>Arguments of this function amount to a presumed previous state of the Merkle-tree (root-hash
@@ -330,7 +330,7 @@ and length respectively) provided from Client’s Side</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>old_hash</strong> (<em>bytes</em><em> or </em><em>None</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
+<li><strong>oldhash</strong> (<em>bytes</em><em> or </em><em>None</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
 <li><strong>sublength</strong> (<em>int</em>) – presumable length (number of leaves) for the above previous state of the Merkle-tree</li>
 </ul>
 </td>
@@ -355,7 +355,7 @@ as generated here by the <code class="docutils literal notranslate"><span class=
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Type of <code class="docutils literal notranslate"><span class="pre">old_hash</span></code> will be <code class="docutils literal notranslate"><span class="pre">None</span></code> iff the presumed previous state happens
+<p class="last">Type of <code class="docutils literal notranslate"><span class="pre">oldhash</span></code> will be <code class="docutils literal notranslate"><span class="pre">None</span></code> iff the presumed previous state happens
 be the empty one</p>
 </div>
 <div class="admonition warning">
@@ -427,20 +427,20 @@ with the length of its leftmost branch</p>
 
 <dl class="method">
 <dt id="pymerkle.merkle_tree.inclusion_test">
-<code class="descname">inclusion_test</code><span class="sig-paren">(</span><em>old_hash</em>, <em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.inclusion_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.inclusion_test" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inclusion_test</code><span class="sig-paren">(</span><em>oldhash</em>, <em>sublength</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/tree.html#merkle_tree.inclusion_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.merkle_tree.inclusion_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verifies that the parameters provided from Client’s Side correspond to a previous state of the Merkle-tree</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>old_hash</strong> (<em>bytes</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
+<li><strong>oldhash</strong> (<em>bytes</em>) – root-hash of a presumably valid previous state of the Merkle-tree</li>
 <li><strong>sublength</strong> (<em>int</em>) – presumable length (number of leaves) for the above previous state of the Merkle-tree</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="docutils literal notranslate"><span class="pre">True</span></code> iff an appropriate path of negatively signed hashes, generated internally for
-the provided <code class="docutils literal notranslate"><span class="pre">sublength</span></code>, leads indeed to the provided <code class="docutils literal notranslate"><span class="pre">old_hash</span></code></p>
+the provided <code class="docutils literal notranslate"><span class="pre">sublength</span></code>, leads indeed to the provided <code class="docutils literal notranslate"><span class="pre">oldhash</span></code></p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>

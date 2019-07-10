@@ -15,7 +15,7 @@ HASH_TYPE         = 'sha256'
 TREE              = None
 TARGET_HASH       = None
 SUBLENGTH         = None
-OLD_HASH          = None
+oldhash          = None
 PROOF             = None
 VALIDATION        = None
 
@@ -81,19 +81,19 @@ def test_record_encryption(benchmark):
 
 def test_consistency_proof_generation(benchmark):
 
-    global OLD_HASH
+    global oldhash
     global SUBLENGTH
-    OLD_HASH  = TREE.rootHash
+    oldhash  = TREE.rootHash
     SUBLENGTH = TREE.length
     TREE.encryptFilePerLog(LOG_FILE_PATH,),
 
-    def generate_consistency_proof(old_hash, sublength):
+    def generate_consistency_proof(oldhash, sublength):
         global PROOF
-        PROOF = TREE.consistencyProof(old_hash=old_hash, sublength=sublength)
+        PROOF = TREE.consistencyProof(oldhash=oldhash, sublength=sublength)
 
     benchmark.pedantic(
         generate_consistency_proof,
-        kwargs={'old_hash': OLD_HASH, 'sublength': SUBLENGTH},
+        kwargs={'oldhash': oldhash, 'sublength': SUBLENGTH},
         rounds=ROUNDS,
         iterations=ITERATIONS,
         warmup_rounds=WARMUP_ROUNDS

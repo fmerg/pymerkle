@@ -39,7 +39,7 @@ validateProof(target_hash=tree.rootHash(), proof=_audit)      # Quick validation
 
 # Store the tree's current state for later use
 
-old_hash  = tree.rootHash()
+oldhash  = tree.rootHash()
 sublength = tree.length()
 
 # Further encryption of files and objects
@@ -51,7 +51,7 @@ tree.encryptFileContent('../path/to/file')                    # One new leaf sto
 tree.encryptFilePerLog('../logs/sample_log')                  # Many new leaves (one for each
                                                               # line of the provided file)
 
-_consistency = tree.consistencyProof(old_hash, sublength)     # Request consistency-proof for the
+_consistency = tree.consistencyProof(oldhash, sublength)     # Request consistency-proof for the
                                                               # stored state of the Merkle-tree
 
 _receipt = validationReceipt(

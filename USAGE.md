@@ -415,26 +415,26 @@ Similarly, use the `.consistencyProof()` method to generate a consistency proof 
 
 ```python
 q = tree.consistencyProof(
-      old_hash=bytes(
+      oldhash=bytes(
         '92e0e8f2d57526d852fb567a052219937e56e9c388abf570a679651772360e7a',
         'utf-8'),
       sublength=1546)
 ```
 
-Here the parameters `old_hash` and `sublength` (meant to be provided from Client's Side) refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available root-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
+Here the parameters `oldhash` and `sublength` (meant to be provided from Client's Side) refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available root-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
 
 A typical session would be as follows:
 
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
-old_hash = tree.rootHash() # a bytes object
+oldhash = tree.rootHash() # a bytes object
 sublength = tree.length()
 
 # Server encrypts some new log (modifying the root-hash and length of the tree)
 tree.encryptFilePerLog('sample_log')
 
 # Upon Client's request, the server provides consistency proof for the requested stage
-q = tree.consistencyProof(old_hash, sublength)
+q = tree.consistencyProof(oldhash, sublength)
 ```
 
 The generated object `q` (similarly an instance of the `proof.Proof` class) consists of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
@@ -453,16 +453,16 @@ However, a "symmetric" inclusion-test may be also performed from the Server's Si
 
 More specifically, upon generating any consistency-proof requested by a Client, the Merkle-tree (Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with the parameters provided by Client:
 
-- inclusion-test _success_: if the combination of the provided `old_hash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an appropriate "subtree" can indeed be internally detected), then a _non empty_ path is included with the proof and a generation success message is inscribed in it
+- inclusion-test _success_: if the combination of the provided `oldhash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an appropriate "subtree" can indeed be internally detected), then a _non empty_ path is included with the proof and a generation success message is inscribed in it
 
-- inclusion-test _failure_: if the combination of `old_hash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
+- inclusion-test _failure_: if the combination of `oldhash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
 internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
 
 In versions later than _0.2.0_, the above implicit check has been abstracted from `.consistencyProof()` method and explicitly implemented within the `.inclusionTest()` method of the `MerkleTree` object. A typical session would then be as follows:
 
 ```python
 # Client requests and stores the Merkle-tree's current state
-old_hash = tree.rootHash()
+oldhash = tree.rootHash()
 sublength = tree.length()
 
 # Server encrypts new records into the Merkle-tree
@@ -470,9 +470,9 @@ tree.encryptFilePerLog('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
-tree.inclusionTest(old_hash=old_hash, sublength=sublength)         # True
-tree.inclusionTest(old_hash=b'anything else', sublength=sublength) # False
-tree.inclusionTest(old_hash=old_hash, sublength=sublength + 1)     # False
+tree.inclusionTest(oldhash=oldhash, sublength=sublength)         # True
+tree.inclusionTest(oldhash=b'anything else', sublength=sublength) # False
+tree.inclusionTest(oldhash=oldhash, sublength=sublength + 1)     # False
 ```
 
 ### Tree comparison
@@ -488,7 +488,7 @@ tree_1 <= tree_2
 is equivalent to
 
 ```python
-tree_2.inclusionTest(old_hash=tree_1.rootHash(), sublength=tree_1.length())
+tree_2.inclusionTest(oldhash=tree_1.rootHash(), sublength=tree_1.length())
 ```
 
 To verify whether `tree_1` represents a genuinely previous state of `tree_2`, write

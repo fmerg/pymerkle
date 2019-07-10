@@ -56,8 +56,6 @@ try:
     INSTALL_REQUIRES = [_.strip() for _ in _file.readlines()]
 except FileNotFoundError:
     INSTALL_REQUIRES = [
-          # "pytest>=3.9.2",
-          # "pytest-benchmark>=3.2.2",
           "tqdm>=4.28.1"
       ]
 
