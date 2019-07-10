@@ -44,14 +44,15 @@ sublength = tree.length()
 
 # Further encryption of files and objects
 
-tree.encryptObject({'a': 0, 'b': 1})                          # one new leaf storing the provided
+tree.encryptObject({'a': 0, 'b': 1})                          # One new leaf storing the provided
                                                               # object's digest
-tree.encryptFileContent('../path/to/file')                    # one new leaf storing the digest
+tree.encryptFileContent('../path/to/file')                    # One new leaf storing the digest
                                                               # of the provided file's content
-tree.encryptFilePerLog('../logs/sample_log')                  # many new leaves (one for each
+tree.encryptFilePerLog('../logs/sample_log')                  # Many new leaves (one for each
                                                               # line of the provided file)
 
-_consistency = tree.consistencyProof(old_hash, sublength)     # Request consistency-proof for the stored state
+_consistency = tree.consistencyProof(old_hash, sublength)     # Request consistency-proof for the
+                                                              # stored state of the Merkle-tree
 
 _receipt = validationReceipt(
   target_hash=tree.rootHash(),
