@@ -123,14 +123,47 @@ def test_not___ge__(tree_1, tree_2):
 def test___gt__(tree_1, tree_2):
     assert tree_1 > tree_2
 
-@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
-                                            (_0_leaves_tree, _1_leaves_tree_),
-                                            (_1_leaves_tree, _1_leaves_tree_),
-                                            (_0_leaves_tree, _2_leaves_tree_),
-                                            (_1_leaves_tree, _2_leaves_tree_),
-                                            (_2_leaves_tree, _2_leaves_tree_)])
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree_, _0_leaves_tree),
+                                            (_0_leaves_tree_, _1_leaves_tree),
+                                            (_1_leaves_tree_, _1_leaves_tree),
+                                            (_0_leaves_tree_, _2_leaves_tree),
+                                            (_1_leaves_tree_, _2_leaves_tree),
+                                            (_2_leaves_tree_, _2_leaves_tree)])
 def test_not___gt__(tree_1, tree_2):
     assert not tree_1 > tree_2
+
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
+                                            (_0_leaves_tree, _1_leaves_tree_),
+                                            (_0_leaves_tree, _2_leaves_tree_),
+                                            (_1_leaves_tree, _1_leaves_tree_),
+                                            (_1_leaves_tree, _2_leaves_tree_),
+                                            (_2_leaves_tree, _2_leaves_tree_)])
+def test___le__(tree_1, tree_2):
+    assert tree_1 <= tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_1_leaves_tree_, _0_leaves_tree),
+                                            (_2_leaves_tree_, _0_leaves_tree),
+                                            (_2_leaves_tree_, _1_leaves_tree)])
+def test_not___le__(tree_1, tree_2):
+    assert not tree_1 <= tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree_, _1_leaves_tree),
+                                            (_0_leaves_tree_, _2_leaves_tree),
+                                            (_1_leaves_tree_, _2_leaves_tree)])
+def test___lt__(tree_1, tree_2):
+    assert tree_1 < tree_2
+
+@pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree_, _0_leaves_tree),
+                                            (_1_leaves_tree_, _0_leaves_tree),
+                                            (_1_leaves_tree_, _1_leaves_tree),
+                                            (_2_leaves_tree_, _0_leaves_tree),
+                                            (_2_leaves_tree_, _1_leaves_tree),
+                                            (_2_leaves_tree_, _2_leaves_tree)])
+def test_not___lt__(tree_1, tree_2):
+    assert not tree_1 < tree_2
+
+
 
 # Invalid comparison tests
 

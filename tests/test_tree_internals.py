@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 from pymerkle.tree import MerkleTree
-from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError, NoSubtreeException, NoPathException, InvalidProofRequest, NoPrincipalSubrootsException, InvalidTypesException, UndecodableRecordError
+from pymerkle.exceptions import EmptyTreeException, NotSupportedHashTypeError, NotSupportedEncodingError, LeafConstructionError, NoSubtreeException, NoPathException, InvalidProofRequest, NoPrincipalSubrootsException, InvalidTypesException, UndecodableRecordError, WrongJSONFormat
 
 
 _undecodableArgumentErrors = [
@@ -158,18 +158,18 @@ def test_MerkleTree_bool_implementation():
 def test_root_empty_tree_exception():
     """Tests that requesting the root of an empty Merkle-tree raises an `EmptyTreeException`
     """
-    
+
     empty = MerkleTree()
-    
+
     with pytest.raises(EmptyTreeException):
         empty.root
 
 def test_rootHash_empty_tree_exception():
     """Tests that requesting the root-hash of an empty Merkle-tree raises an `EmptyTreeException`
     """
-    
+
     empty = MerkleTree()
-    
+
     with pytest.raises(EmptyTreeException):
         empty.rootHash
 
@@ -849,3 +849,14 @@ def test_export():
 def test_loadFromFile():
 
     assert tree.serialize() == MerkleTree.loadFromFile(export_path).serialize()
+
+def test_WrongJSONFormat_with_loadFromFile():
+
+    with pytest.raises(WrongJSONFormat):
+        MerkleTree.loadFromFile(
+            os.path.join(
+                os.path.dirname(__file__),
+                'objects',
+                'sample.json'
+            )
+        )
