@@ -7,7 +7,7 @@
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
-This library implements a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of
+_Pymerkle_ provides a class for _binary balanced_ Merkle-trees (with possibly _odd_ number of leaves) capable of
 generating _audit-proofs_, _consistency-proofs_ and _inclusion-tests_. It supports all hash functions
 (including _SHA3_ variations) and encoding types, whereas _defense against second-preimage attack_ is by default activated.
 It further provides flexible mechanisms for validating the generated proofs and thus easy verification of encrypted data.
@@ -27,15 +27,15 @@ pip3 install pymerkle --pre
 ```python
 from pymerkle import MerkleTree, validateProof, validationReceipt
 
-tree = MerkleTree()                                                          # ~ Create empty SHA256/UTF-8 Merkle-tree with
-                                                                             # ~ defense against second-preimage attack
+tree = MerkleTree()                                           # Empty SHA256/UTF-8 Merkle-tree with
+                                                              # defense against second-preimage attack
 
-for _ in range(665):                                                         # Update the tree with 666 records
+for _ in range(665):                                          # Update the tree with 666 records
     tree.encryptRecord(bytes('%d-th record' % _, 'utf-8'))
 
-_audit = tree.auditProof('12-th record')                                     # Request audit-proof based upon a given record        
+_audit = tree.auditProof('12-th record')                      # Request audit-proof for the given record        
 
-validateProof(target_hash=tree.rootHash(), proof=_audit)                     # Quick validation of the above proof (returns True)
+validateProof(target_hash=tree.rootHash(), proof=_audit)      # Quick validation of the above proof (True)
 
 # Store the tree's current state for later use
 
@@ -44,16 +44,19 @@ sublength = tree.length()
 
 # Further encryption of files and objects
 
-tree.encryptObject({'a': 0, 'b': 1})                                         # One new leaf storing the provided object's digest
-tree.encryptFileContent('../path/to/file')                                   # One new leaf storing the provided file's digest
-tree.encryptFilePerLog('../logs/sample_log')                                 # One new leaf for each line of the provided file
+tree.encryptObject({'a': 0, 'b': 1})                          # one new leaf storing the provided
+                                                              # object's digest
+tree.encryptFileContent('../path/to/file')                    # one new leaf storing the digest
+                                                              # of the provided file's content
+tree.encryptFilePerLog('../logs/sample_log')                  # many new leaves (one for each
+                                                              # line of the provided file)
 
-_consistency = tree.consistencyProof(old_hash, sublength)                    # Request consistency-proof for the stored state
+_consistency = tree.consistencyProof(old_hash, sublength)     # Request consistency-proof for the stored state
 
 _receipt = validationReceipt(
   target_hash=tree.rootHash(),
   proof=_consistency
-)                                                                            # Validate proof and generate corresponding receipt                                            
+)                                                             # Validate proof with receipt                                            
 ```
 
 ## Encryption modes
