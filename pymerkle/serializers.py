@@ -19,7 +19,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
             leaves = obj.leaves
 
         except TypeError:
-            return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
 
         else:
             return {
@@ -45,7 +45,7 @@ class NodeSerializer(json.JSONEncoder):
             hash = obj.stored_hash
 
         except TypeError:
-            return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
 
         else:
             return {
@@ -68,7 +68,7 @@ class LeafSerializer(json.JSONEncoder):
             hash = obj.stored_hash
 
         except TypeError:
-            return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
 
         else:
             return {
@@ -98,7 +98,7 @@ class ProofSerializer(json.JSONEncoder):
             status = obj.header['status']
 
         except TypeError:
-            return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
 
         else:
             return {
@@ -145,7 +145,7 @@ class ReceiptSerializer(json.JSONEncoder):
             result = obj.body['result']
 
         except TypeError:
-            return json.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
 
         else:
             return {

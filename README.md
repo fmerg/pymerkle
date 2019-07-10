@@ -35,7 +35,7 @@ for _ in range(665):                                          # Update the tree 
 
 _audit = tree.auditProof('12-th record')                      # Request audit-proof for the given record        
 
-validateProof(target=tree.rootHash(), proof=_audit)      # Quick validation of the above proof (True)
+validateProof(target=tree.rootHash(), proof=_audit)           # Quick validation of the above proof (True)
 
 # Store the tree's current state for later use
 
@@ -51,7 +51,7 @@ tree.encryptFileContent('../path/to/file')                    # One new leaf sto
 tree.encryptFilePerLog('../logs/sample_log')                  # Many new leaves (one for each
                                                               # line of the provided file)
 
-_consistency = tree.consistencyProof(oldhash, sublength)     # Request consistency-proof for the
+_consistency = tree.consistencyProof(oldhash, sublength)      # Request consistency-proof for the
                                                               # stored state of the Merkle-tree
 
 _receipt = validationReceipt(
