@@ -1,7 +1,7 @@
 # pymerkle: A Python library for constructing Merkle Trees and validating Proofs
 
 |<span style="font-weight:normal">Tests</span>|[![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)|[![codecov](https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/FoteinosMerg/pymerkle)|
-|:---------------------------------------------:|:---------------------------------------------:|
+<!-- |:---------------------------------------------:|:---------------------------------------------:| -->
 |<span style="font-weight:normal">Package</span>|[![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)|![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)|
 |<span style="font-weight:normal">Docs</span>|[![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)|
 
