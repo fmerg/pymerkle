@@ -1,7 +1,7 @@
 from .tree import MerkleTree
 from .validations import validateProof, validationReceipt
 
-__version__ = "3.0.2b"
+__version__ = "4.0.1b"
 
 __all__ = (
     'MerkleTree',

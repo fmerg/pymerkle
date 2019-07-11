@@ -1,6 +1,6 @@
 ## API
 
-This section describes the recommended use of _pymerkle_ made by an external user. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference for the totality of classes, methods and their possible arguments.
+This section describes the recommended high-level usage of the _pymerkle_ API. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of classes, methods and their possible arguments.
 
 ## `class` __MerkleTree ([*hash_type='sha256', encoding='utf-8', security=True*])__
 

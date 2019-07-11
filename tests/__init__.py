@@ -1,3 +1,2 @@
-"""
-Needed for easy import
+"""Needed for easy import
 """

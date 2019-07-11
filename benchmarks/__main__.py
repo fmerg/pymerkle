@@ -26,6 +26,7 @@ from pymerkle import MerkleTree
 
 
 from timeit import timeit
+from datetime import datetime
 
 def _time_elapsed(start):
     return (datetime.now() - start).total_seconds()
@@ -33,12 +34,9 @@ def _time_elapsed(start):
 
 from numbers import Number
 from collections import Set, Mapping, deque
-from datetime import datetime
-import logging
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
-
 
 def _size(obj_0):
     """Recursively iterate to sum size of object and members
@@ -77,21 +75,6 @@ def _size(obj_0):
         return size
 
     return inner(obj_0)
-
-
-
-def _get_logger():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    streamHandler = logging.StreamHandler()
-    streamHandler.setLevel(logging.INFO)
-
-    streamFormatter = logging.Formatter('[%(levelname)s] %(message)s')
-    streamHandler.setFormatter(streamFormatter)
-    logger.addHandler(streamHandler)
-
-    return logger
 
 
 def _print_results(total, mint, maxt, mean, stdev):

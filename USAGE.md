@@ -350,12 +350,11 @@ The object `p` is an instance of the `proof.Proof`, class consisting of the corr
 
     ----------------------------------- PROOF ------------------------------------                
 
-    uuid        : 7f67b68a-32ab-11e9-8e47-70c94e89b637                
+    uuid        : c9b747cc-a421-11e9-8298-70c94e89b637                
 
     generation  : SUCCESS                
-
-    timestamp   : 1550404776 (Sun Feb 17 12:59:36 2019)                
-    provider    : 5439c318-32ab-11e9-8e47-70c94e89b637                
+    timestamp   : 1562880063 (Thu Jul 11 23:21:03 2019)                
+    provider    : a561ab88-a421-11e9-8298-70c94e89b637                
 
     hash-type   : SHA256                
     encoding    : UTF-8                
@@ -364,18 +363,21 @@ The object `p` is an instance of the `proof.Proof`, class consisting of the corr
     proof-index : 5                
     proof-path  :                
 
-       [0]   +1  55c0387484b74a48d222f27af62f38ca2924a40f579c593af403626104a06f67
-       [1]   -1  e340cdb8257dad85310c31e967236532355b029d5c0fcc0c113f28cfd2a6329f
-       [2]   +1  5856af7bc848332425381cd76ab815d511cde305f592c3aef457c036045f2180
-       [3]   -1  f8dbb155ba43f868c4a5870730811ff9373d474ff48c480ac7f447b836195682
-       [4]   -1  b0bc9f503496125931ec9e5ee46584967cfedabe510292206bfdfc18479d03f1
-       [5]   -1  6690b39e3b8b4995b1ac05e26c87722943951bd088162fa3a573f896f8a3391b
-       [6]   -1  868ca4852e16fa69b59c0541ff2c39c0c123070ea53161cc2f4bbcfa9bda526b
-       [7]   +1  4ed02d875bd6c5abcda7ecd124eeb7e715bcf4bf02b520bd387eebeef365db6b
-       [8]   +1  05d002e899a11e4e829725aa291c97de71bc5600888b8d2fb8ac4d65731cee5f
-       [9]   +1  2f843e357090f2d82fbb8a63a19089e23b9cfc5ec4c0d0de23f7af54ab3850bb
-      [10]   +1  37828d35c131a6803f8d25da8e9a31e2b24e7289a134dc187ef605f7f41f45dd
-      [11]   -1  51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619                
+       [0]   +1  b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191
+       [1]   -1  a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198
+       [2]   +1  a640764da2d34a1042b5794e3746b69e973226cfe36d83bb7c68361f9ddd3054
+       [3]   -1  49d6a449a4e8fe656da46f6ca737122e9f6ceb40991e7c915b0c53861972317f
+       [4]   -1  3ab2f7db9f45263b128f4e92f7bd22f9c9344dbb6e5d9537d13abacc0765a06c
+       [5]   -1  f77f15085cd7d478d7f8d842de4d4498fc381f08892ba4c0373609678b4e654f
+       [6]   -1  e7090e539e930e85bcf5a8e6cb6c332249a0785d70af7776d1384d9bca279e19
+       [7]   +1  07782a72e2be80c48c9533a9e0ed8d0ec9b47fec4e2d0388967f80ce23de72ef
+       [8]   +1  3c3afa8902dc28e816e0dbb67b0052de23c6cee37cc333f388985d1ad77de288
+       [9]   +1  50762ce9874169e792a50ad072b960c712b78822d24756faf9f389fafa009cb6
+      [10]   +1  d8eef0ed2f4b229f4d36965aebbb0461916cb354602ace11e3d6de168ca87fc8
+      [11]   +1  5af482841c912acc8e37dbcf4033285dfa60cdcb0721a9d1de53ba3a44e59684
+      [12]   +1  e90dac5c726116e33579ae3025181042e4389f19e5e961b19eacb5fb35650ee9
+      [13]   +1  32f3f94c613ddee57919fe8fd63c930c04aab60473c6101545edcc1730c9a58e
+      [14]   -1  68488541d30dc070bcd7ed4bb0715fd4e721e207c0ea7cdb6e955d33d8a510e8                
 
     status      : UNVALIDATED                
 
@@ -388,36 +390,36 @@ the corresponding JSON format being
 
 ```shell
 {
+    "header": {
+        "creation_moment": "Thu Jul 11 23:21:03 2019",
+        "encoding": "utf_8",
+        "generation": true,
+        "hash_type": "sha256",
+        "provider": "a561ab88-a421-11e9-8298-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1562880063,
+        "uuid": "c9b747cc-a421-11e9-8298-70c94e89b637"
+    },
     "body": {
         "proof_index": 5,
         "proof_path": [
             [
                 1,
-                "55c0387484b74a48d222f27af62f38ca2924a40f579c593af403626104a06f67"
+                "b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191"
             ],
             [
                 -1,
-                "e340cdb8257dad85310c31e967236532355b029d5c0fcc0c113f28cfd2a6329f"
+                "a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198"
             ],
 
             ...
 
             [
                 -1,
-                "51f50bada8314c416fa30a64728b26f19ef303529ba46e72087ffaa9bbaa8619"
+                "68488541d30dc070bcd7ed4bb0715fd4e721e207c0ea7cdb6e955d33d8a510e8"
             ]
         ]
-    },
-    "header": {
-        "creation_moment": "Sun Feb 17 12:59:36 2019",
-        "encoding": "utf_8",
-        "generation": "SUCCESS",
-        "hash_type": "sha256",
-        "provider": "5439c318-32ab-11e9-8e47-70c94e89b637",
-        "security": true,
-        "status": null,
-        "timestamp": 1550404776,
-        "uuid": "7f67b68a-32ab-11e9-8e47-70c94e89b637"
     }
 }
 ```

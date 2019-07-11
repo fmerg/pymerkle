@@ -61,25 +61,6 @@ _receipt = validationReceipt(
   proof=_consistency)                                         # Validate proof with receipt                                            
 ```
 
-## Encryption
-
-Encryption of _text_ (``string``, ``bytes``, ``bytearray``), _JSON_ objects (``dict``) and _files_ is supported.
-Use according to convenience any of the following methods of the ``MerkleTree`` class (all of them internally invoking
-  the ``.update()`` method for appending newly-created leaves):
-
-``.encryptRecord()``, ``.encryptFileConent()``, ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``
-
-See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
-
-## Proof validation
-
-Direct validation of a Merkle-proof is performed using the ``validateProof()`` function, which modifies the status
-of the provided proof appropriately and returns the corresponding boolean. A more elaborate validation
-procedure includes generating a receipt with the validation result and storing at will the generated receipt
-as a ``.json`` file. This is achieved using the ``validationReceipt`` class like in the above quick example.
-
-See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
-
 ## Tree structure
 
 Contrary to most implementations, the Merkle-tree is here always _binary balanced_, with all nodes except
@@ -97,10 +78,28 @@ is controlled to the minimum. For example, a tree with *9* leaves has *17* nodes
 whereas the total number of nodes in the structure described
 [here](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is *20*.
 
-This topology turns out to be identical with that of a binary _Sekura tree_, depicted in Section 5.4 of
-[**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the
+This topology turns out to be identical with that of a binary _Sekura tree_, depicted in Section _5.4_ of
+[this](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the
 [`MerkleTree.update()`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update)
 method for further insight.
+
+## Encryption
+
+Direct encryption of text (_string_, _bytes_, _bytearray_), JSON (_dict_) and _files_ is supported.
+Use accordingly any of the following methods of the ``MerkleTree`` class (all of them internally invoking
+the ``.update()`` method for appending newly-created leaves): ``.encryptRecord()``, ``.encryptFileConent()``,
+  ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``
+
+See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
+
+## Proof validation
+
+Direct validation of a Merkle-proof is performed using the ``validateProof()`` function, which modifies the status
+of the provided proof appropriately and returns the corresponding boolean. A more elaborate validation
+procedure includes generating a receipt with the validation result and storing at will the generated receipt
+as a ``.json`` file. This is achieved using the ``validationReceipt`` class like in the above quick example.
+
+See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
 
 ## Security
 
@@ -159,6 +158,6 @@ combinations of hash algorithm, encoding type and security mode (_1620_ combinat
 arguments of the `pytest` command to run only specific tests or have useful info about the tests printed.
 
 
-## Benchmarks
+<!-- ## Benchmarks
 
-[Work in progress]
+[Work in progress] -->
