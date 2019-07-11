@@ -1,9 +1,15 @@
 # pymerkle: A Python library for constructing Merkle Trees and validating Proofs
-[![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
+
+|<span style="font-weight:normal">Tests</span>|[![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)|[![codecov](https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/FoteinosMerg/pymerkle)|
+|:---------------------------------------------:|:---------------------------------------------:|
+|<span style="font-weight:normal">Package</span>|[![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)|![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)|
+|<span style="font-weight:normal">Docs</span>|[![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)|
+
+<!-- [![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
 [![codecov](https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/FoteinosMerg/pymerkle)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
-![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)
+![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg) -->
 
 **Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
 
@@ -56,15 +62,14 @@ _consistency = tree.consistencyProof(oldhash, sublength)      # Request consiste
 
 _receipt = validationReceipt(
   target=tree.rootHash(),
-  proof=_consistency
-)                                                             # Validate proof with receipt                                            
+  proof=_consistency)                                         # Validate proof with receipt                                            
 ```
 
-## Encryption modes
+## Encryption
 
-Encryption of _plain text_ (``string``, ``bytes``, ``bytearray``), _JSON_ objects (``dict``) and _files_ is supported.
+Encryption of _text_ (``string``, ``bytes``, ``bytearray``), _JSON_ objects (``dict``) and _files_ is supported.
 Use according to convenience any of the following methods of the ``MerkleTree`` class (all of them internally invoking
-  the ``.update()`` method for appending newly created leaves):
+  the ``.update()`` method for appending newly-created leaves):
 
 ``.encryptRecord()``, ``.encryptFileConent()``, ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``
 
@@ -72,10 +77,10 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 
 ## Proof validation
 
-Direct validation of a Merkle-proof is performed usind the ``validateProof()`` function, modifying the status
-of the inserted proof appropriately and returning the corresponding boolean. A more elaborate validation
+Direct validation of a Merkle-proof is performed using the ``validateProof()`` function, which modifies the status
+of the provided proof appropriately and returns the corresponding boolean. A more elaborate validation
 procedure includes generating a receipt with the validation result and storing at will the generated receipt
-as a ``.json`` file. This is achieved utilizing the ``validationReceipt`` class like in the above quick example.
+as a ``.json`` file. This is achieved using the ``validationReceipt`` class like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and precise functionality.
 
@@ -85,7 +90,7 @@ Contrary to most implementations, the Merkle-tree is here always _binary balance
 for the exterior ones (_leaves_) having _two_ parents. This is achieved as follows: upon appending a block
 of new leaves, instead of promoting a lonely leaf to the next level or duplicating it, a *bifurcation* node
 gets created _so that trees with the same number of leaves have always identical structure and input clashes
-among growing strategies be avoided_ (independently of the configured hash and encoding types).
+among growing strategies be avoided_.
 This standardization is further crucial for:
 
 - fast generation of consistency-proof paths (based on additive decompositions in decreasing powers of _2_)
@@ -94,31 +99,14 @@ left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect to the tree's length
 is controlled to the minimum. For example, a tree with *9* leaves has *17* nodes in the present implementation,
 whereas the total number of nodes in the structure described
-[**here**](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is *20*.
+[here](https://crypto.stackexchange.com/questions/22669/merkle-hash-tree-updates) is *20*.
 
 This topology turns out to be identical with that of a binary _Sekura tree_, depicted in Section 5.4 of
 [**this**](https://keccak.team/files/Sakura.pdf) paper. Follow the straightforward algorithm of the
 [`MerkleTree.update()`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update)
 method for further insight.
 
-### Deviation from bitcoin specification
-
-In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification
-for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead,
-creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update.
-As a consequence, even if strict security mode were deactivated (see below),
-the current implementation is structurally invulnerable to _denial-of-service attacks_ exploiting the
-[**here**](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
-described vulnerability (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)).
-
-
 ## Security
-
-All following features are by default activated. In order to disable them, set the ``security`` kwarg equal to ``False`` at construction:
-
-```python
-tree = MerkleTree(security=False)
-```
 
 ### Defense against second-preimage attack
 
@@ -129,12 +117,24 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 
 - Before calculating the hash any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
-(See [**here**](https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/) or
-[**here**](https://news.ycombinator.com/item?id=16572793) for some insight). Read the
+Read the
 [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
-inside the project's repository to see how to perform second-preimage attacks against the current implementation.
+inside the project's repository to see how to perform second-preimage attacks against the current implementation. Defense against second-preimage attack is by default activated. In order to disable it, set ``security`` equal to ``False`` at construction:
 
-## Peristence
+```python
+tree = MerkleTree(security=False)
+```
+
+### Deviation from bitcoin specification
+
+In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification
+for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead,
+creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update (see _Tree structure_ above).
+As a consequence, even if strict security mode were deactivated (see above),
+the current implementation is structurally invulnerable to _denial-of-service attacks_ exploiting the vilnerability described
+[here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp) (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)).
+
+## Persistence
 
 On-disc persistence is _not_ currently supported.
 
@@ -148,20 +148,14 @@ See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and preci
 
 ## Running tests
 
-
-You need to have installed ``pytest``. From inside the root directory run the command
+You need to have installed ``pytest``. From inside the project's root directory type
 
 ```shell
 pytest tests/
 ```
 
-to run all tests. This might take up to 2-4 minutes, since crypto parts of the code are tested against all possible
-combinations of hash algorithm, encoding type and security mode. You can run only a specific test file, e.g., `test_encryption.py`,
-with the command
-
-```shell
-pytest tests/test_encryption.py
-```
+to run all tests. This might take up to 15-20 minutes, since crypto parts of the code are tested against all possible
+combinations of hash algorithm, encoding type and security mode (_1620_ combinations in total). Use the syntax and flag arguments of the `pytest` command to run only specific tests or have useful info about the tests printed.
 
 
 ## Benchmarks
