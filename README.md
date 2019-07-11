@@ -115,7 +115,9 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 
 Read the
 [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
-inside the project's repository to see how to perform second-preimage attacks against the current implementation. Defense against second-preimage attack is by default activated. In order to disable it, set ``security`` equal to ``False`` at construction:
+inside the project's repository to see how to perform second-preimage attacks against the current implementation. Defense against
+second-preimage attack is by default activated. In order to disable it (say, for testing purposes),
+set ``security`` equal to ``False`` at construction:
 
 ```python
 tree = MerkleTree(security=False)
@@ -125,10 +127,12 @@ tree = MerkleTree(security=False)
 
 In contrast to the [_bitcoin_](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees) specification
 for Merkle-trees, lonely leaves are not duplicated in order for the tree to remain genuinely binary. Instead,
-creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update (see _Tree structure_ above).
+creating bifurcation nodes at the rightmost branch allows the tree to remain both binary and balanced upon any update
+(see _Tree structure_ above).
 As a consequence, even if strict security mode were deactivated (see above),
 the current implementation is structurally invulnerable to _denial-of-service attacks_ exploiting the vilnerability described
-[here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp) (reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)).
+[here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
+(reported as [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459)).
 
 ## Persistence
 
@@ -151,7 +155,8 @@ pytest tests/
 ```
 
 to run all tests. This might take up to 15-20 minutes, since crypto parts of the code are tested against all possible
-combinations of hash algorithm, encoding type and security mode (_1620_ combinations in total). Use the syntax and flag arguments of the `pytest` command to run only specific tests or have useful info about the tests printed.
+combinations of hash algorithm, encoding type and security mode (_1620_ combinations in total). Use the syntax and flag
+arguments of the `pytest` command to run only specific tests or have useful info about the tests printed.
 
 
 ## Benchmarks
