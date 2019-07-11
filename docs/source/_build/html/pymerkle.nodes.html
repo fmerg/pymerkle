@@ -164,7 +164,7 @@
 <p>Provides the base class for the Merkle-tree’s nodes and an inheriting class for its leaves</p>
 <dl class="class">
 <dt id="pymerkle.nodes.leaf">
-<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">leaf</code><span class="sig-paren">(</span><em>record</em>, <em>hash_function</em>, <em>encoding</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#leaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.leaf" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">leaf</code><span class="sig-paren">(</span><em>record</em>, <em>hashfunc</em>, <em>encoding</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#leaf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.leaf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymerkle.nodes.node" title="pymerkle.nodes.node"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymerkle.nodes.node</span></code></a></p>
 <p>Class for the leafs of Merkle-tree (parentless nodes)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -173,7 +173,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>record</strong> (<em>str</em><em> or </em><em>bytes</em><em> or </em><em>bytearray</em>) – the record to be encrypted within the leaf</li>
-<li><strong>hash_function</strong> (<em>method</em>) – hash function to be used for encryption (only once). Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
+<li><strong>hashfunc</strong> (<em>method</em>) – hash function to be used for encryption (only once). Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
 attribute of the containing Merkle-tree</li>
 <li><strong>encoding</strong> (<em>str</em>) – Encoding type to be used when decoding the hash stored by the node.
 Should coincide with the containing Merkle-tree’s encoding type.</li>
@@ -186,7 +186,7 @@ Should coincide with the containing Merkle-tree’s encoding type.</li>
 
 <dl class="class">
 <dt id="pymerkle.nodes.node">
-<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">node</code><span class="sig-paren">(</span><em>hash_function</em>, <em>encoding</em>, <em>record=None</em>, <em>left=None</em>, <em>right=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pymerkle.nodes.</code><code class="descname">node</code><span class="sig-paren">(</span><em>hashfunc</em>, <em>encoding</em>, <em>record=None</em>, <em>left=None</em>, <em>right=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/nodes.html#node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.nodes.node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for the nodes of a Merkle-tree</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -200,7 +200,7 @@ then the node is considered to be a leaf</li>
 is considered to be a leaf</li>
 <li><strong>right</strong> (<a class="reference internal" href="#pymerkle.nodes.node" title="pymerkle.nodes.node"><em>nodes.node</em></a>) – [optional] the node’s right parent. If not provided, then the node
 is considered to be a leaf</li>
-<li><strong>hash_function</strong> (<cite>method</cite>) – hash function to be used for encryption. Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
+<li><strong>hashfunc</strong> (<cite>method</cite>) – hash function to be used for encryption. Should be the <code class="docutils literal notranslate"><span class="pre">.hash</span></code>
 method of the containing Merkle-tree</li>
 <li><strong>encoding</strong> (<em>str</em>) – Encoding type to be used when decoding the hash stored by the node.
 Should coincide with the containing Merkle-tree’s encoding type.</li>
@@ -212,7 +212,7 @@ Should coincide with the containing Merkle-tree’s encoding type.</li>
 <li><strong>left</strong> – (<em>nodes.node</em>) The node’s left parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a leaf</li>
 <li><strong>right</strong> – (<em>nodes.node</em>) The node’s right parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a leaf</li>
 <li><strong>child</strong> – (<em>nodes.node</em>) The node’s child parent. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> if the node is a root</li>
-<li><strong>hash_function</strong> – (<em>method</em>) The hash function used by the node when recalcullating hashes. For interior nodes
+<li><strong>hashfunc</strong> – (<em>method</em>) The hash function used by the node when recalcullating hashes. For interior nodes
 it should coincide with the <code class="docutils literal notranslate"><span class="pre">.hash</span></code> attribute of the containing Merkle-tree. For leaf nodes
 it is <code class="docutils literal notranslate"><span class="pre">None</span></code>, since their hash is never recalculated.</li>
 <li><strong>encoding</strong> – (<em>str</em>) Used by the node for decoding its hash. Should coincide with the encoding

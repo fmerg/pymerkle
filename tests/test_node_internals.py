@@ -19,7 +19,7 @@ _leaves = (
     # Leaf constructed by providing a record to digest
 
     Leaf(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         record=b'some record...'
     ),
@@ -27,7 +27,7 @@ _leaves = (
     # Leaf constructed by providing the digest directly
 
     Leaf(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         stored_hash='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'
     )
@@ -36,45 +36,45 @@ _leaves = (
 # A full binary structure (child-parent relations): 4 leaves, 7 nodes in total
 
 leaf_1  = Leaf(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     record=b'first record...'
 )
 
 leaf_2  = Leaf(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     record=b'second record...'
 )
 
 leaf_3  = Leaf(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     record=b'third record...'
 )
 
 leaf_4  = Leaf(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     record=b'fourth record...'
 )
 
 node_12 = Node(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     left=leaf_1,
     right=leaf_2
 )
 
 node_34 = Node(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     left=leaf_3,
     right=leaf_4
 )
 
 root = Node(
-    hash_function=HASH,
+    hashfunc=HASH,
     encoding=ENCODING,
     left=node_12,
     right=node_34
@@ -89,7 +89,7 @@ def test_leaf_construction_exception_with_neither_record_nor_stored_hash():
     if neither `record` nor `stored_hash` is provided
     """
     with pytest.raises(LeafConstructionError):
-        Leaf(hash_function=HASH, encoding=ENCODING)
+        Leaf(hashfunc=HASH, encoding=ENCODING)
 
 
 def test_leaf_construction_exception_with_both_record_and_stored_hash():
@@ -98,7 +98,7 @@ def test_leaf_construction_exception_with_both_record_and_stored_hash():
     """
     with pytest.raises(LeafConstructionError):
         Leaf(
-            hash_function=HASH,
+            hashfunc=HASH,
             encoding=ENCODING,
             record=b'anything...',
             stored_hash=HASH('whatever...')
@@ -528,16 +528,16 @@ def test_hash_recalculation():
     """
 
     new_leaf = Leaf(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         record=b'new record...'
     )
 
     node_34.set_right(new_leaf)
 
-    node_34.recalculate_hash(hash_function=HASH)
+    node_34.recalculate_hash(hashfunc=HASH)
 
-    root.recalculate_hash(hash_function=HASH)
+    root.recalculate_hash(hashfunc=HASH)
 
     assert node_34.stored_hash == HASH(
         leaf_3.stored_hash, new_leaf.stored_hash
@@ -599,7 +599,7 @@ def test_leaf_UndecodableRecordError(_byte, _machine):
         Leaf(
             record=_byte,
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash
+            hashfunc=_machine.hash
         )
 
 @pytest.mark.parametrize('_byte, _machine', _bytes__machines)
@@ -609,13 +609,13 @@ def test_node_UndecodableArgumentError(_byte, _machine):
         _left = Leaf(
             record=_byte,
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash
+            hashfunc=_machine.hash
         )
 
         _right = Leaf(
             record=_byte,
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash
+            hashfunc=_machine.hash
         )
 
         with pytest.raises(UndecodableRecordError):
@@ -623,7 +623,7 @@ def test_node_UndecodableArgumentError(_byte, _machine):
                 left=_left,
                 right=_right,
                 encoding=_machine.ENCODING,
-                hash_function=_machine.hash
+                hashfunc=_machine.hash
             )
 
 @pytest.mark.parametrize('_byte, _machine', _bytes__machines)
@@ -633,26 +633,26 @@ def test_hash_recalculation_UndecodableRecordError(_byte, _machine):
         _left = Leaf(
             record='left record',
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash
+            hashfunc=_machine.hash
         )
 
         _right = Leaf(
             record='right record',
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash
+            hashfunc=_machine.hash
         )
 
         _node  = Node(
             left=_left,
             right=_right,
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash
+            hashfunc=_machine.hash
         )
 
         _left = Leaf(
             record=_byte,
             encoding=_machine.ENCODING,
-            hash_function=_machine.hash,
+            hashfunc=_machine.hash,
         )
 
         _node.set_left(_left)

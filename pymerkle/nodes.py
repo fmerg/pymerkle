@@ -236,18 +236,18 @@ class _Node(object):
 class Leaf(_Node):
     """Class for the leafs of Merkle-tree (i.e., parentless nodes storing digests of encrypted records)
 
-    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``
-                          attribute of the containing Merkle-tree
-    :type hash_function:  method
-    :param encoding:      Encoding type to be used when decoding the hash stored by the node.
-                          Should coincide with the containing Merkle-tree's encoding type.
-    :type encoding:       str
-    :param record:        [optional] The record to be encrypted within the leaf. If provided, then
-                          ``stored_hash`` should *not* be provided.
-    :type record:         str or bytes or bytearray
-    :param stored_hash:   [optional] The hash to be stored at creation by the leaf (after encoding).
-                          If provided, then ``record`` should *not* be provided.
-    :type stored_hash:    str
+    :param hashfunc:    hash function to be used for encryption (only once). Should be the ``.hash``
+                        attribute of the containing Merkle-tree
+    :type hashfunc:     method
+    :param encoding:    Encoding type to be used when decoding the hash stored by the node.
+                        Should coincide with the containing Merkle-tree's encoding type.
+    :type encoding:     str
+    :param record:      [optional] The record to be encrypted within the leaf. If provided, then
+                        ``stored_hash`` should *not* be provided.
+    :type record:       str or bytes or bytearray
+    :param stored_hash: [optional] The hash to be stored at creation by the leaf (after encoding).
+                        If provided, then ``record`` should *not* be provided.
+    :type stored_hash:  str
 
     .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided
 
@@ -262,12 +262,12 @@ class Leaf(_Node):
 
     __slots__ = ('__stored_hash')
 
-    def __init__(self, hash_function, encoding, record=None, stored_hash=None):
+    def __init__(self, hashfunc, encoding, record=None, stored_hash=None):
 
         if record and stored_hash is None:
 
             try:
-                _digest = hash_function(record)
+                _digest = hashfunc(record)
 
             except UndecodableArgumentError:
                 # ~ Provided record cannot be decoded with the configured
@@ -314,8 +314,8 @@ class Leaf(_Node):
 class Node(_Node):
     """Class for the internal nodes of a Merkle-tree (i.e., nodes having both parents)
 
-    :param hash_function: hash function to be used for encryption. Should be the ``.hash`` method of the containing Merkle-tree
-    :type hash_function:  method
+    :param hashfunc: hash function to be used for encryption. Should be the ``.hash`` method of the containing Merkle-tree
+    :type hashfunc:  method
     :param encoding:      Encoding type to be used when decoding the hash stored by the node.
                           Should coincide with the containing Merkle-tree's encoding type.
     :type encoding:       str
@@ -336,10 +336,10 @@ class Node(_Node):
 
     __slots__ = ('__stored_hash', '__left', '__right')
 
-    def __init__(self, hash_function, encoding, left, right):
+    def __init__(self, hashfunc, encoding, left, right):
 
         try:
-            _digest = hash_function(left.stored_hash, right.stored_hash)
+            _digest = hashfunc(left.stored_hash, right.stored_hash)
 
         except UndecodableArgumentError:
             # ~ Hash stored by some parent could not be decoded with the
@@ -373,16 +373,16 @@ class Node(_Node):
 
         self.__right = right
 
-    def recalculate_hash(self, hash_function):
+    def recalculate_hash(self, hashfunc):
         """Recalculates the node's hash under account of the (possibly new) digests stored by its parents
 
-        :param hash_function: hash function to be used for recalculation (should be the ``.hash()`` method
-                              of the containing Merkle-tree)
-        :type hash_function:  method
+        :param hashfunc: hash function to be used for recalculation (should be the ``.hash()`` method
+                         of the containing Merkle-tree)
+        :type hashfunc:  method
         """
 
         try:
-            _new_digest = hash_function(self.left.stored_hash, self.right.stored_hash)
+            _new_digest = hashfunc(self.left.stored_hash, self.right.stored_hash)
 
         except UndecodableRecordError:
             raise

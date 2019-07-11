@@ -1,6 +1,6 @@
 # pymerkle: Usage
 
-**Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/).**
+**Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
 **Refer to [_API_](API.md) for the tools described here.**
 
@@ -26,14 +26,14 @@ creates an empty Merkle-tree with default configs: hash algorithm _SHA256_, enco
 tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
-The ``.encoding`` attribute of a Merkle-tree (set directly by the homonymous argument of the
+The ``.encoding`` attribute of a Merkle-tree (set directly via the homonymous argument of the
 constructor) specifies the encoding, to which any new record of type ``str`` will be submitted before getting hashed and stored into a newly-created leaf. For example,
 
 ```python
 tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
-creates a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_. If the provided `hash_type` resp. `encoding` is not among the supported types, then a ``NotSupportedHashTypeError`` resp. ``NotSupportedEncodingError`` gets raised and
+creates a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_. If the provided `hash_type`, resp. `encoding` is not among the supported types, then a ``NotSupportedHashTypeError``, resp. ``NotSupportedEncodingError`` gets raised and
 the construction is aborted.
 
 Refer to [_API_](API.md) for the complete list of supported hash and encoding types.
@@ -43,14 +43,14 @@ statement creates a SHA256/UTF-8 Merkle-tree with three leaves from the outset, 
 provided positional arguments, which may be of type `str`, `bytes` or `bytearray` indifferently):
 
 ```python
-tree = MerkleTree('first_record', bytes('second_record', 'utf-8'), bytes('third_record', 'utf-8'))
+tree = MerkleTree(bytes('first_record', 'utf-8'), bytes('second_record', 'utf-8'), 'third_record')
 ```
 
 The corresponding statement for a SHA512/UTF-32 Merkle-tree would be
 
 ```python
 tree = MerkleTree(
-  'first_record', bytes('second_record', 'utf-32'), bytes('third_record', 'utf-32'),
+  bytes('first_record', 'utf-8'), bytes('second_record', 'utf-32'), 'third_record',
   hash_type='sha512',
   encoding='utf-32'
 )
@@ -114,7 +114,7 @@ True
 
 On-disc persistence is _not_ currently supported by the _pymerkle_ library.
 
-#### Exporting to and loading from file
+#### Exporting to and loading from a backup file
 
 The minimum required information may be extracted into a specified file, so that the Merkle-tree can be
 reloaded in its current state from within that file. Use the `.export()` method as follows:
@@ -242,6 +242,13 @@ tree.encryptFileContent('relative_path/to/sample_file')
 where `relative_path/to/sample_file` is the relative path of the file to encrypt with
 respect to the current working directory.
 
+Make sure that the file's encoding and content are _compatible_ with the tree's configured encoding type.
+In particular, if the file contains any _non valid_ bytes sequence with respect to the tree's encoding type,
+then an ``UndecodableRecordError`` gets implicitly raised, causing the function to exit with `1` without
+appending any new leaf to the tree. In the normal case, the function returns `0`. You can use this fact to
+verify whether the provided file's content has been successfully encrypted or, equivalently, a newly-created
+leaf has indeed been appended to the Merkle-tree (Cf. also the `updateRecord()` method).
+
 #### Per log file encryption
 
 _Encrypting per log a file into_ the Merkle-tree means updating it with each line of that file successively
@@ -259,6 +266,12 @@ Encryption complete
 
 where `relative_path/to/logs/large_APACHE_log` is the relative path of the file under encryption with
 respect to the current working directory.
+
+Make sure that the file's encoding and content are _compatible_ with the tree's configured encoding type.
+In particular, if at least one _line_ contains any _non valid_ bytes sequence with respect to the tree's encoding type,
+then an ``UndecodableRecordError`` gets implicitly raised, causing the function to exit with `1` without
+appending any new leaves _at all_ to the tree. In the normal case, the function returns `0`. You can use this fact to verify whether the provided file's lines have been successfully encrypted or, equivalently, newly-created
+leaves have been indeed appended in respective order to the Merkle-tree.
 
 #### Direct object encryption
 

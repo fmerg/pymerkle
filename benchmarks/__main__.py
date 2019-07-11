@@ -112,7 +112,7 @@ HASH     = MACHINE.hash         # SHA256
 def leaf_benchmark():
 
     _leaf = Leaf(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         record=b'some record...'
     )
@@ -145,19 +145,19 @@ def node_benchmark():
         return access_attribute
 
     left = Leaf(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         record=b'first record...'
     )
 
     right = Leaf(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         record=b'second record...'
     )
 
     node = Node(
-        hash_function=HASH,
+        hashfunc=HASH,
         encoding=ENCODING,
         left=left,
         right=right

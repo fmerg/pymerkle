@@ -170,9 +170,9 @@
 <span class="sd">    :param right:         [optional] the node&#39;s right parent. If not provided, then the node</span>
 <span class="sd">                          is considered to be a leaf</span>
 <span class="sd">    :type right:          nodes.node</span>
-<span class="sd">    :param hash_function: hash function to be used for encryption. Should be the ``.hash``</span>
+<span class="sd">    :param hashfunc: hash function to be used for encryption. Should be the ``.hash``</span>
 <span class="sd">                          method of the containing Merkle-tree</span>
-<span class="sd">    :type hash_function:  `method`</span>
+<span class="sd">    :type hashfunc:  `method`</span>
 <span class="sd">    :param encoding:      Encoding type to be used when decoding the hash stored by the node.</span>
 <span class="sd">                          Should coincide with the containing Merkle-tree&#39;s encoding type.</span>
 <span class="sd">    :type encoding:       str</span>
@@ -181,7 +181,7 @@
 <span class="sd">    :ivar left:          (*nodes.node*) The node&#39;s left parent. Defaults to ``None`` if the node is a leaf</span>
 <span class="sd">    :ivar right:         (*nodes.node*) The node&#39;s right parent. Defaults to ``None`` if the node is a leaf</span>
 <span class="sd">    :ivar child:         (*nodes.node*) The node&#39;s child parent. Defaults to ``None`` if the node is a root</span>
-<span class="sd">    :ivar hash_function: (*method*) The hash function used by the node when recalcullating hashes. For interior nodes</span>
+<span class="sd">    :ivar hashfunc: (*method*) The hash function used by the node when recalcullating hashes. For interior nodes</span>
 <span class="sd">                         it should coincide with the ``.hash`` attribute of the containing Merkle-tree. For leaf nodes</span>
 <span class="sd">                         it is ``None``, since their hash is never recalculated.</span>
 <span class="sd">    :ivar encoding:      (*str*) Used by the node for decoding its hash. Should coincide with the encoding</span>
@@ -190,7 +190,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">hash_function</span><span class="p">,</span>
+            <span class="n">hashfunc</span><span class="p">,</span>
             <span class="n">encoding</span><span class="p">,</span>
             <span class="n">record</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -200,15 +200,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
 
         <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Leaf case (parentless node)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stored_hash</span> <span class="o">=</span> <span class="n">hash_function</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stored_hash</span> <span class="o">=</span> <span class="n">hashfunc</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
         <span class="c1"># Interior case (node with exactly two parents)</span>
         <span class="k">elif</span> <span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">left</span><span class="o">.</span><span class="n">child</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stored_hash</span> <span class="o">=</span> <span class="n">hash_function</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stored_hash</span> <span class="o">=</span> <span class="n">hashfunc</span><span class="p">(</span>
                 <span class="n">left</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)</span>
             <span class="c1"># Store hash function in case of hash recalculation</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">hash_function</span> <span class="o">=</span> <span class="n">hash_function</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hashfunc</span> <span class="o">=</span> <span class="n">hashfunc</span>
 
 <span class="c1"># ------------------------- Representation formatting --------------------</span>
 
@@ -344,7 +344,7 @@
 
 <span class="sd">        .. warning:: Only for interior nodes (i.e., with two parents); fails in case of leaf nodes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stored_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_function</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stored_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hashfunc</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)</span></div>
 
 
@@ -379,21 +379,21 @@
 
 <span class="sd">    :param record:        the record to be encrypted within the leaf</span>
 <span class="sd">    :type record:         str or bytes or bytearray</span>
-<span class="sd">    :param hash_function: hash function to be used for encryption (only once). Should be the ``.hash``</span>
+<span class="sd">    :param hashfunc: hash function to be used for encryption (only once). Should be the ``.hash``</span>
 <span class="sd">                          attribute of the containing Merkle-tree</span>
-<span class="sd">    :type hash_function:  method</span>
+<span class="sd">    :type hashfunc:  method</span>
 <span class="sd">    :param encoding:      Encoding type to be used when decoding the hash stored by the node.</span>
 <span class="sd">                          Should coincide with the containing Merkle-tree&#39;s encoding type.</span>
 <span class="sd">    :type encoding:       str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">hash_function</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">hashfunc</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
         <span class="n">node</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
             <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">hash_function</span><span class="o">=</span><span class="n">hash_function</span><span class="p">,</span>
+            <span class="n">hashfunc</span><span class="o">=</span><span class="n">hashfunc</span><span class="p">,</span>
             <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span></div>
 
 <span class="c1"># ------------------------------- JSON encoders --------------------------</span>

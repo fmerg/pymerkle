@@ -190,7 +190,7 @@ class MerkleTree(object):
 
             try:
                 new_leaf = Leaf(
-                    hash_function=self.hash,
+                    hashfunc=self.hash,
                     encoding=self.encoding,
                     record=record,
                     stored_hash=stored_hash
@@ -211,7 +211,7 @@ class MerkleTree(object):
             except NoChildException:                                            # last_subroot was previously root
 
                 self._root = Node(
-                    hash_function=self.hash,
+                    hashfunc=self.hash,
                     encoding=self.encoding,
                     left=last_subroot,
                     right=new_leaf
@@ -225,7 +225,7 @@ class MerkleTree(object):
                 # Create bifurcation node
 
                 new_child = Node(
-                    hash_function=self.hash,
+                    hashfunc=self.hash,
                     encoding=self.encoding,
                     left=last_subroot,
                     right=new_leaf
@@ -243,7 +243,7 @@ class MerkleTree(object):
                 current_node = old_child
 
                 while True:
-                    current_node.recalculate_hash(hash_function=self.hash)
+                    current_node.recalculate_hash(hashfunc=self.hash)
 
                     try:
                         current_node = current_node.child
@@ -254,7 +254,7 @@ class MerkleTree(object):
 
             try:
                 new_leaf = Leaf(
-                    hash_function=self.hash,
+                    hashfunc=self.hash,
                     encoding=self.encoding,
                     record=record,
                     stored_hash=stored_hash
