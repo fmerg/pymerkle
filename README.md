@@ -41,7 +41,7 @@ validateProof(target=tree.rootHash(), proof=_audit)           # Quick validation
 
 # Store the tree's current state for later use
 
-oldhash  = tree.rootHash()
+oldhash   = tree.rootHash()
 sublength = tree.length()
 
 # Further encryption of files and objects

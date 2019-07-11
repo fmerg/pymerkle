@@ -300,7 +300,7 @@ are left to their default values.
 
 _File based encryption of an object_ (a JSON entity) _into_ the Merkle-tree means
 encrypting into the tree the object stored in a `.json` file by just providing the relative path of that file.
-Use the `.encryptObjectFromFile` method as follows:
+Use the `.encryptObjectFromFile()` method as follows:
 
 ```python
 tree.encryptObjectFromFile('relative_path/sample.json')
@@ -341,9 +341,9 @@ You can instead generate the proof based upon a presumed record `record` with
 p = tree.auditProof(arg=record)
 ```
 
-where the argument can be of type `str`, `bytes` or `bytearray` indifferently (otherwise a `TypeError` is thrown). In the second variation, the proof generation is based upon the _leftmost_ leaf storing the hash of the given record (if any). Since different leaves might store the same record, __*it is suggested that records under encryption include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct records*__.
+where the argument can be of type `str`, `bytes` or `bytearray` indifferently (otherwise an `InvalidProofRequest` gets raised). In the second variation, the proof generation is based upon the _leftmost_ leaf storing the hash of the given record (if any). Since different leaves might store the same record, _it is suggested that provided records include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct record_.
 
-The generated object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
+The object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash) and the paramters needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
 ```shell
 >>> p
@@ -432,34 +432,40 @@ Similarly, use the `.consistencyProof()` method to generate a consistency proof 
 q = tree.consistencyProof(
       oldhash=bytes(
         '92e0e8f2d57526d852fb567a052219937e56e9c388abf570a679651772360e7a',
-        'utf-8'),
-      sublength=1546)
+        'utf-8'
+      ),
+      sublength=1546
+)
 ```
 
-Here the parameters `oldhash` and `sublength` (meant to be provided from Client's Side) refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example, **_if the available root-hash is in string hexadecimal form, then it first has to be encoded according to the Merkle-tree's encoding type_** (here `'utf-8'`), otherwise a `TypeError` is thrown.
+Here the parameters `oldhash` and `sublength` (meant to be provided from Client's Side) refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example,*_if the available root-hash is string hexadecimal, then it first has to be encoded with the tree's configured encoding type* (here `'utf-8'`), otherwise an `InvalidProofRequest` gets raised. More specifically, an `InvalidProofRequest` will be raised whenever the provided `oldhash`, resp. `sublength` is not
+of type _bytes_, resp. _str_.
 
 A typical session would be as follows:
 
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
-oldhash = tree.rootHash() # a bytes object
+
+oldhash   = tree.rootHash() # bytes
 sublength = tree.length()
 
-# Server encrypts some new log (modifying the root-hash and length of the tree)
+# Server encrypts some new log (modifying the Merkle-tree's root-hash and length)
+
 tree.encryptFilePerLog('sample_log')
 
-# Upon Client's request, the server provides consistency proof for the requested stage
+# Upon Client's request, the server provides consistency proof for the provided state
+
 q = tree.consistencyProof(oldhash, sublength)
 ```
 
-The generated object `q` (similarly an instance of the `proof.Proof` class) consists of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the configurations needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
+The object `q`, an instance of the `proof.Proof` class, consists of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the parameters needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
 
 ### Inclusion-tests
 
 #### Client's Side (auditor)
 
 An _auditor_ (Client) verifies inclusion of a record within the Merkle-Tree by just requesting
-the corresponding audit-proof from the Server (Merkle-tree). Inclusion is namely verified _iff_
+the corresponding audit-proof from the Merkle-tree (Server). Inclusion is namely verified _iff_
 the proof provided by the Server is found by the auditor to be valid (verifying also the Server's identity under further assumptions).
 
 #### Server's Side (Merkle-tree)
@@ -473,28 +479,31 @@ More specifically, upon generating any consistency-proof requested by a Client, 
 - inclusion-test _failure_: if the combination of `oldhash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
 internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
 
-In versions later than _0.2.0_, the above implicit check has been abstracted from `.consistencyProof()` method and explicitly implemented within the `.inclusionTest()` method of the `MerkleTree` object. A typical session would then be as follows:
+The above implicit check has been abstracted from `.consistencyProof()` method and explicitly implemented within the `.inclusionTest()` method of the `MerkleTree` object. A typical session would then be as follows:
 
 ```python
 # Client requests and stores the Merkle-tree's current state
-oldhash = tree.rootHash()
+
+oldhash   = tree.rootHash()
 sublength = tree.length()
 
 # Server encrypts new records into the Merkle-tree
+
 tree.encryptFilePerLog('large_APACHE_log')
 
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
-tree.inclusionTest(oldhash=oldhash, sublength=sublength)         # True
-tree.inclusionTest(oldhash=b'anything else', sublength=sublength) # False
-tree.inclusionTest(oldhash=oldhash, sublength=sublength + 1)     # False
+
+tree.inclusionTest(oldhash=oldhash, sublength=sublength)                 # True
+tree.inclusionTest(oldhash=b'anything else', sublength=sublength)        # False
+tree.inclusionTest(oldhash=oldhash, sublength=sublength + 1)             # False
 ```
 
 ### Tree comparison
 
-Instead of performing inclusion-test on a given pair of root-hash and length, one can directly
-verify whether a Merkle-tree represents a valid previous state of another by using the
-`<=` operator. More specifically, given two Merkle-trees `tree_1, tree_2`, the statement
+Instead of performing inclusion-test on a provided pair of root-hash and sublength, one can
+directly verify whether a Merkle-tree represents a valid previous state of another by using the
+`<=` operator. In particular, given two Merkle-trees `tree_1`, `tree_2`, the statement
 
 ```python
 tree_1 <= tree_2
@@ -506,7 +515,7 @@ is equivalent to
 tree_2.inclusionTest(oldhash=tree_1.rootHash(), sublength=tree_1.length())
 ```
 
-To verify whether `tree_1` represents a genuinely previous state of `tree_2`, write
+To verify whether `tree_1` represents a genuinely previous state of `tree_2`, type
 
 ```python
 tree_1 < tree_2
@@ -517,7 +526,8 @@ do not coincide.
 
 Finally, since trees with the same number of leaves have always identical structure
 (cf. the _Tree structure_ section of [README](README.md)), equality between Merkle-trees
-amounts to identification of their current root-hashes, that is,
+amounts to identification of their current root-hashes, that is, under the same combinations
+of hash and encoding types,
 
 ```python
 tree_1 == tree_2
@@ -552,7 +562,7 @@ A more elaborate validation procedure includes generating a receipt with info ab
 receipt = validationReceipt(target=tree.rootHash(), proof=p)
 ```
 
-Here the `validateProof` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is an instant of the `validations.Receipt` class. It looks like
+Here the `validateProof()` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is an instant of the `validations.Receipt` class. It looks like
 
 ```bash
 >>> receipt
