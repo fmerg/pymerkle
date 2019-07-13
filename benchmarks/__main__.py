@@ -102,17 +102,19 @@ def _mean_value(_list, precision, with_stdev=False):
 
 from datetime import datetime
 
-def _time_elapsed(start):
-    """
-    """
-    return (datetime.now() - start).total_seconds()
+_time_elapsed = lambda start: (datetime.now() - start).total_seconds()
 
 
-def _show_stats(total, min, max, mean, stdev):
+def _show_stats(message, mean, stdev, total=None, min=None, max=None):
     sys.stdout.write('\n')
-    sys.stdout.write('\nTotal time : %s' % total)
-    sys.stdout.write('\nMax time   : %s' % max)
-    sys.stdout.write('\nMin time   : %s' % min)
+    sys.stdout.write('\n%s' % message)
+    sys.stdout.write('\n')
+    if total is not None:
+        sys.stdout.write('\nTotal time : %s' % total)
+    if min is not None:
+        sys.stdout.write('\nMax time   : %s' % max)
+    if max is not None:
+        sys.stdout.write('\nMin time   : %s' % min)
     sys.stdout.write('\nMean       : %s' % mean)
     sys.stdout.write('\nStDev      : %s' % stdev)
 
@@ -184,9 +186,10 @@ def nodes_benchmark():
     )
 
     mean, stdev = _mean_value(access_digest_measurements, precision=precision_1, with_stdev=True)
-    sys.stdout.write('\n')
-    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
-    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
+    _show_stats('Time needed to access digest (secs)', mean, stdev)
+    # sys.stdout.write('\n')
+    # sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
+    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
     # Left parent access
 
@@ -197,9 +200,10 @@ def nodes_benchmark():
     )
 
     mean, stdev = _mean_value(access_left_parent_measurements, precision=precision_1, with_stdev=True)
-    sys.stdout.write('\n')
-    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
-    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
+    _show_stats('Time needed to access left parent (secs)', mean, stdev)
+    # sys.stdout.write('\n')
+    # sys.stdout.write('\nMean time needed to access left parent (secs): %s' % (mean.__str__()))
+    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
     # Right parent access
 
@@ -210,9 +214,10 @@ def nodes_benchmark():
     )
 
     mean, stdev = _mean_value(access_right_parent_measurements, precision=precision_1, with_stdev=True)
-    sys.stdout.write('\n')
-    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
-    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
+    _show_stats('Time needed to access right parent (secs)', mean, stdev)
+    # sys.stdout.write('\n')
+    # sys.stdout.write('\nMean time needed to access the let parent (secs): %s' % (mean.__str__()))
+    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
     # Child access
 
@@ -223,9 +228,10 @@ def nodes_benchmark():
     )
 
     mean, stdev = _mean_value(access_child_measurements, precision=precision_1, with_stdev=True)
-    sys.stdout.write('\n')
-    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
-    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
+    _show_stats('Time needed to access child (secs)', mean, stdev)
+    # sys.stdout.write('\n')
+    # sys.stdout.write('\nMean time needed to access the child (secs): %s' % (mean.__str__()))
+    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
 
 def tree_benchmark():
@@ -284,15 +290,13 @@ def tree_benchmark():
         elapsed.append(_elapsed)
 
     mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
-    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    _show_stats(message='Tree update', total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 
 def audit_proofs_benchmark():
 
     global PROOFS
-
-    sys.stdout.write('\nAudit proofs')
 
     START = datetime.now()
     MAX   = None
@@ -324,7 +328,7 @@ def audit_proofs_benchmark():
         elapsed.append(_elapsed)
 
     mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
-    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    _show_stats(message='Audit proofs', total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 def consistency_proofs_benchmark():
@@ -382,17 +386,13 @@ def consistency_proofs_benchmark():
         elapsed.append(_elapsed)
 
     mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
-    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    _show_stats(message='Consistency proofs' , total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 
 def proof_validations_benchmark():
 
     global PROOFS
-
-    sys.stdout.write('\nValidations')
-
-    print(len(PROOFS))
 
     START = datetime.now()
     MAX   = None
@@ -421,7 +421,7 @@ def proof_validations_benchmark():
         elapsed.append(_elapsed)
 
     mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
-    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    _show_stats(message='Proof validations', total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 # ------------------------------------ main ------------------------------------
 
