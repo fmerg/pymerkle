@@ -37,7 +37,7 @@ for _ in range(665):                                          # Update the tree 
 
 _audit = tree.auditProof('12-th record')                      # Request audit-proof for the given record        
 
-validateProof(target=tree.rootHash(), proof=_audit)           # Quick validation of the above proof (True)
+validateProof(target_hash=tree.rootHash(), proof=_audit)           # Quick validation of the above proof (True)
 
 # Store the tree's current state for later use
 
