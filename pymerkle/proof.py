@@ -80,20 +80,24 @@ class Proof(object):
             if kwargs.get('from_dict'):                                         # Importing proof from dict
                 self.header = kwargs.get('from_dict')['header']
 
+                encoding = self.header['encoding']
+
                 _body = kwargs.get('from_dict')['body']
                 self.body = {
                     'proof_index': _body['proof_index'],
-                    'proof_path': tuple(tuple(pair) for pair in _body['proof_path'])
+                    'proof_path': tuple((pair[0], bytes(pair[1], encoding)) for pair in _body['proof_path'])
                 }
             elif kwargs.get('from_json'):                                       # Importing proof from JSON text
                 proof_dict = json.loads(kwargs.get('from_json'))
 
                 self.header = proof_dict['header']
 
+                encoding = self.header['encoding']
+
                 _body = proof_dict['body']
                 self.body = {
                     'proof_index': _body['proof_index'],
-                    'proof_path': tuple(tuple(pair) for pair in _body['proof_path'])
+                    'proof_path': tuple((pair[0], bytes(pair[1], encoding)) for pair in _body['proof_path'])
                 }
             else:                                                               # Standard creation of a proof
                 self.header = {
