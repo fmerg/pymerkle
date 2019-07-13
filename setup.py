@@ -46,8 +46,8 @@ INSTALL_REQUIRES = []
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
 try:
-  with open(os.path.join(current_dir, README), 'r') as _file:
-    LONG_DESCRIPTION = "\n" + _file.read()
+  with open(os.path.join(current_dir, README), "r") as _file:
+    LONG_DESCRIPTION = _file.read()
 except FileNotFoundError:
     pass
 
