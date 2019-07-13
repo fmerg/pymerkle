@@ -187,9 +187,6 @@ def nodes_benchmark():
 
     mean, stdev = _mean_value(access_digest_measurements, precision=precision_1, with_stdev=True)
     _show_stats('Time needed to access digest (secs)', mean, stdev)
-    # sys.stdout.write('\n')
-    # sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
-    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
     # Left parent access
 
@@ -201,9 +198,6 @@ def nodes_benchmark():
 
     mean, stdev = _mean_value(access_left_parent_measurements, precision=precision_1, with_stdev=True)
     _show_stats('Time needed to access left parent (secs)', mean, stdev)
-    # sys.stdout.write('\n')
-    # sys.stdout.write('\nMean time needed to access left parent (secs): %s' % (mean.__str__()))
-    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
     # Right parent access
 
@@ -215,9 +209,6 @@ def nodes_benchmark():
 
     mean, stdev = _mean_value(access_right_parent_measurements, precision=precision_1, with_stdev=True)
     _show_stats('Time needed to access right parent (secs)', mean, stdev)
-    # sys.stdout.write('\n')
-    # sys.stdout.write('\nMean time needed to access the let parent (secs): %s' % (mean.__str__()))
-    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
     # Child access
 
@@ -229,9 +220,6 @@ def nodes_benchmark():
 
     mean, stdev = _mean_value(access_child_measurements, precision=precision_1, with_stdev=True)
     _show_stats('Time needed to access child (secs)', mean, stdev)
-    # sys.stdout.write('\n')
-    # sys.stdout.write('\nMean time needed to access the child (secs): %s' % (mean.__str__()))
-    # sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
 
 def tree_benchmark():

@@ -1,6 +1,8 @@
 ## API
 
-This section describes the recommended high-level usage of the _pymerkle_ API. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of classes, methods and their possible arguments.
+### [Work in progress]
+
+<!-- This section describes the recommended high-level usage of the _pymerkle_ API. See the [**documentation**](http://pymerkle.readthedocs.org/) for a complete reference of classes, methods and their possible arguments.
 
 ## `class` __MerkleTree ([*hash_type='sha256', encoding='utf-8', security=True*])__
 
@@ -229,4 +231,4 @@ the generated receipt will *not* be automatically stored in any file.
 
 - **Returns**: a receipt containing the result of validation (along with _time-stamp_ and _uuid_)
 
-- **Return type**: _validations.Receipt_
+- **Return type**: _validations.Receipt_ -->
