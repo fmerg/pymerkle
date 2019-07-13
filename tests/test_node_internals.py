@@ -29,7 +29,7 @@ _leaves = (
     Leaf(
         hashfunc=HASH,
         encoding=ENCODING,
-        stored_hash='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'
+        digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'
     )
 )
 
@@ -84,24 +84,24 @@ root = Node(
 # ------------------------- Tests for childless leaves -------------------
 
 
-def test_leaf_construction_exception_with_neither_record_nor_stored_hash():
+def test_leaf_construction_exception_with_neither_record_nor_digest():
     """Tests that the Leaf constructor raises `TypeError`
-    if neither `record` nor `stored_hash` is provided
+    if neither `record` nor `digest` is provided
     """
     with pytest.raises(LeafConstructionError):
         Leaf(hashfunc=HASH, encoding=ENCODING)
 
 
-def test_leaf_construction_exception_with_both_record_and_stored_hash():
+def test_leaf_construction_exception_with_both_record_and_digest():
     """Tests that the Leaf constructor raises `TypeError`
-    if both `record` and `stored_hash` are provided
+    if both `record` and `digest` are provided
     """
     with pytest.raises(LeafConstructionError):
         Leaf(
             hashfunc=HASH,
             encoding=ENCODING,
             record=b'anything...',
-            stored_hash=HASH('whatever...')
+            digest=HASH('whatever...')
         )
 
 
@@ -179,7 +179,7 @@ def test_childless_leaf___repr__(_leaf):
                     left_id='[None]',
                     right_id='[None]',
                     child_id='[None]',
-                    hash=_leaf.stored_hash.decode(_leaf.encoding)
+                    hash=_leaf.digest.decode(_leaf.encoding)
                 )
 
 
@@ -316,7 +316,7 @@ def test___repr__for_leafs_with_child(_leaf):
                     left_id='[None]',
                     right_id='[None]',
                     child_id=str(hex(id(_leaf.child))),
-                    hash=_leaf.stored_hash.decode(_leaf.encoding)
+                    hash=_leaf.digest.decode(_leaf.encoding)
                 )
 
 
@@ -334,7 +334,7 @@ def test___repr__for_nodes_with_child(node):
                     left_id=str(hex(id(node.left))),
                     right_id=str(hex(id(node.right))),
                     child_id=str(hex(id(node.child))),
-                    hash=node.stored_hash.decode(node.encoding)
+                    hash=node.digest.decode(node.encoding)
                 )
 
 
@@ -351,7 +351,7 @@ def test___repr__for_node_without_child():
                     left_id=str(hex(id(root.left))),
                     right_id=str(hex(id(root.right))),
                     child_id='[None]',
-                    hash=root.stored_hash.decode(root.encoding)
+                    hash=root.digest.decode(root.encoding)
                 )
 
 
@@ -539,10 +539,10 @@ def test_hash_recalculation():
 
     root.recalculate_hash(hashfunc=HASH)
 
-    assert node_34.stored_hash == HASH(
-        leaf_3.stored_hash, new_leaf.stored_hash
-    ) and root.stored_hash == HASH(
-        node_12.stored_hash, node_34.stored_hash
+    assert node_34.digest == HASH(
+        leaf_3.digest, new_leaf.digest
+    ) and root.digest == HASH(
+        node_12.digest, node_34.digest
     )
 
 # -------------------------- Decoding errors testing --------------------------

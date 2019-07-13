@@ -245,7 +245,7 @@
 <span class="sd">        .. note:: Returns ``None`` if the Merkle-tree is currently empty</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">stored_hash</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">digest</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <span class="c1"># ------------------------------- Representation -------------------------</span>
@@ -454,7 +454,7 @@
             <span class="c1"># ~ no genuine path be generated</span>
             <span class="n">arg_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="n">leaf_hashes</span> <span class="o">=</span> <span class="p">(</span><span class="n">leaf</span><span class="o">.</span><span class="n">stored_hash</span> <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
+            <span class="n">leaf_hashes</span> <span class="o">=</span> <span class="p">(</span><span class="n">leaf</span><span class="o">.</span><span class="n">digest</span> <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
             <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="nb">hash</span> <span class="ow">in</span> <span class="n">leaf_hashes</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">hash</span> <span class="o">==</span> <span class="n">arg_hash</span><span class="p">:</span>
@@ -584,7 +584,7 @@
 
             <span class="c1"># Generate corresponding path of negatively signed hashes</span>
             <span class="n">left_roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">principal_subroots</span><span class="p">(</span><span class="n">sublength</span><span class="p">)</span>
-            <span class="n">left_path</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">left_roots</span><span class="p">])</span>
+            <span class="n">left_path</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">left_roots</span><span class="p">])</span>
 
             <span class="c1"># Perform hash-test</span>
             <span class="k">return</span> <span class="n">oldhash</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_hash</span><span class="p">(</span><span class="n">left_path</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
@@ -628,17 +628,17 @@
             <span class="n">initial_sign</span> <span class="o">=</span> <span class="o">+</span><span class="mi">1</span>
             <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>
                 <span class="n">initial_sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">initial_sign</span><span class="p">,</span> <span class="n">current_node</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)]</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">initial_sign</span><span class="p">,</span> <span class="n">current_node</span><span class="o">.</span><span class="n">digest</span><span class="p">)]</span>
             <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">while</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
-                    <span class="n">next_hash</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">stored_hash</span>
+                    <span class="n">next_hash</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">digest</span>
                     <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">is_left_parent</span><span class="p">():</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">next_hash</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">stored_hash</span>
+                    <span class="n">next_hash</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">digest</span>
                     <span class="k">if</span> <span class="n">current_node</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">is_right_parent</span><span class="p">():</span>
                         <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">next_hash</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -685,8 +685,8 @@
                 <span class="n">proof_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_roots</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
             <span class="c1"># Collect and return only sign and hash pairs</span>
-            <span class="n">left_path</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">left_roots</span><span class="p">]</span>
-            <span class="n">full_path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stored_hash</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">all_roots</span><span class="p">]</span>
+            <span class="n">left_path</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">left_roots</span><span class="p">]</span>
+            <span class="n">full_path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">digest</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">all_roots</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">proof_index</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">left_path</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Incompatibility issue detected</span></div>

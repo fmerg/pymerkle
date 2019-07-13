@@ -20,16 +20,11 @@ sys.path.insert(0, os.path.dirname(current_dir))
 from pymerkle.nodes import Node, Leaf
 from pymerkle.hashing import hash_machine
 from pymerkle import MerkleTree
+from pymerkle.validations import validateProof
 
 
 # ---------------------------------- Helpers ----------------------------------
 
-
-from timeit import timeit
-from datetime import datetime
-
-def _time_elapsed(start):
-    return (datetime.now() - start).total_seconds()
 
 
 from numbers import Number
@@ -77,107 +72,356 @@ def _size(obj_0):
     return inner(obj_0)
 
 
-def _print_results(total, mint, maxt, mean, stdev):
-    sys.stdout.write('\nTotal time : %f' % total)
-    sys.stdout.write('\nMin time   : %f' % mint)
-    sys.stdout.write('\nMax time   : %f' % maxt)
-    sys.stdout.write('\nMean       : %f' % mean)
-    sys.stdout.write('\nStDev      : %f' % stdev)
+from decimal import Decimal, ROUND_HALF_UP
+from functools import reduce
+
+def _quantize(_float, precision):
+    return Decimal(_float).quantize(precision, rounding=ROUND_HALF_UP)
+
+def _mean_value(_list, precision, with_stdev=False):
+    """Accepts an iterable of numbers, returns a string
+    """
+
+    _list = [_quantize(_, precision) for _ in _list]
+
+    sum    = reduce(lambda x, y: x + y, _list)
+    length = _quantize(_list.__len__(), precision)
+
+    if not with_stdev:
+
+        return _quantize(sum/length, precision)
+
+    else:
+
+        mean  = _quantize(sum/length, precision)
+
+        stdev = _quantize(reduce(lambda s, k: s + (k - mean) ** 2, _list)/(length - 1), precision)
+
+        return mean, stdev
+
+
+from datetime import datetime
+
+def _time_elapsed(start):
+    """
+    """
+    return (datetime.now() - start).total_seconds()
+
+
+def _show_stats(total, min, max, mean, stdev):
+    sys.stdout.write('\n')
+    sys.stdout.write('\nTotal time : %s' % total)
+    sys.stdout.write('\nMax time   : %s' % max)
+    sys.stdout.write('\nMin time   : %s' % min)
+    sys.stdout.write('\nMean       : %s' % mean)
+    sys.stdout.write('\nStDev      : %s' % stdev)
 
 
 # --------------------------------- Benchmarks ---------------------------------
 
-MACHINE  = hash_machine()       # prepends security prefices by default
-ENCODING = MACHINE.ENCODING     # utf-8
-HASH     = MACHINE.hash         # SHA256
+
+HASH_TYPE    = 'sha256'
+ENCODING     = 'utf-8'
+
+MACHINE      = hash_machine(hash_type=HASH_TYPE, encoding=ENCODING)
+ENCODING     = MACHINE.ENCODING
+HASH         = MACHINE.hash
+
+TREE         = MerkleTree(hash_type=HASH_TYPE, encoding=ENCODING)
+LENGTH       = 10 ** 3 # 4 # 5
+ADDITIONAL   = 10 ** 3 # 4 # 5 # 10 ** 6
+
+ITERATIONS   = 10 ** 3
+ROUNDS       = 20 # 10 ** 5
+
+PROOFS       = []
 
 
-def leaf_benchmark():
 
-    _leaf = Leaf(
-        hashfunc=HASH,
-        encoding=ENCODING,
-        record=b'some record...'
-    )
+PRECISION_1    = 12
+PRECISION_2    = 6
 
-    print(_size(_leaf))
+precision_1 = Decimal('.%s1' % ('0' * (PRECISION_1 - 1)))
+precision_2 = Decimal('.%s1' % ('0' * (PRECISION_2 - 1)))
 
 
-def node_benchmark():
-    """
-    """
+import timeit
 
-    def access_stored_hash_func(_node):
-        def access_attribute():
-            _node.stored_hash
+
+def nodes_benchmark():
+
+    def access_digest_func(_node):
+        def access_attribute(): _node.digest
         return access_attribute
 
     def access_left_parent_func(_node):
-        def access_attribute():
-            _node.left
+        def access_attribute(): _node.left
         return access_attribute
 
     def access_right_parent_func(_node):
-        def access_attribute():
-            _node.right
+        def access_attribute(): _node.right
         return access_attribute
 
     def access_child_func(_node):
-        def access_attribute():
-            _node.child
+        def access_attribute(): _node.child
         return access_attribute
 
-    left = Leaf(
-        hashfunc=HASH,
-        encoding=ENCODING,
-        record=b'first record...'
+    left  = Leaf(hashfunc=HASH, encoding=ENCODING, record='first record...')
+    right = Leaf(hashfunc=HASH, encoding=ENCODING, record='second record...')
+    node  = Node(hashfunc=HASH, encoding=ENCODING, left=left, right=right)
+
+    # Size measurement
+
+    sys.stdout.write('\nSize of leaf with encoding %s and hash type %s (bytes): %d' % (ENCODING, HASH_TYPE, _size(left)))
+    sys.stdout.write('\nSize of internal node with encoding %s and hash type %s (bytes): %d' % (ENCODING, HASH_TYPE, _size(left)))
+
+    # Digest access
+
+    access_digest_measurements = timeit.repeat(
+        access_digest_func(left),
+        repeat=ITERATIONS,
+        number=ROUNDS
     )
 
-    right = Leaf(
-        hashfunc=HASH,
-        encoding=ENCODING,
-        record=b'second record...'
+    mean, stdev = _mean_value(access_digest_measurements, precision=precision_1, with_stdev=True)
+    sys.stdout.write('\n')
+    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
+    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
+
+    # Left parent access
+
+    access_left_parent_measurements = timeit.repeat(
+        access_left_parent_func(node),
+        repeat=ITERATIONS,
+        number=ROUNDS
     )
 
-    node = Node(
-        hashfunc=HASH,
-        encoding=ENCODING,
-        left=left,
-        right=right
+    mean, stdev = _mean_value(access_left_parent_measurements, precision=precision_1, with_stdev=True)
+    sys.stdout.write('\n')
+    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
+    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
+
+    # Right parent access
+
+    access_right_parent_measurements = timeit.repeat(
+        access_right_parent_func(node),
+        repeat=ITERATIONS,
+        number=ROUNDS
     )
 
-    print(_size(left))
+    mean, stdev = _mean_value(access_right_parent_measurements, precision=precision_1, with_stdev=True)
+    sys.stdout.write('\n')
+    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
+    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
-    print(_size(right))
+    # Child access
 
-    print(_size(node))
+    access_child_measurements = timeit.repeat(
+        access_child_func(right),
+        repeat=ITERATIONS,
+        number=ROUNDS
+    )
 
-    print(timeit(access_stored_hash_func(left), number=10000))
-    print(timeit(access_stored_hash_func(node), number=10000))
+    mean, stdev = _mean_value(access_child_measurements, precision=precision_1, with_stdev=True)
+    sys.stdout.write('\n')
+    sys.stdout.write('\nMean time needed to access the digest (secs): %s' % (mean.__str__()))
+    sys.stdout.write('\nStDev: %s' % (stdev.__str__()))
 
-LENGTH = 10000
-hash_type = 'sha256'
-encoding = 'utf-32'
 
 def tree_benchmark():
-    """
-    """
+    global TREE
 
-    tree = MerkleTree(hash_type='sha256', encoding=encoding)
+    sys.stdout.write('\n')
+    sys.stdout.write('\nTree size with 0 nodes (bytes): %d' % _size(TREE))
+    START = datetime.now()
 
-    sys.stdout.write('\nTree size with 0 nodes (bytes): %d' % _size(tree))
+    TREE = MerkleTree(*['%d-th record' % _ for _ in range(LENGTH)], hash_type=HASH_TYPE, encoding=ENCODING)
 
-    start = datetime.now()
+    time_needed = _time_elapsed(START)
 
-    for _ in range(LENGTH):
-        tree.encryptRecord('%d-th record' % _)
+    sys.stdout.write('\n')
+    sys.stdout.write('\nTime needed to generate a Merkle-tree with %d leaves (secs): %s' % (LENGTH, time_needed))
+    sys.stdout.write('\nSize of tree with %d leaves (bytes): %d' % (TREE.length, _size(TREE)))
 
-    sys.stdout.write('\nTime needed to genereate tree with %d nodes (secs): %f' % (LENGTH, _time_elapsed(start)))
-    sys.stdout.write('\nTree size with %d leaves (bytes): %d' % (LENGTH, _size(tree)))
-    sys.stdout.write('\nRoot size of tree with %d leaves (bytes): %d' % (LENGTH, _size(tree.root)))
-    sys.stdout.write('\nLast leaf size of tree with %d leaves (bytes): %d' % (LENGTH, _size(tree.leaves[-1])))
-    sys.stdout.write('\nIntermediate node size of tree with %d leaves (bytes): %d' % (LENGTH, _size(tree.leaves[10].child)))
 
+    START = datetime.now()
+
+    for _ in range(LENGTH, LENGTH + ADDITIONAL):
+        TREE.encryptRecord('%d-th record' % _)
+
+    time_needed = _time_elapsed(START)
+
+    sys.stdout.write('\n')
+    sys.stdout.write('\nTime needed to update the tree with %d leaves (secs): %f' % (ADDITIONAL, time_needed))
+    sys.stdout.write('\nSize of tree with %d leaves (bytes): %d' % (TREE.length, _size(TREE)))
+
+
+    #
+
+    START = datetime.now()
+    MAX   = None
+    MIN   = None
+    TOTAL = 0.0
+
+    elapsed = []
+
+    for _ in range(TREE.length, TREE.length + ADDITIONAL):
+
+        _cycle   = datetime.now()
+
+        TREE.update(record='%d-th record' % _)
+
+        _elapsed = _time_elapsed(_cycle)
+
+        if MAX is None:
+            MAX = _elapsed
+            MIN = _elapsed
+        else:
+            MAX = max(_elapsed, MAX)
+            MIN = min(_elapsed, MIN)
+
+        TOTAL += _elapsed
+        elapsed.append(_elapsed)
+
+    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+
+
+
+def audit_proofs_benchmark():
+
+    global PROOFS
+
+    sys.stdout.write('\nAudit proofs')
+
+    START = datetime.now()
+    MAX   = None
+    MIN   = None
+    TOTAL = 0.0
+
+    elapsed = []
+
+    for _ in range(TREE.length):
+
+        _cycle   = datetime.now()
+
+        _proof = TREE.auditProof(arg='%d-th record' % _)
+
+        _elapsed = _time_elapsed(_cycle)
+
+        # print(_proof)
+        # print(_)
+
+        if MAX is None:
+            MAX = _elapsed
+            MIN = _elapsed
+        else:
+            MAX = max(_elapsed, MAX)
+            MIN = min(_elapsed, MIN)
+
+        PROOFS.append(_proof)
+        TOTAL += _elapsed
+        elapsed.append(_elapsed)
+
+    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+
+
+def consistency_proofs_benchmark():
+
+    # Generate states
+
+    global TREE
+    TREE = MerkleTree('0-th record', encoding=ENCODING, hash_type=HASH_TYPE)
+
+    STATES = []
+    for _ in range(1, LENGTH + 3 * ADDITIONAL):#):
+
+        STATES.append((TREE.rootHash, TREE.length))
+        TREE.encryptRecord(bytes('%d-th record' % _, encoding=ENCODING))
+
+    STATES.append((TREE.rootHash, TREE.length))
+
+    # Generate proofs
+
+    global PROOFS
+
+    sys.stdout.write('\nConsistency proofs')
+
+    START = datetime.now()
+    MAX   = None
+    MIN   = None
+    TOTAL = 0.0
+
+    elapsed = []
+
+    for _ in range(TREE.length):
+
+        # print(_)
+
+        _oldhash   = STATES[_][0]
+        _sublength = STATES[_][1]
+
+        _cycle   = datetime.now()
+
+        _proof = TREE.consistencyProof(oldhash=_oldhash, sublength=_sublength)
+
+        _elapsed = _time_elapsed(_cycle)
+
+        # print(_proof)
+        # print(_)
+
+        if MAX is None:
+            MIN = MAX = _elapsed
+        else:
+            MAX = max(_elapsed, MAX)
+            MIN = min(_elapsed, MIN)
+
+        PROOFS.append(_proof)
+        TOTAL += _elapsed
+        elapsed.append(_elapsed)
+
+    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+
+
+
+def proof_validations_benchmark():
+
+    global PROOFS
+
+    sys.stdout.write('\nValidations')
+
+    print(len(PROOFS))
+
+    START = datetime.now()
+    MAX   = None
+    MIN   = None
+    TOTAL = 0.0
+
+    elapsed = []
+
+    for _proof in PROOFS:
+
+        _cycle   = datetime.now()
+
+        validateProof(target=TREE.rootHash, proof=_proof)
+
+        _elapsed = _time_elapsed(_cycle)
+
+
+        if MAX is None:
+            MAX = _elapsed
+            MIN = _elapsed
+        else:
+            MAX = max(_elapsed, MAX)
+            MIN = min(_elapsed, MIN)
+
+        TOTAL += _elapsed
+        elapsed.append(_elapsed)
+
+    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    _show_stats(total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 # ------------------------------------ main ------------------------------------
 
@@ -235,9 +479,13 @@ def main():
         default='../pymerkle/tests/objects/sample.json'
     )
 
-    leaf_benchmark()
-    node_benchmark()
+    nodes_benchmark()
     tree_benchmark()
+    audit_proofs_benchmark()
+    consistency_proofs_benchmark()
+    proof_validations_benchmark()
+
+    sys.stdout.write('\n')
     sys.exit(0)
 
 if __name__ == "__main__":

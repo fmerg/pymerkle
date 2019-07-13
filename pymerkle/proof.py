@@ -5,11 +5,7 @@ import uuid
 import time
 import json
 from .serializers import ProofSerializer
-from .utils import stringify_path
-
-NONE = '[None]'
-
-# -------------------------------- Main class --------------------------------
+from .utils import stringify_path, NONE
 
 
 class Proof(object):

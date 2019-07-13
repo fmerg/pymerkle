@@ -2,7 +2,7 @@
 """
 
 from .hashing import hash_machine
-from .utils import log_2, decompose
+from .utils import log_2, decompose, NONE
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
@@ -15,26 +15,23 @@ import mmap
 import contextlib
 from tqdm import tqdm
 
-NONE     = '[None]'
 NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
-
-# -------------------------------- Main class ----------------------------
 
 
 class MerkleTree(object):
     """Class for Merkle-trees
 
-    :param \*records:  [optional] The records initially stored by the Merkle-tree. If provided, the tree is constructed with
-                       as many leafs from the beginning, storing the hashes of the inserted records in the respective order.
-    :type \*records:   str or bytes or bytearray
-    :param hash_type:  [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper- or mixed-case
-                       with '-' instead of '_' allowed), otherwise an exception is thrown.
-    :type hash_type:   str
-    :param encoding:   [optional] Defaults to ``'utf_8'``. Should be included in ``hashing.ENCODINGS`` (upper- or mixed-case
-                       with '-' instead of '_' allowed), otherwise an exception is thrown.
-    :type encoding:    str
-    :param security:   [optional] Defaults to ``True``.If ``False``, defense against second-preimage attack will be disabled
-    :type security:    bool
+    :param \*records: [optional] The records initially stored by the Merkle-tree. If provided, the tree is constructed with
+                      as many leafs from the beginning, storing the hashes of the inserted records in the respective order.
+    :type \*records:  str or bytes or bytearray
+    :param hash_type: [optional] Defaults to ``'sha256'``. Should be included in ``hashing.HASH_TYPES`` (upper- or mixed-case
+                      with '-' instead of '_' allowed), otherwise an exception is thrown.
+    :type hash_type:  str
+    :param encoding:  [optional] Defaults to ``'utf_8'``. Should be included in ``hashing.ENCODINGS`` (upper- or mixed-case
+                      with '-' instead of '_' allowed), otherwise an exception is thrown.
+    :type encoding:   str
+    :param security:  [optional] Defaults to ``True``.If ``False``, defense against second-preimage attack will be disabled
+    :type security:   bool
 
     :raises UndecodableRecordError:    if any of the provided ``records`` is a bytes-like object which cannot be decoded with
                                        the provided encoding type
@@ -127,7 +124,7 @@ class MerkleTree(object):
         except EmptyTreeException:
             raise
 
-        return _root.stored_hash
+        return _root.digest
 
     @property
     def length(self):
@@ -163,18 +160,18 @@ class MerkleTree(object):
 
 # ---------------------------------- Updating ----------------------------
 
-    def update(self, record=None, stored_hash=None):
+    def update(self, record=None, digest=None):
         """Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf, restructuring
         the tree appropriately and recalculating all necessary interior hashes
 
-        :param record:      [optional] The record whose hash is to be stored into a new leaf.
-        :type record:       str or bytes or bytearray
-        :param stored_hash: [optional] The hash to be stored by the new leaf (after encoding).
-        :type stored_hash:  str
+        :param record: [optional] The record whose hash is to be stored into a new leaf.
+        :type record:  str or bytes or bytearray
+        :param digest: [optional] The hash to be stored by the new leaf (after encoding).
+        :type digest:  str
 
-        .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided
+        .. warning:: Exactly *one* of *either* ``record`` *or* ``digest`` should be provided
 
-        :raises LeafConstructionError:  if both ``record`` and ``stored_hash`` were provided
+        :raises LeafConstructionError:  if both ``record`` and ``digest`` were provided
         :raises UndecodableRecordError: if the provided ``record`` is a bytes-like object which could not be decoded with
                                         the Merkle-tree's encoding type
         """
@@ -193,7 +190,7 @@ class MerkleTree(object):
                     hashfunc=self.hash,
                     encoding=self.encoding,
                     record=record,
-                    stored_hash=stored_hash
+                    digest=digest
                 )
 
             except (LeafConstructionError, UndecodableRecordError):
@@ -257,7 +254,7 @@ class MerkleTree(object):
                     hashfunc=self.hash,
                     encoding=self.encoding,
                     record=record,
-                    stored_hash=stored_hash
+                    digest=digest
                 )
 
             except (LeafConstructionError, UndecodableRecordError):
@@ -302,7 +299,7 @@ class MerkleTree(object):
                 if current_node.is_right_parent():
                     initial_sign = -1
 
-                path = [(initial_sign, current_node.stored_hash)]
+                path = [(initial_sign, current_node.digest)]
                 start = 0
 
                 while True:
@@ -316,7 +313,7 @@ class MerkleTree(object):
                     else:
 
                         if current_node.is_left_parent():
-                            next_hash = current_child.right.stored_hash
+                            next_hash = current_child.right.digest
 
                             if current_child.is_left_parent():
                                 path.append((+1, next_hash))
@@ -324,7 +321,7 @@ class MerkleTree(object):
                                 path.append((-1, next_hash))
 
                         else:
-                            next_hash = current_child.left.stored_hash
+                            next_hash = current_child.left.digest
 
                             if current_child.is_right_parent():
                                 path.insert(0, (-1, next_hash))
@@ -372,7 +369,7 @@ class MerkleTree(object):
                     break
 
                 else:
-                    if _hash == _leaf.stored_hash:
+                    if _hash == _leaf.digest:
                         index = count
                         break
                     count += 1
@@ -600,8 +597,8 @@ class MerkleTree(object):
 
             # Collect sign-hash pairs
 
-            left_path = tuple([(-1, _[1].stored_hash) for _ in left_subroots])
-            full_path = tuple([(_[0], _[1].stored_hash) for _ in all_subroots])
+            left_path = tuple([(-1, _[1].digest) for _ in left_subroots])
+            full_path = tuple([(_[0], _[1].digest) for _ in all_subroots])
 
         return proof_index, left_path, full_path
 
@@ -694,7 +691,7 @@ class MerkleTree(object):
             # Generate corresponding path of negatively signed hashes
 
             left_roots = self.principal_subroots(sublength)
-            left_path = tuple([(-1, _[1].stored_hash) for _ in left_roots])
+            left_path = tuple([(-1, _[1].digest) for _ in left_roots])
 
             # Perform hash-test
 
@@ -745,7 +742,7 @@ class MerkleTree(object):
         :raises FileNotFoundError: if the specified file does not exist
         """
         try:
-            with open(os.path.abspath(file_path), 'rb') as _file:
+            with open(os.path.abspath(file_path), mode='r') as _file:
                 with contextlib.closing(
                     mmap.mmap(
                         _file.fileno(),
@@ -786,7 +783,7 @@ class MerkleTree(object):
         absolute_file_path = os.path.abspath(file_path)
 
         try:
-            with open(absolute_file_path, 'rb') as _file:
+            with open(absolute_file_path, mode='r') as _file:
                 buffer = mmap.mmap(
                     _file.fileno(),
                     0,
@@ -984,7 +981,7 @@ class MerkleTree(object):
 
         tqdm.write('\nFile has been loaded')
         for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
-            _tree.update(stored_hash=hash)
+            _tree.update(digest=hash)
 
         tqdm.write('Tree has been retreived')
 

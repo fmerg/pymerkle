@@ -3,6 +3,7 @@
 
 from .serializers import NodeSerializer, LeafSerializer
 from .exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError, UndecodableArgumentError, UndecodableRecordError
+from .utils import NONE
 import json
 
 # Prefices to be used for nice tree printing
@@ -11,8 +12,6 @@ L_BRACKET_SHORT = '\u2514' + '\u2500'           # └─
 L_BRACKET_LONG  = '\u2514' + 2 * '\u2500'       # └──
 T_BRACKET       = '\u251C' + 2 * '\u2500'       # ├──
 VERTICAL_BAR    = '\u2502'                      # │
-
-NONE = '[None]'
 
 
 class _Node(object):
@@ -155,7 +154,7 @@ class _Node(object):
                     left_id=left_id,
                     right_id=right_id,
                     child_id=child_id,
-                    hash=self.stored_hash.decode(self.encoding)
+                    hash=self.digest.decode(self.encoding)
                 )
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
@@ -212,7 +211,7 @@ class _Node(object):
             new_ignore.append(level)
 
         encoding = encoding if encoding else self.encoding
-        output += '%s\n' % self.stored_hash.decode(encoding=encoding)
+        output += '%s\n' % self.digest.decode(encoding=encoding)
 
         if not isinstance(self, Leaf):                                          # Recursive step
 
@@ -236,35 +235,35 @@ class _Node(object):
 class Leaf(_Node):
     """Class for the leafs of Merkle-tree (i.e., parentless nodes storing digests of encrypted records)
 
-    :param hashfunc:    hash function to be used for encryption (only once). Should be the ``.hash``
-                        attribute of the containing Merkle-tree
-    :type hashfunc:     method
-    :param encoding:    Encoding type to be used when decoding the hash stored by the node.
-                        Should coincide with the containing Merkle-tree's encoding type.
-    :type encoding:     str
-    :param record:      [optional] The record to be encrypted within the leaf. If provided, then
-                        ``stored_hash`` should *not* be provided.
-    :type record:       str or bytes or bytearray
-    :param stored_hash: [optional] The hash to be stored at creation by the leaf (after encoding).
-                        If provided, then ``record`` should *not* be provided.
-    :type stored_hash:  str
+    :param hashfunc: hash function to be used for encryption (only once). Should be the ``.hash``
+                     attribute of the containing Merkle-tree
+    :type hashfunc:  method
+    :param encoding: Encoding type to be used when decoding the hash stored by the node.
+                     Should coincide with the containing Merkle-tree's encoding type.
+    :type encoding:  str
+    :param record:   [optional] The record to be encrypted within the leaf. If provided, then
+                     ``digest`` should *not* be provided.
+    :type record:    str or bytes or bytearray
+    :param digest:   [optional] The hash to be stored at creation by the leaf (after encoding).
+                     If provided, then ``record`` should *not* be provided.
+    :type digest:    str
 
-    .. warning:: Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided
+    .. warning:: Exactly *one* of *either* ``record`` *or* ``digest`` should be provided
 
-    :raises LeafConstructionError:  if both ``record`` and ``stored_hash`` were provided
+    :raises LeafConstructionError:  if both ``record`` and ``digest`` were provided
     :raises UndecodableRecordError: if the provided ``record`` is a bytes-like object which could not be decoded with
                                     the provided hash-function's configured encoding type
 
-    :ivar stored_hash:   (*bytes*) The digest stored by the leaf
-    :ivar child:         (*nodes.Node*) The leaf's current child (if any)
-    :ivar encoding:      (*str*) The leaf's encoding type. Used for decoding its digest upon printing
+    :ivar digest:   (*bytes*) The digest stored by the leaf
+    :ivar child:    (*nodes.Node*) The leaf's current child (if any)
+    :ivar encoding: (*str*) The leaf's encoding type. Used for decoding its digest upon printing
     """
 
-    __slots__ = ('__stored_hash')
+    __slots__ = ('__digest')
 
-    def __init__(self, hashfunc, encoding, record=None, stored_hash=None):
+    def __init__(self, hashfunc, encoding, record=None, digest=None):
 
-        if record and stored_hash is None:
+        if record and digest is None:
 
             try:
                 _digest = hashfunc(record)
@@ -276,21 +275,21 @@ class Leaf(_Node):
 
             else:
                 super().__init__(encoding=encoding)
-                self.__stored_hash = _digest
+                self.__digest = _digest
 
-        elif stored_hash and record is None:
+        elif digest and record is None:
 
             super().__init__(encoding=encoding)
-            self.__stored_hash = bytes(stored_hash, encoding)
+            self.__digest = bytes(digest, encoding)
 
         else:
             raise LeafConstructionError(
-                'Exactly *one* of *either* ``record`` *or* ``stored_hash`` should be provided')
+                'Exactly *one* of *either* ``record`` *or* ``digest`` should be provided')
 
     @property
-    def stored_hash(self):
+    def digest(self):
 
-        return self.__stored_hash
+        return self.__digest
 
 # ------------------------------- Serialization --------------------------
 
@@ -327,19 +326,19 @@ class Node(_Node):
     :raises UndecodableRecordError: if the digest stored by some of the provided nodes could not be decoded with the provided
                                     hash-function's configured encoding type
 
-    :ivar stored_hash:   (*bytes*) The digest currently stored by the node
+    :ivar digest:   (*bytes*) The digest currently stored by the node
     :ivar left:          (*nodes.Node*) The node's left parent
     :ivar right:         (*nodes.Node*) The node's right parent
     :ivar child:         (*nodes.Node*) The node's (always exists unless the node is currently root of the Merkle-tree)
     :ivar encoding:      (*str*) The node's encoding type. Used for decoding its digest upon printing
     """
 
-    __slots__ = ('__stored_hash', '__left', '__right')
+    __slots__ = ('__digest', '__left', '__right')
 
     def __init__(self, hashfunc, encoding, left, right):
 
         try:
-            _digest = hashfunc(left.stored_hash, right.stored_hash)
+            _digest = hashfunc(left.digest, right.digest)
 
         except UndecodableArgumentError:
             # ~ Hash stored by some parent could not be decoded with the
@@ -358,12 +357,12 @@ class Node(_Node):
 
             # Store hash
 
-            self.__stored_hash = _digest
+            self.__digest = _digest
 
     @property
-    def stored_hash(self):
+    def digest(self):
 
-        return self.__stored_hash
+        return self.__digest
 
     def set_left(self, left):
 
@@ -382,12 +381,12 @@ class Node(_Node):
         """
 
         try:
-            _new_digest = hashfunc(self.left.stored_hash, self.right.stored_hash)
+            _new_digest = hashfunc(self.left.digest, self.right.digest)
 
         except UndecodableRecordError:
             raise
 
-        self.__stored_hash = _new_digest
+        self.__digest = _new_digest
 
 
 # ------------------------------- Serialization --------------------------

@@ -2,8 +2,8 @@ from pymerkle.tree import MerkleTree
 from pymerkle.validations import validateProof
 import math
 
-ROUNDS            = 100
-ITERATIONS        =  12
+ITERATIONS        = 100
+ROUNDS            =   1
 WARMUP_ROUNDS     =  10
 LENGTH            = 100
 FILE_PATH         = '../pymerkle/tests/logs/short_APACHE_log'
@@ -46,7 +46,7 @@ def test_log_encryption(benchmark):
     )
 
 
-def test_audit_proof_generation(benchmark):
+def test_audit_generation(benchmark):
 
     benchmark.pedantic(
         TREE.auditProof,
@@ -79,7 +79,7 @@ def test_record_encryption(benchmark):
     )
 
 
-def test_consistency_proof_generation(benchmark):
+def test_consist_generation(benchmark):
 
     global oldhash
     global SUBLENGTH

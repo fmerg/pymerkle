@@ -27,7 +27,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
                     'hash_type': hash_type,
                     'encoding': encoding,
                     'security': security},
-                    'hashes': [leaf.stored_hash.decode(encoding=encoding) for leaf in leaves]
+                    'hashes': [leaf.digest.decode(encoding=encoding) for leaf in leaves]
             }
 
 
@@ -42,7 +42,7 @@ class NodeSerializer(json.JSONEncoder):
         try:
             left = obj.left
             right = obj.right
-            hash = obj.stored_hash
+            hash = obj.digest
 
         except TypeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
@@ -65,7 +65,7 @@ class LeafSerializer(json.JSONEncoder):
         """
         try:
             encoding = obj.encoding
-            hash = obj.stored_hash
+            hash = obj.digest
 
         except TypeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised

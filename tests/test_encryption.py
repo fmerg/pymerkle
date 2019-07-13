@@ -169,7 +169,7 @@ def test_encryptObject(_tree, _hash_machine):
         indent=0
     )
 
-    assert _tree.leaves[-1].stored_hash == _hash_machine.hash(
+    assert _tree.leaves[-1].digest == _hash_machine.hash(
         json.dumps(
             {
                 'a': 0,
@@ -210,7 +210,7 @@ def test_encryptFileContent(_tree, _hash_machine):
     _output = _tree.encryptFileContent(large_APACHE_log)
 
     if _tree.encoding not in EXCLUDED:
-        assert _output == 0 and _tree.leaves[-1].stored_hash == _hash_machine.hash(content)
+        assert _output == 0 and _tree.leaves[-1].digest == _hash_machine.hash(content)
     else:
         assert _output == 1 and _tree.length == 2
 
@@ -254,7 +254,7 @@ def test_encryptObjectFromFile(_tree, _hash_machine):
 
     _tree.encryptObjectFromFile(single_object_file, sort_keys=False, indent=0)
 
-    assert _tree.leaves[-1].stored_hash == _hash_machine.hash(
+    assert _tree.leaves[-1].digest == _hash_machine.hash(
         json.dumps(
             single_object,
             sort_keys=False,

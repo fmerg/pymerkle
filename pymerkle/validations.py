@@ -8,8 +8,6 @@ import time
 import json
 import os
 
-# -------------------------------- Validation ---------------------------------
-
 
 def validateProof(target, proof):
     """Core utility for validating proofs

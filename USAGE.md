@@ -19,7 +19,8 @@ to import the most high-level components of the API: the `MerkleTree` class as w
 tree = MerkleTree()
 ```
 
-creates an empty Merkle-tree with default configs: hash algorithm _SHA256_, encoding type _UTF-8_ and defense against second-preimage attack _activated_. It is equivalent to:
+creates an empty Merkle-tree with default configs: hash algorithm _SHA256_, encoding type _UTF-8_
+and defense against second-preimage attack _activated_. It is equivalent to:
 
 
 ```python
@@ -27,14 +28,16 @@ tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 ```
 
 The ``.encoding`` attribute of a Merkle-tree (set directly via the homonymous argument of the
-constructor) specifies the encoding, to which any new record of type ``str`` will be submitted before getting hashed and stored into a newly-created leaf. For example,
+constructor) specifies the encoding, to which any new record of type ``str`` will be submitted
+before getting hashed and stored into a newly-created leaf. For example,
 
 ```python
 tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
-creates a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_. If the provided `hash_type`, resp. `encoding` is not among the supported types, then a ``NotSupportedHashTypeError``, resp. ``NotSupportedEncodingError`` gets raised and
-the construction is aborted.
+creates a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_. If the provided
+`hash_type`, resp. `encoding` is not among the supported types, then a ``NotSupportedHashTypeError``,
+resp. ``NotSupportedEncodingError`` gets raised and the construction is aborted.
 
 Refer to [_API_](API.md) for the complete list of supported hash and encoding types.
 
@@ -56,15 +59,17 @@ tree = MerkleTree(
 )
 ```
 
-New records are of type `str` or `bytes` (or `bytearray`), the latter falling under the tree's configured encoding type. In the latter
-case, make sure that the provided records are indeed _valid_ bytes sequences under the corresponding encoding type, otherwise
+New records are of type `str` or `bytes` (or `bytearray`), the latter falling under the
+tree's configured encoding type. In the latter case, make sure that the provided records
+are indeed _valid_ bytes sequences under the corresponding encoding type, otherwise
 an ``UndecodableRecordError`` gets raised and the tree construction is aborted.
 
 ### Single record encryption
 
-_Updating_ the Merkle-tree with a _record_ means appending a newly-created leaf with the digest of this record.
-A _record_ can be a string (`str`) or a bytes-like object (`bytes` or `bytearray`) indifferently.
-Use the `.update()` method to successively update with new records as follows:
+_Updating_ the Merkle-tree with a _record_ means appending a newly-created leaf with
+the digest of this record. A _record_ can be a string (`str`) or a bytes-like object
+(`bytes` or `bytearray`) indifferently. Use the `.update()` method to successively
+update with new records as follows:
 
 ```python
 tree = MerkleTree()                                               # SHA256/UTF-8 Merkle-tree
@@ -77,7 +82,9 @@ tree.update(record=bytes('valid bytes sequence', 'utf-8'))        # second recor
 Note that the `record` keyword is here necessary, since this is only *one* of the two possible usages of `.update()`
 (Refer to [_API_](API.md) for a complete reference).
 
-The `.update()` method (used also by the constructor when initial records are provided) is completely responsible for the tree's gradual development, preserving its property of being _binary balanced_ and ensuring that trees with the same
+The `.update()` method (used also by the constructor when initial records are provided)
+is completely responsible for the tree's gradual development, preserving its property of
+being _binary balanced_ and ensuring that trees with the same
 number of leaves have always identical structure despite their possibly different growing strategy.
 
 When the record provided to `.update()` is a bytes-like object instead of a string,
@@ -94,8 +101,9 @@ tree.encryptRecord(bytes('valid bytes sequence', 'utf-8'))        # returns 0
 ...                                                               # ...
 ```
 
-Here the `.update()` method is invoked internally and if an ``UndecodableRecordError`` gets implicitly raised, then no
-new leaf gets created and the execution of the `encryptRecord()` method terminates with `1`:
+Here the `.update()` method is invoked internally and if an ``UndecodableRecordError`` gets
+implicitly raised, then no new leaf gets created and the execution of the `encryptRecord()`
+method terminates with `1`:
 
 ```bash
 >>> tree = MerkleTree(encoding='utf-16')             # SHA256/UTF-16 Merkle-tree
@@ -123,7 +131,8 @@ reloaded in its current state from within that file. Use the `.export()` method 
 tree.export('relative_path/backup.json')
 ```
 
-The file `backup.json` (which gets _overwritten_, resp. _created_ if it exists, resp. does not exist) will contain a JSON entity with keys ``header``, mapping to the tree's fixed configs,
+The file `backup.json` (which gets _overwritten_, resp. _created_ if it exists, resp.
+does not exist) will contain a JSON entity with keys ``header``, mapping to the tree's fixed configs,
 and ``hashes``, mapping to the digests currently stored by the tree's leaves in respective order:
 
 ```json
@@ -270,8 +279,9 @@ respect to the current working directory.
 Make sure that the file's encoding and content are _compatible_ with the tree's configured encoding type.
 In particular, if at least one _line_ contains any _non valid_ bytes sequence with respect to the tree's encoding type,
 then an ``UndecodableRecordError`` gets implicitly raised, causing the function to exit with `1` without
-appending any new leaves _at all_ to the tree. In the normal case, the function returns `0`. You can use this fact to verify whether the provided file's lines have been successfully encrypted or, equivalently, newly-created
-leaves have been indeed appended in respective order to the Merkle-tree.
+appending any new leaves _at all_ to the tree. In the normal case, the function returns `0`.
+You can use this fact to verify whether the provided file's lines have been successfully encrypted or,
+equivalently, newly-created leaves have been indeed appended in respective order to the Merkle-tree.
 
 #### Direct object encryption
 
@@ -325,11 +335,19 @@ otherwise a `ValueError` is thrown, or a `JSONDecodeError` if the file's content
 
 ### Generating proofs (Server's Side)
 
-A Merkle-tree (Server) generates _Merkle-proofs_ (_audit_ and _consistency proofs_) according to parameters provided by an auditor or a monitor (Client). Any such proof consists essentially of a path of hashes (i.e., a finite sequence of hashes and a rule for combining them) leading to the presumed current root-hash of the Merkle-tree. Requesting, providing and validating proofs certifies both the Client's and Server's identity by ensuring that each has knowledge of some of the tree's previous state and/or the tree's current state, revealing minimum information about the tree's encrypted records and without actually need of holding a database of these records.
+A Merkle-tree (Server) generates _Merkle-proofs_ (_audit_ and _consistency proofs_)
+according to parameters provided by an auditor or a monitor (Client). Any such proof
+consists essentially of a path of hashes (i.e., a finite sequence of hashes and a
+  rule for combining them) leading to the presumed current root-hash of the Merkle-tree.
+  Requesting, providing and validating proofs certifies both the Client's and Server's
+  identity by ensuring that each has knowledge of some of the tree's previous state and/or
+  the tree's current state, revealing minimum information about the tree's encrypted records
+  and without actually need of holding a database of these records.
 
 #### Audit-proof
 
-Given a Merkle-tree `tree`, use the `.auditProof()` method to generate the audit proof based upon, say, the 56-th leaf as follows:
+Given a Merkle-tree `tree`, use the `.auditProof()` method to generate the audit
+proof based upon, say, the 56-th leaf as follows:
 
 ```python
 p = tree.auditProof(arg=55)
@@ -341,9 +359,17 @@ You can instead generate the proof based upon a presumed record `record` with
 p = tree.auditProof(arg=record)
 ```
 
-where the argument can be of type `str`, `bytes` or `bytearray` indifferently (otherwise an `InvalidProofRequest` gets raised). In the second variation, the proof generation is based upon the _leftmost_ leaf storing the hash of the given record (if any). Since different leaves might store the same record, _it is suggested that provided records include a timestamp referring to the encryption moment or some kind of nonce, so that distinct leaves store technically distinct record_.
+where the argument can be of type `str`, `bytes` or `bytearray` indifferently
+(otherwise an `InvalidProofRequest` gets raised). In the second variation, the proof
+generation is based upon the _leftmost_ leaf storing the hash of the given record
+(if any). Since different leaves might store the same record, _it is suggested that
+ provided records include a timestamp referring to the encryption moment or some
+ kind of nonce, so that distinct leaves store technically distinct record_.
 
-The object `p` is an instance of the `proof.Proof`, class consisting of the corresponding path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash) and the paramters needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
+The object `p` is an instance of the `proof.Proof`, class consisting of the corresponding
+path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash)
+and the paramters needed for the validation to be performed from the Client's Side
+(_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
 
 ```shell
 >>> p
@@ -424,7 +450,57 @@ the corresponding JSON format being
 }
 ```
 
-If the argument requested by the Client exceeds the tree's current length or isn't among the latter's encrypted records, then the generated path is empty and `p` is predestined to be found invalid.
+If the argument requested by the Client is negative or exceeds the tree's current length or
+isn't among the latter's encrypted records, then `proof_path` is empty and `proof_index` is
+negative or, equivalently, `generation` is set equal to `false`:
+
+```shell
+{
+    "header": {
+        "creation_moment": "Fri Jul 12 13:51:22 2019",
+        "encoding": "utf_8",
+        "generation": false,
+        "hash_type": "sha256",
+        "provider": "4f1d309c-a49b-11e9-9e01-70c94e89b637",
+        "security": true,
+        "status": null,
+        "timestamp": 1562932282,
+        "uuid": "5ebda2ac-a49b-11e9-9e01-70c94e89b637"
+    },
+    "body": {
+        "proof_index": -1,
+        "proof_path": []
+    },
+}
+```
+
+or, printing within the Python interpreter,
+
+```shell
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    uuid        : 5ebda2ac-a49b-11e9-9e01-70c94e89b637                
+
+    generation  : FAILURE                
+    timestamp   : 1562932282 (Fri Jul 12 13:51:22 2019)                
+    provider    : 4f1d309c-a49b-11e9-9e01-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : -1                
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------
+```
+
+In this case, `p` is predestined to be found _invalid_.
 
 #### Consistency-proof
 
@@ -440,8 +516,13 @@ q = tree.consistencyProof(
 )
 ```
 
-Here the parameters `oldhash` and `sublength` (meant to be provided from Client's Side) refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous state of `tree`. Note that, as suggested in the above example,*_if the available root-hash is string hexadecimal, then it first has to be encoded with the tree's configured encoding type* (here `'utf-8'`), otherwise an `InvalidProofRequest` gets raised. More specifically, an `InvalidProofRequest` will be raised whenever the provided `oldhash`, resp. `sublength` is not
-of type _bytes_, resp. _str_.
+Here the parameters `oldhash` and `sublength` (meant to be provided from Client's Side)
+refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous
+state of `tree`. Note that, as suggested in the above example,*if the available root-hash
+is string hexadecimal, then it first has to be encoded with the tree's configured encoding
+type* (here `'utf-8'`), otherwise an `InvalidProofRequest` gets raised. More specifically,
+an `InvalidProofRequest` will be raised whenever the provided `oldhash`, resp. `sublength`
+is not of type _bytes_, resp. _str_.
 
 A typical session would be as follows:
 
@@ -460,7 +541,11 @@ tree.encryptFilePerLog('sample_log')
 q = tree.consistencyProof(oldhash, sublength)
 ```
 
-The object `q`, an instance of the `proof.Proof` class, consists of the corresponding path of hashes (_consistency path_, leading upon validation to the presumed current root-hash of the generator tree) and the parameters needed for the validation to be performed from the Client's Side (_hash type_, _encoding type_ and _security mode_ of the generator tree).
+The object `q`, an instance of the `proof.Proof` class, consists of the corresponding
+path of hashes (_consistency path_, leading upon validation to the presumed current
+  root-hash of the generator tree) and the parameters needed for the validation to be
+  performed from the Client's Side (_hash type_, _encoding type_ and _security mode_
+    of the generator tree).
 
 ### Inclusion-tests
 
@@ -468,20 +553,58 @@ The object `q`, an instance of the `proof.Proof` class, consists of the correspo
 
 An _auditor_ (Client) verifies inclusion of a record within the Merkle-Tree by just requesting
 the corresponding audit-proof from the Merkle-tree (Server). Inclusion is namely verified _iff_
-the proof provided by the Server is found by the auditor to be valid (verifying also the Server's identity under further assumptions).
+the proof provided by the Server is found by the auditor to be valid (verifying also the Server's
+identity under further assumptions).
 
 #### Server's Side (Merkle-tree)
 
-However, a "symmetric" inclusion-test may be also performed from the Server's Side, in the sense that it allows the Server to verify whether the Client has actual knowledge of some of the tree's previous state (and thus the Client's identity under further assumptions).
+However, a "symmetric" inclusion-test may be also performed from the Server's Side, in the sense
+that it allows the Server to verify whether the Client has actual knowledge of some of the tree's
+previous state (and thus the Client's identity under further assumptions).
 
-More specifically, upon generating any consistency-proof requested by a Client, the Merkle-tree (Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with the parameters provided by Client:
+More specifically, upon generating any consistency-proof requested by a Client, the Merkle-tree
+(Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with
+the parameters provided by Client:
 
-- inclusion-test _success_: if the combination of the provided `oldhash` and `sublength` is found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an appropriate "subtree" can indeed be internally detected), then a _non empty_ path is included with the proof and a generation success message is inscribed in it
+- inclusion-test _success_: if the combination of the provided `oldhash` and `sublength` is
+found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an
+  appropriate "subtree" can indeed be internally detected), then a _non empty_ `proof_path`
+  is included with the proof
 
-- inclusion-test _failure_: if the combination of `oldhash` and `sublength` is _not_ found by the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree" could be
-internally detected), then an _empty_ path is included with the proof and the latter is predestined to be found _invalid_ upon validation; furthermore, a generation failure message is inscribed into the generated proof, indicating that the Client does not actually have proper knowledge of the presumed previous state.
+- inclusion-test _failure_: if the combination of `oldhash` and `sublength` is _not_ found by
+the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree"
+could be internally detected), then an _empty_ `proof_path` is included with the proof and
+`proof_index` is set equal to `-1`; equivalently, a `'FAILURE'` message is inscribed (indicating
+that the Client does not actually have proper knowledge of the presumed previous state), in
+which case the proof is predestined to be found invalid.
 
-The above implicit check has been abstracted from `.consistencyProof()` method and explicitly implemented within the `.inclusionTest()` method of the `MerkleTree` object. A typical session would then be as follows:
+```shell
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    uuid        : eb87ccca-a49c-11e9-9e01-70c94e89b637                
+
+    generation  : FAILURE                
+    timestamp   : 1562932948 (Fri Jul 12 14:02:28 2019)                
+    provider    : 4f1d309c-a49b-11e9-9e01-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : -1                
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------
+```
+
+The above implicit check has been abstracted from `.consistencyProof()` method and
+explicitly implemented within the `.inclusionTest()` method of the `MerkleTree` object.
+A typical session would then be as follows:
 
 ```python
 # Client requests and stores the Merkle-tree's current state
@@ -543,28 +666,72 @@ tree_1.rootHash() == tree_2.rootHash()
 
 ### Validating proofs (Client's Side)
 
-In what follows, let `tree` be a Merkle-tree and `p` a proof (audit- or consistency-proof indifferently) generated by it.
+In what follows, let `tree` be a Merkle-tree and `p` a proof (audit- or consistency-proof
+  indifferently) generated by it.
 
 #### Quick validation
 
-The quickest way to validate a proof is by applying the `validateProof()` function, returning `True` or `False` according to whether the proof was found to be _valid_, resp. _invalid_. Note that before validation the proof has status `'UNVALIDATED'`, changing upon validation to `'VALID'` or `'INVALID'` accordingly.
+The quickest way to validate a proof is by applying the `validateProof()` function, which returns
+`True` or `False` according to whether the proof was found to be _valid_, resp. _invalid_.
 
 ```python
 validateProof(target=tree.rootHash(), proof=p)
 ```
 
-Here the result is of course `True`, whereas any other choice of `target` would have returned `False`. In particular, a wrong choice of `target` would indicate that the authority providing it does _not_ have actual knowledge of the tree's current state, allowing the Client to mistrust it. Similar considerations apply to the second argument `proof`.
+Note that before its first validation the proof has status `None`, changing upon validation
+to `True` or `False` accordingly. This is depicted in the labels `VALID` resp. `INVALID`
+appearing in place of `UNVALIDATED` when invoking the proof from ithin the Python interpreter:
+
+```shell
+>>> p
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    uuid        : c9b747cc-a421-11e9-8298-70c94e89b637                
+
+    generation  : SUCCESS                
+    timestamp   : 1562880063 (Thu Jul 11 23:21:03 2019)                
+    provider    : a561ab88-a421-11e9-8298-70c94e89b637                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    security    : ACTIVATED                
+
+    proof-index : 5                
+    proof-path  :                
+
+       [0]   +1  b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191
+       [1]   -1  a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198
+
+                 ...       
+
+      [14]   -1  68488541d30dc070bcd7ed4bb0715fd4e721e207c0ea7cdb6e955d33d8a510e8                
+
+    status      : VALID                
+
+    -------------------------------- END OF PROOF --------------------------------                
+
+>>>
+```
+
+Here the validation result is of course `True`, whereas any other choice of `target`
+would have returned `False`. In particular, a wrong choice of `target` would indicate
+that the authority providing it does _not_ have actual knowledge of the tree's current
+state, allowing the Client to mistrust it. Similar considerations apply to the second
+argument `proof`.
 
 
 #### Validation with receipt
 
-A more elaborate validation procedure includes generating a receipt with info about proof and validation. To this end, use the `validationReceipt()` method as follows:
+A more elaborate validation procedure includes generating a receipt with info about proof
+and validation. To this end, use the `validationReceipt()` function as follows:
 
 ```python
 receipt = validationReceipt(target=tree.rootHash(), proof=p)
 ```
 
-Here the `validateProof()` function is internally invoked, modifying the proof as described above, whereas the generated `receipt` is an instant of the `validations.Receipt` class. It looks like
+Here the `validateProof()` function is internally invoked, modifying the proof as described above,
+whereas the generated `receipt` is an instant of the `validations.Receipt` class. It looks like
 
 ```bash
 >>> receipt
@@ -585,19 +752,20 @@ Here the `validateProof()` function is internally invoked, modifying the proof a
 >>>
 ```
 
-where `proof-provider` refers to the Merkle-tree having generated the proof. The corresponding JSON format is
+where `proof-provider` refers to the Merkle-tree having generated the proof.
+The corresponding JSON format is
 
 ```json
   {
-      "body": {
-          "proof_provider": "5439c318-32ab-11e9-8e47-70c94e89b637",
-          "proof_uuid": "7f67b68a-32ab-11e9-8e47-70c94e89b637",
-          "result": true
-      },
       "header": {
           "timestamp": 1550409129,
           "uuid": "a19b988e-32b5-11e9-8e47-70c94e89b637",
           "validation_moment": "Sun Feb 17 14:12:09 2019"
+      },
+      "body": {
+          "proof_provider": "5439c318-32ab-11e9-8e47-70c94e89b637",
+          "proof_uuid": "7f67b68a-32ab-11e9-8e47-70c94e89b637",
+          "result": true
       }
   }
 ```
@@ -606,5 +774,5 @@ It could have been automatically stored in a `.json` file named with the receipt
 a specified directory, if the function had been called as
 
 ```python
-receipt = validationReceipt(tree.rootHash(), p, save_dir='some_relative_path')
+receipt = validationReceipt(tree.rootHash(), p, dirpath='../some/relative/path')
 ```

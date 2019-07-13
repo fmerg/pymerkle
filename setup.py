@@ -10,8 +10,8 @@ from setuptools import find_packages
 from setuptools import setup
 
 SOURCE_DIR   = "pymerkle"
+DESCRIPTION  = pymerkle.__doc__.rstrip()
 EXCLUDE      = ("benchmarks", "docs", "tests",)
-DESCRIPTION  = "A Python library for constructing Merkle Trees and validating Proofs"
 AUTHOR       = "FoteinosMerg"
 AUTHOR_EMAIL = "foteinosmerg@protonmail.com"
 URL          = "https://github.com/FoteinosMerg/pymerkle"
@@ -46,7 +46,7 @@ INSTALL_REQUIRES = []
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
 try:
-  with io.open(os.path.join(current_dir, README), encoding="utf-8") as _file:
+  with open(os.path.join(current_dir, README), 'r') as _file:
     LONG_DESCRIPTION = "\n" + _file.read()
 except FileNotFoundError:
     pass
@@ -68,6 +68,7 @@ setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     long_description=LONG_DESCRIPTION,
+    long_description_content_type=CONTENT_TYPE,
     packages=find_packages(SOURCE_DIR, exclude=EXCLUDE),
     python_requires=PYTHON,
     install_requires=INSTALL_REQUIRES,

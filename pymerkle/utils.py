@@ -3,6 +3,7 @@
 
 import math
 
+NONE = '[None]' # Global variable used accross various modules, not used here
 
 def log_2(num):
     """Computes and returns the base *2* logarithm of the given number (i.e., the greatest power of *2*

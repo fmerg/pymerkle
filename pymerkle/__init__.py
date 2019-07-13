@@ -1,3 +1,6 @@
+"""A Python library for constructing Merkle Trees and validating Proofs
+"""
+
 from .tree import MerkleTree
 from .validations import validateProof, validationReceipt
 

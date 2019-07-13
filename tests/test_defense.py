@@ -48,8 +48,8 @@ def test_defense_against_second_preimage_attack(original_tree):
 
     # Construct forged record
 
-    F = original_tree.leaves[2].stored_hash.decode(encoding=original_tree.encoding)
-    G = original_tree.leaves[3].stored_hash.decode(encoding=original_tree.encoding)
+    F = original_tree.leaves[2].digest.decode(encoding=original_tree.encoding)
+    G = original_tree.leaves[3].digest.decode(encoding=original_tree.encoding)
     forged_record = '%s%s' % (F, G)
 
     # Construct attacker's tree

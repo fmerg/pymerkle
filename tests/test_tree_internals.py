@@ -189,7 +189,7 @@ def test_rootHash_of_non_empty_MerkleTree():
 
 
 def test_LeafConstructionError_upon_update():
-    """Tests that a `LeafConstructionError` is raised if both `record` and `stored_hash`
+    """Tests that a `LeafConstructionError` is raised if both `record` and `digest`
     are provided as arguments to the `MerkleTree.update()` method
     """
 
@@ -198,7 +198,7 @@ def test_LeafConstructionError_upon_update():
     with pytest.raises(LeafConstructionError):
         t.update(
             record='some record',
-            stored_hash='540ef8fc9eefa3ec0fbe55bc5d10dbea03d5bac5591b3d7db3af79ec24b3f74c'
+            digest='540ef8fc9eefa3ec0fbe55bc5d10dbea03d5bac5591b3d7db3af79ec24b3f74c'
         )
 
 
