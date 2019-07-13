@@ -675,7 +675,7 @@ The quickest way to validate a proof is by applying the `validateProof()` functi
 `True` or `False` according to whether the proof was found to be _valid_, resp. _invalid_.
 
 ```python
-validateProof(target_hash=tree.rootHash(), proof=p)
+validateProof(target=tree.rootHash(), proof=p)
 ```
 
 Note that before its first validation the proof has status `None`, changing upon validation
