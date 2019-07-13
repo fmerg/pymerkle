@@ -18,18 +18,9 @@ It is a *zero dependency* library (with the inessential exception of `tqdm` for 
 
 ## Installation
 
-_PyPI_ has not yet been informed of recent changes. To use the latest version `4.0.1b`, clone the repository
-and integrate `./pymerkle` with your project or execute the `setup.py` script to install the package
-manually.
-
-Run
-
 ```bash
 pip3 install pymerkle --pre
 ```
-
-to install the previous version `3.0.2b` (incompatible with the present docs).
-
 
 ## Quick example
 
