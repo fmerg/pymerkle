@@ -4,7 +4,7 @@
 from .tree import MerkleTree
 from .validations import validateProof, validationReceipt
 
-__version__ = "4.0.1b"
+__version__ = "4.0.0b3"
 
 __all__ = (
     'MerkleTree',

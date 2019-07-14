@@ -10,6 +10,7 @@ detect*
 *.svg
 .benchmarks/
 /benchmarks/test_.py
+/benchmarks/_init_.py
 *notes*
 *_test*
 

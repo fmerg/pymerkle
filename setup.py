@@ -20,8 +20,6 @@ PROJECT_URLS = {
     "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
     "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__
 }
-README       = "README.md"
-CONTENT_TYPE = "text/markdown"
 REQUIREMENTS = "requirements.txt"
 PYTHON       = ">=3.6"
 LICENSE      = "License :: OSI Approved :: MIT License"
@@ -33,22 +31,14 @@ CLASSIFIERS  =  [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3.6",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: POSIX",
     "Topic :: Security :: Cryptography",
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-LONG_DESCRIPTION = ""
 INSTALL_REQUIRES = []
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
-
-try:
-  with open(os.path.join(current_dir, README), "r") as _file:
-    LONG_DESCRIPTION = _file.read()
-except FileNotFoundError:
-    pass
 
 try:
   with io.open(os.path.join(current_dir, REQUIREMENTS), encoding="utf-8") as _file:
@@ -58,17 +48,20 @@ except FileNotFoundError:
           "tqdm>=4.28.1"
       ]
 
+with open("README.md", "r") as _file:
+    LONG_DESCRIPTION = _file.read()
+
 setup(
     name=pymerkle.__name__,
     version=pymerkle.__version__,
     description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
     url=URL,
     project_urls=PROJECT_URLS,
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
-    long_description=LONG_DESCRIPTION,
-    long_description_content_type=CONTENT_TYPE,
-    packages=find_packages(SOURCE_DIR, exclude=EXCLUDE),
+    packages=find_packages(),
     python_requires=PYTHON,
     install_requires=INSTALL_REQUIRES,
     zip_safe=False,
