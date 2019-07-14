@@ -108,7 +108,7 @@ def _mean_value(_list, precision, with_stdev=False):
 
 # Stats display
 
-def _show_stats(message, mean, stdev, total=None, min=None, max=None):
+def show_stats(message, mean, stdev, total=None, min=None, max=None):
     sys.stdout.write('\n')
     sys.stdout.write('\n%s' % message)
     sys.stdout.write('\n')
@@ -150,6 +150,14 @@ def attribute_access_benchmark():
     node  = Node(hashfunc=HASH, encoding=ENCODING, left=left, right=right)
 
 
+    sys.stdout.write('\n\n\n----------------------------------------- Nodes\' attributes access -----------------------------------------')
+    sys.stdout.write('\n')
+    sys.stdout.write('\nConfiguration')
+    sys.stdout.write('\n')
+    sys.stdout.write('\nNumber of rounds     : %d' % ROUNDS)
+    sys.stdout.write('\nNumber of iterations : %d' % ITERATIONS)
+
+
     # Digest access
 
     access_digest_measurements = timeit.repeat(
@@ -159,9 +167,9 @@ def attribute_access_benchmark():
     )
 
 
-    mean, stdev = _mean_value(access_digest_measurements, precision=precision_1, with_stdev=True)
+    mean, stdev = _mean_value(access_digest_measurements, PRECISION_1, with_stdev=True)
 
-    _show_stats('Time needed to access digest (secs)', mean, stdev)
+    show_stats('\nTime needed to access digest (sec)', mean, stdev)
 
 
     # Left parent access
@@ -172,9 +180,9 @@ def attribute_access_benchmark():
         number=ROUNDS
     )
 
-    mean, stdev = _mean_value(access_left_parent_measurements, precision=precision_1, with_stdev=True)
+    mean, stdev = _mean_value(access_left_parent_measurements, PRECISION_1, with_stdev=True)
 
-    _show_stats('Time needed to access left parent (secs)', mean, stdev)
+    show_stats('\nTime needed to access left parent (sec)', mean, stdev)
 
 
     # Right parent access
@@ -185,9 +193,9 @@ def attribute_access_benchmark():
         number=ROUNDS
     )
 
-    mean, stdev = _mean_value(access_right_parent_measurements, precision=precision_1, with_stdev=True)
+    mean, stdev = _mean_value(access_right_parent_measurements, PRECISION_1, with_stdev=True)
 
-    _show_stats('Time needed to access right parent (secs)', mean, stdev)
+    show_stats('\nTime needed to access right parent (sec)', mean, stdev)
 
 
     # Child access
@@ -198,13 +206,16 @@ def attribute_access_benchmark():
         number=ROUNDS
     )
 
-    mean, stdev = _mean_value(access_child_measurements, precision=precision_1, with_stdev=True)
+    mean, stdev = _mean_value(access_child_measurements, PRECISION_1, with_stdev=True)
 
-    _show_stats('Time needed to access child (secs)', mean, stdev)
+    show_stats('\nTime needed to access child (sec)', mean, stdev)
 
 
 
 def tree_generation_benchmark():
+
+    sys.stdout.write('\n\n\n---------------------------------- Tree generation and size measuremenets ----------------------------------')
+    sys.stdout.write('\n')
 
     global TREE
 
@@ -214,17 +225,12 @@ def tree_generation_benchmark():
 
     time_needed = _time_elapsed(start)
 
-    sys.stdout.write('\n\nTime needed to generate a Merkle-tree with %d leaves (secs): %s' % (TREE.length, time_needed))
-
+    sys.stdout.write('\nNumber of leaves      : %d\n' % TREE.length)
+    sys.stdout.write('\nGeneration time (sec) : %s' % time_needed)
+    sys.stdout.write('\nSize of tree (bytes)  : %d' % _size(TREE))
 
 
 def sizes_benchmark():
-
-
-    # Tree measurement
-
-    sys.stdout.write('\n\nSize of tree with %d leaves (bytes): %d' % (TREE.length, _size(TREE)))
-
 
     # Leaves measurement
 
@@ -251,7 +257,7 @@ def sizes_benchmark():
 
     mean, stdev = _mean_value(_sizes, precision=Decimal('1'), with_stdev=True)
 
-    _show_stats(message='Leaves size', total=TOTAL, min=MIN, max=MAX, mean=mean, stdev=stdev)
+    show_stats(message='\nLeaves\' size (bytes)', total=TOTAL, min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
     # Internal nodes measurement
@@ -279,13 +285,19 @@ def sizes_benchmark():
 
     mean, stdev = _mean_value(_sizes, precision=Decimal('1'), with_stdev=True)
 
-    _show_stats(message='Internal nodes size', total=TOTAL, min=MIN, max=MAX, mean=mean, stdev=stdev)
+    show_stats(message='\nInternal nodes\' size (bytes)', total=TOTAL, min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 
 def encryption_benchmark():
 
+    sys.stdout.write('\n\n\n--------------------------------------- Encryption measuremenets ----------------------------------------\n')
+
     # Massive encryption measurement
+
+    sys.stdout.write('\n')
+    sys.stdout.write('Massive encryption measurement')
+    sys.stdout.write('\n')
 
     start = datetime.now()
 
@@ -294,11 +306,15 @@ def encryption_benchmark():
 
     time_needed = _time_elapsed(start)
 
-    sys.stdout.write('\n\nTime needed to update the tree with %d leaves (secs): %f' % (ADDITIONAL, time_needed))
-    sys.stdout.write('\nSize of tree with %d leaves (bytes): %d' % (TREE.length, _size(TREE)))
+    sys.stdout.write('\nNew size of tree (bytes)          : %d' % _size(TREE))
+    sys.stdout.write('\nTotal number of leaves            : %s' % TREE.length)
+    sys.stdout.write('\nNumber of newly-appended leaves   : %d' % ADDITIONAL)
+    sys.stdout.write('\nTotal time needed to append (sec) : %d' % time_needed)
 
 
     # Single encryption measurements
+
+    sys.stdout.write('\n\n\nEncrypting %d further records...\n' % ADDITIONAL)
 
     MAX   = None
     MIN   = None
@@ -326,13 +342,15 @@ def encryption_benchmark():
         elapsed.append(_elapsed)
 
 
-    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    mean, stdev = _mean_value(elapsed, PRECISION_2, with_stdev=True)
 
-    _show_stats(message='Tree update', total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    show_stats(message='Single encryption measurements', total=_quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 
 def audit_proofs_benchmark():
+
+    sys.stdout.write('\n\n\n------------------------------------ Proof generation measuremenets -------------------------------------\n')
 
     global PROOFS
 
@@ -347,7 +365,7 @@ def audit_proofs_benchmark():
 
         _cycle   = datetime.now()
 
-        _proof = TREE.auditProof(arg='%d-th record' % _)
+        _proof = TREE.auditProof(arg=_)
 
         _elapsed = _time_elapsed(_cycle)
 
@@ -363,9 +381,51 @@ def audit_proofs_benchmark():
         elapsed.append(_elapsed)
 
 
-    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    mean, stdev = _mean_value(elapsed, PRECISION_2, with_stdev=True)
 
-    _show_stats(message='Audit proofs', total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    show_stats(
+        message='Audit-proof generation %s(sec)' % ('with index provided ' if RECORD else ''),
+        total=_quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev
+    )
+
+    if RECORD:
+
+        sys.stdout.write('\n\n\n')
+        sys.stdout.write('Generating audit-proofs upon records -be patient...\n')
+
+        START = datetime.now()
+        MAX   = None
+        MIN   = None
+        TOTAL = 0.0
+
+        elapsed = []
+
+        for _ in range(TREE.length):
+
+            _cycle   = datetime.now()
+
+            _proof = TREE.auditProof(arg='%d-th record' % _)
+
+            _elapsed = _time_elapsed(_cycle)
+
+            if MAX is None:
+                MAX = _elapsed
+                MIN = _elapsed
+            else:
+                MAX = max(_elapsed, MAX)
+                MIN = min(_elapsed, MIN)
+
+            PROOFS.append(_proof)
+            TOTAL += _elapsed
+            elapsed.append(_elapsed)
+
+
+        mean, stdev = _mean_value(elapsed, PRECISION_2, with_stdev=True)
+
+        show_stats(
+            message='Audit-proof generation with record (sec)',
+            total=_quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev
+        )
 
 
 
@@ -417,13 +477,19 @@ def consistency_proofs_benchmark():
         elapsed.append(_elapsed)
 
 
-    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    mean, stdev = _mean_value(elapsed, PRECISION_2, with_stdev=True)
 
-    _show_stats(message='Consistency proofs' , total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    show_stats(
+        message='\nConsistency-proof generation (sec)',
+        total=_quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev
+    )
 
 
 
 def proof_validations_benchmark():
+
+    sys.stdout.write('\n\n\n------------------------------------- Proof validation measuremenets -------------------------------------\n')
+    sys.stdout.write('\nSize of sample : %d' % len(PROOFS))
 
     START = datetime.now()
     MAX   = None
@@ -452,9 +518,9 @@ def proof_validations_benchmark():
         elapsed.append(_elapsed)
 
 
-    mean, stdev = _mean_value(elapsed, precision_2, with_stdev=True)
+    mean, stdev = _mean_value(elapsed, PRECISION_2, with_stdev=True)
 
-    _show_stats(message='Proof validations', total=_quantize(TOTAL, precision_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
+    show_stats(message='\nProof validation (sec)', total=_quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 # ------------------------------------ main ------------------------------------
@@ -468,13 +534,11 @@ ITERATIONS   = None
 ROUNDS       = None
 
 TREE         = None
+RECORD       = False
 PROOFS       = []
 
-PRECISION_1    = 12
-PRECISION_2    = 6
-
-precision_1 = Decimal('.%s1' % ('0' * (PRECISION_1 - 1)))
-precision_2 = Decimal('.%s1' % ('0' * (PRECISION_2 - 1)))
+PRECISION_1 = Decimal('.%s1' % ('0' * 11))  # 0.000000000001, used for attribute access measurements
+PRECISION_2 = Decimal('.%s1' % ('0' * 5))   # 0.000001, used for the rest measurements (except for mem space)
 
 def main():
 
@@ -485,9 +549,10 @@ def main():
     global ADDITIONAL
     global ITERATIONS
     global ROUNDS
+    global RECORD
 
     prog = sys.argv[0]
-    usage = 'python3 ... %s [--hashtype] [--encoding] [--length] [--additional] [--iterations] [--rounds]' % prog
+    usage = 'python %s [--hashtype] [--encoding] [--length] [--additional] [--iterations] [--rounds] [-r]' % prog
 
     parser = argparse.ArgumentParser(
         prog=prog,
@@ -499,14 +564,14 @@ def main():
     parser.add_argument(
         '--hashtype',
         type=str,
-        help='Hashing algorithm used by the Merkle-tree',
+        help='Hash algorithm to be used by the Merkle-tree',
         default='sha256'
     )
 
     parser.add_argument(
         '--encoding',
         type=str,
-        help='Encoding used by the Merkle-tree',
+        help='Encoding to be used by the Merkle-tree',
         default='utf_8'
     )
 
@@ -514,29 +579,35 @@ def main():
         '--length',
         type=int,
         help='Initial number of leaves',
-        default=1000
+        default=7000
     )
 
     parser.add_argument(
         '--additional',
         type=int,
-        help='Additional number of leaves to append',
-        default=1000
+        help='Additional number of leaves to append (twice)',
+        default=2000
     )
 
     parser.add_argument(
         '--iterations',
         type=int,
-        help='Number of iterations when accessing attributes',
+        help='Number of iterations when accessing node\'s attributes',
         default=1000
     )
 
     parser.add_argument(
         '--rounds',
         type=int,
-        help='Number of rounds when accessing attributes',
+        help='Number of rounds when accessing node\'s attributes',
         default=20
     )
+
+    parser.add_argument(
+        '-r',
+        action='store_true',
+        help="""If provided, audit-proof generation will be also measured with respect to
+                records as provided argument (worse case than providing the leaf index)""")
 
     parsed_args = parser.parse_args()
 
@@ -548,11 +619,14 @@ def main():
     ADDITIONAL = parsed_args.additional
     ITERATIONS = parsed_args.iterations
     ROUNDS     = parsed_args.rounds
+    RECORD     = parsed_args.r
 
-
-    # To do:
-    # Include precision in arguments
-    # Beautify printing
+    sys.stdout.write('\n\n============================================ pymerkle benchmarks ============================================')
+    sys.stdout.write('\n')
+    sys.stdout.write('\nConfiguration')
+    sys.stdout.write('\n')
+    sys.stdout.write('\nHash type : %s' % HASH_TYPE)
+    sys.stdout.write('\nEncoding  : %s' % ENCODING)
 
     attribute_access_benchmark()
     tree_generation_benchmark()
@@ -562,7 +636,7 @@ def main():
     consistency_proofs_benchmark()
     proof_validations_benchmark()
 
-    sys.stdout.write('\n')
+    sys.stdout.write('\n\n')
     sys.exit(0)
 
 if __name__ == "__main__":

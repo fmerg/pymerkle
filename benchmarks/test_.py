@@ -3,7 +3,7 @@ from pymerkle.validations import validateProof
 import math
 
 ITERATIONS        = 100
-ROUNDS            =   1
+ROUNDS            =  20
 WARMUP_ROUNDS     =  10
 LENGTH            = 100
 FILE_PATH         = '../pymerkle/tests/logs/short_APACHE_log'

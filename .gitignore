@@ -9,6 +9,7 @@ detect*
 *profile*
 *.svg
 .benchmarks/
+/benchmarks/test_.py
 *notes*
 *_test*
 

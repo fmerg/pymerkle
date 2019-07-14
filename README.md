@@ -114,8 +114,8 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 
 Read the
 [`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
-inside the project's repository to see how to perform second-preimage attacks against the current implementation. In order to disable defense against second-preimage attack (say, for testing purposes),
-set ``security`` equal to ``False`` at construction:
+inside the project's repository to see how to perform second-preimage attacks against the current implementation. In order to disable
+ defense against second-preimage attack (say, for testing purposes), set ``security`` equal to ``False`` at construction:
 
 ```python
 tree = MerkleTree(security=False)
@@ -157,6 +157,16 @@ combinations of hash algorithm, encoding type and security mode (_1620_ combinat
 arguments of the `pytest` command to run only specific tests or have useful info about the tests printed.
 
 
-<!-- ## Benchmarks
+## Benchmarks
 
-[Work in progress] -->
+From inside the project's root directory, type
+
+```shell
+python benchmarks/ -r
+```
+
+to run the script within the `benchmarks/` directory. To see further options about configuring your benchmarks, type
+
+```shell
+python benchmarks/ -h
+```
