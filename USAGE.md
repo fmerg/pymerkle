@@ -529,8 +529,8 @@ A typical session would be as follows:
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
 
-oldhash   = tree.rootHash() # bytes
-sublength = tree.length()
+oldhash   = tree.rootHash # bytes
+sublength = tree.length
 
 # Server encrypts some new log (modifying the Merkle-tree's root-hash and length)
 
@@ -609,7 +609,7 @@ A typical session would then be as follows:
 ```python
 # Client requests and stores the Merkle-tree's current state
 
-oldhash   = tree.rootHash()
+oldhash   = tree.rootHash
 sublength = tree.length()
 
 # Server encrypts new records into the Merkle-tree
@@ -637,7 +637,7 @@ tree_1 <= tree_2
 is equivalent to
 
 ```python
-tree_2.inclusionTest(oldhash=tree_1.rootHash(), sublength=tree_1.length())
+tree_2.inclusionTest(oldhash=tree_1.rootHash, sublength=tree_1.length())
 ```
 
 To verify whether `tree_1` represents a genuinely previous state of `tree_2`, type
@@ -661,7 +661,7 @@ tree_1 == tree_2
 is equivalent to
 
 ```python
-tree_1.rootHash() == tree_2.rootHash()
+tree_1.rootHash == tree_2.rootHash
 ```
 
 ### Validating proofs (Client's Side)
@@ -675,7 +675,7 @@ The quickest way to validate a proof is by applying the `validateProof()` functi
 `True` or `False` according to whether the proof was found to be _valid_, resp. _invalid_.
 
 ```python
-validateProof(target=tree.rootHash(), proof=p)
+validateProof(target=tree.rootHash, proof=p)
 ```
 
 Note that before its first validation the proof has status `None`, changing upon validation
@@ -727,7 +727,7 @@ A more elaborate validation procedure includes generating a receipt with info ab
 and validation. To this end, use the `validationReceipt()` function as follows:
 
 ```python
-receipt = validationReceipt(target=tree.rootHash(), proof=p)
+receipt = validationReceipt(target=tree.rootHash, proof=p)
 ```
 
 Here the `validateProof()` function is internally invoked, modifying the proof as described above,
@@ -774,5 +774,5 @@ It could have been automatically stored in a `.json` file named with the receipt
 a specified directory, if the function had been called as
 
 ```python
-receipt = validationReceipt(tree.rootHash(), p, dirpath='../some/relative/path')
+receipt = validationReceipt(tree.rootHash, p, dirpath='../some/relative/path')
 ```

@@ -980,10 +980,10 @@ class MerkleTree(object):
             raise WrongJSONFormat
 
         tqdm.write('\nFile has been loaded')
-        for hash in tqdm(loaded_object['hashes'], desc='Retreiving tree...'):
+        for hash in tqdm(loaded_object['hashes'], desc='Retrieving tree...'):
             _tree.update(digest=hash)
 
-        tqdm.write('Tree has been retreived')
+        tqdm.write('Tree has been retrieved')
 
         return _tree
 
