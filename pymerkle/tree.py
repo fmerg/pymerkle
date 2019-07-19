@@ -32,6 +32,8 @@ class MerkleTree(object):
     :type encoding:   str
     :param security:  [optional] Defaults to ``True``.If ``False``, defense against second-preimage attack will be disabled
     :type security:   bool
+    :param raw_bytes:  [optional] Defaults to ``False``. Specifies whether the machine will accept binary data.
+    :type raw_bytes:   bool
 
     :raises UndecodableRecordError:    if any of the provided ``records`` is a bytes-like object which cannot be decoded with
                                        the provided encoding type
@@ -47,7 +49,8 @@ class MerkleTree(object):
                       implicitly upon a request for consistency proof)
     """
 
-    def __init__(self, *records, hash_type='sha256', encoding='utf-8', security=True):
+    def __init__(self, *records, hash_type='sha256', encoding='utf-8', security=True,
+                 raw_bytes=False):
 
         self.uuid = str(uuid.uuid1())
 
@@ -57,7 +60,8 @@ class MerkleTree(object):
             machine = hash_machine(
                 hash_type=hash_type,
                 encoding=encoding,
-                security=security
+                security=security,
+                raw_bytes=raw_bytes
             )
 
         except (NotSupportedEncodingError, NotSupportedHashTypeError):
@@ -65,6 +69,7 @@ class MerkleTree(object):
 
         self.hash_type  = hash_type.lower().replace('-', '_')
         self.encoding   = encoding.lower().replace('-', '_')
+        self.raw_bytes  = raw_bytes
         self.security   = security
         self.hash       = machine.hash
         self.multi_hash = machine.multi_hash
@@ -385,6 +390,7 @@ class MerkleTree(object):
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
+                raw_bytes=self.raw_bytes,
                 proof_index=-1,
                 proof_path=()
             )
@@ -394,6 +400,7 @@ class MerkleTree(object):
                 hash_type=self.hash_type,
                 encoding=self.encoding,
                 security=self.security,
+                raw_bytes=self.raw_bytes,
                 proof_index=proof_index,
                 proof_path=audit_path
             )
@@ -974,7 +981,8 @@ class MerkleTree(object):
             _tree = MerkleTree(
                 hash_type=_header['hash_type'],
                 encoding=_header['encoding'],
-                security=_header['security']
+                security=_header['security'],
+                raw_bytes=_header['raw_bytes']
             )
         except KeyError:
             raise WrongJSONFormat
