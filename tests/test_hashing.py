@@ -18,6 +18,43 @@ _machines__single_args                       = []
 
 for _security in (True, False):
     for _hash_type in HASH_TYPES:
+
+        _machine = hashing.hash_machine(
+            hash_type=_hash_type,
+            raw_bytes=True,
+            security=_security
+        )
+
+        _machines.append(_machine)
+
+        _machines__hash_types__encodings__securities.extend(
+            [
+                (
+                    _machine,
+                    _hash_type,
+                    'utf_8',
+                    _security
+                )
+            ]
+        )
+
+        _machines__single_args.extend(
+            [
+                (
+                    _machine,
+                    MESSAGE
+                ),
+                (
+                    _machine,
+                    bytes(MESSAGE, 'utf_8')
+                ),
+                (
+                    _machine,
+                    bytearray(MESSAGE, 'utf_8')
+                )
+            ]
+        )
+
         for _encoding in ENCODINGS:
 
             _machine = hashing.hash_machine(

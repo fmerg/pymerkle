@@ -29,18 +29,20 @@ ENCODINGS = hashing.ENCODINGS
 
 trees = []
 
-for security in (True, False):
-    for hash_type in HASH_TYPES:
-        for encoding in ENCODINGS:
+for raw_bytes in (True, False):
+    for security in (True, False):
+        for hash_type in HASH_TYPES:
+            for encoding in ENCODINGS:
 
-            trees.append(
-                MerkleTree(
-                    'a', 'b', 'c', 'd',  # original records
-                    hash_type=hash_type,
-                    encoding=encoding,
-                    security=security
+                trees.append(
+                    MerkleTree(
+                        'a', 'b', 'c', 'd',  # original records
+                        hash_type=hash_type,
+                        raw_bytes=raw_bytes,
+                        encoding=encoding,
+                        security=security
+                    )
                 )
-            )
 
 
 @pytest.mark.parametrize("original_tree", trees)

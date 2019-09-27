@@ -1,8 +1,11 @@
-"""Provides the classes for the Merkle-tree's leaves and internal nodes
+"""
+Provides the classes for the Merkle-tree's leaves and internal nodes
 """
 
 from .serializers import NodeSerializer, LeafSerializer
-from .exceptions import NoChildException, NoDescendantException, NoParentException, LeafConstructionError, UndecodableArgumentError, UndecodableRecordError
+from .exceptions import (NoChildException, NoDescendantException,
+    NoParentException, LeafConstructionError, UndecodableArgumentError,
+    UndecodableRecordError)
 from .utils import NONE
 import json
 
@@ -15,7 +18,8 @@ VERTICAL_BAR    = '\u2502'                      # │
 
 
 class _Node(object):
-    """Base class for ``Leaf`` and ``Node``
+    """
+    Base class for ``Leaf`` and ``Node``
     """
 
     __slots__ = ('__encoding', '__child',)

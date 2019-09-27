@@ -6,7 +6,11 @@ from .utils import log_2, decompose, NONE
 from .nodes import Node, Leaf
 from .proof import Proof
 from .serializers import MerkleTreeSerializer
-from .exceptions import LeafConstructionError, NoChildException, EmptyTreeException, NoPathException, InvalidProofRequest, NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException, InvalidComparison, WrongJSONFormat, UndecodableRecordError, NotSupportedEncodingError, NotSupportedHashTypeError
+from .exceptions import (LeafConstructionError, NoChildException,
+    EmptyTreeException, NoPathException, InvalidProofRequest,
+    NoSubtreeException, NoPrincipalSubrootsException, InvalidTypesException,
+    InvalidComparison, WrongJSONFormat, UndecodableRecordError,
+    NotSupportedEncodingError, NotSupportedHashTypeError)
 import json
 from json import JSONDecodeError
 import uuid
@@ -68,7 +72,7 @@ class MerkleTree(object):
             raise
 
         self.hash_type  = hash_type.lower().replace('-', '_')
-        self.encoding   = encoding.lower().replace('-', '_')
+        self.encoding   = encoding.lower().replace('-', '_') if not raw_bytes else 'utf_8'
         self.raw_bytes  = raw_bytes
         self.security   = security
         self.hash       = machine.hash

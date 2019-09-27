@@ -75,6 +75,7 @@ ENCODINGS = [
     'iso8859_9',
     'johab',
     'koi8_r',
+    'koi8_u',
     'kz1048',
     'latin_1',
     'mac_cyrillic',
@@ -96,7 +97,6 @@ ENCODINGS = [
     'utf_32_le',
     'utf_7',
     'utf_8',
-    ''
 ]
 """Supported encoding types"""
 
@@ -157,17 +157,14 @@ class hash_machine(object):
 
         # Select encoding
 
-        _encoding = encoding.lower().replace('-', '_')
-
-        if _encoding not in ENCODINGS:
-            raise NotSupportedEncodingError('Encoding type %s is not supported' % encoding)
-
-        if raw_bytes:
-            self.ENCODING = _encoding
-            self.RAW_BYTES = raw_bytes
+        self.RAW_BYTES = raw_bytes
+        if self.RAW_BYTES:
+            self.ENCODING = 'utf-8'
         else:
-            self.ENCODING = "utf-8"
-            self.RAW_BYTES = True
+            _encoding = encoding.lower().replace('-', '_')
+            if _encoding not in ENCODINGS:
+                raise NotSupportedEncodingError('Encoding type %s is not supported' % encoding)
+            self.ENCODING = _encoding
 
         # ~ If True, security prefices will be prepended before
         # ~ hashing for defense against second-preimage attack
@@ -195,8 +192,10 @@ class hash_machine(object):
         """
         if not right:                                                           # single argument case
             if isinstance(left, (bytes, bytearray)):                            # bytes-like input
-                try:
-                    if not self.RAW_BYTES:
+                if self.RAW_BYTES:                                              # raw bytes case
+                    _data = bytes(self.PREFIX_0, self.ENCODING) + left
+                else:                                                           # encoding plays role
+                    try:
                         _data = bytes(
                             '%s%s' % (
                                 self.PREFIX_0,
@@ -204,12 +203,8 @@ class hash_machine(object):
                             ),
                             self.ENCODING
                         )
-                    else:
-                        _data = left
-
-                except UnicodeDecodeError:                                      # incompatible encoding type
-                    raise UndecodableArgumentError
-
+                    except UnicodeDecodeError:                                  # incompatible encoding type
+                        raise UndecodableArgumentError
             else:                                                               # string input
                 _data = bytes(
                     '%s%s' % (
@@ -218,10 +213,11 @@ class hash_machine(object):
                     ),
                     self.ENCODING
                 )
-
         else:                                                                   # two arguments case
-            try:
-                if not self.RAW_BYTES:
+            if self.RAW_BYTES:                                                  # raw bytes case
+                _data = bytes(self.PREFIX_1, self.ENCODING) + left + bytes(self.PREFIX_1, self.ENCODING) + right
+            else:                                                               # encoding plays role
+                try:
                     _data = bytes(
                         '%s%s%s%s' % (
                             self.PREFIX_1,
@@ -231,20 +227,11 @@ class hash_machine(object):
                         ),
                         self.ENCODING
                     )
-                else:
-                    _aux = '%s%s%s%s' % (
-                        self.PREFIX_1,
-                        left.decode(),
-                        self.PREFIX_1,
-                        right.decode()
-                    )
-
-                    _data = bytes(_aux, "ascii")                                 # always a hex string
-            except UnicodeDecodeError:                                          # incompatible encoding type
-                raise UndecodableArgumentError
+                except UnicodeDecodeError:                                      # incompatible encoding type
+                    raise UndecodableArgumentError
 
         _hexdigest = self.HASH_ALGORITHM(_data).hexdigest()
-        return bytes(_hexdigest, "ascii")                                       # always a hex string
+        return bytes(_hexdigest, self.ENCODING)
 
 
     def multi_hash(self, signed_hashes, start):

@@ -13,6 +13,7 @@ detect*
 /benchmarks/_init_.py
 *notes*
 *_test*
+*save*
 
 # Packaging
 *.egg-info/
