@@ -270,8 +270,8 @@ JSON encoder for data structures.</p>
 be constructed in the following ways by employing <cite>**kwargs</cite> in order to load the JSON string of a
 given validation-receipt <code class="docutils literal notranslate"><span class="pre">r</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymerkle.valiation_receipts</span> <span class="k">import</span> <span class="n">validation_receipt</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">validation_receipt</span><span class="p">(</span><span class="n">from_json</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">JSONstring</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">validation_receipt</span><span class="p">(</span><span class="n">from_dict</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">JSONstring</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">validation_receipt</span><span class="p">(</span><span class="n">from_json</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">JsonString</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">validation_receipt</span><span class="p">(</span><span class="n">from_dict</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">JsonString</span><span class="p">()))</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -298,8 +298,8 @@ receipts <code class="docutils literal notranslate"><span class="pre">s</span></
 </tbody>
 </table>
 <dl class="method">
-<dt id="pymerkle.validations.validation_receipt.JSONstring">
-<code class="descname">JSONstring</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#validation_receipt.JSONstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.validation_receipt.JSONstring" title="Permalink to this definition">¶</a></dt>
+<dt id="pymerkle.validations.validation_receipt.JsonString">
+<code class="descname">JsonString</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/validations.html#validation_receipt.JsonString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.validations.validation_receipt.JsonString" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a nicely stringified version of the receipt’s JSON serialized form</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

@@ -197,7 +197,7 @@
 <span class="sd">                          by the ``hash_type`` argument at construction</span>
 <span class="sd">    :ivar ENCODING:       (*str*) Encoding type used by the machine before hashing, specified in the obvious way</span>
 <span class="sd">                          by the ``encoding`` argument at construction</span>
-<span class="sd">    :ivar SECURITY:       (*bool*) Indicates whether defense against second-preimage attack is activated, specified in the</span>
+<span class="sd">    :ivar security:       (*bool*) Indicates whether defense against second-preimage attack is activated, specified in the</span>
 <span class="sd">                          obvious way by the ``security`` argument at construction</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -213,8 +213,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ENCODING</span> <span class="o">=</span> <span class="n">hash_machine</span><span class="o">.</span><span class="n">select_encoding</span><span class="p">(</span>
             <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span> <span class="o">=</span> <span class="n">security</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">security</span> <span class="o">=</span> <span class="n">security</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security</span><span class="p">:</span>
             <span class="c1"># Prefices will be prepended before hashing for defense against</span>
             <span class="c1"># second-preimage attack</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PREFIX_1</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\x01</span><span class="s1">&#39;</span>
@@ -278,7 +278,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)):</span>
                 <span class="c1"># bytes-like input</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security</span><span class="p">:</span>
                     <span class="c1"># Apply security stadards</span>
                     <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
                         <span class="nb">bytes</span><span class="p">(</span>
@@ -293,7 +293,7 @@
 
             <span class="c1"># Non bytes-like input</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security</span><span class="p">:</span>
 
                 <span class="c1"># Apply security standards</span>
                 <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>
@@ -311,7 +311,7 @@
 
         <span class="c1"># two args case</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">security</span><span class="p">:</span>
 
             <span class="c1"># Apply security standards</span>
             <span class="n">hex_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HASH_ALGORITHM</span><span class="p">(</span>

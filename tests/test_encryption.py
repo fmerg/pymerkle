@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 from pymerkle import MerkleTree, hashing
-from pymerkle.exceptions import WrongJSONFormat, UndecodableRecordError
+from pymerkle.exceptions import WrongJSONFormat, UndecodableRecord
 
 
 HASH_TYPES = hashing.HASH_TYPES
@@ -105,7 +105,7 @@ for security in (True, False):
                         encoding=encoding,
                         security=security
                     ),
-                    hashing.hash_machine(
+                    hashing.HashMachine(
                         hash_type=hash_type,
                         encoding=encoding,
                         security=security
@@ -130,11 +130,6 @@ for (_tree, _hash_machine) in _trees_and__hash_machines:
                 _tree,
                 _hash_machine,
                 bytes('bytes record', _tree.encoding)
-            ),
-            (
-                _tree,
-                _hash_machine,
-                bytearray('bytearray record', _tree.encoding)
             )
         ]
     )
@@ -150,7 +145,7 @@ def test_encryptRecord(_tree, _hash_machine, _record):
 
 
 @pytest.mark.parametrize('_byte, _encoding, _security', _undecodableArgumentErrors)
-def test_UndecodableRecordError_with_encryptRecord(_byte, _encoding, _security):
+def test_UndecodableRecord_with_encryptRecord(_byte, _encoding, _security):
 
     _tree = MerkleTree('a', 'b', 'c', encoding=_encoding, security=_security)
     _output = _tree.encryptRecord(_byte)

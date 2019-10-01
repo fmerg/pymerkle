@@ -1,4 +1,5 @@
-"""A Python library for constructing Merkle Trees and validating Proofs
+"""
+A Python library for constructing Merkle-trees and validating Proofs
 """
 
 from .tree import MerkleTree

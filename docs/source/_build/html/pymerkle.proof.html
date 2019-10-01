@@ -195,8 +195,8 @@ proof validation (cf. the <code class="docutils literal notranslate"><span class
 <p>Instead of providing the above arguments corresponding to <cite>*args</cite>, a <code class="docutils literal notranslate"><span class="pre">proof</span></code> object may also be constructed
 in the following ways by employing <cite>**kwargs</cite> in order to load the JSON string of a given proof <code class="docutils literal notranslate"><span class="pre">p</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymerkle.proof</span> <span class="k">import</span> <span class="n">proof</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">proof</span><span class="p">(</span><span class="n">from_json</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">JSONstring</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">proof</span><span class="p">(</span><span class="n">from_dict</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">JSONstring</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">proof</span><span class="p">(</span><span class="n">from_json</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">JsonString</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">proof</span><span class="p">(</span><span class="n">from_dict</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">JsonString</span><span class="p">()))</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -232,8 +232,8 @@ is <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </tbody>
 </table>
 <dl class="method">
-<dt id="pymerkle.proof.proof.JSONstring">
-<code class="descname">JSONstring</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/proof.html#proof.JSONstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof.proof.JSONstring" title="Permalink to this definition">¶</a></dt>
+<dt id="pymerkle.proof.proof.JsonString">
+<code class="descname">JsonString</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymerkle/proof.html#proof.JsonString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymerkle.proof.proof.JsonString" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a nicely stringified version of the proof’s JSON serialized form</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

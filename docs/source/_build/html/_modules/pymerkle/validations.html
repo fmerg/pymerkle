@@ -268,8 +268,8 @@
 <span class="sd">    given validation-receipt ``r``:</span>
 
 <span class="sd">    &gt;&gt;&gt; from pymerkle.valiation_receipts import validation_receipt</span>
-<span class="sd">    &gt;&gt;&gt; s = validation_receipt(from_json=r.JSONstring())</span>
-<span class="sd">    &gt;&gt;&gt; t = validation_receipt(from_dict=json.loads(r.JSONstring()))</span>
+<span class="sd">    &gt;&gt;&gt; s = validation_receipt(from_json=r.JsonString())</span>
+<span class="sd">    &gt;&gt;&gt; t = validation_receipt(from_dict=json.loads(r.JsonString()))</span>
 
 <span class="sd">    .. note:: Constructing receipt in the above ways is a genuine *replication*, since the constructed</span>
 <span class="sd">              receipts ``s`` and ``t`` have the same *uuuid* and *timestamps* as ``r``</span>
@@ -349,7 +349,7 @@
         <span class="n">encoder</span> <span class="o">=</span> <span class="n">validationReceiptEncoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="validation_receipt.JSONstring"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.validation_receipt.JSONstring">[docs]</a>    <span class="k">def</span> <span class="nf">JSONstring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="validation_receipt.JsonString"><a class="viewcode-back" href="../../pymerkle.validations.html#pymerkle.validation_receipt.JsonString">[docs]</a>    <span class="k">def</span> <span class="nf">JsonString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a nicely stringified version of the receipt&#39;s JSON serialized form</span>
 
 <span class="sd">        .. note:: The output of this function is to be passed into the ``print`` function</span>

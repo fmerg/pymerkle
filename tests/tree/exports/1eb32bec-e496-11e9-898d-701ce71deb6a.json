@@ -2,7 +2,7 @@
     "header": {
         "hash_type": "sha256",
         "encoding": "utf_8",
-        "raw_bytes": false,
+        "raw_bytes": true,
         "security": true
     },
     "hashes": [

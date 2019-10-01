@@ -9,7 +9,7 @@ import os
 import sys
 import argparse
 from pymerkle.nodes import Node, Leaf
-from pymerkle.hashing import hash_machine
+from pymerkle.hashing import HashMachine
 from pymerkle import MerkleTree
 from pymerkle.validations import validateProof
 
@@ -113,9 +113,9 @@ def attribute_access_benchmark():
         def access_attribute(): node.child
         return access_attribute
 
-    left  = Leaf(hashfunc=HASH, encoding=ENCODING, record='first record...')
-    right = Leaf(hashfunc=HASH, encoding=ENCODING, record='second record...')
-    node  = Node(hashfunc=HASH, encoding=ENCODING, left=left, right=right)
+    left  = Leaf(hash_func=HASH, encoding=ENCODING, record='first record...')
+    right = Leaf(hash_func=HASH, encoding=ENCODING, record='second record...')
+    node  = Node(hash_func=HASH, encoding=ENCODING, left=left, right=right)
 
 
     write('\n\n-------------------------- Nodes\' attributes access --------------------------')
@@ -467,7 +467,7 @@ def main():
 
     HASH_TYPE  = parsed_args.hashtype
     ENCODING   = parsed_args.encoding
-    HASH       = hash_machine(hash_type=HASH_TYPE, encoding=ENCODING).hash
+    HASH       = HashMachine(hash_type=HASH_TYPE, encoding=ENCODING).hash
     LENGTH     = parsed_args.length
     ADDITIONAL = parsed_args.additional
     ITERATIONS = parsed_args.iterations

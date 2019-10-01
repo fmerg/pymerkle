@@ -113,7 +113,7 @@ Defense against second-preimage attack is by default activated. Roughly speaking
 - Before calculating the hash of any interior node, prepend both of its parents' hashes with the unit hexadecimal `0x01`
 
 Read the
-[`tests/test_defense.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_defense.py) file
+[`tests/test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py) file
 inside the project's repository to see how to perform second-preimage attacks against the current implementation. In order to disable
  defense against second-preimage attack (say, for testing purposes), set ``security`` equal to ``False`` at construction:
 

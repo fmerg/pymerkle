@@ -1,10 +1,10 @@
 """Provides a core function for validating proofs along with a class for validation receipts
 """
 
-from .hashing import hash_machine
-from .serializers import ReceiptSerializer
+from pymerkle.hashing import HashMachine
+from pymerkle.serializers import ReceiptSerializer
 import uuid
-import time
+from time import time, ctime
 import json
 import os
 
@@ -24,41 +24,38 @@ def validateProof(target, proof):
     :rtype:        bool
     """
 
-    _header = proof.header
-
-    if not _header['generation']:      # Empty proof-path case
-
-        _header['status'] = False
+    header = proof.header
+    if not header['generation']:      # Empty proof-path case
+        header['status'] = False
         return False
-
     else:
-
         # Configure hashing parameters
-        machine = hash_machine(
-            hash_type=_header['hash_type'],
-            encoding=_header['encoding'],
-            security=_header['security'],
-            raw_bytes=_header['raw_bytes']
+        machine = HashMachine(
+            hash_type=header['hash_type'],
+            encoding=header['encoding'],
+            raw_bytes=header['raw_bytes'],
+            security=header['security']
         )
 
         # Perform hash-comparison
-
         result = target == machine.multi_hash(
             signed_hashes=proof.body['proof_path'],
             start=proof.body['proof_index']
         )
 
-        # Inscribe new status according to the above calculation and return
-
+        # Inscribe new status according to the above computation and return
         proof.header['status'] = result
         return result
 
 
 def validationReceipt(target, proof, dirpath=None):
-    """Wraps the ``validateProof()`` method, returning a validation receipt instead of a boolean
+    """
+    Wraps the ``validateProof()`` method, so that a validation
+    receipt is returned instead of a boolean
 
-    If a ``dirpath`` has been specified, then the receipt is automatically stored inside the given
-    directory as a ``.json`` file named with the receipt's uuid
+    If a ``dirpath`` has been specified, then the receipt is automatically
+    stored inside the given directory as a ``.json`` file named with the
+    receipt's uuid
 
     :param target:  hash to be presumably attained at the end of the validation procedure (i.e.,
                     acclaimed top-hash of the Merkle-tree having provided the proof)
@@ -71,14 +68,11 @@ def validationReceipt(target, proof, dirpath=None):
     :type proof:    proof.Proof
     :rtype:         validations.Receipt
     """
-
     result  = validateProof(target=target, proof=proof)
-
-    _header = proof.header
-
+    header = proof.header
     receipt = Receipt(
-        proof_uuid=_header['uuid'],
-        proof_provider=_header['provider'],
+        proof_uuid=header['uuid'],
+        proof_provider=header['provider'],
         result=result
     )
 
@@ -109,8 +103,8 @@ class Receipt(object):
     be constructed in the following ways given validation-receipt ``r``:
 
     >>> from pymerkle.valiation_receipts import Receipt
-    >>> s = Receipt(from_json=r.JSONstring())
-    >>> t = Receipt(from_dict=json.loads(r.JSONstring()))
+    >>> s = Receipt(from_json=r.toJsonString())
+    >>> t = Receipt(from_dict=json.loads(r.toJsonString()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*, since the constructed
               receipts ``s`` and ``t`` have the same *uuid* and *timestamps* as ``r``
@@ -130,41 +124,32 @@ class Receipt(object):
         if args:                                                                # Assuming positional arguments by default
             self.header = {
                 'uuid': str(uuid.uuid1()),                                      # Time based receipt id
-                'timestamp': int(time.time()),
-                'validation_moment': time.ctime(),
+                'timestamp': int(time()),
+                'validation_moment': ctime(),
             }
-
             self.body = {
                 'proof_uuid': args[0],
                 'proof_provider': args[1],
                 'result': args[2]
             }
-
         else:
-
             if kwargs.get('from_dict'):                                         # Importing receipt from dict
-
-                self.header = kwargs.get('from_dict')['header']
-                self.body = kwargs.get('from_dict')['body']
-
+                self.header = kwargs['from_dict']['header']
+                self.body = kwargs['from_dict']['body']
             elif kwargs.get('from_json'):                                       # Importing receipt form JSON text
-
-                _dict = json.loads(kwargs.get('from_json'))
-
+                _dict = json.loads(kwargs['from_json'])
                 self.header = _dict['header']
                 self.body = _dict['body']
-
             else:                                                               # Standard creation of a receipt
                 self.header = {
                     'uuid': str(uuid.uuid1()),                                  # Time based receipt id
-                    'timestamp': int(time.time()),
-                    'validation_moment': time.ctime(),
+                    'timestamp': int(time()),
+                    'validation_moment': ctime(),
                 }
-
                 self.body = {
-                    'proof_uuid': kwargs.get('proof_uuid'),
-                    'proof_provider': kwargs.get('proof_provider'),
-                    'result': kwargs.get('result')
+                    'proof_uuid': kwargs['proof_uuid'],
+                    'proof_provider': kwargs['proof_provider'],
+                    'result': kwargs['result']
                 }
 
     def __repr__(self):
@@ -190,23 +175,21 @@ class Receipt(object):
                     result='VALID' if self.body['result'] else 'NON VALID'
                 )
 
-# ------------------------------- Serialization --------------------------
+
+# Serialization
 
     def serialize(self):
-        """ Returns a JSON entity with the receipt's attributes as key-value pairs
+        """
+        Returns a JSON entity with the receipt's attributes as key-value pairs
 
         :rtype: dict
         """
         return ReceiptSerializer().default(self)
 
-    def JSONstring(self):
-        """Returns a nicely stringified version of the receipt's JSON serialized form
+    def toJsonString(self):
+        """
+        Returns a stringification of the receipt's JSON serialization
 
         :rtype: str
         """
-        return json.dumps(
-            self,
-            cls=ReceiptSerializer,
-            sort_keys=True,
-            indent=4
-        )
+        return json.dumps(self, cls=ReceiptSerializer, sort_keys=True, indent=4)

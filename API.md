@@ -196,7 +196,7 @@ _Note:_ This method does *not* serialize the tree structure itself, but only the
 about the tree's fixed configs and current leaves, so that the tree can be
 retrieved from that using the ``.update()`` method
 
-### `method` __.JSONstring ( )__
+### `method` __.JsonString ( )__
 
 Returns a nicely stringified version of the Merkle-tree's JSON serialized form
 

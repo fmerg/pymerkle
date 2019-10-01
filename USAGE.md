@@ -36,8 +36,8 @@ tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
 creates a Merkle-tree with hash algorithm _SHA512_ and encoding type _UTF-32_. If the provided
-`hash_type`, resp. `encoding` is not among the supported types, then a ``NotSupportedHashTypeError``,
-resp. ``NotSupportedEncodingError`` gets raised and the construction is aborted.
+`hash_type`, resp. `encoding` is not among the supported types, then a ``UnsupportedHashType``,
+resp. ``UnsupportedEncoding`` gets raised and the construction is aborted.
 
 Refer to [_API_](API.md) for the complete list of supported hash and encoding types.
 
@@ -62,7 +62,7 @@ tree = MerkleTree(
 New records are of type `str` or `bytes` (or `bytearray`), the latter falling under the
 tree's configured encoding type. In the latter case, make sure that the provided records
 are indeed _valid_ bytes sequences under the corresponding encoding type, otherwise
-an ``UndecodableRecordError`` gets raised and the tree construction is aborted.
+an ``UndecodableRecord`` gets raised and the tree construction is aborted.
 
 ### Single record encryption
 
@@ -89,7 +89,7 @@ number of leaves have always identical structure despite their possibly differen
 
 When the record provided to `.update()` is a bytes-like object instead of a string,
 make sure that it is indeed a _valid_ bytes sequences under the corresponding encoding type, otherwise
-an ``UndecodableRecordError`` gets raised and no newly-created leaf is appended into the tree.
+an ``UndecodableRecord`` gets raised and no newly-created leaf is appended into the tree.
 
 An equivalent but more high-level functionality is facilitated by the `.encryptRecord()` method as follows:
 
@@ -101,7 +101,7 @@ tree.encryptRecord(bytes('valid bytes sequence', 'utf-8'))        # returns 0
 ...                                                               # ...
 ```
 
-Here the `.update()` method is invoked internally and if an ``UndecodableRecordError`` gets
+Here the `.update()` method is invoked internally and if an ``UndecodableRecord`` gets
 implicitly raised, then no new leaf gets created and the execution of the `encryptRecord()`
 method terminates with `1`:
 
@@ -253,7 +253,7 @@ respect to the current working directory.
 
 Make sure that the file's encoding and content are _compatible_ with the tree's configured encoding type.
 In particular, if the file contains any _non valid_ bytes sequence with respect to the tree's encoding type,
-then an ``UndecodableRecordError`` gets implicitly raised, causing the function to exit with `1` without
+then an ``UndecodableRecord`` gets implicitly raised, causing the function to exit with `1` without
 appending any new leaf to the tree. In the normal case, the function returns `0`. You can use this fact to
 verify whether the provided file's content has been successfully encrypted or, equivalently, a newly-created
 leaf has indeed been appended to the Merkle-tree (Cf. also the `updateRecord()` method).
@@ -278,7 +278,7 @@ respect to the current working directory.
 
 Make sure that the file's encoding and content are _compatible_ with the tree's configured encoding type.
 In particular, if at least one _line_ contains any _non valid_ bytes sequence with respect to the tree's encoding type,
-then an ``UndecodableRecordError`` gets implicitly raised, causing the function to exit with `1` without
+then an ``UndecodableRecord`` gets implicitly raised, causing the function to exit with `1` without
 appending any new leaves _at all_ to the tree. In the normal case, the function returns `0`.
 You can use this fact to verify whether the provided file's lines have been successfully encrypted or,
 equivalently, newly-created leaves have been indeed appended in respective order to the Merkle-tree.

@@ -186,8 +186,8 @@
 <span class="sd">    in the following ways by employing `**kwargs` in order to load the JSON string of a given proof ``p``:</span>
 
 <span class="sd">    &gt;&gt;&gt; from pymerkle.proof import proof</span>
-<span class="sd">    &gt;&gt;&gt; q = proof(from_json=p.JSONstring())</span>
-<span class="sd">    &gt;&gt;&gt; r = proof(from_dict=json.loads(p.JSONstring()))</span>
+<span class="sd">    &gt;&gt;&gt; q = proof(from_json=p.JsonString())</span>
+<span class="sd">    &gt;&gt;&gt; r = proof(from_dict=json.loads(p.JsonString()))</span>
 
 <span class="sd">    .. note:: Constructing proofs in the above ways is a genuine *replication*, since the constructed</span>
 <span class="sd">              proofs ``q`` and ``r`` have the same *uuuid* and *timestamps* as ``p``</span>
@@ -258,7 +258,7 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Overrides the default implementation.</span>
 
-<span class="sd">        Sole purpose of this function is to easy print info about a proof by just invoking it at console.</span>
+<span class="sd">        Sole purpose of this function is to easy display info about a proof by just invoking it at console.</span>
 
 <span class="sd">        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -309,7 +309,7 @@
         <span class="n">encoder</span> <span class="o">=</span> <span class="n">proofEncoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="proof.JSONstring"><a class="viewcode-back" href="../../pymerkle.proof.html#pymerkle.proof.proof.JSONstring">[docs]</a>    <span class="k">def</span> <span class="nf">JSONstring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="proof.JsonString"><a class="viewcode-back" href="../../pymerkle.proof.html#pymerkle.proof.proof.JsonString">[docs]</a>    <span class="k">def</span> <span class="nf">JsonString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a nicely stringified version of the proof&#39;s JSON serialized form</span>
 
 <span class="sd">        .. note:: The output of this function is to be passed into the ``print`` function</span>

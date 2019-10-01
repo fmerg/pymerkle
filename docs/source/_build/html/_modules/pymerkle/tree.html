@@ -253,7 +253,7 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Overrides the default implementation.</span>
 
-<span class="sd">        Sole purpose of this function is to easy print info about the Merkle-treee by just invoking it at console.</span>
+<span class="sd">        Sole purpose of this function is to easy display info about the Merkle-treee by just invoking it at console.</span>
 
 <span class="sd">        .. warning:: Contrary to convention, the output of this implementation is *not* insertible to the ``eval`` function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -366,7 +366,7 @@
             <span class="c1"># Store new record to new leaf</span>
             <span class="n">new_leaf</span> <span class="o">=</span> <span class="n">leaf</span><span class="p">(</span>
                 <span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
-                <span class="n">hashfunc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
+                <span class="n">hash_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
                 <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
 
             <span class="c1"># Assimilate new leaf</span>
@@ -381,7 +381,7 @@
                 <span class="n">record</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">left</span><span class="o">=</span><span class="n">last_subroot</span><span class="p">,</span>
                 <span class="n">right</span><span class="o">=</span><span class="n">new_leaf</span><span class="p">,</span>
-                <span class="n">hashfunc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
+                <span class="n">hash_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
                 <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_child</span><span class="p">)</span>
 
@@ -405,7 +405,7 @@
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># void case</span>
             <span class="n">new_leaf</span> <span class="o">=</span> <span class="n">leaf</span><span class="p">(</span>
                 <span class="n">record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
-                <span class="n">hashfunc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
+                <span class="n">hash_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="p">,</span>
                 <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">leaves</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">new_leaf</span><span class="p">],</span> <span class="nb">set</span><span class="p">([</span><span class="n">new_leaf</span><span class="p">]),</span> <span class="n">new_leaf</span></div>
@@ -835,7 +835,7 @@
         <span class="n">encoder</span> <span class="o">=</span> <span class="n">merkleTreeEncoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">encoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="merkle_tree.JSONstring"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.JSONstring">[docs]</a>    <span class="k">def</span> <span class="nf">JSONstring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="merkle_tree.JsonString"><a class="viewcode-back" href="../../pymerkle.tree.html#pymerkle.merkle_tree.JsonString">[docs]</a>    <span class="k">def</span> <span class="nf">JsonString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a nicely stringified version of the Merkle-tree&#39;s JSON serialized form</span>
 
 <span class="sd">        .. note:: The output of this function is to be passed into the ``print`` function</span>

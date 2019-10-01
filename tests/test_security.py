@@ -1,6 +1,9 @@
-""" Performs second-preimage attack against Merkle-trees of all possible hash- and encoding-types
-for *both* possible security modes. Attack should succeed only when the tree's security mode is
-deactiveated (i.e., *iff* its ``.security`` attribute is ``False`` by construction).
+"""
+Performs 2nd-preimage attack against Merkle-trees of all possible combinations of
+hash-type, encoding-type and raw-bytes mode, for *both* possible security modes
+
+Attack should succeed *only* when the tree's security mode is deactiveated, that
+is, *iff* the ``.security`` attribute has been set to ``False`` at construction
 
 Attack Schema
 -------------
@@ -11,32 +14,26 @@ Attack Schema
                    /   \                       /   \
                  B       C = h(FG)           B      C    ------> [injected leaf]
                 / \     / \                 / \     |
- hashes:       D   E   F   G               D   E   (FG)  <------ [forged record]
+digests:       D   E   F   G               D   E   (FG)  <------ [forged record]
                |   |   |   |               |   |
 records:       d   e   f   g               d   e
 
 
-Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result (i.e., its digest)
-as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
+Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
+(i.e., its digest) as the 3-rd leaf, leaving the 1-st and 2-nd leaves untouched
 """
+
 import pytest
-from pymerkle import MerkleTree, hashing
-
-# Generate trees for all combinations of hash and encoding types (including both security modes for each)
-
-HASH_TYPES = hashing.HASH_TYPES
-ENCODINGS = hashing.ENCODINGS
+from pymerkle import MerkleTree
+from pymerkle.hashing import HASH_TYPES, ENCODINGS
 
 trees = []
-
 for raw_bytes in (True, False):
     for security in (True, False):
         for hash_type in HASH_TYPES:
             for encoding in ENCODINGS:
-
                 trees.append(
-                    MerkleTree(
-                        'a', 'b', 'c', 'd',  # original records
+                    MerkleTree('a', 'b', 'c', 'd',            # original records
                         hash_type=hash_type,
                         raw_bytes=raw_bytes,
                         encoding=encoding,
@@ -49,22 +46,25 @@ for raw_bytes in (True, False):
 def test_defense_against_second_preimage_attack(original_tree):
 
     # Construct forged record
+    leaves = original_tree.leaves
+    encoding = original_tree.encoding
+    if original_tree.raw_bytes:
+        F = leaves[2].digest
+        G = leaves[3].digest
+    else:
+        F = leaves[2].digest.decode(encoding)
+        G = leaves[3].digest.decode(encoding)
+    forged_record = F + G
 
-    F = original_tree.leaves[2].digest.decode(encoding=original_tree.encoding)
-    G = original_tree.leaves[3].digest.decode(encoding=original_tree.encoding)
-    forged_record = '%s%s' % (F, G)
-
-    # Construct attacker's tree
-
-    attacker_tree = MerkleTree(
-        'a', 'b', forged_record,
+    # Attacker's tree
+    attacker_tree = MerkleTree('a', 'b', forged_record,         # forged records
         hash_type=original_tree.hash_type,
         encoding=original_tree.encoding,
+        raw_bytes=original_tree.raw_bytes,
         security=original_tree.security
     )
 
-    # Check if the attacker has found the original root-hash
-
+    # Check if the attacker has replicated the original root-hash
     if original_tree.security:
         assert original_tree.rootHash != attacker_tree.rootHash
     else:
