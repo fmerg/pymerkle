@@ -1,6 +1,6 @@
 """
 Tests the internal functionalities of Merkle-trees invoked in the
-implementation of audit- and consistency-proof generation 
+implementation of audit- and consistency-proof generation
 """
 
 import pytest
@@ -22,7 +22,7 @@ _3_leaves_tree = MerkleTree('a', 'b', 'c')
 _4_leaves_tree = MerkleTree('a', 'b', 'c', 'd')
 _5_leaves_tree = MerkleTree('a', 'b', 'c', 'd', 'e')
 
-_no_path_exceptions = [
+__no_path_exceptions = [
     (_0_leaves_tree, +0),
     (_1_leaves_tree, -1),
     (_1_leaves_tree, +1),
@@ -37,12 +37,11 @@ _no_path_exceptions = [
 ]
 
 
-@pytest.mark.parametrize('tree, index', _no_path_exceptions)
+@pytest.mark.parametrize('tree, index', __no_path_exceptions)
 def test_audit_NoPathException(tree, index):
     """
-    Tests ``NoPathException`` when an audit-path is requested from an empty
-    Merkle-tree or based upon an index either negative or exceeding the
-    tree's current length
+    Tests NoPathException upon requesting audit-path from an empty Merkle-tree
+    or based upon an index either negative or exceeding the tree's current length
     """
     with pytest.raises(NoPathException):
         tree.audit_path(index)
@@ -284,7 +283,7 @@ __subroots = [
 def test_subroot(tree, start, height, subroot):
     assert tree.subroot(start, height) is subroot
 
-_no_principal_subroots_exceptions = [
+__no_principal_subroots_exceptions = [
     (_1_leaves_tree, -1),
     (_1_leaves_tree, +2),
     (_2_leaves_tree, -1),
@@ -297,12 +296,12 @@ _no_principal_subroots_exceptions = [
     (_5_leaves_tree, +6),
 ]
 
-@pytest.mark.parametrize("tree, sublength", _no_principal_subroots_exceptions)
+@pytest.mark.parametrize("tree, sublength", __no_principal_subroots_exceptions)
 def test_NoSubrootsException(tree, sublength):
     with pytest.raises(NoPrincipalSubroots):
         tree.principal_subroots(sublength)
 
-_principal_subroots = [
+__principal_subroots = [
     (_0_leaves_tree, 0, []),
     (_1_leaves_tree, 0, []),
     (_1_leaves_tree, 1, [(+1, _1_leaves_tree.root)]),
@@ -326,12 +325,12 @@ _principal_subroots = [
     (_5_leaves_tree, 5, [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[-1])]),
 ]
 
-@pytest.mark.parametrize("tree, sublength, _principal_subroots", _principal_subroots)
-def test_principalSubroots(tree, sublength, _principal_subroots):
-    assert tree.principal_subroots(sublength) == _principal_subroots
+@pytest.mark.parametrize("tree, sublength, principal_subroots", __principal_subroots)
+def test_principalSubroots(tree, sublength, principal_subroots):
+    assert tree.principal_subroots(sublength) == principal_subroots
 
 
-_minimal_complements = [
+__minimal_complements = [
     (_0_leaves_tree, [], []),
     (_1_leaves_tree, [], [(+1, _1_leaves_tree.leaves[0])]),
     (_1_leaves_tree, [(+1, _1_leaves_tree.root)], []),
@@ -355,11 +354,11 @@ _minimal_complements = [
     (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[4])], []),
 ]
 
-@pytest.mark.parametrize("tree, subroots, _minimal_complement", _minimal_complements)
+@pytest.mark.parametrize("tree, subroots, _minimal_complement", __minimal_complements)
 def test_minimal_complement(tree, subroots, _minimal_complement):
     assert tree.minimal_complement(subroots) == _minimal_complement
 
-_no_path_exceptions = [
+__no_path_exceptions = [
     (_0_leaves_tree, -1),
     (_0_leaves_tree, +0),
     (_0_leaves_tree, +1),
@@ -376,14 +375,15 @@ _no_path_exceptions = [
 ]
 
 
-@pytest.mark.parametrize("tree, sublength", _no_path_exceptions)
+@pytest.mark.parametrize("tree, sublength", __no_path_exceptions)
 def test_consistency_NoPathException(tree, sublength):
-    """Tests that ``NoPathException`` is raised when a consistency-path is requested for an incompatible sublength
+    """
+    Tests NoPathException upon requesting consistency-path for incompatible sublength
     """
     with pytest.raises(NoPathException):
         tree.consistency_path(sublength)
 
-_consistency_paths = [
+__consistency_paths = [
     (_1_leaves_tree, 0, (+0, (),
                              ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
     (_1_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
@@ -452,6 +452,6 @@ _consistency_paths = [
                               (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
 ]
 
-@pytest.mark.parametrize("tree, sublength, _consistency_path", _consistency_paths)
-def test_consistency_path(tree, sublength, _consistency_path):
-    assert tree.consistency_path(sublength) == _consistency_path
+@pytest.mark.parametrize("tree, sublength, consistency_path", __consistency_paths)
+def test_consistency_path(tree, sublength, consistency_path):
+    assert tree.consistency_path(sublength) == consistency_path

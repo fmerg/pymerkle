@@ -15,6 +15,8 @@ from pymerkle.exceptions import (LeafConstructionError, NoChildException,
     InvalidComparison, WrongJSONFormat, UndecodableRecord,
     UnsupportedEncoding, UnsupportedHashType)
 
+abspath = os.path.abspath
+
 class Encryptor(object, metaclass=ABCMeta):
     """
     Encryption interface for Merkle-trees
@@ -31,20 +33,19 @@ class Encryptor(object, metaclass=ABCMeta):
         into a newly-created leaf, restrucuring the tree appropriately and
         recalculating all necessary interior hashes
 
-        :param record: the record whose hash is to be stored into a new leaf
+        :param record: the record whose digest is to be stored into a new leaf
         :type record: str or bytes
-        :returns: ``0`` if the provided ``record`` was successfully encrypted,
-                ``1`` othewise
-        :rtype: int
+        :returns: ``True`` if the provided record was successfully encrypted
+        :rtype: bool
 
-        .. note:: Value ``1`` indicates that ``UndecodableRecord``
-            has been implicitely raised
+        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
+            and the provided record is out of its configured encoding type
         """
         try:
             self.update(record=record)
         except UndecodableRecord:
-            return 1
-        return 0
+            raise
+        return True
 
 
     def encryptFileContent(self, file_path):
@@ -58,26 +59,26 @@ class Encryptor(object, metaclass=ABCMeta):
         :param file_path: relative path of the file under encryption with
                 respect to the current working directory
         :type file_path: str
-        :returns: ``0`` if the provided file was successfully encrypted,
-            ``1`` othewise
-        :rtype: int
+        :returns: ``True`` if the provided file was successfully encrypted
+        :rtype: bool
 
-        .. note:: Value ``1`` means that ``UndecodableRecord``
-            has been implicitely raised
+        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
+            and the provided files contains sequences is out of the tree's
+            configured encoding type
         """
-        with open(os.path.abspath(file_path), mode='r') as _file:
+        with open(abspath(file_path), mode='r') as __file:
             with contextlib.closing(
                 mmap.mmap(
-                    _file.fileno(),
+                    __file.fileno(),
                     0,
                     access=mmap.ACCESS_READ
                 )
-            ) as _buffer:
+            ) as __buffer:
                 try:
-                    self.update(record=_buffer.read())
+                    self.update(record=__buffer.read())
                 except UndecodableRecord:
-                    return 1
-                return 0
+                    raise
+                return True
 
 
     def encryptFilePerLog(self, file_path):
@@ -90,18 +91,17 @@ class Encryptor(object, metaclass=ABCMeta):
         :param file_path: relative path of the file under enryption with
             respect to the current working directory
         :type file_path: str
-        :returns: ``0`` if the provided file was successfully encrypted,
-                ``1`` othewise
-        :rtype: int
+        :returns: ``True`` if the provided file was successfully encrypted
+        :rtype: bool
 
-        .. note:: value ``1`` means that some line of the provided file is
-            undecodable under the Merkle-tree's encoding type (that is,
-            a ``UnicodeDecodeError`` has been implicitely raised)
+        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
+            and the provided files contains sequences is out of the tree's
+            configured encoding type
         """
-        absolute_file_path = os.path.abspath(file_path)
-        with open(absolute_file_path, mode='r') as _file:
+        absolute_file_path = abspath(file_path)
+        with open(absolute_file_path, mode='r') as __file:
             buffer = mmap.mmap(
-                _file.fileno(),
+                __file.fileno(),
                 0,
                 access=mmap.ACCESS_READ
             )
@@ -110,23 +110,34 @@ class Encryptor(object, metaclass=ABCMeta):
         records = []
         readline = buffer.readline
         append = records.append
-        while 1:
-            record = readline()
-            if not record:
-                break
-            try:
-                record = record.decode(self.encoding)
-            except UnicodeDecodeError:
-                return 1
-            append(record)
+        if not self.raw_bytes:
+            # ~ Check that no line of the provided file is outside
+            # ~ the tree's encoding type and discard otherwise
+            encoding = self.encoding
+            while 1:
+                record = readline()
+                if not record:
+                    break
+                try:
+                    record = record.decode(encoding)
+                except UnicodeDecodeError as err:
+                    raise UndecodableRecord(err)
+                append(record)
+        else:
+            # ~ No need to check anything, just load all lines
+            while 1:
+                record = readline()
+                if not record:
+                    break
+                append(record)
 
         # Perform line by line encryption
         tqdm.write('')
         update = self.update
-        for record in tqdm(records, desc='Encrypting log file', total=len(records)):
+        for record in tqdm(records, desc='Encrypting file per log', total=len(records)):
             update(record=record)
         tqdm.write('Encryption complete\n')
-        return 0
+        return True
 
 
     def encryptObject(self, object, sort_keys=False, indent=0):
@@ -140,7 +151,8 @@ class Encryptor(object, metaclass=ABCMeta):
         :param object: the JSON entity under encryption
         :type objec: dict
         :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
-            the object's keys get alphabetically sorted before its stringification.
+            the object's keys get alphabetically sorted before its
+            stringification.
         :type sort_keys: bool
         :param indent: [optional] Defaults to ``0``. Specifies key indentation
             upon stringification of the provided object.
@@ -171,10 +183,13 @@ class Encryptor(object, metaclass=ABCMeta):
 
         :raises JSONDecodeError: if the specified file could not be deserialized
         """
-        with open(os.path.abspath(file_path), 'rb') as _file:
-            object = json.load(_file)
-        self.update(
-            record=json.dumps(object, sort_keys=sort_keys, indent=indent))
+        try:
+            with open(abspath(file_path), 'rb') as __file:
+                object = json.load(__file)
+        except json.JSONDecodeError:
+            raise
+        record = json.dumps(object, sort_keys=sort_keys, indent=indent)
+        self.update(record=record)
 
 
     def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
@@ -200,12 +215,17 @@ class Encryptor(object, metaclass=ABCMeta):
         :raises WrongJSONFormat: if the JSON object loaded from within the
             provided file is not a list
         """
-        with open(os.path.abspath(file_path), 'rb') as _file:
-            objects = json.load(_file)
+        try:
+            with open(abspath(file_path), 'rb') as _file:
+                objects = json.load(_file)
+        except json.JSONDecodeError:
+            raise
 
         if type(objects) is not list:
             raise WrongJSONFormat
 
         update = self.update
-        for _object in objects:
-            update(record=json.dumps(_object, sort_keys=sort_keys, indent=indent))
+        dumps = json.dumps
+        for object in objects:
+            record = dumps(object, sort_keys=sort_keys, indent=indent)
+            update(record=record)

@@ -11,9 +11,9 @@ HASH_TYPES = hashing.HASH_TYPES
 ENCODINGS  = hashing.ENCODINGS
 
 # Files to encrypt
-current_dir = os.path.dirname(__file__)
-short_APACHE_log  = os.path.join(current_dir, 'logs/short_APACHE_log')
-RED_HAT_LINUX_log = os.path.join(current_dir, 'logs/RED_HAT_LINUX_log')
+parent_dir = os.path.dirname(os.path.dirname(__file__))
+short_APACHE_log  = os.path.join(parent_dir, 'log_files/short_APACHE_log')
+RED_HAT_LINUX_log = os.path.join(parent_dir, 'log_files/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
 for security in (True, False):

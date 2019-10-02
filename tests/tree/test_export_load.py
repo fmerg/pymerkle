@@ -60,11 +60,12 @@ def test_loadFromFile():
     assert tree.serialize() == MerkleTree.loadFromFile(export_path).serialize()
 
 def test_WrongJSONFormat_with_loadFromFile():
+    parent_dir = os.path.dirname(os.path.dirname(__file__))
     with pytest.raises(WrongJSONFormat):
         MerkleTree.loadFromFile(
             os.path.join(
-                os.path.dirname(__file__),
-                'objects',
+                parent_dir,
+                'json_files',
                 'sample.json'
             )
         )

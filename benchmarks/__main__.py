@@ -8,9 +8,9 @@ Script for benchmarking *pymerkle*
 import os
 import sys
 import argparse
-from pymerkle.nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
-from pymerkle import MerkleTree
+from pymerkle.tree.nodes import Node, Leaf
+from pymerkle.tree import MerkleTree
 from pymerkle.validations import validateProof
 
 write = sys.stdout.write
