@@ -42,7 +42,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     :param security: [optional If ``False``, defense against second-preimage
                     attack will be disabled. Defaults to ``True``.
     :type security: bool
-
+    
     :raises UndecodableRecord: if the Merkle-tree is set to no raw-bytes mode
             and any of the provided ``records`` is a bytes-like object outside
             the tree's configured encoding type

@@ -85,7 +85,7 @@ method for further insight.
 
 ## Encryption
 
-Direct encryption of text (_string_, _bytes_, _bytearray_), JSON (_dict_) and _files_ is supported.
+Direct encryption of text (_string_, _bytes_), JSON (_dict_) and _files_ is supported.
 Use accordingly any of the following methods of the ``MerkleTree`` class (all of them internally invoking
 the ``.update()`` method for appending newly-created leaves): ``.encryptRecord()``, ``.encryptFileConent()``,
   ``.encryptFilePerLog()``, ``.encryptObject()``, ``.encryptObjectFromFile()``, ``.encryptFilePerObject()``

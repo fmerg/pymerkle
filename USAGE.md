@@ -68,7 +68,7 @@ an ``UndecodableRecord`` gets raised and the tree construction is aborted.
 
 _Updating_ the Merkle-tree with a _record_ means appending a newly-created leaf with
 the digest of this record. A _record_ can be a string (`str`) or a bytes-like object
-(`bytes` or `bytearray`) indifferently. Use the `.update()` method to successively
+(`bytes`) indifferently. Use the `.update()` method to successively
 update with new records as follows:
 
 ```python

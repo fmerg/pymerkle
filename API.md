@@ -68,7 +68,7 @@ _Note:_ Returns `None` if the Merkle-tree is empty
 Updates the Merkle-tree by storing the hash of the inserted record in a newly-created leaf,
 restructeres the tree appropriately and recalculates all necessary interior hashes.
 
-- **record** (_str_ or _bytes_ or _bytearray_) – the record whose hash is to be stored into a new leaf
+- **record** (_str_ or _bytes_) – the record whose hash is to be stored into a new leaf
 
 ### `method` __.encryptFileContent (*file_path*)__
 
