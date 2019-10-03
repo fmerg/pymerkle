@@ -17,6 +17,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
             encoding = obj.encoding
             security = obj.security
             leaves = obj.leaves
+            raw_bytes = obj.raw_bytes
 
         except TypeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
@@ -26,6 +27,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
                 'header': {
                     'hash_type': hash_type,
                     'encoding': encoding,
+                    'raw_bytes': raw_bytes,
                     'security': security},
                     'hashes': [leaf.digest.decode(encoding=encoding) for leaf in leaves]
             }
@@ -93,6 +95,7 @@ class ProofSerializer(json.JSONEncoder):
             hash_type = obj.header['hash_type']
             encoding = obj.header['encoding']
             security = obj.header['security']
+            raw_bytes = obj.header['raw_bytes']
             proof_index = obj.body['proof_index']
             proof_path = obj.body['proof_path']
             status = obj.header['status']
@@ -111,6 +114,7 @@ class ProofSerializer(json.JSONEncoder):
                     'hash_type': hash_type,
                     'encoding': encoding,
                     'security': security,
+                    'raw_bytes': raw_bytes,
                     'status': status
                 },
                 'body': {
@@ -119,7 +123,7 @@ class ProofSerializer(json.JSONEncoder):
 
                         [
                             sign,
-                            hash if type(hash) is str else hash.decode(encoding=encoding)
+                            hash if type(hash) is str else hash.decode()
 
                         ] for (sign, hash) in proof_path
 

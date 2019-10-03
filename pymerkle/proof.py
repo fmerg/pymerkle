@@ -51,6 +51,7 @@ class Proof(object):
     :ivar header.hash_type:       (*str*) Hash type of the provider Merkle-tree
     :ivar header.encoding:        (*str*) Encoding type of the provider Merkle-tree
     :ivar header.security:        (*bool*) Security mode of the provider Merkle-tree
+    :param raw_bytes:             (*bool*) Whether the machine of the Merkle-tree will accept binary data.
     :ivar header.status:          (*bool*) ``True`` resp. ``False`` if the proof has been found to be *valid*, resp. *invalid*
                                   after the last validation. If no validation has yet been performed, then it is ``None``.
     :ivar body:                   (*dict*) Contains the keys *proof_index*, *proof_path* (see below)
@@ -69,6 +70,7 @@ class Proof(object):
                 'hash_type': args[1],
                 'encoding': args[2],
                 'security': args[3],
+                'raw_bytes': kwargs.get("raw_bytes", False),
                 'status': None                                                  # Will change to True or False after validation
             }
 
@@ -81,7 +83,6 @@ class Proof(object):
                 self.header = kwargs.get('from_dict')['header']
 
                 encoding = self.header['encoding']
-
                 _body = kwargs.get('from_dict')['body']
                 self.body = {
                     'proof_index': _body['proof_index'],
@@ -109,6 +110,7 @@ class Proof(object):
                     'hash_type': kwargs.get('hash_type'),
                     'encoding': kwargs.get('encoding'),
                     'security': kwargs.get('security'),
+                    'raw_bytes': kwargs.get("raw_bytes", False),
                     'status': None                                              # Will change to True or False after validation
                 }
 
@@ -136,6 +138,7 @@ class Proof(object):
                 \n    hash-type   : {hash_type}\
                 \n    encoding    : {encoding}\
                 \n    security    : {security}\
+                \n    raw_bytes   : {raw_bytes}\
                 \n\
                 \n    proof-index : {proof_index}\
                 \n    proof-path  :\
@@ -153,6 +156,7 @@ class Proof(object):
                     hash_type=self.header['hash_type'].upper().replace('_', '-'),
                     encoding=self.header['encoding'].upper().replace('_', '-'),
                     security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
+                    raw_bytes=self.header['raw_bytes'],
                     proof_index=self.body['proof_index'],
                     proof_path=stringify_path(self.body['proof_path'], self.header['encoding']),
                     status='UNVALIDATED' if self.header['status'] is None else 'VALID' if self.header['status'] is True else 'NON VALID'

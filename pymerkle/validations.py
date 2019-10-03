@@ -34,11 +34,11 @@ def validateProof(target, proof):
     else:
 
         # Configure hashing parameters
-
         machine = hash_machine(
             hash_type=_header['hash_type'],
             encoding=_header['encoding'],
-            security=_header['security']
+            security=_header['security'],
+            raw_bytes=_header['raw_bytes']
         )
 
         # Perform hash-comparison
