@@ -25,9 +25,9 @@ for displaying progress bars).
 pip3 install pymerkle --pre
 ```
 
-## Quick example
+## Basic usage
 
-**See also [_Usage_](USAGE.md) and [_API_](API.md)**
+**See [_Usage_](USAGE.md) and [_API_](API.md) for details**
 
 ```python
 from pymerkle import MerkleTree, validateProof, getValidationReceipt

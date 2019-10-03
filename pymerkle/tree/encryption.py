@@ -1,5 +1,5 @@
 """
-Provides the encryption interface for Merkle-trees
+Provides high-level encryption interface for Merkle-trees
 """
 
 from abc import ABCMeta, abstractmethod
@@ -19,7 +19,7 @@ abspath = os.path.abspath
 
 class Encryptor(object, metaclass=ABCMeta):
     """
-    Encryption interface for Merkle-trees
+    High-level encryption interface for Merkle-trees
     """
 
     @abstractmethod

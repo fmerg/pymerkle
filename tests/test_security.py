@@ -35,8 +35,8 @@ for raw_bytes in (True, False):
                 trees.append(
                     MerkleTree('a', 'b', 'c', 'd',            # original records
                         hash_type=hash_type,
-                        raw_bytes=raw_bytes,
                         encoding=encoding,
+                        raw_bytes=raw_bytes,
                         security=security
                     )
                 )

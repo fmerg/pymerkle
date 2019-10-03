@@ -42,7 +42,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     :param security: [optional If ``False``, defense against second-preimage
                     attack will be disabled. Defaults to ``True``.
     :type security: bool
-    
+
     :raises UndecodableRecord: if the Merkle-tree is set to no raw-bytes mode
             and any of the provided ``records`` is a bytes-like object outside
             the tree's configured encoding type
@@ -73,22 +73,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 self.update(record=record)
             except UndecodableRecord:
                 raise
-
-    def get_config(self):
-        config = {}
-        config['hash_type'] = self.hash_type
-        config['encoding'] = self.encoding
-        config['raw_bytes'] = self.raw_bytes
-        config['security'] = self.security
-        return config
-
-    def extract_config(self):
-        hash_type = self.hash_type
-        encoding = self.encoding
-        raw_bytes = self.raw_bytes
-        security = self.security
-
-        return hash_type, encoding, raw_bytes, security
 
     def clear(self):
         """
@@ -132,7 +116,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
         try:
-            root = self.root
+            root = self.__root
         except EmptyTreeException:
             raise
 
@@ -247,7 +231,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             self.__root = new_leaf
 
 
-    # Audit proof implementation
+    # Low-level audit-proof
 
     def audit_path(self, index):
         """
@@ -316,9 +300,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         if type(arg) is int:
             index = arg
         else:
-            # ~ arg is of type str, or bytes; in this case, detect the index
-            # ~ of the first leaf having recorded the inserted argument; if
-            # ~ no such leaf exists (i.e., the inserted argument has not been
+            # ~ arg is of type str or bytes; in this case, detect the index of
+            # ~ the first leaf having recorded the inserted argument; if no
+            # ~ such leaf exists (i.e., the inserted argument has not been
             # ~ encrypted into the tree), set index equal to -1 so that an
             # ~ appropriate NoPathException be subsequently raised
             index = -1
@@ -337,7 +321,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         return index
 
 
-    # Consistency-proof implementation
+    # Low-level consistency-proof
 
     def consistency_path(self, sublength):
         """
@@ -360,7 +344,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         :raises NoPathException: if the provided ``sublength`` is non-positive
             or no sequence of subroots corresponds to it (that is, a
-            ``NoPrincipalSubroots`` gets implicitely raised)
+            ``NoPrincipalSubroots`` gets implicitly raised)
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
@@ -530,7 +514,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             previous state of the Merkle-tree
         :type sublength: int
         :returns: ``True`` if the appropriate path of negatively signed digests,
-                generated implicitely for the provided ``sublength``, leads
+                generated implicitly for the provided ``sublength``, leads
                 indeed to the provided ``oldhash``; otherwise ``False``
         :rtype: bool
 

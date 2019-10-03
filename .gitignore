@@ -1,7 +1,7 @@
 # Dev
 *cache*
 /log_samples
-lint.sh
+*lint*
 cpu*
 *.pyc
 /tests/logs/NASA*
@@ -9,10 +9,7 @@ detect*
 *profile*
 *.svg
 .benchmarks/
-/benchmarks/test_.py
-/benchmarks/_init_.py
 *notes*
-*_test*
 *save*
 *docs*
 

@@ -204,7 +204,7 @@ def test_not___lt___InvalidComparison():
 # Inclusion for sublength equal to power of 2
 
 # ~ Passing the following tests indicates that the bug concerning inclusion tests (or,
-# ~ implicitly, consistency proofs) for sublengths equal to powrs of 2 has been fixed
+# ~ implicitly, consistency proofs) for sublengths equal to powers of 2 has been fixed
 # ~ (in particular, the ``multi_hash`` function has been modified appropriately for
 # ~ the case of one-member-sequences, so that this issue does not arise)
 

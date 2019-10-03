@@ -40,7 +40,7 @@ def decompose(num):
 
     :Example:
 
-    >>> 45 == 2**5 + 2**3 + 2**2 + 1
+    >>> 45 == 2 ** 5 + 2 ** 3 + 2 ** 2 + 1
     True
     >>>
     >>> decompose(45)
@@ -86,6 +86,6 @@ def stringify_path(signed_hashes, encoding):
         append('\n%s[{i}]%s{sign}%s{hash}'
                 .format(i=i, sign=get_with_sign(pair[0]),
                     hash=pair[1].decode(encoding=encoding) \
-                    if not isinstance(pair[1], str) else pair[1]
-                ) % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 2 * ' '))
+                    if not isinstance(pair[1], str) else pair[1])
+                % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 2 * ' '))
     return ''.join(_ for _ in stringified_pairs)
