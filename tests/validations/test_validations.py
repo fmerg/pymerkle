@@ -6,7 +6,7 @@ import pytest
 import os
 import json
 from pymerkle.hashing import HASH_TYPES, ENCODINGS
-from pymerkle import MerkleTree, validateProof, validationReceipt
+from pymerkle import MerkleTree, validateProof, getValidationReceipt
 from pymerkle.validations.validations import Receipt
 
 # Setup
@@ -19,6 +19,7 @@ for raw_bytes in (True, False):
         for length in range(1, MAX_LENGTH + 1):
             for hash_type in HASH_TYPES:
                 for encoding in ENCODINGS:
+                # for encoding in ('utf-8', 'utf-16', 'utf-32'):
                     trees.append(
                         MerkleTree(
                             *['%d-th record' %i for i in range(length)],

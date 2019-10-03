@@ -2,6 +2,12 @@
 Provides the exceptions used accross the *pymerkle* library
 """
 
+class InvalidMerkleProof(BaseException):
+    """
+    Raised when a Merkle-proof is found to be invalid
+    """
+    pass
+
 class EmptyTreeException(BaseException):
     """
     Raised when the root or the root-hash of an empty Merkle-tree is requested

@@ -1,7 +1,7 @@
 import pytest
 import json
 import os
-from pymerkle import MerkleTree, validationReceipt
+from pymerkle import MerkleTree, getValidationReceipt
 from pymerkle.validations.validations import Receipt
 
 
@@ -172,13 +172,13 @@ def test___repr__(receipt, result):
                 )
 
 
-# validationReceipt
+# getValidationReceipt
 
-def test_validationReceipt():
+def test_getValidationReceipt():
     tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
 
     audit_proof = tree.auditProof(3)
-    receipt = validationReceipt(
+    receipt = getValidationReceipt(
         target=tree.rootHash,
         proof=audit_proof,
         dirpath=os.path.join(os.path.dirname(__file__), 'receipts')

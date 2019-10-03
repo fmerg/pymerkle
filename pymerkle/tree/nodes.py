@@ -112,7 +112,8 @@ class __Node(object, metaclass=ABCMeta):
 
 
     def is_parent(self):
-        """Checks if the node is a parent
+        """
+        Checks if the node is a parent
 
         :returns: ``True`` iff the node is the ``.right`` or ``.left``
             attribute of some other node inside the containing tree
@@ -144,12 +145,10 @@ class __Node(object, metaclass=ABCMeta):
         if degree == 0:
             return self
         else:
-
             try:
                 _child = self.child
             except NoChildException:
                 raise NoDescendantException
-
             return _child.descendant(degree - 1)
 
 
@@ -229,14 +228,12 @@ class __Node(object, metaclass=ABCMeta):
                 output += ' %s' % L_BRACKET_SHORT
         else:
             output = (indent + 1) * ' '
-
         for _ in range(1, level):
             if _ not in ignore:
                 output += ' %s' % VERTICAL_BAR            # Include vertical bar
             else:
                 output += 2 * ' '
             output += indent * ' '
-
         new_ignore = ignore[:]
         del ignore
         if self.is_left_parent():
@@ -244,13 +241,11 @@ class __Node(object, metaclass=ABCMeta):
         if self.is_right_parent():
             output += ' %s' % L_BRACKET_LONG
             new_ignore.append(level)
-
         encoding = encoding if encoding else self.encoding
         output += '%s\n' % self.digest.decode(encoding)
         if not isinstance(self, Leaf):                          # Recursive step
             output += self.left.__str__(encoding, level + 1,
                                 indent, new_ignore)
-
             output += self.right.__str__(encoding, level + 1,
                                 indent, new_ignore)
         return output
@@ -275,10 +270,11 @@ class Leaf(__Node):
                 If provided, then ``record`` should *not* be provided.
     :type digest: str
 
-    .. warning:: Exactly *one* of *either* ``record``
-            *or* ``digest`` should be provided
+    .. warning:: Exactly *one* of *either* ``record`` *or* ``digest`` should be
+        provided
 
-    :raises LeafConstructionError: if both ``record`` and ``digest`` were provided
+    :raises LeafConstructionError: if both ``record`` and ``digest`` were
+        provided
     :raises UndecodableRecord: if the provided ``record`` is a bytes-like
                     object which could not be decoded with the provided
                     hash-function's configured encoding type
@@ -291,20 +287,20 @@ class Leaf(__Node):
     __slots__ = ('__digest')
 
     def __init__(self, hash_func, encoding, record=None, digest=None):
-        if record and digest is None:
+        if digest is None and record:
             try:
-                _digest = hash_func(record)
+                digest = hash_func(record)
             except UndecodableArgumentError:
                 raise UndecodableRecord
             else:
                 super().__init__(encoding)
-                self.__digest = _digest
-        elif digest and record is None:
+                self.__digest = digest
+        elif record is None and digest:
             super().__init__(encoding)
             self.__digest = bytes(digest, encoding)
         else:
             err = 'Either ``record`` or ``digest`` may be provided'
-            raise LeafConstructionError()
+            raise LeafConstructionError(err)
 
     @property
     def digest(self):
@@ -358,20 +354,17 @@ class Node(__Node):
     __slots__ = ('__digest', '__left', '__right')
 
     def __init__(self, hash_func, encoding, left, right):
-
         try:
-            _digest = hash_func(left.digest, right.digest)
+            digest = hash_func(left.digest, right.digest)
         except UndecodableArgumentError:
             raise UndecodableRecord
         else:
             super().__init__(encoding=encoding)
-
-            left.__child = self
+            self.__digest = digest
+            self.__left   = left
+            self.__right  = right
+            left.__child  = self
             right.__child = self
-            self.__left = left
-            self.__right = right
-
-            self.__digest = _digest
 
     @property
     def digest(self):

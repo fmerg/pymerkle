@@ -263,6 +263,24 @@ class Proof(object):
                     'proof_path': kwargs['proof_path']
                 }
 
+
+    def get_validation_params(self):
+        """
+        Extracts from the proof's header all necessary parameters
+        required for its validation
+
+        :rtype: dict
+        """
+        header = self.header
+        validation_params = dict({
+            'hash_type': header['hash_type'],
+            'encoding': header['encoding'],
+            'raw_bytes': header['raw_bytes'],
+            'security': header['security'],
+        })
+        return validation_params
+
+
     def __repr__(self):
         """
         Overrides the default implementation.

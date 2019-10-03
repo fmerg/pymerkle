@@ -1,17 +1,18 @@
 # pymerkle: Usage
 
-**Complete documentation can be found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
+**Complete documentation found at
+[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
 **Refer to [_API_](API.md) for the tools described here.**
 
 Type
 
 ```python
-from pymerkle import MerkleTree, validateProof, validationReceipt
+from pymerkle import *
 ```
 
-to import the most high-level components of the API: the `MerkleTree` class as well as the functions
- `validateProof()` and `validationReceipt()`.
+to import the `MerkleTree` class along with the functions `validateProof()`
+and `getValidationReceipt()`.
 
 ### Merkle-tree construction
 
@@ -19,12 +20,13 @@ to import the most high-level components of the API: the `MerkleTree` class as w
 tree = MerkleTree()
 ```
 
-creates an empty Merkle-tree with default configs: hash algorithm _SHA256_, encoding type _UTF-8_
-and defense against second-preimage attack _activated_. It is equivalent to:
+creates an empty Merkle-tree with default configuration: hash algorithm _SHA256_,
+encoding type _UTF-8_, ability of consuming arbitrary _binary data_ and
+defense against second-preimage attack _activated_. It is equivalent to:
 
 
 ```python
-tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
+tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True, security=True)
 ```
 
 The ``.encoding`` attribute of a Merkle-tree (set directly via the homonymous argument of the
@@ -724,10 +726,10 @@ argument `proof`.
 #### Validation with receipt
 
 A more elaborate validation procedure includes generating a receipt with info about proof
-and validation. To this end, use the `validationReceipt()` function as follows:
+and validation. To this end, use the `getValidationReceipt()` function as follows:
 
 ```python
-receipt = validationReceipt(target=tree.rootHash, proof=p)
+receipt = getValidationReceipt(target=tree.rootHash, proof=p)
 ```
 
 Here the `validateProof()` function is internally invoked, modifying the proof as described above,
@@ -774,5 +776,5 @@ It could have been automatically stored in a `.json` file named with the receipt
 a specified directory, if the function had been called as
 
 ```python
-receipt = validationReceipt(tree.rootHash, p, dirpath='../some/relative/path')
+receipt = getValidationReceipt(tree.rootHash, p, dirpath='../some/relative/path')
 ```
