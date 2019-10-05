@@ -23,9 +23,14 @@ PROJECT_URLS = {
 REQUIREMENTS = "requirements.txt"
 PYTHON       = ">=3.6"
 LICENSE      = "License :: OSI Approved :: MIT License"
+
 KEYWORDS     =  [
-    "audit", "consistency", "merkle", "proof"
+    "merkle",
+    "proof"
+    "audit",
+    "consistency",
 ]
+
 CLASSIFIERS  =  [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -37,19 +42,17 @@ CLASSIFIERS  =  [
 ]
 
 INSTALL_REQUIRES = []
-
 current_dir = os.path.abspath(os.path.dirname(__file__))
-
 try:
-  with io.open(os.path.join(current_dir, REQUIREMENTS), encoding="utf-8") as _file:
-    INSTALL_REQUIRES = [_.strip() for _ in _file.readlines()]
+  with io.open(os.path.join(current_dir, REQUIREMENTS), encoding="utf-8") as f:
+    INSTALL_REQUIRES = [_.strip() for _ in f.readlines()]
 except FileNotFoundError:
     INSTALL_REQUIRES = [
           "tqdm>=4.28.1"
       ]
 
-with open("README.md", "r") as _file:
-    LONG_DESCRIPTION = _file.read()
+with open("README.md", "r") as f:
+    LONG_DESCRIPTION = f.read()
 
 setup(
     name=pymerkle.__name__,
