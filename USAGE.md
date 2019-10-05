@@ -76,8 +76,9 @@ pymerkle.exceptions.UndecodableRecord
 
 _Note_: One can apply this attribute to filter out unacceptable records, e.g.,
 when only files of a specific encoding type are allowed for encryption
-(see below). In real-life, however, encoding of a file is usually not
-recognizable. If this is the case, make sure to leave the raw-bytes mode
+(see below). This is seldom the case in real-life, since origin of
+submitted should be on the one hand kept wide, but encoding of file are usually
+not recognizable. If this is the case, make sure to leave the raw-bytes mode
 untouched, so that no encoding issues arise upon file encryption.
 
 The `.security` attribute refers to the tree's ability of defending against
@@ -122,7 +123,7 @@ occurring from the provided _positional_ arguments, which may be
 >>>
 ```
 
-If raw-bytes mode is `False`, care must be taken so that provided records
+If raw-bytes mode is disabled, care must be taken so that provided records
 fall under the requested encoding type, otherwise an `UndecodableRecord` error
 gets raised and the construction is aborted:
 
@@ -132,28 +133,6 @@ Traceback (most recent call last):
 ...
     raise UndecodableRecord
 pymerkle.exceptions.UndecodableRecord
->>>
-```
-
-Choosing the default mode would have caused no problem:
-
-```shell
->>> tree = MerkleTree(b'\x74', encoding='utf-16')
->>> tree
-
-    uuid      : fd696374-e608-11e9-9e4a-701ce71deb6a                
-
-    hash-type : SHA256                
-    encoding  : UTF-16                
-    raw-bytes : yes                
-    security  : ACTIVATED                
-
-    root-hash : ce5c49ecc81fe1558d40db34c9f2526bd3d9e31b6d17543d2888a7f51cd04a0e                
-
-    length    : 1                
-    size      : 1                
-    height    : 0
-
 >>>
 ```
 
@@ -176,8 +155,8 @@ The `.update()` method (invoked also by the constructor when initial records
 are provided) is completely responsible for the tree's gradual development,
 preserving its property of being _binary balanced_ and ensuring that trees with
 the same number of leaves have the same topology (despite their possibly
-different gradual development). The `.update()` method is is considered
-to be low-level and its usage is _not_ suggested.
+different gradual development). The `.update()` method is thought of as
+low-level and its usage is _not_ suggested.
 
 An equivalent functionality is achieved by the recommended `.encryptRecord()`
 method:
@@ -217,7 +196,7 @@ On-disc persistence is _not_ currently supported.
 #### Exporting to and loading from a backup file
 
 The minimum required information may be exported into a specified file, so that
-the Merkle-tree can be retrieved in its current state from within that file.
+the Merkle-tree can be retrieved in its current state from that file.
 Use the `.export()` method as follows:
 
 ```python
@@ -333,7 +312,7 @@ with open('structure', 'w') as f:
     f.write(tree.__str__())
 ```
 
-_Note_: Avoiding printing Merkle-tree with huge number of node in the above fashion
+_Note_: Avoid printing Merkle-tree with huge number of node in the above fashion
 
 ### File and object encryption
 
@@ -341,7 +320,7 @@ _Note_: Avoiding printing Merkle-tree with huge number of node in the above fash
 
 _Encrypting the content of a file into_ the Merkle-tree means updating it with
 one newly-created leaf storing the digest of that content (that is, encrypting
-its content into the Merkle-tree as a single record). Use the
+the file's content into the Merkle-tree as a single record). Use the
 `.encryptFileContent()` method to encrypt a file's content as follows:
 
 ```python
@@ -446,7 +425,7 @@ headaches upon requesting and validating Merkle-proofs, it is recommended that
 
 #### File-based object encryption
 
-_File based encryption of an object_into_ the Merkle-tree means encrypting the
+_File based encryption of an object into_ the Merkle-tree means encrypting the
 object stored in a `.json` file by just providing the relative path of that
 file. Use the `.encryptObjectFromFile()` method as follows:
 

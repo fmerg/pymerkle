@@ -5,13 +5,11 @@ from pymerkle import MerkleTree
 from pymerkle.hashing import HashMachine, HASH_TYPES, ENCODINGS
 from pymerkle.exceptions import WrongJSONFormat, UndecodableRecord
 
-
 __trees__hash_machines = []
 for raw_bytes in (True, False):
     for security in (True, False):
         for hash_type in HASH_TYPES:
             for encoding in ENCODINGS:
-            # for encoding in ('utf-8', 'utf-16',):# 'utf-32'):#ENCODINGS:
 
                 __trees__hash_machines.append(
                     (
@@ -131,12 +129,12 @@ def test_encryptObject(tree, hash_machine):
 
 # Content to encrypt
 
-current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(os.path.dirname(__file__))
 
-large_APACHE_log   = os.path.join(current_dir, 'log_files/large_APACHE_log')
-short_APACHE_log   = os.path.join(current_dir, 'log_files/short_APACHE_log')
-single_object_file = os.path.join(current_dir, 'json_files/sample.json')
-objects_list_file  = os.path.join(current_dir, 'json_files/sample-list.json')
+large_APACHE_log   = os.path.join(parent_dir, 'log_files/large_APACHE_log')
+short_APACHE_log   = os.path.join(parent_dir, 'log_files/short_APACHE_log')
+single_object_file = os.path.join(parent_dir, 'json_files/sample.json')
+objects_list_file  = os.path.join(parent_dir, 'json_files/sample-list.json')
 
 with open(large_APACHE_log, 'rb') as f:
     content = f.read()
@@ -191,9 +189,7 @@ def test_deserialization_error():
     tree = MerkleTree()
     with pytest.raises(json.JSONDecodeError):
         tree.encryptObjectFromFile(
-            os.path.join(os.path.dirname(__file__),
-            'json_files/bad.json')
-        )
+            os.path.join(parent_dir, 'json_files/bad.json'))
 
 @pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
 def test_encryptObjectFromFile(tree, hash_machine):
@@ -209,9 +205,7 @@ def test_WrongJSONFormat():
     tree = MerkleTree()
     with pytest.raises(WrongJSONFormat):
         tree.encryptFilePerObject(
-            os.path.join(os.path.dirname(__file__),
-            'json_files/sample.json')
-        )
+            os.path.join(parent_dir, 'json_files/sample.json'))
 
 @pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
 def test_encryptFilePerObject(tree, hash_machine):
