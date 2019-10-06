@@ -1,6 +1,6 @@
-from .validations import validateProof, getValidationReceipt
+from .validations import validateProof, validationReceipt
 
 __all__ = (
     'validateProof',
-    'getValidationReceipt'
+    'validationReceipt'
 )

@@ -1,0 +1,12 @@
+{
+    "body": {
+        "proof_provider": "34fc76af-e814-11e9-b5dd-701ce71deb6a",
+        "proof_uuid": "34fc76b0-e814-11e9-b5dd-701ce71deb6a",
+        "result": true
+    },
+    "header": {
+        "timestamp": 1570350910,
+        "uuid": "34fc76b1-e814-11e9-b5dd-701ce71deb6a",
+        "validation_moment": "Sun Oct  6 11:35:10 2019"
+    }
+}

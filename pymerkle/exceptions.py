@@ -113,7 +113,7 @@ class UnsupportedHashType(BaseException):
 class UndecodableArgumentError(BaseException):
     """
     Raised when an argument is passed into the ``.hash()`` function,
-    wich cannot be decoded by the machine's configured encoding type
+    which cannot be decoded by the machine's configured encoding type
     """
     pass
 

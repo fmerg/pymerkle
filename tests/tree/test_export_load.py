@@ -27,8 +27,8 @@ export_path = os.path.join(
 tree.export(file_path=export_path)
 
 # Load tree from export file
-with open(export_path, 'rb') as _file:
-    exported_version = json.load(_file)
+with open(export_path, 'rb') as __file:
+    exported_version = json.load(__file)
 
 
 def test_export():

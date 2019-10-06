@@ -15,4 +15,4 @@ class Empty(object): pass
 @pytest.mark.parametrize('serializer', __serializers)
 def test_serialization_error(serializer):
     with pytest.raises(TypeError):
-        json.JSONEncoder.default(serializer, Empty())
+        serializer.default(Empty())

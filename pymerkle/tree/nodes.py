@@ -354,24 +354,18 @@ class Node(__Node):
     __slots__ = ('__digest', '__left', '__right')
 
     def __init__(self, hash_func, encoding, left, right):
-        try:
-            digest = hash_func(left.digest, right.digest)
-        except UndecodableArgumentError:
-            raise UndecodableRecord
-        else:
-            super().__init__(encoding=encoding)
-            self.__digest = digest
-            self.__left   = left
-            self.__right  = right
-            left.__child  = self
-            right.__child = self
+        super().__init__(encoding=encoding)
+
+        digest = hash_func(left.digest, right.digest)
+        self.__digest = digest
+        self.__left   = left
+        self.__right  = right
+        left.__child  = self
+        right.__child = self
 
     @property
     def digest(self):
         return self.__digest
-
-    def set_left(self, left):
-        self.__left = left
 
     def set_right(self, right):
         self.__right = right
@@ -385,10 +379,7 @@ class Node(__Node):
             be the ``.hash()`` method of the containing Merkle-tree)
         :type hash_func:  method
         """
-        try:
-            _new_digest = hash_func(self.left.digest, self.right.digest)
-        except UndecodableRecord:
-            raise
+        _new_digest = hash_func(self.left.digest, self.right.digest)
         self.__digest = _new_digest
 
 

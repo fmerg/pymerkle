@@ -1,9 +1,40 @@
 import pytest
 import json
 import os
-from pymerkle import MerkleTree, getValidationReceipt
+from pymerkle import MerkleTree, validationReceipt
 from pymerkle.validations.validations import Receipt
 
+# validationReceipt
+
+# Empty receipt directory first
+receipt_dir = os.path.join(os.path.dirname(__file__), 'receipts')
+for file in os.listdir(receipt_dir):
+    path = os.path.join(receipt_dir, file)
+    try:
+        if os.path.isfile(path):
+            os.unlink(path)
+    except:
+        pass
+
+def test_validationReceipt():
+    tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
+
+    audit_proof = tree.auditProof(3)
+    receipt = validationReceipt(
+        target=tree.rootHash,
+        proof=audit_proof,
+        dirpath=os.path.join(os.path.dirname(__file__), 'receipts')
+    )
+
+    receipt_path = os.path.join(
+        os.path.dirname(__file__),
+        'receipts',
+        '%s.json' % receipt.header['uuid']
+    )
+
+    with open(receipt_path) as __file:
+        clone = json.load(__file)
+        assert receipt.serialize() == clone
 
 # Internals
 
@@ -171,25 +202,4 @@ def test___repr__(receipt, result):
                     result,
                 )
 
-
-# getValidationReceipt
-
-def test_getValidationReceipt():
-    tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
-
-    audit_proof = tree.auditProof(3)
-    receipt = getValidationReceipt(
-        target=tree.rootHash,
-        proof=audit_proof,
-        dirpath=os.path.join(os.path.dirname(__file__), 'receipts')
-    )
-
-    receipt_path = os.path.join(
-        os.path.dirname(__file__),
-        'receipts',
-        '%s.json' % receipt.header['uuid']
-    )
-
-    with open(receipt_path) as __file:
-        clone = json.load(__file)
-        assert receipt.serialize() == clone
+# Validator

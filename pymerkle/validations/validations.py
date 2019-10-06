@@ -40,7 +40,7 @@ def validateProof(target, proof):
     return result
 
 
-def getValidationReceipt(target, proof, dirpath=None):
+def validationReceipt(target, proof, dirpath=None):
     """
     Wraps raw proof validation, so that a validation receipt is returned
     instead of a boolean

@@ -6,8 +6,9 @@ import pytest
 import os
 import json
 from pymerkle.hashing import HASH_TYPES
-from pymerkle import MerkleTree, validateProof, getValidationReceipt
-from pymerkle.validations.validations import Receipt
+from pymerkle.exceptions import InvalidMerkleProof
+from pymerkle import MerkleTree, validateProof, validationReceipt
+from pymerkle.validations.validations import Validator, Receipt
 from tests.config import ENCODINGS
 
 # Setup
@@ -20,7 +21,6 @@ for raw_bytes in (True, False):
         for length in range(1, MAX_LENGTH + 1):
             for hash_type in HASH_TYPES:
                 for encoding in ENCODINGS:
-                # for encoding in ('utf-8', 'utf-16', 'utf-32'):
                     trees.append(
                         MerkleTree(
                             *['%d-th record' %i for i in range(length)],
@@ -148,3 +148,12 @@ def test_false_consistency_validateProof(tree, consistency_proof):
 @pytest.mark.parametrize("tree, consistency_proof", __true_consistency_proofs)
 def test_true_consistency_validateProof(tree, consistency_proof):
     assert validateProof(tree.rootHash, consistency_proof)
+
+
+# Text validator exception
+@pytest.mark.parametrize('tree, proof',
+    __false_audit_proofs + __false_consistency_proofs)
+def test_validator_with_false_proofs(tree, proof):
+    validator = Validator(proof.get_validation_params())
+    with pytest.raises(InvalidMerkleProof):
+        validator.run(tree.rootHash, proof)

@@ -1,5 +1,5 @@
 """
-Provides theclass for Merkle-trees
+Provides the class for Merkle-trees
 """
 
 from ..hashing import HashMachine
@@ -557,8 +557,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :type file_path:  str
         """
         with open('%s.json' % file_path if not file_path.endswith('.json') \
-            else file_path, 'w') as _file:
-            json.dump(self.serialize(), _file, indent=4)
+    else file_path, 'w') as __file:
+            json.dump(self.serialize(), __file, indent=4)
 
     @staticmethod
     def loadFromFile(file_path):
@@ -576,8 +576,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :raises WrongJSONFormat: if the JSON object loaded from within the
                         provided file is not a Merkle-tree export
         """
-        with open(file_path, 'r') as _file:
-            loaded_object = json.load(_file)
+        with open(file_path, 'r') as __file:
+            loaded_object = json.load(__file)
         try:
             header = loaded_object['header']
             tree = MerkleTree(
@@ -735,8 +735,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                     root_hash=self.rootHash.decode(self.encoding) if self else NONE,
                     length=self.length,
                     size=self.size,
-                    height=self.height
-                )
+                    height=self.height)
 
     def __str__(self, indent=3):
         """

@@ -55,7 +55,7 @@ tree.encryptFilePerLog('../sample_log')         # per log gile encryption (multi
 
 q = tree.consistencyProof(oldhash, sublength)   # Provide consistency-proof for the stored  
                                                 # previous state
-receipt = getValidationReceipt(
+receipt = validationReceipt(
             target=tree.rootHash, proof=q)      # Validate proof with receipt
 ```
 
@@ -131,7 +131,7 @@ Direct validation of a Merkle-proof is performed using the ``validateProof()``
 function, which modifies the status of the provided proof appropriately and
 returns the corresponding boolean. A more elaborate validation procedure includes
 generating a receipt with the validation result and storing at will the generated
-receipt as a ``.json`` file. This is achieved using the ``getValidationReceipt()``
+receipt as a ``.json`` file. This is achieved using the ``validationReceipt()``
 function like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and

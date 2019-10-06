@@ -175,7 +175,7 @@ class Encryptor(object, metaclass=ABCMeta):
             current working directory, containing *one* JSON entity
         :type file_path: str
         :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
-            the object's keys get alphabetically sortedcbefore its stringification
+            the object's keys get alphabetically sorted before its stringification
         :type sort_keys: bool
         :param indent: [optional] Defaults to ``0``. Specifies key indentation
                 upon stringification of the object under encryption
@@ -216,8 +216,8 @@ class Encryptor(object, metaclass=ABCMeta):
             provided file is not a list
         """
         try:
-            with open(abspath(file_path), 'rb') as _file:
-                objects = json.load(_file)
+            with open(abspath(file_path), 'rb') as __file:
+                objects = json.load(__file)
         except json.JSONDecodeError:
             raise
 

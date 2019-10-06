@@ -10,7 +10,7 @@ from pymerkle import *
 ```
 
 imports the `MerkleTree` class along with the functions `validateProof()`
-and `getValidationReceipt()`.
+and `validationReceipt()`.
 
 ### Merkle-tree construction
 
@@ -847,10 +847,10 @@ argument `proof`.
 #### Validation with receipt
 
 A more elaborate validation procedure includes generating a receipt with info about proof
-and validation. To this end, use the `getValidationReceipt()` function as follows:
+and validation. To this end, use the `validationReceipt()` function as follows:
 
 ```python
-receipt = getValidationReceipt(target=tree.rootHash, proof=p)
+receipt = validationReceipt(target=tree.rootHash, proof=p)
 ```
 
 Here the `validateProof()` function is internally invoked, modifying the proof as described above,
@@ -897,5 +897,5 @@ It could have been automatically stored in a `.json` file named with the receipt
 a specified directory, if the function had been called as
 
 ```python
-receipt = getValidationReceipt(tree.rootHash, p, dirpath='../some/relative/path')
+receipt = validationReceipt(tree.rootHash, p, dirpath='../some/relative/path')
 ``` -->
