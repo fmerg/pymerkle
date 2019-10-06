@@ -154,7 +154,7 @@ def test_true_consistency_validateProof(tree, consistency_proof):
 
 # test KeyError in validator construction
 
-__wrong_configs = [
+__missing_configs = [
         {
             'encoding': 0, 'raw_bytes': 0, 'security': 0,   # missing hash_type
         },
@@ -169,7 +169,7 @@ __wrong_configs = [
         },
 ]
 
-@pytest.mark.parametrize('config', __wrong_configs)
+@pytest.mark.parametrize('config', __missing_configs)
 def test_validator_construction_error(config):
     with pytest.raises(KeyError):
         Validator(config)

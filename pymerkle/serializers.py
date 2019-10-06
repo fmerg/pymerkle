@@ -14,7 +14,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
     def default(self, obj):
         """
         Overrides the built-in method of JSON encoders
-        according to the needs of this library
+        in accordance with the needs of this library
         """
         try:
             hash_type = obj.hash_type
@@ -37,14 +37,14 @@ class MerkleTreeSerializer(json.JSONEncoder):
 
 class NodeSerializer(json.JSONEncoder):
     """
-    Used implicitly in the JSON serialization of nodes (``nodes.Node``).
+    Used implicitly in the JSON serialization of nodes.
     Extends the built-in JSON encoder for data structures.
     """
 
     def default(self, obj):
         """
         Overrides the built-in method of JSON encoders
-        according to the needs of this library.
+        in accordance with the needs of this library.
         """
         try:
             left = obj.left
@@ -62,14 +62,14 @@ class NodeSerializer(json.JSONEncoder):
 
 class LeafSerializer(json.JSONEncoder):
     """
-    Used implicitly in the JSON serialization of leafs (``nodes.Leaf``).
+    Used implicitly in the JSON serialization of leafs.
     Extends the built-in JSON encoder for data structures.
     """
 
     def default(self, obj):
         """
         Overrides the built-in method of JSON encoders
-        according to the needs of this library.
+        in accordance with the needs of this library.
         """
         try:
             encoding = obj.encoding
@@ -91,7 +91,7 @@ class ProofSerializer(json.JSONEncoder):
     def default(self, obj):
         """
         Overrides the built-in method of JSON encoders
-        according to the needs of this library
+        in accordance with the needs of this library
         """
         try:
             uuid = obj.header['uuid']
@@ -141,7 +141,7 @@ class ReceiptSerializer(json.JSONEncoder):
     def default(self, obj):
         """
         Overrides the built-in method of JSON encoders
-        according to the needs of this library
+        in accordance with the needs of this library
         """
         try:
             uuid = obj.header['uuid']

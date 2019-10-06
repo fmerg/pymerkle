@@ -22,6 +22,9 @@ class Encoder(object):
     """
     """
     def __init__(self, encoding='utf-8', raw_bytes=True, security=True):
+        """
+        Encapsulates the core encoding utility of hashing-machines
+        """
         enc = encoding.lower().replace('-', '_')
         if enc not in ENCODINGS:
             err = 'Encoding type %s is not supported' % encoding
@@ -36,8 +39,8 @@ class Encoder(object):
     def mk_encode_func(self):
         """
         Constructs and returns the core utility of the present encoding machine
-        in accordance with its initial configuration (encoding type, raw-bytes
-        mode and secuity mode)
+        in accordance with its initial configuration (*encoding type*,
+        *raw-bytes* mode and *secuity* mode)
         """
         encoding = self.encoding
         if self.security:

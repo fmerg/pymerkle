@@ -10,7 +10,7 @@ class InvalidMerkleProof(BaseException):
 
 class EmptyTreeException(BaseException):
     """
-    Raised when the root or the root-hash of an empty Merkle-tree is requested
+    Raised when the root or root-hash of an empty Merkle-tree is requested
     """
     pass
 
@@ -91,7 +91,7 @@ class NoPrincipalSubroots(BaseException):
 
 class NoSubtreeException(BaseException):
     """
-    Raised when np full-binary subtree exists for the provided parameters
+    Raised when no full-binary subtree exists for the provided parameters
     """
     pass
 
@@ -112,7 +112,7 @@ class UnsupportedHashType(BaseException):
 
 class UndecodableArgumentError(BaseException):
     """
-    Raised when an argument is passed into the ``.hash()`` function,
+    Raised when an argument is passed into the ``hash()`` function,
     which cannot be decoded by the machine's configured encoding type
     """
     pass
@@ -120,15 +120,15 @@ class UndecodableArgumentError(BaseException):
 
 class UndecodableRecord(BaseException):
     """
-    Raised when an argument is passed into the constructor of ``Leaf`` or
-    ``Node``, which cannot be decoded with the configured encoding type of
-    the provided hash-function
+    Raised when raw-bytes mode is disabled and an argument is passed
+    into the constructor of ``Leaf`` or ``Node``, which cannot be
+    decoded under the configured encoding type
     """
     pass
 
 
 class WrongJSONFormat(BaseException):
     """
-    Raised when the deserialized object is not as expected
+    Raised when a deserialized object is not as expected
     """
     pass

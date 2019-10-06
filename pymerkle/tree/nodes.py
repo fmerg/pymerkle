@@ -30,6 +30,7 @@ class __Node(object, metaclass=ABCMeta):
     def __init__(self, encoding):
         self.__encoding = encoding
 
+
     @abstractmethod
     def serialize(self):
         """
@@ -253,8 +254,8 @@ class __Node(object, metaclass=ABCMeta):
 
 class Leaf(__Node):
     """
-    Class for the Merkle-tree's leaves, that is, parentless
-    nodes storing digests of encrypted records
+    Class for the Merkle-tree's leaves (i.e., parentless nodes storing digests
+    of encrypted records)
 
     :param hash_func: hash function to be used for encryption. Should
             coincide with the containing Merkle-tree's hash method.
@@ -279,9 +280,9 @@ class Leaf(__Node):
                     object which could not be decoded with the provided
                     hash-function's configured encoding type
 
-    :ivar digest: (*bytes*) The digest stored by the leaf
-    :ivar child: (*nodes.Node*) The leaf's current child (if any)
-    :ivar encoding: (*str*) The leaf's configured encoding type
+    :ivar digest: (*bytes*) the digest stored by the leaf
+    :ivar child: (*nodes.Node*) the leaf's current child (if any)
+    :ivar encoding: (*str*) the leaf's configured encoding type
     """
 
     __slots__ = ('__digest')
@@ -304,8 +305,12 @@ class Leaf(__Node):
 
     @property
     def digest(self):
-        return self.__digest
+        """
+        The checksum currently stored by the leaf
 
+        :rtype: bytes
+        """
+        return self.__digest
 
     def serialize(self):
         """
@@ -318,6 +323,8 @@ class Leaf(__Node):
 
     def toJsonString(self):
         """
+        Returns a stringification of the leaf's JSON serialization
+
         :rtype: str
         """
         return json.dumps(self, cls=LeafSerializer, sort_keys=True, indent=4)
@@ -365,9 +372,20 @@ class Node(__Node):
 
     @property
     def digest(self):
+        """
+        The checksum currently stored by the node
+
+        :rtype: bytes
+        """
         return self.__digest
 
     def set_right(self, right):
+        """
+        Set's the present node's right parent
+
+        :param right: the new right parent
+        :type: __Node
+        """
         self.__right = right
 
     def recalculate_hash(self, hash_func):
@@ -396,6 +414,8 @@ class Node(__Node):
 
     def toJsonString(self):
         """
+        Returns a stringification of the leaf's JSON serialization
+
         :rtype: str
         """
         return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)

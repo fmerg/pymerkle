@@ -31,15 +31,15 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     :param hash_type: [optional] Specifies the Merkle-tree's hashing algorithm.
                     Defaults to ``'sha256'``.
     :type hash_type: str
-    :param encoding: [optional] Specifies the Merkle-tree's encoding type, used
-                fore encoding before hashing. Defaults to ``'utf_8'``.
+    :param encoding: [optional] Specifies the Merkle-tree's encoding type.
+                    Defaults to ``'utf_8'``.
     :type encoding: str
     :param raw_bytes: [optional] Specifies whether the Merkle-tree will accept
                 raw binary data (independently of its configured encoding
                 type). Defaults to ``True``.
     :type raw_bytes: bool
-    :param security: [optional If ``False``, defense against second-preimage
-                    attack will be disabled. Defaults to ``True``.
+    :param security: [optional Specifies if defense against second-preimage
+                attack is enabled. Defaults to ``True``.
     :type security: bool
 
     :raises UndecodableRecord: if the Merkle-tree is set to no raw-bytes mode
@@ -48,7 +48,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     :raises UnsupportedHashType: if the provided ``hash_type`` is not contained
             in ``hashing.HASH_TYPES``
     :raises UnsupportedEncoding: if the provided ``encoding`` is not
-            contained in ``hashing.ENCODINGS``
+            contained in ``encoder.ENCODINGS``
 
     :ivar uuid: (*str*) uuid of the Merkle-tree (time-based)
     :ivar hash_type: (*str*) See the constructor's homonymous argument
@@ -75,8 +75,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def clear(self):
         """
-        Deletes all nodes of the Merkle-tree,
-        setting its ``root`` equal to ``None``
+        Deletes all nodes of the Merkle-tree, setting its root equal to ``None``
         """
         self.leaves = []
         self.nodes = set()
@@ -124,7 +123,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     @property
     def length(self):
         """
-        Returns the Merkle-tree's current length (i.e., the number of its leaves)
+        The Merkle-tree's current length (i.e., the number of its leaves)
 
         :rtype: int
         """
@@ -133,7 +132,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     @property
     def size(self):
         """
-        Returns the current number of the Merkle-tree's nodes
+        The current number of the Merkle-tree's nodes
 
         :rtype: int
         """
@@ -142,7 +141,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     @property
     def height(self):
         """
-        Calculates and returns the Merkle-tree's current height
+        The Merkle-tree's current height
 
         .. note:: Since the tree is binary *balanced*, its height coincides
                   with the length of its leftmost branch
@@ -174,7 +173,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :raises LeafConstructionError: if both ``record`` and ``digest``
                                     were provided
         :raises UndecodableRecord: if the provided ``record`` is a bytes-like
-        object which could not be decoded with the Merkle-tree's encoding type
+                        object which could not be decoded under the
+                        tree's configured encoding type
         """
         encoding = self.encoding
         hash = self.hash
@@ -234,23 +234,21 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def audit_path(self, index):
         """
-        Computes the *audit-path* for the proof requested upon the provided index
+        Computes the *audit-path* for the audit-proof requested upon the provided index
 
         *Audit-path* consists of a sequence of signed hashes and a *proof-index*
-        (the position within the above sequence where a corresponding
-        proof-validation should start from)
+        (the position where any subsequent proof-validation should start from)
 
         :param index: index (zero based) of the leaf where the audit-path
                     computation should be based upon
         :type index: int
-        :returns: starting position for application of hash, along with the
-                tuple of signed hashes (pairs of the form *(+1/-1, bytes)*,
-                the sign ``+1`` or ``-1`` indicating pairing with the
-                right or left neighbour respectively
+        :returns: starting position for application of ``hash()``, along
+            with the tuple of signed hashes (pairs of the form *(+1/-1, bytes)*,
+            the sign ``+1`` or ``-1`` indicating pairing with the right or left
+            neighbour respectively
         :rtype: (int, tuple<(+1/-1, bytes)>)
 
         :raises NoPathException: if the provided index is out of range
-                        (including the empty Merkle-tree case)
         """
         if index < 0:
             # ~ Handle negative index case as NoPathException, since
@@ -293,8 +291,11 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def find_index(self, arg):
         """
-        :param arg: the record (if type is *str* or *bytes*) or leaf-index (if
-            type is *int*) where the computation of audit-proof must be based upon
+        If integer, returns the provided argument. Otherwise detects the
+        (zero-based) index of the leftmost leaf storing the digest of the
+        provided argument
+
+        :type: str or byte or int
         """
         if type(arg) is int:
             index = arg
@@ -324,7 +325,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def consistency_path(self, sublength):
         """
-        Computes and returns *consistency-path* for the proof requested
+        Computes the *consistency-path* for the proof requested
         upon the provided length
 
         *Consistency-path* consists of a sequence of signed hashes along with a
@@ -334,16 +335,14 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :param sublength: length of a presumably valid previous state of
                         the Merkle-tree
         :type sublength: int
-        :returns: starting position for application of hash, along with a tuple
-            of digests signed with ``-1`` (used for implicit inclusion test)
-            and a tuple of signed digests (used for hash test to be performed
-            from the Client's side), the sign ``-1``, resp. ``+1`` indicating
-            pairing with the left resp. right neigbour during proof validation
+        :returns: Starting position for application of ``hash()``, along with a
+            tuple of hashes signed with ``-1`` (used for implicit inclusion
+            test) and a tuple of signed hashes (used for any subsequent proof validation), the sign ``-1``, resp. ``+1`` indicating pairing with
+            the left resp. right neigbour
         :rtype: (int, tuple<(-1, bytes)>, tuple<(+1/-1 bytes)>)
 
         :raises NoPathException: if the provided ``sublength`` is non-positive
-            or no sequence of subroots corresponds to it (that is, a
-            ``NoPrincipalSubroots`` gets implicitly raised)
+            or no sequence of subroots corresponds to it
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
@@ -368,14 +367,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def minimal_complement(self, subroots):
         """
-        Complements optimally the subroot digests detected by ``.principal_subroots``
+        Complements optimally the detected by ``.principal_subroots()``
         with all necessary interior digests of the Merkle-tree, so that a full
-        consistency-path can be generated
+        consistency-path can be subsequently generated
 
         :param subroots: output of the ``.principal_subroots()`` method
         :type subroots: list<nodes.__Node>
-        :returns: a list of signed hashes complementing optimally provided input,
-                so that a full consistency-path be generated
         :rtype: list<(+1/-1, bytes)>
         """
         if len(subroots) == 0:
@@ -404,13 +401,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def principal_subroots(self, sublength):
         """
-        Detects and returns in corresponding order the roots of the *successive*,
-        *rightmost*, *full* binary subtrees of maximum (and thus decreasing)
+        Detects in corresponding order the roots of the *successive*,
+        *leftmost*, *full* binary subtrees of maximum (and thus decreasing)
         length, whose lengths sum up to the provided argument
 
         Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying
-        information used in the generation of consistency-proofs after
-        extracting hashes
+        information used in subsequent generation of consistency-proofs
 
         :param sublength: a non-negative integer smaller than or equal to the
                     Merkle-tree's current length, such that the corresponding
@@ -457,8 +453,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def subroot(self, start, height):
         """
-        Returns the root of the unique *full* binary subtree with leftmost
-        leaf located at ``start`` height equal to ``height``
+        Detects the root of the unique *full* binary subtree with leftmost
+        leaf located at ``start`` and height equal to ``height``
 
         :param start: index (zero based) of leaf where detection of
                     subtree should start from
@@ -540,23 +536,22 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         required information into it, so that the Merkle-tree can be reloaded
         in its current state from that file
 
-        The final file will store a JSON entity with keys ``header``
-        (containing the parameters ``hash_type``, ``encoding``, ``raw_bytes``
-        and ``security``) and ``hashes``, mapping to the digests currently
-        stored by the tree's leaves in respective order
-
-        .. note:: If the provided path does not end with ``.json``, then this
-            extension will be automatically appended to it before exporting
         .. warning:: If a file exists already for the provided path (after
                     possibly extending with ``.json``, see above),
                     then it gets overwritten
+
+        The final file will store a JSON entity with keys ``header``
+        (mapping to the Merkle-tree's fixed configuration) and ``hashes``, (mapping to the digests currently stored by the tree's leaves in respective order)
+
+        .. note:: If the provided path does not end with ``.json``, then this
+            extension will be automatically appended to it before exporting
 
         :param file_path: relative path of the export file with respect to the
                 current working directory
         :type file_path:  str
         """
         with open('%s.json' % file_path if not file_path.endswith('.json') \
-    else file_path, 'w') as __file:
+        else file_path, 'w') as __file:
             json.dump(self.serialize(), __file, indent=4)
 
     @staticmethod
@@ -571,7 +566,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :returns: the Merkle-tree laoded from the provided file
         :rtype: MerkleTree
 
-        :raises JSONDecodeError: if the specified file could not be deserialized
+        :raises json.JSONDecodeError: if the specified file could not be
+                deserialized
         :raises WrongJSONFormat: if the JSON object loaded from within the
                         provided file is not a Merkle-tree export
         """

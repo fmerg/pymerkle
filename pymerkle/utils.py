@@ -1,5 +1,5 @@
 """
-Provides standalone utilities invoked across the ``pymerkle`` library
+Provides standalone utilities invoked across the *pymerkle* library
 """
 
 from math import log, log10
@@ -13,7 +13,7 @@ def log_2(num):
     (i.e., the greatest power of *2* equal to or smaller than ``num``)
 
     .. note:: Given any *balanced* binary tree, whose number of leaves
-        equals the inserted argument, this function returns the tree's
+        equals the provided argument, this function returns the tree's
         height (i.e., the depth of its *left-most* branch)
 
     :param num: the number whose logarithm is to be computed
@@ -65,16 +65,15 @@ def decompose(num):
 
 def stringify_path(signed_hashes, encoding):
     """
-    Returns a nice stringification of the inserted sequence of signed checksums
+    Returns a stringification of the provided sequence of signed checksums
 
-    The printed checksums occure after decoding the given ones
-    in accordance with the provided encoding type
+    .. note:: Printed checksums occure after decoding the given ones in         accordance under the provided encoding type
 
     :param signed_hashes: a sequence of signed checksums
-    :type signed_hashes:  tuple<(+1/-1, bytes)> or tuple<(+1/-1, string)> pairs
-    :param encoding:      encoding type to be used for decoding
-    :type encoding:       str
-    :rtype:               str
+    :type signed_hashes: tuple<(+1/-1, bytes)> or tuple<(+1/-1, str)>
+    :param encoding: encoding type to be used for decoding
+    :type encoding: str
+    :rtype: str
     """
     order_of_magnitude = lambda num: int(log10(num)) if num != 0 else 0
     get_with_sign      = lambda num: '%s%d' % ('+' if num >= 0 else '', num)

@@ -21,6 +21,8 @@ for displaying progress bars).
 
 ## Installation
 
+## [Work in progress]
+
 **The present version has not yet been published to the Python index**
 
 Typing

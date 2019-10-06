@@ -1,6 +1,5 @@
 """
-Provides a class ``HashMachine`` encapsulating the hash utilities invoked
-accross the ``pymerkle`` library
+Provides hash utilities used accross the *pymerkle* library
 """
 import hashlib
 from pymerkle.exceptions import UnsupportedHashType, EmptyPathException
@@ -14,33 +13,28 @@ HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
 
 class HashMachine(Encoder):
     """
-    Encapsulates the basic hash utilities used accross this library
-
-    Instances of this class are thus to be initialized with every new
-    construction of a Merkle-tree or every time a proof validation is
-    about to be performed
+    Encapsulates the hash utilities used accross the *pymerkle* library
 
     :param hash_type: Defaults to ``'sha256'``. Specifies the hash algorithm to
-        be used by the machine. Must must be among the elements of ``HASH_TYPES``
-        (upper- or mixed-case with '-' instead of '_' allowed).
+        be used by the machine. Must be among the elements of ``HASH_TYPES``
     :type hash_type: str
     :param encoding: Defaults to ``'utf_8'``. Specifies the encoding algorithm
         to be used by the machine before hashing. Must be among the elements of
-        ``ENCODINGS`` (upper- or mixed-case with ``-`` instead of ``_`` allowed).
+        ``encoder.ENCODINGS`` (upper- or mixed-case with '-' instead of
+        '_' allowed).
     :type encoding: str
-    :param security: Defaults to ``True``. Specifies whether the machine applies
-        security standards against second-preimage attack (i.e., whether single,
-        resp. double arguments passed into the ``.hash`` method will be prepended
-        with ``'0x00'``, resp. ``'0x01'`` before hashing)
-    :type security: bool
     :param raw_bytes: Defaults to ``False``. Specifies whether the machine
         accepts raw binary data independently of its configured encoding type
     :type raw_bytes: bool
+    :param security: Defaults to ``True``. Specifies whether single, resp.
+        double arguments passed into the ``.hash()`` function will be prepended
+        with ``'0x00'``, resp. ``'0x01'`` before hashing)
+    :type security: bool
 
-    :raises UnsupportedHashType : if the provided ``encoding`` is not
-                        contained in ``ENCODINGS``
+    :raises UnsupportedHashType: if the provided ``encoding`` is not
+                        contained in ``encoder.ENCODINGS``
     :raises UnsupportedHashType: if the provided ``hash_type`` is not
-                        contained in ``HASH_TYPES``
+                        contained in ``hashing.machine.HASH_TYPES``
 
     :ivar algorithm: (*builtin_function_or_method*) Hash algorithm used
                     by the machine
@@ -63,9 +57,9 @@ class HashMachine(Encoder):
         """
         Core hash utility
 
-        Computes and returns the digest of given arguments' concatenation in
-        accordance with the specified context. If only one argument is passed
-        in, then the disgest of this single argument is returned
+        Computes the digest of the provided arguments' concatenation in
+        accordance with the machine's context. If only one argument is passed
+        in, then the disgest of this single argument is computed
 
         :param left:  left member of the pair to be hashed
         :type left:   str or bytes
@@ -73,7 +67,7 @@ class HashMachine(Encoder):
         :type right:  bytes
 
         .. warning:: if ``right`` is provided, then ``left`` *must* also be of
-                `bytes` or `byetarray` type
+                `bytes` type
 
         :returns: the digest of the entity occuring after concatenation of
                 the given arguments
@@ -103,14 +97,13 @@ class HashMachine(Encoder):
         equals ``a`` (no hashing over single elements)
 
         .. warning:: When using this method, make sure that the combination of
-                signs corresponds to a valid parenthetization
+                signs corresponds indeed to a valid parenthetization
 
         :param signed_hashes: a sequence of signed hashes
         :type signed_hashes: tuple of (+1/-1, bytes) pairs
         :param start: position where the application of ``.hash()`` will
                     start from
         :type start: int
-        :returns: the computed digest
         :rtype: bytes
 
         :raises EmptyPathException: if the provided sequence was empty
