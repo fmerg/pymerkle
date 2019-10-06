@@ -11,6 +11,53 @@ import json
 import os
 
 
+class Validator(HashMachine):
+    """
+    Encapsulates the core utility for validating Merkle-proofs
+
+    Provided ``config`` should be a dictionary containing the keys ``hash_type``,
+    ``encoding``, ``raw_bytes`` and ``security``, necessary for configuring the
+    underlying hash-machine
+
+    .. note:: Values to the above keys are meant to be the validation parameters
+    extracted from the header of the proof to be validated
+    """
+    def __init__(self, config):
+        try:
+            hash_type = config['hash_type']
+            encoding = config['encoding']
+            raw_bytes = config['raw_bytes']
+            security = config['security']
+        except KeyError as e:
+            err = 'Hash-machine could not be configured: missing parameter: %s' % e
+            raise KeyError(err)
+
+        super().__init__(hash_type=hash_type, encoding=encoding,
+            raw_bytes=raw_bytes, security=security)
+
+
+    def run(self, target, proof):
+        """
+        Runs validation of the given ``proof`` against the provided ``target``,
+        returning appropriate exception in case of failure
+
+        :param target: the hash to be presumably attained at the end of the
+            validation procedure (that is, acclaimed current root-hash of
+            the Merkle-tree having provided the proof)
+        :type target: bytes
+        :param proof: the Merkle-proof to be validated
+        :type proof: proof.Proof
+        :raises InvalidMerkleProof: if the provided proof was found to be
+            invalid
+        """
+        if not proof.header['generation']:
+            raise InvalidMerkleProof
+        signed_hashes = proof.body['proof_path']
+        start = proof.body['proof_index']
+        if target != self.multi_hash(signed_hashes, start):
+            raise InvalidMerkleProof
+
+
 def validateProof(target, proof):
     """
     Core utility for validating proofs
@@ -77,53 +124,6 @@ def validationReceipt(target, proof, dirpath=None):
         ) as __file:
             json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
     return receipt
-
-
-class Validator(HashMachine):
-    """
-    Encapsulates the core utility for validating Merkle-proofs
-
-    Provided ``config`` should be a dictionary containing the keys ``hash_type``,
-    ``encoding``, ``raw_bytes`` and ``security``, necessary for configuring the
-    underlying hash-machine
-
-    .. note:: Values to the above keys are meant to be the validation parameters
-    extracted from the header of the proof to be validated
-    """
-    def __init__(self, config):
-        try:
-            hash_type = config['hash_type']
-            encoding = config['encoding']
-            raw_bytes = config['raw_bytes']
-            security = config['security']
-        except KeyError as e:
-            err = 'Hash-machine could not be configured: missing parameter: %' % e
-            raise KeyError(err)
-
-        super().__init__(hash_type=hash_type, encoding=encoding,
-            raw_bytes=raw_bytes, security=security)
-
-
-    def run(self, target, proof):
-        """
-        Runs validation of the given ``proof`` against the provided ``target``,
-        returning appropriate exception in case of failure
-
-        :param target: the hash to be presumably attained at the end of the
-            validation procedure (that is, acclaimed current root-hash of
-            the Merkle-tree having provided the proof)
-        :type target: bytes
-        :param proof: the Merkle-proof to be validated
-        :type proof: proof.Proof
-        :raises InvalidMerkleProof: if the provided proof was found to be
-            invalid
-        """
-        if not proof.header['generation']:
-            raise InvalidMerkleProof
-        signed_hashes = proof.body['proof_path']
-        start = proof.body['proof_index']
-        if target != self.multi_hash(signed_hashes, start):
-            raise InvalidMerkleProof
 
 
 class Receipt(object):

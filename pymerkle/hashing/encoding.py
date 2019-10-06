@@ -1,5 +1,4 @@
-from pymerkle.exceptions import (UnsupportedEncoding, UnsupportedHashType,
-                            EmptyPathException, UndecodableArgumentError)
+from pymerkle.exceptions import UnsupportedEncoding, UndecodableArgumentError
 
 ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
     'cp1140', 'cp1250', 'cp1251', 'cp1252', 'cp1253', 'cp1254', 'cp1255',

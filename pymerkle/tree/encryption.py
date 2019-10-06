@@ -9,11 +9,7 @@ import mmap
 import contextlib
 from tqdm import tqdm
 
-from pymerkle.exceptions import (LeafConstructionError, NoChildException,
-    EmptyTreeException, NoPathException, InvalidProofRequest,
-    NoSubtreeException, NoPrincipalSubroots, InvalidTypes,
-    InvalidComparison, WrongJSONFormat, UndecodableRecord,
-    UnsupportedEncoding, UnsupportedHashType)
+from pymerkle.exceptions import WrongJSONFormat, UndecodableRecord
 
 abspath = os.path.abspath
 
@@ -215,11 +211,8 @@ class Encryptor(object, metaclass=ABCMeta):
         :raises WrongJSONFormat: if the JSON object loaded from within the
             provided file is not a list
         """
-        try:
-            with open(abspath(file_path), 'rb') as __file:
-                objects = json.load(__file)
-        except json.JSONDecodeError:
-            raise
+        with open(abspath(file_path), 'rb') as __file:
+            objects = json.load(__file)
 
         if type(objects) is not list:
             raise WrongJSONFormat

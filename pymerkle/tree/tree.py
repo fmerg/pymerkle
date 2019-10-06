@@ -11,8 +11,7 @@ from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoChildException,
     EmptyTreeException, NoPathException, InvalidProofRequest,
     NoSubtreeException, NoPrincipalSubroots, InvalidTypes,
-    InvalidComparison, WrongJSONFormat, UndecodableRecord,
-    UnsupportedEncoding, UnsupportedHashType)
+    InvalidComparison, WrongJSONFormat, UndecodableRecord)
 import json
 from json import JSONDecodeError
 import uuid
@@ -48,7 +47,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             the tree's configured encoding type
     :raises UnsupportedHashType: if the provided ``hash_type`` is not contained
             in ``hashing.HASH_TYPES``
-    :raises NotSupportedEncodingType : if the provided ``encoding`` is not
+    :raises UnsupportedEncoding: if the provided ``encoding`` is not
             contained in ``hashing.ENCODINGS``
 
     :ivar uuid: (*str*) uuid of the Merkle-tree (time-based)

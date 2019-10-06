@@ -41,7 +41,7 @@ fi
 
 python3 -m pytest tests/ --cov
 
-sed -i -e "/$LIM/s/^#*/#/" $filename
-sed -i -e "/$EXT/s/^#*//" $filename
+#sed -i -e "/$LIM/s/^#*/#/" $filename
+#sed -i -e "/$EXT/s/^#*//" $filename
 
 exit 0

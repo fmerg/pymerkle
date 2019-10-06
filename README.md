@@ -13,7 +13,7 @@ _odd_ number of leaves), capable of generating Merkle-proofs (_audit-proofs_
 and _consistency-proofs_) and performing _inclusion-tests_. It supports all
 combinations of hash functions (including SHA3 variations) and encoding
 types, with defense against second-preimage attack by default enabled.
-It further provides flexible mechanisms for validating the Merkle-proofs
+It further provides flexible mechanisms for validating Merkle-proofs
 and thus easy verification of encrypted data.
 
 It is a zero dependency library (with the inessential exception of `tqdm`
@@ -154,17 +154,26 @@ precise functionality.
 
 ## Running tests
 
-You need to have installed ``pytest``. From inside the project's root directory
-type
+You need to have installed ``pytest``.
 
 ```shell
-pytest
+pip install -r dev-requirements.txt
 ```
 
-to run all tests. This might take up to 15-20 minutes, since crypto parts of
-the code are tested against all possible combinations of hash algorithm,
-encoding type, raw-bytes mode and and security mode (_3240_ combinations
-in total).
+From inside the project's root directory type
+
+```shell
+./runtests
+```
+
+to run all tests againt a limited set of encoding types. To run tests
+against all possible combinations of hash algorithm, encoding type,
+raw-bytes mode and and security mode (_3240_ combinations
+in total), run
+
+```shell
+./runtests -e
+```
 
 
 ## Benchmarks

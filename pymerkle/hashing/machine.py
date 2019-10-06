@@ -3,8 +3,7 @@ Provides a class ``HashMachine`` encapsulating the hash utilities invoked
 accross the ``pymerkle`` library
 """
 import hashlib
-from pymerkle.exceptions import (UnsupportedEncoding, UnsupportedHashType,
-                            EmptyPathException, UndecodableArgumentError)
+from pymerkle.exceptions import UnsupportedHashType, EmptyPathException
 from .encoding import Encoder
 
 

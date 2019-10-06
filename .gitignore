@@ -12,6 +12,7 @@ detect*
 *notes*
 *save*
 *docs*
+index.rst
 
 # Packaging
 *.egg-info/

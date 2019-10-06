@@ -150,9 +150,33 @@ def test_true_consistency_validateProof(tree, consistency_proof):
     assert validateProof(tree.rootHash, consistency_proof)
 
 
-# Text validator exception
-@pytest.mark.parametrize('tree, proof',
-    __false_audit_proofs + __false_consistency_proofs)
+# Validator object
+
+# test KeyError in validator construction
+
+__wrong_configs = [
+        {
+            'encoding': 0, 'raw_bytes': 0, 'security': 0,   # missing hash_type
+        },
+        {
+            'hash_type': 0, 'raw_bytes': 0, 'security':0,   # missing encoding
+        },
+        {
+            'hash_type': 0, 'encoding': 0, 'security': 0,   # missing raw_bytes
+        },
+        {
+            'hash_type': 0, 'encoding': 0, 'raw_bytes': 0,  # missing security
+        },
+]
+
+@pytest.mark.parametrize('config', __wrong_configs)
+def test_validator_construction_error(config):
+    with pytest.raises(KeyError):
+        Validator(config)
+
+
+# Test validator main exception
+@pytest.mark.parametrize('tree, proof', __false_audit_proofs[:10])
 def test_validator_with_false_proofs(tree, proof):
     validator = Validator(proof.get_validation_params())
     with pytest.raises(InvalidMerkleProof):

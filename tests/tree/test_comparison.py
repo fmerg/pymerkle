@@ -92,6 +92,7 @@ def test___eq__(tree_1, tree_2):
     assert tree_1 == tree_2
 
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _1_leaves_tree_),
+                                            (_1_leaves_tree, _0_leaves_tree_),
                                             (_1_leaves_tree, _2_leaves_tree_),
                                             (_0_leaves_tree, _2_leaves_tree_)])
 def test___ne__(tree_1, tree_2):
