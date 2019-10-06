@@ -4,8 +4,10 @@ Tests the ``.auditProof`` and ``.consistencyProof`` methods
 
 import pytest
 from pymerkle import MerkleTree
-from pymerkle.hashing import HashMachine, HASH_TYPES, ENCODINGS
+from pymerkle.hashing import HashMachine, HASH_TYPES
 from pymerkle.exceptions import InvalidProofRequest
+
+from tests.config import ENCODINGS
 
 
 MAX_LENGTH = 4

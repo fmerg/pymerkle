@@ -117,8 +117,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         try:
             root = self.__root
-        except EmptyTreeException:
-            raise
+        except AttributeError:
+            raise EmptyTreeException
 
         return root.digest
 
