@@ -1,0 +1,47 @@
+#!/bin/bash
+
+usage_string="./$(basename "$0") [-h] [-e]
+ Options:
+  -e                Run tests against all encoding types
+  -h, --help        Display this help and exit
+"
+
+usage() {
+  echo -n "Usage: $usage_string" 1>&2
+}
+
+EXTENDED=false
+ 
+while getopts ":e" opt; do
+  case $opt in
+    e)
+      EXTENDED=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+filename="tests/config.py"
+
+EXT="ENCODINGS = EXTENDED"
+LIM="ENCODINGS = LIMITED"
+
+if [ $EXTENDED = true ] ; 
+then
+	sed -i -e "/$LIM/s/^#*/#/" $filename
+	sed -i -e "/$EXT/s/^#//" $filename
+else
+	sed -i -e "/$EXT/s/^#*/#/" $filename
+	sed -i -e "/$LIM/s/^#//" $filename
+fi
+
+python3 -m pytest tests/ --cov
+
+sed -i -e "/$LIM/s/^#*/#/" $filename
+sed -i -e "/$EXT/s/^#*//" $filename
+
+exit 0

@@ -2,8 +2,10 @@ import pytest
 import os
 import json
 from pymerkle import MerkleTree
-from pymerkle.hashing import HashMachine, HASH_TYPES, ENCODINGS
+from pymerkle.hashing import HashMachine, HASH_TYPES
 from pymerkle.exceptions import WrongJSONFormat, UndecodableRecord
+
+from tests.config import ENCODINGS
 
 __trees__hash_machines = []
 for raw_bytes in (True, False):

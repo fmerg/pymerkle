@@ -25,7 +25,9 @@ Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
 
 import pytest
 from pymerkle import MerkleTree
-from pymerkle.hashing import HASH_TYPES, ENCODINGS
+from pymerkle.hashing import HASH_TYPES#, ENCODINGS
+from tests.config import ENCODINGS
+#from tests.run import ENCODINGS
 
 trees = []
 for raw_bytes in (True, False):
