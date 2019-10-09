@@ -139,7 +139,7 @@ precise functionality.
 
 ## Persistence
 
-On-disc persistence is _not_ currently supported.
+On-disk persistence is _not_ currently supported.
 
 Given an instance of the ``MekleTree`` class, the minimum required information
 can be exported using the ``.export()`` method into a ``.json`` file; invoking

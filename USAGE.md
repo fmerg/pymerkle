@@ -9,8 +9,8 @@
 from pymerkle import *
 ```
 
-imports the `MerkleTree` class along with the functions `validateProof()`
-and `validationReceipt()`.
+imports the classes `MerkleTree` and `Validator`, along with the standalone
+functions `validateProof()` and `validationReceipt()`.
 
 ### Merkle-tree construction
 
@@ -18,9 +18,9 @@ and `validationReceipt()`.
 tree = MerkleTree()
 ```
 
-creates an empty Merkle-tree with hash algorithm _SHA256_ and encoding type
-_UTF-8_, capable of consuming _arbitrary_ bytes and _defending against_
-second-preimage attacks.
+creates an empty Merkle-tree with hashing algorithm SHA256 and encoding type
+UTF-8, capable of consuming arbitrary bytes ("raw bytes mode") and
+defending against second-preimage attacks.
 
 #### Configuration
 
@@ -30,15 +30,15 @@ The above construction is equivalent to
 tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True, security=True)
 ```
 
-where the provided heyword arguments directly specify the homonymous attributes
+where the provided keyword arguments directly specify the homonymous attributes
 of the created Merkle-tree. Configuration of a Merkle-tree amounts to
 configuring its core hashing functionality (`.hash()`) via the keyword arguments
 passed into the constructor. This function will be implicitly invoked upon any
-update of the tree (single record encryption, per log encryption of files etc.)  
+update of the tree (single record encryption, per log file encryption etc.)  
 
-_Note_: Changing manually the homonymous attributes of the Merkle-tree leaves
-the hashing functionality _unaffected_. That is, the `.hash()` function is once
-and for ever configured at construction.
+_Note_: Changing manually the homonymous attributes of the Merkle-tree does
+*not* affect the core hashing functionality. That is, the `.hash()` method is
+once and for ever configured at construction.
 
 The ``.hash_type`` attribute refers to the underlying builtin algorithm
 (imported from the `hashlib` Python-module) and ``.encoding`` is the encoding,
@@ -49,10 +49,10 @@ For example,
 tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 ```
 
-creates a Merkle-tree with hashing algorithm _SHA512_ and encoding type
-_UTF-32_. If the provided ``'hash_type'``, resp. ``'encoding'`` is not among the
+creates a Merkle-tree with hashing algorithm SHA512 and encoding type UTF-32.
+If the provided ``'hash_type'``, resp. ``'encoding'`` is not among the
 supported types, then an ``UnsupportedHashType``, resp. ``UnsupportedEncoding``
-error gets raised and the construction is aborted.
+error gets raised and the construction is _aborted_.
 
 Refer to [API](API.md) for the complete list of supported hash and encoding
 types.
@@ -77,9 +77,9 @@ pymerkle.exceptions.UndecodableRecord
 _Note_: One can apply this attribute to filter out unacceptable records, e.g.,
 when only files of a specific encoding type are allowed for encryption
 (see below). This is seldom the case in real-life, since origin of
-submitted should be on the one hand kept wide, but encoding of file are usually
-not recognizable. If this is the case, make sure to leave the raw-bytes mode
-untouched, so that no encoding issues arise upon file encryption.
+submitted files should be on the one hand kept wide, but encoding of a file
+cannot usually be deferred. If this is the case, make sure to leave the
+raw-bytes mode untouched, so that no encoding issues arise upon file encryption.
 
 The `.security` attribute refers to the tree's ability of defending against
 second-preimage attacks, which is by default enabled (`True`). In this
@@ -93,7 +93,7 @@ tree = MerkleTree(..., security=False)
 ```
 
 Refer to the `tests/test_security.py` inside the project's repo in order to see
-how to perform second-preimage attacks against the current implementation.
+how to perform second-preimage attacks against the present implementation.
 
 #### Initial records
 
@@ -123,9 +123,9 @@ occurring from the provided _positional_ arguments, which may be
 >>>
 ```
 
-If raw-bytes mode is disabled, care must be taken so that provided records
-fall under the requested encoding type, otherwise an `UndecodableRecord` error
-gets raised and the construction is aborted:
+If raw-bytes mode is disabled (see above), care must be taken so that provided
+records fall under the requested encoding type, otherwise an `UndecodableRecord`
+error gets raised and the construction is _aborted_:
 
 ```shell
 >>> tree = MerkleTree(b'\x74', encoding='utf-16', raw_bytes=False)
@@ -138,10 +138,10 @@ pymerkle.exceptions.UndecodableRecord
 
 ### Single record encryption
 
-_Updating_ the Merkle-tree with a _record_ means appending a newly-created leaf
+_Updating_ the Merkle-tree with a record means appending a newly-created leaf
 storing the digest of this record. A record may be of type `str` or `bytes`
 indifferently. One may call the `.update()` method to successively update
-with new records as follows:
+with new records as follows (usage of keyword essential):
 
 ```python
 tree = MerkleTree() # SHA256/UTF-8
@@ -177,7 +177,7 @@ True
 ```
 
 If raw-bytes mode is disabled, trying to encrypt bytes outside the configured
-encoding type will raise `UndecodableRecord` error and abort the update:
+encoding type will raise `UndecodableRecord` error and _abort_ the update:
 
 ```shell
 >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
@@ -191,13 +191,13 @@ pymerkle.exceptions.UndecodableRecord
 
 ### Persistence and representation
 
-On-disc persistence is _not_ currently supported.
+On-disk persistence is _not_ currently supported.
 
 #### Exporting to and loading from a backup file
 
 The minimum required information may be exported into a specified file, so that
-the Merkle-tree can be retrieved in its current state from that file.
-Use the `.export()` method as follows:
+the Merkle-tree may be retrieved in its current state from that file.
+To this end use the `.export()` method as follows:
 
 ```python
 tree.export('relative_path/backup.json')
@@ -206,7 +206,7 @@ tree.export('relative_path/backup.json')
 The file `backup.json` (which is _overwritten_ if it already exists) will
 contain a JSON entity with keys ``header``, mapping to the tree's configuration,
 and ``hashes``, mapping to the digests currently stored by the tree's leaves
-in respective order; for example,
+in respective order. For example:
 
 ```json
 {
@@ -233,8 +233,8 @@ in respective order; for example,
 }
 ```
 
-To retrieve the Merkle-tree in its state upon export, one can call the
-`.loadFromFile()` static method as follows:
+To retrieve the Merkle-tree, one can call the `.loadFromFile()` static
+method as follows:
 
 ```python
 loaded_tree = MerkleTree.loadFromFile('relative_path/backup.json')
@@ -272,7 +272,7 @@ its fixed parameters (_uuid, hash type, encoding type, raw-bytes mode, security
     height    : 3
 
 ```
-This info may be saved in a file called, say, `current_state` as follows:
+This info may be saved in a file as follows:
 
 ```python
 with open('current_state', 'w') as f:
@@ -304,19 +304,19 @@ command of Unix based platforms:
 ```
 
 Note that each node is represented by the digest it currently stores, with left
-parents printed above the right ones. It can be saved in a file called, say,
-`tree_structure` as follows:
+parents printed above the right ones. It can be saved in a file as follows:
 
 ```python
 with open('structure', 'w') as f:
     f.write(tree.__str__())
 ```
 
-_Note_: Avoid printing Merkle-tree with huge number of node in the above fashion
+_Note_: Avoid printing Merkle-tree with huge number of nodes in the above
+fashion.
 
 ### File and object encryption
 
-#### Whole file encryption
+#### Bulk file encryption
 
 _Encrypting the content of a file into_ the Merkle-tree means updating it with
 one newly-created leaf storing the digest of that content (that is, encrypting
@@ -331,8 +331,8 @@ where `relative_path/to/sample_file` refers to the relative path of the file
 under encryption with respect to the current working directory.
 
 If raw-bytes mode is _disabled_, make sure that the provided file's content
-falls under the tree's configured encoding type, otherwise `UndecodableRecord`
-error gets raised and the encryption is aborted:
+falls under the tree's configured encoding type, otherwise an `UndecodableRecord`
+error gets raised and the encryption is _aborted_:
 
 ```shell
 >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
@@ -364,12 +364,12 @@ True
 >>>
 ```
 
-where the provided string is the relative path of the file under encryption with
-respect to the current working directory.
+where the provided argument is file's relative path with respect to the current
+working directory.
 
 If raw-bytes mode is _disabled_, make sure that every line of the provided file
 falls under the tree's configured type, otherwise `UndecodableRecord` error
-gets raised and the encryption is aborted:
+gets raised and the encryption is _aborted_:
 
 ```shell
 >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
@@ -393,7 +393,7 @@ _Encrypting an object_ (a JSON entity) _into_ the Merkle-tree means updating
 it with a newly created leaf storing the digest of the corresponding JSON
 string (that is, encrypting its stringification as a single record).
 Use the `.encryptObject()` method to encrypt any dictionary (`dict`)
-as follows:
+with serialized values as follows:
 
 ```python
 tree.encryptObject({'b': 0, 'a': 1})
@@ -418,10 +418,10 @@ which is the same as
 tree.encryptRecord('{\n    "a": 1,\n    "b": 0\n}')
 ```
 
-The digest is here of course different. Since this might lead to unnecessary
-headaches upon requesting and validating Merkle-proofs, it is recommended that
-`sort_keys` and `indent` are left to their default values (`False` and `0`
-  respectively), unless special care is to be taken.
+The digest is of course different than above. Since this might lead to
+unnecessary headaches upon requesting and validating audit-proofs, it is
+recommended that `sort_keys` and `indent` are left to their default values
+(`False` and `0` respectively), unless special care is to be taken.
 
 #### File-based object encryption
 
@@ -434,7 +434,7 @@ tree.encryptObjectFromFile('relative_path/sample.json')
 ```
 
 The file should here contain a _single_ (i.e., well-formed) JSON entity,
-otherwise a `JSONDecodeError` is thrown and the encryption is aborted.
+otherwise a `JSONDecodeError` is raised and the encryption is _aborted_.
 
 #### Per object file encryption
 
@@ -449,13 +449,13 @@ tree.encryptFilePerObject('relative_path/sample-list.json')
 ```
 
 The provided `.json` file's content must here be a single list of objects
-otherwise a `ValueError` is thrown, or a `JSONDecodeError` if the file's
-content cannot be even deserialized, and the encryption is aborted.
+otherwise a `ValueError` is raised, or a `JSONDecodeError` if the file's
+content cannot be even deserialized, and the encryption is _aborted_.
 
 
-### Generating Merkle-proofs (Server's Side)
+### Generation and validation of Merkle-proofs
 
-A Merkle-tree (Server) can generate _Merkle-proofs_ (_audit_ and
+<!-- A Merkle-tree (Server) can generate _Merkle-proofs_ (_audit_ and
 _consistency proofs_) in accordance with parameters provided by an "auditor" or
 a "monitor" (Client). Any such proof essentially consists of a path of hashes
 (that is, a finite sequence of hashes and a rule for combining them into a
@@ -464,38 +464,57 @@ Requesting, providing and validating Merkle-proofs certifies _both_ the Client's
 and Server's identity by proving that each part has knowledge of some of the
 tree's previous state and/or the tree's current state, revealing minimum
 information about the encrypted records and without actual need of
-holding a database of the originals.
+holding a database of the originals. -->
 
-  <!--
+_NOTE_: Validation of Merkle-proofs presupposes that the tree's current
+root-hash is at any moment publicly known. Given a Merkle-tree `tree`,
+one can anytime get it by invoking its property `.rootHash` as follows:
+
+```python
+current = tree.rootHash
+```
+
 #### Audit-proof
 
-Given a Merkle-tree `tree`, use the `.auditProof()` method to generate the audit
-proof based upon, say, the 56-th leaf as follows:
+Generating a correct audit-proof based upon a provided digest proves on behalf
+of the Merkle-tree that the data, whose checksum coincides with this digest,
+has indeed been encrypted into the Merkle-tree. The client (_auditor_)
+verifies correctness of the generated proof (and consequently inclusion of their
+data among the tree's encrypted records) by validating the proof against the
+Merkle-tree's current root-hash. It is essential that the auditor does _not_
+need to reveal the data itself but only their checksum, whereas the server does
+_not_ need to publish any encrypted data (i.e., digests stored by its leaves)
+but only a specific path of interior hashes and the current root-hash. For an
+audit-request and validation to be performed, the following conditions
+must be consequently satisfied:
+
+
+- the tree's root-hash at the _exact_ moment of the request is known to the
+  auditor, that is, the auditor knows the root-hash _before_ any other
+  record is encrypted
+- that the auditor posseses a correctly configured hashing machinery
+for _retrieving_ the root-hash from the generated proof.
+
+_Note_: Correct configuration of the auditor's hashing machinery presupposes
+knowledge of the Merkle-tree's fixed configuration. In the nomenclature of the
+present implementation, this means  knowledge of the tree's hashing algorithm,
+encoding type, raw-bytes mode and security mode (cf. the
+_Merkle-tree construction_ section). See below for details.
+
+<!--
+Assuming fulfillment of the above conditions, one can produce the audit-proof
+based upon, say, the record `666-th record` as follows:
 
 ```python
-p = tree.auditProof(arg=55)
+proof = tree.auditProof(b'666-th record')
 ```
 
-You can instead generate the proof based upon a presumed record `record` with
-
-```python
-p = tree.auditProof(arg=record)
-```
-
-where the argument can be of type `str`, `bytes` or `bytearray` indifferently
-(otherwise an `InvalidProofRequest` gets raised). In the second variation, the proof
-generation is based upon the _leftmost_ leaf storing the hash of the given record
-(if any). Since different leaves might store the same record, _it is suggested that
- provided records include a timestamp referring to the encryption moment or some
- kind of nonce, so that distinct leaves store technically distinct record_.
-
-The object `p` is an instance of the `proof.Proof`, class consisting of the corresponding
-path of hashes (_audit path_, leading upon validation to the tree's presumed root-hash)
-and the parameters needed for the validation to be performed from the Client's Side
-(_hash type_, _encoding type_ and _security mode_ of the generator tree). It looks like
+The generated proof is an instance of the `Proof` class, consisting of a path of
+hashes and all required parameters for the validation to be performed by the
+auditor. Invoking it from the Python interpreter, it looks like
 
 ```shell
->>> p
+>>> proof
 
     ----------------------------------- PROOF ------------------------------------                
 
@@ -535,7 +554,7 @@ and the parameters needed for the validation to be performed from the Client's S
 >>>
 ```
 
-the corresponding JSON format being
+whereas the corresponding JSON serialization is
 
 ```shell
 {
@@ -572,6 +591,7 @@ the corresponding JSON format being
     }
 }
 ```
+
 
 If the argument requested by the Client is negative or exceeds the tree's current length or
 isn't among the latter's encrypted records, then `proof_path` is empty and `proof_index` is
