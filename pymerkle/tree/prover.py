@@ -41,23 +41,22 @@ class Prover(object, metaclass=ABCMeta):
         Response of the Merkle-tree to the request of providing an
         audit-proof based upon the provided argument
 
-        :param arg: the record (if type is *str* or *bytes*) or leaf-index
-                    (if type is *int*) where the computation of audit-proof
-                    must be based upon
-        :type arg: str or bytes or int
+        :param arg: the record where the computation of the requested
+                audit-proof is to be based upon
+        :type arg: str or bytes
         :returns: audit-path along with validation parameters
         :rtype: proof.Proof
 
         :raises InvalidProofRequest: if the provided argument's type
             is not as prescribed
         """
-        if type(arg) not in (int, str, bytes):
+        if type(arg) not in (str, bytes):
             raise InvalidProofRequest
 
         index = self.find_index(arg)
         try:
             proof_index, audit_path = self.audit_path(index)
-        except NoPathException:                                                 # Includes case of negative `arg`
+        except NoPathException:
             return Proof(
                 provider=self.uuid,
                 hash_type=self.hash_type,

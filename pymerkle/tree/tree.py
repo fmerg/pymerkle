@@ -291,33 +291,28 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def find_index(self, arg):
         """
-        If integer, returns the provided argument. Otherwise detects the
-        (zero-based) index of the leftmost leaf storing the digest of the
-        provided argument
+        Detects the (zero-based) index of the leftmost leaf storing the
+        digest of the provided argument
 
         :type: str or byte or int
         """
-        if type(arg) is int:
-            index = arg
-        else:
-            # ~ arg is of type str or bytes; in this case, detect the index of
-            # ~ the first leaf having recorded the inserted argument; if no
-            # ~ such leaf exists (i.e., the inserted argument has not been
-            # ~ encrypted into the tree), set index equal to -1 so that an
-            # ~ appropriate NoPathException be subsequently raised
-            index = -1
-            count = 0
-            digest = self.hash(arg)
-            leaves = (leaf for leaf in self.leaves)
-            while 1:
-                try:
-                    leaf = next(leaves)
-                except StopIteration:
-                    break
-                if digest == leaf.digest:
-                    index = count
-                    break
-                count += 1
+        # ~ Detect the index of the first leaf having recorded the inserted
+        # ~ argument; if no such leaf exists (i.e., the inserted argument
+        # ~ has not been encrypted into the tree), leave index equal to -1
+        # ~ so that an appropriate NoPathException be subsequently raised
+        index = -1
+        count = 0
+        digest = self.hash(arg)
+        leaves = (leaf for leaf in self.leaves)
+        while 1:
+            try:
+                leaf = next(leaves)
+            except StopIteration:
+                break
+            if digest == leaf.digest:
+                index = count
+                break
+            count += 1
         return index
 
 
@@ -337,7 +332,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :type sublength: int
         :returns: Starting position for application of ``hash()``, along with a
             tuple of hashes signed with ``-1`` (used for implicit inclusion
-            test) and a tuple of signed hashes (used for any subsequent proof validation), the sign ``-1``, resp. ``+1`` indicating pairing with
+            test) and a tuple of signed hashes (used for any subsequent proof
+            validation), the sign ``-1``, resp. ``+1`` indicating pairing with
             the left resp. right neigbour
         :rtype: (int, tuple<(-1, bytes)>, tuple<(+1/-1 bytes)>)
 

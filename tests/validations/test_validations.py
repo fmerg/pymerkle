@@ -23,7 +23,7 @@ for raw_bytes in (True, False):
                 for encoding in ENCODINGS:
                     trees.append(
                         MerkleTree(
-                            *['%d-th record' %i for i in range(length)],
+                            *['%d-th record' % i for i in range(length)],
                             hash_type=hash_type,
                             encoding=encoding,
                             security=security
@@ -38,30 +38,16 @@ __true_audit_proofs  = []
 
 for tree in trees:
 
-    __false_audit_proofs.extend(
-        [
-            (
-                tree,
-                tree.auditProof(-1),                                            # Based upon negative index
-            ),
-            (
-                tree,
-                tree.auditProof(tree.length),                                   # Based upon index exceeding current length
-            ),
-            (
-                tree,
-                tree.auditProof('anything that has not been recorded')          # Based upon non encrypted record
-            )
-        ]
+    __false_audit_proofs.append(
+        (
+            tree,
+            tree.auditProof('anything that has not been recorded')          # Based upon non encrypted record
+        )
     )
 
     for index in range(0, tree.length):
         __true_audit_proofs.extend(
             [
-                (
-                    tree,
-                    tree.auditProof(index),                                     # Index based proof
-                ),
                 (
                     tree,
                     tree.auditProof('%d-th record' % index),                    # String based proof

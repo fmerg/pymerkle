@@ -118,7 +118,7 @@ class HashMachine(Encoder):
 
         i = start
         while len(signed_hashes) > 1:
-            if signed_hashes[i][0] == +1:    # Pair with the right neighbour
+            if signed_hashes[i][0] == +1:           # Pair with the right neighbour
                 if i == 0:
                     new_sign = +1
                 else:
@@ -127,14 +127,14 @@ class HashMachine(Encoder):
                     signed_hashes[i][1],
                     signed_hashes[i + 1][1])
                 move = +1
-            else:                             # Pair with the left neighbour
+            else:                                   # Pair with the left neighbour
                 new_sign = signed_hashes[i - 1][0]
                 new_hash = hash(
                     signed_hashes[i - 1][1],
                     signed_hashes[i][1])
                 move = -1
             signed_hashes[i] = (new_sign, new_hash)
-            del signed_hashes[i + move]                             # Shrink
+            del signed_hashes[i + move]             # Shrink
             if move < 0:
                 i -= 1
         return signed_hashes[0][1]

@@ -35,7 +35,6 @@ class Validator(HashMachine):
         super().__init__(hash_type=hash_type, encoding=encoding,
             raw_bytes=raw_bytes, security=security)
 
-
     def run(self, target, proof):
         """
         Runs validation of the given ``proof`` against the provided ``target``,
@@ -115,8 +114,7 @@ def validationReceipt(target, proof, dirpath=None):
     receipt = Receipt(
         proof_uuid=header['uuid'],
         proof_provider=header['provider'],
-        result=result
-    )
+        result=result)
     if dirpath:
         with open(
             os.path.join(dirpath, '%s.json' % receipt.header['uuid']),

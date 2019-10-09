@@ -21,7 +21,7 @@ for displaying progress bars).
 
 ## Installation
 
-## [Work in progress]
+### [Work in progress]
 
 **The present version has not yet been published to the Python index**
 
@@ -32,7 +32,7 @@ pip3 install pymerkle --pre
 ```
 will only install the prerelease of the last published version
 
-## Basic usage
+## Quick example
 
 **See [_Usage_](USAGE.md) and [_API_](API.md) for details**
 
@@ -66,8 +66,7 @@ receipt = validationReceipt(
 ### Defense against second-preimage attack
 
 
-Defense against second-preimage attack is by default activated. Roughly speaking,
-it consists in the following security measures:
+Defense against second-preimage attack consists in the following security measures:
 
 - Before calculating the hash of a leaf, prepend the corresponding record with
 the null hexadecimal `0x00`
@@ -78,9 +77,8 @@ hashes with the unit hexadecimal `0x01`
 Read the
 [`tests/test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)
 file inside the project's repository to see how to perform second-preimage attacks
-against the current implementation. In order to disable defense against
-second-preimage attack (say, for testing purposes), set ``security`` equal to
-``False`` at construction:
+against the current implementation. In order to disable defense (say, for testing purposes),
+set ``security`` equal to ``False`` at construction:
 
 ```python
 tree = MerkleTree(security=False)
@@ -101,18 +99,18 @@ to _denial-of-service attacks_ exploiting the vulnerability described
 
 ## Tree structure
 
-Contrary to most implementations, the Merkle-tree is here always _binary balanced_,
-with all nodes except for the exterior ones (_leaves_) having _two_ parents. This
-is attained as follows: upon appending a block of new leaves, instead of promoting
-a lonely leaf to the next level or duplicating it, a *bifurcation* node gets created
-_so that trees with the same number of leaves have always identical structure and
-input clashes among growing strategies be avoided_. This standardization is further
-crucial for:
+Contrary to other implementations, the present Merkle-tree remains always
+_binary balanced_, with all nodes except for the exterior ones (_leaves_) having
+_two_ parents. This is attained as follows: upon appending a block of new leaves,
+instead of promoting a lonely leaf to the next level or duplicating it, a
+*bifurcation* node gets created _so that trees with the same number of leaves
+have always identical structure and input clashes among growing strategies be
+avoided_. This standardization is further crucial for:
 
-- fast generation of consistency-proofs (based on additive decompositions in decreasing
-  powers of 2)
-- fast recalculation of the root-hash after appending a new leaf, since _only the hashes
-  at the tree's left-most branch need be recalculated_
+- fast generation of consistency-proofs (based on additive decompositions in
+  decreasing powers of 2)
+- fast recalculation of the root-hash after appending a new leaf, since _only
+  the hashes at the tree's left-most branch need be recalculated_
 - memory efficiency, since the height as well as total number of nodes with respect
   to the tree's length is constrained to the minimum. For example, a tree with 9
   leaves has 17 nodes in the present implementation, whereas the total number of
@@ -123,7 +121,7 @@ crucial for:
 This topology turns out to be identical with that of a binary _Sekura tree_,
 depicted in Section 5.4 of [this](https://keccak.team/files/Sakura.pdf) paper.
 Follow the straightforward algorithm of the
-[`MerkleTree.update()`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree.html#MerkleTree.update)
+[`MerkleTree.update()`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree/tree.html#MerkleTree.update)
 method for further insight.
 
 
@@ -132,9 +130,9 @@ method for further insight.
 Direct validation of a Merkle-proof is performed using the ``validateProof()``
 function, which modifies the status of the provided proof appropriately and
 returns the corresponding boolean. A more elaborate validation procedure includes
-generating a receipt with the validation result and storing at will the generated
-receipt as a ``.json`` file. This is achieved using the ``validationReceipt()``
-function like in the above quick example.
+generating a receipt with the validation result and potentially storing the
+generated receipt as a ``.json`` file. This is achieved using the
+``validationReceipt()`` function like in the above quick example.
 
 See [_API_](API.md) or [_Usage_](USAGE.md) for details about arguments and
 precise functionality.

@@ -1,5 +1,5 @@
 """
-Tests the ``.auditProof`` and ``.consistencyProof`` methods
+Tests the .auditProof() and .consistencyProof() methods
 """
 
 import pytest
@@ -35,14 +35,14 @@ __invalid_audit_proof_requests = [
         MerkleTree(),
         [
             'anything...',
-            '... that is not int, str or bytes'
+            '... that is not str or bytes'
         ]
     ),
     (
         MerkleTree(),
         {
             'a': 'anything...',
-            'b': '... that is not int, str or bytes'
+            'b': '... that is not str or bytes'
         },
     ),
 ]
@@ -57,31 +57,17 @@ __tree__arg = []
 
 for tree in trees:
 
-    __tree__wrong_arg.extend(
-        [
-            (
-                tree,
-                -1                                      # Audit-proof requested upon negative index
-            ),
-            (
-                tree,
-                tree.length                             # Audit-proof requested upon index exceeding current length
-            ),
-            (
-                tree,
-                'anything that has not been recorded'   # Audit-proof requested upon non encrypted record
-            )
-        ]
+    __tree__wrong_arg.append(
+        (
+            tree,
+            'anything that has not been recorded'       # Audit-proof requested upon non encrypted record
+        )
     )
 
     for index in range(tree.length):
 
         __tree__arg.extend(
             [
-                (
-                    tree,
-                    index                              # Index based proof
-                ),
                 (
                     tree,
                     '%d-th record' % index             # String based proof

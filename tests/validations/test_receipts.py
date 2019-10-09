@@ -19,7 +19,7 @@ for file in os.listdir(receipt_dir):
 def test_validationReceipt():
     tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
 
-    audit_proof = tree.auditProof(3)
+    audit_proof = tree.auditProof('2-th record')
     receipt = validationReceipt(
         target=tree.rootHash,
         proof=audit_proof,

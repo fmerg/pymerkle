@@ -43,16 +43,18 @@ class Encoder(object):
         *raw-bytes* mode and *secuity* mode)
         """
         encoding = self.encoding
+
+        # Resolve security prefices
+
         if self.security:
-            prefix_0_dec = '\x00'
-            prefix_1_dec = '\x01'
-            prefix_0_enc = bytes('\x00', encoding)
-            prefix_1_enc = bytes('\x01', encoding)
+            prefix_0_dec, prefix_0_enc = '\x00', bytes('\x00', encoding)
+            prefix_1_dec, prefix_1_enc = '\x01', bytes('\x01', encoding)
         else:
-            prefix_0_dec = ''
-            prefix_1_dec = ''
-            prefix_0_enc = bytes()
-            prefix_1_enc = bytes()
+            prefix_0_dec, prefix_0_enc = '', bytes()
+            prefix_1_dec, prefix_1_enc = '', bytes()
+
+        # Make encoding funtion
+
         if self.raw_bytes:
             def encode_func(left, right=None):
                 if not right:
@@ -85,4 +87,5 @@ class Encoder(object):
                                  prefix_1_dec + right_decoded,
                             encoding=encoding)
                 return data
+
         return encode_func
