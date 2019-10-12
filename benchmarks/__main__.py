@@ -268,16 +268,17 @@ def encryption_benchmark():
 
 def audit_proofs_benchmark():
     write('\n\n----------------------- Proof generation measuremenets ------------------------')
-
+    write('\n\n')
+    write('Generating audit-proofs -be patient...\n')
     global PROOFS
     START = now()
     MAX   = None
     MIN   = None
     TOTAL = 0.0
     elapsed = []
-    for _ in range(TREE.length):
+    for leaf in TREE.leaves:
         cycle = now()
-        proof = TREE.auditProof(arg=_)
+        proof = TREE.auditProof(leaf.digest)
         _elapsed = time_elapsed(cycle)
         if MAX is None:
             MAX = _elapsed
@@ -290,36 +291,8 @@ def audit_proofs_benchmark():
         elapsed.append(_elapsed)
     mean, stdev = mean_value(elapsed, PRECISION_2, with_stdev=True)
     show_stats(
-        message='Audit-proof generation %s(sec)' % ('with index provided ' if RECORD else ''),
-        total=quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev)
-
-    if RECORD:
-        write('\n\n\n')
-        write('Generating audit-proofs upon records -be patient...\n')
-
-        START = now()
-        MAX   = None
-        MIN   = None
-        TOTAL = 0.0
-        elapsed = []
-        for _ in range(TREE.length):
-            cycle = now()
-            proof = TREE.auditProof(arg='%d-th record' % _)
-            _elapsed = time_elapsed(cycle)
-            if MAX is None:
-                MAX = _elapsed
-                MIN = _elapsed
-            else:
-                MAX = max(_elapsed, MAX)
-                MIN = min(_elapsed, MIN)
-            PROOFS.append(proof)
-            TOTAL += _elapsed
-            elapsed.append(_elapsed)
-        mean, stdev = mean_value(elapsed, PRECISION_2, with_stdev=True)
-        show_stats(
-            message='Audit-proof generation with record (sec)',
-            total=quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev
-        )
+        message='Audit-proof generation (sec)', total=quantize(TOTAL, PRECISION_2),
+        min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 def consistency_proofs_benchmark():
@@ -396,7 +369,6 @@ ITERATIONS   = None
 ROUNDS       = None
 
 TREE         = None
-RECORD       = False
 PROOFS       = []
 
 PRECISION_1 = Decimal('.%s1' % ('0' * 11))  # 0.000000000001, used for attribute access measurements
@@ -413,7 +385,7 @@ def main():
     global RECORD
 
     prog = sys.argv[0]
-    usage = 'python %s [--hashtype] [--encoding] [--length] [--additional] [--iterations] [--rounds] [-r]' % prog
+    usage = 'python %s [--hashtype] [--encoding] [--length] [--additional] [--iterations] [--rounds]' % prog
 
     parser = argparse.ArgumentParser(
         prog=prog,
@@ -457,11 +429,6 @@ def main():
         help='Number of rounds when accessing node\'s attributes',
         default=20
     )
-    parser.add_argument(
-        '-r',
-        action='store_true',
-        help="""If provided, audit-proof generation will be also measured with respect to
-                records as provided argument (worse case than providing the leaf index)""")
 
     parsed_args = parser.parse_args()
 
@@ -472,7 +439,6 @@ def main():
     ADDITIONAL = parsed_args.additional
     ITERATIONS = parsed_args.iterations
     ROUNDS     = parsed_args.rounds
-    RECORD     = parsed_args.r
 
     write('============================= pymerkle benchmarks ============================')
     write('\nConfiguration')

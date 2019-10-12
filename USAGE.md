@@ -696,7 +696,7 @@ current root-hash.
 
 A typical session:
 
-Let a _monitor_ (, a client observing the Merkle-tree's gradual development
+Let a _monitor_ (a client observing the Merkle-tree's gradual development
 with knowledge of the underlying hashing machinery `h`) have knowledge of the
 tree's state at some moment. That is, the monitor records the tree's root-hash
 and length (number of leaves) at some point of history. At a later
@@ -873,7 +873,11 @@ the corresponding JSON being
   }
 ```
 
-This situation may arise in two...
+This situation may arise in two ways:
+
+1. ...
+
+2. ...
 
 
 <!--

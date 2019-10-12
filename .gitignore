@@ -4,10 +4,13 @@
 *lint*
 cpu*
 *.pyc
+*.pye
+*.swp
 /tests/logs/NASA*
 detect*
 *profile*
 *.svg
+.coverage
 .benchmarks/
 *notes*
 *save*

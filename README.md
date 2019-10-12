@@ -9,8 +9,8 @@
 **Complete documentation found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
 _Pymerkle_ provides a class for binary balanced Merkle-trees (with possibly
-_odd_ number of leaves), capable of generating Merkle-proofs (_audit-proofs_
-and _consistency-proofs_) and performing _inclusion-tests_. It supports all
+odd number of leaves), capable of generating Merkle-proofs (audit-proofs
+and consistency-proofs) and performing inclusion-tests. It supports all
 combinations of hash functions (including SHA3 variations) and encoding
 types, with defense against second-preimage attack by default enabled.
 It further provides flexible mechanisms for validating Merkle-proofs
@@ -35,31 +35,6 @@ will only install the prerelease of the last published version
 ## Usage
 
 **See [_Usage_](USAGE.md) and [_API_](API.md) for details**
-
-<!-- ``` python
-from pymerkle import *
-
-tree = MerkleTree()                             # SHA256/UTF-8 Merkle-tree
-
-for i in range(666):                            # Update with 666 records
-    tree.encryptRecord(b'%d-th record' % i)
-
-p = tree.auditProof(b'12-th record')            # Provide audit-proof for the given record
-validateProof(target=tree.rootHash, proof=p)    # Quick validation proof (True)
-
-subhash = tree.rootHash                         # Store current state for later use
-sublength = tree.length
-
-tree.encryptObject({'a': 0, 'b': 1})            # object encryption (one leaf)
-tree.encryptFileContent('../path/to/file')      # whole file encryption (one leaf)
-tree.encryptFilePerLog('../sample_log')         # per log gile encryption (multiple leaves)
-
-
-q = tree.consistencyProof(subhash, sublength)   # Provide consistency-proof for the stored  
-                                                # previous state
-receipt = validationReceipt(
-            target=tree.rootHash, proof=q)      # Validate proof with receipt
-``` -->
 
 ## Security
 
@@ -100,17 +75,17 @@ to _denial-of-service attacks_ exploiting the vulnerability described
 ## Tree structure
 
 Contrary to other implementations, the present Merkle-tree remains always
-_binary balanced_, with all nodes except for the exterior ones (_leaves_) having
-_two_ parents. This is attained as follows: upon appending a block of new leaves,
+binary balanced, with all nodes except for the exterior ones (leaves) having
+two parents. This is attained as follows: upon appending a block of new leaves,
 instead of promoting a lonely leaf to the next level or duplicating it, a
 *bifurcation* node gets created _so that trees with the same number of leaves
-have always identical structure and input clashes among growing strategies be
-avoided_. This standardization is further crucial for:
+have always identical structure independently of their growing strategy_.
+This standardization is further crucial for:
 
 - fast generation of consistency-proofs (based on additive decompositions in
   decreasing powers of 2)
-- fast recalculation of the root-hash after appending a new leaf, since _only
-  the hashes at the tree's left-most branch need be recalculated_
+- fast recalculation of the root-hash after appending a new leaf, since only
+  the hashes at the tree's left-most branch need be recalculated
 - memory efficiency, since the height as well as total number of nodes with respect
   to the tree's length is constrained to the minimum. For example, a tree with 9
   leaves has 17 nodes in the present implementation, whereas the total number of
@@ -168,17 +143,17 @@ From inside the project's root directory type
 
 to run all tests againt a limited set of encoding types. To run tests
 against all possible combinations of hash algorithm, encoding type,
-raw-bytes mode and and security mode (_3240_ combinations
+raw-bytes mode and and security mode (3240 combinations
 in total), run
 
 ```shell
-./runtests -e
+./runtests --extended
 ```
 
 
 ## Benchmarks
 
 ```shell
-python benchmarks -r
+python benchmarks
 ```
 from inside the project's root directory. Provide `-h` for further options
