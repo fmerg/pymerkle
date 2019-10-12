@@ -189,7 +189,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             last_power   = decompose(len(leaves))[-1]
             last_subroot = leaves[-1].descendant(degree=last_power)
 
-            # Store new record into new leaf
+            # Encrypt new record into new leaf
             try:
                 new_leaf = Leaf(hash, encoding, record, digest)
             except (LeafConstructionError, UndecodableRecord):
@@ -289,27 +289,26 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         return start, tuple(path)
 
 
-    def find_index(self, arg):
+    def find_index(self, checksum):
         """
         Detects the (zero-based) index of the leftmost leaf storing the
-        digest of the provided argument
+        provided checksum
 
         :type: str or byte or int
         """
-        # ~ Detect the index of the first leaf having recorded the inserted
-        # ~ argument; if no such leaf exists (i.e., the inserted argument
-        # ~ has not been encrypted into the tree), leave index equal to -1
-        # ~ so that an appropriate NoPathException be subsequently raised
+        # ~ Detect the index of the first leaf storing the provided checksum;
+        # ~ if no such leaf exists (i.e., the inserted argument has not been
+        # ~ encrypted into the tree), leave index equal to -1 so that an
+        # ~ appropriate NoPathException be subsequently raised
         index = -1
         count = 0
-        digest = self.hash(arg)
         leaves = (leaf for leaf in self.leaves)
         while 1:
             try:
                 leaf = next(leaves)
             except StopIteration:
                 break
-            if digest == leaf.digest:
+            if checksum == leaf.digest:
                 index = count
                 break
             count += 1
@@ -493,33 +492,33 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     # Inclusion test
 
-    def inclusionTest(self, oldhash, sublength):
+    def inclusionTest(self, subhash, sublength):
         """
         Verifies that the parameters provided correspond
         to a valid previous state of the Merkle-tree
 
-        :param oldhash: root-hash of a presumably valid
+        :param subhash: root-hash of a presumably valid
             previous state of the Merkle-tree
-        :type oldhash: bytes
+        :type subhash: bytes
         :param sublength: length (number of leaves) for the afore-mentioned
             previous state of the Merkle-tree
         :type sublength: int
         :returns: ``True`` if the appropriate path of negatively signed digests,
                 generated implicitly for the provided ``sublength``, leads
-                indeed to the provided ``oldhash``; otherwise ``False``
+                indeed to the provided ``subhash``; otherwise ``False``
         :rtype: bool
 
         :raises InvalidProofRequest: if the type of any of the provided
             arguments is not as prescribed
         """
-        if type(oldhash) is not bytes or type(sublength) is not int or sublength < 0:
+        if type(subhash) is not bytes or type(sublength) is not int or sublength < 0:
             raise InvalidTypes
         if sublength == 0:
             raise InvalidComparison
         if sublength <= len(self.leaves):
             left_roots = self.principal_subroots(sublength)
             left_path = tuple((-1, _[1].digest) for _ in left_roots)
-            return oldhash == self.multi_hash(left_path, len(left_path) - 1)
+            return subhash == self.multi_hash(left_path, len(left_path) - 1)
         else: # sublength exceeds current length (includes the empty-tree case)
             return False
 

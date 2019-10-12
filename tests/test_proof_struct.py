@@ -1,5 +1,5 @@
 """
-Tests formal construction, serialization and representation of ``Proof`` objects
+Tests formal construction, serialization and representation of Merkle-proofs
 """
 
 import pytest

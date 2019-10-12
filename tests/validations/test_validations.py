@@ -41,36 +41,25 @@ for tree in trees:
     __false_audit_proofs.append(
         (
             tree,
-            tree.auditProof('anything that has not been recorded')          # Based upon non encrypted record
+            tree.auditProof(b'anything that has not been recorded')
         )
     )
 
     for index in range(0, tree.length):
-        __true_audit_proofs.extend(
-            [
+        __true_audit_proofs.append(
                 (
                     tree,
-                    tree.auditProof('%d-th record' % index),                    # String based proof
-                ),
-                (
-                    tree,
-                    tree.auditProof(
-                        bytes(
-                            '%d-th record' % index,
-                            tree.encoding
-                        )
-                    )                                                           # Bytes based proof
-                )
-            ]
-        )
+                    tree.auditProof(tree.hash('%d-th record' % index))
+                )                                                           # Bytes based proof
+            )
 
-@pytest.mark.parametrize("tree, audit_proof", __false_audit_proofs)
-def test_false_audit_validateProof(tree, audit_proof):
-    assert not validateProof(tree.rootHash, audit_proof)
+@pytest.mark.parametrize("tree, proof", __false_audit_proofs)
+def test_false_audit_validateProof(tree, proof):
+    assert not validateProof(tree.rootHash, proof)
 
-@pytest.mark.parametrize("tree, audit_proof", __true_audit_proofs)
-def test_true_audit_validateProof(tree, audit_proof):
-    assert validateProof(tree.rootHash, audit_proof)
+@pytest.mark.parametrize("tree, proof", __true_audit_proofs)
+def test_true_audit_validateProof(tree, proof):
+    assert validateProof(tree.rootHash, proof)
 
 
 # Consistency-proof validation

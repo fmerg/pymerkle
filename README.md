@@ -32,11 +32,11 @@ pip3 install pymerkle --pre
 ```
 will only install the prerelease of the last published version
 
-## Quick example
+## Usage
 
 **See [_Usage_](USAGE.md) and [_API_](API.md) for details**
 
-``` python
+<!-- ``` python
 from pymerkle import *
 
 tree = MerkleTree()                             # SHA256/UTF-8 Merkle-tree
@@ -47,7 +47,7 @@ for i in range(666):                            # Update with 666 records
 p = tree.auditProof(b'12-th record')            # Provide audit-proof for the given record
 validateProof(target=tree.rootHash, proof=p)    # Quick validation proof (True)
 
-oldhash = tree.rootHash                         # Store current state for later use
+subhash = tree.rootHash                         # Store current state for later use
 sublength = tree.length
 
 tree.encryptObject({'a': 0, 'b': 1})            # object encryption (one leaf)
@@ -55,11 +55,11 @@ tree.encryptFileContent('../path/to/file')      # whole file encryption (one lea
 tree.encryptFilePerLog('../sample_log')         # per log gile encryption (multiple leaves)
 
 
-q = tree.consistencyProof(oldhash, sublength)   # Provide consistency-proof for the stored  
+q = tree.consistencyProof(subhash, sublength)   # Provide consistency-proof for the stored  
                                                 # previous state
 receipt = validationReceipt(
             target=tree.rootHash, proof=q)      # Validate proof with receipt
-```
+``` -->
 
 ## Security
 

@@ -17,7 +17,7 @@ class Prover(object, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def find_index(self, arg):
+    def find_index(self, checksum):
         """
         """
 
@@ -36,24 +36,24 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
-    def auditProof(self, arg):
+    def auditProof(self, checksum):
         """
         Response of the Merkle-tree to the request of providing an
-        audit-proof based upon the provided argument
+        audit-proof based upon the provided checksum
 
-        :param arg: the record where the computation of the requested
-                audit-proof is to be based upon
-        :type arg: str or bytes
+        :param checksum: the checksum which the requested audit-proof is to
+                be based upon
+        :type checksum: bytes
         :returns: audit-path along with validation parameters
         :rtype: proof.Proof
 
         :raises InvalidProofRequest: if the provided argument's type
             is not as prescribed
         """
-        if type(arg) not in (str, bytes):
+        if type(checksum) not in (bytes,):
             raise InvalidProofRequest
 
-        index = self.find_index(arg)
+        index = self.find_index(checksum)
         try:
             proof_index, audit_path = self.audit_path(index)
         except NoPathException:
@@ -76,7 +76,7 @@ class Prover(object, metaclass=ABCMeta):
             proof_path=audit_path)
 
 
-    def consistencyProof(self, oldhash, sublength):
+    def consistencyProof(self, subhash, sublength):
         """
         Response of the Merkle-tree to the request of providing a
         consistency-proof for the provided parameters
@@ -84,9 +84,9 @@ class Prover(object, metaclass=ABCMeta):
         Arguments of this function amount to a presumed previous state
         (root-hash and length) of the Merkle-tree
 
-        :param oldhash: root-hash of a presumably valid previous
+        :param subhash: root-hash of a presumably valid previous
             state of the Merkle-tree
-        :type oldhash: bytes
+        :type subhash: bytes
         :param sublength: presumable length (number of leaves) for the
             above previous state of the Merkle-tree
         :type sublength: int
@@ -104,7 +104,7 @@ class Prover(object, metaclass=ABCMeta):
         :raises InvalidProofRequest: if type of any of the provided
             arguments is not as prescribed
         """
-        if type(oldhash) is not bytes or type(sublength) is not int \
+        if type(subhash) is not bytes or type(sublength) is not int \
             or sublength <= 0:
             raise InvalidProofRequest
         try:
@@ -120,7 +120,7 @@ class Prover(object, metaclass=ABCMeta):
                 proof_path=())
 
         # Inclusion test
-        if oldhash != self.multi_hash(left_path,len(left_path) - 1):
+        if subhash != self.multi_hash(left_path,len(left_path) - 1):
             return Proof(
                 provider=self.uuid,
                 hash_type=self.hash_type,
@@ -170,7 +170,7 @@ class Proof(object):
     >>> r = Proof(from_dict=json.loads(p.toJsonString()))
 
     .. note:: Constructing proofs in the above ways is a genuine *replication*,
-    since ``q`` and ``r`` have the same *uuid* and *timestamp* as ``p``
+        since ``q`` and ``r`` have the same *uuid* and *timestamp* as ``p``
 
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
         *creation_moment*, *generation*, *provider*, *hash_type*, *encoding*,

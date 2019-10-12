@@ -144,8 +144,8 @@ class Receipt(object):
     >>> t = Receipt(from_dict=json.loads(r.toJsonString()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*,
-        since the constructed receipts ``s`` and ``t`` have the same *uuid*
-        and *timestamp* as the original receipt ``r``
+        since ``s`` and ``t`` will have the same *uuid* and *timestamp* as the
+        original receipt ``r``
 
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*, *validation_moment*
     :ivar header.uuid: (*str*) uuid of the validation (time-based)
@@ -159,7 +159,7 @@ class Receipt(object):
 
     def __init__(self, *args, **kwargs):
 
-        if args: # Assuming positional arguments by default
+        if args:                      # Assuming positional arguments by default
             self.header = {
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
@@ -171,10 +171,10 @@ class Receipt(object):
                 'result': args[2],
             }
         else:
-            if kwargs.get('from_dict'): # Importing receipt from dict
+            if kwargs.get('from_dict'):            # Importing receipt from dict
                 self.header = kwargs['from_dict']['header']
                 self.body = kwargs['from_dict']['body']
-            elif kwargs.get('from_json'): # Importing receipt form JSON text
+            elif kwargs.get('from_json'):     # Importing receipt form JSON text
                 _dict = json.loads(kwargs['from_json'])
                 self.header = _dict['header']
                 self.body = _dict['body']

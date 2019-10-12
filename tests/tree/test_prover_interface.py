@@ -33,16 +33,13 @@ for raw_bytes in (True, False):
 __invalid_audit_proof_requests = [
     (
         MerkleTree(),
-        [
-            'anything...',
-            '... that is not str or bytes'
-        ]
+        'anything that is not of type... bytes'
     ),
     (
         MerkleTree(),
         {
-            'a': 'anything...',
-            'b': '... that is not str or bytes'
+            'a': 'anything that is not...',
+            'b': '... of type bytes'
         },
     ),
 ]
@@ -60,27 +57,17 @@ for tree in trees:
     __tree__wrong_arg.append(
         (
             tree,
-            'anything that has not been recorded'       # Audit-proof requested upon non encrypted record
+            b'anything that has not been recorded'
         )
     )
 
     for index in range(tree.length):
-
-        __tree__arg.extend(
-            [
+        __tree__arg.append(
                 (
                     tree,
-                    '%d-th record' % index             # String based proof
-                ),
-                (
-                    tree,
-                    bytes(
-                        '%d-th record' % index,
-                        tree.encoding
-                    )                                  # Bytes based proof
+                    tree.hash('%d-th record' % index)
                 )
-            ]
-        )
+            )
 
 @pytest.mark.parametrize("tree, arg", __tree__wrong_arg)
 def test_empty_auditProof(tree, arg):
@@ -157,9 +144,9 @@ __invalid_consistency_proof_requests = [
         0,                                                  # Could be any number
     )
 ]
-__tree__oldhash__sublength = []
+__tree__subhash__sublength = []
 __tree__wrong_hash__sublength = []
-__tree__oldhash__wrong_sublength = []
+__tree__subhash__wrong_sublength = []
 
 for (tree, subtree) in __trees_and_subtrees:
 
@@ -167,7 +154,7 @@ for (tree, subtree) in __trees_and_subtrees:
             [
                 (
                     tree,
-                    'any non bytes object',                 # Invalid type for `oldhash`
+                    'any non bytes object',                 # Invalid type for `subhash`
                     subtree.length
                 ),
                 (
@@ -188,7 +175,7 @@ for (tree, subtree) in __trees_and_subtrees:
             ]
         )
 
-        __tree__oldhash__sublength.append(
+        __tree__subhash__sublength.append(
             (
                 tree,
                 subtree.rootHash,
@@ -199,12 +186,12 @@ for (tree, subtree) in __trees_and_subtrees:
         __tree__wrong_hash__sublength.append(
             (
                 tree,
-                bytes('anything except for the right hash', tree.encoding),
+                bytes('anything except for the correct hash', tree.encoding),
                 subtree.length
             )
         )
 
-        __tree__oldhash__wrong_sublength.append(
+        __tree__subhash__wrong_sublength.append(
             (
                 tree,
                 subtree.rootHash,
@@ -214,22 +201,22 @@ for (tree, subtree) in __trees_and_subtrees:
 
 
 
-@pytest.mark.parametrize("tree, oldhash, sublength", __invalid_consistency_proof_requests)
-def test_consistency_InvalidProofRequest(tree, oldhash, sublength):
+@pytest.mark.parametrize("tree, subhash, sublength", __invalid_consistency_proof_requests)
+def test_consistency_InvalidProofRequest(tree, subhash, sublength):
     """
     Tests ``InvalidProofRequest`` upon requesting
     a consistency proof with invalid arguments
     """
     with pytest.raises(InvalidProofRequest):
-        tree.consistencyProof(oldhash, sublength)
+        tree.consistencyProof(subhash, sublength)
 
 
-@pytest.mark.parametrize("tree, oldhash, sublength", __tree__oldhash__sublength)
-def test_non_empty_consistencyProof(tree, oldhash, sublength):
+@pytest.mark.parametrize("tree, subhash, sublength", __tree__subhash__sublength)
+def test_non_empty_consistencyProof(tree, subhash, sublength):
     """
     Tests that the generated non-empty consistency proof is as expected
     """
-    consistency_proof = tree.consistencyProof(oldhash, sublength)
+    consistency_proof = tree.consistencyProof(subhash, sublength)
 
     assert consistency_proof.__dict__ == {
         'header': {
@@ -250,13 +237,13 @@ def test_non_empty_consistencyProof(tree, oldhash, sublength):
         }
     }
 
-@pytest.mark.parametrize("tree, oldhash, sublength", __tree__oldhash__sublength)
-def test_empty_consistencyProof_with_wrong_oldhash(tree, oldhash, sublength):
+@pytest.mark.parametrize("tree, subhash, sublength", __tree__subhash__sublength)
+def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
     """
     Tests that the generated empty consistency-proof, requested
     for a wrong hash, is as expected
     """
-    consistency_proof = tree.consistencyProof(oldhash, sublength)
+    consistency_proof = tree.consistencyProof(subhash, sublength)
 
     assert consistency_proof.__dict__ == {
         'header': {
@@ -277,13 +264,13 @@ def test_empty_consistencyProof_with_wrong_oldhash(tree, oldhash, sublength):
         }
     }
 
-@pytest.mark.parametrize("tree, oldhash, sublength", __tree__oldhash__sublength)
-def test_empty_consistencyProof_with_wrong_oldhash(tree, oldhash, sublength):
+@pytest.mark.parametrize("tree, subhash, sublength", __tree__subhash__sublength)
+def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
     """
     Tests that the generated empty consistency-proof, requested
     for a wrong sublength, is as expected
     """
-    consistency_proof = tree.consistencyProof(oldhash, sublength)
+    consistency_proof = tree.consistencyProof(subhash, sublength)
 
     assert consistency_proof.__dict__ == {
         'header': {

@@ -186,11 +186,11 @@ it can be passed in as the second argument to the ``validateProof()`` function)
 
 _Note:_ Raises ``TypeError`` if the argument's type is not as prescribed
 
-### `method` __.consistencyProof (*oldhash, sublength*)__
+### `method` __.consistencyProof (*subhash, sublength*)__
 
 Response of the Merkle-tree to the request of providing a consistency-proof for the given parameters. Arguments for this method amount to a presumed previous state of the Merkle-tree (root-hash and length respectively, provided from the "Client's Side").
 
-- **oldhash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
+- **subhash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
 
 - **sublength** (_int_) – presumable length (number of leaves) for the afore-mentioned state of the Merkle-tree
 
@@ -201,15 +201,15 @@ that it can be passed in as the second argument to the ``validateProof()`` funct
 
 _Note:_ Raises ``TypeError`` if any of the arguments' type is not as prescribed
 
-### `method` __.inclusionTest (*oldhash, sublength*)__
+### `method` __.inclusionTest (*subhash, sublength*)__
 
 Verifies that the parameters provided correspond to a previous state of the Merkle-tree
 
-- **oldhash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
+- **subhash** (_bytes_ or _None_) – root-hash of a presumably valid previous state of the Merkle-tree
 
 - **sublength** (_int_) – presumable length (number of leaves) for the afore-mentioned previous state of the Merkle-tree
 
-- **Returns**: `True` iff an appropriate path of negatively signed hashes, generated internally for the provided `sublength`, leads indeed to the provided `oldhash`
+- **Returns**: `True` iff an appropriate path of negatively signed hashes, generated internally for the provided `sublength`, leads indeed to the provided `subhash`
 
 - **Return type**: _bool_
 

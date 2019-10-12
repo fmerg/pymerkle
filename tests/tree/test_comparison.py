@@ -25,10 +25,10 @@ for security in (True, False):
                 encoding=encoding,
                 security=security
             )
-            oldhash, sublength = tree.rootHash, tree.length
+            subhash, sublength = tree.rootHash, tree.length
             for record in ('f', 'g', 'h', 'k'):
                 tree.encryptRecord(record)
-            trees_and_subtrees.append((tree, oldhash, sublength))
+            trees_and_subtrees.append((tree, subhash, sublength))
 
 
 # Exception cases
@@ -42,12 +42,12 @@ def test_inclusion_test_InvalidTypes(first, second):
 # Success edge case with standard Merkle-Tree
 
 def test_inclusion_test_failure_for_zero_leaves_case():
-    assert MerkleTree().inclusionTest(oldhash=b'something', sublength=1) is False
+    assert MerkleTree().inclusionTest(subhash=b'something', sublength=1) is False
 
 def test_inclusion_test_edge_success_case():
     tree = MerkleTree()
     tree.encryptFilePerLog(short_APACHE_log)
-    oldhash, sublength = tree.rootHash, tree.length
+    subhash, sublength = tree.rootHash, tree.length
     tree.encryptFilePerLog(RED_HAT_LINUX_log)
     assert tree.inclusionTest(tree.rootHash, tree.length) is True
 
@@ -62,18 +62,18 @@ def test_inclusion_test_with_sublength_exceeding_length():
     assert tree.inclusionTest(b'anything...', tree.length) is False
 
 @pytest.mark.parametrize('sublength', list(range(1, tree.length)))
-def test_inclusion_test_with_invalid_oldhash(sublength):
+def test_inclusion_test_with_invalid_subhash(sublength):
     assert tree.inclusionTest(
-        oldhash=b'anything except for the hash corresponding to the provided sublength',
+        subhash=b'anything except for the hash corresponding to the provided sublength',
         sublength=sublength
     ) is False
 
 
 # Intermediate success case for all possible tree types
 
-@pytest.mark.parametrize("tree, oldhash, sublength", trees_and_subtrees)
-def test_inclusion_test_success(tree, oldhash, sublength):
-    assert tree.inclusionTest(oldhash, sublength) is True
+@pytest.mark.parametrize("tree, subhash, sublength", trees_and_subtrees)
+def test_inclusion_test_success(tree, subhash, sublength):
+    assert tree.inclusionTest(subhash, sublength) is True
 
 
 # Comparison operators

@@ -339,10 +339,10 @@ def consistency_proofs_benchmark():
     TOTAL = 0.0
     elapsed = []
     for _ in range(TREE.length):
-        oldhash   = states[_][0]
+        subhash   = states[_][0]
         sublength = states[_][1]
         cycle = now()
-        proof = TREE.consistencyProof(oldhash=oldhash, sublength=sublength)
+        proof = TREE.consistencyProof(subhash=subhash, sublength=sublength)
         _elapsed = time_elapsed(cycle)
         if MAX is None:
             MIN = MAX = _elapsed

@@ -78,7 +78,7 @@ _Note_: One can apply this attribute to filter out unacceptable records, e.g.,
 when only files of a specific encoding type are allowed for encryption
 (see below). This is seldom the case in real-life, since origin of
 submitted files should be on the one hand kept wide, but encoding of a file
-cannot usually be deferred. If this is the case, make sure to leave the
+cannot usually be inferred. If this is the case, make sure to leave the
 raw-bytes mode untouched, so that no encoding issues arise upon file encryption.
 
 The `.security` attribute refers to the tree's ability of defending against
@@ -136,7 +136,9 @@ pymerkle.exceptions.UndecodableRecord
 >>>
 ```
 
-### Single record encryption
+### Encryption
+
+#### Single record encryption
 
 _Updating_ the Merkle-tree with a record means appending a newly-created leaf
 storing the digest of this record. A record may be of type `str` or `bytes`
@@ -188,133 +190,6 @@ Traceback (most recent call last):
 pymerkle.exceptions.UndecodableRecord
 >>>
 ```
-
-### Persistence and representation
-
-On-disk persistence is _not_ currently supported.
-
-#### Exporting to and loading from a backup file
-
-The minimum required information may be exported into a specified file, so that
-the Merkle-tree may be retrieved in its current state from that file.
-To this end use the `.export()` method as follows:
-
-```python
-tree.export('relative_path/backup.json')
-```
-
-The file `backup.json` (which is _overwritten_ if it already exists) will
-contain a JSON entity with keys ``header``, mapping to the tree's configuration,
-and ``hashes``, mapping to the digests currently stored by the tree's leaves
-in respective order. For example:
-
-```json
-{
-    "header": {
-        "encoding": "utf_8",
-        "hash_type": "sha256",
-        "raw_bytes": true,
-        "security": true
-    },
-    "hashes": [
-        "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
-        "3dbbc4898d7e909de7fc7bb1c0af36feba78abc802102556e4ea52c28ccb517f",
-        "45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20",
-        "b5db666b0b34e92c2e6c1d55ba83e98ff37d6a98dda532b125f049b43d67f802",
-        "69df93cbafa946cfb27c4c65ae85222ad5c7659237124c813ed7900a7be83e81",
-        "9d6761f55a3e87166d2ea6d00db9c88159c893674a8420cb8d32c35dbb791fd4",
-        "e718ae6ea64cb37a593654f9c0d7ec81d11498fdd94fc5473b999cd6c00d05c6",
-        "ad2c93dd91eafb31ad91deb8c1b318b126957608d13bfdba209a5f17ecf22503",
-        "cdc94791cd56543e1b28b21587c76f7cb45203fa7b1b8aa219e6ccc527a0d0d9",
-        "828a54ce62ae58e01271a3bde442e0fa6bfa758b2816dd39f873718dfa27634a",
-        "5ebc41746c5fbcfd8d32eef74f1aaaf02d6da8ff94426855393732db8b73126a",
-        "b70665abe265a88bc68ec625154746457a2ba7ecb5a7fc792e9443f618fc93fd"
-    ]
-}
-```
-
-To retrieve the Merkle-tree, one can call the `.loadFromFile()` static
-method as follows:
-
-```python
-loaded_tree = MerkleTree.loadFromFile('relative_path/backup.json')
-```
-
-Retrieval of the tree is indeed determined by the sequence of ``'hashes'``
-within the provided file, since the design of the ``.update()`` method
-ensures independence of the tree's structure from any possible gradual
-development.
-
-#### Tree display
-
-Exporting a Merkle-tree exposes only the minimum required info for
-reconstructing it, without however revealing insight about its structure
-and current state. To this end, the following tricks come in handy.
-
-Invoking a Merkle-tree from inside the Python interpreter displays info about
-its fixed parameters (_uuid, hash type, encoding type, raw-bytes mode, security
-  mode_) and current state (_size, length, height, root-hash_):
-
-```shell
->>> tree
-
-    uuid      : 010ff520-32a8-11e9-8e47-70c94e89b637                
-
-    hash-type : SHA256                
-    encoding  : UTF-8                
-    raw-bytes : yes                
-    security  : ACTIVATED                
-
-    root-hash : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7                
-
-    size      : 13                
-    length    : 7                
-    height    : 3
-
-```
-This info may be saved in a file as follows:
-
-```python
-with open('current_state', 'w') as f:
-    f.write(tree.__repr__())
-```
-
-Similarly, feeding a Merkle-tree into the builtin `print()` Python-function
-displays it in a terminal friendly way, similar to the output of the `tree`
-command of Unix based platforms:
-
-```shell
->>> print(tree)
-
- └─79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
-     ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
-     │    ├──a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02
-     │    │    ├──db3426e878068d28d269b6c87172322ce5372b65756d0789001d34835f601c03
-     │    │    └──2215e8ac4e2b871c2a48189e79738c956c081e23ac2f2415bf77da199dfd920c
-     │    └──33bf7016f45e2219bf095500a67170bd4a9c21e465de3c1e4c51d37336fd1a6f
-     │         ├──fa61e3dec3439589f4784c893bf321d0084f04c572c7af2b68e3f3360a35b486
-     │         └──906c5d2485cae722073a430f4d04fe1767507592cef226629aeadb85a2ec909d
-     └──6a1d5da3067490f736493ad237bd71d95e4156632fdfc69447cffd6b8e0cd292
-          ├──03bbc5515ee4c3e175b84813fe0e5c34586f3e72d60e8b938e3ca990abc1f524
-          │    ├──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
-          │    └──53304f5e3fd4bcd20b39abdef2fe118031cc5ae8217bcea008dea7e27869348a
-          └──3bf9c81c231cae70b678d3f3038f9f4f6d6b9d7adcf9b378f25919ae53d17686
-
->>>
-```
-
-Note that each node is represented by the digest it currently stores, with left
-parents printed above the right ones. It can be saved in a file as follows:
-
-```python
-with open('structure', 'w') as f:
-    f.write(tree.__str__())
-```
-
-_Note_: Avoid printing Merkle-tree with huge number of nodes in the above
-fashion.
-
-### File and object encryption
 
 #### Bulk file encryption
 
@@ -452,186 +327,321 @@ The provided `.json` file's content must here be a single list of objects
 otherwise a `ValueError` is raised, or a `JSONDecodeError` if the file's
 content cannot be even deserialized, and the encryption is _aborted_.
 
+### Persistence and representation
+
+On-disk persistence is _not_ currently supported.
+
+#### Exporting to and loading from a backup file
+
+The minimum required information may be exported into a specified file, so that
+the Merkle-tree may be retrieved in its current state from that file.
+To this end use the `.export()` method as follows:
+
+```python
+tree.export('relative_path/backup.json')
+```
+
+The file `backup.json` (which is _overwritten_ if it already exists) will
+contain a JSON entity with keys ``header``, mapping to the tree's configuration,
+and ``hashes``, mapping to the digests currently stored by the tree's leaves
+in respective order. For example:
+
+```json
+{
+    "header": {
+        "encoding": "utf_8",
+        "hash_type": "sha256",
+        "raw_bytes": true,
+        "security": true
+    },
+    "hashes": [
+        "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
+        "3dbbc4898d7e909de7fc7bb1c0af36feba78abc802102556e4ea52c28ccb517f",
+        "45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20",
+        "b5db666b0b34e92c2e6c1d55ba83e98ff37d6a98dda532b125f049b43d67f802",
+        "69df93cbafa946cfb27c4c65ae85222ad5c7659237124c813ed7900a7be83e81",
+        "9d6761f55a3e87166d2ea6d00db9c88159c893674a8420cb8d32c35dbb791fd4",
+        "e718ae6ea64cb37a593654f9c0d7ec81d11498fdd94fc5473b999cd6c00d05c6",
+        "ad2c93dd91eafb31ad91deb8c1b318b126957608d13bfdba209a5f17ecf22503",
+        "cdc94791cd56543e1b28b21587c76f7cb45203fa7b1b8aa219e6ccc527a0d0d9",
+        "828a54ce62ae58e01271a3bde442e0fa6bfa758b2816dd39f873718dfa27634a",
+        "5ebc41746c5fbcfd8d32eef74f1aaaf02d6da8ff94426855393732db8b73126a",
+        "b70665abe265a88bc68ec625154746457a2ba7ecb5a7fc792e9443f618fc93fd"
+    ]
+}
+```
+
+To retrieve the Merkle-tree, one can call the `.loadFromFile()` static
+method as follows:
+
+```python
+loaded_tree = MerkleTree.loadFromFile('relative_path/backup.json')
+```
+
+Retrieval of the tree is indeed determined by the sequence of ``'hashes'``
+within the provided file, since the design of the ``.update()`` method
+ensures independence of the tree's structure from any possible gradual
+development.
+
+#### Tree display
+
+Exporting a Merkle-tree exposes only the minimum required info for
+reconstructing it, without however revealing insight about its structure
+and current state. To this end, the following tricks come in handy.
+
+Invoking a Merkle-tree from inside the Python interpreter displays info about
+its fixed parameters (_uuid, hash type, encoding type, raw-bytes mode, security
+  mode_) and current state (_size, length, height, root-hash_):
+
+```shell
+>>> tree
+
+    uuid      : 010ff520-32a8-11e9-8e47-70c94e89b637                
+
+    hash-type : SHA256                
+    encoding  : UTF-8                
+    raw-bytes : yes                
+    security  : ACTIVATED                
+
+    root-hash : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7                
+
+    size      : 13                
+    length    : 7                
+    height    : 3
+
+```
+This info may be saved in a file as follows:
+
+```python
+with open('current_state', 'w') as f:
+    f.write(tree.__repr__())
+```
+
+Similarly, feeding a Merkle-tree into the builtin `print()` Python-function
+displays it in a terminal friendly way, similar to the output of the `tree`
+command of Unix based platforms:
+
+```shell
+>>> print(tree)
+
+ └─79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
+     ├──21d8aa7485e2c0ee3dc56efb70798adb1c9aa0448c85b27f3b21e10f90094764
+     │    ├──a63a34abf5b5dcbe1eb83c2951395ff8bf03ee9c6a0dc2f2a7d548f0569b4c02
+     │    │    ├──db3426e878068d28d269b6c87172322ce5372b65756d0789001d34835f601c03
+     │    │    └──2215e8ac4e2b871c2a48189e79738c956c081e23ac2f2415bf77da199dfd920c
+     │    └──33bf7016f45e2219bf095500a67170bd4a9c21e465de3c1e4c51d37336fd1a6f
+     │         ├──fa61e3dec3439589f4784c893bf321d0084f04c572c7af2b68e3f3360a35b486
+     │         └──906c5d2485cae722073a430f4d04fe1767507592cef226629aeadb85a2ec909d
+     └──6a1d5da3067490f736493ad237bd71d95e4156632fdfc69447cffd6b8e0cd292
+          ├──03bbc5515ee4c3e175b84813fe0e5c34586f3e72d60e8b938e3ca990abc1f524
+          │    ├──11e1f558223f4c71b6be1cecfd1f0de87146d2594877c27b29ec519f9040213c
+          │    └──53304f5e3fd4bcd20b39abdef2fe118031cc5ae8217bcea008dea7e27869348a
+          └──3bf9c81c231cae70b678d3f3038f9f4f6d6b9d7adcf9b378f25919ae53d17686
+
+>>>
+```
+
+Note that each node is represented by the digest it currently stores, with left
+parents printed above the right ones. It can be saved in a file as follows:
+
+```python
+with open('structure', 'w') as f:
+    f.write(tree.__str__())
+```
+
+_Note_: Avoid printing Merkle-tree with huge number of nodes in the above
+fashion.
+
 
 ### Generation and validation of Merkle-proofs
 
-<!-- A Merkle-tree (Server) can generate _Merkle-proofs_ (_audit_ and
-_consistency proofs_) in accordance with parameters provided by an "auditor" or
-a "monitor" (Client). Any such proof essentially consists of a path of hashes
-(that is, a finite sequence of hashes and a rule for combining them into a
-single hash), leading to the presumed current root-hash of the Merkle-tree.
-Requesting, providing and validating Merkle-proofs certifies _both_ the Client's
-and Server's identity by proving that each part has knowledge of some of the
-tree's previous state and/or the tree's current state, revealing minimum
-information about the encrypted records and without actual need of
-holding a database of the originals. -->
+A Merkle-tree (server) is capable of generating _Merkle-proofs_ (_audit_ and
+_consistency proofs_) in accordance with parameters provided by an auditor
+or a monitor (client). Any such proof essentially consists of a path of
+hashes (a finite sequence of checksums and a rule for combining them into a
+single hash), leading to the acclaimed current root-hash of the Merkle-tree.
+Providing and validating Merkle-proofs proves knowledge on
+behalf of _both_ the client and server of some part of the tree's history
+or current state, disclosing no info about the encrypted records and without
+actual need of holding a database of the originals. Under account of logarithmic
+complexity, this makes Merkle-proofs well suited for protocols involving
+_fast_ and _mutual_ authorization.
 
-_NOTE_: Validation of Merkle-proofs presupposes that the tree's current
-root-hash is at any moment publicly known. Given a Merkle-tree `tree`,
-one can anytime get it by invoking its property `.rootHash` as follows:
+Validation of a Merkle-proof presupposes
+
+- correct configuration of the client's hashing machinery, so that the latter
+coincides with that of the server. In the nomenclature of the present
+implementation, this amounts to knowledge of the tree's hashing algorithm,
+encoding type, raw-bytes mode and security mode, which are inscribed in the
+header of any proof. The hashing-machinery is automatically reconstructed from
+these parameters by just feeding the proof into any of the available validation
+mechanisms.
+
+- that the tree's current root-hash is at any moment publicly known (or at least
+trasnmittable between mutually trusted parties). Given a Merkle-tree `tree`,
+the root-hash is available by just invoking the property `.rootHash` as follows:
 
 ```python
-current = tree.rootHash
+root_hash = tree.rootHash
 ```
+
+Note that proof validation is agnostic of whether a Merkle-proof was the result
+of an audit or a consistency request. Audit-proofs and consistency-proofs
+share the same internal structure, so that both kinds are instances of the same
+class `Proof`.    
 
 #### Audit-proof
 
-Generating a correct audit-proof based upon a provided digest proves on behalf
-of the Merkle-tree that the data, whose checksum coincides with this digest,
+Generating a correct audit-proof based upon a provided checksum proves on behalf
+of the server that the data, whose digest coincides with this checksum,
 has indeed been encrypted into the Merkle-tree. The client (_auditor_)
 verifies correctness of the generated proof (and consequently inclusion of their
 data among the tree's encrypted records) by validating the proof against the
 Merkle-tree's current root-hash. It is essential that the auditor does _not_
 need to reveal the data itself but only their checksum, whereas the server does
-_not_ need to publish any encrypted data (i.e., digests stored by its leaves)
-but only a specific path of interior hashes and the current root-hash. For an
-audit-request and validation to be performed, the following conditions
-must be consequently satisfied:
+_not_ need to publish any encrypted data (checksums stored by leaves) but only
+a specific path of interior checksums and the current root-hash. Furthermore,
+depending on the protocol context, proof of encryption and its subsequent
+validation allow for mutual authorization or even authentication to take place.
 
+A typical session:
 
-- the tree's root-hash at the _exact_ moment of the request is known to the
-  auditor, that is, the auditor knows the root-hash _before_ any other
-  record is encrypted
-- that the auditor posseses a correctly configured hashing machinery
-for _retrieving_ the root-hash from the generated proof.
+An auditor requests from the server to encrypt a record `x`, that is, to append
+its checksum `y = h(x)` as a new leaf to the tree. At a later point, after
+further records have possibly been encrypted, the auditor requests from the
+server a proof that their record `x` has indeed been encrypted by only revealing
+`y`. Without disclosing any series of checksums submitted by other clients, the
+server responds with a proof of encryption `p`, consisting of a path of
+interior checksums and a rule for combining them into a single hash. Having
+knowledge of `h`, the auditor is able to apply this rule, that is, to retrieve
+from `p` a single hash and compare it against the the current root-hash `r` of
+the Merkle-tree. This is the _validation_ procedure, whose success verifies
 
-_Note_: Correct configuration of the auditor's hashing machinery presupposes
-knowledge of the Merkle-tree's fixed configuration. In the nomenclature of the
-present implementation, this means  knowledge of the tree's hashing algorithm,
-encoding type, raw-bytes mode and security mode (cf. the
-_Merkle-tree construction_ section). See below for details.
+1. that the data `x` has indeed been encrypted by the server and
 
-<!--
-Assuming fulfillment of the above conditions, one can produce the audit-proof
-based upon, say, the record `666-th record` as follows:
+2. that the server's current root-hash coincides with `r`.
+
+It should be stressed that by _current_ is meant the tree's root-hash
+immediately after generating the proof, that is, _before_ any other records are
+encrypted. How the auditor knows `r` (e.g., from the server themselves or a third
+trusted party) depends on protocol details. Failure of validation implies
+
+1. that `x` has not been encrypted or
+
+2. that the server's current root-hash does not coincide with `r`
+
+or both. If case 2 is excluded, the auditor should mistrust the server, whereas
+if case 1 is excluded, the auditor should mistrust the server or the provider of
+`r` or both.
+
+One can generate the audit-proof based upon a provided checksum as follows:
 
 ```python
-proof = tree.auditProof(b'666-th record')
+checksum = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
+
+proof = tree.auditProof(checksum)
 ```
 
-The generated proof is an instance of the `Proof` class, consisting of a path of
-hashes and all required parameters for the validation to be performed by the
-auditor. Invoking it from the Python interpreter, it looks like
+The object `proof` consists of a path of hashes and all required parameters for
+validation to be performed by the auditor. Invoking it from the Python
+interpreter, it looks like
 
 ```shell
 >>> proof
 
     ----------------------------------- PROOF ------------------------------------                
 
-    uuid        : c9b747cc-a421-11e9-8298-70c94e89b637                
+    uuid        : 68aa6652-ec2f-11e9-afe3-701ce71deb6a                
 
     generation  : SUCCESS                
-    timestamp   : 1562880063 (Thu Jul 11 23:21:03 2019)                
-    provider    : a561ab88-a421-11e9-8298-70c94e89b637                
+    timestamp   : 1570802397 (Fri Oct 11 16:59:57 2019)                
+    provider    : 2600b13a-ec2f-11e9-afe3-701ce71deb6a                
 
     hash-type   : SHA256                
     encoding    : UTF-8                
+    raw_bytes   : yes                
     security    : ACTIVATED                
 
     proof-index : 5                
     proof-path  :                
 
-       [0]   +1  b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191
-       [1]   -1  a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198
-       [2]   +1  a640764da2d34a1042b5794e3746b69e973226cfe36d83bb7c68361f9ddd3054
-       [3]   -1  49d6a449a4e8fe656da46f6ca737122e9f6ceb40991e7c915b0c53861972317f
-       [4]   -1  3ab2f7db9f45263b128f4e92f7bd22f9c9344dbb6e5d9537d13abacc0765a06c
-       [5]   -1  f77f15085cd7d478d7f8d842de4d4498fc381f08892ba4c0373609678b4e654f
-       [6]   -1  e7090e539e930e85bcf5a8e6cb6c332249a0785d70af7776d1384d9bca279e19
-       [7]   +1  07782a72e2be80c48c9533a9e0ed8d0ec9b47fec4e2d0388967f80ce23de72ef
-       [8]   +1  3c3afa8902dc28e816e0dbb67b0052de23c6cee37cc333f388985d1ad77de288
-       [9]   +1  50762ce9874169e792a50ad072b960c712b78822d24756faf9f389fafa009cb6
-      [10]   +1  d8eef0ed2f4b229f4d36965aebbb0461916cb354602ace11e3d6de168ca87fc8
-      [11]   +1  5af482841c912acc8e37dbcf4033285dfa60cdcb0721a9d1de53ba3a44e59684
-      [12]   +1  e90dac5c726116e33579ae3025181042e4389f19e5e961b19eacb5fb35650ee9
-      [13]   +1  32f3f94c613ddee57919fe8fd63c930c04aab60473c6101545edcc1730c9a58e
-      [14]   -1  68488541d30dc070bcd7ed4bb0715fd4e721e207c0ea7cdb6e955d33d8a510e8                
+       [0]   +1  3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
+       [1]   +1  4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
+       [2]   +1  35f75fd1cfef0437bc7a4cae7387998f909fab1dfe6ced53d449c16090d8aa52
+       [3]   -1  73c027eac67a7b43af1a13427b2ad455451e4edfcaced8c2350b5d34adaa8020
+       [4]   +1  cbd441af056bf79c65a2154bc04ac2e0e40d7a2c0e77b80c27125f47d3d7cba3
+       [5]   +1  4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e
+       [6]   -1  db7f4ee8be8025dbffee11b434f179b3b0d0f3a1d7693a441f19653a65662ad3
+       [7]   -1  f235a9eb55315c9a197d069db9c75a01d99da934c5f80f9f175307fb6ac4d8fe
+       [8]   +1  e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8
+       [9]   -1  6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2
+      [10]   -1  2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8                
 
     status      : UNVALIDATED                
 
-    -------------------------------- END OF PROOF --------------------------------                
+    -------------------------------- END OF PROOF --------------------------------             
 
 >>>
 ```
 
-whereas the corresponding JSON serialization is
+For transmission purposes, application of `proof.serialize()` returns the
+corresponding JSON:
 
 ```shell
-{
-    "header": {
-        "creation_moment": "Thu Jul 11 23:21:03 2019",
-        "encoding": "utf_8",
-        "generation": true,
-        "hash_type": "sha256",
-        "provider": "a561ab88-a421-11e9-8298-70c94e89b637",
-        "security": true,
-        "status": null,
-        "timestamp": 1562880063,
-        "uuid": "c9b747cc-a421-11e9-8298-70c94e89b637"
-    },
-    "body": {
-        "proof_index": 5,
-        "proof_path": [
-            [
-                1,
-                "b8ada819b7761aa337ad2c680fa5242ef1c74e9ee6661c46c8290b1783704191"
-            ],
-            [
-                -1,
-                "a55fee43c16d34a989f958eb2609fdde2acf9b9683fd17ffcfc57a387f82b198"
-            ],
+  {
+      "body": {
+          "proof_index": 5,
+          "proof_path": [
+              [
+                  1,
+                  "3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8"
+              ],
+              [
+                  1,
+                  "4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992"
+              ],
 
-            ...
+              ...
 
-            [
-                -1,
-                "68488541d30dc070bcd7ed4bb0715fd4e721e207c0ea7cdb6e955d33d8a510e8"
-            ]
-        ]
-    }
-}
+              [
+                  -1,
+                  "2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8"
+              ]
+          ]
+      },
+      "header": {
+          "creation_moment": "Fri Oct 11 16:59:57 2019",
+          "encoding": "utf_8",
+          "generation": true,
+          "hash_type": "sha256",
+          "provider": "2600b13a-ec2f-11e9-afe3-701ce71deb6a",
+          "raw_bytes": true,
+          "security": true,
+          "status": null,
+          "timestamp": 1570802397,
+          "uuid": "68aa6652-ec2f-11e9-afe3-701ce71deb6a"
+      }
+  }
 ```
 
-
-If the argument requested by the Client is negative or exceeds the tree's current length or
-isn't among the latter's encrypted records, then `proof_path` is empty and `proof_index` is
-negative or, equivalently, `generation` is set equal to `false`:
-
-```shell
-{
-    "header": {
-        "creation_moment": "Fri Jul 12 13:51:22 2019",
-        "encoding": "utf_8",
-        "generation": false,
-        "hash_type": "sha256",
-        "provider": "4f1d309c-a49b-11e9-9e01-70c94e89b637",
-        "security": true,
-        "status": null,
-        "timestamp": 1562932282,
-        "uuid": "5ebda2ac-a49b-11e9-9e01-70c94e89b637"
-    },
-    "body": {
-        "proof_index": -1,
-        "proof_path": []
-    },
-}
-```
-
-or, printing within the Python interpreter,
+If the provided checksum were not included among the Merkle-tree's leaves, the
+inscribed proof-index would have been `-1` and the attached path of hashes empty or,
+what is equivalent, the inscribed generation message would have been `'FAILURE'`:
 
 ```shell
 >>> p
 
     ----------------------------------- PROOF ------------------------------------                
 
-    uuid        : 5ebda2ac-a49b-11e9-9e01-70c94e89b637                
+    uuid        : b9de83fa-ec2f-11e9-afe3-701ce71deb6a                
 
     generation  : FAILURE                
-    timestamp   : 1562932282 (Fri Jul 12 13:51:22 2019)                
-    provider    : 4f1d309c-a49b-11e9-9e01-70c94e89b637                
+    timestamp   : 1570802533 (Fri Oct 11 17:02:13 2019)                
+    provider    : 2600b13a-ec2f-11e9-afe3-701ce71deb6a                
 
     hash-type   : SHA256                
     encoding    : UTF-8                
+    raw_bytes   : yes                
     security    : ACTIVATED                
 
     proof-index : -1                
@@ -643,28 +653,237 @@ or, printing within the Python interpreter,
     -------------------------------- END OF PROOF --------------------------------
 ```
 
-In this case, `p` is predestined to be found _invalid_.
+Here the corresponding JSON would be
+
+```shell
+  {
+      "body": {
+          "proof_index": -1,
+          "proof_path": []
+      },
+      "header": {
+          "creation_moment": "Fri Oct 11 17:02:13 2019",
+          "encoding": "utf_8",
+          "generation": false,
+          "hash_type": "sha256",
+          "provider": "2600b13a-ec2f-11e9-afe3-701ce71deb6a",
+          "raw_bytes": true,
+          "security": true,
+          "status": null,
+          "timestamp": 1570802533,
+          "uuid": "b9de83fa-ec2f-11e9-afe3-701ce71deb6a"
+      }
+  }
+```
+
+Note that, despite predestined to be found _invalid_, an empty audit-proof does
+_not_ mean that the server lies. It rather indicates that the auditor doesn't
+have knowledge of the record presumably encrypted into the Merkle-tree, allowing
+reversely the server to mistrust the auditor. This is an aspect of mutual
+authorization facilitated by Merkle-proofs.
+
 
 #### Consistency-proof
 
-Similarly, use the `.consistencyProof()` method to generate a consistency proof as follows:
+While audit-checks allow for server authorization utilizing a proof of
+encryption, consistency-check does the same by means of a proof that gradual
+development of the Merkle-tree is consistent. More accurately, generating a
+correct consistency-proof based upon a previous state proves on behalf of the
+Merkle-tree that its current state is indeed a possible later stage of the
+former. Just like with audit-proofs, the server does _not_ need to publish any
+data stored by leaves, but only a specific path of _interior_ checksums and the
+current root-hash.
+
+A typical session:
+
+Let a _monitor_ (, a client observing the Merkle-tree's gradual development
+with knowledge of the underlying hashing machinery `h`) have knowledge of the
+tree's state at some moment. That is, the monitor records the tree's root-hash
+and length (number of leaves) at some point of history. At a later
+moment, after further data have possibly been encrypted, the monitor requests
+from the server a proof that their current state is a valid later stage of the
+recorded one. Without disclosing any series of checksums submitted by clients,
+the server responds with a proof `q`, consisting of a path of interior
+checksums and a rule for combining them into a single hash. Having knowledge
+of `h`, the monitor is able to apply this rule, that is, to retrieve from `q`
+a single hash and compare it against the current root-hash `r` of the
+Merkle-tree. This is the _validation_ procedure, whose success verifies
+
+1. that the state recorded by the monitor is "included" in the tree's current
+state, i.e., the latter is indeed a possible later stage of the former, and
+
+2. that the server is indeed who they say, i.e., their current root-hash
+coincides with `r`.
+
+It should be stressed that by _current_ is meant the tree's root-hash
+immediately after generating the proof, that is, _before_ any other records are
+encrypted. How the monitor knows `r` (e.g., from the server themselves or a
+third trusted party) depends on protocol details. Failure of validation implies
+
+1. that some data encrypted _prior_ to the recorded previous state have been
+_tampered_ (invalidating the latter's status as "previous") or,
+
+2. that the server's current root-hash does not coincide with `r`
+
+or both. If case 2 is excluded, the monitor infers _non-integrity_ of encrypted
+data, whereas if case 1 is excluded the monitor should mistrust the server or
+the provider of `r` or both.
+
+Let "subhash" and "sublength" be the presumed current root-hash and length of
+the Merkle-tree `tree` at some point of history. At any later moment, one can
+generate the consistency-proof for the presumed previous state corresponding
+to these parameters as follows:
 
 ```python
-q = tree.consistencyProof(
-      oldhash=bytes(
-        '92e0e8f2d57526d852fb567a052219937e56e9c388abf570a679651772360e7a',
-        'utf-8'
-      ),
-      sublength=1546
-)
+subhash = b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
+
+proof = tree.consistencyProof(subhash=subhash, sublength=666)
+```
+The object `proof` consists of a path of hashes and all required parameters for
+validation to be performed by the auditor. Invoking it from the Python
+interpreter, it looks like
+
+```shell
+>>> proof
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    uuid        : 5685c106-ecfc-11e9-8dc5-701ce71deb6a                
+
+    generation  : SUCCESS                
+    timestamp   : 1570890413 (Sat Oct 12 17:26:53 2019)                
+    provider    : 22962034-ecfc-11e9-8dc5-701ce71deb6a                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    raw_bytes   : yes                
+    security    : ACTIVATED                
+
+    proof-index : 4                
+    proof-path  :                
+
+       [0]   +1  3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
+       [1]   +1  4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
+       [2]   +1  35f75fd1cfef0437bc7a4cae7387998f909fab1dfe6ced53d449c16090d8aa52
+       [3]   -1  73c027eac67a7b43af1a13427b2ad455451e4edfcaced8c2350b5d34adaa8020
+       [4]   +1  cbd441af056bf79c65a2154bc04ac2e0e40d7a2c0e77b80c27125f47d3d7cba3
+       [5]   +1  a6128ea8c57abe8ff852ef8c0cb856265328c9e25961ae089de0943106101e2a
+       [6]   -1  abf7ca1ded925274a0197ce1ce64dd300127deaf4af72b1e7c52874e84271864
+       [7]   +1  927b73b1c42f3d48220064031addaa70217b8b8d4da29317f1fe94bc6b03f4fc
+       [8]   -1  80f8143cb74bb70e44a373a581924d54083b0c0bde8dc84e576779f48278ff25
+       [9]   -1  e60be0d6acb6ed1ce70c7cb37590f8a793a991bda0cdd636f6a8f18533f95ec5
+      [10]   +1  8080d2f872f395c6c12a65e9354741664b97ac1126e4554cb7bfd567f45eea97                
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------              
+
+>>>
 ```
 
-Here the parameters `oldhash` and `sublength` (meant to be provided from Client's Side)
+For transmission purposes, application of `proof.serialize()` returns the
+corresponding JSON:
+
+```shell
+  {
+      "body": {
+          "proof_index": 4,
+          "proof_path": [
+              [
+                  1,
+                  "3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8"
+              ],
+              [
+                  1,
+                  "4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992"
+              ],
+
+              ...
+
+              [
+                  1,
+                  "8080d2f872f395c6c12a65e9354741664b97ac1126e4554cb7bfd567f45eea97"
+              ]
+          ]
+      },
+      "header": {
+          "creation_moment": "Sat Oct 12 17:26:53 2019",
+          "encoding": "utf_8",
+          "generation": true,
+          "hash_type": "sha256",
+          "provider": "22962034-ecfc-11e9-8dc5-701ce71deb6a",
+          "raw_bytes": true,
+          "security": true,
+          "status": null,
+          "timestamp": 1570890413,
+          "uuid": "5685c106-ecfc-11e9-8dc5-701ce71deb6a"
+      }
+  }
+```
+
+The empty-proof case is here of exceptional importance with respect to mutual
+authorization. To begin with, like with audit-proofs, an empty consistency-proof
+would look like
+
+```shell
+>>> proof
+
+    ----------------------------------- PROOF ------------------------------------                
+
+    uuid        : 76e01fc2-ecfd-11e9-8dc5-701ce71deb6a                
+
+    generation  : FAILURE                
+    timestamp   : 1570890897 (Sat Oct 12 17:34:57 2019)                
+    provider    : 4ff82db4-ecfd-11e9-8dc5-701ce71deb6a                
+
+    hash-type   : SHA256                
+    encoding    : UTF-8                
+    raw_bytes   : yes                
+    security    : ACTIVATED                
+
+    proof-index : -1                
+    proof-path  :                
+
+
+    status      : UNVALIDATED                
+
+    -------------------------------- END OF PROOF --------------------------------
+```
+
+the corresponding JSON being
+
+```shell
+  {
+      "body": {
+          "proof_index": -1,
+          "proof_path": []
+      },
+      "header": {
+          "creation_moment": "Sat Oct 12 17:34:57 2019",
+          "encoding": "utf_8",
+          "generation": false,
+          "hash_type": "sha256",
+          "provider": "4ff82db4-ecfd-11e9-8dc5-701ce71deb6a",
+          "raw_bytes": true,
+          "security": true,
+          "status": null,
+          "timestamp": 1570890897,
+          "uuid": "76e01fc2-ecfd-11e9-8dc5-701ce71deb6a"
+      }
+  }
+```
+
+This situation may arise in two...
+
+
+<!--
+
+Here the parameters `subhash` and `sublength` (meant to be provided from Client's Side)
 refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous
 state of `tree`. Note that, as suggested in the above example,*if the available root-hash
 is string hexadecimal, then it first has to be encoded with the tree's configured encoding
 type* (here `'utf-8'`), otherwise an `InvalidProofRequest` gets raised. More specifically,
-an `InvalidProofRequest` will be raised whenever the provided `oldhash`, resp. `sublength`
+an `InvalidProofRequest` will be raised whenever the provided `subhash`, resp. `sublength`
 is not of type _bytes_, resp. _str_.
 
 A typical session would be as follows:
@@ -672,7 +891,7 @@ A typical session would be as follows:
 ```python
 # Client requests and stores current stage of the tree from a trusted authority
 
-oldhash   = tree.rootHash # bytes
+subhash   = tree.rootHash # bytes
 sublength = tree.length
 
 # Server encrypts some new log (modifying the Merkle-tree's root-hash and length)
@@ -681,7 +900,7 @@ tree.encryptFilePerLog('sample_log')
 
 # Upon Client's request, the server provides consistency proof for the provided state
 
-q = tree.consistencyProof(oldhash, sublength)
+q = tree.consistencyProof(subhash, sublength)
 ```
 
 The object `q`, an instance of the `proof.Proof` class, consists of the corresponding
@@ -709,12 +928,12 @@ More specifically, upon generating any consistency-proof requested by a Client, 
 (Server) performs implicitly an _inclusion-test_, leading to two possibilities in accordance with
 the parameters provided by Client:
 
-- inclusion-test _success_: if the combination of the provided `oldhash` and `sublength` is
+- inclusion-test _success_: if the combination of the provided `subhash` and `sublength` is
 found by the Merkle-tree itself to correspond indeed to a previous state of it (i.e., if an
   appropriate "subtree" can indeed be internally detected), then a _non empty_ `proof_path`
   is included with the proof
 
-- inclusion-test _failure_: if the combination of `oldhash` and `sublength` is _not_ found by
+- inclusion-test _failure_: if the combination of `subhash` and `sublength` is _not_ found by
 the tree itself to correspond to a previous state of it (i.e., if no appropriate "subtree"
 could be internally detected), then an _empty_ `proof_path` is included with the proof and
 `proof_index` is set equal to `-1`; equivalently, a `'FAILURE'` message is inscribed (indicating
@@ -752,7 +971,7 @@ A typical session would then be as follows:
 ```python
 # Client requests and stores the Merkle-tree's current state
 
-oldhash   = tree.rootHash
+subhash   = tree.rootHash
 sublength = tree.length()
 
 # Server encrypts new records into the Merkle-tree
@@ -762,9 +981,9 @@ tree.encryptFilePerLog('large_APACHE_log')
 # ~ Server performs inclusion-tests for various
 # ~ presumed previous states submitted by the Client
 
-tree.inclusionTest(oldhash=oldhash, sublength=sublength)                 # True
-tree.inclusionTest(oldhash=b'anything else', sublength=sublength)        # False
-tree.inclusionTest(oldhash=oldhash, sublength=sublength + 1)             # False
+tree.inclusionTest(subhash=subhash, sublength=sublength)                 # True
+tree.inclusionTest(subhash=b'anything else', sublength=sublength)        # False
+tree.inclusionTest(subhash=subhash, sublength=sublength + 1)             # False
 ```
 
 ### Tree comparison
@@ -780,7 +999,7 @@ tree_1 <= tree_2
 is equivalent to
 
 ```python
-tree_2.inclusionTest(oldhash=tree_1.rootHash, sublength=tree_1.length())
+tree_2.inclusionTest(subhash=tree_1.rootHash, sublength=tree_1.length())
 ```
 
 To verify whether `tree_1` represents a genuinely previous state of `tree_2`, type
