@@ -69,3 +69,4 @@ html_static_path = ['_static']
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/3/': None}
 master_doc = 'index'
+pygments_style = 'sphinx'

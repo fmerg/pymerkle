@@ -1,4 +1,4 @@
-# pymerkle: A Python library for constructing Merkle Trees and validating Proofs
+# pymerkle: A Merkle-tree cryptography toolkit for generating and validating Proofs
 
 [![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
 [![codecov](https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/FoteinosMerg/pymerkle)
