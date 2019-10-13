@@ -53,6 +53,8 @@ sphinx-quickstart -q --sep -p pymerkle -a $AUTHOR -v $VERSION\
 	--ext-autodoc --ext-intersphinx \
 	--ext-coverage --ext-viewcode \
 
+#sed -i '/extensions/a "sphinx.ext.autosectionlabel",' $config_file
+
 sphinx-apidoc --force --module-first -o source ../pymerkle
 
 config_file="source/conf.py"

@@ -40,24 +40,19 @@ will only install the prerelease of the last published version
 
 ### Defense against second-preimage attack
 
-
 Defense against second-preimage attack consists in the following security measures:
 
-- Before calculating the hash of a leaf, prepend the corresponding record with
+- Before computing the hash of a leaf, prepend the corresponding record with
 the null hexadecimal `0x00`
 
-- Before calculating the hash of any interior node, prepend both of its parents'
+- Before computing the hash of any interior node, prepend both of its parents'
 hashes with the unit hexadecimal `0x01`
 
 Read the
 [`tests/test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)
 file inside the project's repository to see how to perform second-preimage attacks
 against the current implementation. In order to disable defense (say, for testing purposes),
-set ``security`` equal to ``False`` at construction:
-
-```python
-tree = MerkleTree(security=False)
-```
+set ``security`` equal to ``False`` at construction.
 
 ### Deviation from bitcoin specification
 
