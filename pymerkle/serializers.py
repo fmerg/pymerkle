@@ -22,7 +22,6 @@ class MerkleTreeSerializer(json.JSONEncoder):
             security = obj.security
             leaves = obj.leaves
             raw_bytes = obj.raw_bytes
-        # except TypeError:
         except AttributeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
         return {
@@ -50,7 +49,6 @@ class NodeSerializer(json.JSONEncoder):
             left = obj.left
             right = obj.right
             hash = obj.digest
-        # except TypeError:
         except AttributeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
         return {
@@ -74,7 +72,6 @@ class LeafSerializer(json.JSONEncoder):
         try:
             encoding = obj.encoding
             hash = obj.digest
-        # except TypeError:
         except AttributeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
         return {
@@ -106,7 +103,6 @@ class ProofSerializer(json.JSONEncoder):
             proof_index = obj.body['proof_index']
             proof_path = obj.body['proof_path']
             status = obj.header['status']
-        # except TypeError:
         except AttributeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
         return {
@@ -150,7 +146,6 @@ class ReceiptSerializer(json.JSONEncoder):
             proof_uuid = obj.body['proof_uuid']
             proof_provider = obj.body['proof_provider']
             result = obj.body['result']
-        # except TypeError:
         except AttributeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError get raised
         return {

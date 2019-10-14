@@ -52,7 +52,7 @@ tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 creates a Merkle-tree with hashing algorithm SHA512 and encoding type UTF-32.
 If the provided ``'hash_type'``, resp. ``'encoding'`` is not among the
 supported types, then an ``UnsupportedHashType``, resp. ``UnsupportedEncoding``
-error gets raised and the construction is _aborted_.
+error is raised and the construction is _aborted_.
 
 Refer to [API](API.md) for the complete list of supported hash and encoding
 types.
@@ -125,7 +125,7 @@ occurring from the provided _positional_ arguments, which may be
 
 If raw-bytes mode is disabled (see above), care must be taken so that provided
 records fall under the requested encoding type, otherwise an `UndecodableRecord`
-error gets raised and the construction is _aborted_:
+error is raised and the construction is _aborted_:
 
 ```shell
 >>> tree = MerkleTree(b'\x74', encoding='utf-16', raw_bytes=False)
@@ -207,7 +207,7 @@ under encryption with respect to the current working directory.
 
 If raw-bytes mode is _disabled_, make sure that the provided file's content
 falls under the tree's configured encoding type, otherwise an `UndecodableRecord`
-error gets raised and the encryption is _aborted_:
+error is raised and the encryption is _aborted_:
 
 ```shell
 >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
@@ -244,7 +244,7 @@ working directory.
 
 If raw-bytes mode is _disabled_, make sure that every line of the provided file
 falls under the tree's configured type, otherwise `UndecodableRecord` error
-gets raised and the encryption is _aborted_:
+is raised and the encryption is _aborted_:
 
 ```shell
 >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
@@ -886,7 +886,7 @@ Here the parameters `subhash` and `sublength` (meant to be provided from Client'
 refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous
 state of `tree`. Note that, as suggested in the above example,*if the available root-hash
 is string hexadecimal, then it first has to be encoded with the tree's configured encoding
-type* (here `'utf-8'`), otherwise an `InvalidProofRequest` gets raised. More specifically,
+type* (here `'utf-8'`), otherwise an `InvalidProofRequest` is raised. More specifically,
 an `InvalidProofRequest` will be raised whenever the provided `subhash`, resp. `sublength`
 is not of type _bytes_, resp. _str_.
 

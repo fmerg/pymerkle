@@ -4,7 +4,7 @@ usage_string="usage: ./dev/$(basename "$0") --author= [--version=] [--theme=]
 
  Options:
   -a, --author		package author
-  -v, --version         package version [optional], defaults to 
+  -v, --version         package version [optional], defaults to
   			the one within the __init__ file
   --theme               html theme [optional], defaults to rtd
   -h, --help            Display this help message and exit
@@ -12,7 +12,7 @@ usage_string="usage: ./dev/$(basename "$0") --author= [--version=] [--theme=]
 
 usage() { echo -n "$usage_string" 1>&2; }
 
-if [[ $1 = "-h" ]]; then
+if [[ $# = 1 && $1 = "-h" ]]; then
 	usage
 	exit 0
 fi
@@ -53,8 +53,6 @@ sphinx-quickstart -q --sep -p pymerkle -a $AUTHOR -v $VERSION\
 	--ext-autodoc --ext-intersphinx \
 	--ext-coverage --ext-viewcode \
 
-#sed -i '/extensions/a "sphinx.ext.autosectionlabel",' $config_file
-
 sphinx-apidoc --force --module-first -o source ../pymerkle
 
 config_file="source/conf.py"
@@ -77,6 +75,11 @@ echo "master_doc = 'index'" >> $config_file
 echo "pygments_style = 'sphinx'" >> $config_file
 
 cp ../dev/index.rst ./source/index.rst
+cp ../dev/usage.rst ./source/usage.rst
+cp ../dev/tree-object.rst ./source/tree-object.rst
+cp ../dev/encryption.rst ./source/encryption.rst
+cp ../dev/proofs.rst ./source/proofs.rst
+cp ../dev/inclusion.rst ./source/inclusion.rst
 
 sphinx-build -b html source build
 

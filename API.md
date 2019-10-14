@@ -10,12 +10,12 @@
 
 - **hash_type** (_str_) – [optional] Defaults to `'sha256'`. Specifies the hash
 algorithm used by the Merkle-tree. Should be among `'md5'`, `'sha224'`, `'sha256'`,
-`'sha384'`, `'sha512'`, otherwise an exception gets raised.
+`'sha384'`, `'sha512'`, otherwise an exception is raised.
 
 - **encoding** (_str_) – [optional] Defaults to `'utf_8'`. Specifies the encoding
 used by the Merkle-tree before hashing provided strings. Should be among the
 following (upper- or mixed-case with ``-`` instead of ``_`` allowed),
-otherwise an exception gets raised:
+otherwise an exception is raised:
 `'euc_jisx0213'`, `'euc_kr'`, `'ptcp154'`, `'hp_roman8'`, `'cp852'`,
 `'iso8859_8'`, `'cp858'`, `'big5hkscs'`, `'cp860'`, `'iso2022_kr'`, `'iso8859_3'`,
 `'mac_iceland'`, `'cp1256'`, `'kz1048'`, `'cp869'`, `'ascii'`, `'cp932'`,

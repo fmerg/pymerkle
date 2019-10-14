@@ -2,7 +2,7 @@
 Performs 2nd-preimage attack against Merkle-trees of all possible combinations of
 hash-type, encoding-type and raw-bytes mode, for *both* possible security modes
 
-Attack should succeed *only* when the tree's security mode is deactiveated, that
+Attack should succeed *only* when the tree's security mode is deactivated, that
 is, *iff* the ``.security`` attribute has been set to ``False`` at construction
 
 Attack Schema
@@ -25,9 +25,8 @@ Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
 
 import pytest
 from pymerkle import MerkleTree
-from pymerkle.hashing import HASH_TYPES#, ENCODINGS
+from pymerkle.hashing import HASH_TYPES
 from tests.config import ENCODINGS
-#from tests.run import ENCODINGS
 
 trees = []
 for raw_bytes in (True, False):

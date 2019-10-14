@@ -40,7 +40,7 @@ class Encoder(object):
         """
         Constructs and returns the core utility of the present encoding machine
         in accordance with its initial configuration (*encoding type*,
-        *raw-bytes* mode and *secuity* mode)
+        *raw-bytes* mode and *security* mode)
         """
         encoding = self.encoding
 

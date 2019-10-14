@@ -58,7 +58,7 @@ __undecodableArguments = [
 
 def test_UnsupportedHashType():
     """
-    Tests that a `UnsupportedHashType` gets raised when a Merkle-tree
+    Tests that a `UnsupportedHashType` is raised when a Merkle-tree
     for an unsupported hash-type is requested
     """
     with pytest.raises(UnsupportedHashType):
@@ -128,7 +128,7 @@ def test_rootHash_of_non_empty_MerkleTree():
 
 def test_LeafConstructionError_upon_update():
     """
-    Tests that a `LeafConstructionError` gets raised if both `record` and
+    Tests that a `LeafConstructionError` is raised if both `record` and
     `digest` are provided as arguments to the `MerkleTree.update()` method
     """
     t = MerkleTree()
