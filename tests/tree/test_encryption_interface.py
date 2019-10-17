@@ -198,31 +198,3 @@ def test_encryptObjectFromFile(tree, hash_machine):
     tree.encryptObjectFromFile(single_object_file, sort_keys=False, indent=0)
     assert tree.leaves[-1].digest == hash_machine.hash(
         json.dumps(single_object, sort_keys=False, indent=0))
-
-
-def test_WrongJSONFormat():
-    """
-    Tests WrongJSONFormat upon encrypting a non-list object
-    """
-    tree = MerkleTree()
-    with pytest.raises(WrongJSONFormat):
-        tree.encryptFilePerObject(
-            os.path.join(parent_dir, 'json_files/sample.json'))
-
-@pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
-def test_encryptFilePerObject(tree, hash_machine):
-    tree.clear()
-
-    tree.encryptFilePerObject(objects_list_file, sort_keys=False, indent=0)
-    clone= MerkleTree(
-        hash_type=tree.hash_type,
-        encoding=tree.encoding,
-        raw_bytes=tree.raw_bytes,
-        security=tree.security
-    )
-
-    for object in objects_list:
-        record = json.dumps(object, sort_keys=False, indent=0)
-        clone.update(record=record)
-
-    assert tree.rootHash == clone.rootHash

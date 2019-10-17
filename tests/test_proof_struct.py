@@ -230,7 +230,7 @@ def test___repr__(proof, generation):
                 \n\
                 \n    hash-type   : SHA-256\
                 \n    encoding    : UTF-8\
-                \n    raw_bytes   : yes\
+                \n    raw_bytes   : TRUE\
                 \n    security    : ACTIVATED\
                 \n\
                 \n    proof-index : %d\

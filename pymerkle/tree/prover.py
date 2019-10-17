@@ -292,7 +292,7 @@ class Proof(object):
                     provider=self.header['provider'],
                     hash_type=self.header['hash_type'].upper().replace('_', '-'),
                     encoding=self.header['encoding'].upper().replace('_', '-'),
-                    raw_bytes='yes' if self.header['raw_bytes'] else 'no',
+                    raw_bytes='TRUE' if self.header['raw_bytes'] else 'FALSE',
                     security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
                     proof_index=self.body['proof_index'],
                     proof_path=stringify_path(self.body['proof_path'], self.header['encoding']),

@@ -4,11 +4,11 @@ usage_string="usage: ./$(basename "$0") [file_or_dir] [pytest_options] [-e]
 
 Wraps the pytest command by adding an extra option:
 
- -e/--extended: if provided, the tests will be ran against all
- 		combinations of hashing algorith, encoding type, 
+ -e/--extended: if provided, the tests will be ran against all 
+ 		combinations of hash algorith, encoding type, 
 		raw-bytes mode and security mode (3240 in total). 
-		Otherwise the code is tested only against the 
-		encodings UTF-8, UTF-16 and UTF-32 yielding 108 
+		Otherwise the code is tested against the encodings 
+		UTF-8, UTF-16 and UTF-32 yielding 108 
 		combinations in total
  
  Positional arguments

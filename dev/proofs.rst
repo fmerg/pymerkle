@@ -1,5 +1,5 @@
-Generation and validation of Merkle-proofs
-++++++++++++++++++++++++++++++++++++++++++
+Proof generation and validation
++++++++++++++++++++++++++++++++
 
 Audit-proof
 ===========

@@ -186,39 +186,3 @@ class Encryptor(object, metaclass=ABCMeta):
             raise
         record = json.dumps(object, sort_keys=sort_keys, indent=indent)
         self.update(record=record)
-
-
-    def encryptFilePerObject(self, file_path, sort_keys=False, indent=0):
-        """
-        Encrypts per object the data of the provided ``.json``
-        file into the Merkle-tree
-
-        It successively updates the Merkle-tree (cf. doc of the ``.update()``
-        method) with each newly created leaf storing the digest of the
-        respective JSON entity in the list loaded from the provided file
-
-        :param file_path: relative path of a ``.json`` file with respect to the
-            current working directory, containing a *list* of JSON entities
-        :type file_path: str
-        :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
-            the all objects' keys get alphabetically sorted before stringification
-        :type sort_keys: bool
-        :param indent: [optional] Defaults to ``0``. Specifies uniform key
-            indentation upon stringification of objects
-        :type indent: int
-
-        :raises JSONDecodeError: if the specified file could not be deserialized
-        :raises WrongJSONFormat: if the JSON object loaded from within the
-            provided file is not a list
-        """
-        with open(abspath(file_path), 'rb') as __file:
-            objects = json.load(__file)
-
-        if type(objects) is not list:
-            raise WrongJSONFormat
-
-        update = self.update
-        dumps = json.dumps
-        for object in objects:
-            record = dumps(object, sort_keys=sort_keys, indent=indent)
-            update(record=record)

@@ -14,7 +14,7 @@ def test___repr__non_default_empty_tree():
                 \n\
                 \n    hash-type : SHA512\
                 \n    encoding  : UTF-32\
-                \n    raw-bytes : yes\
+                \n    raw-bytes : TRUE\
                 \n    security  : DEACTIVATED\
                 \n\
                 \n    root-hash : [None]\
@@ -30,7 +30,7 @@ def test___repr__default_non_empty_tree():
                 \n\
                 \n    hash-type : SHA256\
                 \n    encoding  : UTF-8\
-                \n    raw-bytes : yes\
+                \n    raw-bytes : TRUE\
                 \n    security  : ACTIVATED\
                 \n\
                 \n    root-hash : %s\

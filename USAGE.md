@@ -111,7 +111,7 @@ occurring from the provided _positional_ arguments, which may be
 
     hash-type : SHA256                
     encoding  : UTF-8                
-    raw-bytes : yes                
+    raw-bytes : TRUE                
     security  : ACTIVATED                
 
     root-hash : 6de7a5e8adf158b0182508be9731e4a97a06b2d6b7fde0ee97029c89b4918432                
@@ -298,34 +298,6 @@ unnecessary headaches upon requesting and validating audit-proofs, it is
 recommended that `sort_keys` and `indent` are left to their default values
 (`False` and `0` respectively), unless special care is to be taken.
 
-#### File-based object encryption
-
-_File based encryption of an object into_ the Merkle-tree means encrypting the
-object stored in a `.json` file by just providing the relative path of that
-file. Use the `.encryptObjectFromFile()` method as follows:
-
-```python
-tree.encryptObjectFromFile('relative_path/sample.json')
-```
-
-The file should here contain a _single_ (i.e., well-formed) JSON entity,
-otherwise a `JSONDecodeError` is raised and the encryption is _aborted_.
-
-#### Per object file encryption
-
-_Encrypting a_ `.json` _file per object into_ the Merkle-tree means
-successively updating the tree, with each newly created leaf storing
-the digest of the respective JSON entity from the provided file
-(containing a list of objects). Use the `.encryptFilePerObject()`
-method as follows:
-
-```python
-tree.encryptFilePerObject('relative_path/sample-list.json')
-```
-
-The provided `.json` file's content must here be a single list of objects
-otherwise a `ValueError` is raised, or a `JSONDecodeError` if the file's
-content cannot be even deserialized, and the encryption is _aborted_.
 
 ### Persistence and representation
 
@@ -400,7 +372,7 @@ its fixed parameters (_uuid, hash type, encoding type, raw-bytes mode, security
 
     hash-type : SHA256                
     encoding  : UTF-8                
-    raw-bytes : yes                
+    raw-bytes : TRUE                
     security  : ACTIVATED                
 
     root-hash : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7                
@@ -559,7 +531,7 @@ interpreter, it looks like
 
     hash-type   : SHA256                
     encoding    : UTF-8                
-    raw_bytes   : yes                
+    raw_bytes   : TRUE                
     security    : ACTIVATED                
 
     proof-index : 5                
@@ -641,7 +613,7 @@ what is equivalent, the inscribed generation message would have been `'FAILURE'`
 
     hash-type   : SHA256                
     encoding    : UTF-8                
-    raw_bytes   : yes                
+    raw_bytes   : TRUE                
     security    : ACTIVATED                
 
     proof-index : -1                
@@ -756,7 +728,7 @@ interpreter, it looks like
 
     hash-type   : SHA256                
     encoding    : UTF-8                
-    raw_bytes   : yes                
+    raw_bytes   : TRUE                
     security    : ACTIVATED                
 
     proof-index : 4                
@@ -838,7 +810,7 @@ would look like
 
     hash-type   : SHA256                
     encoding    : UTF-8                
-    raw_bytes   : yes                
+    raw_bytes   : TRUE                
     security    : ACTIVATED                
 
     proof-index : -1                

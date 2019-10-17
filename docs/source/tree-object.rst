@@ -5,9 +5,9 @@ Merkle-tree object
 
     tree = MerkleTree()
 
-creates an empty Merkle-tree with hashing algorithm SHA256 and encoding type
-UTF-8, capable of consuming arbitrary bytes ("raw bytes mode" enabled) and
-defending against second-preimage attacks ("security mode" enabled).
+creates an empty Merkle-tree with hash algorithm SHA256 and encoding type
+UTF-8, capable of consuming arbitrary bytes (*raw-bytes mode* enabled) and
+defending against second-preimage attacks (*security mode* enabled).
 
 Configuration
 =============
@@ -19,10 +19,9 @@ The above construction is equivalent to
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True, security=True)
 
 
-where the provided kwargs directly specify the homonymous attributes of the
-tree under construction. Configuration of a Merkle-tree amounts to
-configuring its core hash functionality (`.hash`_), which will is implicitly
-invoked upon any update of the tree.
+where the provided kwargs directly specify the homonymous attributes at
+construction. Configuration of a Merkle-tree amounts to configuring its 
+core hash functionality (`.hash`_) via these attributes.
 
 .. note:: Manually changing the attribute values of the Merkle-tree does
   *not* affect the core hash functionality. That is, `.hash`_ is once and for
@@ -30,7 +29,7 @@ invoked upon any update of the tree.
   function`_ for insight).
 
 The ``.hash_type`` attribute refers to the underlying builtin algorithm
-(imported from the `hashlib` Python-module) and ``.encoding`` is the encoding,
+(imported from the `hashlib`_ Python-module) and ``.encoding`` is the encoding,
 to which any new record of type *str* will be submitted before being hashed.
 For example,
 
@@ -38,18 +37,28 @@ For example,
 
     tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 
-creates a SHA512/UTF-32 Merkle-tree with hashing algorithm SHA512. If the
-provided ``'hash_type'``, resp. ``'encoding'`` is not among the supported
-types, then an ``UnsupportedHashType``, resp. ``UnsupportedEncoding`` error
-is raised and the construction is *aborted*.
+creates a SHA512/UTF-32 Merkle-tree in raw-bytes and security mode. 
+If the provided ``'hash_type'`` is not among the `supported hash types`_,
+then an ``UnsupportedHashType`` is raised. Similary, if the provided 
+``encoding`` is not among the `supported encodings`_, then an
+``UnsupportedEncoding`` error is raised. In either case the
+construction is *aborted*.
 
-Refer to [API](API.md) for the complete list of supported hash and encoding
-types.
+.. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.hash 
+
+.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func 
+
+.. _hashlib: https://docs.python.org/3.6/library/hashlib.html
+
+.. _supported hash types: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.machine.HASH_TYPES
+.. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.ENCODINGS
 
 The ``.raw_bytes`` attribute refers to the tree's ability of consuming
 arbitrary binary data, which is the default choice (``True``). If ``False``,
 the tree will only accept byte sequences falling under its configured encoding
-type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes mode denies the encryption of any byte sequence containing ``0x74``, raising an ``UndecodableRecord`` error instead:
+type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes mode denies the 
+encryption of any byte sequence containing ``0x74``, 
+raising an ``UndecodableRecord`` error instead:
 
 .. code-block:: python
 
@@ -61,39 +70,86 @@ type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes mode denies the encryp
     pymerkle.exceptions.UndecodableRecord
     >>>
 
-.. warning:: One can disable raw-bytes mode for the purpose of filtering out
-    unacceptable records, e.g., when only files of a specific encoding type
-    are allowed for encryption. This is seldom the case in real-life, since origin of submitted files is usually to be kept wide, but encoding of a
-    file can almost never be inferred. If so, make sure to leave the raw-bytes
-    mode untouched, so that no encoding issues arise upon file encryption.
+.. warning:: One can as above disable raw-bytes mode for the purpose of 
+        filtering out unacceptable records, e.g., when only files of a 
+        specific encoding are allowed for encryption. This is seldom 
+        the case in real-life, since origin of submitted files is usually 
+        to be kept wide. If so, make sure to leave the raw-bytes mode 
+        untouched, so that no encoding issues arise upon file encryption.
 
 The ``.security`` attribute refers to the tree's ability of defending against
-second-preimage attacks, which is by default enabled (``True``). In this case, the `.hash`_ function will prepend ``0x00``, resp. ``0x01`` before hashing
-single, resp. double arguments (the actual prefices being the images of these
-hexadecimals under the tree's configured encoding type). One can disable
-this feature at construction for, say, testing purposes, by
+second-preimage attacks, which is by default enabled (``True``). In this case, 
+the `.hash`_ function will prepend ``0x00`` or ``0x01`` before single or 
+double arguments respectively. The actual prefices will be the images of these
+hexadecimals under the tree's configured encoding type (see the `making
+of the encoding function`_ for insight). One can disable this feature at 
+construction for, say, testing purposes, by
 
 .. code-block:: python
 
     tree = MerkleTree(..., security=False)
 
-Refer to the `tests/test_security.py` inside the project's repo in order to see
+Refer to `test_security.py`_ inside the project's repo in order to see
 how to perform second-preimage attacks against the present implementation.
 
-.. _.hash: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/machine.html#HashMachine.hash
-.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func
+.. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
 
-Attributes
-==========
+Attributes and properties
+=========================
+
+The identity, current state and fixed configuration of a Merkle-tree are 
+encapsulated in the following collection of attributes and properties.
+
+        * ``.uuid`` (*str*) - Unique identifier (time-based uuid)
+
+        * ``.hash_type`` (*str*) - Name of the underlying hash algorithm
+
+        * ``.encoding`` (*str*) - Encoding applied before hashing
+
+        * ``.raw_bytes`` (*bool*) - Indicates ability of consuming arbitraty bytes
+
+        * ``.security`` (*bool*) - Indicates defense against second-preimage attack
+
+        * ``.length`` (*int*) - Current number of leaves (exterior nodes)
+
+        * ``.size`` (*int*) - Current number of nodes (both exterior and interior)
+
+        * ``.height`` (*int*) - Current height (length of the tree's leftmost branch)
+
+        * ``.rootHash`` (*bytes*) - The hash currently stored by the Merkle-tree's root 
+
+Invoking a Merkle-tree from the Python iterpeter displays the above properties 
+in the form of an etiquette (cf. the *Representation* section below). Here is
+how the empty standard (SHA256/UTF-8) Merkle-tree looks like:
+
+.. code-block:: python
+
+        >>> tree = MerkleTree()
+        >>> tree
+
+            uuid      : ba378618-ef80-11e9-9254-701ce71deb6a                
+                
+            hash-type : SHA256                
+            encoding  : UTF-8                
+            raw-bytes : TRUE                
+            security  : ACTIVATED                
+                
+            root-hash : [None]                
+                
+            length    : 0                
+            size      : 0                
+            height    : 0
+        
+        >>> 
 
 Initial records
 ===============
 
 One can provide an arbitrary number of records at construction, in which
 case the created Merkle-tree will be *non* empty. The following statement
-creates a standard (SHA256/UTF-8) Merkle-tree with 3 leaves from the outset,
-occurring from the provided *positional* arguments, which may be
-*str* or *bytes* indifferently:
+creates a standard (SHA256/UTF-8) tree with 3 leaves from the outset,
+occurring from the provided *positional* arguments (*str* or *bytes* 
+indifferently):
 
 .. code-block:: python
 
@@ -104,7 +160,7 @@ occurring from the provided *positional* arguments, which may be
 
         hash-type : SHA256
         encoding  : UTF-8
-        raw-bytes : yes
+        raw-bytes : TRUE
         security  : ACTIVATED
 
         root-hash : 6de7a5e8adf158b0182508be9731e4a97a06b2d6b7fde0ee97029c89b4918432
@@ -116,7 +172,7 @@ occurring from the provided *positional* arguments, which may be
     >>>
 
 If raw-bytes mode is disabled, care must be taken so that provided records
-fall under the requested encoding type, otherwise an ``UndecodableRecord``
+fall under the requested encoding, otherwise an ``UndecodableRecord``
 error is raised and the construction is *aborted*:
 
 .. code-block:: python
@@ -131,13 +187,10 @@ error is raised and the construction is *aborted*:
 Representation
 ==============
 
-Exporting the Merkle-tree preserves only the minimum required for its recovery,
-without revealing insight about its structure and current state. To this end,
-the following tricks come in handy.
-
 Invoking a Merkle-tree from inside the Python interpreter displays info about
-its fixed parameters (*uuid*, *hash type*, *encoding type*, *raw-bytes mode*,
-*security mode*) and current state (*size*, *length*, *height*, *root-hash*):
+its idenity (*uuid*), fixed configuration (*hash type*, *encoding type*, 
+*raw-bytes mode*, *security mode*) and current state (*size*, *length*, 
+*height*, *root-hash*):
 
 .. code-block:: python
 
@@ -147,7 +200,7 @@ its fixed parameters (*uuid*, *hash type*, *encoding type*, *raw-bytes mode*,
 
         hash-type : SHA256
         encoding  : UTF-8
-        raw-bytes : yes
+        raw-bytes : TRUE
         security  : ACTIVATED
 
         root-hash : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
@@ -158,7 +211,7 @@ its fixed parameters (*uuid*, *hash type*, *encoding type*, *raw-bytes mode*,
 
     >>>
 
-This info may be saved in a file as follows:
+This info can saved in a file as follows:
 
 .. code-block::
 
@@ -166,9 +219,9 @@ This info may be saved in a file as follows:
         f.write(tree.__repr__())
 
 
-Similarly, feeding the tree into the builtin `print()` Python-function
-displays it in a terminal friendly way, similar to the output of the `tree`
-command of Unix based platforms:
+Similarly, feeding the tree into the `print()` Python-function displays it in a 
+terminal friendly way, similar to the output of the ``tree`` command of Unix 
+based platforms:
 
 .. code-block:: python
 
@@ -205,8 +258,8 @@ Persistence
 
 .. note:: On-disk persistence is *not* currently supported.
 
-The minimum required information may be exported into a specified file,
-so that the tree's current state can be later recovered from that file:
+The required minimum may be exported into a specified file, so that the tree's
+current state be retrievable from that file:
 
 .. code-block:: python
 
@@ -214,7 +267,7 @@ so that the tree's current state can be later recovered from that file:
 
 The file *backup.json* (which will be *overwritten* if it already exists) will
 contain a JSON entity with keys ``header``, mapping to the tree's configuration,
-and ``hashes``, mapping to the digests currently stored by the tree's leaves
+and ``hashes``, mapping to the checksums currently stored by the tree's leaves
 in respective order. For example:
 
 .. code-block:: json
@@ -243,14 +296,14 @@ in respective order. For example:
   }
 
 
-One can recover the tree by means of an ad hoc static method as follows:
+One can recover the tree by means of a static method as follows:
 
 .. code-block:: python
 
     loaded_tree = MerkleTree.loadFromFile('relative_path/backup.json')
 
-Retrieval of the tree is indeed determined by the sequence of hashes within
-the provided file, since the design of the `.update`_ method ensures
-independence of the tree's structure from any possible gradual development.
+Retrieval of the tree is uniquely determined by the sequence of hashes within
+the provided file, since the `.update`_ method ensures independence of the 
+tree's structure from any possible gradual development.
 
 .. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree/tree.html#MerkleTree.update

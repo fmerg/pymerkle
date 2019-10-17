@@ -535,8 +535,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                     possibly extending with ``.json``, see above),
                     then it gets overwritten
 
-        The final file will store a JSON entity with keys ``header``
-        (mapping to the Merkle-tree's fixed configuration) and ``hashes``, (mapping to the digests currently stored by the tree's leaves in respective order)
+        The final file will store a JSON entity with keys ``header`` (mapping to
+        the Merkle-tree's fixed configuration) and ``hashes``, (mapping to the
+        digests currently stored by the tree's leaves in respective order)
 
         .. note:: If the provided path does not end with ``.json``, then this
             extension will be automatically appended to it before exporting
@@ -545,8 +546,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 current working directory
         :type file_path:  str
         """
-        with open('%s.json' % file_path if not file_path.endswith('.json') \
-        else file_path, 'w') as __file:
+        with open('%s.json' % file_path \
+            if not file_path.endswith('.json') else file_path, 'w') as __file:
             json.dump(self.serialize(), __file, indent=4)
 
     @staticmethod
@@ -720,7 +721,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                     uuid=self.uuid,
                     hash_type=self.hash_type.upper().replace('_', '-'),
                     encoding=self.encoding.upper().replace('_', '-'),
-                    raw_bytes='yes' if self.raw_bytes else 'no',
+                    raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
                     security='ACTIVATED' if self.security else 'DEACTIVATED',
                     root_hash=self.rootHash.decode(self.encoding) if self else NONE,
                     length=self.length,

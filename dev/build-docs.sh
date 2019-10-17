@@ -40,7 +40,7 @@ do
 			shift
 			;;
 		--default)
-			DEFAULT=YES
+			DEFAULT=TRUE
 			shift
 			;;
 		*)
@@ -75,6 +75,7 @@ echo "master_doc = 'index'" >> $config_file
 echo "pygments_style = 'sphinx'" >> $config_file
 
 cp ../dev/index.rst ./source/index.rst
+# cp ../dev/index.rst ../README.rst
 cp ../dev/usage.rst ./source/usage.rst
 cp ../dev/tree-object.rst ./source/tree-object.rst
 cp ../dev/encryption.rst ./source/encryption.rst
