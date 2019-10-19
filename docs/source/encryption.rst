@@ -180,7 +180,7 @@ unnecessary headaches upon requesting and validating audit-proofs, it is
 recommended that *sort_keys* and *indent* are left to their default values
 (``False`` and ``0`` respectively), unless special care is to be taken.
 
-.. _.encryptObject: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.encryption.Encryptor.encryptObject
+.. _.encryptObject: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html
 
 File based object encryption
 ============================
@@ -196,4 +196,4 @@ that file. Use the `.encryptObjectFromFile`_ method as follows:
 The file should here contain a *single* (i.e., well-formed) JSON entity,
 otherwise a `JSONDecodeError` is raised and the encryption is _aborted_.
 
-.. _.encryptObjectFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.encryption.Encryptor.encryptObjectFromFile
+.. _.encryptObjectFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html

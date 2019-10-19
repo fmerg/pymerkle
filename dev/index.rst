@@ -1,10 +1,11 @@
 pymerkle
 ########
 
-*Merkle-tree* cryprography in Python
+Merkle-tree cryptography toolkit for generating and validating Proofs
+***********************************************************************
 
-Cryptographic library for generating and validating Merkle-proofs
-*******************************************************************
+.. |Travis CI Status| image:: https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master
+   :target: https://travis-ci.com/FoteinosMerg/pymerkle
 
 *Pymerkle* provides a class for balanced Merkle-trees (with possibly odd
 number of leaves), capable of generating Merkle-proofs (audit-proofs
@@ -43,8 +44,8 @@ Usage
 Security
 ********
 
-Enhanced security of the present implementation relies on the 
-tree's internal topology along with the standard refinement
+Enhanced security of the present implementation relies on the
+tree's topology as well as the standard refinement
 of the encoding procedure.
 
 Defense against second-preimage attack
@@ -59,10 +60,10 @@ security measures:
 * Before computing the hash of any interior node, prepend both of its
   parents' checksums with the unit hexadecimal ``0x01``
 
-Refer to the `making of the encoding function`_ to see how 
-this is uniformly achieved for *all* types of encoding. 
-Refer to `test_security.py`_ inside the project's repo 
-to see how to perform second-preimage attacks against 
+Refer to the `making of the encoding function`_ to see how
+this is uniformly achieved for *all* types of encoding.
+Refer to `test_security.py`_ inside the project's repo
+to see how to perform second-preimage attacks against
 the present implementation.
 
 .. note:: One can disable this feature, say, for tasting purposes,
@@ -93,7 +94,7 @@ their growing strategy*. This standardization is also crucial for:
 * fast generation of consistency-proofs (based on additive decompositions
   in decreasing powers of 2)
 * fast recalculation of the root-hash after appending a new leaf, since
-  only the hashes at the tree's left-most branch need be recalculated
+  only the hashes at the tree's right-most branch need be recalculated
 * memory efficiency, since the height as well as total number of nodes
   with respect to the tree's length is constrained to the minimum.
 
@@ -102,7 +103,7 @@ tree*, depicted in Section 5.4 of `this`_ paper. Follow the
 algorithm of the `.update`_ method for further insight.
 
 .. note:: Due to the binary balanced structure of the present
-   implementation, the consistency-proof algorithm 
+   implementation, the consistency-proof algorithm
    significantly deviates from that exposed in `RFC 6912`_.
 
 Validation

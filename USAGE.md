@@ -1,5 +1,7 @@
 # pymerkle: Usage
 
+## [Work in progress]
+
 **Complete documentation found at
 [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
@@ -472,7 +474,7 @@ data among the tree's encrypted records) by validating the proof against the
 Merkle-tree's current root-hash. It is essential that the auditor does _not_
 need to reveal the data itself but only their checksum, whereas the server does
 _not_ need to publish any encrypted data (checksums stored by leaves) but only
-a specific path of interior checksums and the current root-hash. Furthermore,
+a specific path of interior hashes and the current root-hash. Furthermore,
 depending on the protocol context, proof of encryption and its subsequent
 validation allow for mutual authorization or even authentication to take place.
 
@@ -484,7 +486,7 @@ further records have possibly been encrypted, the auditor requests from the
 server a proof that their record `x` has indeed been encrypted by only revealing
 `y`. Without disclosing any series of checksums submitted by other clients, the
 server responds with a proof of encryption `p`, consisting of a path of
-interior checksums and a rule for combining them into a single hash. Having
+interior hashes and a rule for combining them into a single hash. Having
 knowledge of `h`, the auditor is able to apply this rule, that is, to retrieve
 from `p` a single hash and compare it against the the current root-hash `r` of
 the Merkle-tree. This is the _validation_ procedure, whose success verifies
@@ -556,8 +558,7 @@ interpreter, it looks like
 >>>
 ```
 
-For transmission purposes, application of `proof.serialize()` returns the
-corresponding JSON:
+For transmission purposes, apply the `.serialize` method to get the following JSON:
 
 ```shell
   {
@@ -657,14 +658,12 @@ authorization facilitated by Merkle-proofs.
 
 #### Consistency-proof
 
-While audit-checks allow for server authorization utilizing a proof of
-encryption, consistency-check does the same by means of a proof that gradual
-development of the Merkle-tree is consistent. More accurately, generating a
-correct consistency-proof based upon a previous state proves on behalf of the
-Merkle-tree that its current state is indeed a possible later stage of the
-former. Just like with audit-proofs, the server does _not_ need to publish any
-data stored by leaves, but only a specific path of _interior_ checksums and the
-current root-hash.
+A consistency-proof proves that gradual development of the Merkle-tree is
+consistent. More accurately, generating the correct consistency-proof based
+upon a previous state proves on behalf of the Merkle-tree that its current
+state is indeed a possible later stage of the former. Just like with
+audit-proofs, the server does _not_ need to advertise any data stored by its
+leaves, but only a path of _interior_ hashes and the current root-hash.
 
 A typical session:
 
@@ -702,8 +701,8 @@ data, whereas if case 1 is excluded the monitor should mistrust the server or
 the provider of `r` or both.
 
 Let "subhash" and "sublength" be the presumed current root-hash and length of
-the Merkle-tree `tree` at some point of history. At any later moment, one can
-generate the consistency-proof for the presumed previous state corresponding
+the Merkle-tree `tree` at some point of history. At a later moment, one can
+use the generate the consistency-proof for the presumed previous state corresponding
 to these parameters as follows:
 
 ```python
