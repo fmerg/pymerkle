@@ -10,7 +10,7 @@ may be of type *str* or *bytes* indifferently. One may invoke
 the `.update`_ method to successively update with new records
 as follows (usage of kward *record*  essential):
 
-.. code-block:: bash
+.. code-block:: python
 
     tree = MerkleTree()
 
@@ -32,7 +32,7 @@ possibly different gradual development).
 An equivalent functionality is achieved by the recommended
 `.encryptRecord`_ method as follows:
 
-.. code-block:: bash
+.. code-block:: python
 
     >>> tree = MerkleTree()
     >>> tree.encryptRecord('some string')

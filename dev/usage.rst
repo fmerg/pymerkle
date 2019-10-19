@@ -4,5 +4,6 @@
 
    tree-object
    encryption
-   proofs
+   generation
+   validation
    inclusion

@@ -437,9 +437,16 @@ single hash), leading to the acclaimed current root-hash of the Merkle-tree.
 Providing and validating Merkle-proofs proves knowledge on
 behalf of _both_ the client and server of some part of the tree's history
 or current state, disclosing no info about the encrypted records and without
-actual need of holding a database of the originals. Under account of logarithmic
-complexity, this makes Merkle-proofs well suited for protocols involving
-_fast_ and _mutual_ authorization.
+actual need of holding a database of the originals. This makes Merkle-proofs
+well suited for protocols involving verification of existence and integrity
+of encrypted data in mutual and quasi zero-knowledge fashion.
+
+_Note_: Merkle-proofs are *not* exactly zero-knowledge proofs, since they
+require one or two leaf-checksum to be included in the path of hashes. In the
+case of audit-proof, one of these checksums is already known to the
+client, whereas in the case of consistency-proofs only one leaf-checksum
+needs be releaved. In other words, Merkle-proofs are zero-knowledge except
+for the publication of *one* checksum.
 
 Validation of a Merkle-proof presupposes
 
@@ -451,9 +458,9 @@ header of any proof. The hashing-machinery is automatically reconstructed from
 these parameters by just feeding the proof into any of the available validation
 mechanisms.
 
-- that the tree's current root-hash is at any moment publicly known (or at least
-trasnmittable between mutually trusted parties). Given a Merkle-tree `tree`,
-the root-hash is available by just invoking the property `.rootHash` as follows:
+The role of *commitment* in Merkle-proofs is played by the tree's root-hash.
+In the present implementation, given a Merkle-tree ``tree``, the current
+root-hash is always available via the ``.rootHash`` property:
 
 ```python
 root_hash = tree.rootHash
@@ -471,12 +478,10 @@ of the server that the data, whose digest coincides with this checksum,
 has indeed been encrypted into the Merkle-tree. The client (_auditor_)
 verifies correctness of the generated proof (and consequently inclusion of their
 data among the tree's encrypted records) by validating the proof against the
-Merkle-tree's current root-hash. It is essential that the auditor does _not_
-need to reveal the data itself but only their checksum, whereas the server does
-_not_ need to publish any encrypted data (checksums stored by leaves) but only
-a specific path of interior hashes and the current root-hash. Furthermore,
-depending on the protocol context, proof of encryption and its subsequent
-validation allow for mutual authorization or even authentication to take place.
+Merkle-tree's current root-hash. It is essential that the auditor does *not*
+need to reveal the data itself but only their checksum, whereas the server
+publishes the *least* possible encrypted data (at most two checksums stored by
+leaves) and the current root-hash.
 
 A typical session:
 
@@ -484,9 +489,9 @@ An auditor requests from the server to encrypt a record `x`, that is, to append
 its checksum `y = h(x)` as a new leaf to the tree. At a later point, after
 further records have possibly been encrypted, the auditor requests from the
 server a proof that their record `x` has indeed been encrypted by only revealing
-`y`. Without disclosing any series of checksums submitted by other clients, the
-server responds with a proof of encryption `p`, consisting of a path of
-interior hashes and a rule for combining them into a single hash. Having
+`y`. Disclosing at most one checksum submitted by some other client by other
+clients, the server responds with a proof of encryption `p`, consisting of a
+path of interior hashes and a rule for combining them into a single hash. Having
 knowledge of `h`, the auditor is able to apply this rule, that is, to retrieve
 from `p` a single hash and compare it against the the current root-hash `r` of
 the Merkle-tree. This is the _validation_ procedure, whose success verifies
@@ -662,8 +667,8 @@ A consistency-proof proves that gradual development of the Merkle-tree is
 consistent. More accurately, generating the correct consistency-proof based
 upon a previous state proves on behalf of the Merkle-tree that its current
 state is indeed a possible later stage of the former. Just like with
-audit-proofs, the server does _not_ need to advertise any data stored by its
-leaves, but only a path of _interior_ hashes and the current root-hash.
+audit-proofs, the server discloses the *least* possible of the leaf-checksums
+(actually only one) along with the current root-hash.
 
 A typical session:
 
@@ -680,11 +685,9 @@ of `h`, the monitor is able to apply this rule, that is, to retrieve from `q`
 a single hash and compare it against the current root-hash `r` of the
 Merkle-tree. This is the _validation_ procedure, whose success verifies
 
-1. that the state recorded by the monitor is "included" in the tree's current
-state, i.e., the latter is indeed a possible later stage of the former, and
+1. that the tree's current state is indeed a possible evolvement of the recorded state
 
-2. that the server is indeed who they say, i.e., their current root-hash
-coincides with `r`.
+2. that the server is indeed who they say (their current root-hash coincides with ``r``).
 
 It should be stressed that by _current_ is meant the tree's root-hash
 immediately after generating the proof, that is, _before_ any other records are

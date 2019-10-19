@@ -1,4 +1,4 @@
-# pymerkle: Merkle-tree cryptography toolkit for generating and validating Proofs
+# pymerkle: Merkle-tree cryptographic library for generation and validation of Proofs
 
 [![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
 [![codecov](https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/FoteinosMerg/pymerkle)
@@ -10,7 +10,7 @@
 
 _Pymerkle_ provides a class for binary balanced Merkle-trees (with possibly
 odd number of leaves), capable of generating Merkle-proofs (audit-proofs
-and consistency-proofs) and performing inclusion-tests. It supports all
+and consistency-proofs) and performing inclusion-tests. It supports almost all
 combinations of hash functions (including SHA3 variations) and encoding
 types, with defense against second-preimage attack by default enabled.
 It further provides flexible validation mechanisms, allowing for direct

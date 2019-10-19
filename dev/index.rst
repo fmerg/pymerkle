@@ -1,16 +1,18 @@
+########
 pymerkle
 ########
 
-Merkle-tree cryptography toolkit for generating and validating Proofs
-***********************************************************************
+*************************************************************************
+Merkle-tree cryptographic library for generation and validation of Proofs
+*************************************************************************
 
 .. |Travis CI Status| image:: https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master
    :target: https://travis-ci.com/FoteinosMerg/pymerkle
 
 *Pymerkle* provides a class for balanced Merkle-trees (with possibly odd
 number of leaves), capable of generating Merkle-proofs (audit-proofs
-and consistency-proofs) and performing inclusion tests. It supports all
-combinations of hash functions (including SHA3 variations) and encoding
+and consistency-proofs) and performing inclusion tests. It supports almost
+all combinations of hash functions (including SHA3 variations) and encoding
 types, with defense against second-preimage attack by default enabled.
 It further provides flexible validation mechanisms, allowing for direct
 verification of existence and integrity of encrypted data.
@@ -36,7 +38,7 @@ Usage
 *****
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
     :titlesonly:
 
    usage

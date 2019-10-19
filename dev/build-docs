@@ -2,7 +2,7 @@
 
 usage_string="usage: ./dev/$(basename "$0") --author= [--version=] [--theme=]
 
-Build sphinx documentation 
+Build sphinx documentation
 
  Options:
   -a, --author		package author
@@ -24,7 +24,7 @@ fi
 
 rm -rf docs && mkdir -p docs && cd docs
 
-initfile="../pymerkle/__init__.py" 
+initfile="../pymerkle/__init__.py"
 version=$(grep '__version__ = ' $initfile | awk {'print $3'})
 #version=$(grep '__version__ = ' ./pymerkle/__init__.py | sed 's/^.*= //')
 
@@ -86,7 +86,8 @@ cp ../dev/index.rst ./source/index.rst
 cp ../dev/usage.rst ./source/usage.rst
 cp ../dev/tree-object.rst ./source/tree-object.rst
 cp ../dev/encryption.rst ./source/encryption.rst
-cp ../dev/proofs.rst ./source/proofs.rst
+cp ../dev/generation.rst ./source/generation.rst
+cp ../dev/validation.rst ./source/validation.rst
 cp ../dev/inclusion.rst ./source/inclusion.rst
 
 sphinx-build -b html source build
