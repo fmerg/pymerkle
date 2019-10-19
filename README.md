@@ -98,16 +98,13 @@ in [RFC 6912](https://tools.ietf.org/html/rfc6962#section-2.1.2)
 
 ## Validation
 
-Validation of a Merkle-proof presupposes
-
-- correct configuration of the client’s hashing machinery, so
-that the latter coincides with that of the server. In the
-nomenclature of the present implementation, this amounts to knowledge of the tree’s hash algorithm, encoding type,
-raw-bytes mode and security mode, which are inscribed in the
-header of any proof. The client’s machinery is automatically configured from these parameters by just feeding the proof
-into any of the available validation mechanisms.
-- that the tree’s current root-hash is at any moment publicly
-known (or at least advertised between mutually trusted parties).
+Validation of a Merkle-proof presupposes correct configuration of the client’s
+hashing machinery, so that the latter coincides with that of the server. In the
+nomenclature of the present implementation, this amounts to knowledge of the
+tree’s hash algorithm, encoding type, raw-bytes mode and security mode, which
+are inscribed in the header of any proof. The client’s machinery is
+automatically configured from these parameters by just feeding the proof into
+any of the available validation mechanisms.
 
 Proof validation is agnostic of whether a Merkle-proof has been
 the result of an audit or a consistency proof request.
@@ -130,9 +127,9 @@ From inside the project's root directory type
 ./runtests
 ```
 
-to run all tests againt a limited set of encoding types. To run tests
-against all possible combinations of hash algorithm, encoding type,
-raw-bytes mode and and security mode (3240 combinations
+to run all tests against the limited set of encoding types UTF-8, UTF-16 and
+UTF-32 (108 combinations in total). To run tests against all possible hash
+types, encoding types, raw-bytes modes and security modes (3240 combinations
 in total), run
 
 ```shell
@@ -145,3 +142,15 @@ in total), run
 python benchmarks
 ```
 from inside the project's root directory.
+
+### Documentation
+
+Run
+
+```shell
+./dev/build-docs [--author]
+```
+
+from inside the projects root dir to build Sphinx docs for the project.
+Version will coincide by default with that given in `.pymerkle/__init__.py`.
+Provide `-h/--help` for more options.

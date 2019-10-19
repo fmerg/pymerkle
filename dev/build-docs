@@ -2,6 +2,8 @@
 
 usage_string="usage: ./dev/$(basename "$0") --author= [--version=] [--theme=]
 
+Build sphinx documentation 
+
  Options:
   -a, --author		package author
   -v, --version         package version [optional], defaults to
@@ -12,17 +14,22 @@ usage_string="usage: ./dev/$(basename "$0") --author= [--version=] [--theme=]
 
 usage() { echo -n "$usage_string" 1>&2; }
 
-if [[ $# = 1 && $1 = "-h" ]]; then
+declare -A help_opts=(
+	[-h]=1 [--help]=1)
+
+if [[ $# = 1 && "${help_opts[$1]}" ]]; then
 	usage
 	exit 0
 fi
 
-rm -rf docs
-mkdir -p docs
-cd docs
+rm -rf docs && mkdir -p docs && cd docs
 
-AUTHOR="FoteinosMerg"
-VERSION="5.0.0b3"
+initfile="../pymerkle/__init__.py" 
+version=$(grep '__version__ = ' $initfile | awk {'print $3'})
+#version=$(grep '__version__ = ' ./pymerkle/__init__.py | sed 's/^.*= //')
+
+AUTHOR="Unknown"
+VERSION=${version:1:(-1)} # trim quotes
 THEME="sphinx_rtd_theme"
 
 for arg in $@

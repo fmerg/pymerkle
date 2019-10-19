@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'pymerkle'
-copyright = '2019, FoteinosMerg'
-author = 'FoteinosMerg'
+copyright = '2019, Unknown'
+author = 'Unknown'
 
 # The short X.Y version
 version = '5.0.0b3'

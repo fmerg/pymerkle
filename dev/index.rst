@@ -109,18 +109,13 @@ algorithm of the `.update`_ method for further insight.
 Validation
 **********
 
-Validation of a Merkle-proof presupposes
-
-* correct configuration of the client's hashing machinery, so that the
-  latter coincides with that of the server. In the nomenclature of the
-  present implementation, this amounts to knowledge of the tree's hash
-  algorithm, encoding type, raw-bytes mode and security mode, which are
-  inscribed in the header of any proof. The client's machinery is
-  automatically configured from these parameters by just feeding the
-  proof into any of the available validation mechanisms.
-
-* that the tree's current root-hash is at any moment publicly known (or
-  at least advertised between mutually trusted parties).
+Validation of a Merkle-proof presupposes correct configuration of the client's
+hashing machinery, so that the latter coincides with that of the server. In the
+nomenclature of the present implementation, this amounts to knowledge of the
+tree's hash algorithm, encoding type, raw-bytes mode and security mode, which
+are inscribed in the header of any proof. The client's machinery is
+automatically configured from these parameters by just feeding the proof into
+any of the available validation mechanisms.
 
 .. note:: Proof validation is agnostic of whether a Merkle-proof has
    been the result of an audit or a consistency proof request.
