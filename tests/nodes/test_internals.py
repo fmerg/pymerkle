@@ -3,16 +3,15 @@ Tests construction and properies of nodes
 """
 
 import pytest
-from pymerkle.tree.nodes import Node, Leaf
+
+from pymerkle.core.nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
-from pymerkle.serializers import NodeSerializer
 from pymerkle.exceptions import (NoChildException, NoDescendantException,
-    NoParentException, LeafConstructionError, UndecodableArgumentError,
-    UndecodableRecord)
+    NoParentException, LeafConstructionError, UndecodableRecord,)
 
 
 _ = HashMachine()
-encoding = _.encoding
+encoding  = _.encoding
 hash_func = _.hash
 
 pair_of_leaves = (
@@ -315,7 +314,7 @@ def test_leaf_UndecodableRecord(byte, machine):
         Leaf(record=byte, encoding=machine.encoding, hash_func=machine.hash)
 
 @pytest.mark.parametrize('byte, machine', __bytes__machines)
-def test_node_UndecodableArgumentError(byte, machine):
+def test_node_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         left = Leaf(record=byte, encoding=machine.encoding,
             hash_func=machine.hash)

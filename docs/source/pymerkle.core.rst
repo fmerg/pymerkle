@@ -1,7 +1,7 @@
-pymerkle.tree package
+pymerkle.core package
 =====================
 
-.. automodule:: pymerkle.tree
+.. automodule:: pymerkle.core
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,34 +9,34 @@ pymerkle.tree package
 Submodules
 ----------
 
-pymerkle.tree.encryption module
+pymerkle.core.encryption module
 -------------------------------
 
-.. automodule:: pymerkle.tree.encryption
+.. automodule:: pymerkle.core.encryption
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymerkle.tree.nodes module
+pymerkle.core.nodes module
 --------------------------
 
-.. automodule:: pymerkle.tree.nodes
+.. automodule:: pymerkle.core.nodes
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymerkle.tree.prover module
+pymerkle.core.prover module
 ---------------------------
 
-.. automodule:: pymerkle.tree.prover
+.. automodule:: pymerkle.core.prover
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymerkle.tree.tree module
+pymerkle.core.tree module
 -------------------------
 
-.. automodule:: pymerkle.tree.tree
+.. automodule:: pymerkle.core.tree
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,11 +1,10 @@
 import pytest
 import os
 import json
-from pymerkle.tree import MerkleTree
+
+from pymerkle.core import MerkleTree
 from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-    UnsupportedEncoding, LeafConstructionError, NoSubtreeException,
-    NoPathException, InvalidProofRequest, NoPrincipalSubroots, InvalidTypes,
-    UndecodableRecord, WrongJSONFormat)
+    UnsupportedEncoding, LeafConstructionError, UndecodableRecord, )
 
 
 __undecodableArguments = [

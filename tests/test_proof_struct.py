@@ -3,10 +3,11 @@ Tests formal construction, serialization and representation of Merkle-proofs
 """
 
 import pytest
-from pymerkle import MerkleTree, validateProof
-from pymerkle.tree.prover import Proof
-from pymerkle.utils import stringify_path
 import json
+
+from pymerkle import MerkleTree, validateProof
+from pymerkle.core.prover import Proof
+from pymerkle.utils import stringify_path
 
 
 provider = '1a0894bc-9755-11e9-a651-70c94e89b637'

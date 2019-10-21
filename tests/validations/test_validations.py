@@ -5,10 +5,11 @@ Tests validation of Merkle-proofs
 import pytest
 import os
 import json
+
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
-from pymerkle import MerkleTree, validateProof, validationReceipt
-from pymerkle.validations.validations import Validator, Receipt
+from pymerkle import MerkleTree, Validator, validateProof, validationReceipt
+from pymerkle.validations.mechanisms import Receipt
 from tests.config import ENCODINGS
 
 # Setup

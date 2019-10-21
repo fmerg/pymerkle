@@ -1,5 +1,6 @@
 import pytest
 import json
+
 from pymerkle.serializers import (MerkleTreeSerializer, LeafSerializer,
     NodeSerializer, ProofSerializer, ReceiptSerializer)
 

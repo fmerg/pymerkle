@@ -17,9 +17,9 @@ def log_2(num):
         height (i.e., the depth of its *left-most* branch)
 
     :param num: the number whose logarithm is to be computed
-    :type num:  int
-    :returns:   the computed logarithm
-    :rtype:     int
+    :type num: int
+    :returns: the computed logarithm
+    :rtype: int
 
     .. note:: By convention, it returns ``0`` for the zero argument
 
@@ -47,9 +47,9 @@ def decompose(num):
     (5, 3, 2, 0)
 
     :param num: the number to be decomposed
-    :type num:  int
-    :returns:   powers of *2* in decreasing order
-    :rtype:     tuple of integers
+    :type num: int
+    :returns: powers of *2* in decreasing order
+    :rtype: tuple of integers
 
     .. note:: Returns the nonsensical empty tuple for
         arguments equal to or smaller than zero
@@ -77,8 +77,7 @@ def stringify_path(signed_hashes, encoding):
     :rtype: str
     """
     order_of_magnitude = lambda num: int(log10(num)) if num != 0 else 0
-    get_with_sign      = lambda num: '%s%d' % ('+' if num >= 0 else '', num)
-
+    get_with_sign = lambda num: f'{"+" if num >= 0 else ""}{num}'
     stringified_pairs = []
     append = stringified_pairs.append
     for i in range(len(signed_hashes)):
@@ -88,4 +87,4 @@ def stringify_path(signed_hashes, encoding):
                     hash=pair[1].decode(encoding=encoding) \
                     if not isinstance(pair[1], str) else pair[1])
                 % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 2 * ' '))
-    return ''.join(_ for _ in stringified_pairs)
+    return ''.join(stringified_pairs)

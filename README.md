@@ -19,7 +19,7 @@ verification of existence and integrity of encrypted data.
 It is a zero dependency library (with the inessential exception of `tqdm`
 for displaying progress bars).
 
-## Installation
+## Installation [Work in progress]
 
 **WARNING: The present version has not yet been published to the Python index.
 For the moment, the following command will only install the pre-release of the
@@ -148,9 +148,8 @@ from inside the project's root directory.
 Run
 
 ```shell
-./dev/build-docs [--author]
+./dev/build-docs
 ```
 
 from inside the projects root dir to build Sphinx docs for the project.
-Version will coincide by default with that given in `.pymerkle/__init__.py`.
 Provide `-h/--help` for more options.

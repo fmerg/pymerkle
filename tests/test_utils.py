@@ -3,8 +3,8 @@ Tests standalone utilities used across the *pymerkle* library
 """
 import pytest
 import itertools
-from pymerkle import utils
 
+from pymerkle import utils
 
 # setup
 

@@ -3,12 +3,9 @@ Tests represenation and serialization of nodes
 """
 
 import pytest
-from pymerkle.tree.nodes import Node, Leaf
+
+from pymerkle.core.nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
-from pymerkle.serializers import NodeSerializer
-from pymerkle.exceptions import (NoChildException, NoDescendantException,
-    NoParentException, LeafConstructionError, UndecodableArgumentError,
-    UndecodableRecord)
 
 
 _ = HashMachine()

@@ -9,10 +9,10 @@ pymerkle.validations package
 Submodules
 ----------
 
-pymerkle.validations.validations module
----------------------------------------
+pymerkle.validations.mechanisms module
+--------------------------------------
 
-.. automodule:: pymerkle.validations.validations
+.. automodule:: pymerkle.validations.mechanisms
    :members:
    :undoc-members:
    :show-inheritance:

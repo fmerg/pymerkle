@@ -226,24 +226,24 @@ class __Node(object, metaclass=ABCMeta):
         if level == 0:
             output = '\n'
             if not self.is_left_parent() and not self.is_right_parent(): # root case
-                output += ' %s' % L_BRACKET_SHORT
+                output += f' {L_BRACKET_SHORT}'
         else:
             output = (indent + 1) * ' '
         for _ in range(1, level):
             if _ not in ignore:
-                output += ' %s' % VERTICAL_BAR            # Include vertical bar
+                output += f' {VERTICAL_BAR}'            # Include vertical bar
             else:
                 output += 2 * ' '
             output += indent * ' '
         new_ignore = ignore[:]
         del ignore
         if self.is_left_parent():
-            output += ' %s' % T_BRACKET
+            output += f' {T_BRACKET}'
         if self.is_right_parent():
-            output += ' %s' % L_BRACKET_LONG
+            output += f' {L_BRACKET_LONG}'
             new_ignore.append(level)
         encoding = encoding if encoding else self.encoding
-        output += '%s\n' % self.digest.decode(encoding)
+        output += f'{self.digest.decode(encoding)}\n'
         if not isinstance(self, Leaf):                          # Recursive step
             output += self.left.__str__(encoding, level + 1,
                                 indent, new_ignore)

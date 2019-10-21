@@ -1,3 +1,7 @@
+"""
+Provides to hashing-machines their underlying encoding-machine
+"""
+
 from pymerkle.exceptions import UnsupportedEncoding, UndecodableArgumentError
 
 ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
@@ -27,7 +31,7 @@ class Encoder(object):
         """
         enc = encoding.lower().replace('-', '_')
         if enc not in ENCODINGS:
-            err = 'Encoding type %s is not supported' % encoding
+            err = f'Encoding type {encoding} is not supported'
             raise UnsupportedEncoding(err)
         self.encoding  = enc
         self.raw_bytes = raw_bytes

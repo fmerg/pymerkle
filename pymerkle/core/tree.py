@@ -1,20 +1,19 @@
 """
-Provides the class for Merkle-trees
+Provides the class for Merkle-trees containing the low-level algorithms
+of Merkle-proof generation.
 """
 
-from ..hashing import HashMachine
 from .encryption import Encryptor
 from .prover import Prover
 from .nodes import Node, Leaf
+from pymerkle.hashing import HashMachine
 from pymerkle.serializers import MerkleTreeSerializer
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoChildException,
-    EmptyTreeException, NoPathException, InvalidProofRequest,
-    NoSubtreeException, NoPrincipalSubroots, InvalidTypes,
-    InvalidComparison, WrongJSONFormat, UndecodableRecord)
-import json
-from json import JSONDecodeError
+    EmptyTreeException, NoPathException, InvalidTypes, NoSubtreeException,
+    NoPrincipalSubroots, InvalidComparison, WrongJSONFormat, UndecodableRecord)
 import uuid
+import json
 from tqdm import tqdm
 
 NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
@@ -75,11 +74,14 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def clear(self):
         """
-        Deletes all nodes of the Merkle-tree, setting its root equal to ``None``
+        Deletes all nodes of the Merkle-tree
         """
         self.leaves = []
         self.nodes = set()
-        self.__root  = None
+        try:
+            del self.__root
+        except AttributeError:
+            pass
 
     def __bool__(self):
         """
@@ -508,7 +510,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 indeed to the provided ``subhash``; otherwise ``False``
         :rtype: bool
 
-        :raises InvalidProofRequest: if the type of any of the provided
+        :raises InvalidTypes: if the type of any of the provided
             arguments is not as prescribed
         """
         if type(subhash) is not bytes or type(sublength) is not int or sublength < 0:
@@ -519,8 +521,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             left_roots = self.principal_subroots(sublength)
             left_path = tuple((-1, _[1].digest) for _ in left_roots)
             return subhash == self.multi_hash(left_path, len(left_path) - 1)
-        else: # sublength exceeds current length (includes the empty-tree case)
-            return False
+        # sublength exceeds current length (includes the empty-tree case)
+        return False
 
 
     # Persistence
@@ -546,8 +548,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 current working directory
         :type file_path:  str
         """
-        with open('%s.json' % file_path \
-            if not file_path.endswith('.json') else file_path, 'w') as __file:
+        with open(f'{file_path}.json' if not file_path.endswith('.json') \
+            else file_path, 'w') as __file:
             json.dump(self.serialize(), __file, indent=4)
 
     @staticmethod
@@ -562,8 +564,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :returns: the Merkle-tree laoded from the provided file
         :rtype: MerkleTree
 
-        :raises json.JSONDecodeError: if the specified file could not be
-                deserialized
         :raises WrongJSONFormat: if the JSON object loaded from within the
                         provided file is not a Merkle-tree export
         """
@@ -575,8 +575,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 hash_type=header['hash_type'],
                 encoding=header['encoding'],
                 raw_bytes=header['raw_bytes'],
-                security=header['security']
-            )
+                security=header['security'])
         except KeyError:
             raise WrongJSONFormat
 
@@ -604,8 +603,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise InvalidComparison
         if not other:
             return not self
-        else:
-            return True if not self else self.rootHash == other.rootHash
+        return True if not self else self.rootHash == other.rootHash
 
     def __ne__(self, other):
         """
@@ -621,8 +619,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise InvalidComparison
         if not other:
             return self.__bool__()
-        else:
-            return True if not self else self.rootHash != other.rootHash
+        return True if not self else self.rootHash != other.rootHash
 
     def __ge__(self, other):
         """
@@ -638,9 +635,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise InvalidComparison
         if not other:
             return True
-        else:
-            return False if not self else \
-                self.inclusionTest(other.rootHash, other.length)
+        return False if not self else \
+            self.inclusionTest(other.rootHash, other.length)
 
     def __le__(self, other):
         """
@@ -655,8 +651,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         if not isinstance(other, self.__class__):
             raise InvalidComparison
-        else:
-            return other.__ge__(self)
+        return other.__ge__(self)
 
     def __gt__(self, other):
         """
@@ -674,8 +669,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             return self.__bool__()
         elif not self or self.rootHash == other.rootHash:
             return False
-        else:
-            return self.inclusionTest(other.rootHash, other.length)
+        return self.inclusionTest(other.rootHash, other.length)
 
     def __lt__(self, other):
         """
@@ -689,8 +683,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
-        else:
-            return other.__gt__(self)
+        return other.__gt__(self)
 
 
     # Representation

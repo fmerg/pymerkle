@@ -1,8 +1,9 @@
 import pytest
 import json
 import os
+
 from pymerkle import MerkleTree, validationReceipt
-from pymerkle.validations.validations import Receipt
+from pymerkle.validations.mechanisms import Receipt
 
 # validationReceipt
 

@@ -4,11 +4,11 @@ Tests for inclusion-test and the comparison operators based upon it
 
 import pytest
 import os
+
 from pymerkle import MerkleTree, hashing, validateProof
 from pymerkle.exceptions import InvalidTypes, InvalidComparison
 from tests.config import ENCODINGS
 
-HASH_TYPES = hashing.HASH_TYPES
 
 # Files to encrypt
 parent_dir = os.path.dirname(os.path.dirname(__file__))
@@ -17,7 +17,7 @@ RED_HAT_LINUX_log = os.path.join(parent_dir, 'log_files/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
 for security in (True, False):
-    for hash_type in HASH_TYPES:
+    for hash_type in hashing.HASH_TYPES:
         for encoding in ENCODINGS:
             tree = MerkleTree(
                 'a', 'b', 'c', 'd', 'e',

@@ -73,7 +73,7 @@ class LeafSerializer(json.JSONEncoder):
             encoding = obj.encoding
             hash = obj.digest
         except AttributeError:
-            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
+            return json.JSONEncoder.default(self, obj)        # let TypeError be raised
         return {
             'hash': hash.decode(encoding=obj.encoding)
         }
@@ -104,7 +104,7 @@ class ProofSerializer(json.JSONEncoder):
             proof_path = obj.body['proof_path']
             status = obj.header['status']
         except AttributeError:
-            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
+            return json.JSONEncoder.default(self, obj)        # let TypeError be raised
         return {
             'header': {
                 'uuid': uuid,
@@ -147,7 +147,7 @@ class ReceiptSerializer(json.JSONEncoder):
             proof_provider = obj.body['proof_provider']
             result = obj.body['result']
         except AttributeError:
-            return json.JSONEncoder.default(self, obj)        # let TypeError get raised
+            return json.JSONEncoder.default(self, obj)        # let TypeError be raised
         return {
             'header': {
                 'uuid': uuid,

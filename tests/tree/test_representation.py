@@ -1,11 +1,8 @@
 import pytest
 import os
 import json
-from pymerkle.tree import MerkleTree
-from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-    UnsupportedEncoding, LeafConstructionError, NoSubtreeException,
-    NoPathException, InvalidProofRequest, NoPrincipalSubroots, InvalidTypes,
-    UndecodableRecord, WrongJSONFormat)
+
+from pymerkle.core import MerkleTree
 
 
 def test___repr__non_default_empty_tree():

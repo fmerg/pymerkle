@@ -38,9 +38,9 @@ For example,
     tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 
 creates a SHA512/UTF-32 Merkle-tree in raw-bytes and security mode.
-If the provided ``'hash_type'`` is not among the `supported hash types`_,
+If the provided *hash_type* is not among the `supported hash types`_,
 then an ``UnsupportedHashType`` is raised. Similary, if the provided
-``encoding`` is not among the `supported encodings`_, then an
+*encoding* is not among the `supported encodings`_, then an
 ``UnsupportedEncoding`` error is raised. In either case the
 construction is *aborted*.
 
@@ -70,8 +70,8 @@ raising an ``UndecodableRecord`` error instead:
     pymerkle.exceptions.UndecodableRecord
     >>>
 
-.. warning:: One can as above disable raw-bytes mode for the purpose of
-        filtering out unacceptable records, e.g., when only files of a
+.. warning:: One can as above mode for the purpose of filtering out 
+        unacceptable records, e.g., when only files of a
         specific encoding are allowed for encryption. This is seldom
         the case in real-life, since origin of submitted files is usually
         to be kept wide. If so, make sure to leave the raw-bytes mode
@@ -149,7 +149,7 @@ One can provide an arbitrary number of records at construction, in which
 case the created Merkle-tree will be *non* empty. The following statement
 creates a standard (SHA256/UTF-8) tree with 3 leaves from the outset,
 occurring from the provided *positional* arguments (*str* or *bytes*
-indifferently):
+indifferently) in respective order:
 
 .. code-block:: python
 

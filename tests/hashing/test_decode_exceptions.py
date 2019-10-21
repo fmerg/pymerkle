@@ -3,6 +3,7 @@ Tests UndecodableArgumentError in no raw-bytes mode
 """
 
 import pytest
+\
 from pymerkle.hashing import HashMachine
 from pymerkle.exceptions import UndecodableArgumentError
 

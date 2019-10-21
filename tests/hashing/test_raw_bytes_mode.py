@@ -3,12 +3,12 @@ Tests hashing in raw-bytes mode
 """
 
 import pytest
+import hashlib
+
 from pymerkle.hashing import HashMachine, HASH_TYPES
 from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
-
 from tests.config import ENCODINGS
 
-import hashlib
 
 MESSAGE = 'oculusnonviditnecaurisaudivit'
 

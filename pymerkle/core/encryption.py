@@ -9,7 +9,7 @@ import mmap
 import contextlib
 from tqdm import tqdm
 
-from pymerkle.exceptions import WrongJSONFormat, UndecodableRecord
+from pymerkle.exceptions import UndecodableRecord
 
 abspath = os.path.abspath
 

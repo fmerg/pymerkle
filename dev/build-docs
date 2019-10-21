@@ -6,8 +6,8 @@ Build sphinx documentation
 
  Options:
   -a, --author		package author
-  -v, --version         package version [optional], defaults to
-  			the one within the __init__ file
+  -v, --version         package version [optional], defaults to the
+  			one inside the project's __init__ file
   --theme               html theme [optional], defaults to rtd
   -h, --help            Display this help message and exit
 "

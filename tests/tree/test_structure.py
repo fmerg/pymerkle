@@ -5,6 +5,7 @@ of being binary-balanced)
 """
 
 import pytest
+
 from pymerkle import MerkleTree
 from pymerkle.hashing import HashMachine
 from pymerkle.exceptions import EmptyTreeException

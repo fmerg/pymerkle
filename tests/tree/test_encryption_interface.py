@@ -1,9 +1,10 @@
 import pytest
 import os
 import json
+
 from pymerkle import MerkleTree
 from pymerkle.hashing import HashMachine, HASH_TYPES
-from pymerkle.exceptions import WrongJSONFormat, UndecodableRecord
+from pymerkle.exceptions import UndecodableRecord
 
 from tests.config import ENCODINGS
 

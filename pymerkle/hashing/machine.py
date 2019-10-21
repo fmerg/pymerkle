@@ -1,9 +1,10 @@
 """
 Provides hash utilities used accross the *pymerkle* library
 """
+
 import hashlib
-from pymerkle.exceptions import UnsupportedHashType, EmptyPathException
 from .encoding import Encoder
+from pymerkle.exceptions import UnsupportedHashType, EmptyPathException
 
 
 HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
@@ -46,7 +47,7 @@ class HashMachine(Encoder):
                     raw_bytes=True, security=True):
         ht = hash_type.lower().replace('-', '_')
         if ht not in HASH_TYPES:
-            err = 'Hash type %s is not supported' % hash_type
+            err = f'Hash type {hash_type} is not supported'
             raise UnsupportedHashType(err)
         self.hash_type = ht
         self.algorithm = getattr(hashlib, self.hash_type)

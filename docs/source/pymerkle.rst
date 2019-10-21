@@ -11,8 +11,8 @@ Subpackages
 
 .. toctree::
 
+   pymerkle.core
    pymerkle.hashing
-   pymerkle.tree
    pymerkle.validations
 
 Submodules

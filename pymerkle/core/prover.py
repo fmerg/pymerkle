@@ -8,7 +8,7 @@ from time import time, ctime
 import json
 from pymerkle.exceptions import (NoPathException, InvalidProofRequest)
 from pymerkle.serializers import ProofSerializer
-from pymerkle.utils import stringify_path, NONE
+from pymerkle.utils import stringify_path
 
 
 class Prover(object, metaclass=ABCMeta):

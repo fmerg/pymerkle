@@ -1,11 +1,9 @@
 import pytest
 import os
 import json
-from pymerkle.tree import MerkleTree
-from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-    UnsupportedEncoding, LeafConstructionError, NoSubtreeException,
-    NoPathException, InvalidProofRequest, NoPrincipalSubroots, InvalidTypes,
-    UndecodableRecord, WrongJSONFormat)
+
+from pymerkle.core import MerkleTree
+from pymerkle.exceptions import WrongJSONFormat
 
 # Clean exports dir before running tests
 for _file in os.listdir(os.path.join(os.path.dirname(__file__), 'exports')):

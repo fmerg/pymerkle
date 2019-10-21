@@ -6,11 +6,10 @@ implementation of audit- and consistency-proof generation
 import pytest
 import os
 import json
-from pymerkle.tree import MerkleTree
-from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-    UnsupportedEncoding, LeafConstructionError, NoSubtreeException,
-    NoPathException, InvalidProofRequest, NoPrincipalSubroots, InvalidTypes,
-    UndecodableRecord, WrongJSONFormat)
+
+from pymerkle.core import MerkleTree
+from pymerkle.exceptions import (NoSubtreeException, NoPathException,
+    NoPrincipalSubroots,)
 
 
 # Audit-proof implementation
