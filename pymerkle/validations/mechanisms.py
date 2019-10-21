@@ -28,8 +28,8 @@ class Validator(HashMachine):
             encoding = config['encoding']
             raw_bytes = config['raw_bytes']
             security = config['security']
-        except KeyError as e:
-            err = 'Hash-machine could not be configured: missing parameter: %s' % e
+        except KeyError as err:
+            err = f'Hash-machine could not be configured: missing parameter: {err}'
             raise KeyError(err)
 
         super().__init__(hash_type=hash_type, encoding=encoding,

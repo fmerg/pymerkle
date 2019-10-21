@@ -1,7 +1,7 @@
 Inclusion test
 +++++++++++++++
 
-Upon generating a consistency-proof, the server can implicitly infer wheteher
+Upon generating a consistency-proof, the server can implicitly infer whether 
 the parameters provided by the client correspond to an actual previous state of
 the Merkle-tree. One can imagine scenarios where the server would like to
 verify this "inclusion" independently of any consistency-proof request (i.e.,
@@ -11,7 +11,7 @@ explicitly as the `.inclusionTest`_ method.
 
 .. _.inclusionTest: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.inclusionTest
 
-Let the length of the Merkle-tree be 666 at some moment an subhash denote the
+Let the length of the Merkle-tree be equal to ``666`` at some moment and *subhash* denote the
 corresponding root-hash.
 
 .. code-block:: python
@@ -48,7 +48,7 @@ Tree comparison
 Instead of performing inclusion-test on a provided pair of subhash and
 sublength, one can directly verify whether a Merkle-tree represents a valid
 previous state of another by using the `<=` operator. In particular, given
-trees ``tree_1`` and ``tree_2``, the statement
+Merkle-trees ``tree_1`` and ``tree_2``, the statement
 
 .. code-block:: python
 
@@ -71,7 +71,7 @@ which will be ``True`` only if ``tree_1 <= tree_2`` *and* the trees' current
 root-hashes do not coincide.
 
 Since, in the present implementation, trees with the same number of leaves
-always identical structure, equality of Merkle-trees amounts to identification
+have identical structure, equality of Merkle-trees amounts to identification
 of their current root-hashes, i.e.,
 
 .. code-block:: python

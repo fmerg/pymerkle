@@ -126,13 +126,13 @@ any of the available validation mechanisms.
 
 .. _GitHub: https://github.com/FoteinosMerg/pymerkle
 .. _tqdm: https://tqdm.github.io/
-.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hash/encoding.html#Encoder.mk_encode_func
+.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.Encoder.mk_encode_func
 .. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
 .. _CVE-2012-2459: https://nvd.nist.gov/vuln/detail/CVE-2012-2459
 .. _this: https://keccak.team/files/Sakura.pdf
-.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree/tree.html#MerkleTree.update
+.. _.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.update
 .. _RFC 6912: https://tools.ietf.org/html/rfc6962#section-2.1.2
 .. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Proof
 
@@ -142,6 +142,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-.. _GitHub: https://github.com/FoteinosMerg/pymerkle
-.. _tqdm: https://tqdm.github.io/

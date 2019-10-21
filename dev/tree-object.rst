@@ -70,8 +70,8 @@ raising an ``UndecodableRecord`` error instead:
     pymerkle.exceptions.UndecodableRecord
     >>>
 
-.. warning:: One can as above mode for the purpose of filtering out 
-        unacceptable records, e.g., when only files of a
+.. warning:: One can disable the raw-bytes mode for the purpose of 
+        filtering out unacceptable records, e.g., when only files of a
         specific encoding are allowed for encryption. This is seldom
         the case in real-life, since origin of submitted files is usually
         to be kept wide. If so, make sure to leave the raw-bytes mode
@@ -296,11 +296,13 @@ in respective order. For example:
   }
 
 
-One can recover the tree by means of a static method as follows:
+One can recover the tree by means of the `.loadFromFile`_ static method:
 
 .. code-block:: python
 
     loaded_tree = MerkleTree.loadFromFile('relative_path/backup.json')
+
+.. _.loadFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.loadFromFile
 
 Retrieval of the tree is uniquely determined by the sequence of hashes within
 the provided file, since the `.update`_ method ensures independence of the

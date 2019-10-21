@@ -88,7 +88,7 @@ This standardization is further crucial for:
 The topology turns out to be identical with that of a binary _Sekura tree_,
 depicted in Section 5.4 of [this](https://keccak.team/files/Sakura.pdf) paper.
 Follow the straightforward algorithm of the
-[`.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree/tree.html#MerkleTree.update)
+[`.update`](https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update)
 method for further insight.
 
 _Note_: Due to the binary balanced structure of the present implementation,

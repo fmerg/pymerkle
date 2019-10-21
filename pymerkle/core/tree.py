@@ -86,7 +86,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     def __bool__(self):
         """
         :returns: ``False`` iff the Merkle-tree has no nodes
-        :rtype:   bool
+        :rtype: bool
         """
         return bool(self.nodes)
 
@@ -96,7 +96,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         The current root of the Merkle-tree
 
         :returns: the tree's current root-node
-        :rtype:   nodes._Node
+        :rtype: nodes._Node
 
         :raises EmptyTreeException: if the Merkle-tree is currently empty
         """

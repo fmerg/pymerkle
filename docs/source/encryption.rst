@@ -27,7 +27,7 @@ possibly different gradual development).
 .. warning:: The `.update`_ method is thought of as low-level
         and its usage is *discouraged*.
 
-.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree/tree.html#MerkleTree.update
+.. _.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.update 
 
 An equivalent functionality is achieved by the recommended
 `.encryptRecord`_ method as follows:
