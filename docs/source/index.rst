@@ -32,14 +32,31 @@ Installation
 
 .. code-block:: bash
 
-   pip install pymerkle --pre
+        pip install pymerkle --pre
+
+Package exports
+***************
+
+Typing
+
+.. code-block:: python
+
+        from pymerkle import *
+
+makes available the `MerkleTree`_ and `Validator`_ classes 
+along with the `validateProof`_ and `validateResponse`_
+standalone functions.
+
+.. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
+.. _Validator: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Validator
+.. _validateProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateProof
+.. _validateResponse: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateResponse
 
 Usage
 *****
 
 .. toctree::
-    :maxdepth: 2
-    :titlesonly:
+    :maxdepth: 1
 
    usage
 
@@ -64,12 +81,11 @@ security measures:
 
 Refer to the `making of the encoding function`_ to see how
 this is uniformly achieved for *all* types of encoding.
-Refer to `test_security.py`_ inside the project's repo
-to see how to perform second-preimage attacks against
-the present implementation.
+Refer to `test_security.py`_ to see how to perform 
+second-preimage attacks against the present implementation.
 
 .. note:: One can disable this feature, say, for tasting purposes,
-   during construction of the Merkle-tree.
+   by setting ``security`` equal to ``False`` at construction.
 
 Defense against denial-of-service attacks
 =========================================
@@ -97,7 +113,7 @@ their growing strategy*. This standardization is also crucial for:
   in decreasing powers of 2)
 * fast recalculation of the root-hash after appending a new leaf, since
   only the hashes at the tree's right-most branch need be recalculated
-* memory efficiency, since the height as well as total number of nodes
+* storage efficiency, since the height as well as total number of nodes
   with respect to the tree's length is constrained to the minimum.
 
 The topology turns out to be identical with that of a binary *Sekura
@@ -132,7 +148,7 @@ any of the available validation mechanisms.
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
 .. _CVE-2012-2459: https://nvd.nist.gov/vuln/detail/CVE-2012-2459
 .. _this: https://keccak.team/files/Sakura.pdf
-.. _.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.update
+.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update
 .. _RFC 6912: https://tools.ietf.org/html/rfc6962#section-2.1.2
 .. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Proof
 

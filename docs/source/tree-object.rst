@@ -54,7 +54,7 @@ construction is *aborted*.
 .. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.ENCODINGS
 
 The ``.raw_bytes`` attribute refers to the tree's ability of consuming
-arbitrary binary data, which is the default choice (``True``). If ``False``,
+arbitrary binary data, which is the default choice (*True*). If *False*,
 the tree will only accept byte sequences falling under its configured encoding
 type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes mode denies the
 encryption of any byte sequence containing ``0x74``,
@@ -78,7 +78,7 @@ raising an ``UndecodableRecord`` error instead:
         untouched, so that no encoding issues arise upon file encryption.
 
 The ``.security`` attribute refers to the tree's ability of defending against
-second-preimage attacks, which is by default enabled (``True``). In this case,
+second-preimage attacks, which is by default enabled (*True*). In this case,
 the `.hash`_ function will prepend ``0x00`` or ``0x01`` before single or
 double arguments respectively. The actual prefices will be the images of these
 hexadecimals under the tree's configured encoding type (see the `making
@@ -89,8 +89,8 @@ construction for, say, testing purposes, by
 
     tree = MerkleTree(..., security=False)
 
-Refer to `test_security.py`_ inside the project's repo in order to see
-how to perform second-preimage attacks against the present implementation.
+Refer to `test_security.py`_ to see how to perform second-preimage attacks 
+against the present implementation.
 
 .. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
 
@@ -171,9 +171,10 @@ indifferently) in respective order:
 
     >>>
 
-If raw-bytes mode is disabled, care must be taken so that provided records
-fall under the requested encoding, otherwise an ``UndecodableRecord``
-error is raised and the construction is *aborted*:
+If raw-bytes mode is disabled, care must be taken so that the provided 
+records fall under the requested encoding, otherwise an 
+``UndecodableRecord`` error is raised and the 
+construction is *aborted*:
 
 .. code-block:: python
 
@@ -213,7 +214,7 @@ its idenity (*uuid*), fixed configuration (*hash type*, *encoding type*,
 
 This info can saved in a file as follows:
 
-.. code-block::
+.. code-block:: python
 
     with open('current_state', 'w') as f:
         f.write(tree.__repr__())
@@ -308,4 +309,4 @@ Retrieval of the tree is uniquely determined by the sequence of hashes within
 the provided file, since the `.update`_ method ensures independence of the
 tree's structure from any possible gradual development.
 
-.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/tree/tree.html#MerkleTree.update
+.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update 

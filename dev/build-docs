@@ -52,6 +52,9 @@ do
 			;;
 		*)
 			# unknown option
+			echo "Invalid arguments..."
+			usage
+			exit 1
 			;;
 	esac
 done
@@ -63,8 +66,10 @@ sphinx-quickstart -q --sep -p pymerkle -a $AUTHOR -v $VERSION\
 sphinx-apidoc --force --module-first -o source ../pymerkle
 
 config_file="source/conf.py"
+
 old_theme="alabaster"
 new_theme=$THEME
+
 line_1="import os"
 line_2="import sys"
 line_3="sys.path.insert(0, os.path.abspath('.'))"
@@ -81,14 +86,13 @@ echo >> $config_file
 echo "master_doc = 'index'" >> $config_file
 echo "pygments_style = 'sphinx'" >> $config_file
 
-cp ../dev/index.rst ./source/index.rst
-# cp ../dev/index.rst ../README.rst
-cp ../dev/usage.rst ./source/usage.rst
-cp ../dev/tree-object.rst ./source/tree-object.rst
-cp ../dev/encryption.rst ./source/encryption.rst
-cp ../dev/generation.rst ./source/generation.rst
-cp ../dev/validation.rst ./source/validation.rst
-cp ../dev/inclusion.rst ./source/inclusion.rst
+cp ../dev/rst-files/index.rst ./source/index.rst
+cp ../dev/rst-files/usage.rst ./source/usage.rst
+cp ../dev/rst-files/tree-object.rst ./source/tree-object.rst
+cp ../dev/rst-files/encryption.rst ./source/encryption.rst
+cp ../dev/rst-files/generation.rst ./source/generation.rst
+cp ../dev/rst-files/validation.rst ./source/validation.rst
+cp ../dev/rst-files/inclusion.rst ./source/inclusion.rst
 
 sphinx-build -b html source build
 

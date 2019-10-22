@@ -16,8 +16,8 @@ types, with defense against second-preimage attack by default enabled.
 It further provides flexible validation mechanisms, allowing for direct
 verification of existence and integrity of encrypted data.
 
-It is a zero dependency library (with the inessential exception of `tqdm`
-for displaying progress bars).
+It is a zero dependency library (with the inessential exception of
+[`tqdm`](https://github.com/tqdm/tqdm) for displaying progress bars).
 
 ## Installation [Work in progress]
 
@@ -113,11 +113,11 @@ so that both kinds are instances of the same class.
 
 ## Development
 
-### Tests
-
 ```shell
 pip install -r dev-requirements.txt
 ```
+
+### Tests
 
 You need to have installed ``pytest``. From inside the project's root directory type
 

@@ -8,7 +8,7 @@ Single record encryption
 newly-created leaf storing the digest of this record. A record
 may be of type *str* or *bytes* indifferently. One may invoke
 the `.update`_ method to successively update with new records
-as follows (usage of kward *record*  essential):
+as follows:
 
 .. code-block:: python
 
@@ -47,7 +47,7 @@ An equivalent functionality is achieved by the recommended
 
     >>>
 
-.. _.encryptRecord: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.encryption.Encryptor.encryptRecord
+.. _.encryptRecord: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptRecord
 
 If raw-bytes mode is disabled, trying to encrypt bytes outside
 the configured encoding type will raise ``UndecodableRecord``
@@ -80,7 +80,7 @@ a file's content as follows:
 where the provided path is the file's relative path with respect to
 the current working directory.
 
-.. _.encryptFileContent: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.encryption.Encryptor.encryptFileContent
+.. _.encryptFileContent: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptFileContent 
 
 If raw-bytes mode is disabled, make sure that the file's content
 falls under the tree's configured encoding type, otherwise an
@@ -121,7 +121,7 @@ per log as follows:
 where the provided argument is file's relative path with respect to the current
 working directory.
 
-.. _.encryptFilePerLog: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.encryption.Encryptor.encryptFilePerLog
+.. _.encryptFilePerLog: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptFilePerLog
 
 If raw-bytes mode is *disabled*, make sure that every line of the
 provided file falls under the tree's configured type, otherwise
@@ -180,7 +180,7 @@ unnecessary headaches upon requesting and validating audit-proofs, it is
 recommended that *sort_keys* and *indent* are left to their default values
 (``False`` and ``0`` respectively), unless special care is to be taken.
 
-.. _.encryptObject: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html
+.. _.encryptObject: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptObject
 
 File based object encryption
 ============================
@@ -196,4 +196,4 @@ that file. Use the `.encryptObjectFromFile`_ method as follows:
 The file should here contain a *single* (i.e., well-formed) JSON entity,
 otherwise a `JSONDecodeError` is raised and the encryption is _aborted_.
 
-.. _.encryptObjectFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html
+.. _.encryptObjectFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptObjectFromFile 

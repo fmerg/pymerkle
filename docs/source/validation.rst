@@ -248,15 +248,9 @@ Or in JSON...
 This would ...
 
 Validation receipts
--------------------
+===================
 
-One can use the `validationReceipt`_ function ...
-
-.. code-block:: python
-
-    from pymerkle import validationReceipt
-
-.. _validationReceipt: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.validationReceipt
+An alternative...
 
 .. code-block:: python
 
@@ -338,3 +332,13 @@ The corresponding JSON...
 .. _Receipt: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.mechanisms.Receipt
 
 .. _.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.mechanisms.Receipt.serialize
+
+
+Challange-commitment schema
+---------------------------
+
+Using the `.merkleProof`_ method... using the `validateResponse`_ function...
+
+.. _.merkleProof: https://pymerkle.readthedocs.io/en/latest/search.html?q=merkleProof&check_keywords=yes&area=default
+
+.. _validateResponse: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateResponse

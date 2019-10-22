@@ -8,23 +8,24 @@ hashes (a finite sequence of checksums and a rule for combining them into a
 single hash), leading to the acclaimed current root-hash of the Merkle-tree.
 Providing and validating Merkle-proofs certifies knowledge on
 behalf of *both* the client and server of some part of the tree's history
-or current state, disclosing a minimum of info about the encrypted records 
-and without actual need of holding a database of the originals. 
-This makes Merkle-proofs well suited for protocols involving verification 
-of existence and integrity of encrypted data in mutual and quasi 
+or current state, disclosing a minimum out of the encrypted records
+and without actual need of holding a database of the originals.
+This makes Merkle-proofs well suited for protocols involving verification
+of existence and integrity of encrypted data in mutual and *quasi*
 zero-knowledge fashion.
 
 .. note:: Merkle-proofs are *not* zero-knowledge proofs, since they
-    require one or two leaf-checksums to be included in the advertised 
-    path of hashes. In the case of audit-proof, one of these checksums 
-    is already known to the client, whereas in the case of 
-    consistency-proof only one leaf-checksum needs be releaved. 
+    require one or two leaf-checksums to be included in the advertised
+    path of hashes. In the case of audit-proof, one of these checksums
+    is already known to the client, whereas in the case of
+    consistency-proof only one leaf-checksum needs be releaved.
     In other words, Merkle-proofs are zero-knowledge except
     for the publication of *one* checksum.
 
-In either kind of Merkle-proofs, the role of *commitment* belongs to the
-current root-hash of the Merkle-tree. Given a Merkle-tree ``tree``,
-the commitment is always available via the `.rootHash`_ property:
+In Merkle-proof protocols the role of *commitment* is played by the
+root-hash of the tree at the moment of proof generation. The 
+commitment is always available via the `.rootHash`_ property
+of Merkle-trees:
 
 
 .. code-block:: python
@@ -32,6 +33,18 @@ the commitment is always available via the `.rootHash`_ property:
     root_hash = tree.rootHash
 
 .. _.rootHash: file:///home/beast/proj/pymerkle/docs/build/pymerkle.html?highlight=roothash#pymerkle.MerkleTree.rootHash
+
+Note that this statement will raise an ``EmptyTreeException`` if the
+tree happens to be empty. For better semantics, one can equivalently
+call the `.get_commitment`_ function,
+
+.. code-block:: python
+        
+    commitment = tree.get_commitment()
+
+returning ``None`` for the empty case.
+
+.. _.get_commitment: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.get_commitment
 
 Audit-proof
 ===========
@@ -44,23 +57,23 @@ data among the tree's encrypted records) by validating the proof against the
 Merkle-tree's current root-hash. It is essential that the auditor does *not*
 need to reveal the data itself but only their checksum, whereas the server
 publishes the *least* possible encrypted data (at most two checksums stored by
-leaves) and the current root-hash.
+leaves) along with advertising their root-hash.
 
-Background
-----------
+Schema
+------
 
-An *auditor* requests from the server to encrypt a record ``x``, i.e., to append
-its checksum ``y = h(x)`` as a new leaf to the tree, where ``h`` stands for the 
-tree's underlying hashing machinery. At a later point, after further records have 
-possibly been encrypted, the auditor requests from the server a proof that their 
+An *auditor* requests from the server to encrypt a record ``x``, i.e., to encrypt
+the checksum ``y = h(x)`` as a new leaf to the tree (``h`` standing for the
+tree's underlying hashing machinery). At a later point, after further records have
+possibly been encrypted, the auditor requests from the server a proof that their
 record ``x`` has indeed been encrypted by only revealing ``y``. In formal terms,
-``y`` is the *challenge* posed by the auditor to the server. Disclosing at most 
-one checksum submitted by some other client, the server responds with a proof 
-of encryption ``p``, consisting of a path of mostly interior hashes and a rule 
-for combining them into a single hash. Having knowledge of ``h``, the auditor 
-is able to apply this rule, that is, to retrieve from ``p`` a single hash and 
+``y`` is the *challenge* posed by the auditor to the server. Disclosing at most
+one checksum submitted by some other client, the server responds with a proof
+of encryption ``p``, consisting of a path of mostly interior hashes and a rule
+for combining them into a single hash. Having knowledge of ``h``, the auditor
+is able to apply this rule, that is, to retrieve from ``p`` a single hash and
 compare it against the the current root-hash ``c`` of the Merkle-tree (in formal
-terms, ``c`` is the server's *commitment* to the produced proof). This is the 
+terms, ``c`` is the server's *commitment* to the produced proof). This is the
 *validation* procedure, whose success verifies
 
 1. that the data ``x`` has indeed been encrypted by the server and
@@ -69,7 +82,7 @@ terms, ``c`` is the server's *commitment* to the produced proof). This is the
 
 It should be stressed that by *current* is meant the tree's root-hash
 immediately after generating the proof, that is, *before* any other records are
-encrypted. How the auditor knows ``c`` (e.g., from the server themselves or a 
+encrypted. How the auditor knows ``c`` (e.g., from the server themselves or a
 third trusted party) depends on protocol details. Failure of validation implies
 
 1. that ``x`` has not been encrypted or
@@ -89,7 +102,7 @@ upon a provided checksum as follows:
     checksum = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
     proof = tree.auditProof(checksum)
 
-.. _.auditProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Prover.auditProof
+.. _.auditProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.auditProof 
 
 The produced ``proof`` is an instance of the `Proof`_ class. It consists of a
 path of hashes and the required parameters for validation to be performed by the
@@ -133,7 +146,7 @@ auditor. Invoking it from the Python interpreter, it looks like
 
     >>>
 
-.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Proof
+.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof 
 
 For transmission purposes, one can apply the `.serialize`_ method to get the
 corresponding JSON:
@@ -173,7 +186,7 @@ corresponding JSON:
           }
       }
 
-.. _.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Proof.serialize
+.. _.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof.serialize 
 
 If the provided checksum were not included among the Merkle-tree's leaves, the
 inscribed proof-index would have been ``-1`` and the attached path of hashes
@@ -241,13 +254,13 @@ Consistency-proof
 
 A consistency-proof is a proof that the tree's gradual development is
 consistent. More accurately, generating the correct consistency-proof based
-upon a previous state proves on behalf of the Merkle-tree that its current
+upon a previous state certifies on behalf of the Merkle-tree that its current
 state is indeed a possible later stage of the former. Just like with
 audit-proofs, the server discloses the *least* possible of the leaf-checksums
 (actually only one) along with advertising their current root-hash.
 
-Background
-----------
+Schema
+------
 
 Let a *monitor* (a client observing the tree's gradual development) have
 knowledge of the tree\'s state at some moment. That is, the monitor records the
@@ -255,10 +268,10 @@ tree's root-hash and length (number of leaves) at some point of history. At a la
 moment, after further data have been possibly encrypted, the monitor requests
 from the server a proof that their current state is a valid later stage of the
 recorded one. In formal terms, the recorded previous state is the *challenge*
-posed by the monitor to the server. Disclosing only one leaf-checksum the server 
-responds with a proof ``p``, consisting of a path of mostly interior hashes and 
-a rule for combining them into a single hash. Having knowledge of the tree's 
-hashing machinery, the monitor is able to apply this rule, that is, to retrieve 
+posed by the monitor to the server. Disclosing only one leaf-checksum, the server
+responds with a proof ``p`` consisting of a path of mostly interior hashes and
+a rule for combining them into a single hash. Having knowledge of the tree's
+hashing machinery, the monitor is able to apply this rule, that is, to retrieve
 from ``p`` a single hash and compare it against the current root-hash ``c`` of the
 Merkle-tree (in formal terms, ``c`` is the server's *commitment* to the produced
 proof). This is the *validation* procedure, whose success verifies
@@ -276,19 +289,18 @@ third trusted party) depends on protocol details. Failure of validation implies
 
 2. that the server's current root-hash does not coincide with ``c``.
 
-If case 2 is excluded, the monitor infers *non-integrity* of encrypted data,
-whereas if case 1 is excluded the monitor should mistrust the server or the
-provider of ``c`` or both.
+Clearly, if case 2 is excluded, the monitor infers *non-integrity* of 
+encrypted data.
 
 Example
 -------
 
 Let *subhash* and *sublength* denote the presumed current root-hash and length
-at some point of the tree's history. At a later moment, one can use the
-`.consistencyProof`_ method to  generate the consistency-proof for
-the presumed previous state corresponding to these parameters as follows:
+at some point of the tree's history. At any subsequent moment, calling the
+`.consistencyProof`_ method generates the consistency-proof for
+the presumed previous state as follows:
 
-.. _.consistencyProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Prover.consistencyProof
+.. _.consistencyProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.consistencyProof 
 
 .. code-block:: python
 
@@ -338,9 +350,7 @@ the monitor. Invoking it from the Python interpreter, it looks like
         >>>
 
 For transmission purposes, one can apply the `.serialize`_ method to get the
-corresponding JSON.
-
-The *empty* consistency-proof would look like
+corresponding JSON. The *empty* consistency-proof would look like
 
 .. code-block:: bash
 
@@ -369,7 +379,7 @@ The *empty* consistency-proof would look like
 
         >>>
 
-the corresponding JSON being
+the corresponding JSON
 
 .. code-block:: bash
 
@@ -393,8 +403,16 @@ the corresponding JSON being
           }
 
 
-This situation arises exactly if the provided pair of parameters (*subhash* and
-*sublength*) do not correspond to an actual previous stage of the Merkle-tree.
-This could happen because the client does not have proper knowledge of the
-presumed previous stage or the server is not who they say (that is, they have
-not actually passed from that state).
+This situation arises exactly if the provided pair of parameters do not 
+correspond to an actual previous stage of the Merkle-tree. This could 
+happen because the client does not have proper knowledge of the
+presumed previous stage or the server is not who they say 
+(that is, they have not actually passed from that state).
+
+Uniform interface
+=================
+
+Using the `.merkleProof`_ ... Using the `.validateResponse`_ ...
+
+.. _.merkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.merkleProof
+.. _.validateResponse: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateResponse 
