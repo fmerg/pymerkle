@@ -57,7 +57,7 @@ class Validator(HashMachine):
             raise InvalidMerkleProof
 
 
-def validateProof(target, proof):
+def validateProof(target, proof, with_receipt=False, dirpath=None):
     """
     Core utility for validating proofs
 
@@ -83,45 +83,72 @@ def validateProof(target, proof):
         result = True
 
     proof.header['status'] = result
+    receipt = None
+    if with_receipt:
+        receipt = Receipt(
+            proof_uuid=header['uuid'],
+            proof_provider=header['provider'],
+            result=result)
+        if dirpath:
+            with open(
+                os.path.join(dirpath, f'{receipt.header['uuid']}.json'),
+                'w'
+            ) as __file:
+                json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
+
+    if receipt:
+        return result, receipt
     return result
 
 
-def validationReceipt(target, proof, dirpath=None):
-    """
-    Wraps raw proof validation, so that a validation receipt is returned
-    instead of a boolean
+# def validationReceipt(target, proof, dirpath=None):
+#     """
+#     Wraps raw proof validation, so that a validation receipt is returned
+#     instead of a boolean
+#
+#     If a ``dirpath`` has been specified, then the receipt is automatically
+#     stored inside the given directory as a ``.json`` file named with the
+#     receipt's uuid
+#
+#     :param target: hash to be presumably attained at the end of validation
+#         procedure (that is, acclaimed root-hash of the Merkle-tree having
+#         provided the proof)
+#     :type target: bytes
+#     :param proof: the Merkle-proof to be validated
+#     :type dirpath: [optional] Relative path with respect to the current working
+#         directory of the directory where the the generated receipt is to be
+#         saved (as a ``.json`` file named with the receipt's uuid).
+#         If unspecified, then the generated receipt does not get
+#         automatically saved.
+#     :param dirpath: str
+#     :type proof: proof.Proof
+#     :rtype: validations.Receipt
+#     """
+#     result = validateProof(target=target, proof=proof)
+#     header = proof.header
+#     receipt = Receipt(
+#         proof_uuid=header['uuid'],
+#         proof_provider=header['provider'],
+#         result=result)
+#     if dirpath:
+#         with open(
+#             os.path.join(dirpath, f'{receipt.header['uuid']}.json'),
+#             'w'
+#         ) as __file:
+#             json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
+#     return receipt
 
-    If a ``dirpath`` has been specified, then the receipt is automatically
-    stored inside the given directory as a ``.json`` file named with the
-    receipt's uuid
 
-    :param target: hash to be presumably attained at the end of validation
-        procedure (that is, acclaimed root-hash of the Merkle-tree having
-        provided the proof)
-    :type target: bytes
-    :param proof: the Merkle-proof to be validated
-    :type dirpath: [optional] Relative path with respect to the current working
-        directory of the directory where the the generated receipt is to be
-        saved (as a ``.json`` file named with the receipt's uuid).
-        If unspecified, then the generated receipt does not get
-        automatically saved.
-    :param dirpath: str
-    :type proof: proof.Proof
-    :rtype: validations.Receipt
+def validateResponse(response, with_receipt=False, dirpath=None):
     """
-    result = validateProof(target=target, proof=proof)
-    header = proof.header
-    receipt = Receipt(
-        proof_uuid=header['uuid'],
-        proof_provider=header['provider'],
-        result=result)
-    if dirpath:
-        with open(
-            os.path.join(dirpath, '%s.json' % receipt.header['uuid']),
-            'w'
-        ) as __file:
-            json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
-    return receipt
+    :param response:
+    :type response:
+    """
+    commitment = response['commitment']
+    proof = response['proof']
+    result = validateProof(commitment, proof,
+        with_reveipt=with_receipt, dirpath=dirpath)
+    return result
 
 
 class Receipt(object):

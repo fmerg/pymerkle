@@ -122,6 +122,16 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return root.digest
 
+    def get_commitment(self):
+        """
+        """
+        commitment = None
+        try:
+            commitment = self.rootHash
+        except EmptyTreeException:
+            pass
+        return commitment
+
     @property
     def length(self):
         """

@@ -290,3 +290,9 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
             'proof_path': consistency_proof.body['proof_path']
         }
     }
+
+
+# Uniform interface
+
+def test_merkleProof(tree, challenge):
+    pass

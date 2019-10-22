@@ -36,6 +36,11 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
+    @abstractmethod
+    def get_commitment(self):
+        """
+        """
+
     def auditProof(self, checksum):
         """
         Response of the Merkle-tree to the request of providing an
@@ -138,6 +143,33 @@ class Prover(object, metaclass=ABCMeta):
             security=self.security,
             proof_index=proof_index,
             proof_path=full_path)
+
+
+    def merkleProof(self, challenge):
+        """
+        :param challenge:
+        :type challenge: dict
+        :returns: response
+        :rtype: dict
+        """
+        commitment = self.get_commitment()
+
+        keys = set(challenge.keys())
+        if keys == {'checksum'}:
+            checksum = challenge['checksum']
+            proof = self.auditProof(checksum)
+        elif keys == {'subhash', 'sublength'}:
+            subhash = chellenge['subhash']
+            sublength = chellenge['sublength']
+            proof = self.consistencyProof(subhash, sublength)
+        else:
+            raise InvalidProofRequest
+
+        response = {}
+        response['commitment'] = commitment
+        response['proof'] = proof
+
+        return response
 
 
 class Proof(object):
