@@ -8,11 +8,12 @@ import json
 
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
-from pymerkle import MerkleTree, Validator, validateProof, validationReceipt
+from pymerkle import MerkleTree, Validator, validateProof, validateResponse
 from pymerkle.validations.mechanisms import Receipt
 from tests.config import ENCODINGS
 
-# Setup
+
+# Trees setup
 
 MAX_LENGTH = 4
 
@@ -135,7 +136,7 @@ __missing_configs = [
             'encoding': 0, 'raw_bytes': 0, 'security': 0,   # missing hash_type
         },
         {
-            'hash_type': 0, 'raw_bytes': 0, 'security':0,   # missing encoding
+            'hash_type': 0, 'raw_bytes': 0, 'security': 0,   # missing encoding
         },
         {
             'hash_type': 0, 'encoding': 0, 'security': 0,   # missing raw_bytes
@@ -152,8 +153,46 @@ def test_validator_construction_error(config):
 
 
 # Test validator main exception
+
 @pytest.mark.parametrize('tree, proof', __false_audit_proofs[:10])
 def test_validator_with_false_proofs(tree, proof):
     validator = Validator(proof.get_validation_params())
     with pytest.raises(InvalidMerkleProof):
         validator.run(tree.rootHash, proof)
+
+
+# validateResponse
+
+tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
+hash_func = tree.hash
+subhash = tree.rootHash
+sublength = tree.length
+
+__challenges = [
+    {
+        'checksum': hash_func('100-th record')
+    },
+    {
+        'checksum': hash_func(b'anything non recorded...')
+    },
+    {
+        'subhash': subhash,
+        'sublength': sublength
+    },
+    {
+        'subhash': b'anything else...',
+        'sublength': sublength
+    },
+    {
+        'subhash': subhash,
+        'sublength': sublength + 1
+    },
+]
+
+@pytest.mark.parametrize('challenge', __challenges)
+def test_validateResponse(challenge):
+    response = tree.merkleProof(challenge)
+    commitment = response['commitment']
+    proof = response['proof']
+
+    assert validateResponse(response) is validateProof(commitment, proof)

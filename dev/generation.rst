@@ -8,17 +8,17 @@ hashes (a finite sequence of checksums and a rule for combining them into a
 single hash), leading to the acclaimed current root-hash of the Merkle-tree.
 Providing and validating Merkle-proofs certifies knowledge on
 behalf of *both* the client and server of some part of the tree's history
-or current state, disclosing a minimum of info about the encrypted records 
-and without actual need of holding a database of the originals. 
-This makes Merkle-proofs well suited for protocols involving verification 
-of existence and integrity of encrypted data in mutual and quasi 
+or current state, disclosing a minimum of info about the encrypted records
+and without actual need of holding a database of the originals.
+This makes Merkle-proofs well suited for protocols involving verification
+of existence and integrity of encrypted data in mutual and quasi
 zero-knowledge fashion.
 
 .. note:: Merkle-proofs are *not* zero-knowledge proofs, since they
-    require one or two leaf-checksums to be included in the advertised 
-    path of hashes. In the case of audit-proof, one of these checksums 
-    is already known to the client, whereas in the case of 
-    consistency-proof only one leaf-checksum needs be releaved. 
+    require one or two leaf-checksums to be included in the advertised
+    path of hashes. In the case of audit-proof, one of these checksums
+    is already known to the client, whereas in the case of
+    consistency-proof only one leaf-checksum needs be releaved.
     In other words, Merkle-proofs are zero-knowledge except
     for the publication of *one* checksum.
 
@@ -46,21 +46,21 @@ need to reveal the data itself but only their checksum, whereas the server
 publishes the *least* possible encrypted data (at most two checksums stored by
 leaves) and the current root-hash.
 
-Background
-----------
+Schema
+------
 
 An *auditor* requests from the server to encrypt a record ``x``, i.e., to append
-its checksum ``y = h(x)`` as a new leaf to the tree, where ``h`` stands for the 
-tree's underlying hashing machinery. At a later point, after further records have 
-possibly been encrypted, the auditor requests from the server a proof that their 
+its checksum ``y = h(x)`` as a new leaf to the tree, where ``h`` stands for the
+tree's underlying hashing machinery. At a later point, after further records have
+possibly been encrypted, the auditor requests from the server a proof that their
 record ``x`` has indeed been encrypted by only revealing ``y``. In formal terms,
-``y`` is the *challenge* posed by the auditor to the server. Disclosing at most 
-one checksum submitted by some other client, the server responds with a proof 
-of encryption ``p``, consisting of a path of mostly interior hashes and a rule 
-for combining them into a single hash. Having knowledge of ``h``, the auditor 
-is able to apply this rule, that is, to retrieve from ``p`` a single hash and 
+``y`` is the *challenge* posed by the auditor to the server. Disclosing at most
+one checksum submitted by some other client, the server responds with a proof
+of encryption ``p``, consisting of a path of mostly interior hashes and a rule
+for combining them into a single hash. Having knowledge of ``h``, the auditor
+is able to apply this rule, that is, to retrieve from ``p`` a single hash and
 compare it against the the current root-hash ``c`` of the Merkle-tree (in formal
-terms, ``c`` is the server's *commitment* to the produced proof). This is the 
+terms, ``c`` is the server's *commitment* to the produced proof). This is the
 *validation* procedure, whose success verifies
 
 1. that the data ``x`` has indeed been encrypted by the server and
@@ -69,7 +69,7 @@ terms, ``c`` is the server's *commitment* to the produced proof). This is the
 
 It should be stressed that by *current* is meant the tree's root-hash
 immediately after generating the proof, that is, *before* any other records are
-encrypted. How the auditor knows ``c`` (e.g., from the server themselves or a 
+encrypted. How the auditor knows ``c`` (e.g., from the server themselves or a
 third trusted party) depends on protocol details. Failure of validation implies
 
 1. that ``x`` has not been encrypted or
@@ -246,8 +246,8 @@ state is indeed a possible later stage of the former. Just like with
 audit-proofs, the server discloses the *least* possible of the leaf-checksums
 (actually only one) along with advertising their current root-hash.
 
-Background
-----------
+Schema
+------
 
 Let a *monitor* (a client observing the tree's gradual development) have
 knowledge of the tree\'s state at some moment. That is, the monitor records the
@@ -255,10 +255,10 @@ tree's root-hash and length (number of leaves) at some point of history. At a la
 moment, after further data have been possibly encrypted, the monitor requests
 from the server a proof that their current state is a valid later stage of the
 recorded one. In formal terms, the recorded previous state is the *challenge*
-posed by the monitor to the server. Disclosing only one leaf-checksum the server 
-responds with a proof ``p``, consisting of a path of mostly interior hashes and 
-a rule for combining them into a single hash. Having knowledge of the tree's 
-hashing machinery, the monitor is able to apply this rule, that is, to retrieve 
+posed by the monitor to the server. Disclosing only one leaf-checksum the server
+responds with a proof ``p``, consisting of a path of mostly interior hashes and
+a rule for combining them into a single hash. Having knowledge of the tree's
+hashing machinery, the monitor is able to apply this rule, that is, to retrieve
 from ``p`` a single hash and compare it against the current root-hash ``c`` of the
 Merkle-tree (in formal terms, ``c`` is the server's *commitment* to the produced
 proof). This is the *validation* procedure, whose success verifies
