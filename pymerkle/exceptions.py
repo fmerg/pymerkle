@@ -37,6 +37,12 @@ class InvalidProofRequest(BaseException):
     """
     pass
 
+class InvalidChallengeError(BaseException):
+    """
+    Raised when a challenge is posed, whose structure is not as prescribed
+    """
+    pass
+
 
 class InvalidTypes(BaseException):
     """

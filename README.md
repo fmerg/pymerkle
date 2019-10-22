@@ -115,13 +115,11 @@ so that both kinds are instances of the same class.
 
 ### Tests
 
-You need to have installed ``pytest``.
-
 ```shell
 pip install -r dev-requirements.txt
 ```
 
-From inside the project's root directory type
+You need to have installed ``pytest``. From inside the project's root directory type
 
 ```shell
 ./runtests

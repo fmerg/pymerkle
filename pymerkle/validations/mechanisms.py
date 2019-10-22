@@ -71,8 +71,17 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     :type target: bytes
     :param proof: the Merkle-proof to be validated
     :type proof: proof.Proof
-    :returns: result of validation
-    :rtype: bool
+    :param with_receipt: [optional] Specifies whether a receipt will be
+        generated for the performed validation
+    :type with_receipt: bool
+    :type dirpath: [optional] Relative path with respect to the current working
+        directory of the directory where the the generated receipt is to be
+        saved (as a ``.json`` file named with the receipt's uuid). If
+        unspecified, then the generated receipt will *not* be
+        automatically saved.
+    :param dirpath: str
+    :returns: result or receipt of validation
+    :rtype: bool or validations.Receipt
     """
     validator = Validator(config=proof.get_validation_params())
     try:
@@ -81,62 +90,22 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
         result = False
     else:
         result = True
-
-    proof.header['status'] = result
+    proof_header = proof.header
+    proof_header['status'] = result
     receipt = None
     if with_receipt:
         receipt = Receipt(
-            proof_uuid=header['uuid'],
-            proof_provider=header['provider'],
+            proof_uuid=proof_header['uuid'],
+            proof_provider=proof_header['provider'],
             result=result)
         if dirpath:
+            receipt_header = receipt.header
             with open(
-                os.path.join(dirpath, f'{receipt.header['uuid']}.json'),
+                os.path.join(dirpath, f"{receipt_header['uuid']}.json"),
                 'w'
             ) as __file:
                 json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
-
-    if receipt:
-        return result, receipt
-    return result
-
-
-# def validationReceipt(target, proof, dirpath=None):
-#     """
-#     Wraps raw proof validation, so that a validation receipt is returned
-#     instead of a boolean
-#
-#     If a ``dirpath`` has been specified, then the receipt is automatically
-#     stored inside the given directory as a ``.json`` file named with the
-#     receipt's uuid
-#
-#     :param target: hash to be presumably attained at the end of validation
-#         procedure (that is, acclaimed root-hash of the Merkle-tree having
-#         provided the proof)
-#     :type target: bytes
-#     :param proof: the Merkle-proof to be validated
-#     :type dirpath: [optional] Relative path with respect to the current working
-#         directory of the directory where the the generated receipt is to be
-#         saved (as a ``.json`` file named with the receipt's uuid).
-#         If unspecified, then the generated receipt does not get
-#         automatically saved.
-#     :param dirpath: str
-#     :type proof: proof.Proof
-#     :rtype: validations.Receipt
-#     """
-#     result = validateProof(target=target, proof=proof)
-#     header = proof.header
-#     receipt = Receipt(
-#         proof_uuid=header['uuid'],
-#         proof_provider=header['provider'],
-#         result=result)
-#     if dirpath:
-#         with open(
-#             os.path.join(dirpath, f'{receipt.header['uuid']}.json'),
-#             'w'
-#         ) as __file:
-#             json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
-#     return receipt
+    return result if not receipt else receipt
 
 
 def validateResponse(response, with_receipt=False, dirpath=None):
@@ -146,9 +115,9 @@ def validateResponse(response, with_receipt=False, dirpath=None):
     """
     commitment = response['commitment']
     proof = response['proof']
-    result = validateProof(commitment, proof,
-        with_reveipt=with_receipt, dirpath=dirpath)
-    return result
+    output = validateProof(target=commitment, proof=proof,
+        with_receipt=with_receipt, dirpath=dirpath)
+    return output
 
 
 class Receipt(object):
@@ -175,13 +144,7 @@ class Receipt(object):
         original receipt ``r``
 
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*, *validation_moment*
-    :ivar header.uuid: (*str*) uuid of the validation (time-based)
-    :ivar header.timestamp: (*str*) validation moment (msecs) from the start of time
-    :ivar header.validation_moment: (*str*) validation moment in human readable form
-    :ivar body: (*dict*) contains the keys *proof_uuid*, *proof_provider*, *result* (see below)
-    :ivar body.proof_uuid: (*str*) see the homonymous argument of the constructor
-    :ivar body.proof_provider: (*str*) see the homonymous argument of the constructor
-    :ivar body.result: (*bool*) see the homonymous argument of the constructor
+    :ivar body: (*dict*) contains the keys *proof_uuid*, *proof_provider*, *result*
     """
 
     def __init__(self, *args, **kwargs):

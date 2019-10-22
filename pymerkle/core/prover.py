@@ -6,7 +6,8 @@ from abc import ABCMeta, abstractmethod
 import uuid
 from time import time, ctime
 import json
-from pymerkle.exceptions import (NoPathException, InvalidProofRequest)
+from pymerkle.exceptions import (NoPathException, InvalidProofRequest,
+    InvalidChallengeError,)
 from pymerkle.serializers import ProofSerializer
 from pymerkle.utils import stringify_path
 
@@ -40,6 +41,36 @@ class Prover(object, metaclass=ABCMeta):
     def get_commitment(self):
         """
         """
+
+    def merkleProof(self, challenge):
+        """
+        :param challenge:
+        :type challenge: dict
+        :returns: response
+        :rtype: dict
+        """
+        commitment = self.get_commitment()
+        keys = set(challenge.keys())
+        if keys == {'checksum'}:
+            checksum = challenge['checksum']
+            try:
+                proof = self.auditProof(checksum)
+            except InvalidProofRequest:
+                raise InvalidChallengeError
+        elif keys == {'subhash', 'sublength'}:
+            subhash = challenge['subhash']
+            sublength = challenge['sublength']
+            try:
+                proof = self.consistencyProof(subhash, sublength)
+            except InvalidProofRequest:
+                raise InvalidChallengeError
+        else:
+            raise InvalidChallengeError
+        response = {}
+        response['commitment'] = commitment
+        response['proof'] = proof
+
+        return response
 
     def auditProof(self, checksum):
         """
@@ -143,33 +174,6 @@ class Prover(object, metaclass=ABCMeta):
             security=self.security,
             proof_index=proof_index,
             proof_path=full_path)
-
-
-    def merkleProof(self, challenge):
-        """
-        :param challenge:
-        :type challenge: dict
-        :returns: response
-        :rtype: dict
-        """
-        commitment = self.get_commitment()
-
-        keys = set(challenge.keys())
-        if keys == {'checksum'}:
-            checksum = challenge['checksum']
-            proof = self.auditProof(checksum)
-        elif keys == {'subhash', 'sublength'}:
-            subhash = chellenge['subhash']
-            sublength = chellenge['sublength']
-            proof = self.consistencyProof(subhash, sublength)
-        else:
-            raise InvalidProofRequest
-
-        response = {}
-        response['commitment'] = commitment
-        response['proof'] = proof
-
-        return response
 
 
 class Proof(object):
