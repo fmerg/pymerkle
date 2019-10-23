@@ -220,14 +220,22 @@ class Proof(object):
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'creation_moment': ctime(),
-                'generation': args[5] != -1 and args[6] != (),
                 'provider': args[0],
                 'hash_type': args[1],
                 'encoding': args[2],
                 'raw_bytes': args[3],
                 'security': args[4],
+                'generation': args[5] != -1 and args[6] != (),
                 'status': None
             }
+            try:
+                commitment = args[6]
+                chellenge = args[7]
+            except IndexError:
+                pass
+            else:
+                self.header['commitment'] = commitment
+                self.header['challenge'] = challenge
             self.body = {
                 'proof_index': args[5],
                 'proof_path': args[6]
