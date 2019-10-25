@@ -92,9 +92,8 @@ class ProofSerializer(json.JSONEncoder):
         """
         try:
             uuid = obj.header['uuid']
-            generation = obj.header['generation']
-            timestamp = obj.header['timestamp']
             creation_moment = obj.header['creation_moment']
+            timestamp = obj.header['timestamp']
             provider = obj.header['provider']
             hash_type = obj.header['hash_type']
             encoding = obj.header['encoding']
@@ -102,13 +101,13 @@ class ProofSerializer(json.JSONEncoder):
             raw_bytes = obj.header['raw_bytes']
             proof_index = obj.body['proof_index']
             proof_path = obj.body['proof_path']
+            commitment = obj.header['commitment']
             status = obj.header['status']
         except AttributeError:
             return json.JSONEncoder.default(self, obj)        # let TypeError be raised
         return {
             'header': {
                 'uuid': uuid,
-                'generation': generation,
                 'timestamp': timestamp,
                 'creation_moment': creation_moment,
                 'provider': provider,
@@ -116,6 +115,7 @@ class ProofSerializer(json.JSONEncoder):
                 'encoding': encoding,
                 'security': security,
                 'raw_bytes': raw_bytes,
+                'commitment': commitment.decode() if commitment else None,
                 'status': status
             },
             'body': {

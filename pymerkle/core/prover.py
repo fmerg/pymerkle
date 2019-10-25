@@ -42,37 +42,35 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
-    def merkleProof(self, challenge):
+    def merkleProof(self, challenge, commitment=True):
         """
         :param challenge:
         :type challenge: dict
-        :returns: response
-        :rtype: dict
+        :returns:
+        :rtype: Proof
         """
-        commitment = self.get_commitment()
         keys = set(challenge.keys())
         if keys == {'checksum'}:
             checksum = challenge['checksum']
             try:
-                proof = self.auditProof(checksum)
+                proof = self.auditProof(checksum, commitment=commitment)
             except InvalidProofRequest:
                 raise InvalidChallengeError
         elif keys == {'subhash', 'sublength'}:
             subhash = challenge['subhash']
             sublength = challenge['sublength']
             try:
-                proof = self.consistencyProof(subhash, sublength)
+                proof = self.consistencyProof(subhash, sublength,
+                    commitment=commitment)
             except InvalidProofRequest:
                 raise InvalidChallengeError
         else:
             raise InvalidChallengeError
-        response = {}
-        response['commitment'] = commitment
-        response['proof'] = proof
 
-        return response
+        return proof
 
-    def auditProof(self, checksum):
+
+    def auditProof(self, checksum, commitment=False):
         """
         Response of the Merkle-tree to the request of providing an
         audit-proof based upon the provided checksum
@@ -90,6 +88,11 @@ class Prover(object, metaclass=ABCMeta):
             raise InvalidProofRequest
 
         index = self.find_index(checksum)
+        if commitment is True:
+            commitment = self.get_commitment()
+        else:
+            commitment = None
+
         try:
             proof_index, audit_path = self.audit_path(index)
         except NoPathException:
@@ -99,6 +102,7 @@ class Prover(object, metaclass=ABCMeta):
                 encoding=self.encoding,
                 security=self.security,
                 raw_bytes=self.raw_bytes,
+                commitment=commitment,
                 proof_index=-1,
                 proof_path=())
 
@@ -108,11 +112,12 @@ class Prover(object, metaclass=ABCMeta):
             encoding=self.encoding,
             security=self.security,
             raw_bytes=self.raw_bytes,
+            commitment=commitment,
             proof_index=proof_index,
             proof_path=audit_path)
 
 
-    def consistencyProof(self, subhash, sublength):
+    def consistencyProof(self, subhash, sublength, commitment=False):
         """
         Response of the Merkle-tree to the request of providing a
         consistency-proof for the provided parameters
@@ -143,6 +148,12 @@ class Prover(object, metaclass=ABCMeta):
         if type(subhash) is not bytes or type(sublength) is not int \
             or sublength <= 0:
             raise InvalidProofRequest
+
+        if commitment is True:
+            commitment = self.get_commitment()
+        else:
+            commitment = None
+
         try:
             proof_index, left_path, full_path = self.consistency_path(sublength)
         except NoPathException: # Covers also the empty-tree case
@@ -152,6 +163,7 @@ class Prover(object, metaclass=ABCMeta):
                 encoding=self.encoding,
                 raw_bytes=self.raw_bytes,
                 security=self.security,
+                commitment=commitment,
                 proof_index=-1,
                 proof_path=())
 
@@ -163,6 +175,7 @@ class Prover(object, metaclass=ABCMeta):
                 encoding=self.encoding,
                 raw_bytes=self.raw_bytes,
                 security=self.security,
+                commitment=commitment,
                 proof_index=-1,
                 proof_path=())
 
@@ -172,6 +185,7 @@ class Prover(object, metaclass=ABCMeta):
             encoding=self.encoding,
             raw_bytes=self.raw_bytes,
             security=self.security,
+            commitment=commitment,
             proof_index=proof_index,
             proof_path=full_path)
 
@@ -239,8 +253,6 @@ class Proof(object):
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'creation_moment': ctime(),
-                'generation': kwargs['proof_index'] != -1 and \
-                    kwargs['proof_path'] != (),
                 'provider': kwargs['provider'],
                 'hash_type': kwargs['hash_type'],
                 'encoding': kwargs['encoding'],
@@ -248,14 +260,13 @@ class Proof(object):
                 'security': kwargs['security'],
                 'status': None
             }
+
             try:
                 commitment = kwargs['commitment']
-                challenge = kwargs['challenge']
             except KeyError:
-                pass
-            else:
-                self.header['commitment'] = commitment
-                self.header['challenge'] = challenge
+                commitment = None
+            self.header['commitment'] = commitment
+
             self.body = {
                 'proof_index': kwargs['proof_index'],
                 'proof_path': kwargs['proof_path']
@@ -289,12 +300,14 @@ class Proof(object):
         .. warning:: Contrary to convention, the output of this implementation
             is *not* insertible into the ``eval()`` function
         """
+        header = self.header
+        body = self.body
+        encoding = header['encoding']
 
         return '\n    ----------------------------------- PROOF ------------------------------------\
                 \n\
                 \n    uuid        : {uuid}\
                 \n\
-                \n    generation  : {generation}\
                 \n    timestamp   : {timestamp} ({creation_moment})\
                 \n    provider    : {provider}\
                 \n\
@@ -307,23 +320,26 @@ class Proof(object):
                 \n    proof-path  :\
                 \n    {proof_path}\
                 \n\
+                \n    commitment  : {commitment}\
+                \n\
                 \n    status      : {status}\
                 \n\
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n'.format(
-                    uuid=self.header['uuid'],
-                    generation='SUCCESS' if self.header['generation'] else 'FAILURE',
-                    timestamp=self.header['timestamp'],
-                    creation_moment=self.header['creation_moment'],
-                    provider=self.header['provider'],
-                    hash_type=self.header['hash_type'].upper().replace('_', '-'),
-                    encoding=self.header['encoding'].upper().replace('_', '-'),
-                    raw_bytes='TRUE' if self.header['raw_bytes'] else 'FALSE',
-                    security='ACTIVATED' if self.header['security'] else 'DEACTIVATED',
-                    proof_index=self.body['proof_index'],
-                    proof_path=stringify_path(self.body['proof_path'], self.header['encoding']),
-                    status='UNVALIDATED' if self.header['status'] is None \
-                    else 'VALID' if self.header['status'] is True else 'NON VALID')
+                    uuid=header['uuid'],
+                    timestamp=header['timestamp'],
+                    creation_moment=header['creation_moment'],
+                    provider=header['provider'],
+                    hash_type=header['hash_type'].upper().replace('_', '-'),
+                    encoding=header['encoding'].upper().replace('_', '-'),
+                    raw_bytes='TRUE' if header['raw_bytes'] else 'FALSE',
+                    security='ACTIVATED' if header['security'] else 'DEACTIVATED',
+                    commitment=header['commitment'].decode() \
+                    if header['commitment'] else None,
+                    proof_index=body['proof_index'],
+                    proof_path=stringify_path(body['proof_path'], header['encoding']),
+                    status='UNVALIDATED' if header['status'] is None \
+                    else 'VALID' if header['status'] is True else 'NON VALID')
 
 
 # Serialization

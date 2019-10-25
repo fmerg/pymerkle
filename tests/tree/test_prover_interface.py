@@ -18,16 +18,16 @@ hash_func = tree.hash
 audit_challenge_1 = {'checksum': hash_func('100-th record')}
 audit_challenge_2 = {'checksum': hash_func(b'anything non recorded...')}
 
-@pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
-def test_audit_merkleProof(challenge):
-    checksum = challenge['checksum']
-    response = tree.merkleProof(challenge)
-
-    audit_proof = tree.auditProof(challenge['checksum'])
-    commitment = response['commitment']
-    proof = response['proof']
-
-    assert commitment == tree.rootHash and proof.body == audit_proof.body
+# @pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
+# def test_audit_merkleProof(challenge):
+#     checksum = challenge['checksum']
+#     response = tree.merkleProof(challenge)
+#
+#     audit_proof = tree.auditProof(challenge['checksum'])
+#     commitment = response['commitment']
+#     proof = response['proof']
+#
+#     assert commitment == tree.rootHash and proof.body == audit_proof.body
 
 cons_challenge_1 = {'subhash': tree.rootHash, 'sublength': tree.length}
 cons_challenge_2 = {'subhash': b'anything else...', 'sublength': tree.length}
@@ -36,57 +36,57 @@ cons_challenge_3 = {'subhash': tree.rootHash, 'sublength': tree.length + 1}
 for i in range(1000):
     tree.encryptRecord(f'{i}-th record')
 
-@pytest.mark.parametrize('challenge', [
-    cons_challenge_1, cons_challenge_2, cons_challenge_3])
-def test_consistency_merkleProof(challenge):
-    subhash = challenge['subhash']
-    sublength = challenge['sublength']
-    consistency_proof = tree.consistencyProof(subhash, sublength)
+# @pytest.mark.parametrize('challenge', [
+#     cons_challenge_1, cons_challenge_2, cons_challenge_3])
+# def test_consistency_merkleProof(challenge):
+#     subhash = challenge['subhash']
+#     sublength = challenge['sublength']
+#     consistency_proof = tree.consistencyProof(subhash, sublength)
+#
+#     response = tree.merkleProof(challenge)
+#     commitment = response['commitment']
+#     proof = response['proof']
+#
+#     assert commitment == tree.rootHash and proof.body == consistency_proof.body
 
-    response = tree.merkleProof(challenge)
-    commitment = response['commitment']
-    proof = response['proof']
 
-    assert commitment == tree.rootHash and proof.body == consistency_proof.body
-
-
-__invalid_challenges = [
-    {},
-    {
-        'checksum': 'anything that is not a bytes object...'
-    },
-    {
-        'checksum': hash_func('100-th record'),
-        'extra key': 'extra_value'
-    },
-    {
-        'subhash': 'anything that is not a bytes object...',
-        'sublength': tree.length
-    },
-    {
-        'subhash': tree.rootHash,
-        'sublength': 'anything that is not an integer...'
-    },
-    {
-        'subhash': tree.rootHash
-    },
-    {
-        'sublength': tree.length
-    },
-    {
-        'subhash': tree.rootHash,
-        'sublength': tree.length,
-        'extra key': 'extra value'
-    },
-    {
-        'key_1': 0, 'key_2': 1, 'key_3': 2
-    },
-]
-
-@pytest.mark.parametrize('challenge', __invalid_challenges)
-def test_merkleProof_with_invalid_challenges(challenge):
-    with pytest.raises(InvalidChallengeError):
-        tree.merkleProof(challenge)
+# __invalid_challenges = [
+#     {},
+#     {
+#         'checksum': 'anything that is not a bytes object...'
+#     },
+#     {
+#         'checksum': hash_func('100-th record'),
+#         'extra key': 'extra_value'
+#     },
+#     {
+#         'subhash': 'anything that is not a bytes object...',
+#         'sublength': tree.length
+#     },
+#     {
+#         'subhash': tree.rootHash,
+#         'sublength': 'anything that is not an integer...'
+#     },
+#     {
+#         'subhash': tree.rootHash
+#     },
+#     {
+#         'sublength': tree.length
+#     },
+#     {
+#         'subhash': tree.rootHash,
+#         'sublength': tree.length,
+#         'extra key': 'extra value'
+#     },
+#     {
+#         'key_1': 0, 'key_2': 1, 'key_3': 2
+#     },
+# ]
+#
+# @pytest.mark.parametrize('challenge', __invalid_challenges)
+# def test_merkleProof_with_invalid_challenges(challenge):
+#     with pytest.raises(InvalidChallengeError):
+#         tree.merkleProof(challenge)
 
 
 # Trees setup
@@ -159,12 +159,12 @@ def test_empty_auditProof(tree, arg):
             'uuid': audit_proof.header['uuid'],
             'timestamp': audit_proof.header['timestamp'],
             'creation_moment': audit_proof.header['creation_moment'],
-            'generation': False,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': audit_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -182,12 +182,12 @@ def test_non_empty_auditProof(tree, arg):
             'uuid': audit_proof.header['uuid'],
             'timestamp': audit_proof.header['timestamp'],
             'creation_moment': audit_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': audit_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -304,12 +304,12 @@ def test_non_empty_consistencyProof(tree, subhash, sublength):
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
             'creation_moment': consistency_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': consistency_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -331,12 +331,12 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
             'creation_moment': consistency_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': consistency_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -358,12 +358,12 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
             'creation_moment': consistency_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': consistency_proof.header['commitment'],
             'status': None
         },
         'body': {

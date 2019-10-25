@@ -49,10 +49,13 @@ class Validator(HashMachine):
         :raises InvalidMerkleProof: if the provided proof was found to be
             invalid
         """
-        if not proof.header['generation']:
+        # if not proof.header['generation']:
+        proof_index = proof.body['proof_index']
+        proof_path = proof.body['proof_path']
+        if proof_index == -1 and proof_path == ():
             raise InvalidMerkleProof
-        signed_hashes = proof.body['proof_path']
-        start = proof.body['proof_index']
+        signed_hashes = proof_path
+        start = proof_index
         if target != self.multi_hash(signed_hashes, start):
             raise InvalidMerkleProof
 
@@ -148,19 +151,6 @@ class Receipt(object):
     """
 
     def __init__(self, *args, **kwargs):
-
-        # if args:                      # Assuming positional arguments by default
-        #     self.header = {
-        #         'uuid': str(uuid.uuid1()),
-        #         'timestamp': int(time()),
-        #         'validation_moment': ctime(),
-        #     }
-        #     self.body = {
-        #         'proof_uuid': args[0],
-        #         'proof_provider': args[1],
-        #         'result': args[2],
-        #     }
-        # else:
         if kwargs.get('from_dict'):            # Importing receipt from dict
             self.header = kwargs['from_dict']['header']
             self.body = kwargs['from_dict']['body']
@@ -181,6 +171,8 @@ class Receipt(object):
             }
 
     def __repr__(self):
+        header = self.header
+        body = self.body
 
         return '\n    ----------------------------- VALIDATION RECEIPT -----------------------------\
                 \n\
@@ -195,12 +187,12 @@ class Receipt(object):
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\
                 \n'.format(
-                    uuid=self.header['uuid'],
-                    timestamp=self.header['timestamp'],
-                    validation_moment=self.header['validation_moment'],
-                    proof_uuid=self.body['proof_uuid'],
-                    proof_provider=self.body['proof_provider'],
-                    result='VALID' if self.body['result'] else 'NON VALID')
+                    uuid=header['uuid'],
+                    timestamp=header['timestamp'],
+                    validation_moment=header['validation_moment'],
+                    proof_uuid=body['proof_uuid'],
+                    proof_provider=body['proof_provider'],
+                    result='VALID' if body['result'] else 'NON VALID')
 
 
 # Serialization
