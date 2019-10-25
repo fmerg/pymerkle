@@ -42,8 +42,14 @@ def test_validation_with_receipt():
 proof_provider = '1a0894bc-9755-11e9-a651-70c94e89b637'
 proof_uuid     = 'e60394c2-98c7-11e9-ac41-70c94e89b637'
 
-receipt_11 = Receipt(proof_uuid, proof_provider, True)
-receipt_12 = Receipt(proof_uuid, proof_provider, False)
+receipt_11 = Receipt(
+    proof_uuid=proof_uuid,
+    proof_provider=proof_provider,
+    result=True)
+receipt_12 = Receipt(
+    proof_uuid=proof_uuid,
+    proof_provider=proof_provider,
+    result=False)
 
 
 @pytest.mark.parametrize('receipt, result', ((receipt_11, True), (receipt_12, False)))

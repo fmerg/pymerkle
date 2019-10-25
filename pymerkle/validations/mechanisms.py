@@ -149,36 +149,36 @@ class Receipt(object):
 
     def __init__(self, *args, **kwargs):
 
-        if args:                      # Assuming positional arguments by default
+        # if args:                      # Assuming positional arguments by default
+        #     self.header = {
+        #         'uuid': str(uuid.uuid1()),
+        #         'timestamp': int(time()),
+        #         'validation_moment': ctime(),
+        #     }
+        #     self.body = {
+        #         'proof_uuid': args[0],
+        #         'proof_provider': args[1],
+        #         'result': args[2],
+        #     }
+        # else:
+        if kwargs.get('from_dict'):            # Importing receipt from dict
+            self.header = kwargs['from_dict']['header']
+            self.body = kwargs['from_dict']['body']
+        elif kwargs.get('from_json'):     # Importing receipt form JSON text
+            _dict = json.loads(kwargs['from_json'])
+            self.header = _dict['header']
+            self.body = _dict['body']
+        else:                                   # Assuming keyword arguments
             self.header = {
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'validation_moment': ctime(),
             }
             self.body = {
-                'proof_uuid': args[0],
-                'proof_provider': args[1],
-                'result': args[2],
+                'proof_uuid': kwargs['proof_uuid'],
+                'proof_provider': kwargs['proof_provider'],
+                'result': kwargs['result'],
             }
-        else:
-            if kwargs.get('from_dict'):            # Importing receipt from dict
-                self.header = kwargs['from_dict']['header']
-                self.body = kwargs['from_dict']['body']
-            elif kwargs.get('from_json'):     # Importing receipt form JSON text
-                _dict = json.loads(kwargs['from_json'])
-                self.header = _dict['header']
-                self.body = _dict['body']
-            else:                                   # Assuming keyword arguments
-                self.header = {
-                    'uuid': str(uuid.uuid1()),
-                    'timestamp': int(time()),
-                    'validation_moment': ctime(),
-                }
-                self.body = {
-                    'proof_uuid': kwargs['proof_uuid'],
-                    'proof_provider': kwargs['proof_provider'],
-                    'result': kwargs['result'],
-                }
 
     def __repr__(self):
 

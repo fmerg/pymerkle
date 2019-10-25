@@ -214,70 +214,52 @@ class Proof(object):
     :ivar body: (*dict*) Contains the keys *proof_index* and *proof_path*
     """
 
-    def __init__(self, *args, **kwargs):
-        if args:                      # Assuming positional arguments by default
+    def __init__(self, **kwargs):
+        if kwargs.get('from_dict'):                  # Importing proof from dict
+            self.header = kwargs['from_dict']['header']
+            _body = kwargs['from_dict']['body']
+            self.body = {
+                'proof_index': _body['proof_index'],
+                'proof_path': tuple(
+                    (pair[0], bytes(pair[1], self.header['encoding']))
+                        for pair in _body['proof_path'])
+            }
+        elif kwargs.get('from_json'):           # Importing proof from JSON text
+            proof_dict = json.loads(kwargs['from_json'])
+            self.header = proof_dict['header']
+            _body = proof_dict['body']
+            self.body = {
+                'proof_index': _body['proof_index'],
+                'proof_path': tuple(
+                    (pair[0], bytes(pair[1], self.header['encoding']))
+                        for pair in _body['proof_path'])
+            }
+        else:
             self.header = {
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'creation_moment': ctime(),
-                'provider': args[0],
-                'hash_type': args[1],
-                'encoding': args[2],
-                'raw_bytes': args[3],
-                'security': args[4],
-                'generation': args[5] != -1 and args[6] != (),
+                'generation': kwargs['proof_index'] != -1 and \
+                    kwargs['proof_path'] != (),
+                'provider': kwargs['provider'],
+                'hash_type': kwargs['hash_type'],
+                'encoding': kwargs['encoding'],
+                'raw_bytes': kwargs['raw_bytes'],
+                'security': kwargs['security'],
                 'status': None
             }
             try:
-                commitment = args[6]
-                chellenge = args[7]
-            except IndexError:
+                commitment = kwargs['commitment']
+                challenge = kwargs['challenge']
+            except KeyError:
                 pass
             else:
                 self.header['commitment'] = commitment
                 self.header['challenge'] = challenge
             self.body = {
-                'proof_index': args[5],
-                'proof_path': args[6]
+                'proof_index': kwargs['proof_index'],
+                'proof_path': kwargs['proof_path']
             }
-        else:
-            if kwargs.get('from_dict'):              # Importing proof from dict
-                self.header = kwargs['from_dict']['header']
-                _body = kwargs['from_dict']['body']
-                self.body = {
-                    'proof_index': _body['proof_index'],
-                    'proof_path': tuple(
-                        (pair[0], bytes(pair[1], self.header['encoding']))
-                            for pair in _body['proof_path'])
-                }
-            elif kwargs.get('from_json'):       # Importing proof from JSON text
-                proof_dict = json.loads(kwargs['from_json'])
-                self.header = proof_dict['header']
-                _body = proof_dict['body']
-                self.body = {
-                    'proof_index': _body['proof_index'],
-                    'proof_path': tuple(
-                        (pair[0], bytes(pair[1], self.header['encoding']))
-                            for pair in _body['proof_path'])
-                }
-            else:                                   # Assuming keyword arguments
-                self.header = {
-                    'uuid': str(uuid.uuid1()),
-                    'timestamp': int(time()),
-                    'creation_moment': ctime(),
-                    'generation': kwargs['proof_index'] != -1 and \
-                        kwargs['proof_path'] != (),
-                    'provider': kwargs['provider'],
-                    'hash_type': kwargs['hash_type'],
-                    'encoding': kwargs['encoding'],
-                    'raw_bytes': kwargs['raw_bytes'],
-                    'security': kwargs['security'],
-                    'status': None
-                }
-                self.body = {
-                    'proof_index': kwargs['proof_index'],
-                    'proof_path': kwargs['proof_path']
-                }
 
 
     def get_validation_params(self):

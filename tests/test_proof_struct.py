@@ -24,8 +24,23 @@ proof_path = (
     (-1, b'6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2'),
     (-1, b'2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8'))
 
-proof_11 = Proof(provider, 'sha_256', 'utf_8', True, True, 5, proof_path)
-proof_21 = Proof(provider, 'sha_256', 'utf_8', True, True, -1, ())
+proof_11 = Proof(
+    provider=provider,
+    hash_type='sha_256',
+    encoding='utf_8',
+    security=True,
+    raw_bytes=True,
+    proof_index=5,
+    proof_path=proof_path)
+
+proof_21 = Proof(
+    provider=provider,
+    hash_type='sha_256',
+    encoding='utf_8',
+    security=True,
+    raw_bytes=True,
+    proof_index=-1,
+    proof_path=())
 
 @pytest.mark.parametrize('proof, generation, proof_index, proof_path',
     ((proof_11, True, 5, proof_path), (proof_21, False, -1, ())))
