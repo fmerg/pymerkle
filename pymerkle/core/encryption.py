@@ -29,7 +29,7 @@ class Encryptor(object, metaclass=ABCMeta):
         into a newly-created leaf, restrucuring the tree appropriately and
         recalculating all necessary interior hashes
 
-        :param record: the record whose digest is to be stored into a new leaf
+        :param record: the record whose checksum is to be stored into a new leaf
         :type record: str or bytes
         :returns: ``True`` if the provided record was successfully encrypted
         :rtype: bool
@@ -41,7 +41,6 @@ class Encryptor(object, metaclass=ABCMeta):
             self.update(record=record)
         except UndecodableRecord:
             raise
-        return True
 
 
     def encryptFileContent(self, file_path):
@@ -74,7 +73,6 @@ class Encryptor(object, metaclass=ABCMeta):
                     self.update(record=__buffer.read())
                 except UndecodableRecord:
                     raise
-                return True
 
 
     def encryptFilePerLog(self, file_path):
@@ -133,7 +131,6 @@ class Encryptor(object, metaclass=ABCMeta):
         for record in tqdm(records, desc='Encrypting file per log', total=len(records)):
             update(record=record)
         tqdm.write('Encryption complete\n')
-        return True
 
 
     def encryptObject(self, object, sort_keys=False, indent=0):

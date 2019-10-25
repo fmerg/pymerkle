@@ -54,9 +54,8 @@ for (tree, hash_machine) in __trees__hash_machines:
 
 @pytest.mark.parametrize("tree, hash_machine, record", __single_records)
 def test_encryptRecord(tree, hash_machine, record):
-    # tree.clear()
     encrypted = tree.encryptRecord(record)
-    assert encrypted and tree.leaves[-1].digest == hash_machine.hash(record)
+    assert tree.leaves[-1].digest == hash_machine.hash(record)
 
 
 __undecodableArguments = [
@@ -158,7 +157,7 @@ with open(objects_list_file, 'rb') as f:
 def test_encryptFileContent(tree, hash_machine):
     if tree.raw_bytes:
         encrypted = tree.encryptFileContent(large_APACHE_log)
-        assert encrypted and tree.leaves[-1].digest == hash_machine.hash(content)
+        assert tree.leaves[-1].digest == hash_machine.hash(content)
     elif tree.encoding in ('cp424', 'utf_16', 'utf_16_le', 'utf_16_be',
             'utf_32', 'utf_32_le', 'utf_32_be'):
         with pytest.raises(UndecodableRecord):
@@ -175,7 +174,7 @@ def test_encryptFilePerLog(tree):
             raw_bytes=tree.raw_bytes,
             security=tree.security
         )
-        assert encrypted and tree.rootHash == clone.rootHash
+        assert tree.rootHash == clone.rootHash
     elif tree.encoding in ('iso8859_8', 'iso2022_kr', 'iso8859_3', 'ascii',
             'utf_7', 'utf_32_be', 'iso2022_jp_1', 'utf_32_le', 'utf_32',
             'iso2022_jp_3', 'iso2022_jp_2004', 'hz', 'iso8859_7', 'iso8859_6',
