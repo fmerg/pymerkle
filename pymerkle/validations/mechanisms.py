@@ -60,7 +60,7 @@ class Validator(HashMachine):
             raise InvalidMerkleProof
 
 
-def validateProof(target, proof, with_receipt=False, dirpath=None):
+def validateProof(target, proof, get_receipt=False, dirpath=None):
     """
     Core utility for validating proofs
 
@@ -74,9 +74,9 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     :type target: bytes
     :param proof: the Merkle-proof to be validated
     :type proof: proof.Proof
-    :param with_receipt: [optional] Specifies whether a receipt will be
+    :param get_receipt: [optional] Specifies whether a receipt will be
         generated for the performed validation
-    :type with_receipt: bool
+    :type get_receipt: bool
     :type dirpath: [optional] Relative path with respect to the current working
         directory of the directory where the the generated receipt is to be
         saved (as a ``.json`` file named with the receipt's uuid). If
@@ -96,7 +96,7 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     proof_header = proof.header
     proof_header['status'] = result
     receipt = None
-    if with_receipt:
+    if get_receipt:
         receipt = Receipt(
             proof_uuid=proof_header['uuid'],
             proof_provider=proof_header['provider'],
@@ -111,15 +111,15 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     return result if not receipt else receipt
 
 
-def validateResponse(response, with_receipt=False, dirpath=None):
+def validateResponse(proof, get_receipt=False, dirpath=None):
     """
-    :param response:
-    :type response:
+    :param proof:
+    :type proof:
     """
-    commitment = response['commitment']
-    proof = response['proof']
+    commitment = proof.header['commitment']
+    # proof = response['proof']
     output = validateProof(target=commitment, proof=proof,
-        with_receipt=with_receipt, dirpath=dirpath)
+        get_receipt=get_receipt, dirpath=dirpath)
     return output
 
 

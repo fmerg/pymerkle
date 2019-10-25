@@ -6,8 +6,7 @@ from abc import ABCMeta, abstractmethod
 import uuid
 from time import time, ctime
 import json
-from pymerkle.exceptions import (NoPathException, InvalidProofRequest,
-    InvalidChallengeError,)
+from pymerkle.exceptions import (NoPathException, InvalidChallengeError,)
 from pymerkle.serializers import ProofSerializer
 from pymerkle.utils import stringify_path
 
@@ -52,18 +51,12 @@ class Prover(object, metaclass=ABCMeta):
         keys = set(challenge.keys())
         if keys == {'checksum'}:
             checksum = challenge['checksum']
-            try:
-                proof = self.auditProof(checksum, commitment=commitment)
-            except InvalidProofRequest:
-                raise InvalidChallengeError
+            proof = self.auditProof(checksum, commitment=commitment)
         elif keys == {'subhash', 'sublength'}:
             subhash = challenge['subhash']
             sublength = challenge['sublength']
-            try:
-                proof = self.consistencyProof(subhash, sublength,
-                    commitment=commitment)
-            except InvalidProofRequest:
-                raise InvalidChallengeError
+            proof = self.consistencyProof(subhash, sublength,
+                commitment=commitment)
         else:
             raise InvalidChallengeError
 
@@ -81,11 +74,11 @@ class Prover(object, metaclass=ABCMeta):
         :returns: audit-path along with validation parameters
         :rtype: proof.Proof
 
-        :raises InvalidProofRequest: if the provided argument's type
+        :raises InvalidChallengeError: if the provided argument's type
             is not as prescribed
         """
         if type(checksum) not in (bytes,):
-            raise InvalidProofRequest
+            raise InvalidChallengeError
 
         index = self.find_index(checksum)
         if commitment is True:
@@ -142,12 +135,12 @@ class Prover(object, metaclass=ABCMeta):
             equivalently a negative proof-index ``-1`` is inscribed in it,
             so that it is predestined to be found invalid.
 
-        :raises InvalidProofRequest: if type of any of the provided
+        :raises InvalidChallengeError: if type of any of the provided
             arguments is not as prescribed
         """
         if type(subhash) is not bytes or type(sublength) is not int \
             or sublength <= 0:
-            raise InvalidProofRequest
+            raise InvalidChallengeError
 
         if commitment is True:
             commitment = self.get_commitment()

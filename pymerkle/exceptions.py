@@ -30,13 +30,6 @@ class InvalidComparison(BaseException):
     pass
 
 
-class InvalidProofRequest(BaseException):
-    """
-    Raised when a proof is requested with arguments whose type
-    is not as prescribed
-    """
-    pass
-
 class InvalidChallengeError(BaseException):
     """
     Raised when a challenge is posed, whose structure is not as prescribed

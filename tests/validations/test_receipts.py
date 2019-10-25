@@ -16,14 +16,14 @@ for file in os.listdir(receipt_dir):
     except:
         pass
 
-def test_validation_with_receipt():
+def test_validation_get_receipt():
     tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
 
     audit_proof = tree.auditProof(b'2-th record')
     receipt = validateProof(
         target=tree.rootHash,
         proof=audit_proof,
-        with_receipt=True,
+        get_receipt=True,
         dirpath=os.path.join(os.path.dirname(__file__), 'receipts')
     )
 
