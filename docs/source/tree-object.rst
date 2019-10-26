@@ -70,7 +70,7 @@ raising an ``UndecodableRecord`` error instead:
     pymerkle.exceptions.UndecodableRecord
     >>>
 
-.. warning:: One can disable the raw-bytes mode for the purpose of 
+.. warning:: One can disable the raw-bytes mode for the purpose of
         filtering out unacceptable records, e.g., when only files of a
         specific encoding are allowed for encryption. This is seldom
         the case in real-life, since origin of submitted files is usually
@@ -89,13 +89,13 @@ construction for, say, testing purposes, by
 
     tree = MerkleTree(..., security=False)
 
-Refer to `test_security.py`_ to see how to perform second-preimage attacks 
+Refer to `test_security.py`_ to see how to perform second-preimage attacks
 against the present implementation.
 
 .. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
 
 Attributes and properties
-=========================
+-------------------------
 
 The identity, current state and fixed configuration of a Merkle-tree are
 encapsulated in the following collection of attributes and properties.
@@ -143,7 +143,7 @@ how the empty standard (SHA256/UTF-8) Merkle-tree looks like:
         >>>
 
 Initial records
-===============
+---------------
 
 One can provide an arbitrary number of records at construction, in which
 case the created Merkle-tree will be *non* empty. The following statement
@@ -171,9 +171,9 @@ indifferently) in respective order:
 
     >>>
 
-If raw-bytes mode is disabled, care must be taken so that the provided 
-records fall under the requested encoding, otherwise an 
-``UndecodableRecord`` error is raised and the 
+If raw-bytes mode is disabled, care must be taken so that the provided
+records fall under the requested encoding, otherwise an
+``UndecodableRecord`` error is raised and the
 construction is *aborted*:
 
 .. code-block:: python
@@ -309,4 +309,4 @@ Retrieval of the tree is uniquely determined by the sequence of hashes within
 the provided file, since the `.update`_ method ensures independence of the
 tree's structure from any possible gradual development.
 
-.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update 
+.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update

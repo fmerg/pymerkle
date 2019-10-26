@@ -562,8 +562,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             else file_path, 'w') as __file:
             json.dump(self.serialize(), __file, indent=4)
 
-    @staticmethod
-    def loadFromFile(file_path):
+    @classmethod
+    def loadFromFile(cls, file_path):
         """
         Loads a Merkle-tree from the provided file, the latter being the result
         of an export (cf. the ``.export()`` method)
@@ -581,7 +581,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             loaded_object = json.load(__file)
         try:
             header = loaded_object['header']
-            tree = MerkleTree(
+            tree = cls(
                 hash_type=header['hash_type'],
                 encoding=header['encoding'],
                 raw_bytes=header['raw_bytes'],
@@ -706,7 +706,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         the Merkle-treee by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
-            is *not* insertible to the ``eval()`` function
+            is *not* insertible to the ``eval()`` builtin function
         """
 
         return '\n    uuid      : {uuid}\
@@ -768,7 +768,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         return MerkleTreeSerializer().default(self)
 
-    def toJsonString(self):
+    def toJSONString(self):
         """
         Returns a stringification of the Merkle-tree's serialization
 

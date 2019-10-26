@@ -118,7 +118,7 @@ def test___str__(tree, stringification):
     assert tree.__str__() == stringification
 
 
-toJsonStrings = [
+toJSONStrings = [
     (
         empty_tree,
         '{\n    "hashes": [],\n    "header": {\n        "encoding": "utf_8",' +
@@ -146,6 +146,6 @@ toJsonStrings = [
 ]
 
 
-@pytest.mark.parametrize('tree, json_string', toJsonStrings)
-def test_toJsonString(tree, json_string):
-    assert tree.toJsonString() == json_string
+@pytest.mark.parametrize('tree, json_string', toJSONStrings)
+def test_toJSONString(tree, json_string):
+    assert tree.toJSONString() == json_string

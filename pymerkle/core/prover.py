@@ -209,8 +209,8 @@ class Proof(object):
     ways:
 
     >>> from pymerkle.proof import Proof
-    >>> q = Proof(from_json=p.toJsonString())
-    >>> r = Proof(from_dict=json.loads(p.toJsonString()))
+    >>> q = Proof(from_json=p.toJSONString())
+    >>> r = Proof(from_dict=json.loads(p.toJSONString()))
 
     .. note:: Constructing proofs in the above ways is a genuine *replication*,
         since ``q`` and ``r`` have the same *uuid* and *timestamp* as ``p``
@@ -222,27 +222,32 @@ class Proof(object):
     """
 
     def __init__(self, **kwargs):
-        if kwargs.get('from_dict'):                  # Importing proof from dict
-            self.header = kwargs['from_dict']['header']
-            _body = kwargs['from_dict']['body']
-            self.body = {
-                'proof_index': _body['proof_index'],
-                'proof_path': tuple(
-                    (pair[0], bytes(pair[1], self.header['encoding']))
-                        for pair in _body['proof_path'])
-            }
-        elif kwargs.get('from_json'):           # Importing proof from JSON text
-            proof_dict = json.loads(kwargs['from_json'])
-            self.header = proof_dict['header']
-            _body = proof_dict['body']
-            self.body = {
-                'proof_index': _body['proof_index'],
-                'proof_path': tuple(
-                    (pair[0], bytes(pair[1], self.header['encoding']))
-                        for pair in _body['proof_path'])
-            }
-        else:
-            self.header = {
+        """
+        """
+        header = {}
+        body = {}
+        if kwargs.get('from_dict'):                             # from json dict
+            input = kwargs['from_dict']
+            header.update(input['header'])
+            if header['commitment']:
+                header['commitment'] = header['commitment'].encode()
+            body['proof_index'] = input['body']['proof_index']
+            body['proof_path'] = tuple((
+                pair[0],
+                bytes(pair[1], header['encoding'])
+            ) for pair in input['body']['proof_path'])
+        elif kwargs.get('from_json'):                           # from json text
+            input = json.loads(kwargs['from_json'])
+            header.update(input['header'])
+            if header['commitment']:
+                header['commitment'] = header['commitment'].encode()
+            body['proof_index'] = input['body']['proof_index']
+            body['proof_path'] = tuple((
+                pair[0],
+                bytes(pair[1], header['encoding'])
+            ) for pair in input['body']['proof_path'])
+        else:                                                  # multiple kwargs
+            header.update({
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'creation_moment': ctime(),
@@ -251,19 +256,13 @@ class Proof(object):
                 'encoding': kwargs['encoding'],
                 'raw_bytes': kwargs['raw_bytes'],
                 'security': kwargs['security'],
-                'status': None
-            }
-
-            try:
-                commitment = kwargs['commitment']
-            except KeyError:
-                commitment = None
-            self.header['commitment'] = commitment
-
-            self.body = {
+                'commitment': kwargs.get('commitment'),
+                'status': None})
+            body.update({
                 'proof_index': kwargs['proof_index'],
-                'proof_path': kwargs['proof_path']
-            }
+                'proof_path': kwargs['proof_path']})
+        self.header = header
+        self.body = body
 
 
     def get_validation_params(self):
@@ -291,7 +290,7 @@ class Proof(object):
         about a proof by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
-            is *not* insertible into the ``eval()`` function
+            is *not* insertible into the ``eval()`` builtin function
         """
         header = self.header
         body = self.body
@@ -335,6 +334,14 @@ class Proof(object):
                     else 'VALID' if header['status'] is True else 'NON VALID')
 
 
+    @classmethod
+    def deserialize(cls, json_proof):
+        """
+        :params json_proof:
+        :type: dict
+        """
+        return cls(from_dict=json_proof)
+
 # Serialization
 
     def serialize(self):
@@ -346,7 +353,7 @@ class Proof(object):
         """
         return ProofSerializer().default(self)
 
-    def toJsonString(self):
+    def toJSONString(self):
         """
         Returns a stringification of the proof's JSON serialization
 

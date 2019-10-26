@@ -126,7 +126,7 @@ def test_serialization(receipt, serialization):
     assert receipt.serialize() == serialization
 
 
-toJsonStrings = [
+toJSONStrings = [
     (
         receipt_11,
         '{\n    "body": {\n        "proof_provider": "%s",\n        "proof_uuid": "%s",\n        "result": true\n    },\n    "header": {\n        "timestamp": %d,\n        "uuid": "%s",\n        "validation_moment": "%s"\n    }\n}'
@@ -139,13 +139,13 @@ toJsonStrings = [
     )
 ]
 
-@pytest.mark.parametrize('receipt, _json_string', toJsonStrings)
-def test_toJsonString(receipt, _json_string):
-    assert receipt.toJsonString() == _json_string
+@pytest.mark.parametrize('receipt, _json_string', toJSONStrings)
+def test_toJSONString(receipt, _json_string):
+    assert receipt.toJSONString() == _json_string
 
 
-receipt_31 = Receipt(from_json=receipt_11.toJsonString())
-receipt_32 = Receipt(from_json=receipt_12.toJsonString())
+receipt_31 = Receipt(from_json=receipt_11.toJSONString())
+receipt_32 = Receipt(from_json=receipt_12.toJSONString())
 
 @pytest.mark.parametrize('receipt, result', ((receipt_31, True), (receipt_32, False)))
 def test_Receipt_construction_from_json(receipt, result):
@@ -163,8 +163,8 @@ def test_Receipt_construction_from_json(receipt, result):
     }
 
 
-receipt_41 = Receipt(from_dict=json.loads(receipt_11.toJsonString()))
-receipt_42 = Receipt(from_dict=json.loads(receipt_12.toJsonString()))
+receipt_41 = Receipt(from_dict=json.loads(receipt_11.toJSONString()))
+receipt_42 = Receipt(from_dict=json.loads(receipt_12.toJSONString()))
 
 @pytest.mark.parametrize('receipt, result', ((receipt_41, True), (receipt_42, False)))
 def test_Receipt_construction_from_dict(receipt, result):

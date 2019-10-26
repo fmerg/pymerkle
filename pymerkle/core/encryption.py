@@ -25,14 +25,11 @@ class Encryptor(object, metaclass=ABCMeta):
 
     def encryptRecord(self, record):
         """
-        Updates the Merkle-tree by storing the digest of the provided record
-        into a newly-created leaf, restrucuring the tree appropriately and
-        recalculating all necessary interior hashes
+        Updates the Merkle-tree by storing the checksum of the provided record
+        into a newly-created leaf.
 
         :param record: the record whose checksum is to be stored into a new leaf
         :type record: str or bytes
-        :returns: ``True`` if the provided record was successfully encrypted
-        :rtype: bool
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
             and the provided record is out of its configured encoding type
@@ -45,20 +42,17 @@ class Encryptor(object, metaclass=ABCMeta):
 
     def encryptFileContent(self, file_path):
         """
-        Encrypts the provided file as a single new leaf into the Merkle-tree
+        Encrypts the provided file as a single new leaf into the Merkle-tree.
 
-        It updates the Merkle-tree with *one* newly-created leaf (cf. doc of
-        the ``.update()`` method) storing the digest of the provided
-        file's content
+        Updates the Merkle-tree with *one* newly-created leaf storing the
+        checksum of the provided file's content.
 
         :param file_path: relative path of the file under encryption with
                 respect to the current working directory
         :type file_path: str
-        :returns: ``True`` if the provided file was successfully encrypted
-        :rtype: bool
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided files contains sequences is out of the tree's
+            and the provided files contains sequences out of the tree's
             configured encoding type
         """
         with open(abspath(file_path), mode='r') as __file:
@@ -77,19 +71,17 @@ class Encryptor(object, metaclass=ABCMeta):
 
     def encryptFilePerLog(self, file_path):
         """
-        Per log encryption of the provided file into the Merkle-tree
+        Per log encryption of the provided file into the Merkle-tree.
 
-        It successively updates the Merkle-tree (cf. doc of the ``.update()``
-        method) with each line of the provided file in the respective order
+        Successively updates the tree with each line of the provided
+        file in respective order
 
         :param file_path: relative path of the file under enryption with
             respect to the current working directory
         :type file_path: str
-        :returns: ``True`` if the provided file was successfully encrypted
-        :rtype: bool
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided files contains sequences is out of the tree's
+            and the provided files contains sequences out of the tree's
             configured encoding type
         """
         absolute_file_path = abspath(file_path)
@@ -133,42 +125,42 @@ class Encryptor(object, metaclass=ABCMeta):
         tqdm.write('Encryption complete\n')
 
 
-    def encryptObject(self, object, sort_keys=False, indent=0):
+    def encryptJSON(self, object, sort_keys=False, indent=0):
         """
-        Encrypts the provided object as a single new leaf into the Merkle-tree
+        Encrypts the provided JSON entity as a single new leaf into the
+        Merkle-tree.
 
-        It updates (cf. doc of the ``.update()`` method) the Merkle-tree with
-        *one* newly-created leaf storing the digest of the provided object's
-        stringification
+        Updates tree with *one* newly-created leaf storing the checksum of the
+        provided object's stringification.
 
         :param object: the JSON entity under encryption
         :type objec: dict
         :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
-            the object's keys get alphabetically sorted before its
+            the object's keys are alphabetically sorted before its
             stringification.
         :type sort_keys: bool
         :param indent: [optional] Defaults to ``0``. Specifies key indentation
-            upon stringification of the provided object.
+            upon stringification of the provided JSON.
         :type indent: int
         """
         self.update(
             record=json.dumps(object, sort_keys=sort_keys, indent=indent))
 
 
-    def encryptObjectFromFile(self, file_path, sort_keys=False, indent=0):
+    def encryptJSONFromFile(self, file_path, sort_keys=False, indent=0):
         """
         Encrypts the object from within the provided ``.json`` file as a
-        single new leaf into the Merkle-tree
+        single new leaf into the Merkle-tree.
 
-        The Merkle-tree gets updated with *one* newly-created leaf (cf. doc of
-        the ``.update()`` method) storing the digest of the stringification of
-        the object loaded from within the provided file
+        Updates the tree with *one* newly-created leaf storing the checksum of
+        the provided JSON's stringification.
 
         :param file_path: relative path of a ``.json`` file with respect to the
-            current working directory, containing *one* JSON entity
+            current working directory
         :type file_path: str
         :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
-            the object's keys get alphabetically sorted before its stringification
+            the object's keys are alphabetically sorted before its
+            stringification
         :type sort_keys: bool
         :param indent: [optional] Defaults to ``0``. Specifies key indentation
                 upon stringification of the object under encryption

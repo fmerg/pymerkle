@@ -139,8 +139,8 @@ class Receipt(object):
     validation-receipt ``r``:
 
     >>> from pymerkle.valiation_receipts import Receipt
-    >>> s = Receipt(from_json=r.toJsonString())
-    >>> t = Receipt(from_dict=json.loads(r.toJsonString()))
+    >>> s = Receipt(from_json=r.toJSONString())
+    >>> t = Receipt(from_dict=json.loads(r.toJSONString()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*,
         since ``s`` and ``t`` will have the same *uuid* and *timestamp* as the
@@ -151,24 +151,31 @@ class Receipt(object):
     """
 
     def __init__(self, *args, **kwargs):
-        if kwargs.get('from_dict'):            # Importing receipt from dict
-            self.header = kwargs['from_dict']['header']
-            self.body = kwargs['from_dict']['body']
-        elif kwargs.get('from_json'):     # Importing receipt form JSON text
-            _dict = json.loads(kwargs['from_json'])
-            self.header = _dict['header']
-            self.body = _dict['body']
-        else:                                   # Assuming keyword arguments
-            self.header = {
+        """
+        """
+        header = {}
+        body = {}
+        if kwargs.get('from_dict'):                             # from json dict
+            input = kwargs['from_dict']
+            header.update(input['header'])
+            body.update(input['body'])
+        elif kwargs.get('from_json'):                           # from json text
+            input = json.loads(kwargs['from_json'])
+            header.update(input['header'])
+            body.update(input['body'])
+        else:                                                  # multiple kwargs
+            header.update({
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'validation_moment': ctime(),
-            }
-            self.body = {
+            })
+            body.update({
                 'proof_uuid': kwargs['proof_uuid'],
                 'proof_provider': kwargs['proof_provider'],
                 'result': kwargs['result'],
-            }
+            })
+        self.header = header
+        self.body = body
 
     def __repr__(self):
         header = self.header
@@ -205,7 +212,7 @@ class Receipt(object):
         """
         return ReceiptSerializer().default(self)
 
-    def toJsonString(self):
+    def toJSONString(self):
         """
         Returns a stringification of the receipt's JSON serialization
 

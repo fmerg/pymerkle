@@ -113,9 +113,9 @@ def test_UndecodableRecord_with_encryptRecord(byte, encoding, security):
 
 
 @pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
-def test_encryptObject(tree, hash_machine):
+def test_encryptJSON(tree, hash_machine):
 
-    tree.encryptObject({
+    tree.encryptJSON({
             'a': 0,
             'b': 1
         },
@@ -190,11 +190,11 @@ def test_deserialization_error():
     """
     tree = MerkleTree()
     with pytest.raises(json.JSONDecodeError):
-        tree.encryptObjectFromFile(
+        tree.encryptJSONFromFile(
             os.path.join(parent_dir, 'json_files/bad.json'))
 
 @pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
-def test_encryptObjectFromFile(tree, hash_machine):
-    tree.encryptObjectFromFile(single_object_file, sort_keys=False, indent=0)
+def test_encryptJSONFromFile(tree, hash_machine):
+    tree.encryptJSONFromFile(single_object_file, sort_keys=False, indent=0)
     assert tree.leaves[-1].digest == hash_machine.hash(
         json.dumps(single_object, sort_keys=False, indent=0))
