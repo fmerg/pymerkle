@@ -195,4 +195,4 @@ def test_validator_construction_error(config):
 def test_validator_with_false_proofs(tree, proof):
     validator = Validator(proof.get_validation_params())
     with pytest.raises(InvalidMerkleProof):
-        validator.run(tree.rootHash, proof)
+        validator.run(proof, tree.rootHash)

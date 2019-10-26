@@ -3,6 +3,7 @@ Provides utilities for Merkle-proof validation
 """
 
 from pymerkle.hashing import HashMachine
+from pymerkle.core.prover import Proof
 from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle.serializers import ReceiptSerializer
 import uuid
@@ -22,20 +23,36 @@ class Validator(HashMachine):
     .. note:: Values to the above keys are meant to be the validation parameters
     extracted from the header of the proof to be validated
     """
-    def __init__(self, config):
+    def __init__(self, input=None):
+        if input is not None:
+            if isinstance(input, Proof):
+                input = input.get_validation_params()
+            self.update(input)
+
+
+    def update(self, input):
+        """
+        :param input: proof or validation parameters
+        :type input: Proof or dict
+        """
+        if isinstance(input, Proof):
+            config = input.get_validation_params()
+            self.proof = input
+        else:
+            config = input
         try:
             hash_type = config['hash_type']
             encoding = config['encoding']
             raw_bytes = config['raw_bytes']
             security = config['security']
         except KeyError as err:
-            err = f'Hash-machine could not be configured: missing parameter: {err}'
+            err = f'Hash-machine could not be configured: Missing parameter: {err}'
             raise KeyError(err)
-
         super().__init__(hash_type=hash_type, encoding=encoding,
             raw_bytes=raw_bytes, security=security)
 
-    def run(self, target, proof):
+
+    def run(self, proof=None, target=None):
         """
         Runs validation of the given ``proof`` against the provided ``target``,
         returning appropriate exception in case of failure
@@ -49,9 +66,18 @@ class Validator(HashMachine):
         :raises InvalidMerkleProof: if the provided proof was found to be
             invalid
         """
-        # if not proof.header['generation']:
+        if proof is None:
+            try:
+                proof = self.proof
+            except AttributeError:
+                return
+        if target is None:
+            try:
+                target = proof.header['commitment']
+            except KeyError:
+                return
         proof_index = proof.body['proof_index']
-        proof_path = proof.body['proof_path']
+        proof_path  = proof.body['proof_path']
         if proof_index == -1 and proof_path == ():
             raise InvalidMerkleProof
         signed_hashes = proof_path
@@ -86,9 +112,9 @@ def validateProof(target, proof, get_receipt=False, dirpath=None):
     :returns: result or receipt of validation
     :rtype: bool or validations.Receipt
     """
-    validator = Validator(config=proof.get_validation_params())
+    validator = Validator(input=proof.get_validation_params())
     try:
-        validator.run(target, proof)
+        validator.run(proof, target)
     except InvalidMerkleProof:
         result = False
     else:
@@ -117,7 +143,6 @@ def validateResponse(proof, get_receipt=False, dirpath=None):
     :type proof:
     """
     commitment = proof.header['commitment']
-    # proof = response['proof']
     output = validateProof(target=commitment, proof=proof,
         get_receipt=get_receipt, dirpath=dirpath)
     return output
