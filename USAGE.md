@@ -860,8 +860,8 @@ Here the parameters `subhash` and `sublength` (meant to be provided from Client'
 refer to the root-hash, resp. length of a subrtree to be presumably detected as a previous
 state of `tree`. Note that, as suggested in the above example,*if the available root-hash
 is string hexadecimal, then it first has to be encoded with the tree's configured encoding
-type* (here `'utf-8'`), otherwise an `InvalidProofRequest` is raised. More specifically,
-an `InvalidProofRequest` will be raised whenever the provided `subhash`, resp. `sublength`
+type* (here `'utf-8'`), otherwise an `InvalidChallengeError` is raised. More specifically,
+an `InvalidChallengeError` will be raised whenever the provided `subhash`, resp. `sublength`
 is not of type _bytes_, resp. _str_.
 
 A typical session would be as follows:

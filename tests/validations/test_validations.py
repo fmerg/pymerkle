@@ -13,6 +13,43 @@ from pymerkle.validations.mechanisms import Receipt
 from tests.config import ENCODINGS
 
 
+# Merkle-proof validation
+
+tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
+hash_func = tree.hash
+subhash = tree.rootHash
+sublength = tree.length
+
+__challenges = [
+    {
+        'checksum': hash_func('100-th record')
+    },
+    {
+        'checksum': hash_func(b'anything non recorded...')
+    },
+    {
+        'subhash': subhash,
+        'sublength': sublength
+    },
+    {
+        'subhash': b'anything else...',
+        'sublength': sublength
+    },
+    {
+        'subhash': subhash,
+        'sublength': sublength + 1
+    },
+]
+
+@pytest.mark.parametrize('challenge', __challenges)
+def test_validateResponse(challenge):
+    proof = tree.merkleProof(challenge)
+    commitment = proof.header['commitment']
+    # proof = response['proof']
+
+    assert validateResponse(proof) is validateProof(commitment, proof)
+
+
 # Trees setup
 
 MAX_LENGTH = 4
@@ -158,41 +195,4 @@ def test_validator_construction_error(config):
 def test_validator_with_false_proofs(tree, proof):
     validator = Validator(proof.get_validation_params())
     with pytest.raises(InvalidMerkleProof):
-        validator.run(tree.rootHash, proof)
-
-
-# validateResponse
-
-tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
-hash_func = tree.hash
-subhash = tree.rootHash
-sublength = tree.length
-
-__challenges = [
-    {
-        'checksum': hash_func('100-th record')
-    },
-    {
-        'checksum': hash_func(b'anything non recorded...')
-    },
-    {
-        'subhash': subhash,
-        'sublength': sublength
-    },
-    {
-        'subhash': b'anything else...',
-        'sublength': sublength
-    },
-    {
-        'subhash': subhash,
-        'sublength': sublength + 1
-    },
-]
-
-@pytest.mark.parametrize('challenge', __challenges)
-def test_validateResponse(challenge):
-    response = tree.merkleProof(challenge)
-    commitment = response['commitment']
-    proof = response['proof']
-
-    assert validateResponse(response) is validateProof(commitment, proof)
+        validator.run(proof, tree.rootHash)

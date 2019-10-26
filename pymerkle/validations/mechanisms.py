@@ -3,6 +3,7 @@ Provides utilities for Merkle-proof validation
 """
 
 from pymerkle.hashing import HashMachine
+from pymerkle.core.prover import Proof
 from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle.serializers import ReceiptSerializer
 import uuid
@@ -22,20 +23,36 @@ class Validator(HashMachine):
     .. note:: Values to the above keys are meant to be the validation parameters
     extracted from the header of the proof to be validated
     """
-    def __init__(self, config):
+    def __init__(self, input=None):
+        if input is not None:
+            if isinstance(input, Proof):
+                input = input.get_validation_params()
+            self.update(input)
+
+
+    def update(self, input):
+        """
+        :param input: proof or validation parameters
+        :type input: Proof or dict
+        """
+        if isinstance(input, Proof):
+            config = input.get_validation_params()
+            self.proof = input
+        else:
+            config = input
         try:
             hash_type = config['hash_type']
             encoding = config['encoding']
             raw_bytes = config['raw_bytes']
             security = config['security']
         except KeyError as err:
-            err = f'Hash-machine could not be configured: missing parameter: {err}'
+            err = f'Hash-machine could not be configured: Missing parameter: {err}'
             raise KeyError(err)
-
         super().__init__(hash_type=hash_type, encoding=encoding,
             raw_bytes=raw_bytes, security=security)
 
-    def run(self, target, proof):
+
+    def run(self, proof=None, target=None):
         """
         Runs validation of the given ``proof`` against the provided ``target``,
         returning appropriate exception in case of failure
@@ -49,15 +66,27 @@ class Validator(HashMachine):
         :raises InvalidMerkleProof: if the provided proof was found to be
             invalid
         """
-        if not proof.header['generation']:
+        if proof is None:
+            try:
+                proof = self.proof
+            except AttributeError:
+                return
+        if target is None:
+            try:
+                target = proof.header['commitment']
+            except KeyError:
+                return
+        proof_index = proof.body['proof_index']
+        proof_path  = proof.body['proof_path']
+        if proof_index == -1 and proof_path == ():
             raise InvalidMerkleProof
-        signed_hashes = proof.body['proof_path']
-        start = proof.body['proof_index']
+        signed_hashes = proof_path
+        start = proof_index
         if target != self.multi_hash(signed_hashes, start):
             raise InvalidMerkleProof
 
 
-def validateProof(target, proof, with_receipt=False, dirpath=None):
+def validateProof(target, proof, get_receipt=False, dirpath=None):
     """
     Core utility for validating proofs
 
@@ -71,9 +100,9 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     :type target: bytes
     :param proof: the Merkle-proof to be validated
     :type proof: proof.Proof
-    :param with_receipt: [optional] Specifies whether a receipt will be
+    :param get_receipt: [optional] Specifies whether a receipt will be
         generated for the performed validation
-    :type with_receipt: bool
+    :type get_receipt: bool
     :type dirpath: [optional] Relative path with respect to the current working
         directory of the directory where the the generated receipt is to be
         saved (as a ``.json`` file named with the receipt's uuid). If
@@ -83,9 +112,9 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     :returns: result or receipt of validation
     :rtype: bool or validations.Receipt
     """
-    validator = Validator(config=proof.get_validation_params())
+    validator = Validator(input=proof.get_validation_params())
     try:
-        validator.run(target, proof)
+        validator.run(proof, target)
     except InvalidMerkleProof:
         result = False
     else:
@@ -93,7 +122,7 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     proof_header = proof.header
     proof_header['status'] = result
     receipt = None
-    if with_receipt:
+    if get_receipt:
         receipt = Receipt(
             proof_uuid=proof_header['uuid'],
             proof_provider=proof_header['provider'],
@@ -108,15 +137,14 @@ def validateProof(target, proof, with_receipt=False, dirpath=None):
     return result if not receipt else receipt
 
 
-def validateResponse(response, with_receipt=False, dirpath=None):
+def validateResponse(proof, get_receipt=False, dirpath=None):
     """
-    :param response:
-    :type response:
+    :param proof:
+    :type proof:
     """
-    commitment = response['commitment']
-    proof = response['proof']
+    commitment = proof.header['commitment']
     output = validateProof(target=commitment, proof=proof,
-        with_receipt=with_receipt, dirpath=dirpath)
+        get_receipt=get_receipt, dirpath=dirpath)
     return output
 
 
@@ -136,8 +164,8 @@ class Receipt(object):
     validation-receipt ``r``:
 
     >>> from pymerkle.valiation_receipts import Receipt
-    >>> s = Receipt(from_json=r.toJsonString())
-    >>> t = Receipt(from_dict=json.loads(r.toJsonString()))
+    >>> s = Receipt(from_json=r.toJSONString())
+    >>> t = Receipt(from_dict=json.loads(r.toJSONString()))
 
     .. note:: Constructing receipts in the above ways is a genuine *replication*,
         since ``s`` and ``t`` will have the same *uuid* and *timestamp* as the
@@ -148,39 +176,35 @@ class Receipt(object):
     """
 
     def __init__(self, *args, **kwargs):
-
-        if args:                      # Assuming positional arguments by default
-            self.header = {
+        """
+        """
+        header = {}
+        body = {}
+        if kwargs.get('from_dict'):                             # from json dict
+            input = kwargs['from_dict']
+            header.update(input['header'])
+            body.update(input['body'])
+        elif kwargs.get('from_json'):                           # from json text
+            input = json.loads(kwargs['from_json'])
+            header.update(input['header'])
+            body.update(input['body'])
+        else:                                                  # multiple kwargs
+            header.update({
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
                 'validation_moment': ctime(),
-            }
-            self.body = {
-                'proof_uuid': args[0],
-                'proof_provider': args[1],
-                'result': args[2],
-            }
-        else:
-            if kwargs.get('from_dict'):            # Importing receipt from dict
-                self.header = kwargs['from_dict']['header']
-                self.body = kwargs['from_dict']['body']
-            elif kwargs.get('from_json'):     # Importing receipt form JSON text
-                _dict = json.loads(kwargs['from_json'])
-                self.header = _dict['header']
-                self.body = _dict['body']
-            else:                                   # Assuming keyword arguments
-                self.header = {
-                    'uuid': str(uuid.uuid1()),
-                    'timestamp': int(time()),
-                    'validation_moment': ctime(),
-                }
-                self.body = {
-                    'proof_uuid': kwargs['proof_uuid'],
-                    'proof_provider': kwargs['proof_provider'],
-                    'result': kwargs['result'],
-                }
+            })
+            body.update({
+                'proof_uuid': kwargs['proof_uuid'],
+                'proof_provider': kwargs['proof_provider'],
+                'result': kwargs['result'],
+            })
+        self.header = header
+        self.body = body
 
     def __repr__(self):
+        header = self.header
+        body = self.body
 
         return '\n    ----------------------------- VALIDATION RECEIPT -----------------------------\
                 \n\
@@ -195,12 +219,12 @@ class Receipt(object):
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\
                 \n'.format(
-                    uuid=self.header['uuid'],
-                    timestamp=self.header['timestamp'],
-                    validation_moment=self.header['validation_moment'],
-                    proof_uuid=self.body['proof_uuid'],
-                    proof_provider=self.body['proof_provider'],
-                    result='VALID' if self.body['result'] else 'NON VALID')
+                    uuid=header['uuid'],
+                    timestamp=header['timestamp'],
+                    validation_moment=header['validation_moment'],
+                    proof_uuid=body['proof_uuid'],
+                    proof_provider=body['proof_provider'],
+                    result='VALID' if body['result'] else 'NON VALID')
 
 
 # Serialization
@@ -213,7 +237,7 @@ class Receipt(object):
         """
         return ReceiptSerializer().default(self)
 
-    def toJsonString(self):
+    def toJSONString(self):
         """
         Returns a stringification of the receipt's JSON serialization
 

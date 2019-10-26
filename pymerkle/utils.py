@@ -86,5 +86,5 @@ def stringify_path(signed_hashes, encoding):
                 .format(i=i, sign=get_with_sign(pair[0]),
                     hash=pair[1].decode(encoding=encoding) \
                     if not isinstance(pair[1], str) else pair[1])
-                % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 2 * ' '))
+                % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 3 * ' '))
     return ''.join(stringified_pairs)

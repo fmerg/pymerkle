@@ -55,7 +55,7 @@ to see how to perform second-preimage attacks
 against the present implementation. In order to disable defense (say, for testing purposes),
 set ``security`` equal to ``False`` at construction.
 
-### Deviation from bitcoin specification
+### Defense against denial-of-service attacks
 
 In contrast to the
 [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)

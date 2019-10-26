@@ -6,7 +6,7 @@ import pytest
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import HASH_TYPES
-from pymerkle.exceptions import InvalidProofRequest, InvalidChallengeError
+from pymerkle.exceptions import InvalidChallengeError, InvalidChallengeError
 from tests.config import ENCODINGS
 
 
@@ -20,14 +20,10 @@ audit_challenge_2 = {'checksum': hash_func(b'anything non recorded...')}
 
 @pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
 def test_audit_merkleProof(challenge):
-    checksum = challenge['checksum']
-    response = tree.merkleProof(challenge)
-
+    merkle_proof = tree.merkleProof(challenge)
+    commitment = merkle_proof.header['commitment']
     audit_proof = tree.auditProof(challenge['checksum'])
-    commitment = response['commitment']
-    proof = response['proof']
-
-    assert commitment == tree.rootHash and proof.body == audit_proof.body
+    assert commitment == tree.rootHash and merkle_proof.body == audit_proof.body
 
 cons_challenge_1 = {'subhash': tree.rootHash, 'sublength': tree.length}
 cons_challenge_2 = {'subhash': b'anything else...', 'sublength': tree.length}
@@ -43,11 +39,10 @@ def test_consistency_merkleProof(challenge):
     sublength = challenge['sublength']
     consistency_proof = tree.consistencyProof(subhash, sublength)
 
-    response = tree.merkleProof(challenge)
-    commitment = response['commitment']
-    proof = response['proof']
+    merkle_proof = tree.merkleProof(challenge)
+    commitment = merkle_proof.header['commitment']
 
-    assert commitment == tree.rootHash and proof.body == consistency_proof.body
+    assert commitment == tree.rootHash and merkle_proof.body == consistency_proof.body
 
 
 __invalid_challenges = [
@@ -126,8 +121,8 @@ __invalid_audit_proof_requests = [
 ]
 
 @pytest.mark.parametrize("tree, arg", __invalid_audit_proof_requests)
-def test_audit_InvalidProofRequest(tree, arg):
-    with pytest.raises(InvalidProofRequest):
+def test_audit_InvalidChallengeError(tree, arg):
+    with pytest.raises(InvalidChallengeError):
         tree.auditProof(arg)
 
 __tree__wrong_arg = []
@@ -159,12 +154,12 @@ def test_empty_auditProof(tree, arg):
             'uuid': audit_proof.header['uuid'],
             'timestamp': audit_proof.header['timestamp'],
             'creation_moment': audit_proof.header['creation_moment'],
-            'generation': False,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': audit_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -182,12 +177,12 @@ def test_non_empty_auditProof(tree, arg):
             'uuid': audit_proof.header['uuid'],
             'timestamp': audit_proof.header['timestamp'],
             'creation_moment': audit_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': audit_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -283,12 +278,12 @@ for (tree, subtree) in __trees_and_subtrees:
 
 
 @pytest.mark.parametrize("tree, subhash, sublength", __invalid_consistency_proof_requests)
-def test_consistency_InvalidProofRequest(tree, subhash, sublength):
+def test_consistency_InvalidChallengeError(tree, subhash, sublength):
     """
-    Tests ``InvalidProofRequest`` upon requesting
+    Tests ``InvalidChallengeError`` upon requesting
     a consistency proof with invalid arguments
     """
-    with pytest.raises(InvalidProofRequest):
+    with pytest.raises(InvalidChallengeError):
         tree.consistencyProof(subhash, sublength)
 
 
@@ -304,12 +299,12 @@ def test_non_empty_consistencyProof(tree, subhash, sublength):
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
             'creation_moment': consistency_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': consistency_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -331,12 +326,12 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
             'creation_moment': consistency_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': consistency_proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -358,12 +353,12 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
             'creation_moment': consistency_proof.header['creation_moment'],
-            'generation': True,
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
+            'commitment': consistency_proof.header['commitment'],
             'status': None
         },
         'body': {
