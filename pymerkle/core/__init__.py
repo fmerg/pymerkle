@@ -1,4 +1,4 @@
 from .tree import MerkleTree
-from .prover import Prover
+from .prover import Proof
 
-__all__ = ('MerkleTree', 'Proofs',)
+__all__ = ('MerkleTree', 'Proof',)

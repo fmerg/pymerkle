@@ -23,7 +23,7 @@ zero-knowledge fashion.
     In other words, Merkle-proofs are zero-knowledge except
     for the publication of *one* checksum.
 
-In Merkle-proof protocols the role of *commitment* is played by the
+In Merkle-proof protocols the role of *commitment* belongs to the
 root-hash of the tree at the moment of proof generation. The
 commitment is always available via the `.rootHash`_ property
 of Merkle-trees:
@@ -35,14 +35,60 @@ of Merkle-trees:
 
 .. _.rootHash: file:///home/beast/proj/pymerkle/docs/build/pymerkle.html?highlight=roothash#pymerkle.MerkleTree.rootHash
 
+Note that this statement will raise an ``EmptyTreeException`` if the
+tree happens to be empty. For better semantics, one can alternately
+call the `.get_commitment`_ function,
+
+.. code-block:: python
+
+    commitment = tree.get_commitment()
+
+returning ``None`` for the empty case.
+
+.. _.get_commitment: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.get_commitment
+
 Challenge-commitment schema
 ===========================
+
+One can use the `MerkleTree.merkleProof`_ to generate the Merkle-proof against a submitted 
+challenge as follows:
+
+.. code-block:: python
+
+        merkle_proof = tree.MerkleProof(challenge)
+
+.. _MerkleTree.merkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.merkleProof
+
+Challenge structure
+-------------------
+
+The provided *challenge* must be a dictionary of one of the following types,
+otherwise an ``InvalidChallengeError`` is raised and proof generation is aborted:
+
+.. code-block:: bash
+        
+        {
+                'checksum': <str> or <bytes>
+        }
+
+indicating request of an *audit-proof*, or 
+
+.. code-block:: bash
+
+        {
+                'subhash': <str> or <bytes>
+                'sublength': <int>
+        }
+
+which indicates that a *consistency-proof* is requested.
+
+
 
 Transmission of proofs
 ======================
 
-Alternative validations
-=======================
+Validation modes
+================
 
 Running a validator
 -------------------

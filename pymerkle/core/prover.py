@@ -77,7 +77,11 @@ class Prover(object, metaclass=ABCMeta):
         :raises InvalidChallengeError: if the provided argument's type
             is not as prescribed
         """
-        if type(checksum) not in (bytes,):
+        if isinstance(checksum, bytes):                     # Assuming hexdigest
+            pass
+        elif isinstance(checksum, str):
+            checksum = checksum.encode()                    # Assuming hexstring
+        else:
             raise InvalidChallengeError
 
         index = self.find_index(checksum)
@@ -138,8 +142,14 @@ class Prover(object, metaclass=ABCMeta):
         :raises InvalidChallengeError: if type of any of the provided
             arguments is not as prescribed
         """
-        if type(subhash) is not bytes or type(sublength) is not int \
-            or sublength <= 0:
+        if isinstance(subhash, bytes):                      # Assuming hexdigest
+            pass
+        elif isinstance(subhash, str):
+            subhash = subhash.encode()                      # Assuming hexstring
+        else:
+            raise InvalidChallengeError
+
+        if type(sublength) is not int or sublength <= 0:
             raise InvalidChallengeError
 
         if commitment is True:

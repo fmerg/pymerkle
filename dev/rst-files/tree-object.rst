@@ -1,5 +1,12 @@
 Merkle-tree object
 ++++++++++++++++++
+.. code-block:: python 
+
+    from pymerkle import MerkleTree
+
+imports the `MerkleTree`_ class and
+
+.. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
 
 .. code-block:: python
 
@@ -29,7 +36,7 @@ core `.hash`_ functionality via these attributes.
   encoding function`_ for insight).
 
 The ``.hash_type`` attribute refers to the underlying builtin algorithm
-(imported from the `hashlib`_) and ``.encoding`` is the encoding,
+(imported from `hashlib`_) and ``.encoding`` is the encoding,
 to which any new record of type *str* will be submitted before 
 being hashed. For example,
 
@@ -41,7 +48,7 @@ creates a SHA512/UTF-32 Merkle-tree in raw-bytes and security mode.
 If the provided *hash_type* (resp. *encoding*) is not among the 
 `supported hash types`_ (resp. `supported encodings`_), then an 
 ``UnsupportedHashType`` (resp. ``UnsupportedEncoding``) is 
-raised. and the construction is is *aborted*.
+raised and the construction is is *aborted*.
 
 .. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.hash
 

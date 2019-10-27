@@ -149,5 +149,4 @@ Run
 ./dev/build-docs
 ```
 
-from inside the projects root dir to build Sphinx docs for the project.
-Provide `-h/--help` for more options.
+from inside the projects root dir to build the documentation (`./docs/build/index.html`)

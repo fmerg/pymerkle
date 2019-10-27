@@ -48,14 +48,14 @@ def test_consistency_merkleProof(challenge):
 __invalid_challenges = [
     {},
     {
-        'checksum': 'anything that is not a bytes object...'
+        'checksum': 100                      # anything that is not bytes or str
     },
     {
         'checksum': hash_func('100-th record'),
         'extra key': 'extra_value'
     },
     {
-        'subhash': 'anything that is not a bytes object...',
+        'subhash': 100,                      # anything that is not bytes or str
         'sublength': tree.length
     },
     {
@@ -109,13 +109,13 @@ for raw_bytes in (True, False):
 __invalid_audit_proof_requests = [
     (
         MerkleTree(),
-        'anything that is not of type... bytes'
+        100# 'anything that is not of type... bytes'
     ),
     (
         MerkleTree(),
         {
-            'a': 'anything that is not...',
-            'b': '... of type bytes'
+            'a': 200,#'anything that is not...',
+            'b': 300#... of type bytes'
         },
     ),
 ]
@@ -230,7 +230,7 @@ for (tree, subtree) in __trees_and_subtrees:
             [
                 (
                     tree,
-                    'any non bytes object',                 # Invalid type for `subhash`
+                    100,                            # Invalid type for `subhash`
                     subtree.length
                 ),
                 (
@@ -366,3 +366,24 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
             'proof_path': consistency_proof.body['proof_path']
         }
     }
+
+# Test string conversion to bytes
+
+tree = MerkleTree(*['%d-th record' for i in range(666)])
+hexstring = '15d02997b9e32d81ffefa8fad54a252a6e5303f846140e544c008455e64660ec'
+
+def test_conversion_at_auditProof():
+    proof_1 = tree.auditProof(hexstring)
+    proof_2 = tree.auditProof(hexstring.encode())
+    assert proof_1.body['proof_path'] == proof_2.body['proof_path']
+
+subhash = tree.rootHash
+sublength = tree.length
+for i in range(1000):
+    tree.update(f'{i}-th record')
+
+def test_conversion_at_consistencyProof():
+    consistencyProof = tree.consistencyProof
+    proof_1 = consistencyProof(subhash=subhash, sublength=sublength)
+    proof_2 = consistencyProof(subhash=subhash.decode(), sublength=sublength)
+    assert proof_1.body['proof_path'] == proof_2.body['proof_path']
