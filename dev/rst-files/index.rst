@@ -2,12 +2,18 @@
 pymerkle
 ########
 
+|Build-Status| |Coverage-Status| |PyPI-version|
+
+.. |Build-Status| image:: https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master
+   :target: https://travis-ci.com/FoteinosMerg/pymerkle
+.. |Coverage-Status| image:: https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/FoteinosMerg/pymerkle
+.. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
+   :target: https://pypi.org/project/pymerkle/
+
 *************************************************************************
 Merkle-tree cryptographic library for generation and validation of Proofs
 *************************************************************************
-
-.. |Travis CI Status| image:: https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master
-   :target: https://travis-ci.com/FoteinosMerg/pymerkle
 
 *Pymerkle* provides a class for balanced Merkle-trees (with possibly odd
 number of leaves), capable of generating Merkle-proofs (audit-proofs
@@ -43,29 +49,23 @@ Typing
 
         from pymerkle import *
 
-makes available the `MerkleTree`_ and `Validator`_ classes 
-along with the `validateProof`_ and `validateResponse`_
+makes available the `MerkleTree`_, `Proof`_ and `Validator`_
+classes along with the `validateProof`_ and `validateResponse`_
 standalone functions.
 
 .. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
+.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof 
 .. _Validator: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Validator
 .. _validateProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateProof
 .. _validateResponse: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateResponse
 
-Usage
-*****
-
-.. toctree::
-    :maxdepth: 1
-
-   usage
 
 Security
 ********
 
 Enhanced security of the present implementation relies on the
 tree's topology as well as the standard refinement
-of the encoding procedure.
+of the encoding process.
 
 Defense against second-preimage attack
 ======================================
@@ -74,10 +74,10 @@ Defense against second-preimage attack consists in the following
 security measures:
 
 * Before computing the hash of a leaf, prepend the corresponding record
-  with the null hexadecimal ``0x00``
+  with the hexadecimal ``0x00``
 
 * Before computing the hash of any interior node, prepend both of its
-  parents' checksums with the unit hexadecimal ``0x01``
+  parents' checksums with the hexadecimal ``0x01``
 
 Refer to the `making of the encoding function`_ to see how
 this is uniformly achieved for *all* types of encoding.
@@ -101,7 +101,7 @@ the vulnerability described `here`_ (reported as `CVE-2012-2459`_).
 Tree structure
 **************
 
-Contrary to other implementations, the present Merkle-tree remains always
+Contrary to other implementations, the present Merkle-tree remains strictly
 binary balanced, with all nodes except for the exterior ones (leaves)
 having two parents. This is attained as follows: upon appending a block
 of new leaves, instead of promoting a lonely leaf to the next level or
@@ -138,11 +138,11 @@ any of the available validation mechanisms.
 .. note:: Proof validation is agnostic of whether a Merkle-proof has
    been the result of an audit or a consistency proof request.
    Audit-proofs and consistency-proofs share identical structure,
-   so that both kinds are instances of the same class (`Proof`_).
+   so that both kinds are instances of the same class.
 
 .. _GitHub: https://github.com/FoteinosMerg/pymerkle
 .. _tqdm: https://tqdm.github.io/
-.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.Encoder.mk_encode_func
+.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func 
 .. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
@@ -150,7 +150,15 @@ any of the available validation mechanisms.
 .. _this: https://keccak.team/files/Sakura.pdf
 .. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update
 .. _RFC 6912: https://tools.ietf.org/html/rfc6962#section-2.1.2
-.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.tree.html#pymerkle.tree.prover.Proof
+
+
+Usage
+*****
+
+.. toctree::
+    :maxdepth: 1
+
+   usage
 
 Indices and tables
 ******************

@@ -90,8 +90,8 @@ cp ../dev/rst-files/index.rst ./source/index.rst
 cp ../dev/rst-files/usage.rst ./source/usage.rst
 cp ../dev/rst-files/tree-object.rst ./source/tree-object.rst
 cp ../dev/rst-files/encryption.rst ./source/encryption.rst
-cp ../dev/rst-files/generation.rst ./source/generation.rst
-cp ../dev/rst-files/validation.rst ./source/validation.rst
+cp ../dev/rst-files/merkle-proofs.rst ./source/merkle-proofs.rst
+cp ../dev/rst-files/decoupling.rst ./source/decoupling.rst
 cp ../dev/rst-files/inclusion.rst ./source/inclusion.rst
 
 sphinx-build -b html source build

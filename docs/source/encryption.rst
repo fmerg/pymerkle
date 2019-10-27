@@ -6,7 +6,7 @@ Single record encryption
 
 *Updating the Merkle-tree with a single record* means appending a
 newly-created leaf storing the digest of this record. A record
-may be of type *str* or *bytes* indifferently. One may invoke
+may be of type *str* or *bytes* indifferently. One can invoke
 the `.update`_ method to successively update with new records
 as follows:
 
@@ -18,14 +18,14 @@ as follows:
     tree.update(record=b'some byte sequence')
 
 
-The `.update`_ method is completely responsible for the tree'
+This method is completely responsible for the tree'
 s gradual development, preserving its property of being
 *binary balanced* and ensuring that trees with the same
 number of leaves have the same topology (despite their
 possibly different gradual development).
 
-.. warning:: The `.update`_ method is thought of as low-level
-        and its usage is *discouraged*.
+.. warning:: The *.update* method is thought of as low-level
+        and its usage is discouraged.
 
 .. _.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.update
 
@@ -36,9 +36,7 @@ An equivalent functionality is achieved by the recommended
 
     >>> tree = MerkleTree()
     >>> tree.encryptRecord('some string')
-    True
     >>> tree.encryptRecord(b'some byte sequence')
-    True
     >>> print(tree)
 
     └─7dd7b0ae66f5189817442451f6c6cbf239f63af9bb1e8864ca927a969fed0b8d
@@ -118,11 +116,10 @@ per log as follows:
     Encrypting file per log: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
     Encryption complete
 
-    True
     >>>
 
-where the provided argument is file's relative path with respect to the current
-working directory.
+where the provided argument is the file's relative path with respect 
+to the current working directory.
 
 .. _.encryptFilePerLog: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptFilePerLog
 
@@ -146,18 +143,17 @@ provided file falls under the tree's configured type, otherwise
     0
     >>>
 
-Direct object encryption
+Direct JSON encryption
 ------------------------
 
-*Encrypting an object* (a JSON entity) *into* the Merkle-tree means
-updating it with a newly created leaf storing the digest of the
-corresponding JSON string (that is, encrypting its stringification
-as a single record). Use the `.encryptObject`_ method to encrypt
-any dictionary (*dict*) with serialized values as follows:
+*Encrypting a JSON into* the Merkle-tree means updating it with a 
+newly created leaf storing the digest of the corresponding JSON.
+Use the `.encryptJSON`_ method to encrypt any dictionary with 
+serialized values as follows:
 
 .. code-block:: python
 
-    tree.encryptObject({'b': 0, 'a': 1})
+    tree.encryptJSON({'b': 0, 'a': 1})
 
 which is the same as
 
@@ -170,7 +166,7 @@ These parameters may be controlled via kwargs as follows:
 
 .. code-block::
 
-    tree.encryptObject({'b': 0, 'a': 1}, sort_keys=True, indent=4)
+    tree.encryptJSON({'b': 0, 'a': 1}, sort_keys=True, indent=4)
 
 which is the same as
 
@@ -183,20 +179,20 @@ unnecessary headaches upon requesting and validating audit-proofs, it is
 recommended that *sort_keys* and *indent* are left to their default values
 (``False`` and ``0`` respectively), unless special care is to be taken.
 
-.. _.encryptObject: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptObject
+.. _.encryptJSON: file:///home/beast/proj/pymerkle/docs/build/pymerkle.core.html?highlight=encryptjson#pymerkle.core.encryption.Encryptor.encryptJSON
 
-File based object encryption
+File based JSON encryption
 ----------------------------
 
-*File based encryption of an object into* the Merkle-tree means encrypting
+*File based encryption of an JSON into* the Merkle-tree means encrypting
 the object stored in a *.json* file by just providing the relative path of
-that file. Use the `.encryptObjectFromFile`_ method as follows:
+that file. Use the `.encryptJSONFromFile`_ method as follows:
 
 .. code-block:: python
 
-    tree.encryptObjectFromFile('relative_path/sample.json')
+    tree.encryptJSONFromFile('relative_path/sample.json')
 
 The file should here contain a *single* (i.e., well-formed) JSON entity,
 otherwise a `JSONDecodeError` is raised and the encryption is _aborted_.
 
-.. _.encryptObjectFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptObjectFromFile
+.. _.encryptJSONFromFile: file:///home/beast/proj/pymerkle/docs/build/pymerkle.core.html?highlight=encryptjsonfromfile#pymerkle.core.encryption.Encryptor.encryptJSONFromFile 

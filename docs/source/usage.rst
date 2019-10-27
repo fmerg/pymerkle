@@ -4,6 +4,6 @@
 
    tree-object
    encryption
-   generation
-   validation
+   merkle-proofs
+   decoupling
    inclusion

@@ -37,17 +37,17 @@ pip3 install pymerkle --pre
 
 Enhanced security of the present implementation relies on the
 tree's topology as well as the standard refinement
-of the encoding procedure.
+of the encoding process.
 
 ### Defense against second-preimage attack
 
 Defense against second-preimage attack consists in the following security measures:
 
 - Before computing the hash of a leaf, prepend the corresponding record with
-the null hexadecimal `0x00`
+the null `0x00`
 
 - Before computing the hash of any interior node, prepend both of its parents'
-hashes with the unit hexadecimal `0x01`
+hashes with the unit `0x01`
 
 Refer to
 [`tests/test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)

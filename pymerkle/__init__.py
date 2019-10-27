@@ -7,4 +7,5 @@ from .validations import Validator, validateProof, validateResponse
 
 __version__ = "5.0.0b3"
 
-__all__ = ('MerkleTree', 'Validator', 'validateProof', 'validateResponse',)
+__all__ = ('MerkleTree', 'Proof', 'Validator',
+           'validateProof', 'validateResponse',)

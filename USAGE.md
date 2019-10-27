@@ -5,18 +5,71 @@
 **Complete documentation found at
 [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
-**Refer to [_API_](API.md) for the tools described here.**
 
 ```python
 from pymerkle import *
 ```
 
-imports the classes `MerkleTree` and `Validator`, along with the standalone
-functions `validateProof()` and `validationReceipt()`.
+imports the classes `MerkleTree`,  `Proof` and `Validator`along with the
+`validateProof()` and `validateResponse()` standalone functions.
 
-### Merkle-tree construction
+## Merkle-tree object
 
-```python
+### Configuration
+
+#### Attributes and properties
+
+### Representation
+
+### Persistence
+
+## Encryption
+
+### Single record encryption
+
+### Encryption modes
+
+#### Bulk file encryption
+
+#### Per log file encryption
+
+#### Direct JSON encryption
+
+#### File based JSON encryption
+
+## Proof generation and validation
+
+### Challenge-commitment schema
+
+### Transmission of proofs
+
+### Alternative validations
+
+#### Running a validator
+
+#### Direct validation
+
+#### Validation receipts
+
+## Decoupling commitments from proofs
+
+### Audit-proof
+
+#### Schema
+
+#### Example
+
+### Consistency-proof
+
+#### Schema
+
+#### Example
+
+## Inclusion test
+
+### Tree comparison
+
+<!-- ```python
 tree = MerkleTree()
 ```
 
@@ -269,11 +322,11 @@ pymerkle.exceptions.UndecodableRecord: ...
 _Encrypting an object_ (a JSON entity) _into_ the Merkle-tree means updating
 it with a newly created leaf storing the digest of the corresponding JSON
 string (that is, encrypting its stringification as a single record).
-Use the `.encryptObject()` method to encrypt any dictionary (`dict`)
+Use the `.encryptJSON()` method to encrypt any dictionary (`dict`)
 with serialized values as follows:
 
 ```python
-tree.encryptObject({'b': 0, 'a': 1})
+tree.encryptJSON({'b': 0, 'a': 1})
 ```
 
 which is the same as
@@ -286,7 +339,7 @@ Note that keys are not being sorted and no indentation is applied.
 These parameters may be controlled via kwargs as follows:
 
 ```python
-tree.encryptObject({'b': 0, 'a': 1}, sort_keys=True, indent=4)
+tree.encryptJSON({'b': 0, 'a': 1}, sort_keys=True, indent=4)
 ```
 
 which is the same as
@@ -851,7 +904,7 @@ This situation may arise in two ways:
 
 1. ...
 
-2. ...
+2. ... -->
 
 
 <!--

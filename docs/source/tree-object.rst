@@ -21,28 +21,27 @@ The above construction is equivalent to
 
 where the provided kwargs directly specify the homonymous attributes at
 construction. Configuration of a Merkle-tree amounts to configuring its
-core hash functionality (`.hash`_) via these attributes.
+core `.hash`_ functionality via these attributes.
 
 .. note:: Manually changing the attribute values of the Merkle-tree does
-  *not* affect the core hash functionality. That is, `.hash`_ is once and for
-  ever configured at construction (refer to the `making of the encoding
-  function`_ for insight).
+  *not* affect the core hash functionality, i.e., the latter is once and 
+  for ever configured at construction (refer to the `making of the 
+  encoding function`_ for insight).
 
 The ``.hash_type`` attribute refers to the underlying builtin algorithm
-(imported from the `hashlib`_ Python-module) and ``.encoding`` is the encoding,
-to which any new record of type *str* will be submitted before being hashed.
-For example,
+(imported from the `hashlib`_) and ``.encoding`` is the encoding,
+to which any new record of type *str* will be submitted before 
+being hashed. For example,
 
 .. code-block:: python
 
     tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 
 creates a SHA512/UTF-32 Merkle-tree in raw-bytes and security mode.
-If the provided *hash_type* is not among the `supported hash types`_,
-then an ``UnsupportedHashType`` is raised. Similary, if the provided
-*encoding* is not among the `supported encodings`_, then an
-``UnsupportedEncoding`` error is raised. In either case the
-construction is *aborted*.
+If the provided *hash_type* (resp. *encoding*) is not among the 
+`supported hash types`_ (resp. `supported encodings`_), then an 
+``UnsupportedHashType`` (resp. ``UnsupportedEncoding``) is 
+raised. and the construction is is *aborted*.
 
 .. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.hash
 
@@ -54,10 +53,10 @@ construction is *aborted*.
 .. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.ENCODINGS
 
 The ``.raw_bytes`` attribute refers to the tree's ability of consuming
-arbitrary binary data, which is the default choice (*True*). If *False*,
-the tree will only accept byte sequences falling under its configured encoding
-type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes mode denies the
-encryption of any byte sequence containing ``0x74``,
+arbitrary binary data, which is the default choice (True). If False,
+the tree will only accept byte sequences falling under its configured 
+encoding type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes 
+mode denies the encryption of any byte sequence containing ``0x74``,
 raising an ``UndecodableRecord`` error instead:
 
 .. code-block:: python
@@ -71,11 +70,11 @@ raising an ``UndecodableRecord`` error instead:
     >>>
 
 .. warning:: One can disable the raw-bytes mode for the purpose of
-        filtering out unacceptable records, e.g., when only files of a
-        specific encoding are allowed for encryption. This is seldom
-        the case in real-life, since origin of submitted files is usually
-        to be kept wide. If so, make sure to leave the raw-bytes mode
-        untouched, so that no encoding issues arise upon file encryption.
+        filtering out unacceptable records, e.g., when only files of 
+        a specific encoding are allowed for encryption. This is seldom
+        the case in real-life, since the origin of submitted files is 
+        usually to be kept wide. If so, make sure to leave the raw-bytes 
+        mode untouched, so that no encoding issues arise upon file encryption.
 
 The ``.security`` attribute refers to the tree's ability of defending against
 second-preimage attacks, which is by default enabled (*True*). In this case,
@@ -100,27 +99,36 @@ Attributes and properties
 The identity, current state and fixed configuration of a Merkle-tree are
 encapsulated in the following collection of attributes and properties.
 
-        * ``.uuid`` (*str*) - Unique identifier (time-based uuid)
+:uuid: 
+        (*str*) - Unique identifier (time-based uuid)
 
-        * ``.hash_type`` (*str*) - Name of the underlying hash algorithm
+:hash_type: 
+        (*str*) - Name of the underlying hash algorithm
 
-        * ``.encoding`` (*str*) - Encoding applied before hashing
+:encoding:
+        (*str*) - Encoding applied before hashing
 
-        * ``.raw_bytes`` (*bool*) - Indicates ability of consuming arbitraty bytes
+:raw_bytes:
+        (*bool*) - Indicates ability of consuming arbitraty bytes
 
-        * ``.security`` (*bool*) - Indicates defense against second-preimage attack
+:security:
+        (*bool*) - Indicates defense against second-preimage attack
 
-        * ``.length`` (*int*) - Current number of leaves (exterior nodes)
+:length:
+        (*int*) - Current number of leaves (exterior nodes)
 
-        * ``.size`` (*int*) - Current number of nodes (both exterior and interior)
+:size:
+        (*int*) - Current number of nodes (both exterior and interior)
 
-        * ``.height`` (*int*) - Current height (length of the tree's leftmost branch)
+:height:
+        (*int*) - Current height (length of the tree's leftmost branch)
 
-        * ``.rootHash`` (*bytes*) - The hash currently stored by the Merkle-tree's root
+:rootHash:
+        (*bytes*) - The hash currently stored by the Merkle-tree's root
 
 Invoking a Merkle-tree from the Python iterpeter displays the above properties
 in the form of an etiquette (cf. the *Representation* section below). Here is
-how the empty standard (SHA256/UTF-8) Merkle-tree looks like:
+how the empty standard (SHA256/UTF-8) Merkle-tree would looks like:
 
 .. code-block:: python
 
@@ -266,7 +274,7 @@ current state be retrievable from that file:
 
    tree.export('relative_path/backup.json')
 
-The file *backup.json* (which will be *overwritten* if it already exists) will
+The file *backup.json* (which will be overwritten if it already exists) will
 contain a JSON entity with keys ``header``, mapping to the tree's configuration,
 and ``hashes``, mapping to the checksums currently stored by the tree's leaves
 in respective order. For example:
