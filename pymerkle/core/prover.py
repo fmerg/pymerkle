@@ -41,7 +41,7 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
-    def merkleProof(self, challenge, commitment=True):
+    def merkleProof(self, challenge, commit=True):
         """
         :param challenge:
         :type challenge: dict
@@ -51,19 +51,19 @@ class Prover(object, metaclass=ABCMeta):
         keys = set(challenge.keys())
         if keys == {'checksum'}:
             checksum = challenge['checksum']
-            proof = self.auditProof(checksum, commitment=commitment)
+            proof = self.auditProof(checksum, commit=commit)
         elif keys == {'subhash', 'sublength'}:
             subhash = challenge['subhash']
             sublength = challenge['sublength']
             proof = self.consistencyProof(subhash, sublength,
-                commitment=commitment)
+                commit=commit)
         else:
             raise InvalidChallengeError
 
         return proof
 
 
-    def auditProof(self, checksum, commitment=False):
+    def auditProof(self, checksum, commit=False):
         """
         Response of the Merkle-tree to the request of providing an
         audit-proof based upon the provided checksum
@@ -85,7 +85,7 @@ class Prover(object, metaclass=ABCMeta):
             raise InvalidChallengeError
 
         index = self.find_index(checksum)
-        if commitment is True:
+        if commit is True:
             commitment = self.get_commitment()
         else:
             commitment = None
@@ -114,7 +114,7 @@ class Prover(object, metaclass=ABCMeta):
             proof_path=audit_path)
 
 
-    def consistencyProof(self, subhash, sublength, commitment=False):
+    def consistencyProof(self, subhash, sublength, commit=False):
         """
         Response of the Merkle-tree to the request of providing a
         consistency-proof for the provided parameters
@@ -152,7 +152,7 @@ class Prover(object, metaclass=ABCMeta):
         if type(sublength) is not int or sublength <= 0:
             raise InvalidChallengeError
 
-        if commitment is True:
+        if commit is True:
             commitment = self.get_commitment()
         else:
             commitment = None
@@ -345,12 +345,17 @@ class Proof(object):
 
 
     @classmethod
-    def deserialize(cls, json_proof):
+    def deserialize(cls, serialized):
         """
-        :params json_proof:
-        :type: dict
+        :params serialized:
+        :type: dict or str
         """
-        return cls(from_dict=json_proof)
+        kwargs = {}
+        if isinstance(serialized, dict):
+            kwargs.update({'from_dict': serialized})
+        elif isinstance(serialized, str):
+            kwargs.update({'from_json': serialized})
+        return cls(**kwargs)
 
 # Serialization
 

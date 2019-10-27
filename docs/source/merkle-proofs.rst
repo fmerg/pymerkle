@@ -9,7 +9,7 @@ hashes (a finite sequence of checksums and a rule for combining them into a
 single hash), leading to the acclaimed current root-hash of the Merkle-tree.
 Providing and validating Merkle-proofs certifies knowledge on
 behalf of *both* the client and server of some part of the tree's history
-or current state, disclosing a minimum out of the encrypted records
+or current state, disclosing a minimum of encrypted records
 and without actual need of holding a database of the originals.
 This makes Merkle-proofs well suited for protocols involving verification
 of existence and integrity of encrypted data in mutual and *quasi*
@@ -50,7 +50,7 @@ returning ``None`` for the empty case.
 Challenge-commitment schema
 ===========================
 
-One can use the `MerkleTree.merkleProof`_ to generate the Merkle-proof against a submitted 
+One can use the `MerkleTree.merkleProof`_ to generate the Merkle-proof against a submitted
 challenge as follows:
 
 .. code-block:: python
@@ -66,12 +66,12 @@ The provided *challenge* must be a dictionary of one of the following types,
 otherwise an ``InvalidChallengeError`` is raised and proof generation is aborted:
 
 .. code-block:: bash
-        
+
         {
                 'checksum': <str> or <bytes>
         }
 
-indicating request of an *audit-proof*, or 
+indicating request of an *audit-proof*, or
 
 .. code-block:: bash
 
@@ -80,12 +80,279 @@ indicating request of an *audit-proof*, or
                 'sublength': <int>
         }
 
-which indicates that a *consistency-proof* is requested.
+indicating request of a *consistency-proof*. In the first case, the provided *checksum*
+is thought of as the checksum stored by some of the Merkle-tree's leaves, whereas in the
+second case the parameters *subhash* and *sublength* are thought of as encapsulating the
+Merkle-tree's state at some previous moment of its history (its root-hash and number of
+leaves respectively). Focusing on the first case, the provided *checksum* will be assumed
+by the Merkle-tree to be a hexadecimal, that is, a hexstring or hexdigest. In particular,
+the challenge
+
+.. code-block:: python
+
+        {
+                'checksum': '3f0941bd95131963906aa27cbea5b38a5ce2611adb4f2f22b8e4fa383cd00e33'
+        }
+
+will give rise to the *same* Merkle-proof as
+
+.. code-block:: python
+
+        {
+                'checksum': b'3f0941bd95131963906aa27cbea5b38a5ce2611adb4f2f22b8e4fa383cd00e33'
+        }
+
+where the former may be considered as the serialized version of the latter (e.g., the payload
+of a network request). Similar considerations apply for the *subhash* field of the second case.
 
 
+Response structure
+------------------
 
-Transmission of proofs
-======================
+The produced ``merkle_proof`` is an instance of the `Proof`_ class. It consists of a
+path of hashes and the required parameters for validation to be performed from the
+client's side. Invoking it from the Python interpreter, it looks like
+
+.. code-block:: python
+
+    >>> merkle_proof
+
+        ----------------------------------- PROOF ------------------------------------
+
+        uuid        : 897220b8-f8dd-11e9-9e85-701ce71deb6a
+
+        timestamp   : 1572196598 (Sun Oct 27 19:16:38 2019)
+        provider    : 77b623a6-f8dd-11e9-9e85-701ce71deb6a
+
+        hash-type   : SHA256
+        encoding    : UTF-8
+        raw_bytes   : TRUE
+        security    : ACTIVATED
+
+        proof-index : 4
+        proof-path  :
+
+           [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
+           [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
+           [2]   +1   0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298
+           [3]   -1   41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c
+           [4]   +1   770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45
+           [5]   +1   c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6
+           [6]   -1   e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1
+           [7]   -1   cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe
+           [8]   +1   9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7
+           [9]   -1   dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896
+          [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
+
+        commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
+
+        status      : UNVALIDATED
+
+        -------------------------------- END OF PROOF --------------------------------
+    
+    >>>
+
+.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof
+
+
+The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
+uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
+configuration. They are necessary for the client to configure their hashing-machine
+appropriately in order to validate the proof, available via the
+`Proof.get_validation_params`_ method:
+
+.. code-block:: python
+
+    >>> merkle_proof.get_validation_parameters()
+
+        {
+                'hash_type': 'sha256',
+                'encoding': 'utf_8',
+                'raw_bytes': True,
+                'security': True
+        }
+
+.. _Proof.get_validation_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.get_validation_params
+
+*Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
+(that is, *before* any other records are possibly encrypted into the tree).
+The Merkle-proof is valid *iff* the advertized path of hashes leads to the inscribed
+commitment (see *Proof validation* below).
+
+There are cases where the advertized path of hashes is empty or, equivalently, the inscribed
+*proof-index* has the non sensical value -1:
+
+.. code-block:: python
+
+    >>> merkle_proof
+
+        ----------------------------------- PROOF ------------------------------------
+
+        uuid        : 92710b04-f8e0-11e9-9e85-701ce71deb6a
+
+        timestamp   : 1572197902 (Sun Oct 27 19:38:22 2019)
+        provider    : 77b623a6-f8dd-11e9-9e85-701ce71deb6a
+
+        hash-type   : SHA256
+        encoding    : UTF-8
+        raw_bytes   : TRUE
+        security    : ACTIVATED
+
+        proof-index : -1
+        proof-path  :
+
+
+        commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
+
+        status      : UNVALIDATED
+
+        -------------------------------- END OF PROOF --------------------------------
+    
+    >>>
+
+.. note:: In this case, the Merkle-proof is predestined to be found *invalid*. Particular
+        meaning and interpreation of this failure depends on protocol restrictions and
+        type of challenge. In case of an audit-proof for example, it could indicate that
+        some data have not been properly encrypted by the server or that the client does
+        not have proper knowledge of any encrypted data or both.
+
+Proof transmission
+------------------
+
+Transmission of a Merkle-proof via the network presupposes its JSON serialization. This is
+possible by means of the `Proof.serialize`_ method, whose output for the above non-empty
+proof would be as follows:
+
+.. code-block:: python
+
+    >>> serialized_proof = merkle_proof.serialize()
+    >>> serialized_proof
+    {'header': {'uuid': '11a20142-f8e3-11e9-9e85-701ce71deb6a',
+      'timestamp': 1572198974,
+      'creation_moment': 'Sun Oct 27 19:56:14 2019',
+      'provider': '77b623a6-f8dd-11e9-9e85-701ce71deb6a',
+      'hash_type': 'sha256',
+      'encoding': 'utf_8',
+      'security': True,
+      'raw_bytes': True,
+      'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0',
+      'status': None},
+      'body': {'proof_index': 4,
+      'proof_path': [[1,
+        'f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207'],
+       [1, 'f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b'],
+       [1, '0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298'],
+       [-1, '41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c'],
+       [1, '770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45'],
+       [1, 'c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6'],
+       [-1, 'e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1'],
+       [-1, 'cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe'],
+       [1, '9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7'],
+       [-1, 'dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896'],
+       [-1, 'd1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878']]}}
+
+    >>>
+
+.. _Proof.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.serialize
+
+If JSON text is preferred instead of a Python dictionary, one can alternatively apply
+the `Proof.toJSONString`_ method:
+
+.. code-block:: python
+
+    >>> proof_text = merkle_proof.toJSONString()
+    >>> print(proof_text)
+    {
+        "header": {
+            "commitment": "ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0",
+            "creation_moment": "Sun Oct 27 19:56:14 2019",
+            "encoding": "utf_8",
+            "hash_type": "sha256",
+            "provider": "77b623a6-f8dd-11e9-9e85-701ce71deb6a",
+            "raw_bytes": true,
+            "security": true,
+            "status": null,
+            "timestamp": 1572198974,
+            "uuid": "11a20142-f8e3-11e9-9e85-701ce71deb6a"
+        }
+        "body": {
+            "proof_index": 4,
+            "proof_path": [
+                [
+                    1,
+                    "f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207"
+                ],
+                [
+                    1,
+                    "f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b"
+                ],
+
+                ...
+
+                [
+                    -1,
+                    "d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878"
+                ]
+            ]
+        }
+    }
+
+    >>>
+
+.. _Proof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.toJSONString
+
+Deserialization from the client's side proceeds by means of the `Proof.deserialize`_ 
+classmethod, which yields the original (i.e., an instance of the `Proof`_ class):
+
+.. code-block:: python
+        
+    >>> deserialized = Proof.deserialize(serialized_proof)
+    >>> deserialized
+
+        ----------------------------------- PROOF ------------------------------------
+
+        uuid        : 897220b8-f8dd-11e9-9e85-701ce71deb6a
+
+        timestamp   : 1572196598 (Sun Oct 27 19:16:38 2019)
+        provider    : 77b623a6-f8dd-11e9-9e85-701ce71deb6a
+
+        hash-type   : SHA256
+        encoding    : UTF-8
+        raw_bytes   : TRUE
+        security    : ACTIVATED
+
+        proof-index : 4
+        proof-path  :
+
+           [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
+           [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
+           [2]   +1   0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298
+           [3]   -1   41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c
+           [4]   +1   770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45
+           [5]   +1   c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6
+           [6]   -1   e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1
+           [7]   -1   cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe
+           [8]   +1   9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7
+           [9]   -1   dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896
+          [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
+
+        commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
+
+        status      : UNVALIDATED
+
+        -------------------------------- END OF PROOF --------------------------------
+
+    >>>
+
+The provided serialized object may here be a Python dictionary or JSON text indifferently. 
+
+.. _Proof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.deserialize
+
+.. note:: Deserialization is necessary for proof validation to be performed from the 
+        the client's side.
+
+Proof validation
+----------------
 
 Validation modes
 ================

@@ -1,6 +1,68 @@
 Decoupling commitments from proofs
 ++++++++++++++++++++++++++++++++++
 
+The *commitment* (i.e., the Merkle-tree's root-hash at the exact moment of 
+proof generation) is by default inscribed in the generated proof. One can 
+however imagine scenarios where proof validation proceeds against the 
+root-hash as provided in an independent way (e.g., from a trusted third 
+party). Fruthermore, one might want to have explicit control over whether 
+the requested Merkle-proof is an audit proof or a consistency proof. It
+thus makes sense to decouple commitments from proofs and avail excplicit
+methods for audit and consistency proof requests.
+
+Note that, remaining at the high-level of challenge-commitment schema, 
+one can already exclude the commitment from the proof response as follows:
+
+.. code-block:: python
+
+    >>> merkle_proof = tree.merkleProof(challenge, commit=False)
+    >>> merkle_proof
+
+        ----------------------------------- PROOF ------------------------------------
+
+        uuid        : 82cd9e02-f8ee-11e9-9e85-701ce71deb6a
+
+        timestamp   : 1572203889 (Sun Oct 27 21:18:09 2019)
+        provider    : 8002ea42-f8ee-11e9-9e85-701ce71deb6a
+
+        hash-type   : SHA256
+        encoding    : UTF-8
+        raw_bytes   : TRUE
+        security    : ACTIVATED
+
+        proof-index : 4
+        proof-path  :
+
+           [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
+           [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
+           [2]   +1   0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298
+           [3]   -1   41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c
+           [4]   +1   770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45
+           [5]   +1   c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6
+           [6]   -1   e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1
+           [7]   -1   cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe
+           [8]   +1   9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7
+           [9]   -1   dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896
+          [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
+
+        commitment  : None
+
+        status      : UNVALIDATED
+
+        -------------------------------- END OF PROOF --------------------------------
+
+    >>>
+
+The Merkle-tree's root-hash at the exact moment of proof-validation (and any other 
+moment) is available as
+
+    >>> commitment = tree.get_commitment()
+    >>> commitment
+    b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
+
+Proof validation can now be performed as described in the *Validation modes* subsection. 
+In what follows, proof-validation proceeds in similar fashion.
+
 Audit-proof
 ===========
 
@@ -17,7 +79,7 @@ leaves) along with advertising their root-hash.
 Schema
 ------
 
-An *auditor* requests from the server to encrypt a record ``x``, i.e., to encrypt
+An *auditor* requests from the server to encrypt a record ``x``, that is, to append
 the checksum ``y = h(x)`` as a new leaf to the tree (``h`` standing for the
 tree's underlying hashing machinery). At a later point, after further records have
 possibly been encrypted, the auditor requests from the server a proof that their

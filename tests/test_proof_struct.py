@@ -97,10 +97,16 @@ def test_Proof_construction_with_keyword_arguments(proof, proof_index, proof_pat
     }
 
 @pytest.mark.parametrize('proof', (proof_11, proof_31))
-def test_Proof_deserialization(proof):
+def test_Proof_deserialization_from_dict(proof):
     json_proof = proof.serialize()
-    deserializad = Proof.deserialize(json_proof)
-    assert proof.__dict__ == deserializad.__dict__
+    deserialized = Proof.deserialize(json_proof)
+    assert proof.__dict__ == deserialized.__dict__
+
+@pytest.mark.parametrize('proof', (proof_11, proof_31))
+def test_Proof_deserialization_from_text(proof):
+    json_proof = proof.toJSONString()
+    deserialized = Proof.deserialize(json_proof)
+    assert proof.__dict__ == deserialized.__dict__
 
 
 serializations = [

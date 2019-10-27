@@ -367,9 +367,10 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
         }
     }
 
+
 # Test string conversion to bytes
 
-tree = MerkleTree(*['%d-th record' for i in range(666)])
+tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
 hexstring = '15d02997b9e32d81ffefa8fad54a252a6e5303f846140e544c008455e64660ec'
 
 def test_conversion_at_auditProof():
