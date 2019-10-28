@@ -25,20 +25,16 @@ def test_audit_merkleProof(challenge):
     audit_proof = tree.auditProof(challenge['checksum'])
     assert commitment == tree.rootHash and merkle_proof.body == audit_proof.body
 
-cons_challenge_1 = {'subhash': tree.rootHash, 'sublength': tree.length}
-cons_challenge_2 = {'subhash': b'anything else...', 'sublength': tree.length}
-cons_challenge_3 = {'subhash': tree.rootHash, 'sublength': tree.length + 1}
+cons_challenge_1 = {'subhash': tree.rootHash}
+cons_challenge_2 = {'subhash': b'anything else...'}
 
 for i in range(1000):
     tree.encryptRecord(f'{i}-th record')
 
-@pytest.mark.parametrize('challenge', [
-    cons_challenge_1, cons_challenge_2, cons_challenge_3])
+@pytest.mark.parametrize('challenge', [cons_challenge_1, cons_challenge_2])
 def test_consistency_merkleProof(challenge):
     subhash = challenge['subhash']
-    sublength = challenge['sublength']
-    consistency_proof = tree.consistencyProof(subhash, sublength)
-
+    consistency_proof = tree.consistencyProof(subhash)
     merkle_proof = tree.merkleProof(challenge)
     commitment = merkle_proof.header['commitment']
 

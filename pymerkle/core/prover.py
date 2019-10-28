@@ -16,6 +16,12 @@ class Prover(object, metaclass=ABCMeta):
     High-level prover interface for Merkle-trees
     """
 
+    @property
+    @abstractmethod
+    def length(self):
+        """
+        """
+
     @abstractmethod
     def find_index(self, checksum):
         """
@@ -51,16 +57,11 @@ class Prover(object, metaclass=ABCMeta):
         keys = set(challenge.keys())
         if keys == {'checksum'}:
             checksum = challenge['checksum']
-            proof = self.auditProof(checksum, commit=commit)
-        elif keys == {'subhash', 'sublength'}:
+            return self.auditProof(checksum, commit=commit)
+        elif keys == {'subhash'}:
             subhash = challenge['subhash']
-            sublength = challenge['sublength']
-            proof = self.consistencyProof(subhash, sublength,
-                commit=commit)
-        else:
-            raise InvalidChallengeError
-
-        return proof
+            return self.consistencyProof(subhash, commit=commit)
+        raise InvalidChallengeError
 
 
     def auditProof(self, checksum, commit=False):
@@ -77,23 +78,18 @@ class Prover(object, metaclass=ABCMeta):
         :raises InvalidChallengeError: if the provided argument's type
             is not as prescribed
         """
-        if isinstance(checksum, bytes):                     # Assuming hexdigest
-            pass
-        elif isinstance(checksum, str):
-            checksum = checksum.encode()                    # Assuming hexstring
-        else:
+        if isinstance(checksum, str):
+            checksum = checksum.encode()
+        elif not isinstance(checksum, bytes):
             raise InvalidChallengeError
 
         index = self.find_index(checksum)
-        if commit is True:
-            commitment = self.get_commitment()
-        else:
-            commitment = None
+        commitment = self.get_commitment() if commit else None
 
         try:
             proof_index, audit_path = self.audit_path(index)
         except NoPathException:
-            return Proof(
+            proof = Proof(
                 provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
@@ -102,19 +98,21 @@ class Prover(object, metaclass=ABCMeta):
                 commitment=commitment,
                 proof_index=-1,
                 proof_path=())
+        else:
+            proof = Proof(
+                provider=self.uuid,
+                hash_type=self.hash_type,
+                encoding=self.encoding,
+                security=self.security,
+                raw_bytes=self.raw_bytes,
+                commitment=commitment,
+                proof_index=proof_index,
+                proof_path=audit_path)
 
-        return Proof(
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            security=self.security,
-            raw_bytes=self.raw_bytes,
-            commitment=commitment,
-            proof_index=proof_index,
-            proof_path=audit_path)
+        return proof
 
 
-    def consistencyProof(self, subhash, sublength, commit=False):
+    def consistencyProof(self, subhash, commit=False):
         """
         Response of the Merkle-tree to the request of providing a
         consistency-proof for the provided parameters
@@ -142,55 +140,40 @@ class Prover(object, metaclass=ABCMeta):
         :raises InvalidChallengeError: if type of any of the provided
             arguments is not as prescribed
         """
-        if isinstance(subhash, bytes):                      # Assuming hexdigest
-            pass
-        elif isinstance(subhash, str):
-            subhash = subhash.encode()                      # Assuming hexstring
-        else:
+        if isinstance(subhash, str):
+            subhash = subhash.encode()
+        elif not isinstance(subhash, bytes):
             raise InvalidChallengeError
 
-        if type(sublength) is not int or sublength <= 0:
-            raise InvalidChallengeError
+        commitment = self.get_commitment() if commit is True else None
 
-        if commit is True:
-            commitment = self.get_commitment()
-        else:
-            commitment = None
-
-        try:
-            proof_index, left_path, full_path = self.consistency_path(sublength)
-        except NoPathException: # Covers also the empty-tree case
-            return Proof(
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                raw_bytes=self.raw_bytes,
-                security=self.security,
-                commitment=commitment,
-                proof_index=-1,
-                proof_path=())
-
-        # Inclusion test
-        if subhash != self.multi_hash(left_path,len(left_path) - 1):
-            return Proof(
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                raw_bytes=self.raw_bytes,
-                security=self.security,
-                commitment=commitment,
-                proof_index=-1,
-                proof_path=())
-
-        return Proof(
+        proof = Proof(
             provider=self.uuid,
             hash_type=self.hash_type,
             encoding=self.encoding,
             raw_bytes=self.raw_bytes,
             security=self.security,
             commitment=commitment,
-            proof_index=proof_index,
-            proof_path=full_path)
+            proof_index=-1,
+            proof_path=())
+
+        for sublength in range(1, self.length):
+            try:
+                proof_index, left_path, full_path = self.consistency_path(sublength)
+            except NoPathException:
+                pass
+            else:
+                if subhash == self.multi_hash(left_path, len(left_path) - 1):
+                    proof = Proof(
+                        provider=self.uuid,
+                        hash_type=self.hash_type,
+                        encoding=self.encoding,
+                        raw_bytes=self.raw_bytes,
+                        security=self.security,
+                        commitment=commitment,
+                        proof_index=proof_index,
+                        proof_path=full_path)
+        return proof
 
 
 class Proof(object):
