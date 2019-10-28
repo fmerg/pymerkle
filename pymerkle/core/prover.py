@@ -345,4 +345,4 @@ class Proof(object):
 
         :rtype: str
         """
-        return json.dumps(self, cls=ProofSerializer, sort_keys=False, indent=4)
+        return json.dumps(self, cls=ProofSerializer, sort_keys=True, indent=4)

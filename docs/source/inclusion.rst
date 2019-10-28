@@ -11,13 +11,10 @@ explicitly as the `.inclusionTest`_ method.
 
 .. _.inclusionTest: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.inclusionTest
 
-Let the length of the Merkle-tree be equal to 666 at some moment and *subhash* denote the
-corresponding root-hash.
+Let *subhash* denote the Merkle-tree's root-hash at some point of history.
 
 .. code-block:: python
 
-        >>> tree.length
-        666
         >>>
         >>> subhash = tree.rootHash
         >>> subhash
@@ -31,13 +28,10 @@ At any subsequent moment:
         >>>
         >>> subhash = b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
         >>>
-        >>> tree.inclusionTest(subhash, 666)
+        >>> tree.inclusionTest(subhash)
         True
         >>>
-        >>> tree.inclusionTest(subhash=b'anything else...', sublength=666)
-        False
-        >>>
-        >>> tree.inclusionTest(subhash=subhash, sublength=667)
+        >>> tree.inclusionTest(subhash=b'anything else...')
         False
         >>>
 
@@ -45,10 +39,10 @@ At any subsequent moment:
 Tree comparison
 ===============
 
-Instead of performing inclusion-test on a provided pair of subhash and
-sublength, one can directly verify whether a Merkle-tree represents a valid
-previous state of another by using the `<=` operator. In particular, given
-Merkle-trees ``tree_1`` and ``tree_2``, the statement
+Instead of performing inclusion-test on a provided pair of subhash, one can directly 
+verify whether a Merkle-tree represents a valid previous state of another by using 
+the `<=` operator. In particular, given Merkle-trees ``tree_1`` and ``tree_2``, 
+the statement
 
 .. code-block:: python
 
