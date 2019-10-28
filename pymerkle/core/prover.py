@@ -157,7 +157,7 @@ class Prover(object, metaclass=ABCMeta):
             proof_index=-1,
             proof_path=())
 
-        for sublength in range(1, self.length):
+        for sublength in range(1, self.length + 1):
             try:
                 proof_index, left_path, full_path = self.consistency_path(sublength)
             except NoPathException:
@@ -173,6 +173,8 @@ class Prover(object, metaclass=ABCMeta):
                         commitment=commitment,
                         proof_index=proof_index,
                         proof_path=full_path)
+                    break
+
         return proof
 
 

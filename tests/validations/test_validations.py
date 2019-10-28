@@ -29,15 +29,9 @@ __challenges = [
     },
     {
         'subhash': subhash,
-        'sublength': sublength
     },
     {
         'subhash': b'anything else...',
-        'sublength': sublength
-    },
-    {
-        'subhash': subhash,
-        'sublength': sublength + 1
     },
 ]
 
@@ -45,8 +39,6 @@ __challenges = [
 def test_validateResponse(challenge):
     proof = tree.merkleProof(challenge)
     commitment = proof.header['commitment']
-    # proof = response['proof']
-
     assert validateResponse(proof) is validateProof(commitment, proof)
 
 
@@ -89,7 +81,7 @@ for tree in trees:
                 (
                     tree,
                     tree.auditProof(tree.hash('%d-th record' % index))
-                )                                                           # Bytes based proof
+                )
             )
 
 @pytest.mark.parametrize("tree, proof", __false_audit_proofs)
@@ -126,32 +118,17 @@ __true_consistency_proofs  = []
 
 for (tree, subtree) in trees_and_subtrees:
 
-        __false_consistency_proofs.extend(
-            [
-                (
-                    tree,
-                    tree.consistencyProof(
-                        b'anything except for the right hash',
-                        subtree.length
-                    )                                                           # Based upon wrong target-hash
-                ),
-                (
-                    tree,
-                    tree.consistencyProof(
-                        subtree.rootHash,
-                        subtree.length + 1
-                    )                                                           # Based upon wrong sublength
-                )
-            ]
+        __false_consistency_proofs.append(
+            (
+                tree,
+                tree.consistencyProof(b'anything except for the right hash')
+            )
         )
 
         __true_consistency_proofs.append(
             (
                 tree,
-                tree.consistencyProof(
-                    subtree.rootHash,
-                    subtree.length
-                )
+                tree.consistencyProof(subtree.rootHash)
             )
         )
 
