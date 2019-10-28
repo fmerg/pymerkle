@@ -504,35 +504,29 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     # Inclusion test
 
-    def inclusionTest(self, subhash, sublength):
+    def inclusionTest(self, subhash):
         """
-        Verifies that the parameters provided correspond
+        Verifies that the provided parameter corresponds
         to a valid previous state of the Merkle-tree
 
         :param subhash: root-hash of a presumably valid
             previous state of the Merkle-tree
         :type subhash: bytes
-        :param sublength: length (number of leaves) for the afore-mentioned
-            previous state of the Merkle-tree
-        :type sublength: int
-        :returns: ``True`` if the appropriate path of negatively signed digests,
-                generated implicitly for the provided ``sublength``, leads
-                indeed to the provided ``subhash``; otherwise ``False``
         :rtype: bool
 
         :raises InvalidTypes: if the type of any of the provided
             arguments is not as prescribed
         """
-        if type(subhash) is not bytes or type(sublength) is not int or sublength < 0:
+        if not isinstance(subhash, bytes):
             raise InvalidTypes
-        if sublength == 0:
-            raise InvalidComparison
-        if sublength <= len(self.leaves):
+        included = False
+        for sublength in range(1, self.length + 1):
             left_roots = self.principal_subroots(sublength)
             left_path = tuple((-1, _[1].digest) for _ in left_roots)
-            return subhash == self.multi_hash(left_path, len(left_path) - 1)
-        # sublength exceeds current length (includes the empty-tree case)
-        return False
+            if subhash == self.multi_hash(left_path, len(left_path) - 1):
+                included = True
+                break
+        return included
 
 
     # Persistence
@@ -561,6 +555,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         with open(f'{file_path}.json' if not file_path.endswith('.json') \
             else file_path, 'w') as __file:
             json.dump(self.serialize(), __file, indent=4)
+
 
     @classmethod
     def loadFromFile(cls, file_path):
@@ -646,7 +641,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         if not other:
             return True
         return False if not self else \
-            self.inclusionTest(other.rootHash, other.length)
+            self.inclusionTest(other.rootHash)
 
     def __le__(self, other):
         """
@@ -679,7 +674,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             return self.__bool__()
         elif not self or self.rootHash == other.rootHash:
             return False
-        return self.inclusionTest(other.rootHash, other.length)
+        return self.inclusionTest(other.rootHash)
 
     def __lt__(self, other):
         """

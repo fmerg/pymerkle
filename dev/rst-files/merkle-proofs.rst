@@ -77,16 +77,13 @@ indicating request of an *audit-proof*, or
 
         {
                 'subhash': <str> or <bytes>
-                'sublength': <int>
         }
 
 indicating request of a *consistency-proof*. In the first case, the provided *checksum*
-is thought of as the checksum stored by some of the Merkle-tree's leaves, whereas in the
-second case the parameters *subhash* and *sublength* are thought of as encapsulating the
-Merkle-tree's state at some previous moment of its history (its root-hash and number of
-leaves respectively). Focusing on the first case, the provided *checksum* will be assumed
-by the Merkle-tree to be a hexadecimal, that is, a hexstring or hexdigest. In particular,
-the challenge
+is thought of as the digest stored by some of the Merkle-tree's leaves, whereas in the
+second case *subhash* is thought of as the tree's root-hash at some previous moment. 
+In either case, the provided value will be assumed by the Merkle-tree to be a hexadecimal, 
+that is, a hexstring or hexdigest. For example, the challenge
 
 .. code-block:: python
 
@@ -106,8 +103,8 @@ where the former may be considered as the serialized version of the latter (e.g.
 of a network request). Similar considerations apply for the *subhash* field of the second case.
 
 
-Response structure
-------------------
+Proof structure
+---------------
 
 The produced ``merkle_proof`` is an instance of the `Proof`_ class. It consists of a
 path of hashes and the required parameters for validation to be performed from the
@@ -216,8 +213,8 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         some data have not been properly encrypted by the server or that the client does
         not have proper knowledge of any encrypted data or both.
 
-Proof transmission
-------------------
+Transmission of proofs
+----------------------
 
 Transmission of a Merkle-proof via the network presupposes its JSON serialization. This is
 possible by means of the `Proof.serialize`_ method, whose output for the above non-empty
@@ -351,8 +348,8 @@ The provided serialized object may here be a Python dictionary or JSON text indi
 .. note:: Deserialization is necessary for proof validation to be performed from the 
         the client's side.
 
-Proof validation
-----------------
+Validation
+----------
 
 Validation modes
 ================

@@ -9,8 +9,8 @@ import os
 import sys
 import argparse
 from pymerkle.hashing import HashMachine
-from pymerkle.tree.nodes import Node, Leaf
-from pymerkle.tree import MerkleTree
+from pymerkle.core.nodes import Node, Leaf
+from pymerkle.core import MerkleTree
 from pymerkle.validations import validateProof
 
 write = sys.stdout.write
@@ -269,7 +269,7 @@ def encryption_benchmark():
 def audit_proofs_benchmark():
     write('\n\n----------------------- Proof generation measuremenets ------------------------')
     write('\n\n')
-    write('Generating audit-proofs -be patient...\n')
+    write('Generating audit-proofs -be patient...')
     global PROOFS
     START = now()
     MAX   = None
@@ -296,13 +296,14 @@ def audit_proofs_benchmark():
 
 
 def consistency_proofs_benchmark():
+    write('Generating consistency-proofs -be patient...')
     # Generate states
     TREE = MerkleTree('0-th record', encoding=ENCODING, hash_type=HASH_TYPE)
     states = []
-    for _ in range(1, LENGTH + 3 * ADDITIONAL):
-        states.append((TREE.rootHash, TREE.length))
-        TREE.encryptRecord(bytes('%d-th record' % _, encoding=ENCODING))
-    states.append((TREE.rootHash, TREE.length))
+    for i in range(1, LENGTH + 3 * ADDITIONAL):
+        states.append(TREE.rootHash)
+        TREE.encryptRecord('%d-th record' % i)
+    states.append(TREE.rootHash)
 
     # Generate proofs
     global PROOFS
@@ -311,11 +312,9 @@ def consistency_proofs_benchmark():
     MIN   = None
     TOTAL = 0.0
     elapsed = []
-    for _ in range(TREE.length):
-        subhash   = states[_][0]
-        sublength = states[_][1]
+    for subhash in states:
         cycle = now()
-        proof = TREE.consistencyProof(subhash=subhash, sublength=sublength)
+        proof = TREE.consistencyProof(subhash)
         _elapsed = time_elapsed(cycle)
         if MAX is None:
             MIN = MAX = _elapsed

@@ -25,20 +25,16 @@ def test_audit_merkleProof(challenge):
     audit_proof = tree.auditProof(challenge['checksum'])
     assert commitment == tree.rootHash and merkle_proof.body == audit_proof.body
 
-cons_challenge_1 = {'subhash': tree.rootHash, 'sublength': tree.length}
-cons_challenge_2 = {'subhash': b'anything else...', 'sublength': tree.length}
-cons_challenge_3 = {'subhash': tree.rootHash, 'sublength': tree.length + 1}
+cons_challenge_1 = {'subhash': tree.rootHash}
+cons_challenge_2 = {'subhash': b'anything else...'}
 
 for i in range(1000):
     tree.encryptRecord(f'{i}-th record')
 
-@pytest.mark.parametrize('challenge', [
-    cons_challenge_1, cons_challenge_2, cons_challenge_3])
+@pytest.mark.parametrize('challenge', [cons_challenge_1, cons_challenge_2])
 def test_consistency_merkleProof(challenge):
     subhash = challenge['subhash']
-    sublength = challenge['sublength']
-    consistency_proof = tree.consistencyProof(subhash, sublength)
-
+    consistency_proof = tree.consistencyProof(subhash)
     merkle_proof = tree.merkleProof(challenge)
     commitment = merkle_proof.header['commitment']
 
@@ -56,21 +52,9 @@ __invalid_challenges = [
     },
     {
         'subhash': 100,                      # anything that is not bytes or str
-        'sublength': tree.length
     },
     {
         'subhash': tree.rootHash,
-        'sublength': 'anything that is not an integer...'
-    },
-    {
-        'subhash': tree.rootHash
-    },
-    {
-        'sublength': tree.length
-    },
-    {
-        'subhash': tree.rootHash,
-        'sublength': tree.length,
         'extra key': 'extra value'
     },
     {
@@ -213,86 +197,40 @@ for tree in trees:
         )
 
 
-__invalid_consistency_proof_requests = [
-    (
-        MerkleTree(),
-        b'anything...',
-        0,                                                  # Could be any number
-    )
-]
-__tree__subhash__sublength = []
-__tree__wrong_hash__sublength = []
-__tree__subhash__wrong_sublength = []
+__invalid_consistency_proof_requests = []
+__tree__subhash = []
 
 for (tree, subtree) in __trees_and_subtrees:
 
-        __invalid_consistency_proof_requests.extend(
-            [
-                (
-                    tree,
-                    100,                            # Invalid type for `subhash`
-                    subtree.length
-                ),
-                (
-                    tree,
-                    subtree.rootHash,
-                    'any non int object'                    # Invalid type for `sublength`
-                ),
-                (
-                    tree,
-                    subtree.rootHash,
-                    0                                       # Zero sublength
-                ),
-                (
-                    tree,
-                    subtree.rootHash,
-                    -1                                      # Negative sublength
-                )
-            ]
+        __invalid_consistency_proof_requests.append(
+            (
+                tree,
+                100,                            # Invalid type for `subhash`
+            ),
         )
 
-        __tree__subhash__sublength.append(
+        __tree__subhash.append(
             (
                 tree,
                 subtree.rootHash,
-                subtree.length
-            )
-        )
-
-        __tree__wrong_hash__sublength.append(
-            (
-                tree,
-                bytes('anything except for the correct hash', tree.encoding),
-                subtree.length
-            )
-        )
-
-        __tree__subhash__wrong_sublength.append(
-            (
-                tree,
-                subtree.rootHash,
-                subtree.length + 1
             )
         )
 
 
-
-@pytest.mark.parametrize("tree, subhash, sublength", __invalid_consistency_proof_requests)
-def test_consistency_InvalidChallengeError(tree, subhash, sublength):
+@pytest.mark.parametrize("tree, subhash", __invalid_consistency_proof_requests)
+def test_consistency_InvalidChallengeError(tree, subhash):
     """
-    Tests ``InvalidChallengeError`` upon requesting
-    a consistency proof with invalid arguments
     """
     with pytest.raises(InvalidChallengeError):
-        tree.consistencyProof(subhash, sublength)
+        tree.consistencyProof(subhash)
 
 
-@pytest.mark.parametrize("tree, subhash, sublength", __tree__subhash__sublength)
-def test_non_empty_consistencyProof(tree, subhash, sublength):
+@pytest.mark.parametrize("tree, subhash", __tree__subhash)
+def test_non_empty_consistencyProof(tree, subhash):
     """
     Tests that the generated non-empty consistency proof is as expected
     """
-    consistency_proof = tree.consistencyProof(subhash, sublength)
+    consistency_proof = tree.consistencyProof(subhash)
 
     assert consistency_proof.__dict__ == {
         'header': {
@@ -313,8 +251,8 @@ def test_non_empty_consistencyProof(tree, subhash, sublength):
         }
     }
 
-@pytest.mark.parametrize("tree, subhash, sublength", __tree__subhash__sublength)
-def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
+@pytest.mark.parametrize("tree, subhash", __tree__subhash)
+def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
     Tests that the generated empty consistency-proof, requested
     for a wrong hash, is as expected
@@ -340,8 +278,8 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
         }
     }
 
-@pytest.mark.parametrize("tree, subhash, sublength", __tree__subhash__sublength)
-def test_empty_consistencyProof_with_wrong_subhash(tree, subhash, sublength):
+@pytest.mark.parametrize("tree, subhash", __tree__subhash)
+def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
     Tests that the generated empty consistency-proof, requested
     for a wrong sublength, is as expected
@@ -379,12 +317,11 @@ def test_conversion_at_auditProof():
     assert proof_1.body['proof_path'] == proof_2.body['proof_path']
 
 subhash = tree.rootHash
-sublength = tree.length
 for i in range(1000):
     tree.update(f'{i}-th record')
 
 def test_conversion_at_consistencyProof():
     consistencyProof = tree.consistencyProof
-    proof_1 = consistencyProof(subhash=subhash, sublength=sublength)
-    proof_2 = consistencyProof(subhash=subhash.decode(), sublength=sublength)
+    proof_1 = consistencyProof(subhash=subhash)
+    proof_2 = consistencyProof(subhash=subhash.decode())
     assert proof_1.body['proof_path'] == proof_2.body['proof_path']
