@@ -73,7 +73,7 @@ class Prover(object, metaclass=ABCMeta):
                 be based upon
         :type checksum: bytes
         :returns: audit-path along with validation parameters
-        :rtype: proof.Proof
+        :rtype: Proof
 
         :raises InvalidChallengeError: if the provided argument's type
             is not as prescribed
@@ -115,27 +115,13 @@ class Prover(object, metaclass=ABCMeta):
     def consistencyProof(self, subhash, commit=False):
         """
         Response of the Merkle-tree to the request of providing a
-        consistency-proof for the provided parameters
-
-        Arguments of this function amount to a presumed previous state
-        (root-hash and length) of the Merkle-tree
+        consistency-proof for the provided previous state
 
         :param subhash: root-hash of a presumably valid previous
             state of the Merkle-tree
         :type subhash: bytes
-        :param sublength: presumable length (number of leaves) for the
-            above previous state of the Merkle-tree
-        :type sublength: int
         :returns: consistency-path along with validation parameters
         :rtype: proof.Proof
-
-        .. note:: If no proof-path corresponds to the provided parameters (that
-            is, a ``NoPathException`` gets implicitly raised) or the provided
-            parameters do not correpond to a valid previous state of the
-            Merkle-tree (that is, the implicit inclusion-test fails),
-            then the proof generated contains an empty proof-path, or,
-            equivalently a negative proof-index ``-1`` is inscribed in it,
-            so that it is predestined to be found invalid.
 
         :raises InvalidChallengeError: if type of any of the provided
             arguments is not as prescribed
@@ -359,4 +345,4 @@ class Proof(object):
 
         :rtype: str
         """
-        return json.dumps(self, cls=ProofSerializer, sort_keys=True, indent=4)
+        return json.dumps(self, cls=ProofSerializer, sort_keys=False, indent=4)

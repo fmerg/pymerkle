@@ -506,18 +506,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def inclusionTest(self, subhash):
         """
-        Verifies that the parameters provided correspond
+        Verifies that the provided parameter corresponds
         to a valid previous state of the Merkle-tree
 
         :param subhash: root-hash of a presumably valid
             previous state of the Merkle-tree
         :type subhash: bytes
-        :param sublength: length (number of leaves) for the afore-mentioned
-            previous state of the Merkle-tree
-        :type sublength: int
-        :returns: ``True`` if the appropriate path of negatively signed digests,
-                generated implicitly for the provided ``sublength``, leads
-                indeed to the provided ``subhash``; otherwise ``False``
         :rtype: bool
 
         :raises InvalidTypes: if the type of any of the provided
