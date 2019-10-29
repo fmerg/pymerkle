@@ -60,7 +60,7 @@ raised and the construction is is *aborted*.
 .. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.ENCODINGS
 
 The ``.raw_bytes`` attribute refers to the tree's ability of consuming
-arbitrary binary data, which is the default choice (True). If False,
+arbitrary binary data, which is the default choice (*True*). If *False*,
 the tree will only accept byte sequences falling under its configured 
 encoding type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes 
 mode denies the encryption of any byte sequence containing ``0x74``,
@@ -84,12 +84,12 @@ raising an ``UndecodableRecord`` error instead:
         mode untouched, so that no encoding issues arise upon file encryption.
 
 The ``.security`` attribute refers to the tree's ability of defending against
-second-preimage attacks, which is by default enabled (*True*). In this case,
-the `.hash`_ function will prepend ``0x00`` or ``0x01`` before single or
+second-preimage attacks, which is the default choice (*True*). In this case,
+the `.hash`_ function will prepend ``0x00`` or ``0x01`` before hashing single or
 double arguments respectively. The actual prefices will be the images of these
 hexadecimals under the tree's configured encoding type (see the `making
 of the encoding function`_ for insight). One can disable this feature at
-construction for, say, testing purposes, by
+construction for, say, testing purposes by
 
 .. code-block:: python
 
@@ -135,7 +135,7 @@ encapsulated in the following collection of attributes and properties.
 
 Invoking a Merkle-tree from the Python iterpeter displays the above properties
 in the form of an etiquette (cf. the *Representation* section below). Here is
-how the empty standard (SHA256/UTF-8) Merkle-tree would looks like:
+how the empty standard (SHA256/UTF-8) Merkle-tree would look like:
 
 .. code-block:: python
 

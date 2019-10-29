@@ -50,12 +50,12 @@ returning ``None`` for the empty case.
 Challenge-commitment schema
 ===========================
 
-One can use the `MerkleTree.merkleProof`_ to generate the Merkle-proof against a submitted
-challenge as follows:
+One can use the `MerkleTree.merkleProof`_ proof to generate the Merkle-proof 
+upon a submitted challenge as follows:
 
 .. code-block:: python
 
-        merkle_proof = tree.MerkleProof(challenge)
+        merkle_proof = tree.merkleProof(challenge)
 
 .. _MerkleTree.merkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.merkleProof
 
@@ -107,7 +107,7 @@ Proof structure
 ---------------
 
 The produced ``merkle_proof`` is an instance of the `Proof`_ class. It consists of a
-path of hashes and the required parameters for validation to be performed from the
+path of hashes and the required parameters for validation to take place from the
 client's side. Invoking it from the Python interpreter, it looks like
 
 .. code-block:: python
@@ -155,7 +155,7 @@ client's side. Invoking it from the Python interpreter, it looks like
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
 uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
 configuration. They are necessary for the client to configure their hashing-machine
-appropriately in order to validate the proof, available via the
+appropriately in order to validate the proof and are available via the
 `Proof.get_validation_params`_ method:
 
 .. code-block:: python
@@ -252,7 +252,7 @@ proof would be as follows:
 
 .. _Proof.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.serialize
 
-If JSON text is preferred instead of a Python dictionary, one can alternatively apply
+If JSON text is preferred instead of a Python dictionary, one can alternately apply
 the `Proof.toJSONString`_ method:
 
 .. code-block:: python
@@ -345,8 +345,8 @@ The provided serialized object may here be a Python dictionary or JSON text indi
 
 .. _Proof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.deserialize
 
-.. note:: Deserialization is necessary for proof validation to be performed from the 
-        the client's side.
+.. note:: Deserialization is necessary for proof validation to take place from the 
+        client's side.
 
 Validation
 ----------

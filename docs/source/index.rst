@@ -15,13 +15,18 @@ pymerkle
 Merkle-tree cryptographic library for generation and validation of Proofs
 *************************************************************************
 
+Merkle-trees employ cryptography to solve in almost logarithmic manner 
+the computationally expensive problem of preserving data consistency 
+over peer-to-peer networks and distributed systems.
+
 *Pymerkle* provides a class for balanced Merkle-trees (with possibly odd
 number of leaves), capable of generating Merkle-proofs (audit-proofs
-and consistency-proofs) and performing inclusion tests. It supports almost
-all combinations of hash functions (including SHA3 variations) and encoding
-types, with defense against second-preimage attack by default enabled.
-It further provides flexible validation mechanisms, allowing for direct
-verification of existence and integrity of encrypted data.
+and consistency-proofs) and performing inclusion tests. It supports 
+almost all combinations of hash functions (including SHA3 variations) 
+and encoding types, with defense against second-preimage attack by 
+default enabled. It further provides flexible mechanisms, allowing 
+for leveraged validation of existence and integrity of 
+encrypted data.
 
 .. note:: This is a zero-dependency library (with the inessential
    exception of `tqdm`_ for displaying progress bars).
@@ -122,7 +127,7 @@ algorithm of the `.update`_ method for further insight.
 
 .. note:: Due to the binary balanced structure of the present
    implementation, the consistency-proof algorithm
-   significantly deviates from that exposed in `RFC 6912`_.
+   significantly deviates from that outlined in `RFC 6912`_.
 
 Validation
 **********

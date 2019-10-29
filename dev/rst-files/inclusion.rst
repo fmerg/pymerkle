@@ -39,10 +39,9 @@ At any subsequent moment:
 Tree comparison
 ===============
 
-Instead of performing inclusion-test on a provided pair of subhash, one can directly 
-verify whether a Merkle-tree represents a valid previous state of another by using 
-the `<=` operator. In particular, given Merkle-trees ``tree_1`` and ``tree_2``, 
-the statement
+Instead of performing inclusion-test upon a provided subhash, one can directly 
+verify whether a Merkle-tree represents a valid previous state of another by 
+means of the `<=` operator. Given two Merkle-trees, the statement
 
 .. code-block:: python
 
@@ -52,23 +51,22 @@ is equivalent to
 
 .. code-block:: python
 
-        tree_2.inclusionTest(subhash=tree_1.rootHash, sublength=tree_1.length)
+        tree_2.inclusionTest(subhash=tree_1.rootHash)
 
 To verify whether ``tree_1`` represents a strictly previous state of ``tree_2``,
-type
+try
 
 .. code-block:: python
 
         tree_1 < tree_2
 
-which will be ``True`` only if
+which will be *True* only if
 
 .. code-block:: python
 
         tree_1 <= tree_2
 
-*and* the trees' current
-root-hashes do not coincide.
+*and* the trees' current root-hashes do not coincide.
 
 Since, in the present implementation, trees with the same number of leaves
 have identical structure, equality of Merkle-trees amounts to identification
