@@ -1,4 +1,4 @@
-Inclusion test
+Inclusion tests
 +++++++++++++++
 
 Upon generating a consistency-proof, the server can implicitly infer whether
@@ -39,8 +39,8 @@ At any subsequent moment:
 Tree comparison
 ===============
 
-Instead of performing inclusion-test upon a provided subhash, one can directly 
-verify whether a Merkle-tree represents a valid previous state of another by 
+Instead of performing inclusion-test upon a provided subhash, one can directly
+verify whether a Merkle-tree represents a valid previous state of another by
 means of the `<=` operator. Given two Merkle-trees, the statement
 
 .. code-block:: python

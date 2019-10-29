@@ -1,3 +1,3 @@
-from .mechanisms import Validator, validateProof, validateResponse
+from .mechanisms import Validator, validateProof
 
-__all__ = ('Validator', 'validateProof', 'validateResponse',)
+__all__ = ('Validator', 'validateProof',)

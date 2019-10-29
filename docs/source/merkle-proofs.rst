@@ -50,7 +50,7 @@ returning ``None`` for the empty case.
 Challenge-commitment schema
 ===========================
 
-One can use the `MerkleTree.merkleProof`_ proof to generate the Merkle-proof 
+One can use the `MerkleTree.merkleProof`_ proof to generate the Merkle-proof
 upon a submitted challenge as follows:
 
 .. code-block:: python
@@ -81,8 +81,8 @@ indicating request of an *audit-proof*, or
 
 indicating request of a *consistency-proof*. In the first case, the provided *checksum*
 is thought of as the digest stored by some of the Merkle-tree's leaves, whereas in the
-second case *subhash* is thought of as the tree's root-hash at some previous moment. 
-In either case, the provided value will be assumed by the Merkle-tree to be a hexadecimal, 
+second case *subhash* is thought of as the tree's root-hash at some previous moment.
+In either case, the provided value will be assumed by the Merkle-tree to be a hexadecimal,
 that is, a hexstring or hexdigest. For example, the challenge
 
 .. code-block:: python
@@ -146,7 +146,7 @@ client's side. Invoking it from the Python interpreter, it looks like
         status      : UNVALIDATED
 
         -------------------------------- END OF PROOF --------------------------------
-    
+
     >>>
 
 .. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof
@@ -161,13 +161,10 @@ appropriately in order to validate the proof and are available via the
 .. code-block:: python
 
     >>> merkle_proof.get_validation_parameters()
-
-        {
-                'hash_type': 'sha256',
-                'encoding': 'utf_8',
-                'raw_bytes': True,
-                'security': True
-        }
+    {'hash_type': 'sha256',
+     'encoding': 'utf_8',
+     'raw_bytes': True,
+     'security': True}
 
 .. _Proof.get_validation_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.get_validation_params
 
@@ -204,7 +201,7 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         status      : UNVALIDATED
 
         -------------------------------- END OF PROOF --------------------------------
-    
+
     >>>
 
 .. note:: In this case, the Merkle-proof is predestined to be found *invalid*. Particular
@@ -298,11 +295,11 @@ the `Proof.toJSONString`_ method:
 
 .. _Proof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.toJSONString
 
-Deserialization from the client's side proceeds by means of the `Proof.deserialize`_ 
+Deserialization from the client's side proceeds by means of the `Proof.deserialize`_
 classmethod, which yields the original (i.e., an instance of the `Proof`_ class):
 
 .. code-block:: python
-        
+
     >>> deserialized = Proof.deserialize(serialized_proof)
     >>> deserialized
 
@@ -341,24 +338,149 @@ classmethod, which yields the original (i.e., an instance of the `Proof`_ class)
 
     >>>
 
-The provided serialized object may here be a Python dictionary or JSON text indifferently. 
+The provided serialized object may here be a Python dictionary or JSON text indifferently.
 
 .. _Proof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.deserialize
 
-.. note:: Deserialization is necessary for proof validation to take place from the 
+.. note:: Deserialization is necessary for proof validation to take place from the
         client's side.
 
 Validation
 ----------
 
+Direct and easiest validation of a Merkle-proof proceeds by means of the
+`validateProof`_ function, which returns a self-explanatory boolean:
+
+.. code-block:: python
+
+    >>> from pymerkle import validateProof
+    >>>
+    >>> validateProof(merkle_proof)
+    >>> True
+    >>>
+    >>> merkle_proof
+
+        ----------------------------------- PROOF ------------------------------------
+
+        uuid        : ee2bba54-fa6e-11e9-bde2-701ce71deb6a
+
+        timestamp   : 1572368996 (Tue Oct 29 19:09:56 2019)
+        provider    : eb701a62-fa6e-11e9-bde2-701ce71deb6a
+
+        hash-type   : SHA256
+        encoding    : UTF-8
+        raw_bytes   : TRUE
+        security    : ACTIVATED
+
+        proof-index : 5
+        proof-path  :
+
+           [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
+           [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
+           [2]   +1   35f75fd1cfef0437bc7a4cae7387998f909fab1dfe6ced53d449c16090d8aa52
+           [3]   -1   73c027eac67a7b43af1a13427b2ad455451e4edfcaced8c2350b5d34adaa8020
+           [4]   +1   cbd441af056bf79c65a2154bc04ac2e0e40d7a2c0e77b80c27125f47d3d7cba3
+           [5]   +1   4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e
+           [6]   -1   db7f4ee8be8025dbffee11b434f179b3b0d0f3a1d7693a441f19653a65662ad3
+           [7]   -1   f235a9eb55315c9a197d069db9c75a01d99da934c5f80f9f175307fb6ac4d8fe
+           [8]   +1   e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8
+           [9]   -1   6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2
+          [10]   -1   2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8
+
+        commitment  : 11ff3293f70c0e158e0f58ef5ea4d497a9a3a5a913e0478a9ba89f3bc673300a
+
+        status      : VALID
+
+        -------------------------------- END OF PROOF --------------------------------
+
+    >>>
+
+.. _validateProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateProof
+
+Like in any of the available validation mechanism, the `HashMachine.multi_hash`_ method is
+implicitly applied over the advertised path of hashes in order to recover a single hash.
+The proof is found to be valid *iff* this single hash coincides with the provided commitment.
+Note that application of `validateProof`_ has the effect of modifying the inscribed status as
+``'VALID'``, which indicates that the proof's status has changed to *True*:
+
+.. code-block:: python
+
+    >>> merkle_proof.header['status']
+    True
+
+If the proof were found to be invalid, the corresponding value would have been
+*False* (``'INVALID'``).
+
+.. _HashMachine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.multi_hash
+
+
 Validation modes
 ================
+
+Validation of a Merkle-proof presupposes correct configuration of an underlying
+hash machine. This happens automatically by just feeding the proof to any of the
+available validation mechanisms, since the required validation parameters
+(*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
+proof's header. The underlying machine is an instance of the `Validator`_ class
+(which is in turn a subclass of `HashMachine`_)
+
+.. _Validator: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Validator
+.. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
 
 Running a validator
 -------------------
 
-Direct validation
------------------
+Low-level validation of proofs proceeds by means of the `Validator`_ object itself:
+
+.. code-block:: python
+
+    >>> from pymerkle import Validator
+    >>>
+    >>> validator = Validator(merkle_proof)
+    >>> validator.run()
+    >>>
+
+.. note:: Validating a proof in the above fashion leaves the proof's status unaffected.
+
+Successful validation is implied by the fact that the process comes to its end.
+If the proof were invalid, then an ``InvalidMerkleProof`` error is raised instead:
+
+.. code-block:: python
+
+    >>>
+    >>> validator.run()
+    Traceback (most recent call last):
+    ...
+    pymerkle.exceptions.InvalidMerkleProof
+    >>>
+
+Instead of feeding a proof at construction, one can alternately (re)configure the
+validator by means of the `Validator.update`_ method. This allows for reusing
+the same machine for successive validation of multiple proofs:
+
+.. code-block:: python
+
+    >>>
+    >>> validator = Validator()
+    >>>
+    >>> validator.update(merkle_proof_1)
+    >>> validator.run()
+    Traceback (most recent call last):
+    ...
+    pymerkle.exceptions.InvalidMerkleProof
+    >>>
+    >>> validator.update(merkle_proof_2)
+    >>> validator.run()
+    >>>
+
+.. _Validator.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.Validator.update
 
 Validation receipts
 -------------------
+
+One can configure the `validateProof`_ function to return a receipt instead of
+a boolean by means of the *get_receipt* keywarg:
+
+.. code-block:: python
+
+    >>> ...

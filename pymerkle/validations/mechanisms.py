@@ -26,6 +26,7 @@ class Validator(HashMachine):
     def __init__(self, input=None):
         if input is not None:
             if isinstance(input, Proof):
+                self.proof = input
                 input = input.get_validation_params()
             self.update(input)
 
@@ -70,23 +71,23 @@ class Validator(HashMachine):
             try:
                 proof = self.proof
             except AttributeError:
-                return
+                err = 'No proof provided for validation'
+                raise AssertionError(err)
         if target is None:
             try:
                 target = proof.header['commitment']
             except KeyError:
-                return
+                err = 'No acclaimed root-hash provided'
+                raise AssertionError(err)
         proof_index = proof.body['proof_index']
         proof_path  = proof.body['proof_path']
         if proof_index == -1 and proof_path == ():
             raise InvalidMerkleProof
-        signed_hashes = proof_path
-        start = proof_index
-        if target != self.multi_hash(signed_hashes, start):
+        if target != self.multi_hash(proof_path, proof_index):
             raise InvalidMerkleProof
 
 
-def validateProof(target, proof, get_receipt=False, dirpath=None):
+def validateProof(proof, target=None, get_receipt=False, dirpath=None):
     """
     Core utility for validating proofs
 
@@ -113,6 +114,8 @@ def validateProof(target, proof, get_receipt=False, dirpath=None):
     :rtype: bool or validations.Receipt
     """
     validator = Validator(input=proof.get_validation_params())
+    if target is None:
+        target = proof.header['commitment']
     try:
         validator.run(proof, target)
     except InvalidMerkleProof:
@@ -135,17 +138,6 @@ def validateProof(target, proof, get_receipt=False, dirpath=None):
             ) as __file:
                 json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
     return result if not receipt else receipt
-
-
-def validateResponse(proof, get_receipt=False, dirpath=None):
-    """
-    :param proof:
-    :type proof:
-    """
-    commitment = proof.header['commitment']
-    output = validateProof(target=commitment, proof=proof,
-        get_receipt=get_receipt, dirpath=dirpath)
-    return output
 
 
 class Receipt(object):

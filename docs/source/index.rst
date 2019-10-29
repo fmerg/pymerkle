@@ -15,17 +15,17 @@ pymerkle
 Merkle-tree cryptographic library for generation and validation of Proofs
 *************************************************************************
 
-Merkle-trees employ cryptography to solve in almost logarithmic manner 
-the computationally expensive problem of preserving data consistency 
+Merkle-trees employ cryptography to solve with almost logarithmic efficiency 
+the computationally expensive problem of preserving data consistency
 over peer-to-peer networks and distributed systems.
 
 *Pymerkle* provides a class for balanced Merkle-trees (with possibly odd
 number of leaves), capable of generating Merkle-proofs (audit-proofs
-and consistency-proofs) and performing inclusion tests. It supports 
-almost all combinations of hash functions (including SHA3 variations) 
-and encoding types, with defense against second-preimage attack by 
-default enabled. It further provides flexible mechanisms, allowing 
-for leveraged validation of existence and integrity of 
+and consistency-proofs) and performing inclusion tests. It supports
+almost all combinations of hash functions (including SHA3 variations)
+and encoding types, with defense against second-preimage attack by
+default enabled. It further provides flexible mechanisms, allowing
+for leveraged validation of existence and integrity of
 encrypted data.
 
 .. note:: This is a zero-dependency library (with the inessential
@@ -55,11 +55,10 @@ Typing
         from pymerkle import *
 
 makes available the `MerkleTree`_, `Proof`_ and `Validator`_
-classes along with the `validateProof`_ and `validateResponse`_
-standalone functions.
+classes along with the `validateProof`_ standalone function.
 
 .. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
-.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof 
+.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof
 .. _Validator: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Validator
 .. _validateProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateProof
 .. _validateResponse: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateResponse
@@ -86,7 +85,7 @@ security measures:
 
 Refer to the `making of the encoding function`_ to see how
 this is uniformly achieved for *all* types of encoding.
-Refer to `test_security.py`_ to see how to perform 
+Refer to `test_security.py`_ to see how to perform
 second-preimage attacks against the present implementation.
 
 .. note:: One can disable this feature, say, for tasting purposes,
@@ -147,7 +146,7 @@ any of the available validation mechanisms.
 
 .. _GitHub: https://github.com/FoteinosMerg/pymerkle
 .. _tqdm: https://tqdm.github.io/
-.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func 
+.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func
 .. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
