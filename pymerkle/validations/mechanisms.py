@@ -218,6 +218,19 @@ class Receipt(object):
                     proof_provider=body['proof_provider'],
                     result='VALID' if body['result'] else 'NON VALID')
 
+    @classmethod
+    def deserialize(cls, serialized):
+        """
+        :params serialized:
+        :type: dict or str
+        """
+        kwargs = {}
+        if isinstance(serialized, dict):
+            kwargs.update({'from_dict': serialized})
+        elif isinstance(serialized, str):
+            kwargs.update({'from_json': serialized})
+        return cls(**kwargs)
+
 
 # Serialization
 

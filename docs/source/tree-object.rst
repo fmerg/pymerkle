@@ -1,6 +1,6 @@
 Merkle-tree object
 ++++++++++++++++++
-.. code-block:: python 
+.. code-block:: python
 
     from pymerkle import MerkleTree
 
@@ -31,13 +31,13 @@ construction. Configuration of a Merkle-tree amounts to configuring its
 core `.hash`_ functionality via these attributes.
 
 .. note:: Manually changing the attribute values of the Merkle-tree does
-  *not* affect the core hash functionality, i.e., the latter is once and 
-  for ever configured at construction (refer to the `making of the 
+  *not* affect the core hash functionality, i.e., the latter is once and
+  for ever configured at construction (refer to the `making of the
   encoding function`_ for insight).
 
 The ``.hash_type`` attribute refers to the underlying builtin algorithm
 (imported from `hashlib`_) and ``.encoding`` is the encoding,
-to which any new record of type *str* will be submitted before 
+to which any new record of type *str* will be submitted before
 being hashed. For example,
 
 .. code-block:: python
@@ -45,9 +45,9 @@ being hashed. For example,
     tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 
 creates a SHA512/UTF-32 Merkle-tree in raw-bytes and security mode.
-If the provided *hash_type* (resp. *encoding*) is not among the 
-`supported hash types`_ (resp. `supported encodings`_), then an 
-``UnsupportedHashType`` (resp. ``UnsupportedEncoding``) is 
+If the provided *hash_type* (resp. *encoding*) is not among the
+`supported hash types`_ (resp. `supported encodings`_), then an
+``UnsupportedHashType`` (resp. ``UnsupportedEncoding``) is
 raised and the construction is is *aborted*.
 
 .. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.hash
@@ -61,8 +61,8 @@ raised and the construction is is *aborted*.
 
 The ``.raw_bytes`` attribute refers to the tree's ability of consuming
 arbitrary binary data, which is the default choice (*True*). If *False*,
-the tree will only accept byte sequences falling under its configured 
-encoding type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes 
+the tree will only accept byte sequences falling under its configured
+encoding type. For example, a UTF-16 Merkle-tree in *no*-raw-bytes
 mode denies the encryption of any byte sequence containing ``0x74``,
 raising an ``UndecodableRecord`` error instead:
 
@@ -77,10 +77,10 @@ raising an ``UndecodableRecord`` error instead:
     >>>
 
 .. warning:: One can disable the raw-bytes mode for the purpose of
-        filtering out unacceptable records, e.g., when only files of 
+        filtering out unacceptable records, e.g., when only files of
         a specific encoding are allowed for encryption. This is seldom
-        the case in real-life, since the origin of submitted files is 
-        usually to be kept wide. If so, make sure to leave the raw-bytes 
+        the case in real-life, since the origin of submitted files is
+        usually to be kept wide. If so, make sure to leave the raw-bytes
         mode untouched, so that no encoding issues arise upon file encryption.
 
 The ``.security`` attribute refers to the tree's ability of defending against
@@ -106,10 +106,10 @@ Attributes and properties
 The identity, current state and fixed configuration of a Merkle-tree are
 encapsulated in the following collection of attributes and properties.
 
-:uuid: 
+:uuid:
         (*str*) - Unique identifier (time-based uuid)
 
-:hash_type: 
+:hash_type:
         (*str*) - Name of the underlying hash algorithm
 
 :encoding:
@@ -121,17 +121,22 @@ encapsulated in the following collection of attributes and properties.
 :security:
         (*bool*) - Indicates defense against second-preimage attack
 
-:length:
+:`length`_:
         (*int*) - Current number of leaves (exterior nodes)
 
-:size:
+:`size`_:
         (*int*) - Current number of nodes (both exterior and interior)
 
-:height:
+:`height`_:
         (*int*) - Current height (length of the tree's leftmost branch)
 
-:rootHash:
+:`rootHash`_:
         (*bytes*) - The hash currently stored by the Merkle-tree's root
+
+.. _length: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.length
+.. _size: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.size
+.. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
+.. _rootHash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.rootHash
 
 Invoking a Merkle-tree from the Python iterpeter displays the above properties
 in the form of an etiquette (cf. the *Representation* section below). Here is

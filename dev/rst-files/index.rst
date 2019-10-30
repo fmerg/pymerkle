@@ -2,7 +2,7 @@
 pymerkle
 ########
 
-|Build-Status| |Coverage-Status| |PyPI-version|
+|Build-Status| |Coverage-Status| |PyPI-version| |Python >= 3.6|
 
 .. |Build-Status| image:: https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master
    :target: https://travis-ci.com/FoteinosMerg/pymerkle
@@ -10,12 +10,13 @@ pymerkle
    :target: https://codecov.io/gh/FoteinosMerg/pymerkle
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
+.. |Python >= 3.6| image:: https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg
 
 *************************************************************************
 Merkle-tree cryptographic library for generation and validation of Proofs
 *************************************************************************
 
-Merkle-trees employ cryptography to solve with almost logarithmic efficiency 
+Merkle-trees employ cryptography to solve with almost logarithmic efficiency
 the computationally expensive problem of preserving data consistency
 over peer-to-peer networks and distributed systems.
 

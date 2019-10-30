@@ -181,6 +181,18 @@ def test_Receipt_construction_from_dict(receipt, result):
         }
     }
 
+@pytest.mark.parametrize('receipt', (receipt_11, receipt_31))
+def test_Receipt_deserialization_from_dict(receipt):
+    json_receipt = receipt.serialize()
+    deserialized = Receipt.deserialize(json_receipt)
+    assert receipt.__dict__ == deserialized.__dict__
+
+@pytest.mark.parametrize('receipt', (receipt_11, receipt_31))
+def test_Receipt_deserialization_from_text(receipt):
+    json_receipt = receipt.toJSONString()
+    deserialized = Receipt.deserialize(json_receipt)
+    assert receipt.__dict__ == deserialized.__dict__
+
 
 @pytest.mark.parametrize('receipt, result', (
     (receipt_11, 'VALID'), (receipt_21, 'VALID'), (receipt_31, 'VALID'),

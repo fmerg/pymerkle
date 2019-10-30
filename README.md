@@ -47,11 +47,10 @@ of the encoding process.
 
 Defense against second-preimage attack consists in the following security measures:
 
-- Before computing the hash of a leaf, prepend the corresponding record with
-the null `0x00`
+- Before computing the hash of a leaf, prepend the corresponding record with `0x00`
 
 - Before computing the hash of any interior node, prepend both of its parents'
-hashes with the unit `0x01`
+hashes with `0x01`
 
 Refer to
 [`tests/test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)

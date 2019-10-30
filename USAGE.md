@@ -495,9 +495,9 @@ well suited for protocols involving verification of existence and integrity
 of encrypted data in mutual and quasi zero-knowledge fashion.
 
 _Note_: Merkle-proofs are *not* exactly zero-knowledge proofs, since they
-require one or two leaf-checksum to be included in the path of hashes. In the
+require one or two leaf checksum to be included in the path of hashes. In the
 case of audit-proof, one of these checksums is already known to the
-client, whereas in the case of consistency-proofs only one leaf-checksum
+client, whereas in the case of consistency-proofs only one leaf checksum
 needs be releaved. In other words, Merkle-proofs are zero-knowledge except
 for the publication of *one* checksum.
 
@@ -720,7 +720,7 @@ A consistency-proof proves that gradual development of the Merkle-tree is
 consistent. More accurately, generating the correct consistency-proof based
 upon a previous state proves on behalf of the Merkle-tree that its current
 state is indeed a possible later stage of the former. Just like with
-audit-proofs, the server discloses the *least* possible of the leaf-checksums
+audit-proofs, the server discloses the *least* possible of the leaf checksums
 (actually only one) along with the current root-hash.
 
 A typical session:

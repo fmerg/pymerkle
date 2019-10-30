@@ -16,12 +16,12 @@ of existence and integrity of encrypted data in mutual and *quasi*
 zero-knowledge fashion.
 
 .. note:: Merkle-proofs are *not* zero-knowledge proofs, since they
-    require one or two leaf-checksums to be included in the advertised
+    require one or two leaf checksums to be included in the advertised
     path of hashes. In the case of audit-proof, one of these checksums
     is already known to the client, whereas in the case of
-    consistency-proof only one leaf-checksum needs be releaved.
+    consistency-proof only one leaf checksum needs be revealed.
     In other words, Merkle-proofs are zero-knowledge except
-    for the publication of *one* checksum.
+    for the (more or less inessential) disclosure of *one* checksum.
 
 In Merkle-proof protocols the role of *commitment* belongs to the
 root-hash of the tree at the moment of proof generation. The
@@ -450,7 +450,7 @@ If the proof were invalid, then an ``InvalidMerkleProof`` error is raised instea
     >>>
     >>> validator.run()
     Traceback (most recent call last):
-    ...
+    ...     raiseInvalidMerkleProof
     pymerkle.exceptions.InvalidMerkleProof
     >>>
 
@@ -466,7 +466,7 @@ the same machine for successive validation of multiple proofs:
     >>> validator.update(merkle_proof_1)
     >>> validator.run()
     Traceback (most recent call last):
-    ...
+    ...    raiseInvalidMerkleProof
     pymerkle.exceptions.InvalidMerkleProof
     >>>
     >>> validator.update(merkle_proof_2)
@@ -483,4 +483,59 @@ a boolean by means of the *get_receipt* keywarg:
 
 .. code-block:: python
 
-    >>> ...
+    >>> receipt = validateProof(merkle_proof, get_receipt=True)
+    >>> receipt
+
+    ----------------------------- VALIDATION RECEIPT -----------------------------
+
+    uuid           : b6e17aa8-fb35-11e9-bc05-701ce71deb6a
+
+    timestamp      : 1572454373 (Wed Oct 30 18:52:53 2019)
+
+    proof-uuid     : a90456e4-fb35-11e9-bc05-701ce71deb6a
+    proof-provider : 7b76a13c-fb35-11e9-bc05-701ce71deb6a
+
+    result         : VALID
+
+    ------------------------------- END OF RECEIPT -------------------------------
+
+    >>>
+
+The produced object is an instance of the `Receipt`_ class with self-explanatory
+attributes. It could have been saved in a *.json* file by means of the *dirpath*
+keywarg (see the `validateProof`_ doc). Serialization and deserialization of
+receipts follow the same rules as for proofs:
+
+.. code-block:: python
+
+    >>> serialized_receipt = receipt.serialize()
+    >>>
+    >>> serialized_receipt
+    {'header': {'uuid': '430bc452-fb40-11e9-bc05-701ce71deb6a',
+    'timestamp': 1572458903,
+    'validation_moment': 'Wed Oct 30 20:08:23 2019'},
+    'body': {'proof_uuid': '41422fb2-fb40-11e9-bc05-701ce71deb6a',
+    'proof_provider': '3fc2ae14-fb40-11e9-bc05-701ce71deb6a',
+    'result': True}}
+
+    >>> from pymerkle.validations import Receipt
+    >>>
+    >>> deserialized = Receipt.deserialize(serialized_receipt)
+    >>> deserialized
+
+    ----------------------------- VALIDATION RECEIPT -----------------------------
+
+    uuid           : 430bc452-fb40-11e9-bc05-701ce71deb6a
+
+    timestamp      : 1572458903 (Wed Oct 30 20:08:23 2019)
+
+    proof-uuid     : 41422fb2-fb40-11e9-bc05-701ce71deb6a
+    proof-provider : 3fc2ae14-fb40-11e9-bc05-701ce71deb6a
+
+    result         : VALID
+
+    ------------------------------- END OF RECEIPT -------------------------------
+
+    >>>
+
+.. _Receipt: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.mechanisms.Receipt
