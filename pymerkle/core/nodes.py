@@ -192,7 +192,7 @@ class __Node(object, metaclass=ABCMeta):
         """
         Overrides the default implementation.
 
-        Designed so that inserting the node as an argument to ``print()``
+        Designed so that inserting the node as an argument to ```print()```
         displays the subtree of the Merkle-tree whose root is the
         present node.
 

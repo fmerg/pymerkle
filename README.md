@@ -9,12 +9,12 @@
 **Complete documentation found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
 Merkle-trees employ cryptography to solve with almost logarithmic efficiency
-the computationally expensive problem of preserving data consistency over
-peer-to-peer networks and distributed systems.
+the problem of preserving data consistency over peer-to-peer networks and
+distributed systems.
 
 _Pymerkle_ provides a class for binary balanced Merkle-trees (with possibly
-odd number of leaves), capable of generating Merkle-proofs (audit-proofs
-and consistency-proofs) and performing inclusion-tests. It supports almost all
+odd number of leaves), capable of generating Merkle-proofs (audit and consistency
+proofs) along with performing inclusion-tests. It supports almost all
 combinations of hash functions (including SHA3 variations) and encoding
 types, with defense against second-preimage attack by default enabled.
 It further provides flexible mechanisms, allowing for leveraged validation
@@ -35,7 +35,7 @@ pip3 install pymerkle --pre
 
 ## Usage
 
-**See [_Usage_](USAGE.md)**
+**See [_Usage_](USAGE.rst)**
 
 ## Security
 
@@ -53,7 +53,7 @@ Defense against second-preimage attack consists in the following security measur
 hashes with `0x01`
 
 Refer to
-[`tests/test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)
+[`test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)
 to see how to perform second-preimage attacks
 against the present implementation. In order to disable defense (say, for testing purposes),
 set ``security`` equal to ``False`` at construction.
@@ -81,7 +81,7 @@ instead of promoting a lonely leaf to the next level or duplicating it, a
 have identical structure independently of their growing strategy_.
 This standardization is further crucial for:
 
-- fast generation of consistency-proofs (based on additive decompositions in
+- fast generation of consistency proofs (based on additive decompositions in
   decreasing powers of 2)
 - fast recalculation of the root-hash after appending a new leaf, since only
   the hashes at the tree's right-most branch need be recalculated
@@ -95,7 +95,7 @@ Follow the straightforward algorithm of the
 method for further insight.
 
 _Note_: Due to the binary balanced structure of the present implementation,
-the consistency-proof algorithm significantly deviates from that exposed
+the consistency proof algorithm significantly deviates from that exposed
 in [RFC 6912](https://tools.ietf.org/html/rfc6962#section-2.1.2)
 
 
@@ -111,7 +111,7 @@ any of the available validation mechanisms.
 
 Proof validation is agnostic of whether a Merkle-proof has been
 the result of an audit or a consistency proof request.
-Audit-proofs and consistency-proofs share identical structure,
+Audit proofs and consistency proofs share identical structure,
 so that both kinds are instances of the same class.
 
 ## Development

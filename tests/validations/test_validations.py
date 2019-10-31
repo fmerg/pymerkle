@@ -60,7 +60,7 @@ for raw_bytes in (True, False):
                     )
 
 
-# Audit-proof validation
+# Audit proof validation
 
 __false_audit_proofs = []
 __true_audit_proofs  = []
@@ -91,7 +91,7 @@ def test_true_audit_validateProof(tree, proof):
     assert validateProof(proof, tree.rootHash)
 
 
-# Consistency-proof validation
+# Consistency proof validation
 
 trees_and_subtrees = []
 

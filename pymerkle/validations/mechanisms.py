@@ -63,7 +63,7 @@ class Validator(HashMachine):
             the Merkle-tree having provided the proof)
         :type target: bytes
         :param proof: the Merkle-proof to be validated
-        :type proof: proof.Proof
+        :type proof: Proof
         :raises InvalidMerkleProof: if the provided proof was found to be
             invalid
         """
@@ -100,7 +100,7 @@ def validateProof(proof, target=None, get_receipt=False, dirpath=None):
         the Merkle-tree having provided the proof)
     :type target: bytes
     :param proof: the Merkle-proof to be validated
-    :type proof: proof.Proof
+    :type proof: Proof
     :param get_receipt: [optional] Specifies whether a receipt will be
         generated for the performed validation
     :type get_receipt: bool

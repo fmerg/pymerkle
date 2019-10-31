@@ -17,12 +17,12 @@ Merkle-tree cryptographic library for generation and validation of Proofs
 *************************************************************************
 
 Merkle-trees employ cryptography to solve with almost logarithmic efficiency
-the computationally expensive problem of preserving data consistency
+the problem of preserving data consistency
 over peer-to-peer networks and distributed systems.
 
 *Pymerkle* provides a class for balanced Merkle-trees (with possibly odd
-number of leaves), capable of generating Merkle-proofs (audit-proofs
-and consistency-proofs) and performing inclusion tests. It supports
+number of leaves), capable of generating Merkle-proofs (audit and consistency
+proofs) along with performing inclusion tests. It supports
 almost all combinations of hash functions (including SHA3 variations)
 and encoding types, with defense against second-preimage attack by
 default enabled. It further provides flexible mechanisms, allowing
@@ -85,7 +85,7 @@ security measures:
   parents' checksums with the hexadecimal ``0x01``
 
 Refer to the `making of the encoding function`_ to see how
-this is uniformly achieved for *all* types of encoding.
+this is uniformly achieved for all encoding types.
 Refer to `test_security.py`_ to see how to perform
 second-preimage attacks against the present implementation.
 
@@ -114,7 +114,7 @@ replicating it, a *bifurcation* node is created so that *trees with the
 same number of leaves have identical structure independently of
 their growing strategy*. This standardization is also crucial for:
 
-* fast generation of consistency-proofs (based on additive decompositions
+* fast generation of consistency proofs (based on additive decompositions
   in decreasing powers of 2)
 * fast recalculation of the root-hash after appending a new leaf, since
   only the hashes at the tree's right-most branch need be recalculated
@@ -126,7 +126,7 @@ tree*, depicted in Section 5.4 of `this`_ paper. Follow the
 algorithm of the `.update`_ method for further insight.
 
 .. note:: Due to the binary balanced structure of the present
-   implementation, the consistency-proof algorithm
+   implementation, the consistency proof algorithm
    significantly deviates from that outlined in `RFC 6912`_.
 
 Validation
@@ -142,7 +142,7 @@ any of the available validation mechanisms.
 
 .. note:: Proof validation is agnostic of whether a Merkle-proof has
    been the result of an audit or a consistency proof request.
-   Audit-proofs and consistency-proofs share identical structure,
+   Audit proofs and consistency proofs share identical structure,
    so that both kinds are instances of the same class.
 
 .. _GitHub: https://github.com/FoteinosMerg/pymerkle

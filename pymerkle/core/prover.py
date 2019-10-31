@@ -67,9 +67,9 @@ class Prover(object, metaclass=ABCMeta):
     def auditProof(self, checksum, commit=False):
         """
         Response of the Merkle-tree to the request of providing an
-        audit-proof based upon the provided checksum
+        audit proof based upon the provided checksum
 
-        :param checksum: the checksum which the requested audit-proof is to
+        :param checksum: the checksum which the requested audit proof is to
                 be based upon
         :type checksum: bytes
         :returns: audit-path along with validation parameters
@@ -115,13 +115,13 @@ class Prover(object, metaclass=ABCMeta):
     def consistencyProof(self, subhash, commit=False):
         """
         Response of the Merkle-tree to the request of providing a
-        consistency-proof for the provided previous state
+        consistency proof for the provided previous state
 
         :param subhash: root-hash of a presumably valid previous
             state of the Merkle-tree
         :type subhash: bytes
         :returns: consistency-path along with validation parameters
-        :rtype: proof.Proof
+        :rtype: Proof
 
         :raises InvalidChallengeError: if type of any of the provided
             arguments is not as prescribed

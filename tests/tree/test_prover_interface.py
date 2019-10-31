@@ -88,7 +88,7 @@ for raw_bytes in (True, False):
                     )
 
 
-# Audit-proof
+# Audit proof
 
 __invalid_audit_proof_requests = [
     (
@@ -176,7 +176,7 @@ def test_non_empty_auditProof(tree, arg):
     }
 
 
-# Consistency-proof
+# Consistency proof
 
 __trees_and_subtrees = []
 
@@ -254,7 +254,7 @@ def test_non_empty_consistencyProof(tree, subhash):
 @pytest.mark.parametrize("tree, subhash", __tree__subhash)
 def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
-    Tests that the generated empty consistency-proof, requested
+    Tests that the generated empty consistency proof, requested
     for a wrong hash, is as expected
     """
     consistency_proof = tree.consistencyProof(subhash, sublength)
@@ -281,7 +281,7 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
 @pytest.mark.parametrize("tree, subhash", __tree__subhash)
 def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
-    Tests that the generated empty consistency-proof, requested
+    Tests that the generated empty consistency proof, requested
     for a wrong sublength, is as expected
     """
     consistency_proof = tree.consistencyProof(subhash, sublength)

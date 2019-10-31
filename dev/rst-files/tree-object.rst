@@ -138,7 +138,7 @@ encapsulated in the following collection of attributes and properties.
 .. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
 .. _rootHash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.rootHash
 
-Invoking a Merkle-tree from the Python iterpeter displays the above properties
+Invoking a Merkle-tree from the Python iterpeter displays the above characteristics
 in the form of an etiquette (cf. the *Representation* section below). Here is
 how the empty standard (SHA256/UTF-8) Merkle-tree would look like:
 
@@ -167,7 +167,7 @@ Initial records
 
 One can provide an arbitrary number of records at construction, in which
 case the created Merkle-tree will be *non* empty. The following statement
-creates a standard (SHA256/UTF-8) tree with 3 leaves from the outset,
+creates a standard (SHA256/UTF-8) tree with three leaves from the outset,
 occurring from the provided *positional* arguments (*str* or *bytes*
 indifferently) in respective order:
 
@@ -240,7 +240,7 @@ This info can saved in a file as follows:
         f.write(tree.__repr__())
 
 
-Similarly, feeding the tree into the `print()` Python-function displays it in a
+Similarly, feeding the tree into the ``print()`` Python-function displays it in a
 terminal friendly way, similar to the output of the ``tree`` command of Unix
 based platforms:
 
@@ -317,7 +317,7 @@ in respective order. For example:
   }
 
 
-One can recover the tree by means of the `.loadFromFile`_ static method:
+One can recover the tree by means of the `.loadFromFile`_ classmethod:
 
 .. code-block:: python
 

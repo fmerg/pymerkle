@@ -1,12 +1,12 @@
 Inclusion tests
 +++++++++++++++
 
-Upon generating a consistency-proof, the server can implicitly infer whether
+Upon generating a consistency proof, the server can implicitly infer whether
 the parameters provided by the client correspond to an actual previous state of
 the Merkle-tree. One can imagine scenarios where the server would like to
-verify this "inclusion" independently of any consistency-proof request (i.e.,
-without responding with a proof). To this end, the afore-mentioned implicit
-check has been abstracted from the consistency-proof algorithm and implemented
+verify this "inclusion" independently of any consistency proof request (i.e.,
+without responding with a proof). To this end, the afore mentioned implicit
+check has been abstracted from the consistency proof algorithm and implemented
 explicitly as the `.inclusionTest`_ method.
 
 .. _.inclusionTest: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.inclusionTest

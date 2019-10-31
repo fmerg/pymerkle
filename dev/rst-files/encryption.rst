@@ -24,7 +24,7 @@ s gradual development, preserving its property of being
 number of leaves have the same topology (despite their
 possibly different gradual development).
 
-.. warning:: The *.update* method is thought of as low-level
+.. warning:: The `.update`_ method is thought of as low-level
         and its usage is discouraged.
 
 .. _.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.update
@@ -51,7 +51,7 @@ If raw-bytes mode is disabled, trying to encrypt bytes outside
 the configured encoding type will raise ``UndecodableRecord``
 error and *abort* the update:
 
-.. code-block::
+.. code-block:: python
 
     >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
     >>>
@@ -118,7 +118,7 @@ per log as follows:
 
     >>>
 
-where the provided argument is the file's relative path with respect 
+where the provided argument is the file's relative path with respect
 to the current working directory.
 
 .. _.encryptFilePerLog: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptFilePerLog
@@ -146,9 +146,9 @@ provided file falls under the tree's configured type, otherwise
 Direct JSON encryption
 ------------------------
 
-*Encrypting a JSON into* the Merkle-tree means updating it with a 
-newly created leaf storing the digest of the corresponding JSON.
-Use the `.encryptJSON`_ method to encrypt any dictionary with 
+*Encrypting a JSON into* the Merkle-tree means updating it with a
+newly created leaf storing the digest of the corresponding JSON string.
+Use the `.encryptJSON`_ method to encrypt any dictionary with
 serialized values as follows:
 
 .. code-block:: python
@@ -157,14 +157,14 @@ serialized values as follows:
 
 which is the same as
 
-.. code-block::
+.. code-block:: python
 
     tree.encryptRecord('{\n"b": 0,\n"a": 1\n}')
 
 Note that keys are not being sorted and no indentation is applied.
 These parameters may be controlled via kwargs as follows:
 
-.. code-block::
+.. code-block:: python
 
     tree.encryptJSON({'b': 0, 'a': 1}, sort_keys=True, indent=4)
 
@@ -175,7 +175,7 @@ which is the same as
     tree.encryptRecord('{\n    "a": 1,\n    "b": 0\n}')
 
 The digest is of course different than above. Since this might lead to
-unnecessary headaches upon requesting and validating audit-proofs, it is
+unnecessary headaches upon request and validation of audit proofs, it is
 recommended that *sort_keys* and *indent* are left to their default values
 (``False`` and ``0`` respectively), unless special care is to be taken.
 
@@ -193,6 +193,6 @@ that file. Use the `.encryptJSONFromFile`_ method as follows:
     tree.encryptJSONFromFile('relative_path/sample.json')
 
 The file should here contain a *single* (i.e., well-formed) JSON entity,
-otherwise a `JSONDecodeError` is raised and the encryption is _aborted_.
+otherwise a `JSONDecodeError` is raised and the encryption is *aborted*.
 
-.. _.encryptJSONFromFile: file:///home/beast/proj/pymerkle/docs/build/pymerkle.core.html?highlight=encryptjsonfromfile#pymerkle.core.encryption.Encryptor.encryptJSONFromFile 
+.. _.encryptJSONFromFile: file:///home/beast/proj/pymerkle/docs/build/pymerkle.core.html?highlight=encryptjsonfromfile#pymerkle.core.encryption.Encryptor.encryptJSONFromFile

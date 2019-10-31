@@ -242,11 +242,11 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             self.__root = new_leaf
 
 
-    # Low-level audit-proof
+    # Low-level audit proof
 
     def audit_path(self, index):
         """
-        Computes the *audit-path* for the audit-proof requested upon the provided index
+        Computes the *audit-path* for the audit proof requested upon the provided index
 
         *Audit-path* consists of a sequence of signed hashes and a *proof-index*
         (the position where any subsequent proof-validation should start from)
@@ -327,7 +327,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         return index
 
 
-    # Low-level consistency-proof
+    # Low-level consistency proof
 
     def consistency_path(self, sublength):
         """
@@ -413,13 +413,13 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         length, whose lengths sum up to the provided argument
 
         Returned nodes are prepended with a sign (``+1`` or ``-1``), carrying
-        information used in subsequent generation of consistency-proofs
+        information used in subsequent generation of consistency proofs
 
         :param sublength: a non-negative integer smaller than or equal to the
                     Merkle-tree's current length, such that the corresponding
                     sequence of subroots exists
         :returns: signed roots of the detected subtrees, whose hashes to be
-                    used for the generation of consistency-proofs
+                    used for the generation of consistency proofs
         :rtype: list<(+1/-1, nodes.__Node)>
 
         :raises NoPrincipalSubroots: if the provided ``sublength``
@@ -730,7 +730,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         Overrides the default implementation
 
-        Designed so that inserting the Merkle-tree into the ``print()`` function
+        Designed so that inserting the Merkle-tree into the ```print()``` function
         displays it in a terminal friendly way, that is, resembles the output
         of the ``tree`` command at Unix based platforms
 
@@ -768,7 +768,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         Returns a stringification of the Merkle-tree's serialization
 
         .. note:: The output of this method is to be passed into
-            the ``print()`` function
+            the ```print()``` function
 
         :rtype: str
         """

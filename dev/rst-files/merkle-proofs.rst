@@ -17,9 +17,9 @@ zero-knowledge fashion.
 
 .. note:: Merkle-proofs are *not* zero-knowledge proofs, since they
     require one or two leaf checksums to be included in the advertised
-    path of hashes. In the case of audit-proof, one of these checksums
+    path of hashes. In the case of audit proof, one of these checksums
     is already known to the client, whereas in the case of
-    consistency-proof only one leaf checksum needs be revealed.
+    consistency proof only one leaf checksum needs be revealed.
     In other words, Merkle-proofs are zero-knowledge except
     for the (more or less inessential) disclosure of *one* checksum.
 
@@ -43,7 +43,7 @@ call the `.get_commitment`_ function,
 
     commitment = tree.get_commitment()
 
-returning ``None`` for the empty case.
+which returns ``None`` for the empty case.
 
 .. _.get_commitment: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.get_commitment
 
@@ -71,7 +71,7 @@ otherwise an ``InvalidChallengeError`` is raised and proof generation is aborted
                 'checksum': <str> or <bytes>
         }
 
-indicating request of an *audit-proof*, or
+which indicates request of an *audit proof*, or
 
 .. code-block:: bash
 
@@ -79,10 +79,10 @@ indicating request of an *audit-proof*, or
                 'subhash': <str> or <bytes>
         }
 
-indicating request of a *consistency-proof*. In the first case, the provided *checksum*
+which indicates request of a *consistency proof*. In the first case, the provided checksum
 is thought of as the digest stored by some of the Merkle-tree's leaves, whereas in the
 second case *subhash* is thought of as the tree's root-hash at some previous moment.
-In either case, the provided value will be assumed by the Merkle-tree to be a hexadecimal,
+In either case, the provided value will be assumed by the Merkle-tree to be hexadecimal,
 that is, a hexstring or hexdigest. For example, the challenge
 
 .. code-block:: python
@@ -91,7 +91,7 @@ that is, a hexstring or hexdigest. For example, the challenge
                 'checksum': '3f0941bd95131963906aa27cbea5b38a5ce2611adb4f2f22b8e4fa383cd00e33'
         }
 
-will give rise to the *same* Merkle-proof as
+will give rise to the same Merkle-proof as
 
 .. code-block:: python
 
@@ -100,14 +100,14 @@ will give rise to the *same* Merkle-proof as
         }
 
 where the former may be considered as the serialized version of the latter (e.g., the payload
-of a network request). Similar considerations apply for the *subhash* field of the second case.
+of a network request). Similar considerations apply for the subhash field of the second case.
 
 
 Proof structure
 ---------------
 
 The produced ``merkle_proof`` is an instance of the `Proof`_ class. It consists of a
-path of hashes and the required parameters for validation to take place from the
+path of hashes and the required parameters for validation to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
 
 .. code-block:: python
@@ -151,6 +151,8 @@ client's side. Invoking it from the Python interpreter, it looks like
 
 .. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof
 
+.. note:: Once generated, it is impossible to discern whether a `Proof`_ object
+    is the result of an audit or a consistency proof request.
 
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
 uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
@@ -206,7 +208,7 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
 
 .. note:: In this case, the Merkle-proof is predestined to be found *invalid*. Particular
         meaning and interpreation of this failure depends on protocol restrictions and
-        type of challenge. In case of an audit-proof for example, it could indicate that
+        type of challenge. In case of an audit proof for example, it could indicate that
         some data have not been properly encrypted by the server or that the client does
         not have proper knowledge of any encrypted data or both.
 
@@ -454,8 +456,8 @@ If the proof were invalid, then an ``InvalidMerkleProof`` error is raised instea
     pymerkle.exceptions.InvalidMerkleProof
     >>>
 
-Instead of feeding a proof at construction, one can alternately (re)configure the
-validator by means of the `Validator.update`_ method. This allows for reusing
+Instead of feeding a proof at construction, one can alternately reconfigure the
+validator by means of the `Validator.update`_ method. This allows to use
 the same machine for successive validation of multiple proofs:
 
 .. code-block:: python
@@ -479,31 +481,31 @@ Validation receipts
 -------------------
 
 One can configure the `validateProof`_ function to return a receipt instead of
-a boolean by means of the *get_receipt* keywarg:
+a boolean by means of the *get_receipt* kwarg:
 
 .. code-block:: python
 
     >>> receipt = validateProof(merkle_proof, get_receipt=True)
     >>> receipt
 
-    ----------------------------- VALIDATION RECEIPT -----------------------------
+        ----------------------------- VALIDATION RECEIPT -----------------------------
 
-    uuid           : b6e17aa8-fb35-11e9-bc05-701ce71deb6a
+        uuid           : b6e17aa8-fb35-11e9-bc05-701ce71deb6a
 
-    timestamp      : 1572454373 (Wed Oct 30 18:52:53 2019)
+        timestamp      : 1572454373 (Wed Oct 30 18:52:53 2019)
 
-    proof-uuid     : a90456e4-fb35-11e9-bc05-701ce71deb6a
-    proof-provider : 7b76a13c-fb35-11e9-bc05-701ce71deb6a
+        proof-uuid     : a90456e4-fb35-11e9-bc05-701ce71deb6a
+        proof-provider : 7b76a13c-fb35-11e9-bc05-701ce71deb6a
 
-    result         : VALID
+        result         : VALID
 
-    ------------------------------- END OF RECEIPT -------------------------------
+        ------------------------------- END OF RECEIPT -------------------------------
 
     >>>
 
 The produced object is an instance of the `Receipt`_ class with self-explanatory
 attributes. It could have been saved in a *.json* file by means of the *dirpath*
-keywarg (see the `validateProof`_ doc). Serialization and deserialization of
+kwarg (see the `validateProof`_ doc). Serialization and deserialization of
 receipts follow the same rules as for proofs:
 
 .. code-block:: python
@@ -523,18 +525,18 @@ receipts follow the same rules as for proofs:
     >>> deserialized = Receipt.deserialize(serialized_receipt)
     >>> deserialized
 
-    ----------------------------- VALIDATION RECEIPT -----------------------------
+        ----------------------------- VALIDATION RECEIPT -----------------------------
 
-    uuid           : 430bc452-fb40-11e9-bc05-701ce71deb6a
+        uuid           : 430bc452-fb40-11e9-bc05-701ce71deb6a
 
-    timestamp      : 1572458903 (Wed Oct 30 20:08:23 2019)
+        timestamp      : 1572458903 (Wed Oct 30 20:08:23 2019)
 
-    proof-uuid     : 41422fb2-fb40-11e9-bc05-701ce71deb6a
-    proof-provider : 3fc2ae14-fb40-11e9-bc05-701ce71deb6a
+        proof-uuid     : 41422fb2-fb40-11e9-bc05-701ce71deb6a
+        proof-provider : 3fc2ae14-fb40-11e9-bc05-701ce71deb6a
 
-    result         : VALID
+        result         : VALID
 
-    ------------------------------- END OF RECEIPT -------------------------------
+        ------------------------------- END OF RECEIPT -------------------------------
 
     >>>
 

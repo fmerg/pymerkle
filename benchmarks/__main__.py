@@ -269,7 +269,7 @@ def encryption_benchmark():
 def audit_proofs_benchmark():
     write('\n\n----------------------- Proof generation measuremenets ------------------------')
     write('\n\n')
-    write('Generating audit-proofs -be patient...')
+    write('Generating audit proofs -be patient...')
     global PROOFS
     START = now()
     MAX   = None
@@ -291,12 +291,12 @@ def audit_proofs_benchmark():
         elapsed.append(_elapsed)
     mean, stdev = mean_value(elapsed, PRECISION_2, with_stdev=True)
     show_stats(
-        message='Audit-proof generation (sec)', total=quantize(TOTAL, PRECISION_2),
+        message='Audit proof generation (sec)', total=quantize(TOTAL, PRECISION_2),
         min=MIN, max=MAX, mean=mean, stdev=stdev)
 
 
 def consistency_proofs_benchmark():
-    write('Generating consistency-proofs -be patient...')
+    write('Generating consistency proofs -be patient...')
     # Generate states
     TREE = MerkleTree('0-th record', encoding=ENCODING, hash_type=HASH_TYPE)
     states = []
@@ -326,7 +326,7 @@ def consistency_proofs_benchmark():
         elapsed.append(_elapsed)
     mean, stdev = mean_value(elapsed, PRECISION_2, with_stdev=True)
     show_stats(
-        message='\nConsistency-proof generation (sec)',
+        message='\nConsistency proof generation (sec)',
         total=quantize(TOTAL, PRECISION_2), min=MIN, max=MAX, mean=mean, stdev=stdev
     )
 
