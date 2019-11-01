@@ -107,7 +107,7 @@ Proof structure
 ---------------
 
 The produced ``merkle_proof`` is an instance of the `Proof`_ class. It consists of a
-path of hashes and the required parameters for validation to take place from the
+path of hashes and the required parameters for validation to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
 
 .. code-block:: python

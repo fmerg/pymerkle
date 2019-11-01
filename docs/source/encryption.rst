@@ -51,7 +51,7 @@ If raw-bytes mode is disabled, trying to encrypt bytes outside
 the configured encoding type will raise ``UndecodableRecord``
 error and *abort* the update:
 
-.. code-block::
+.. code-block:: python
 
     >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
     >>>
@@ -157,14 +157,14 @@ serialized values as follows:
 
 which is the same as
 
-.. code-block::
+.. code-block:: python
 
     tree.encryptRecord('{\n"b": 0,\n"a": 1\n}')
 
 Note that keys are not being sorted and no indentation is applied.
 These parameters may be controlled via kwargs as follows:
 
-.. code-block::
+.. code-block:: python
 
     tree.encryptJSON({'b': 0, 'a': 1}, sort_keys=True, indent=4)
 

@@ -9,19 +9,19 @@ NONE = '[None]' # Used accross various modules for printing, but not here
 
 def log_2(num):
     """
-    Computes and returns the base *2* logarithm of the provided number
-    (i.e., the greatest power of *2* equal to or smaller than ``num``)
+    Computes and returns the base 2 logarithm of the provided number
+    (i.e., the greatest power of 2 equal to or smaller than *num*)
 
     .. note:: Given any *balanced* binary tree, whose number of leaves
         equals the provided argument, this function returns the tree's
-        height (i.e., the depth of its *left-most* branch)
+        height (i.e., the depth of its left-most branch)
 
     :param num: the number whose logarithm is to be computed
     :type num: int
     :returns: the computed logarithm
     :rtype: int
 
-    .. note:: By convention, it returns ``0`` for the zero argument
+    .. note:: By convention, it returns 0 for the zero argument
 
     :raises ValueError: for arguments smaller than zero
     """
@@ -34,9 +34,9 @@ def decompose(num):
 
     Given a positive integer uniquely decomposed as
 
-    ``2 ^ p_m + ... + 2 ^ p_1,  p_m > ... > p_1 >= 0``
+    ``2 ^ p_m + ... + 2 ^ p_1, p_m > ... > p_1 >= 0``
 
-    then the tuple ``(p_m, ..., p_1)`` is returned
+    then the tuple *(p_m, ..., p_1)* is returned
 
     :Example:
 
@@ -48,7 +48,7 @@ def decompose(num):
 
     :param num: the number to be decomposed
     :type num: int
-    :returns: powers of *2* in decreasing order
+    :returns: powers of 2 in decreasing order
     :rtype: tuple of integers
 
     .. note:: Returns the nonsensical empty tuple for
@@ -65,13 +65,13 @@ def decompose(num):
 
 def stringify_path(signed_hashes, encoding):
     """
-    Returns a stringification of the provided sequence of signed checksums
+    Returns a stringification of the provided sequence of signed hashes
 
-    .. note:: Printed checksums occure after decoding the given ones in
+    .. note:: Printed hashes occure after decoding the given ones in
         accordance under the provided encoding type
 
-    :param signed_hashes: a sequence of signed checksums
-    :type signed_hashes: tuple<(+1/-1, bytes)> or tuple<(+1/-1, str)>
+    :param signed_hashes: sequence of signed hashes
+    :type signed_hashes: tuple of (+1/-1, bytes) or (+1/-1, str)
     :param encoding: encoding type to be used for decoding
     :type encoding: str
     :rtype: str

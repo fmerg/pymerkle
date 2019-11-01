@@ -16,26 +16,24 @@ class HashMachine(Encoder):
     """
     Encapsulates the hash utilities used accross the *pymerkle* library
 
-    :param hash_type: Defaults to ``'sha256'``. Specifies the hash algorithm to
-        be used by the machine. Must be among the elements of ``HASH_TYPES``
+    :param hash_type: [optional] Specifies the hash algorithm used by the
+            machine. Defaults to *sha256*.
     :type hash_type: str
-    :param encoding: Defaults to ``'utf_8'``. Specifies the encoding algorithm
-        to be used by the machine before hashing. Must be among the elements of
-        ``encoder.ENCODINGS`` (upper- or mixed-case with '-' instead of
-        '_' allowed).
+    :param encoding: [optional] Specifies the encoding algorithm used by the
+            machine before hashing. Defaults to *utf_8*.
     :type encoding: str
-    :param raw_bytes: Defaults to ``False``. Specifies whether the machine
-        accepts raw binary data independently of its configured encoding type
+    :param raw_bytes: [optional] Specifies whether the machine accepts raw
+            binary data independently of its configured encoding type.
+            Defaults to *True*.
     :type raw_bytes: bool
-    :param security: Defaults to ``True``. Specifies whether single, resp.
-        double arguments passed into the ``.hash()`` function will be prepended
-        with ``'0x00'``, resp. ``'0x01'`` before hashing)
+    :param security: [optional] Specifies whether defense against
+            second-preimage attack will be enabled. Defaults to *True*.
     :type security: bool
 
-    :raises UnsupportedHashType: if the provided ``encoding`` is not
-                        contained in ``encoder.ENCODINGS``
-    :raises UnsupportedHashType: if the provided ``hash_type`` is not
-                        contained in ``hashing.machine.HASH_TYPES``
+    :raises UnsupportedHashType: if the provided encoding is not
+                        contained in *pymerkle.hashing.encoding.ENCODINGS*.
+    :raises UnsupportedHashType: if the provided hash-type is not
+                        contained in *pymerkle.hashing.machine.HASH_TYPES*.
 
     :ivar algorithm: (*builtin_function_or_method*) Hash algorithm used
                     by the machine
@@ -58,20 +56,17 @@ class HashMachine(Encoder):
         """
         Core hash utility
 
-        Computes the digest of the provided arguments' concatenation in
-        accordance with the machine's context. If only one argument is passed
-        in, then the disgest of this single argument is computed
+        Computes the digest of the provided arguments' concatenation. If only
+        one argument is passed in, then the disgest of this single argument
+        is computed.
 
-        :param left:  left member of the pair to be hashed
-        :type left:   str or bytes
+        :param left: left member of the pair to be hashed
+        :type left: str or bytes
         :param right: [optional] right member of the pair to be hashed
-        :type right:  bytes
+        :type right: bytes
 
-        .. warning:: if ``right`` is provided, then ``left`` *must* also be of
-                `bytes` type
-
-        :returns: the digest of the entity occuring after concatenation of
-                the given arguments
+        :returns: Digest of the entity occuring after concatenation of
+                provided arguments
         :rtype: bytes
         """
         data = self.encode(left, right)
@@ -83,27 +78,30 @@ class HashMachine(Encoder):
         """
         Extended hash utility
 
-        Repeatedly applies the ``.hash()`` method over a tuple of signed digests
-        parenthesized as specified by accompanying signs. Schematically speaking,
-        the result of
+        Repeatedly applies the *.hash()* method over the provided iterable of
+        signed hashes (signs indicating parenthetization during repetition and
+        *start* indicating starting position of application).
+        Schematically speaking,
 
-        ``multi_hash(signed_hashes=((1, a), (1, b), (-1, c), (-1, d)), start=1)``
+        ``multi_hash([(1, a), (1, b), (-1, c), (-1, d)], 1)``
 
-        equals ``hash(hash(a, hash(b, c)), d)``. If the provided sequence
-        contains only one member, then this single digest is returned
-        (without sign), that is,
+        is equivalent to
 
-                 ``multi_hash(signed_hashes=((+/-1, a)), start=1)``
+        ``hash(hash(a, hash(b, c)), d)``.
 
-        equals ``a`` (no hashing over single elements)
+        .. note:: If the provided iterable contains only one element, then this
+            single hash is returned (without sign), that is,
+
+                 ``multi_hash(signed_hashes=((+/-1, a)), start=0)``
+
+            equals ``a`` (no hashing over single elements)
 
         .. warning:: When using this method, make sure that the combination of
                 signs corresponds indeed to a valid parenthetization
 
-        :param signed_hashes: a sequence of signed hashes
-        :type signed_hashes: tuple of (+1/-1, bytes) pairs
-        :param start: position where the application of ``.hash()`` will
-                    start from
+        :param signed_hashes: a finite sequence of signed hashes
+        :type signed_hashes: iterable of (+1/-1, bytes)
+        :param start: starting position for application of *.hash()*
         :type start: int
         :rtype: bytes
 

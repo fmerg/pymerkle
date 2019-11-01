@@ -138,7 +138,7 @@ encapsulated in the following collection of attributes and properties.
 .. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
 .. _rootHash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.rootHash
 
-Invoking a Merkle-tree from the Python iterpeter displays the above properties
+Invoking a Merkle-tree from the Python iterpeter displays the above characteristics
 in the form of an etiquette (cf. the *Representation* section below). Here is
 how the empty standard (SHA256/UTF-8) Merkle-tree would look like:
 

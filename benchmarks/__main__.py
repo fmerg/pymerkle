@@ -450,7 +450,7 @@ def main():
     sizes_benchmark()
     encryption_benchmark()
     audit_proofs_benchmark()
-    consistency_proofs_benchmark()
+    # consistency_proofs_benchmark()
     proof_validations_benchmark()
 
     write('\n')

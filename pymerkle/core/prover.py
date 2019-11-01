@@ -49,10 +49,17 @@ class Prover(object, metaclass=ABCMeta):
 
     def merkleProof(self, challenge, commit=True):
         """
-        :param challenge:
+        Response of the Merkle-tree to the request of providing a
+        Merkle-proof based upon the provided challenge
+
         :type challenge: dict
-        :returns:
         :rtype: Proof
+
+        .. warning:: Provided challenge must be of the form
+
+            ``{'checksum': <str> or <bytes>}`` or ``{'subhash': <str> or <bytes>}``,
+
+            otherwise an ``InvalidChallengeError`` is raised.
         """
         keys = set(challenge.keys())
         if keys == {'checksum'}:
@@ -69,10 +76,8 @@ class Prover(object, metaclass=ABCMeta):
         Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum
 
-        :param checksum: the checksum which the requested audit proof is to
-                be based upon
-        :type checksum: bytes
-        :returns: audit-path along with validation parameters
+        :param checksum: Checksum which the requested proof is to be based upon
+        :type checksum: str or bytes
         :rtype: Proof
 
         :raises InvalidChallengeError: if the provided argument's type
@@ -114,17 +119,16 @@ class Prover(object, metaclass=ABCMeta):
 
     def consistencyProof(self, subhash, commit=False):
         """
-        Response of the Merkle-tree to the request of providing a
-        consistency proof for the provided previous state
+        Response of the Merkle-tree to the request of providing a consistency
+        proof for the acclaimed root-hash of some previous state
 
-        :param subhash: root-hash of a presumably valid previous
-            state of the Merkle-tree
+        :param subhash: acclaimed root-hash of some previous
+                state of the Merkle-tree
+        :type subhash: str or bytes
         :type subhash: bytes
-        :returns: consistency-path along with validation parameters
         :rtype: Proof
 
-        :raises InvalidChallengeError: if type of any of the provided
-            arguments is not as prescribed
+        :raises InvalidChallengeError: if type of *subhash* is not as prescribed
         """
         if isinstance(subhash, str):
             subhash = subhash.encode()
@@ -174,30 +178,35 @@ class Proof(object):
     :type hash_type: str
     :param encoding: encoding type of the provider Merkle-tree
     :type encoding: str
+    :param raw_bytes: raw-bytes mode of the provider Merkle-tree
+    :type raw_bytes: bool
     :param security: security mode of the provider Merkle-tree
     :type security: bool
-    :param proof_index: path index (zero based) where the
-        validation procedure should start from
+    :param proof_index: starting position of subsequent validation procedure
     :type proof_index: int
     :param proof_path: path of signed hashes
-    :type proof_path: tuple<(+1/-1, bytes)>
+    :type proof_path: tuple of (+1/-1, bytes)
 
-    .. note:: Required Merkle-tree parameters are necessary for proof
-        validation to be performed
+    Proofs are meant to be output of proof generation mechanisms and not
+    manually constructed. Proof construction via deserialization might though
+    have practical importance, so that given a proof *p* the following
+    constructions are possible:
 
-    Instead of providing the above arguments corresponding to `*args`, given a
-    proof ``p`` instances of ``Proof`` may also be constructed in the following
-    ways:
+    >>> from pymerkle import Proof
+    >>>
+    >>> q = Proof(from_dict=p.serialize())
+    >>> r = Proof(from_json=p.toJSONtext())
 
-    >>> from pymerkle.proof import Proof
-    >>> q = Proof(from_json=p.toJSONString())
-    >>> r = Proof(from_dict=json.loads(p.toJSONString()))
+    or, more uniformly,
 
-    .. note:: Constructing proofs in the above ways is a genuine *replication*,
-        since ``q`` and ``r`` have the same *uuid* and *timestamp* as ``p``
+    >>> q = Proof.deserialize(p.serialize())
+    >>> r = Proof.deserialize(p.toJSONtext())
+
+    .. note:: This is a genuine replication, since deserializations will have
+        the same uuid and timestamp as the original.
 
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
-        *creation_moment*, *generation*, *provider*, *hash_type*, *encoding*,
+        *creation_moment*, *provider*, *hash_type*, *encoding*,
         *raw_bytes*, *security* and *status*
     :ivar body: (*dict*) Contains the keys *proof_index* and *proof_path*
     """
@@ -246,10 +255,28 @@ class Proof(object):
         self.body = body
 
 
+    @classmethod
+    def deserialize(cls, serialized):
+        """
+        Deserializes the provided JSON entity
+
+        :params serialized: a Python dict or JSON text, assumed to be the
+            serialization of a *Proof* object
+        :type: dict or str
+        :rtype: Proof
+        """
+        kwargs = {}
+        if isinstance(serialized, dict):
+            kwargs.update({'from_dict': serialized})
+        elif isinstance(serialized, str):
+            kwargs.update({'from_json': serialized})
+        return cls(**kwargs)
+
+
     def get_validation_params(self):
         """
-        Extracts from the proof's header all necessary parameters
-        required for its validation
+        Extracts from the proof's header the fields required for configuring
+        correctly the validator's hashing machinery.
 
         :rtype: dict
         """
@@ -267,11 +294,11 @@ class Proof(object):
         """
         Overrides the default implementation.
 
-        Sole purpose of this function is to easily display info
+        Sole purpose of this function is to display info
         about a proof by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
-            is *not* insertible into the ``eval()`` builtin function
+            is not insertible into the *eval()* builtin Python function
         """
         header = self.header
         body = self.body
@@ -315,25 +342,12 @@ class Proof(object):
                     else 'VALID' if header['status'] is True else 'NON VALID')
 
 
-    @classmethod
-    def deserialize(cls, serialized):
-        """
-        :params serialized:
-        :type: dict or str
-        """
-        kwargs = {}
-        if isinstance(serialized, dict):
-            kwargs.update({'from_dict': serialized})
-        elif isinstance(serialized, str):
-            kwargs.update({'from_json': serialized})
-        return cls(**kwargs)
-
 # Serialization
 
     def serialize(self):
         """
-        Returns a JSON entity with the proof's current
-        characteristics as key-value pairs
+        Returns a JSON entity with the proof's characteristics
+        as key-value pairs.
 
         :rtype: dict
         """
@@ -341,7 +355,8 @@ class Proof(object):
 
     def toJSONString(self):
         """
-        Returns a stringification of the proof's JSON serialization
+        Returns a JSON text with the proof's characteristics
+        as key-value pairs.
 
         :rtype: str
         """

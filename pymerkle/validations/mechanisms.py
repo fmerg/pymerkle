@@ -14,14 +14,10 @@ import os
 
 class Validator(HashMachine):
     """
-    Encapsulates the core utility for validating Merkle-proofs
+    Encapsulates the low-level utility for Merkle-proof validation
 
-    Provided ``config`` should be a dictionary containing the keys ``hash_type``,
-    ``encoding``, ``raw_bytes`` and ``security``, necessary for configuring the
-    underlying hash-machine
-
-    .. note:: Values to the above keys are meant to be the validation parameters
-    extracted from the header of the proof to be validated
+    :param input: [optional] a Merkle-proof or its header
+    :type: Proof or dict
     """
     def __init__(self, input=None):
         if input is not None:
@@ -33,7 +29,7 @@ class Validator(HashMachine):
 
     def update(self, input):
         """
-        :param input: proof or validation parameters
+        :param input: a Merkle-proof or its header
         :type input: Proof or dict
         """
         if isinstance(input, Proof):
@@ -55,17 +51,18 @@ class Validator(HashMachine):
 
     def run(self, proof=None, target=None):
         """
-        Runs validation of the given ``proof`` against the provided ``target``,
-        returning appropriate exception in case of failure
+        Runs Merkle-proof validation
 
-        :param target: the hash to be presumably attained at the end of the
-            validation procedure (that is, acclaimed current root-hash of
-            the Merkle-tree having provided the proof)
-        :type target: bytes
-        :param proof: the Merkle-proof to be validated
+        :raises InvalidMerkleProof: if the proof is found to be invalid
+
+        :param proof: the Merkle-proof under validation
         :type proof: Proof
-        :raises InvalidMerkleProof: if the provided proof was found to be
-            invalid
+        :param target: [optional] the hash to be be presumably attained at the
+            end of the validation process (i.e., acclaimed current root-hash of
+            the Merkle-tree having provided the proof). If not explicitly provided,
+            should be included in the given proof as the value of the *commitment*
+            field
+        :type target: bytes
         """
         if proof is None:
             try:
@@ -89,29 +86,30 @@ class Validator(HashMachine):
 
 def validateProof(proof, target=None, get_receipt=False, dirpath=None):
     """
-    Core utility for validating proofs
+    Core utility for Merkle-proof validation
 
-    Validates the provided proof by comparing to the accopmanying target hash,
-    modifies the proof's status as ``True`` or ``False`` according to the
-    result and returns this result
+    Validates the provided proof, modifies the proof's status as *True* or
+    *False* accordingly and returns result in the form of a boolean or a
+    receipt.
 
-    :param target: the hash to be presumably attained at the end of the
-        validation procedure (that is, acclaimed current root-hash of
-        the Merkle-tree having provided the proof)
-    :type target: bytes
-    :param proof: the Merkle-proof to be validated
+    :param proof: the Merkle-proof under validation
     :type proof: Proof
+    :param target: [optional] the hash to be be presumably attained at the
+        end of the validation process (i.e., acclaimed current root-hash of
+        the Merkle-tree having provided the proof). If not explicitly provided,
+        should be included in the given proof as the value of the *commitment*
+        field
+    :type target: bytes
     :param get_receipt: [optional] Specifies whether a receipt will be
-        generated for the performed validation
+        generated for the performed validation instead of a boolean
     :type get_receipt: bool
     :type dirpath: [optional] Relative path with respect to the current working
-        directory of the directory where the the generated receipt is to be
-        saved (as a ``.json`` file named with the receipt's uuid). If
-        unspecified, then the generated receipt will *not* be
-        automatically saved.
+        directory of the place where the generated receipt is to be saved (as a
+        *.json* file named with the receipt's uuid). If not provided, then the
+        receipt will not be automatically saved.
     :param dirpath: str
-    :returns: result or receipt of validation
-    :rtype: bool or validations.Receipt
+    :returns: Validation result or receipt
+    :rtype: bool or Receipt
     """
     validator = Validator(input=proof.get_validation_params())
     if target is None:
@@ -142,26 +140,32 @@ def validateProof(proof, target=None, get_receipt=False, dirpath=None):
 
 class Receipt(object):
     """
-    Provides info about validation of Merkle-proof
+    Receipt for Merkle-proof validations
 
     :param proof_uuid: uuid of the validated proof
     :type proof_uuid: str
-    :param proof_provider: uuid of the Merkle-tree having provided the proof
+    :param proof_provider: uuid of the tree having provided the proof
     :type proof_provider: str
     :param result: result of validation
     :type result: bool
 
-    Instead of providing the above arguments corresponding to `*args`, a
-    ``Receipt`` object may also be constructed in the following ways given
-    validation-receipt ``r``:
+    Receipts are meant to be output of validation mechanisms and not manually
+    constructed. Receipt construction via deserialization might though have
+    practical importance, so that given a receipt *r* the following
+    constructions are possible:
 
-    >>> from pymerkle.valiation_receipts import Receipt
-    >>> s = Receipt(from_json=r.toJSONString())
-    >>> t = Receipt(from_dict=json.loads(r.toJSONString()))
+    >>> from pymerkle.validations import Receipt
+    >>>
+    >>> s = Receipt(from_dict=r.serialize())
+    >>> t = Receipt(from_json=r.toJSONString())
 
-    .. note:: Constructing receipts in the above ways is a genuine *replication*,
-        since ``s`` and ``t`` will have the same *uuid* and *timestamp* as the
-        original receipt ``r``
+    or, more uniformly,
+
+    >>> s = Receipt.deserialize(r.serialize())
+    >>> t = Receipt.deserialize(r.toJSONString())
+
+    .. note:: This is a genuine replication, since deserializations will have
+        the same uuid and timestamp as the original.
 
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*, *validation_moment*
     :ivar body: (*dict*) contains the keys *proof_uuid*, *proof_provider*, *result*
@@ -221,8 +225,12 @@ class Receipt(object):
     @classmethod
     def deserialize(cls, serialized):
         """
-        :params serialized:
+        Deserializes the provided JSON entity
+
+        :params serialized: a Python dict or JSON text, assumed to be the
+            serialization of a *Receipt* object
         :type: dict or str
+        :rtype: Receipt
         """
         kwargs = {}
         if isinstance(serialized, dict):
@@ -236,7 +244,8 @@ class Receipt(object):
 
     def serialize(self):
         """
-        Returns a JSON entity with the receipt's attributes as key-value pairs
+        Returns a JSON entity with the receipt's characteristics
+        as key-value pairs
 
         :rtype: dict
         """
@@ -244,7 +253,8 @@ class Receipt(object):
 
     def toJSONString(self):
         """
-        Returns a stringification of the receipt's JSON serialization
+        Returns a JSON text with the receipt's characteristics
+        as key-value pairs
 
         :rtype: str
         """

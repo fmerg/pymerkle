@@ -208,8 +208,9 @@ immediately after generating the proof, that is, *before* any other records are
 encrypted. How the monitor knows ``c`` (e.g., from the server itself or a
 trusted third party) depends on protocol details. Failure of validation implies
 tamperedness of data encrypted prior to the recorded state or that the
-server's current root-hash does not coincide with ``c``, indicating false
-identity or tamperedness after the recorded state.
+server's current root-hash does not coincide with ``c``, indicating
+tamperedness after the recorded state or that the provider of ``c`` should be
+mistrusted.
 
 
 Example
@@ -280,6 +281,8 @@ request). We will here employ a validator for reference.
 
 In order to run the validator, we need to manually provide the commitment
 via the *target* kwarg as follows:
+
+.. code-block:: python
 
     >>> commitment = tree.get_commitment()
     >>>

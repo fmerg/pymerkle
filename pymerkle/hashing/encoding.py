@@ -24,11 +24,9 @@ ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
 
 class Encoder(object):
     """
+    Encapsulates the core encoding utility of hash-machines
     """
     def __init__(self, encoding='utf-8', raw_bytes=True, security=True):
-        """
-        Encapsulates the core encoding utility of hashing-machines
-        """
         enc = encoding.lower().replace('-', '_')
         if enc not in ENCODINGS:
             err = f'Encoding type {encoding} is not supported'

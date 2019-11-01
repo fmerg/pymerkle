@@ -28,7 +28,7 @@ class Encryptor(object, metaclass=ABCMeta):
         Updates the Merkle-tree by storing the checksum of the provided record
         into a newly-created leaf.
 
-        :param record: the record whose checksum is to be stored into a new leaf
+        :param record: Record whose checksum is to be stored into a new leaf
         :type record: str or bytes
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
@@ -47,7 +47,7 @@ class Encryptor(object, metaclass=ABCMeta):
         Updates the Merkle-tree with *one* newly-created leaf storing the
         checksum of the provided file's content.
 
-        :param file_path: relative path of the file under encryption with
+        :param file_path: Relative path of the file under encryption with
                 respect to the current working directory
         :type file_path: str
 
@@ -76,7 +76,7 @@ class Encryptor(object, metaclass=ABCMeta):
         Successively updates the tree with each line of the provided
         file in respective order
 
-        :param file_path: relative path of the file under enryption with
+        :param file_path: Relative path of the file under enryption with
             respect to the current working directory
         :type file_path: str
 
@@ -133,13 +133,13 @@ class Encryptor(object, metaclass=ABCMeta):
         Updates tree with *one* newly-created leaf storing the checksum of the
         provided object's stringification.
 
-        :param object: the JSON entity under encryption
+        :param object: JSON entity under encryption
         :type objec: dict
-        :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
+        :param sort_keys: [optional] Defaults to *False*. If *True*, then
             the object's keys are alphabetically sorted before its
             stringification.
         :type sort_keys: bool
-        :param indent: [optional] Defaults to ``0``. Specifies key indentation
+        :param indent: [optional] Defaults to 0. Specifies key indentation
             upon stringification of the provided JSON.
         :type indent: int
         """
@@ -149,20 +149,20 @@ class Encryptor(object, metaclass=ABCMeta):
 
     def encryptJSONFromFile(self, file_path, sort_keys=False, indent=0):
         """
-        Encrypts the object from within the provided ``.json`` file as a
+        Encrypts the object from within the provided *.json* file as a
         single new leaf into the Merkle-tree.
 
         Updates the tree with *one* newly-created leaf storing the checksum of
         the provided JSON's stringification.
 
-        :param file_path: relative path of a ``.json`` file with respect to the
+        :param file_path: Relative path of a *.json* file with respect to the
             current working directory
         :type file_path: str
-        :param sort_keys: [optional] Defaults to ``False``. If ``True``, then
+        :param sort_keys: [optional] Defaults to *False*. If *True*, then
             the object's keys are alphabetically sorted before its
             stringification
         :type sort_keys: bool
-        :param indent: [optional] Defaults to ``0``. Specifies key indentation
+        :param indent: [optional] Defaults to 0. Specifies key indentation
                 upon stringification of the object under encryption
         :type indent: sint
 
