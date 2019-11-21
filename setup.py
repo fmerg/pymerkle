@@ -1,74 +1,62 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 
+from setuptools import setup, find_packages
 import os
 import io
 
 import pymerkle
 
-from setuptools import find_packages
-from setuptools import setup
 
-SOURCE_DIR   = "pymerkle"
-DESCRIPTION  = pymerkle.__doc__.rstrip()
-EXCLUDE      = ("benchmarks", "docs", "tests",)
-AUTHOR       = "FoteinosMerg"
-AUTHOR_EMAIL = "foteinosmerg@protonmail.com"
-URL          = "https://github.com/FoteinosMerg/pymerkle"
-PROJECT_URLS = {
-    "github": URL,
-    "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
-    "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__
-}
-REQUIREMENTS = "requirements.txt"
-PYTHON       = ">=3.6"
-LICENSE      = "License :: OSI Approved :: MIT License"
+URL = "https://github.com/FoteinosMerg/pymerkle"
 
-KEYWORDS     =  [
-    "merkle",
-    "proof"
-    "audit",
-    "consistency",
-]
-
-CLASSIFIERS  =  [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Programming Language :: Python :: 3.6",
-    "Operating System :: POSIX",
-    "Topic :: Security :: Cryptography",
-    "Topic :: Software Development :: Libraries :: Python Modules"
-]
-
-INSTALL_REQUIRES = []
 current_dir = os.path.abspath(os.path.dirname(__file__))
+
 try:
-  with io.open(os.path.join(current_dir, REQUIREMENTS), encoding="utf-8") as f:
-    INSTALL_REQUIRES = [_.strip() for _ in f.readlines()]
+  with io.open(os.path.join(current_dir, "requirements.txt"),
+    encoding="utf-8") as __file:
+    install_requires = [_.strip() for _ in __file.readlines()]
 except FileNotFoundError:
-    INSTALL_REQUIRES = [
-          "tqdm>=4.28.1"
-      ]
+    install_requires = ["tqdm>=4.28.1",]
 
-with open("README.md", "r") as f:
-    LONG_DESCRIPTION = f.read()
+with open("README.md", 'r') as __file:
+    long_description = __file.read()
 
-setup(
-    name=pymerkle.__name__,
-    version=pymerkle.__version__,
-    description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
-    long_description_content_type="text/markdown",
-    url=URL,
-    project_urls=PROJECT_URLS,
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
-    packages=find_packages(),
-    python_requires=PYTHON,
-    install_requires=INSTALL_REQUIRES,
-    zip_safe=False,
-    keywords=KEYWORDS,
-    classifiers=CLASSIFIERS,
-    license=LICENSE
-)
+def main():
+    setup(
+       name=pymerkle.__name__,
+       version=pymerkle.__version__,
+       description=pymerkle.__doc__.strip(),
+       long_description=long_description,
+       long_description_content_type='text/markdown',
+       packages=find_packages(),
+       # package_dir={'': 'pymerkle'},
+       url=URL,
+       project_urls={
+            "github": URL,
+            "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
+            "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__,
+       },
+       author="FoteinosMerg",
+       author_email="foteinosmerg@protonmail.com",
+       python_requires=">=3.6",
+       install_requires=install_requires,
+       zip_safe=False,
+       keywords=[
+           "merkle", "proof", "audit", "consistency",
+       ],
+       classifiers=[
+           "Development Status :: 4 - Beta",
+           "Intended Audience :: Developers",
+           "Intended Audience :: Science/Research",
+           "Programming Language :: Python :: 3.6",
+           "Operating System :: POSIX",
+           "Topic :: Security :: Cryptography",
+           "Topic :: Software Development :: Libraries :: Python Modules",
+           "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+       ],
+    )
+
+
+if __name__ == '__main__':
+    main()

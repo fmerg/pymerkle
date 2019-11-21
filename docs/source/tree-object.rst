@@ -121,6 +121,9 @@ encapsulated in the following collection of attributes and properties.
 :security:
         (*bool*) - Indicates defense against second-preimage attack
 
+:`rootHash`_:
+        (*bytes*) - The hash currently stored by the Merkle-tree's root
+
 :`length`_:
         (*int*) - Current number of leaves (exterior nodes)
 
@@ -129,10 +132,6 @@ encapsulated in the following collection of attributes and properties.
 
 :`height`_:
         (*int*) - Current height (length of the tree's leftmost branch)
-
-:`rootHash`_:
-        (*bytes*) - The hash currently stored by the Merkle-tree's root
-
 .. _length: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.length
 .. _size: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.size
 .. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
@@ -240,7 +239,7 @@ This info can saved in a file as follows:
         f.write(tree.__repr__())
 
 
-Similarly, feeding the tree into the ``print()`` Python-function displays it in a
+Similarly, feeding the tree into the ``print()`` Python function displays it in a
 terminal friendly way, similar to the output of the ``tree`` command of Unix
 based platforms:
 

@@ -8,9 +8,8 @@
 
 **Complete documentation found at [pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**
 
-Merkle-trees employ cryptography to solve with almost logarithmic efficiency
-the problem of preserving data consistency over peer-to-peer networks and
-distributed systems.
+Merkle-trees employ cryptography to efficiently preserve data consistency
+across peer-to-peer networks and distributed systems.
 
 _Pymerkle_ provides a class for binary balanced Merkle-trees (with possibly
 odd number of leaves), capable of generating Merkle-proofs (audit and consistency
@@ -23,14 +22,10 @@ of existence and integrity of encrypted data.
 It is a zero dependency library (with the inessential exception of
 [`tqdm`](https://github.com/tqdm/tqdm) for displaying progress bars).
 
-## Installation [Work in progress]
-
-**WARNING: The present version has not yet been published to the Python index.
-For the moment, the following command will only install the pre-release of the
-last published version (No backwards compatibility)**
+## Installation
 
 ```bash
-pip3 install pymerkle --pre
+pip3 install pymerkle
 ```
 
 ## Usage
@@ -57,6 +52,7 @@ Refer to
 to see how to perform second-preimage attacks
 against the present implementation. In order to disable defense (say, for testing purposes),
 set ``security`` equal to ``False`` at construction.
+
 
 ### Defense against denial-of-service attacks
 
@@ -85,7 +81,7 @@ This standardization is further crucial for:
   decreasing powers of 2)
 - fast recalculation of the root-hash after appending a new leaf, since only
   the hashes at the tree's right-most branch need be recalculated
-- memory efficiency, since the height as well as total number of nodes with respect
+- storage efficiency, since the height as well as total number of nodes with respect
   to the tree's length is constrained to the minimum.
 
 The topology turns out to be identical with that of a binary _Sekura tree_,
@@ -96,7 +92,7 @@ method for further insight.
 
 _Note_: Due to the binary balanced structure of the present implementation,
 the consistency proof algorithm significantly deviates from that exposed
-in [RFC 6912](https://tools.ietf.org/html/rfc6962#section-2.1.2)
+in [RFC 6912](https://tools.ietf.org/html/rfc6962#section-2.1.2).
 
 
 ## Validation
@@ -152,4 +148,23 @@ Run
 ./dev/build-docs
 ```
 
-from inside the projects root dir to build the documentation (`./docs/build/index.html`)
+from inside the projects root dir to build the documentation (found at `./docs/build/index.html`)
+
+## License: GPLv3+
+
+This is free software and you are welcome to redistribute it.
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+See [LICENSE](LICENSE) for more details.

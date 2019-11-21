@@ -123,7 +123,7 @@ to the current working directory.
 
 .. _.encryptFilePerLog: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptFilePerLog
 
-If raw-bytes mode is *disabled*, make sure that every line of the
+If raw-bytes mode is disabled, make sure that every line of the
 provided file falls under the tree's configured type, otherwise
 ``UndecodableRecord`` error is raised and the encryption is
 *aborted*:

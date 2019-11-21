@@ -44,7 +44,7 @@ Installation
 
 .. code-block:: bash
 
-        pip install pymerkle --pre
+        pip install pymerkle
 
 Package exports
 ***************

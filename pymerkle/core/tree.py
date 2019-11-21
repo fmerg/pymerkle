@@ -107,7 +107,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             root = self.__root
         except AttributeError:
             raise EmptyTreeException
-
         return root.digest
 
     def get_commitment(self):
@@ -510,10 +509,11 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         if not isinstance(subhash, bytes):
             raise InvalidTypes
         included = False
+        multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):
             left_roots = self.principal_subroots(sublength)
             left_path = tuple((-1, _[1].digest) for _ in left_roots)
-            if subhash == self.multi_hash(left_path, len(left_path) - 1):
+            if subhash == multi_hash(left_path, len(left_path) - 1):
                 included = True
                 break
         return included

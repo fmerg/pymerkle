@@ -135,6 +135,9 @@ encapsulated in the following collection of attributes and properties.
 :raw_bytes:
         (*bool*) - Indicates ability of consuming arbitraty bytes
 
+:`rootHash`_:
+        (*bytes*) - The hash currently stored by the Merkle-tree's root
+
 :security:
         (*bool*) - Indicates defense against second-preimage attack
 
@@ -147,13 +150,10 @@ encapsulated in the following collection of attributes and properties.
 :`height`_:
         (*int*) - Current height (length of the tree's leftmost branch)
 
-:`rootHash`_:
-        (*bytes*) - The hash currently stored by the Merkle-tree's root
-
+.. _rootHash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.rootHash
 .. _length: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.length
 .. _size: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.size
 .. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
-.. _rootHash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.rootHash
 
 Invoking a Merkle-tree from the Python iterpeter displays the above characteristics
 in the form of an etiquette (cf. the *Representation* section below). Here is
@@ -257,7 +257,7 @@ This info can saved in a file as follows:
         f.write(tree.__repr__())
 
 
-Similarly, feeding the tree into the ``print()`` Python-function displays it in a
+Similarly, feeding the tree into the ``print()`` Python function displays it in a
 terminal friendly way, similar to the output of the ``tree`` command of Unix
 based platforms:
 
@@ -471,7 +471,7 @@ to the current working directory.
 
 .. _.encryptFilePerLog: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encryptFilePerLog
 
-If raw-bytes mode is *disabled*, make sure that every line of the
+If raw-bytes mode is disabled, make sure that every line of the
 provided file falls under the tree's configured type, otherwise
 ``UndecodableRecord`` error is raised and the encryption is
 *aborted*:
@@ -598,7 +598,7 @@ which returns ``None`` for the empty case.
 Challenge-commitment schema
 ===========================
 
-One can use the `MerkleTree.merkleProof`_ proof to generate the Merkle-proof
+One can use the `MerkleTree.merkleProof`_ method to generate the Merkle-proof
 upon a submitted challenge as follows:
 
 .. code-block:: python
@@ -721,7 +721,7 @@ appropriately in order to validate the proof and are available via the
 *Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
 (that is, *before* any other records are possibly encrypted into the tree).
 The Merkle-proof is valid *iff* the advertized path of hashes leads to the inscribed
-commitment (see *Proof validation* below).
+commitment (see *Validation modes* below).
 
 There are cases where the advertized path of hashes is empty or, equivalently, the inscribed
 *proof-index* has the non sensical value -1:
@@ -948,7 +948,7 @@ Direct and easiest validation of a Merkle-proof proceeds by means of the
 .. _validateProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateProof
 
 Like in any of the available validation mechanism, the `HashMachine.multi_hash`_ method is
-implicitly applied over the advertised path of hashes in order to recover a single hash.
+implicitly applied over the path of advertised hashes in order to recover a single hash.
 The proof is found to be valid *iff* this single hash coincides with the provided commitment.
 Note that application of `validateProof`_ has the effect of modifying the inscribed status as
 ``'VALID'``, which indicates that the proof's status has changed to *True*:
@@ -993,7 +993,8 @@ Low-level validation of proofs proceeds by means of the `Validator`_ object itse
 .. note:: Validating a proof in the above fashion leaves the proof's status unaffected.
 
 Successful validation is implied by the fact that the process comes to its end.
-If the proof were invalid, then an ``InvalidMerkleProof`` error is raised instead:
+If the proof were invalid, then an ``InvalidMerkleProof`` error would have been
+raised instead:
 
 .. code-block:: bash
 
