@@ -37,11 +37,6 @@ The project is hosted at `GitHub`_.
 Installation
 ************
 
-.. warning:: The present version has not yet been published to the
-   Python index. For the moment, the following command will only
-   install the pre-release of the last published version (No
-   backwards compatibility)
-
 .. code-block:: bash
 
         pip install pymerkle
