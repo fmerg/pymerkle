@@ -1,21 +1,33 @@
 # Dev
+env/
 *cache*
-/log_samples
 *lint*
-cpu*
 *.pyc
 *.pye
-*.swp
-/tests/logs/NASA*
-detect*
+*.sw*
 *profile*
+cpu*
 *.svg
-.coverage
-.benchmarks/
-*notes*
-*save*
+deploy.sh
+TODOS.txt
+NOTES.txt
 
 # Packaging
 *.egg-info/
 build/
 dist/
+
+# Tests
+tests/tree/exports/
+tests/validations/receipts/
+/tests/logs/NASA*
+.coverage
+
+# Benchmarks
+*.benchmarks/
+
+# Docs (do not commit auto-generated files)
+docs/target/
+docs/source/
+docs/Makefile
+docs/make.bat

@@ -7,7 +7,7 @@ import os
 
 from pymerkle import MerkleTree, hashing, validateProof
 from pymerkle.exceptions import InvalidTypes, InvalidComparison
-from tests.config import ENCODINGS
+from tests.conftest import ENCODINGS
 
 
 # Files to encrypt

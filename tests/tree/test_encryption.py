@@ -6,7 +6,7 @@ from pymerkle import MerkleTree
 from pymerkle.hashing import HashMachine, HASH_TYPES
 from pymerkle.exceptions import UndecodableRecord
 
-from tests.config import ENCODINGS
+from tests.conftest import ENCODINGS
 
 __trees__hash_machines = []
 for raw_bytes in (True, False):

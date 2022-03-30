@@ -10,7 +10,7 @@ from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle import MerkleTree, Validator, validateProof
 from pymerkle.validations.mechanisms import Receipt
-from tests.config import ENCODINGS
+from tests.conftest import ENCODINGS
 
 # Merkle-proof validation
 

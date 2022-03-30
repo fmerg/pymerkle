@@ -7,7 +7,7 @@ import pytest
 from pymerkle import MerkleTree
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidChallengeError, InvalidChallengeError
-from tests.config import ENCODINGS
+from tests.conftest import ENCODINGS
 
 
 # merkleProof (uniform interface)

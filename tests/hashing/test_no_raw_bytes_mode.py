@@ -7,7 +7,7 @@ import hashlib
 
 from pymerkle.hashing import HashMachine, HASH_TYPES
 from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
-from tests.config import ENCODINGS
+from tests.conftest import ENCODINGS
 
 
 MESSAGE = 'oculusnonviditnecaurisaudivit'

@@ -27,7 +27,7 @@ import pytest
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import HASH_TYPES
-from tests.config import ENCODINGS
+from tests.conftest import ENCODINGS
 
 trees = []
 for raw_bytes in (True, False):
