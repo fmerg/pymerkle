@@ -1,5 +1,4 @@
-"""
-Provides high-level encryption interface for Merkle-trees
+"""Provides high-level encryption interface for Merkle-trees
 """
 
 from abc import ABCMeta, abstractmethod
@@ -13,9 +12,9 @@ from pymerkle.exceptions import UndecodableRecord
 
 abspath = os.path.abspath
 
+
 class Encryptor(object, metaclass=ABCMeta):
-    """
-    High-level encryption interface for Merkle-trees
+    """High-level encryption interface for Merkle-trees
     """
 
     @abstractmethod
@@ -24,8 +23,7 @@ class Encryptor(object, metaclass=ABCMeta):
         """
 
     def encryptRecord(self, record):
-        """
-        Updates the Merkle-tree by storing the checksum of the provided record
+        """Updates the Merkle-tree by storing the checksum of the provided record
         into a newly-created leaf.
 
         :param record: Record whose checksum is to be stored into a new leaf
@@ -40,54 +38,52 @@ class Encryptor(object, metaclass=ABCMeta):
             raise
 
 
-    def encryptFileContent(self, file_path):
-        """
-        Encrypts the provided file as a single new leaf into the Merkle-tree.
+    def encryptFileContent(self, filepath):
+        """Encrypts the provided file as a single new leaf into the Merkle-tree.
 
         Updates the Merkle-tree with *one* newly-created leaf storing the
         checksum of the provided file's content.
 
-        :param file_path: Relative path of the file under encryption with
+        :param filepath: Relative path of the file under encryption with
                 respect to the current working directory
-        :type file_path: str
+        :type filepath: str
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
             and the provided files contains sequences out of the tree's
             configured encoding type
         """
-        with open(abspath(file_path), mode='r') as __file:
+        with open(abspath(filepath), mode='r') as f:
             with contextlib.closing(
                 mmap.mmap(
-                    __file.fileno(),
+                    f.fileno(),
                     0,
                     access=mmap.ACCESS_READ
                 )
-            ) as __buffer:
+            ) as buff:
                 try:
-                    self.update(record=__buffer.read())
+                    self.update(record=buff.read())
                 except UndecodableRecord:
                     raise
 
 
-    def encryptFilePerLog(self, file_path):
-        """
-        Per log encryption of the provided file into the Merkle-tree.
+    def encryptFilePerLog(self, filepath):
+        """Per log encryption of the provided file into the Merkle-tree.
 
         Successively updates the tree with each line of the provided
         file in respective order
 
-        :param file_path: Relative path of the file under enryption with
+        :param filepath: Relative path of the file under enryption with
             respect to the current working directory
-        :type file_path: str
+        :type filepath: str
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
             and the provided files contains sequences out of the tree's
             configured encoding type
         """
-        absolute_file_path = abspath(file_path)
-        with open(absolute_file_path, mode='r') as __file:
+        absolute_filepath = abspath(filepath)
+        with open(absolute_filepath, mode='r') as f:
             buffer = mmap.mmap(
-                __file.fileno(),
+                f.fileno(),
                 0,
                 access=mmap.ACCESS_READ
             )
@@ -97,8 +93,8 @@ class Encryptor(object, metaclass=ABCMeta):
         readline = buffer.readline
         append = records.append
         if not self.raw_bytes:
-            # ~ Check that no line of the provided file is outside
-            # ~ the tree's encoding type and discard otherwise
+            # Check that no line of the provided file is outside
+            # the tree's encoding type and discard otherwise
             encoding = self.encoding
             while 1:
                 record = readline()
@@ -110,7 +106,7 @@ class Encryptor(object, metaclass=ABCMeta):
                     raise UndecodableRecord(err)
                 append(record)
         else:
-            # ~ No need to check anything, just load all lines
+            # No need to check anything, just load all lines
             while 1:
                 record = readline()
                 if not record:
@@ -126,8 +122,7 @@ class Encryptor(object, metaclass=ABCMeta):
 
 
     def encryptJSON(self, object, sort_keys=False, indent=0):
-        """
-        Encrypts the provided JSON entity as a single new leaf into the
+        """Encrypts the provided JSON entity as a single new leaf into the
         Merkle-tree.
 
         Updates tree with *one* newly-created leaf storing the checksum of the
@@ -147,17 +142,16 @@ class Encryptor(object, metaclass=ABCMeta):
             record=json.dumps(object, sort_keys=sort_keys, indent=indent))
 
 
-    def encryptJSONFromFile(self, file_path, sort_keys=False, indent=0):
-        """
-        Encrypts the object from within the provided *.json* file as a
+    def encryptJSONFromFile(self, filepath, sort_keys=False, indent=0):
+        """Encrypts the object from within the provided *.json* file as a
         single new leaf into the Merkle-tree.
 
         Updates the tree with *one* newly-created leaf storing the checksum of
         the provided JSON's stringification.
 
-        :param file_path: Relative path of a *.json* file with respect to the
+        :param filepath: Relative path of a *.json* file with respect to the
             current working directory
-        :type file_path: str
+        :type filepath: str
         :param sort_keys: [optional] Defaults to *False*. If *True*, then
             the object's keys are alphabetically sorted before its
             stringification
@@ -169,9 +163,10 @@ class Encryptor(object, metaclass=ABCMeta):
         :raises JSONDecodeError: if the specified file could not be deserialized
         """
         try:
-            with open(abspath(file_path), 'rb') as __file:
-                object = json.load(__file)
+            with open(abspath(filepath), 'rb') as f:
+                object = json.load(f)
         except json.JSONDecodeError:
             raise
+
         record = json.dumps(object, sort_keys=sort_keys, indent=indent)
         self.update(record=record)

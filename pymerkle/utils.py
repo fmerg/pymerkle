@@ -1,15 +1,14 @@
-"""
-Provides standalone utilities invoked across the *pymerkle* library
+"""Provides standalone utilities invoked across the *pymerkle* library
 """
 
 from math import log, log10
 
-NONE = '[None]' # Used accross various modules for printing, but not here
+
+NONE = '[None]'
 
 
 def log_2(num):
-    """
-    Computes and returns the base 2 logarithm of the provided number
+    """Computes and returns the base 2 logarithm of the provided number
     (i.e., the greatest power of 2 equal to or smaller than *num*)
 
     .. note:: Given any *balanced* binary tree, whose number of leaves
@@ -29,8 +28,7 @@ def log_2(num):
 
 
 def decompose(num):
-    """
-    Additive decomposition in decreasing powers of 2
+    """Additive decomposition in decreasing powers of 2
 
     Given a positive integer uniquely decomposed as
 
@@ -64,8 +62,7 @@ def decompose(num):
 
 
 def stringify_path(signed_hashes, encoding):
-    """
-    Returns a stringification of the provided sequence of signed hashes
+    """Returns a stringification of the provided sequence of signed hashes
 
     .. note:: Printed hashes occure after decoding the given ones in
         accordance under the provided encoding type

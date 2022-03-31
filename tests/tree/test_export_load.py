@@ -22,11 +22,11 @@ export_path = os.path.join(
     'exports',
     '%s.json' % tree.uuid
 )
-tree.export(file_path=export_path)
+tree.export(filepath=export_path)
 
 # Load tree from export file
-with open(export_path, 'rb') as __file:
-    exported_version = json.load(__file)
+with open(export_path, 'rb') as f:
+    exported_version = json.load(f)
 
 
 def test_export():

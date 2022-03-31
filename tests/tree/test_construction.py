@@ -7,7 +7,7 @@ from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
     UnsupportedEncoding, LeafConstructionError, UndecodableRecord, )
 
 
-__undecodableArguments = [
+undecodableArguments = [
     (b'\xc2', 'ascii', True),
     (b'\xc2', 'ascii', False),
     (b'\x72', 'cp424', True),
@@ -73,7 +73,7 @@ def test_UnsupportedEncoding():
         MerkleTree(encoding='anything unsupported...')
 
 
-@pytest.mark.parametrize('byte, encoding, security', __undecodableArguments)
+@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_upon_tree_construction(byte, encoding, security):
     with pytest.raises(UndecodableRecord):
         MerkleTree('a', byte, encoding=encoding, security=security,
@@ -138,7 +138,7 @@ def test_LeafConstructionError_upon_update():
         )
 
 
-@pytest.mark.parametrize('byte, encoding, security', __undecodableArguments)
+@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_upon_update(byte, encoding, security):
     t = MerkleTree('a', 'b', 'c', encoding=encoding, security=security,
         raw_bytes=False)

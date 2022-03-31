@@ -12,9 +12,9 @@ from tests.conftest import ENCODINGS
 
 MESSAGE = 'oculusnonviditnecaurisaudivit'
 
-__machines = []
-__machines__hash_types__encodings__securities = []
-__machines__single_args = []
+machines = []
+machines__hash_types__encodings__securities = []
+machines__single_args = []
 
 for security in (True, False):
     for hash_type in HASH_TYPES:
@@ -26,8 +26,8 @@ for security in (True, False):
                 security=security
             )
 
-            __machines.append(machine)
-            __machines__hash_types__encodings__securities.extend(
+            machines.append(machine)
+            machines__hash_types__encodings__securities.extend(
                 [
                     (
                         machine,
@@ -38,7 +38,7 @@ for security in (True, False):
                 ]
             )
 
-            __machines__single_args.extend(
+            machines__single_args.extend(
                 [
                     (
                         machine,
@@ -55,7 +55,7 @@ for security in (True, False):
 # .hash()
 
 @pytest.mark.parametrize("machine, hash_type, encoding, security",
-    __machines__hash_types__encodings__securities)
+    machines__hash_types__encodings__securities)
 def test_single_string_hash(machine, hash_type, encoding, security):
     if security:
         assert machine.hash(MESSAGE) == bytes(
@@ -73,7 +73,7 @@ def test_single_string_hash(machine, hash_type, encoding, security):
 
 
 @pytest.mark.parametrize("machine, hash_type, encoding, security",
-    __machines__hash_types__encodings__securities)
+    machines__hash_types__encodings__securities)
 def test_single_bytes_hash(machine, hash_type, encoding, security):
     if security:
         assert machine.hash(bytes(MESSAGE, encoding)) == bytes(
@@ -91,7 +91,7 @@ def test_single_bytes_hash(machine, hash_type, encoding, security):
 
 
 @pytest.mark.parametrize("machine, hash_type, encoding, security",
-    __machines__hash_types__encodings__securities)
+    machines__hash_types__encodings__securities)
 def test_double_bytes_hash(machine, hash_type, encoding, security):
     if security:
         assert machine.hash(
@@ -119,18 +119,18 @@ def test_double_bytes_hash(machine, hash_type, encoding, security):
 
 # multi_hash()
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_0_elems_multi_hash(machine):
     with pytest.raises(EmptyPathException):
         assert machine.multi_hash((), start='anything')
 
-@pytest.mark.parametrize('machine, single_arg', __machines__single_args)
+@pytest.mark.parametrize('machine, single_arg', machines__single_args)
 def test_1_elems_multi_hash(machine, single_arg):
     assert machine.multi_hash(
         ((+1, machine.hash(single_arg)),), start=0
     ) == machine.hash(single_arg)
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_2_elems_multi_hash(machine):
     hash = machine.hash
     multi_hash = machine.multi_hash
@@ -189,7 +189,7 @@ def test_2_elems_multi_hash(machine):
         ) == hash(bytes(MESSAGE, encoding), bytes(MESSAGE, encoding))
 
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_3_elems_multi_hash_case_1(machine):
     hash = machine.hash
     multi_hash = machine.multi_hash
@@ -276,7 +276,7 @@ def test_3_elems_multi_hash_case_1(machine):
                 )
 
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_3_elems_multi_hash_case_2(machine):
     hash = machine.hash
     multi_hash = machine.multi_hash
@@ -363,7 +363,7 @@ def test_3_elems_multi_hash_case_2(machine):
             )
 
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_4_elems_multi_hash_edge_case_1(machine):
     hash = machine.hash
     multi_hash = machine.multi_hash
@@ -432,7 +432,7 @@ def test_4_elems_multi_hash_edge_case_1(machine):
             )
 
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_4_elems_multi_hash_edge_case_2(machine):
     hash = machine.hash
     multi_hash = machine.multi_hash
@@ -501,7 +501,7 @@ def test_4_elems_multi_hash_edge_case_2(machine):
                 )
 
 
-@pytest.mark.parametrize('machine', __machines)
+@pytest.mark.parametrize('machine', machines)
 def test_4_elems_multi_hash(machine):
     hash = machine.hash
     multi_hash = machine.multi_hash

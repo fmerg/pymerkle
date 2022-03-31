@@ -1,5 +1,4 @@
-"""
-Provides hash utilities used accross the *pymerkle* library
+"""Provides hash utilities used accross the *pymerkle* library
 """
 
 import hashlib
@@ -13,8 +12,7 @@ HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
 
 
 class HashMachine(Encoder):
-    """
-    Encapsulates the hash utilities used accross the *pymerkle* library
+    """Encapsulates the hash utilities used accross the *pymerkle* library
 
     :param hash_type: [optional] Specifies the hash algorithm used by the
             machine. Defaults to *sha256*.
@@ -41,6 +39,7 @@ class HashMachine(Encoder):
     :ivar raw_bytes: (*bool*) See the constructor's homonymous argument
     :ivar security: (*bool*) See the constructor's homonymous argument
     """
+
     def __init__(self, hash_type='sha256', encoding='utf-8',
                     raw_bytes=True, security=True):
         ht = hash_type.lower().replace('-', '_')
@@ -53,8 +52,7 @@ class HashMachine(Encoder):
 
 
     def hash(self, left, right=None):
-        """
-        Core hash utility
+        """Core hash utility
 
         Computes the digest of the provided arguments' concatenation. If only
         one argument is passed in, then the disgest of this single argument
@@ -71,12 +69,12 @@ class HashMachine(Encoder):
         """
         data = self.encode(left, right)
         hexdigest = self.algorithm(data).hexdigest()
+
         return bytes(hexdigest, self.encoding)
 
 
     def multi_hash(self, signed_hashes, start):
-        """
-        Extended hash utility
+        """Extended hash utility
 
         Repeatedly applies the *.hash()* method over the provided iterable of
         signed hashes (signs indicating parenthetization during repetition and
@@ -117,7 +115,8 @@ class HashMachine(Encoder):
 
         i = start
         while len(signed_hashes) > 1:
-            if signed_hashes[i][0] == +1:           # Pair with the right neighbour
+            if signed_hashes[i][0] == +1:
+                # Pair with the right neighbour
                 if i == 0:
                     new_sign = +1
                 else:
@@ -126,14 +125,17 @@ class HashMachine(Encoder):
                     signed_hashes[i][1],
                     signed_hashes[i + 1][1])
                 move = +1
-            else:                                   # Pair with the left neighbour
+            else:
+                # Pair with left neighbour
                 new_sign = signed_hashes[i - 1][0]
                 new_hash = hash(
                     signed_hashes[i - 1][1],
                     signed_hashes[i][1])
                 move = -1
             signed_hashes[i] = (new_sign, new_hash)
-            del signed_hashes[i + move]             # Shrink
+            # Shrink
+            del signed_hashes[i + move]
             if move < 0:
                 i -= 1
+
         return signed_hashes[0][1]

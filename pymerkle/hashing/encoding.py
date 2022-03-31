@@ -1,8 +1,8 @@
-"""
-Provides to hashing-machines their underlying encoding-machine
+"""Provides to hashing-machines their underlying encoding-machine
 """
 
 from pymerkle.exceptions import UnsupportedEncoding, UndecodableArgumentError
+
 
 ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
     'cp1140', 'cp1250', 'cp1251', 'cp1252', 'cp1253', 'cp1254', 'cp1255',
@@ -23,8 +23,7 @@ ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
 
 
 class Encoder(object):
-    """
-    Encapsulates the core encoding utility of hash-machines
+    """Encapsulates the core encoding utility of hash-machines
     """
     def __init__(self, encoding='utf-8', raw_bytes=True, security=True):
         enc = encoding.lower().replace('-', '_')
@@ -34,20 +33,17 @@ class Encoder(object):
         self.encoding  = enc
         self.raw_bytes = raw_bytes
         self.security  = security
-
         self.encode = self.mk_encode_func()
 
 
     def mk_encode_func(self):
-        """
-        Constructs and returns the core utility of the present encoding machine
-        in accordance with its initial configuration (*encoding type*,
+        """Constructs and returns the core utility of the present encoding
+        machine in accordance with its initial configuration (*encoding type*,
         *raw-bytes* mode and *security* mode)
         """
         encoding = self.encoding
 
         # Resolve security prefices
-
         if self.security:
             prefix_0_dec, prefix_0_enc = '\x00', bytes('\x00', encoding)
             prefix_1_dec, prefix_1_enc = '\x01', bytes('\x01', encoding)
@@ -56,7 +52,6 @@ class Encoder(object):
             prefix_1_dec, prefix_1_enc = '', bytes()
 
         # Make encoding funtion
-
         if self.raw_bytes:
             def encode_func(left, right=None):
                 if not right:

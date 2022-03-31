@@ -8,13 +8,13 @@ from pymerkle.exceptions import UndecodableRecord
 
 from tests.conftest import ENCODINGS
 
-__trees__hash_machines = []
+trees__hash_machines = []
 for raw_bytes in (True, False):
     for security in (True, False):
         for hash_type in HASH_TYPES:
             for encoding in ENCODINGS:
 
-                __trees__hash_machines.append(
+                trees__hash_machines.append(
                     (
                         MerkleTree(
                             hash_type=hash_type,
@@ -32,10 +32,10 @@ for raw_bytes in (True, False):
                 )
 
 
-__single_records = []
-for (tree, hash_machine) in __trees__hash_machines:
+single_records = []
+for (tree, hash_machine) in trees__hash_machines:
 
-    __single_records.extend(
+    single_records.extend(
 
         [
             (
@@ -52,13 +52,13 @@ for (tree, hash_machine) in __trees__hash_machines:
     )
 
 
-@pytest.mark.parametrize("tree, hash_machine, record", __single_records)
+@pytest.mark.parametrize("tree, hash_machine, record", single_records)
 def test_encryptRecord(tree, hash_machine, record):
     encrypted = tree.encryptRecord(record)
     assert tree.leaves[-1].digest == hash_machine.hash(record)
 
 
-__undecodableArguments = [
+undecodableArguments = [
 
     (b'\xc2', 'ascii', True),
     (b'\xc2', 'ascii', False),
@@ -104,7 +104,7 @@ __undecodableArguments = [
     (b'\xc2', 'iso8859_8', False),
 ]
 
-@pytest.mark.parametrize('byte, encoding, security', __undecodableArguments)
+@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_with_encryptRecord(byte, encoding, security):
     tree = MerkleTree('a', 'b', 'c',
         encoding=encoding, raw_bytes=False, security=security)
@@ -112,7 +112,7 @@ def test_UndecodableRecord_with_encryptRecord(byte, encoding, security):
         tree.encryptRecord(byte)
 
 
-@pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
+@pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
 def test_encryptJSON(tree, hash_machine):
 
     tree.encryptJSON({
@@ -153,7 +153,7 @@ with open(objects_list_file, 'rb') as f:
     objects_list = json.load(f)
 
 
-@pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
+@pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
 def test_encryptFileContent(tree, hash_machine):
     if tree.raw_bytes:
         encrypted = tree.encryptFileContent(large_APACHE_log)
@@ -163,7 +163,7 @@ def test_encryptFileContent(tree, hash_machine):
         with pytest.raises(UndecodableRecord):
             tree.encryptFileContent(large_APACHE_log)
 
-@pytest.mark.parametrize("tree", [tree for tree, _ in __trees__hash_machines])
+@pytest.mark.parametrize("tree", [tree for tree, _ in trees__hash_machines])
 def test_encryptFilePerLog(tree):
     if tree.raw_bytes:
         tree.clear()
@@ -193,7 +193,7 @@ def test_deserialization_error():
         tree.encryptJSONFromFile(
             os.path.join(parent_dir, 'json_files/bad.json'))
 
-@pytest.mark.parametrize("tree, hash_machine", __trees__hash_machines)
+@pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
 def test_encryptJSONFromFile(tree, hash_machine):
     tree.encryptJSONFromFile(single_object_file, sort_keys=False, indent=0)
     assert tree.leaves[-1].digest == hash_machine.hash(

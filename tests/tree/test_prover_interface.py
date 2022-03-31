@@ -109,12 +109,12 @@ def test_audit_InvalidChallengeError(tree, arg):
     with pytest.raises(InvalidChallengeError):
         tree.auditProof(arg)
 
-__tree__wrong_arg = []
-__tree__arg = []
+tree__wrong_arg = []
+tree_arg = []
 
 for tree in trees:
 
-    __tree__wrong_arg.append(
+    tree__wrong_arg.append(
         (
             tree,
             b'anything that has not been recorded'
@@ -122,14 +122,14 @@ for tree in trees:
     )
 
     for index in range(tree.length):
-        __tree__arg.append(
+        tree_arg.append(
                 (
                     tree,
                     tree.hash('%d-th record' % index)
                 )
             )
 
-@pytest.mark.parametrize("tree, arg", __tree__wrong_arg)
+@pytest.mark.parametrize("tree, arg", tree__wrong_arg)
 def test_empty_auditProof(tree, arg):
     audit_proof = tree.auditProof(arg)
 
@@ -152,7 +152,7 @@ def test_empty_auditProof(tree, arg):
         }
     }
 
-@pytest.mark.parametrize("tree, arg", __tree__arg)
+@pytest.mark.parametrize("tree, arg", tree_arg)
 def test_non_empty_auditProof(tree, arg):
     audit_proof = tree.auditProof(arg)
 
@@ -178,12 +178,12 @@ def test_non_empty_auditProof(tree, arg):
 
 # Consistency proof
 
-__trees_and_subtrees = []
+trees_and_subtrees = []
 
 for tree in trees:
     for sublength in range(1, tree.length + 1):
 
-        __trees_and_subtrees.append(
+        trees_and_subtrees.append(
             (
                 tree,
                 MerkleTree(
@@ -198,9 +198,9 @@ for tree in trees:
 
 
 __invalid_consistency_proof_requests = []
-__tree__subhash = []
+tree__subhash = []
 
-for (tree, subtree) in __trees_and_subtrees:
+for (tree, subtree) in trees_and_subtrees:
 
         __invalid_consistency_proof_requests.append(
             (
@@ -209,7 +209,7 @@ for (tree, subtree) in __trees_and_subtrees:
             ),
         )
 
-        __tree__subhash.append(
+        tree__subhash.append(
             (
                 tree,
                 subtree.rootHash,
@@ -225,7 +225,7 @@ def test_consistency_InvalidChallengeError(tree, subhash):
         tree.consistencyProof(subhash)
 
 
-@pytest.mark.parametrize("tree, subhash", __tree__subhash)
+@pytest.mark.parametrize("tree, subhash", tree__subhash)
 def test_non_empty_consistencyProof(tree, subhash):
     """
     Tests that the generated non-empty consistency proof is as expected
@@ -251,7 +251,7 @@ def test_non_empty_consistencyProof(tree, subhash):
         }
     }
 
-@pytest.mark.parametrize("tree, subhash", __tree__subhash)
+@pytest.mark.parametrize("tree, subhash", tree__subhash)
 def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
     Tests that the generated empty consistency proof, requested
@@ -278,7 +278,7 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
         }
     }
 
-@pytest.mark.parametrize("tree, subhash", __tree__subhash)
+@pytest.mark.parametrize("tree, subhash", tree__subhash)
 def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
     Tests that the generated empty consistency proof, requested

@@ -4,7 +4,7 @@ import json
 from pymerkle.serializers import (MerkleTreeSerializer, LeafSerializer,
     NodeSerializer, ProofSerializer, ReceiptSerializer)
 
-__serializers = [
+serializers = [
     MerkleTreeSerializer(),
     LeafSerializer(),
     NodeSerializer(),
@@ -13,7 +13,7 @@ __serializers = [
 ]
 
 class Empty(object): pass
-@pytest.mark.parametrize('serializer', __serializers)
+@pytest.mark.parametrize('serializer', serializers)
 def test_serialization_error(serializer):
     with pytest.raises(TypeError):
         serializer.default(Empty())

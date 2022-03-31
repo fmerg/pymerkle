@@ -7,7 +7,7 @@ import pytest
 from pymerkle.hashing import HashMachine
 from pymerkle.exceptions import UndecodableArgumentError
 
-__undecodableArguments = [
+undecodableArguments = [
     (b'\xc2', 'ascii', True),
     (b'\xc2', 'ascii', False),
     (b'\x72', 'cp424', True),
@@ -52,13 +52,13 @@ __undecodableArguments = [
     (b'\xc2', 'iso8859_8', False),
 ]
 
-@pytest.mark.parametrize('byte, encoding, security', __undecodableArguments)
+@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_single_undecodableArgumentError(byte, encoding, security):
     machine = HashMachine(encoding=encoding, security=security, raw_bytes=False)
     with pytest.raises(UndecodableArgumentError):
         machine.hash(byte)
 
-@pytest.mark.parametrize('byte, encoding, security', __undecodableArguments)
+@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_double_undecodableArgumentError(byte, encoding, security):
     machine = HashMachine(encoding=encoding, security=security, raw_bytes=False)
     with pytest.raises(UndecodableArgumentError):

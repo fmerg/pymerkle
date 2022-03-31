@@ -1,5 +1,4 @@
-"""
-Provides utilities for Merkle-proof validation
+"""Provides utilities for Merkle-proof validation
 """
 
 from pymerkle.hashing import HashMachine
@@ -13,8 +12,7 @@ import os
 
 
 class Validator(HashMachine):
-    """
-    Encapsulates the low-level utility for Merkle-proof validation
+    """Encapsulates the low-level utility for Merkle-proof validation
 
     :param input: [optional] a Merkle-proof or its header
     :type: Proof or dict
@@ -50,8 +48,7 @@ class Validator(HashMachine):
 
 
     def run(self, proof=None, target=None):
-        """
-        Runs Merkle-proof validation
+        """Performs Merkle-proof validation
 
         :raises InvalidMerkleProof: if the proof is found to be invalid
 
@@ -85,8 +82,7 @@ class Validator(HashMachine):
 
 
 def validateProof(proof, target=None, get_receipt=False, dirpath=None):
-    """
-    Core utility for Merkle-proof validation
+    """Core utility for Merkle-proof validation
 
     Validates the provided proof, modifies the proof's status as *True* or
     *False* accordingly and returns result in the form of a boolean or a
@@ -139,8 +135,7 @@ def validateProof(proof, target=None, get_receipt=False, dirpath=None):
 
 
 class Receipt(object):
-    """
-    Receipt for Merkle-proof validations
+    """Receipt for Merkle-proof validations
 
     :param proof_uuid: uuid of the validated proof
     :type proof_uuid: str
@@ -176,15 +171,15 @@ class Receipt(object):
         """
         header = {}
         body = {}
-        if kwargs.get('from_dict'):                             # from json dict
+        if kwargs.get('from_dict'):
             input = kwargs['from_dict']
             header.update(input['header'])
             body.update(input['body'])
-        elif kwargs.get('from_json'):                           # from json text
+        elif kwargs.get('from_json'):
             input = json.loads(kwargs['from_json'])
             header.update(input['header'])
             body.update(input['body'])
-        else:                                                  # multiple kwargs
+        else:
             header.update({
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
@@ -197,6 +192,7 @@ class Receipt(object):
             })
         self.header = header
         self.body = body
+
 
     def __repr__(self):
         header = self.header
@@ -222,10 +218,10 @@ class Receipt(object):
                     proof_provider=body['proof_provider'],
                     result='VALID' if body['result'] else 'NON VALID')
 
+
     @classmethod
     def deserialize(cls, serialized):
-        """
-        Deserializes the provided JSON entity
+        """Deserializes the provided JSON entity
 
         :params serialized: a Python dict or JSON text, assumed to be the
             serialization of a *Receipt* object
@@ -240,20 +236,17 @@ class Receipt(object):
         return cls(**kwargs)
 
 
-# Serialization
-
     def serialize(self):
-        """
-        Returns a JSON entity with the receipt's characteristics
+        """Returns a JSON entity with the receipt's characteristics
         as key-value pairs
 
         :rtype: dict
         """
         return ReceiptSerializer().default(self)
 
+
     def toJSONString(self):
-        """
-        Returns a JSON text with the receipt's characteristics
+        """Returns a JSON text with the receipt's characteristics
         as key-value pairs
 
         :rtype: str

@@ -1,10 +1,15 @@
-"""
-Merkle-tree cryptographic library for generation and validation of Proofs
+"""Cryptographic library for Merkle-proofs
 """
 
 from .core import MerkleTree, Proof
 from .validations import Validator, validateProof
 
+
 __version__ = "2.0.2"
 
-__all__ = ('MerkleTree', 'Proof', 'Validator', 'validateProof',)
+__all__ = (
+    'MerkleTree',
+    'Proof',
+    'Validator',
+    'validateProof',
+)

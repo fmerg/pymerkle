@@ -33,8 +33,8 @@ def test_validation_get_receipt():
         '%s.json' % receipt.header['uuid']
     )
 
-    with open(receipt_path) as __file:
-        clone = json.load(__file)
+    with open(receipt_path) as f:
+        clone = json.load(f)
         assert receipt.serialize() == clone
 
 # Internals

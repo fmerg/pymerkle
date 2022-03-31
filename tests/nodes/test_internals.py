@@ -263,7 +263,7 @@ def test_hash_recalculation():
 
 # Decoding error tests
 
-__bytes__machines = [
+bytesmachines = [
     (b'\xc2', HashMachine(encoding='ascii',           raw_bytes=False, security=True)),
     (b'\xc2', HashMachine(encoding='ascii',           raw_bytes=False, security=False)),
     (b'\x72', HashMachine(encoding='cp424',           raw_bytes=False, security=True)),
@@ -308,12 +308,12 @@ __bytes__machines = [
     (b'\xc2', HashMachine(encoding='iso8859_8',       raw_bytes=False, security=False)),
 ]
 
-@pytest.mark.parametrize('byte, machine', __bytes__machines)
+@pytest.mark.parametrize('byte, machine', bytesmachines)
 def test_leaf_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         Leaf(record=byte, encoding=machine.encoding, hash_func=machine.hash)
 
-@pytest.mark.parametrize('byte, machine', __bytes__machines)
+@pytest.mark.parametrize('byte, machine', bytesmachines)
 def test_node_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         left = Leaf(record=byte, encoding=machine.encoding,
@@ -324,7 +324,7 @@ def test_node_UndecodableRecord(byte, machine):
             Node(left=left, right=_right, encoding=machine.encoding,
                 hash_func=machine.hash)
 
-@pytest.mark.parametrize('byte, machine', __bytes__machines)
+@pytest.mark.parametrize('byte, machine', bytesmachines)
 def test_hash_recalculation_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         left = Leaf(record='left record', encoding=machine.encoding,

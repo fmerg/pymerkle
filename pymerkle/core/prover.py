@@ -1,5 +1,4 @@
-"""
-Provides high-level prover interface for Merkle-trees
+"""Provides high-level prover interface for Merkle-trees
 """
 
 from abc import ABCMeta, abstractmethod
@@ -12,8 +11,7 @@ from pymerkle.utils import stringify_path
 
 
 class Prover(object, metaclass=ABCMeta):
-    """
-    High-level prover interface for Merkle-trees
+    """High-level prover interface for Merkle-trees
     """
 
     @property
@@ -48,8 +46,7 @@ class Prover(object, metaclass=ABCMeta):
         """
 
     def merkleProof(self, challenge, commit=True):
-        """
-        Response of the Merkle-tree to the request of providing a
+        """Response of the Merkle-tree to the request of providing a
         Merkle-proof based upon the provided challenge
 
         :type challenge: dict
@@ -72,8 +69,7 @@ class Prover(object, metaclass=ABCMeta):
 
 
     def auditProof(self, checksum, commit=False):
-        """
-        Response of the Merkle-tree to the request of providing an
+        """Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum
 
         :param checksum: Checksum which the requested proof is to be based upon
@@ -118,8 +114,7 @@ class Prover(object, metaclass=ABCMeta):
 
 
     def consistencyProof(self, subhash, commit=False):
-        """
-        Response of the Merkle-tree to the request of providing a consistency
+        """Response of the Merkle-tree to the request of providing a consistency
         proof for the acclaimed root-hash of some previous state
 
         :param subhash: acclaimed root-hash of some previous
@@ -169,8 +164,7 @@ class Prover(object, metaclass=ABCMeta):
 
 
 class Proof(object):
-    """
-    Class for Merkle-proofs
+    """Class for Merkle-proofs
 
     :param provider: uuid of the provider Merkle-tree
     :type provider: str
@@ -216,7 +210,7 @@ class Proof(object):
         """
         header = {}
         body = {}
-        if kwargs.get('from_dict'):                             # from json dict
+        if kwargs.get('from_dict'):
             input = kwargs['from_dict']
             header.update(input['header'])
             if header['commitment']:
@@ -226,7 +220,7 @@ class Proof(object):
                 pair[0],
                 bytes(pair[1], header['encoding'])
             ) for pair in input['body']['proof_path'])
-        elif kwargs.get('from_json'):                           # from json text
+        elif kwargs.get('from_json'):
             input = json.loads(kwargs['from_json'])
             header.update(input['header'])
             if header['commitment']:
@@ -236,7 +230,7 @@ class Proof(object):
                 pair[0],
                 bytes(pair[1], header['encoding'])
             ) for pair in input['body']['proof_path'])
-        else:                                                  # multiple kwargs
+        else:
             header.update({
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
@@ -257,8 +251,7 @@ class Proof(object):
 
     @classmethod
     def deserialize(cls, serialized):
-        """
-        Deserializes the provided JSON entity
+        """Deserializes the provided JSON entity
 
         :params serialized: a Python dict or JSON text, assumed to be the
             serialization of a *Proof* object
@@ -270,12 +263,12 @@ class Proof(object):
             kwargs.update({'from_dict': serialized})
         elif isinstance(serialized, str):
             kwargs.update({'from_json': serialized})
+
         return cls(**kwargs)
 
 
     def get_validation_params(self):
-        """
-        Extracts from the proof's header the fields required for configuring
+        """Extracts from the proof's header the fields required for configuring
         correctly the validator's hashing machinery.
 
         :rtype: dict
@@ -287,14 +280,12 @@ class Proof(object):
             'raw_bytes': header['raw_bytes'],
             'security': header['security'],
         })
+
         return validation_params
 
 
     def __repr__(self):
-        """
-        Overrides the default implementation.
-
-        Sole purpose of this function is to display info
+        """Sole purpose of this function is to display info
         about a proof by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
@@ -342,20 +333,17 @@ class Proof(object):
                     else 'VALID' if header['status'] is True else 'NON VALID')
 
 
-# Serialization
-
     def serialize(self):
-        """
-        Returns a JSON entity with the proof's characteristics
+        """Returns a JSON entity with the proof's characteristics
         as key-value pairs.
 
         :rtype: dict
         """
         return ProofSerializer().default(self)
 
+
     def toJSONString(self):
-        """
-        Returns a JSON text with the proof's characteristics
+        """Returns a JSON text with the proof's characteristics
         as key-value pairs.
 
         :rtype: str

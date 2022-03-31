@@ -205,24 +205,24 @@ def test_not___lt___InvalidComparison():
 
 # Initialize parametrization with the one-leaf tree and parametrize
 # for the first 9 powers of 2 beginning from 2 ^ 1
-__trees__later_states = [(
+trees__later_states = [(
     MerkleTree('1'), MerkleTree(*[str(k) for k in range(1, j)])
 ) for j in range(2, 10)]
 for power in range(1, 10):
     tree = MerkleTree(*[str(i) for i in range(2, 2 ** power + 1)])
     for j in range(1, 10):
-        __trees__later_states.append(
+        trees__later_states.append(
             (
                 tree,
                 MerkleTree(*[str(k) for k in range(2, 2 ** power + 1 + j)])
             )
         )
 
-@pytest.mark.parametrize('tree, later_state', __trees__later_states)
+@pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
     assert later_state.inclusionTest(tree.rootHash)
 
-@pytest.mark.parametrize('tree, later_state', __trees__later_states)
+@pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(tree, later_state):
     assert validateProof(
         later_state.consistencyProof(tree.rootHash),

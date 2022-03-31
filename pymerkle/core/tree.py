@@ -1,5 +1,4 @@
-"""
-Provides the class for Merkle-trees containing the low-level algorithms
+"""Provides the class for Merkle-trees containing the low-level algorithms
 of proof generation
 """
 
@@ -20,8 +19,7 @@ NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
 
 
 class MerkleTree(HashMachine, Encryptor, Prover):
-    """
-    Class for Merkle-trees
+    """Class for Merkle-trees
 
     :param \*records: [optional] Records encrypted into the Merkle-tree at
                 construction.
@@ -63,9 +61,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             except UndecodableRecord:
                 raise
 
+
     def clear(self):
-        """
-        Deletes all nodes of the Merkle-tree
+        """Deletes all nodes of the Merkle-tree
         """
         self.leaves = []
         self.nodes = set()
@@ -74,6 +72,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         except AttributeError:
             pass
 
+
     def __bool__(self):
         """
         :returns: *False* iff the Merkle-tree is empty (no nodes)
@@ -81,10 +80,10 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         return bool(self.nodes)
 
+
     @property
     def root(self):
-        """
-        Current root of the Merkle-tree
+        """Current root of the Merkle-tree
 
         :returns: The tree's current root-node
         :rtype: __Node
@@ -93,7 +92,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not self:
             raise EmptyTreeException
+
         return self.__root
+
 
     @property
     def rootHash(self):
@@ -107,11 +108,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             root = self.__root
         except AttributeError:
             raise EmptyTreeException
+
         return root.digest
 
+
     def get_commitment(self):
-        """
-        Returns the current root-hash of the Merkle-tree if the latter is
+        """Returns the current root-hash of the Merkle-tree if the latter is
         not empty, otherwise *None*.
 
         :rtype: bytes or None
@@ -121,30 +123,31 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             commitment = self.rootHash
         except EmptyTreeException:
             pass
+
         return commitment
+
 
     @property
     def length(self):
-        """
-        Current length of the Merkle-tree (i.e., number of its leaves)
+        """Current length of the Merkle-tree (i.e., number of its leaves)
 
         :rtype: int
         """
         return len(self.leaves)
 
+
     @property
     def size(self):
-        """
-        Current number of the Merkle-tree's nodes
+        """Current number of the Merkle-tree's nodes
 
         :rtype: int
         """
         return len(self.nodes)
 
+
     @property
     def height(self):
-        """
-        Current height of the Merkle-tree
+        """Current height of the Merkle-tree
 
         .. note:: Since the tree is binary *balanced*, its height coincides
                 with the length of its leftmost branch
@@ -159,8 +162,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
 
     def update(self, record=None, digest=None):
-        """
-        Updates the Merkle-tree by storing the digest of the inserted record
+        """Updates the Merkle-tree by storing the digest of the inserted record
         into a newly-created leaf. Restructures the tree appropriately and
         recalculates appropriate interior hashes
 
@@ -186,8 +188,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             append = leaves.append
             add = self.nodes.add
 
-            # ~ Height and root of the *full* binary subtree with maximum
-            # ~ possible length containing the rightmost leaf
+            # Height and root of the *full* binary subtree with maximum
+            # possible length containing the rightmost leaf
             last_power   = decompose(len(leaves))[-1]
             last_subroot = leaves[-1].descendant(degree=last_power)
 
@@ -201,8 +203,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             append(new_leaf)
             add(new_leaf)
             try:
-                old_child = last_subroot.child                                  # Save child info before bifurcation
-            except NoChildException:                                            # last_subroot was previously root
+                old_child = last_subroot.child
+            except NoChildException:
+                # Last subroot was previously root
                 self.__root = Node(hash, encoding, last_subroot, new_leaf)
                 add(self.__root)
             else:
@@ -222,7 +225,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                         current_node = current_node.child
                     except NoChildException:
                         break
-        else:                                                                   # Empty tree case
+        else:
+            # Empty tree case
             try:
                 new_leaf = Leaf(hash, encoding, record, digest)
             except (LeafConstructionError, UndecodableRecord):
@@ -232,11 +236,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             self.__root = new_leaf
 
 
-    # Low-level audit proof
-
     def audit_path(self, index):
-        """
-        Low-level audit proof
+        """Low-level audit proof.
 
         Computes and returns the audit-path corresponding to the provided leaf
         index along with the position where subsequent proof validation should
@@ -254,9 +255,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             current length
         """
         if index < 0:
-            # ~ Handle negative index case as NoPathException, since
-            # ~ certain negative indices might otherwise be
-            # ~ considered as valid positions
+            # Handle negative index case as NoPathException, since
+            # certain negative indices might otherwise be
+            # considered as valid positions
             raise NoPathException
 
         try:
@@ -289,20 +290,20 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                     path.insert(0, (+1, next_digest))
                 start += 1
             current_node = current_child
+
         return start, tuple(path)
 
 
     def find_index(self, checksum):
-        """
-        Detects the (zero-based) index of the leftmost leaf which stores the
+        """Detects the (zero-based) index of the leftmost leaf which stores the
         provided checksum
 
         :type: bytes
         """
-        # ~ Detect the index of the first leaf storing the provided checksum;
-        # ~ if no such leaf exists (i.e., the inserted argument has not been
-        # ~ encrypted into the tree), leave index equal to -1 so that an
-        # ~ appropriate NoPathException be subsequently raised
+        # Detect the index of the first leaf storing the provided checksum;
+        # if no such leaf exists (i.e., the inserted argument has not been
+        # encrypted into the tree), leave index equal to -1 so that an
+        # appropriate NoPathException be subsequently raised
         index = -1
         count = 0
         leaves = (leaf for leaf in self.leaves)
@@ -315,14 +316,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 index = count
                 break
             count += 1
+
         return index
 
 
-    # Low-level consistency proof
-
     def consistency_path(self, sublength):
-        """
-        Low-level consistency proof
+        """Low-level consistency proof.
 
         Computes and returns the consistency-path corresponding to the tree's
         length for a previous state, along with the position where subsequent
@@ -343,18 +342,23 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
+
         try:
             left_subroots = self.principal_subroots(sublength)
         except NoPrincipalSubroots:
-            raise NoPathException                                           # Incompatibility issue detected
+            # Incompatilibity issue detected
+            raise NoPathException
 
         right_subroots = self.minimal_complement(left_subroots)
         all_subroots = left_subroots + right_subroots
         if not right_subroots or not left_subroots:
-            all_subroots = [(-1, _[1]) for _ in all_subroots]               # Reset all signs to minus
-            proof_index = len(all_subroots) - 1                             # Will start multi-hashing from endpoint
+            # Reset all signsto minus
+            all_subroots = [(-1, _[1]) for _ in all_subroots]
+            # Will start multi-hasning from rightmost
+            proof_index = len(all_subroots) - 1
         else:
-            proof_index = len(left_subroots) - 1                            # Will start multi-hashing from midpoint
+            # Will start multi-hashing from midpoint
+            proof_index = len(left_subroots) - 1
 
         # Collect sign-hash pairs
         left_path = tuple((-1, _[1].digest) for _ in left_subroots)
@@ -362,9 +366,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return proof_index, left_path, full_path
 
+
     def minimal_complement(self, subroots):
-        """
-        Complements optimally from the right the provided sequence of subroots,
+        """Complements optimally from the right the provided sequence of subroots,
         so that a full consistency-path be subsequently generated.
 
         :param subroots: roots of a complete leftomost sequence of
@@ -396,9 +400,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return complement
 
+
     def principal_subroots(self, sublength):
-        """
-        Detects in corresponding order the roots of the successive, leftmost,
+        """Detects in corresponding order the roots of the successive, leftmost,
         full binary subtrees of maximum (and thus decreasing) length, whose
         lengths sum up to the provided argument. Detected nodes are prepended
         with a sign (+1 or -1), carrying information for subsequent generation
@@ -415,7 +419,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             the prescribed conditions
         """
         if sublength < 0:
-            raise NoPrincipalSubroots                                  # Mask negative input case as incompatibility
+            # Mask negative input as incompatiblitity
+            raise NoPrincipalSubroots
 
         principal_subroots = []
         append = principal_subroots.append
@@ -425,7 +430,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             try:
                 subroot = self.subroot(start, power)
             except NoSubtreeException:
-                raise NoPrincipalSubroots                              # Incompatibility issue detected
+                # Incompatibility issue detected
+                raise NoPrincipalSubroots
 
             try:
                 child = subroot.child
@@ -444,12 +450,14 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 start += 2 ** power
 
         if len(principal_subroots) > 0:
-            principal_subroots[-1] = (+1, principal_subroots[-1][1])    # Modify last sign
+            # Modify last sign
+            principal_subroots[-1] = (+1, principal_subroots[-1][1])
+
         return principal_subroots
 
+
     def subroot(self, start, height):
-        """
-        Detects the root of the unique full binary subtree with leftmost
+        """Detects the root of the unique full binary subtree with leftmost
         leaf located at position *start* and height equal to *height*.
 
         :param start: leaf position (zero based) where detection of
@@ -491,11 +499,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         return subroot
 
 
-    # Inclusion test
-
     def inclusionTest(self, subhash):
-        """
-        Verifies that the provided parameter corresponds to a valid previous
+        """Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree
 
         :param subhash: acclaimed root-hash of some previous
@@ -508,6 +513,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(subhash, bytes):
             raise InvalidTypes
+
         included = False
         multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):
@@ -516,12 +522,11 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             if subhash == multi_hash(left_path, len(left_path) - 1):
                 included = True
                 break
+
         return included
 
 
-    # Persistence
-
-    def export(self, file_path):
+    def export(self, filepath):
         """
         Creates a *.json* file located at the provided path and exports into
         it the rquired minimum, so that the Merkle-tree can be retrieved in
@@ -533,32 +538,31 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         .. warning:: If a file already exists at the provided path,
                 then it will be overwritten
 
-        :param file_path: relative path of the export file with respect to the
+        :param filepath: relative path of the export file with respect to the
                 current working directory
-        :type file_path: str
+        :type filepath: str
         """
-        with open(f'{file_path}.json' if not file_path.endswith('.json') \
-            else file_path, 'w') as __file:
-            json.dump(self.serialize(), __file, indent=4)
+        with open(f'{filepath}.json' if not filepath.endswith('.json') \
+            else filepath, 'w') as f:
+            json.dump(self.serialize(), f, indent=4)
 
 
     @classmethod
-    def loadFromFile(cls, file_path):
-        """
-        Loads a Merkle-tree from the provided file, the latter being the result
+    def loadFromFile(cls, filepath):
+        """Loads a Merkle-tree from the provided file, the latter being the result
         of an export (cf. the *MerkleTree.export()* method)
 
-        :param file_path: relative path of the file to load from with
+        :param filepath: relative path of the file to load from with
                 respect to the current working directory
-        :type file_path: str
+        :type filepath: str
         :returns: The tree loaded from the provided file
         :rtype: MerkleTree
 
         :raises WrongJSONFormat: if the JSON object loaded from within the
                     provided file is not a Merkle-tree export
         """
-        with open(file_path, 'r') as __file:
-            loaded_object = json.load(__file)
+        with open(filepath, 'r') as f:
+            loaded_object = json.load(f)
         try:
             header = loaded_object['header']
             tree = cls(
@@ -574,14 +578,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         for hash in tqdm(loaded_object['hashes'], desc='Retrieving tree...'):
             update(digest=hash)
         tqdm.write('Tree has been retrieved')
+
         return tree
 
 
-    # Comparison
-
     def __eq__(self, other):
-        """
-        Implements the ``==`` operator
+        """Implements the ``==`` operator
 
         :param other: Merkle-tree to compare with
         :type other: MerkleTree
@@ -591,13 +593,15 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
+
         if not other:
             return not self
+
         return True if not self else self.rootHash == other.rootHash
 
+
     def __ne__(self, other):
-        """
-        Implements the ``!=`` operator
+        """Implements the ``!=`` operator
 
         :param other: Merkle-tree to compare with
         :type other: MerkleTree
@@ -607,9 +611,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
+
         if not other:
             return self.__bool__()
+
         return True if not self else self.rootHash != other.rootHash
+
 
     def __ge__(self, other):
         """
@@ -623,14 +630,16 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
+
         if not other:
             return True
+
         return False if not self else \
             self.inclusionTest(other.rootHash)
 
+
     def __le__(self, other):
-        """
-        Implements the ``<=`` operator
+        """Implements the ``<=`` operator
 
         :param other: Merkle-tree to compare with
         :type other: MerkleTree
@@ -638,10 +647,11 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :raises InvalidComparison: if compared with an object that
             is not instance of the *MerkleTree* class
         """
-
         if not isinstance(other, self.__class__):
             raise InvalidComparison
+
         return other.__ge__(self)
+
 
     def __gt__(self, other):
         """
@@ -655,15 +665,18 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
+
         if not other:
             return self.__bool__()
+
         elif not self or self.rootHash == other.rootHash:
             return False
+
         return self.inclusionTest(other.rootHash)
 
+
     def __lt__(self, other):
-        """
-        Implements the ``<`` operator
+        """Implements the ``<`` operator
 
         :param other: Merkle-tree to compare with
         :type other: MerkleTree
@@ -673,22 +686,17 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         if not isinstance(other, self.__class__):
             raise InvalidComparison
+
         return other.__gt__(self)
 
 
-    # Representation
-
     def __repr__(self):
-        """
-        Overrides the default implementation
-
-        Sole purpose of this function is to display info about
+        """Sole purpose of this function is to display info about
         the Merkle-treee by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
             is not insertible to the eval() builtin Python function.
         """
-
         return '\n    uuid      : {uuid}\
                 \n\
                 \n    hash-type : {hash_type}\
@@ -711,11 +719,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                     size=self.size,
                     height=self.height)
 
-    def __str__(self, indent=3):
-        """
-        Overrides the default implementation
 
-        Designed so that inserting the Merkle-tree into the *print()* function
+    def __str__(self, indent=3):
+        """Designed so that inserting the Merkle-tree into the *print()* function
         displays it in a terminal friendly way, that is, resembles the output
         of the ``tree`` command at Unix based platforms
 
@@ -730,23 +736,21 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             root = self.root
         except EmptyTreeException:
             return NONE_BAR
+
         return root.__str__(indent=indent, encoding=self.encoding)
 
 
-    # Serialization
-
     def serialize(self):
-        """
-        Returns a JSON entity with the Merkle-trees's current characteristics
+        """Returns a JSON entity with the Merkle-trees's current characteristics
         and digests stored by its leaves.
 
         :rtype: dict
         """
         return MerkleTreeSerializer().default(self)
 
+
     def toJSONString(self):
-        """
-        Returns a JSON text with the Merkle-tree's current characteristics
+        """Returns a JSON text with the Merkle-tree's current characteristics
         and digests stored by its leaves.
 
         :rtype: str
