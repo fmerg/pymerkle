@@ -5,17 +5,17 @@ from abc import ABCMeta, abstractmethod
 
 from pymerkle.serializers import NodeSerializer, LeafSerializer
 from pymerkle.exceptions import (NoChildException, NoDescendantException,
-    NoParentException, LeafConstructionError, UndecodableArgumentError,
-    UndecodableRecord)
+                                 NoParentException, LeafConstructionError, UndecodableArgumentError,
+                                 UndecodableRecord)
 from pymerkle.utils import NONE
 import json
 
 
 # Prefices used for node and tree printing
 L_BRACKET_SHORT = '\u2514' + '\u2500'           # └─
-L_BRACKET_LONG  = '\u2514' + 2 * '\u2500'       # └──
-T_BRACKET       = '\u251C' + 2 * '\u2500'       # ├──
-VERTICAL_BAR    = '\u2502'                      # │
+L_BRACKET_LONG = '\u2514' + 2 * '\u2500'       # └──
+T_BRACKET = '\u251C' + 2 * '\u2500'       # ├──
+VERTICAL_BAR = '\u2502'                      # │
 
 
 class __Node(object, metaclass=ABCMeta):
@@ -27,23 +27,19 @@ class __Node(object, metaclass=ABCMeta):
     def __init__(self, encoding):
         self.__encoding = encoding
 
-
     @abstractmethod
     def serialize(self):
         """
         """
-
 
     @abstractmethod
     def toJSONString(self):
         """
         """
 
-
     @property
     def encoding(self):
         return self.__encoding
-
 
     @property
     def child(self):
@@ -55,10 +51,8 @@ class __Node(object, metaclass=ABCMeta):
         except AttributeError:
             raise NoChildException
 
-
     def set_child(self, child):
         self.__child = child
-
 
     @property
     def left(self):
@@ -70,7 +64,6 @@ class __Node(object, metaclass=ABCMeta):
         except AttributeError:
             raise NoParentException
 
-
     @property
     def right(self):
         """
@@ -80,7 +73,6 @@ class __Node(object, metaclass=ABCMeta):
             return self.__right
         except AttributeError:
             raise NoParentException
-
 
     def is_left_parent(self):
         """Checks if the node is a left parent.
@@ -96,7 +88,6 @@ class __Node(object, metaclass=ABCMeta):
 
         return self == _child.left
 
-
     def is_right_parent(self):
         """Checks if the node is a right parent.
 
@@ -111,7 +102,6 @@ class __Node(object, metaclass=ABCMeta):
 
         return self == _child.right
 
-
     def is_parent(self):
         """Checks if the node is a parent.
 
@@ -125,7 +115,6 @@ class __Node(object, metaclass=ABCMeta):
             return False
 
         return True
-
 
     def descendant(self, degree):
         """Detects and returns the node that is *degree* steps
@@ -152,7 +141,6 @@ class __Node(object, metaclass=ABCMeta):
 
         return _child.descendant(degree - 1)
 
-
     def __repr__(self):
         """Sole purpose of this function is to easy display info
         about the node by just invoking it at console.
@@ -167,9 +155,9 @@ class __Node(object, metaclass=ABCMeta):
         except NoChildException:
             child_id = NONE
         try:
-            left_id  = memory_id(self.left)
+            left_id = memory_id(self.left)
         except NoParentException:
-            left_id  = NONE
+            left_id = NONE
             right_id = NONE
         else:
             right_id = memory_id(self.right)
@@ -180,11 +168,10 @@ class __Node(object, metaclass=ABCMeta):
                 \n    child        : {child_id}\
                 \n    hash         : {hash}\n'\
                 .format(self_id=memory_id(self),
-                    left_id=left_id,
-                    right_id=right_id,
-                    child_id=child_id,
-                    hash=self.digest.decode(self.encoding))
-
+                        left_id=left_id,
+                        right_id=right_id,
+                        child_id=child_id,
+                        hash=self.digest.decode(self.encoding))
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
         """Designed so that inserting the node as an argument to the builtin
@@ -244,9 +231,9 @@ class __Node(object, metaclass=ABCMeta):
         if not isinstance(self, Leaf):
             # Recursive step
             output += self.left.__str__(encoding, level + 1,
-                                indent, new_ignore)
+                                        indent, new_ignore)
             output += self.right.__str__(encoding, level + 1,
-                                indent, new_ignore)
+                                         indent, new_ignore)
 
         return output
 
@@ -275,7 +262,6 @@ class Leaf(__Node):
 
     __slots__ = ('__digest',)
 
-
     def __init__(self, hash_func, encoding, record=None, digest=None):
         if digest is None and record:
             try:
@@ -292,7 +278,6 @@ class Leaf(__Node):
             err = 'Either record or digest may be provided'
             raise LeafConstructionError(err)
 
-
     @property
     def digest(self):
         """The checksum currently stored by the leaf.
@@ -301,14 +286,12 @@ class Leaf(__Node):
         """
         return self.__digest
 
-
     def serialize(self):
         """Returns a JSON entity with the leaf's characteristics as key-value pairs.
 
         :rtype: dict
         """
         return LeafSerializer().default(self)
-
 
     def toJSONString(self):
         """Returns a JSON text with the leaf's characteristics as key-value pairs.
@@ -336,7 +319,6 @@ class Node(__Node):
 
     __slots__ = ('__digest', '__left', '__right',)
 
-
     def __init__(self, hash_func, encoding, left, right):
         super().__init__(encoding=encoding)
 
@@ -347,7 +329,6 @@ class Node(__Node):
         left.__child = self
         right.__child = self
 
-
     @property
     def digest(self):
         """The checksum currently stored by the node.
@@ -356,7 +337,6 @@ class Node(__Node):
         """
         return self.__digest
 
-
     def set_right(self, right):
         """Sets the node's right parent.
 
@@ -364,7 +344,6 @@ class Node(__Node):
         :type: __Node
         """
         self.__right = right
-
 
     def recalculate_hash(self, hash_func):
         """Recalculates the node's digest under account of the (possibly new)
@@ -375,7 +354,6 @@ class Node(__Node):
         """
         self.__digest = hash_func(self.left.digest, self.right.digest)
 
-
     def serialize(self):
         """Returns a JSON entity with the node's characteristics as key-value pairs.
 
@@ -385,7 +363,6 @@ class Node(__Node):
             in order for circular reference error to be avoided.
         """
         return NodeSerializer().default(self)
-
 
     def toJSONString(self):
         """Returns a JSON text with the node's characteristics as key-value pairs.

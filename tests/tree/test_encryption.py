@@ -104,10 +104,11 @@ undecodableArguments = [
     (b'\xc2', 'iso8859_8', False),
 ]
 
+
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_with_encryptRecord(byte, encoding, security):
     tree = MerkleTree('a', 'b', 'c',
-        encoding=encoding, raw_bytes=False, security=security)
+                      encoding=encoding, raw_bytes=False, security=security)
     with pytest.raises(UndecodableRecord):
         tree.encryptRecord(byte)
 
@@ -116,27 +117,27 @@ def test_UndecodableRecord_with_encryptRecord(byte, encoding, security):
 def test_encryptJSON(tree, hash_machine):
 
     tree.encryptJSON({
-            'a': 0,
-            'b': 1
-        },
+        'a': 0,
+        'b': 1
+    },
         sort_keys=False, indent=0)
 
     assert tree.leaves[-1].digest == hash_machine.hash(
         json.dumps({
-                'a': 0,
-                'b': 1
-            }, sort_keys=False, indent=0)
-        )
+            'a': 0,
+            'b': 1
+        }, sort_keys=False, indent=0)
+    )
 
 
 # Content to encrypt
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
-large_APACHE_log   = os.path.join(parent_dir, 'log_files/large_APACHE_log')
-short_APACHE_log   = os.path.join(parent_dir, 'log_files/short_APACHE_log')
+large_APACHE_log = os.path.join(parent_dir, 'log_files/large_APACHE_log')
+short_APACHE_log = os.path.join(parent_dir, 'log_files/short_APACHE_log')
 single_object_file = os.path.join(parent_dir, 'json_files/sample.json')
-objects_list_file  = os.path.join(parent_dir, 'json_files/sample-list.json')
+objects_list_file = os.path.join(parent_dir, 'json_files/sample-list.json')
 
 with open(large_APACHE_log, 'rb') as f:
     content = f.read()
@@ -159,9 +160,10 @@ def test_encryptFileContent(tree, hash_machine):
         encrypted = tree.encryptFileContent(large_APACHE_log)
         assert tree.leaves[-1].digest == hash_machine.hash(content)
     elif tree.encoding in ('cp424', 'utf_16', 'utf_16_le', 'utf_16_be',
-            'utf_32', 'utf_32_le', 'utf_32_be'):
+                           'utf_32', 'utf_32_le', 'utf_32_be'):
         with pytest.raises(UndecodableRecord):
             tree.encryptFileContent(large_APACHE_log)
+
 
 @pytest.mark.parametrize("tree", [tree for tree, _ in trees__hash_machines])
 def test_encryptFilePerLog(tree):
@@ -169,19 +171,20 @@ def test_encryptFilePerLog(tree):
         tree.clear()
         encrypted = tree.encryptFilePerLog(short_APACHE_log)
         clone = MerkleTree(*records,
-            hash_type=tree.hash_type,
-            encoding=tree.encoding,
-            raw_bytes=tree.raw_bytes,
-            security=tree.security
-        )
+                           hash_type=tree.hash_type,
+                           encoding=tree.encoding,
+                           raw_bytes=tree.raw_bytes,
+                           security=tree.security
+                           )
         assert tree.rootHash == clone.rootHash
     elif tree.encoding in ('iso8859_8', 'iso2022_kr', 'iso8859_3', 'ascii',
-            'utf_7', 'utf_32_be', 'iso2022_jp_1', 'utf_32_le', 'utf_32',
-            'iso2022_jp_3', 'iso2022_jp_2004', 'hz', 'iso8859_7', 'iso8859_6',
-            'iso2022_jp_ext', 'utf_16', 'cp424', 'iso2022_jp_2', 'utf_16_le',
-            'utf_16_be', 'iso2022_jp'):
+                           'utf_7', 'utf_32_be', 'iso2022_jp_1', 'utf_32_le', 'utf_32',
+                           'iso2022_jp_3', 'iso2022_jp_2004', 'hz', 'iso8859_7', 'iso8859_6',
+                           'iso2022_jp_ext', 'utf_16', 'cp424', 'iso2022_jp_2', 'utf_16_le',
+                           'utf_16_be', 'iso2022_jp'):
         with pytest.raises(UndecodableRecord):
             tree.encryptFilePerLog(short_APACHE_log)
+
 
 def test_deserialization_error():
     """
@@ -192,6 +195,7 @@ def test_deserialization_error():
     with pytest.raises(json.JSONDecodeError):
         tree.encryptJSONFromFile(
             os.path.join(parent_dir, 'json_files/bad.json'))
+
 
 @pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
 def test_encryptJSONFromFile(tree, hash_machine):

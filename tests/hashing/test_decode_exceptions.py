@@ -52,14 +52,18 @@ undecodableArguments = [
     (b'\xc2', 'iso8859_8', False),
 ]
 
+
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_single_undecodableArgumentError(byte, encoding, security):
-    machine = HashMachine(encoding=encoding, security=security, raw_bytes=False)
+    machine = HashMachine(
+        encoding=encoding, security=security, raw_bytes=False)
     with pytest.raises(UndecodableArgumentError):
         machine.hash(byte)
 
+
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_double_undecodableArgumentError(byte, encoding, security):
-    machine = HashMachine(encoding=encoding, security=security, raw_bytes=False)
+    machine = HashMachine(
+        encoding=encoding, security=security, raw_bytes=False)
     with pytest.raises(UndecodableArgumentError):
         machine.hash(byte, byte)

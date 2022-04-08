@@ -18,6 +18,7 @@ hash_func = tree.hash
 audit_challenge_1 = {'checksum': hash_func('100-th record')}
 audit_challenge_2 = {'checksum': hash_func(b'anything non recorded...')}
 
+
 @pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
 def test_audit_merkleProof(challenge):
     merkle_proof = tree.merkleProof(challenge)
@@ -25,11 +26,13 @@ def test_audit_merkleProof(challenge):
     audit_proof = tree.auditProof(challenge['checksum'])
     assert commitment == tree.rootHash and merkle_proof.body == audit_proof.body
 
+
 cons_challenge_1 = {'subhash': tree.rootHash}
 cons_challenge_2 = {'subhash': b'anything else...'}
 
 for i in range(1000):
     tree.encryptRecord(f'{i}-th record')
+
 
 @pytest.mark.parametrize('challenge', [cons_challenge_1, cons_challenge_2])
 def test_consistency_merkleProof(challenge):
@@ -62,6 +65,7 @@ __invalid_challenges = [
     },
 ]
 
+
 @pytest.mark.parametrize('challenge', __invalid_challenges)
 def test_merkleProof_with_invalid_challenges(challenge):
     with pytest.raises(InvalidChallengeError):
@@ -93,21 +97,23 @@ for raw_bytes in (True, False):
 __invalid_audit_proof_requests = [
     (
         MerkleTree(),
-        100# 'anything that is not of type... bytes'
+        100  # 'anything that is not of type... bytes'
     ),
     (
         MerkleTree(),
         {
-            'a': 200,#'anything that is not...',
-            'b': 300#... of type bytes'
+            'a': 200,  # 'anything that is not...',
+            'b': 300  # ... of type bytes'
         },
     ),
 ]
+
 
 @pytest.mark.parametrize("tree, arg", __invalid_audit_proof_requests)
 def test_audit_InvalidChallengeError(tree, arg):
     with pytest.raises(InvalidChallengeError):
         tree.auditProof(arg)
+
 
 tree__wrong_arg = []
 tree_arg = []
@@ -123,11 +129,12 @@ for tree in trees:
 
     for index in range(tree.length):
         tree_arg.append(
-                (
-                    tree,
-                    tree.hash('%d-th record' % index)
-                )
+            (
+                tree,
+                tree.hash('%d-th record' % index)
             )
+        )
+
 
 @pytest.mark.parametrize("tree, arg", tree__wrong_arg)
 def test_empty_auditProof(tree, arg):
@@ -151,6 +158,7 @@ def test_empty_auditProof(tree, arg):
             'proof_path': ()
         }
     }
+
 
 @pytest.mark.parametrize("tree, arg", tree_arg)
 def test_non_empty_auditProof(tree, arg):
@@ -187,7 +195,7 @@ for tree in trees:
             (
                 tree,
                 MerkleTree(
-                    *['%d-th record' %_ for _ in range(sublength)],
+                    *['%d-th record' % _ for _ in range(sublength)],
                     hash_type=tree.hash_type,
                     encoding=tree.encoding,
                     raw_bytes=tree.raw_bytes,
@@ -202,19 +210,19 @@ tree__subhash = []
 
 for (tree, subtree) in trees_and_subtrees:
 
-        __invalid_consistency_proof_requests.append(
-            (
-                tree,
-                100,                            # Invalid type for `subhash`
-            ),
-        )
+    __invalid_consistency_proof_requests.append(
+        (
+            tree,
+            100,                            # Invalid type for `subhash`
+        ),
+    )
 
-        tree__subhash.append(
-            (
-                tree,
-                subtree.rootHash,
-            )
+    tree__subhash.append(
+        (
+            tree,
+            subtree.rootHash,
         )
+    )
 
 
 @pytest.mark.parametrize("tree, subhash", __invalid_consistency_proof_requests)
@@ -251,6 +259,7 @@ def test_non_empty_consistencyProof(tree, subhash):
         }
     }
 
+
 @pytest.mark.parametrize("tree, subhash", tree__subhash)
 def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
     """
@@ -277,6 +286,7 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
             'proof_path': consistency_proof.body['proof_path']
         }
     }
+
 
 @pytest.mark.parametrize("tree, subhash", tree__subhash)
 def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
@@ -311,14 +321,17 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
 tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
 hexstring = '15d02997b9e32d81ffefa8fad54a252a6e5303f846140e544c008455e64660ec'
 
+
 def test_conversion_at_auditProof():
     proof_1 = tree.auditProof(hexstring)
     proof_2 = tree.auditProof(hexstring.encode())
     assert proof_1.body['proof_path'] == proof_2.body['proof_path']
 
+
 subhash = tree.rootHash
 for i in range(1000):
     tree.update(f'{i}-th record')
+
 
 def test_conversion_at_consistencyProof():
     consistencyProof = tree.consistencyProof

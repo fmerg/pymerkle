@@ -9,7 +9,7 @@ import json
 
 from pymerkle.core import MerkleTree
 from pymerkle.exceptions import (NoSubtreeException, NoPathException,
-    NoPrincipalSubroots,)
+                                 NoPrincipalSubroots,)
 
 
 # Audit proof implementation
@@ -245,6 +245,7 @@ no_subtree_exceptions = [
     (_5_leaves_tree, 4, 1),
 ]
 
+
 @pytest.mark.parametrize('tree, start, height', no_subtree_exceptions)
 def test_NoSubtreeException(tree, start, height):
     with pytest.raises(NoSubtreeException):
@@ -282,6 +283,7 @@ subroots = [
 def test_subroot(tree, start, height, subroot):
     assert tree.subroot(start, height) is subroot
 
+
 no_principal_subroots_exceptions = [
     (_1_leaves_tree, -1),
     (_1_leaves_tree, +2),
@@ -295,10 +297,12 @@ no_principal_subroots_exceptions = [
     (_5_leaves_tree, +6),
 ]
 
+
 @pytest.mark.parametrize("tree, sublength", no_principal_subroots_exceptions)
 def test_NoSubrootsException(tree, sublength):
     with pytest.raises(NoPrincipalSubroots):
         tree.principal_subroots(sublength)
+
 
 __principal_subroots = [
     (_0_leaves_tree, 0, []),
@@ -310,19 +314,24 @@ __principal_subroots = [
     (_3_leaves_tree, 0, []),
     (_3_leaves_tree, 1, [(+1, _3_leaves_tree.leaves[0])]),
     (_3_leaves_tree, 2, [(+1, _3_leaves_tree.leaves[0].child)]),
-    (_3_leaves_tree, 3, [(+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, 3, [
+     (+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])]),
     (_4_leaves_tree, 0, []),
     (_4_leaves_tree, 1, [(+1, _4_leaves_tree.leaves[0])]),
     (_4_leaves_tree, 2, [(+1, _4_leaves_tree.leaves[0].child)]),
-    (_4_leaves_tree, 3, [(+1, _4_leaves_tree.leaves[0].child), (+1, _4_leaves_tree.leaves[2])]),
+    (_4_leaves_tree, 3, [
+     (+1, _4_leaves_tree.leaves[0].child), (+1, _4_leaves_tree.leaves[2])]),
     (_4_leaves_tree, 4, [(+1, _4_leaves_tree.root)]),
     (_5_leaves_tree, 0, []),
     (_5_leaves_tree, 1, [(+1, _5_leaves_tree.leaves[0])]),
     (_5_leaves_tree, 2, [(+1, _5_leaves_tree.leaves[0].child)]),
-    (_5_leaves_tree, 3, [(+1, _5_leaves_tree.leaves[0].child), (+1, _5_leaves_tree.leaves[2])]),
+    (_5_leaves_tree, 3, [
+     (+1, _5_leaves_tree.leaves[0].child), (+1, _5_leaves_tree.leaves[2])]),
     (_5_leaves_tree, 4, [(+1, _5_leaves_tree.leaves[0].child.child)]),
-    (_5_leaves_tree, 5, [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[-1])]),
+    (_5_leaves_tree, 5, [
+     (+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[-1])]),
 ]
+
 
 @pytest.mark.parametrize("tree, sublength, principal_subroots", __principal_subroots)
 def test_principalSubroots(tree, sublength, principal_subroots):
@@ -334,28 +343,44 @@ minimal_complements = [
     (_1_leaves_tree, [], [(+1, _1_leaves_tree.leaves[0])]),
     (_1_leaves_tree, [(+1, _1_leaves_tree.root)], []),
     (_2_leaves_tree, [], [(+1, _2_leaves_tree.root)]),
-    (_2_leaves_tree, [(+1, _2_leaves_tree.leaves[0])], [(+1, _2_leaves_tree.leaves[1])]),
+    (_2_leaves_tree, [(+1, _2_leaves_tree.leaves[0])],
+     [(+1, _2_leaves_tree.leaves[1])]),
     (_2_leaves_tree, [(+1, _2_leaves_tree.root)], []),
-    (_3_leaves_tree, [], [(+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])]),
-    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0])], [(+1, _3_leaves_tree.leaves[1]), (+1, _3_leaves_tree.leaves[2])]),
-    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].child)], [(+1, _3_leaves_tree.leaves[2])]),
-    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].child), (+1, _3_leaves_tree.leaves[2])], []),
+    (_3_leaves_tree, [], [(+1, _3_leaves_tree.leaves[0].child),
+     (+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0])],
+     [(+1, _3_leaves_tree.leaves[1]), (+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].child)],
+     [(+1, _3_leaves_tree.leaves[2])]),
+    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].child),
+     (+1, _3_leaves_tree.leaves[2])], []),
     (_4_leaves_tree, [], [(+1, _4_leaves_tree.root)]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0])], [(+1, _4_leaves_tree.leaves[1]), (+1, _4_leaves_tree.leaves[2].child)]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].child)], [(+1, _4_leaves_tree.leaves[2].child)]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].child), (+1, _4_leaves_tree.leaves[2])], [(-1, _4_leaves_tree.leaves[3])]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0])],
+     [(+1, _4_leaves_tree.leaves[1]), (+1, _4_leaves_tree.leaves[2].child)]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].child)],
+     [(+1, _4_leaves_tree.leaves[2].child)]),
+    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].child), (+1,
+     _4_leaves_tree.leaves[2])], [(-1, _4_leaves_tree.leaves[3])]),
     (_4_leaves_tree, [(+1, _4_leaves_tree.root)], []),
-    (_5_leaves_tree, [], [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0])], [(+1, _5_leaves_tree.leaves[1]), (+1, _5_leaves_tree.leaves[2].child), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child)], [(+1, _5_leaves_tree.leaves[2].child), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child), (+1, _5_leaves_tree.leaves[2])], [(-1, _5_leaves_tree.leaves[3]), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child)], [(+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child), (+1, _5_leaves_tree.leaves[4])], []),
+    (_5_leaves_tree, [], [(+1, _5_leaves_tree.leaves[0].child.child),
+     (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0])], [(+1, _5_leaves_tree.leaves[1]),
+     (+1, _5_leaves_tree.leaves[2].child), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child)],
+     [(+1, _5_leaves_tree.leaves[2].child), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child), (+1, _5_leaves_tree.leaves[2])],
+     [(-1, _5_leaves_tree.leaves[3]), (+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child)],
+     [(+1, _5_leaves_tree.leaves[4])]),
+    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].child.child),
+     (+1, _5_leaves_tree.leaves[4])], []),
 ]
+
 
 @pytest.mark.parametrize("tree, subroots, _minimal_complement", minimal_complements)
 def test_minimal_complement(tree, subroots, _minimal_complement):
     assert tree.minimal_complement(subroots) == _minimal_complement
+
 
 no_path_exceptions = [
     (_0_leaves_tree, -1),
@@ -382,74 +407,76 @@ def test_consistency_NoPathException(tree, sublength):
     with pytest.raises(NoPathException):
         tree.consistency_path(sublength)
 
+
 __consistency_paths = [
     (_1_leaves_tree, 0, (+0, (),
-                             ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
+                         ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
     (_1_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
-                             ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
+                         ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
     (_2_leaves_tree, 0, (+0, (),
-                             ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),))),
+                         ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),))),
     (_2_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
-                             ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
-                              (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31')))),
+                         ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
+                          (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31')))),
     (_2_leaves_tree, 2, (+0, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),),
-                             ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),))),
+                         ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),))),
     (_3_leaves_tree, 0, (+1, (),
-                             ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
+                         ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
     (_3_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
-                             ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
-                              (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31'),
-                              (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
+                         ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
+                          (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31'),
+                          (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
     (_3_leaves_tree, 2, (+0, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),),
-                             ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
+                         ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
     (_3_leaves_tree, 3, (+1, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
                               (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')),
-                             ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
+                         ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')))),
     (_4_leaves_tree, 0, (+0, (),
-                             ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),))),
+                         ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),))),
     (_4_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
-                             ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
-                              (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31'),
-                              (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138')))),
+                         ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
+                          (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31'),
+                          (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138')))),
     (_4_leaves_tree, 2, (+0, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),),
-                             ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138')))),
+                         ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138')))),
     (_4_leaves_tree, 3, (+1, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
                               (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')),
-                             ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8'),
-                              (-1, b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d')))),
+                         ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8'),
+                          (-1, b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d')))),
     (_4_leaves_tree, 4, (+0, ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),),
-                             ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),))),
+                         ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),))),
     (_5_leaves_tree, 0, (+1, (),
-                             ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
-                              (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
+                         ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
+                          (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
     (_5_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
-                             ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
-                              (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31'),
-                              (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138'),
-                              (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
+                         ((+1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),
+                          (+1, b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31'),
+                          (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138'),
+                          (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
     (_5_leaves_tree, 2, (+0, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),),
-                             ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138'),
-                              (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
+                         ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (+1, b'e9a9e077f0db2d9deb4445aeddca6674b051812e659ce091a45f7c55218ad138'),
+                          (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
     (_5_leaves_tree, 3, (+1, ((-1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
                               (-1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8')),
-                             ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
-                              (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8'),
-                              (-1, b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d'),
-                              (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
+                         ((+1, b'9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20'),
+                          (+1, b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8'),
+                          (-1, b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d'),
+                          (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
     (_5_leaves_tree, 4, (+0, ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),),
-                             ((+1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
-                              (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
+                         ((+1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
+                          (+1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
     (_5_leaves_tree, 5, (+1, ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
                               (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')),
-                             ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
-                              (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
+                         ((-1, b'22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417'),
+                          (-1, b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4')))),
 ]
+
 
 @pytest.mark.parametrize("tree, sublength, consistency_path", __consistency_paths)
 def test_consistency_path(tree, sublength, consistency_path):

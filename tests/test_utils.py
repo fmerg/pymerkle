@@ -13,8 +13,10 @@ nums = []
 mixed_powers = []
 
 for p in tuple(range(0, 11)):                                                   # 0 <= p <= 10
-    index_set = list(range(p))                                                  # [0, 1, ... p-1]
-    for k in range(p + 1):                                                      # 0 <= k <= p
+    # [0, 1, ... p-1]
+    index_set = list(range(p))
+    # 0 <= k <= p
+    for k in range(p + 1):
         for combination in itertools.combinations(index_set, k):
             combination = list(combination)
 
@@ -96,6 +98,7 @@ def test_decompose(num, powers):
 def test_stringify_empty_path():
     assert utils.stringify_path((), 'utf_8') == ''
 
+
 def test_stringify_bytes_path():
     assert utils.stringify_path(
         (
@@ -123,6 +126,7 @@ def test_stringify_bytes_path():
        [8]   +1   e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8\n\
        [9]   -1   6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2\n\
       [10]   -1   2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8'
+
 
 def test_stringify_string_path():
     assert utils.stringify_path(

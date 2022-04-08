@@ -16,6 +16,7 @@ for file in os.listdir(receipt_dir):
     except:
         pass
 
+
 def test_validation_get_receipt():
     tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
 
@@ -39,8 +40,9 @@ def test_validation_get_receipt():
 
 # Internals
 
+
 proof_provider = '1a0894bc-9755-11e9-a651-70c94e89b637'
-proof_uuid     = 'e60394c2-98c7-11e9-ac41-70c94e89b637'
+proof_uuid = 'e60394c2-98c7-11e9-ac41-70c94e89b637'
 
 receipt_11 = Receipt(
     proof_uuid=proof_uuid,
@@ -68,8 +70,11 @@ def test_Receipt_construction_with_positional_arguments(receipt, result):
     }
 
 
-receipt_21 = Receipt(proof_uuid=proof_uuid, proof_provider=proof_provider, result=True)
-receipt_22 = Receipt(proof_uuid=proof_uuid, proof_provider=proof_provider, result=False)
+receipt_21 = Receipt(proof_uuid=proof_uuid,
+                     proof_provider=proof_provider, result=True)
+receipt_22 = Receipt(proof_uuid=proof_uuid,
+                     proof_provider=proof_provider, result=False)
+
 
 @pytest.mark.parametrize('receipt, result', ((receipt_21, True), (receipt_22, False)))
 def test_Receipt_construction_with_kwargs(receipt, result):
@@ -139,6 +144,7 @@ toJSONStrings = [
     )
 ]
 
+
 @pytest.mark.parametrize('receipt, _json_string', toJSONStrings)
 def test_toJSONString(receipt, _json_string):
     assert receipt.toJSONString() == _json_string
@@ -146,6 +152,7 @@ def test_toJSONString(receipt, _json_string):
 
 receipt_31 = Receipt(from_json=receipt_11.toJSONString())
 receipt_32 = Receipt(from_json=receipt_12.toJSONString())
+
 
 @pytest.mark.parametrize('receipt, result', ((receipt_31, True), (receipt_32, False)))
 def test_Receipt_construction_from_json(receipt, result):
@@ -166,6 +173,7 @@ def test_Receipt_construction_from_json(receipt, result):
 receipt_41 = Receipt(from_dict=json.loads(receipt_11.toJSONString()))
 receipt_42 = Receipt(from_dict=json.loads(receipt_12.toJSONString()))
 
+
 @pytest.mark.parametrize('receipt, result', ((receipt_41, True), (receipt_42, False)))
 def test_Receipt_construction_from_dict(receipt, result):
     assert receipt.__dict__ == {
@@ -181,11 +189,13 @@ def test_Receipt_construction_from_dict(receipt, result):
         }
     }
 
+
 @pytest.mark.parametrize('receipt', (receipt_11, receipt_31))
 def test_Receipt_deserialization_from_dict(receipt):
     json_receipt = receipt.serialize()
     deserialized = Receipt.deserialize(json_receipt)
     assert receipt.__dict__ == deserialized.__dict__
+
 
 @pytest.mark.parametrize('receipt', (receipt_11, receipt_31))
 def test_Receipt_deserialization_from_text(receipt):
@@ -213,10 +223,10 @@ def test___repr__(receipt, result):
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\
                 \n' % (
-                    receipt.header['uuid'],
-                    receipt.header['timestamp'],
-                    receipt.header['validation_moment'],
-                    proof_uuid,
-                    proof_provider,
-                    result,
-                )
+        receipt.header['uuid'],
+        receipt.header['timestamp'],
+        receipt.header['validation_moment'],
+        proof_uuid,
+        proof_provider,
+        result,
+    )

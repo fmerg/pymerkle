@@ -24,9 +24,11 @@ def test_0_leaves():
     with pytest.raises(EmptyTreeException):
         tree.rootHash
 
+
 def test_1_leaves():
     update(record=t_1)
     assert tree.rootHash == hash(t_1)
+
 
 def test_2_leaves():
     update(record=t_2)
@@ -34,6 +36,7 @@ def test_2_leaves():
         hash(t_1),
         hash(t_2)
     )
+
 
 def test_3_leaves():
     update(record=t_3)
@@ -44,6 +47,7 @@ def test_3_leaves():
         ),
         hash(t_3)
     )
+
 
 def test_4_leaves():
     update(record=t_4)
@@ -57,6 +61,7 @@ def test_4_leaves():
             hash(t_4)
         )
     )
+
 
 def test_5_leaves():
     update(record=t_5)
@@ -73,6 +78,7 @@ def test_5_leaves():
         ),
         hash(t_5)
     )
+
 
 def test_7_leaves():
     update(record=t_6)
@@ -96,6 +102,7 @@ def test_7_leaves():
             hash(t_7)
         )
     )
+
 
 def test_11_leaves():
     update(record=t_8)

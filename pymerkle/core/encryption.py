@@ -37,7 +37,6 @@ class Encryptor(object, metaclass=ABCMeta):
         except UndecodableRecord:
             raise
 
-
     def encryptFileContent(self, filepath):
         """Encrypts the provided file as a single new leaf into the Merkle-tree.
 
@@ -64,7 +63,6 @@ class Encryptor(object, metaclass=ABCMeta):
                     self.update(record=buff.read())
                 except UndecodableRecord:
                     raise
-
 
     def encryptFilePerLog(self, filepath):
         """Per log encryption of the provided file into the Merkle-tree.
@@ -120,7 +118,6 @@ class Encryptor(object, metaclass=ABCMeta):
             update(record=record)
         tqdm.write('Encryption complete\n')
 
-
     def encryptJSON(self, object, sort_keys=False, indent=0):
         """Encrypts the provided JSON entity as a single new leaf into the
         Merkle-tree.
@@ -140,7 +137,6 @@ class Encryptor(object, metaclass=ABCMeta):
         """
         self.update(
             record=json.dumps(object, sort_keys=sort_keys, indent=indent))
-
 
     def encryptJSONFromFile(self, filepath, sort_keys=False, indent=0):
         """Encrypts the object from within the provided *.json* file as a

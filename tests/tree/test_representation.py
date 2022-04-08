@@ -35,7 +35,7 @@ def test___repr__default_non_empty_tree():
                 \n    length    : 3\
                 \n    size      : 5\
                 \n    height    : 2\n' % (
-                    tree.uuid, tree.rootHash.decode(tree.encoding))
+        tree.uuid, tree.rootHash.decode(tree.encoding))
 
 
 empty_tree = MerkleTree()

@@ -25,7 +25,7 @@ class MerkleTreeSerializer(json.JSONEncoder):
                 'encoding': encoding,
                 'raw_bytes': raw_bytes,
                 'security': security},
-                'hashes': [leaf.digest.decode(encoding) for leaf in leaves]
+            'hashes': [leaf.digest.decode(encoding) for leaf in leaves]
         }
 
 
@@ -108,7 +108,7 @@ class ProofSerializer(json.JSONEncoder):
                 'proof_index': proof_index,
                 'proof_path': [
                     [sign, digest if type(digest) is str else digest.decode()]
-                        for (sign, digest) in proof_path
+                    for (sign, digest) in proof_path
                 ]
             }
         }

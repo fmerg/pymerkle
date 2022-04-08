@@ -54,12 +54,12 @@ for security in (True, False):
 # .hash()
 
 @pytest.mark.parametrize("machine, hash_type, encoding, security",
-    machines__hash_types__encodings__securities)
+                         machines__hash_types__encodings__securities)
 def test_single_string_hash(machine, hash_type, encoding, security):
     if security:
         assert machine.hash(MESSAGE) == bytes(
             getattr(hashlib, hash_type)(
-            ('\x00%s' % MESSAGE).encode(encoding)).hexdigest(),
+                ('\x00%s' % MESSAGE).encode(encoding)).hexdigest(),
             encoding
         )
     else:
@@ -70,12 +70,12 @@ def test_single_string_hash(machine, hash_type, encoding, security):
 
 
 @pytest.mark.parametrize("machine, hash_type, encoding, security",
-    machines__hash_types__encodings__securities)
+                         machines__hash_types__encodings__securities)
 def test_single_bytes_hash(machine, hash_type, encoding, security):
     if security:
         assert machine.hash(bytes(MESSAGE, encoding)) == bytes(
             getattr(hashlib, hash_type)(
-            bytes('\x00%s' % MESSAGE, encoding)).hexdigest(),
+                bytes('\x00%s' % MESSAGE, encoding)).hexdigest(),
             encoding
         )
     else:
@@ -86,13 +86,13 @@ def test_single_bytes_hash(machine, hash_type, encoding, security):
 
 
 @pytest.mark.parametrize("machine, hash_type, encoding, security",
-    machines__hash_types__encodings__securities)
+                         machines__hash_types__encodings__securities)
 def test_double_bytes_hash(machine, hash_type, encoding, security):
     if security:
         assert machine.hash(
             bytes(MESSAGE, encoding),
             bytes(MESSAGE, encoding)) == bytes(
-            getattr(hashlib,hash_type)(
+            getattr(hashlib, hash_type)(
                 bytes(
                     '\x01%s\x01%s' % (MESSAGE, MESSAGE),
                     encoding)
@@ -109,7 +109,7 @@ def test_double_bytes_hash(machine, hash_type, encoding, security):
                         encoding
                     )).hexdigest(),
                 encoding
-            )
+        )
 
 
 # multi_hash()
@@ -119,11 +119,13 @@ def test_0_elems_multi_hash(machine):
     with pytest.raises(EmptyPathException):
         assert machine.multi_hash((), start='anything')
 
+
 @pytest.mark.parametrize('machine, single_arg', machines__single_args)
 def test_1_elems_multi_hash(machine, single_arg):
     assert machine.multi_hash(
         ((+1, machine.hash(single_arg)),), start=0
     ) == machine.hash(single_arg)
+
 
 @pytest.mark.parametrize('machine', machines)
 def test_2_elems_multi_hash(machine):
@@ -132,55 +134,55 @@ def test_2_elems_multi_hash(machine):
     encoding = machine.encoding
     if machine.security:
         assert multi_hash(
+            (
                 (
-                    (
-                        +1,
-                         bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                         bytes(MESSAGE, encoding)
-                    )
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=0
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=0
         ) == multi_hash(
+            (
                 (
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=1
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
         ) == hash(bytes(MESSAGE, encoding), bytes(MESSAGE, encoding))
     else:
         assert multi_hash(
+            (
                 (
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=0
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=0
         ) == multi_hash(
+            (
                 (
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=1
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
         ) == hash('%s%s' % (MESSAGE, MESSAGE))
 
 
@@ -191,81 +193,81 @@ def test_3_elems_multi_hash_case_1(machine):
     encoding = machine.encoding
     if machine.security:
         assert multi_hash(
-                    signed_hashes=(
-                        (
-                            +1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            +1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            '_anything_',
-                            bytes(MESSAGE, encoding)
-                        )
-                    ),
-                    start=0
-            ) == multi_hash(
-                    signed_hashes=(
-                        (
-                            +1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            -1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            '_anything_',
-                            bytes(MESSAGE, encoding)
-                        )
-                    ),
-                    start=1
-            ) == hash(
-                    hash(
-                        bytes(MESSAGE, encoding),
-                        bytes(MESSAGE, encoding)
-                    ),
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    '_anything_',
                     bytes(MESSAGE, encoding)
                 )
+            ),
+            start=0
+        ) == multi_hash(
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
+        ) == hash(
+            hash(
+                bytes(MESSAGE, encoding),
+                bytes(MESSAGE, encoding)
+            ),
+            bytes(MESSAGE, encoding)
+        )
     else:
         assert multi_hash(
-                    signed_hashes=(
-                        (
-                            +1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            +1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            '_anything_',
-                            bytes(MESSAGE, encoding)
-                        )
-                    ),
-                    start=0
-            ) == multi_hash(
-                    signed_hashes=(
-                        (
-                            +1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            -1,
-                            bytes(MESSAGE, encoding)
-                        ),
-                        (
-                            '_anything_',
-                            bytes(MESSAGE, encoding)
-                        )
-                    ),
-                    start=1
-            ) == hash(
-                    hash('%s%s' % (MESSAGE, MESSAGE)),
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    '_anything_',
                     bytes(MESSAGE, encoding)
                 )
+            ),
+            start=0
+        ) == multi_hash(
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
+        ) == hash(
+            hash('%s%s' % (MESSAGE, MESSAGE)),
+            bytes(MESSAGE, encoding)
+        )
 
 
 @pytest.mark.parametrize('machine', machines)
@@ -275,81 +277,81 @@ def test_3_elems_multi_hash_case_2(machine):
     encoding = machine.encoding
     if machine.security:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        '_anything_',
-                         bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
                 ),
-                start=2
-        ) == multi_hash(
-                signed_hashes=(
-                    (
-                        '_anything_',
-                         bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=1
-        ) == hash(
-                bytes(MESSAGE, encoding),
-                hash(
-                    bytes(MESSAGE, encoding),
+                (
+                    -1,
                     bytes(MESSAGE, encoding)
                 )
+            ),
+            start=2
+        ) == multi_hash(
+            signed_hashes=(
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
+        ) == hash(
+            bytes(MESSAGE, encoding),
+            hash(
+                bytes(MESSAGE, encoding),
+                bytes(MESSAGE, encoding)
             )
+        )
     else:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        '_anything_',
-                         bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
                 ),
-                start=2
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=2
         ) == multi_hash(
-                signed_hashes=(
-                    (
-                        '_anything_',
-                         bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
                 ),
-                start=1
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
         ) == hash(
-                bytes(MESSAGE, encoding),
-                hash('%s%s' % (MESSAGE, MESSAGE))
-            )
+            bytes(MESSAGE, encoding),
+            hash('%s%s' % (MESSAGE, MESSAGE))
+        )
 
 
 @pytest.mark.parametrize('machine', machines)
@@ -359,63 +361,63 @@ def test_4_elems_multi_hash_edge_case_1(machine):
     encoding = machine.encoding
     if machine.security:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        '_anything_',
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=0
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=0
         ) == hash(
+            hash(
                 hash(
-                    hash(
-                        bytes(MESSAGE, encoding),
-                        bytes(MESSAGE, encoding)
-                    ),
+                    bytes(MESSAGE, encoding),
                     bytes(MESSAGE, encoding)
                 ),
                 bytes(MESSAGE, encoding)
-            )
+            ),
+            bytes(MESSAGE, encoding)
+        )
     else:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        '_anything_',
-                        bytes(MESSAGE, encoding)
-                    )
-                ),
-                start=0
-        ) == hash(
-                hash(
-                    hash('%s%s' % (MESSAGE, MESSAGE)),
+            signed_hashes=(
+                (
+                    +1,
                     bytes(MESSAGE, encoding)
                 ),
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=0
+        ) == hash(
+            hash(
+                hash('%s%s' % (MESSAGE, MESSAGE)),
                 bytes(MESSAGE, encoding)
-            )
+            ),
+            bytes(MESSAGE, encoding)
+        )
 
 
 @pytest.mark.parametrize('machine', machines)
@@ -425,63 +427,63 @@ def test_4_elems_multi_hash_edge_case_2(machine):
     encoding = machine.encoding
     if machine.security:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        '_anything_',
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
                 ),
-                start=3
-            ) == hash(
-                    bytes(MESSAGE, encoding),
-                    hash(
-                        bytes(MESSAGE, encoding),
-                        hash(
-                            bytes(MESSAGE, encoding),
-                            bytes(MESSAGE, encoding)
-                        )
-                    )
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
                 )
+            ),
+            start=3
+        ) == hash(
+            bytes(MESSAGE, encoding),
+            hash(
+                bytes(MESSAGE, encoding),
+                hash(
+                    bytes(MESSAGE, encoding),
+                    bytes(MESSAGE, encoding)
+                )
+            )
+        )
     else:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        '_anything_',
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    '_anything_',
+                    bytes(MESSAGE, encoding)
                 ),
-                start=3
-            ) == hash(
-                    bytes(MESSAGE, encoding),
-                    hash(
-                        bytes(MESSAGE, encoding),
-                        hash('%s%s' % (MESSAGE, MESSAGE))
-                    )
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
                 )
+            ),
+            start=3
+        ) == hash(
+            bytes(MESSAGE, encoding),
+            hash(
+                bytes(MESSAGE, encoding),
+                hash('%s%s' % (MESSAGE, MESSAGE))
+            )
+        )
 
 
 @pytest.mark.parametrize('machine', machines)
@@ -491,59 +493,59 @@ def test_4_elems_multi_hash(machine):
     encoding = machine.encoding
     if machine.security:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=1
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
         ) == hash(
+            hash(
+                bytes(MESSAGE, encoding),
                 hash(
                     bytes(MESSAGE, encoding),
-                    hash(
-                        bytes(MESSAGE, encoding),
-                        bytes(MESSAGE, encoding))
-                    ),
-                bytes(MESSAGE, encoding)
-            )
+                    bytes(MESSAGE, encoding))
+            ),
+            bytes(MESSAGE, encoding)
+        )
     else:
         assert multi_hash(
-                signed_hashes=(
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        +1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    ),
-                    (
-                        -1,
-                        bytes(MESSAGE, encoding)
-                    )
+            signed_hashes=(
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
                 ),
-                start=1
+                (
+                    +1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                ),
+                (
+                    -1,
+                    bytes(MESSAGE, encoding)
+                )
+            ),
+            start=1
         ) == hash(
-                hash(
-                    bytes(MESSAGE, encoding),
-                    hash('%s%s' % (MESSAGE, MESSAGE))
-                ),
-                bytes(MESSAGE, encoding)
-            )
+            hash(
+                bytes(MESSAGE, encoding),
+                hash('%s%s' % (MESSAGE, MESSAGE))
+            ),
+            bytes(MESSAGE, encoding)
+        )

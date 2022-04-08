@@ -15,16 +15,23 @@ hash_func = _.hash
 pair_of_leaves = (
     Leaf(hash_func=hash_func, encoding=encoding, record=b'some record...'),
     Leaf(hash_func=hash_func, encoding=encoding,
-        digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
+         digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
 
 # Full binary structure (child-parent relations): 4 leaves, 7 nodes in total
-leaf_1  = Leaf(hash_func=hash_func, encoding=encoding, record=b'first record...')
-leaf_2  = Leaf(hash_func=hash_func, encoding=encoding, record=b'second record...')
-leaf_3  = Leaf(hash_func=hash_func, encoding=encoding, record=b'third record...')
-leaf_4  = Leaf(hash_func=hash_func, encoding=encoding, record=b'fourth record...')
-node_12 = Node(hash_func=hash_func, encoding=encoding, left=leaf_1, right=leaf_2)
-node_34 = Node(hash_func=hash_func, encoding=encoding, left=leaf_3, right=leaf_4)
-root    = Node(hash_func=hash_func, encoding=encoding, left=node_12, right=node_34)
+leaf_1 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'first record...')
+leaf_2 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'second record...')
+leaf_3 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'third record...')
+leaf_4 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'fourth record...')
+node_12 = Node(hash_func=hash_func, encoding=encoding,
+               left=leaf_1, right=leaf_2)
+node_34 = Node(hash_func=hash_func, encoding=encoding,
+               left=leaf_3, right=leaf_4)
+root = Node(hash_func=hash_func, encoding=encoding,
+            left=node_12, right=node_34)
 
 
 @pytest.mark.parametrize("leaf", (leaf_1, leaf_2, leaf_3, leaf_4))
@@ -53,6 +60,7 @@ def test___repr__for_nodes_with_child(node):
                         right_id=str(hex(id(node.right))),
                         child_id=str(hex(id(node.child))),
                         hash=node.digest.decode(node.encoding))
+
 
 def test___repr__for_node_without_child():
     assert root.__repr__() == '\n    memory-id    : {self_id}\
@@ -107,6 +115,7 @@ stringifications = [
           └──8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69\n'
     )
 ]
+
 
 @pytest.mark.parametrize("node, stringification", stringifications)
 def test___str__(node, stringification):
@@ -166,6 +175,7 @@ serializations = [
     )
 ]
 
+
 @pytest.mark.parametrize("node, serialization", serializations)
 def test_node_serialization(node, serialization):
     assert node.serialize() == serialization
@@ -212,6 +222,7 @@ toJSONStrings = [
         "right": {\n            "hash": "8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69"\n        }\n    }\n}'
     )
 ]
+
 
 @pytest.mark.parametrize("node, json_string", toJSONStrings)
 def test_node_toJSONString(node, json_string):

@@ -7,26 +7,33 @@ import pytest
 from pymerkle.core.nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
 from pymerkle.exceptions import (NoChildException, NoDescendantException,
-    NoParentException, LeafConstructionError, UndecodableRecord,)
+                                 NoParentException, LeafConstructionError, UndecodableRecord,)
 
 
 _ = HashMachine()
-encoding  = _.encoding
+encoding = _.encoding
 hash_func = _.hash
 
 pair_of_leaves = (
     Leaf(hash_func=hash_func, encoding=encoding, record=b'some record...'),
     Leaf(hash_func=hash_func, encoding=encoding,
-        digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
+         digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
 
 # Full binary structure (child-parent relations): 4 leaves, 7 nodes in total
-leaf_1  = Leaf(hash_func=hash_func, encoding=encoding, record=b'first record...')
-leaf_2  = Leaf(hash_func=hash_func, encoding=encoding, record=b'second record...')
-leaf_3  = Leaf(hash_func=hash_func, encoding=encoding, record=b'third record...')
-leaf_4  = Leaf(hash_func=hash_func, encoding=encoding, record=b'fourth record...')
-node_12 = Node(hash_func=hash_func, encoding=encoding, left=leaf_1, right=leaf_2)
-node_34 = Node(hash_func=hash_func, encoding=encoding, left=leaf_3, right=leaf_4)
-root    = Node(hash_func=hash_func, encoding=encoding, left=node_12, right=node_34)
+leaf_1 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'first record...')
+leaf_2 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'second record...')
+leaf_3 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'third record...')
+leaf_4 = Leaf(hash_func=hash_func, encoding=encoding,
+              record=b'fourth record...')
+node_12 = Node(hash_func=hash_func, encoding=encoding,
+               left=leaf_1, right=leaf_2)
+node_34 = Node(hash_func=hash_func, encoding=encoding,
+               left=leaf_3, right=leaf_4)
+root = Node(hash_func=hash_func, encoding=encoding,
+            left=node_12, right=node_34)
 
 
 # Childless leaves tests
@@ -38,13 +45,15 @@ def test_leaf_construction_exception_with_neither_record_nor_digest():
     with pytest.raises(LeafConstructionError):
         Leaf(hash_func=hash_func, encoding=encoding)
 
+
 def test_leaf_construction_exception_with_both_record_and_digest():
     """
     Tests `TypeError` if both `record` and `digest` are provided
     """
     with pytest.raises(LeafConstructionError):
         Leaf(hash_func=hash_func, encoding=encoding, record=b'anything...',
-            digest=hash_func('whatever...'))
+             digest=hash_func('whatever...'))
+
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_leaf_left_parent_exception(leaf):
@@ -56,6 +65,7 @@ def test_leaf_left_parent_exception(leaf):
     with pytest.raises(NoParentException):
         leaf.left
 
+
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_leaf_right_parent_exception(leaf):
     """
@@ -65,6 +75,7 @@ def test_leaf_right_parent_exception(leaf):
     """
     with pytest.raises(NoParentException):
         leaf.right
+
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_leaf_child_exception(leaf):
@@ -76,12 +87,14 @@ def test_leaf_child_exception(leaf):
     with pytest.raises(NoChildException):
         leaf.child
 
+
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_childless_leaf_is_not_left_parent(leaf):
     """
     Tests that ``.is_left_parent`` returns ``False`` for a leaf without child
     """
     assert not leaf.is_left_parent()
+
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_childless_leaf_is_not_right_parent(leaf):
@@ -90,12 +103,14 @@ def test_childless_leaf_is_not_right_parent(leaf):
     """
     assert not leaf.is_right_parent()
 
+
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_childless_leaf_is_not_parent(leaf):
     """
     Tests that ``.is_left_parent`` returns ``False`` for a leaf without a child
     """
     assert not leaf.is_parent()
+
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_childless_leaf_no_descendant_exception(leaf):
@@ -105,6 +120,7 @@ def test_childless_leaf_no_descendant_exception(leaf):
     """
     with pytest.raises(NoDescendantException):
         leaf.descendant(degree=1)
+
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_childless_leaf___repr__(leaf):
@@ -134,6 +150,7 @@ def test_no_child_exception():
     with pytest.raises(NoChildException):
         root.child
 
+
 @pytest.mark.parametrize("node", (leaf_1, leaf_2, leaf_3, leaf_4))
 def test_no_parent_exception_for_left(node):
     """
@@ -155,16 +172,17 @@ def test_no_parent_exception_for_right(node):
 # Child-parent relation tests
 
 @pytest.mark.parametrize("node, child", ((leaf_1, node_12), (leaf_2, node_12),
-                                        (leaf_3, node_34), (leaf_4, node_34),
-                                        (node_12, root), (node_34, root)))
+                                         (leaf_3, node_34), (leaf_4, node_34),
+                                         (node_12, root), (node_34, root)))
 def test_child(node, child):
     """
     Tests child for all valid cases
     """
     assert node.child is child
 
+
 @pytest.mark.parametrize("node, left",
-    ((node_12, leaf_1), (node_34, leaf_3), (root, node_12)))
+                         ((node_12, leaf_1), (node_34, leaf_3), (root, node_12)))
 def test_left_parent(node, left):
     """
     Tests left parent for all valid cases
@@ -173,7 +191,7 @@ def test_left_parent(node, left):
 
 
 @pytest.mark.parametrize("node, right",
-    ((node_12, leaf_2), (node_34, leaf_4), (root, node_34)))
+                         ((node_12, leaf_2), (node_34, leaf_4), (root, node_34)))
 def test_right_parent(node, right):
     """
     Tests left parent for all valid cases
@@ -213,9 +231,9 @@ def test_is_parent(node, expected):
 # Descendancy tests
 
 @pytest.mark.parametrize("node, degree", ((leaf_1, 3), (leaf_2, 3),
-                                           (leaf_3, 3), (leaf_4, 3),
-                                           (node_12, 2), (node_34, 2),
-                                           (root, 1)))
+                                          (leaf_3, 3), (leaf_4, 3),
+                                          (node_12, 2), (node_34, 2),
+                                          (root, 1)))
 def test_no_descendant_exception(node, degree):
     """
     Tests that NoDescendantException is raised for the minimum
@@ -224,17 +242,19 @@ def test_no_descendant_exception(node, degree):
     with pytest.raises(NoDescendantException):
         node.descendant(degree=degree)
 
+
 @pytest.mark.parametrize("node", (leaf_1, leaf_2, leaf_3, leaf_4,
-                                node_12, node_34, root))
+                                  node_12, node_34, root))
 def test_zero_degree_descendant(node):
     """
     Tests that zero degree descendancy points to the node itself
     """
     assert node.descendant(degree=0) is node
 
+
 @pytest.mark.parametrize("node, expected", ((leaf_1, node_12), (leaf_2, node_12),
-                                             (leaf_3, node_34), (leaf_4, node_34),
-                                             (node_12, root), (node_34, root)))
+                                            (leaf_3, node_34), (leaf_4, node_34),
+                                            (node_12, root), (node_34, root)))
 def test_degree_one_descendant(node, expected):
     """
     Tests descendancy of degree 1 for all valid cases
@@ -253,12 +273,13 @@ def test_degree_two_descendant(node):
 # Recalculation tests
 
 def test_hash_recalculation():
-    new_leaf = Leaf(hash_func=hash_func, encoding=encoding, record=b'new record...')
+    new_leaf = Leaf(hash_func=hash_func, encoding=encoding,
+                    record=b'new record...')
     node_34.set_right(new_leaf)
     node_34.recalculate_hash(hash_func=hash_func)
     root.recalculate_hash(hash_func=hash_func)
     assert node_34.digest == hash_func(leaf_3.digest, new_leaf.digest) \
-    and root.digest == hash_func(node_12.digest, node_34.digest)
+        and root.digest == hash_func(node_12.digest, node_34.digest)
 
 
 # Decoding error tests
@@ -308,32 +329,35 @@ bytesmachines = [
     (b'\xc2', HashMachine(encoding='iso8859_8',       raw_bytes=False, security=False)),
 ]
 
+
 @pytest.mark.parametrize('byte, machine', bytesmachines)
 def test_leaf_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         Leaf(record=byte, encoding=machine.encoding, hash_func=machine.hash)
 
+
 @pytest.mark.parametrize('byte, machine', bytesmachines)
 def test_node_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         left = Leaf(record=byte, encoding=machine.encoding,
-            hash_func=machine.hash)
+                    hash_func=machine.hash)
         _right = Leaf(record=byte, encoding=machine.encoding,
-            hash_func=machine.hash)
+                      hash_func=machine.hash)
         with pytest.raises(UndecodableRecord):
             Node(left=left, right=_right, encoding=machine.encoding,
-                hash_func=machine.hash)
+                 hash_func=machine.hash)
+
 
 @pytest.mark.parametrize('byte, machine', bytesmachines)
 def test_hash_recalculation_UndecodableRecord(byte, machine):
     with pytest.raises(UndecodableRecord):
         left = Leaf(record='left record', encoding=machine.encoding,
-            hash_func=machine.hash)
+                    hash_func=machine.hash)
         right = Leaf(record='right record', encoding=machine.encoding,
-            hash_func=machine.hash)
+                     hash_func=machine.hash)
         node = Node(left=left, right=right, encoding=machine.encoding,
-            hash_func=machine.hash)
+                    hash_func=machine.hash)
         left = Leaf(record=byte, encoding=machine.encoding,
-            hash_func=machine.hash)
+                    hash_func=machine.hash)
         node.set_left(_left)
         node.recalculate_hash(machine.hash)

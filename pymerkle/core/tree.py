@@ -9,8 +9,8 @@ from pymerkle.hashing import HashMachine
 from pymerkle.serializers import MerkleTreeSerializer
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoChildException,
-    EmptyTreeException, NoPathException, InvalidTypes, NoSubtreeException,
-    NoPrincipalSubroots, InvalidComparison, WrongJSONFormat, UndecodableRecord)
+                                 EmptyTreeException, NoPathException, InvalidTypes, NoSubtreeException,
+                                 NoPrincipalSubroots, InvalidComparison, WrongJSONFormat, UndecodableRecord)
 import uuid
 import json
 from tqdm import tqdm
@@ -46,7 +46,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     """
 
     def __init__(self, *records, hash_type='sha256', encoding='utf-8',
-            raw_bytes=True, security=True):
+                 raw_bytes=True, security=True):
         self.uuid = str(uuid.uuid1())
 
         # Hash-machine configuration
@@ -54,13 +54,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         # Tree generation
         self.leaves = []
-        self.nodes  = set()
+        self.nodes = set()
         for record in records:
             try:
                 self.update(record=record)
             except UndecodableRecord:
                 raise
-
 
     def clear(self):
         """Deletes all nodes of the Merkle-tree
@@ -72,14 +71,12 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         except AttributeError:
             pass
 
-
     def __bool__(self):
         """
         :returns: *False* iff the Merkle-tree is empty (no nodes)
         :rtype: bool
         """
         return bool(self.nodes)
-
 
     @property
     def root(self):
@@ -94,7 +91,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise EmptyTreeException
 
         return self.__root
-
 
     @property
     def rootHash(self):
@@ -111,7 +107,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return root.digest
 
-
     def get_commitment(self):
         """Returns the current root-hash of the Merkle-tree if the latter is
         not empty, otherwise *None*.
@@ -126,7 +121,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return commitment
 
-
     @property
     def length(self):
         """Current length of the Merkle-tree (i.e., number of its leaves)
@@ -135,7 +129,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         return len(self.leaves)
 
-
     @property
     def size(self):
         """Current number of the Merkle-tree's nodes
@@ -143,7 +136,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :rtype: int
         """
         return len(self.nodes)
-
 
     @property
     def height(self):
@@ -159,7 +151,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             return 0
         return log_2(length) + 1 if length != 2 ** log_2(length) \
             else log_2(length)
-
 
     def update(self, record=None, digest=None):
         """Updates the Merkle-tree by storing the digest of the inserted record
@@ -190,7 +181,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
             # Height and root of the *full* binary subtree with maximum
             # possible length containing the rightmost leaf
-            last_power   = decompose(len(leaves))[-1]
+            last_power = decompose(len(leaves))[-1]
             last_subroot = leaves[-1].descendant(degree=last_power)
 
             # Encrypt new record into new leaf
@@ -235,7 +226,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             self.nodes = set([new_leaf])
             self.__root = new_leaf
 
-
     def audit_path(self, index):
         """Low-level audit proof.
 
@@ -263,7 +253,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         try:
             current_node = self.leaves[index]
         except IndexError:
-            raise NoPathException # Covers also the empty tree case
+            raise NoPathException  # Covers also the empty tree case
 
         initial_sign = +1
         if current_node.is_right_parent():
@@ -293,7 +283,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return start, tuple(path)
 
-
     def find_index(self, checksum):
         """Detects the (zero-based) index of the leftmost leaf which stores the
         provided checksum
@@ -318,7 +307,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             count += 1
 
         return index
-
 
     def consistency_path(self, sublength):
         """Low-level consistency proof.
@@ -366,7 +354,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return proof_index, left_path, full_path
 
-
     def minimal_complement(self, subroots):
         """Complements optimally from the right the provided sequence of subroots,
         so that a full consistency-path be subsequently generated.
@@ -399,7 +386,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             subroots.append((+1, subroot.child))
 
         return complement
-
 
     def principal_subroots(self, sublength):
         """Detects in corresponding order the roots of the successive, leftmost,
@@ -455,7 +441,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return principal_subroots
 
-
     def subroot(self, start, height):
         """Detects the root of the unique full binary subtree with leftmost
         leaf located at position *start* and height equal to *height*.
@@ -498,7 +483,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return subroot
 
-
     def inclusionTest(self, subhash):
         """Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree
@@ -525,7 +509,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return included
 
-
     def export(self, filepath):
         """
         Creates a *.json* file located at the provided path and exports into
@@ -542,10 +525,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 current working directory
         :type filepath: str
         """
-        with open(f'{filepath}.json' if not filepath.endswith('.json') \
-            else filepath, 'w') as f:
+        with open(f'{filepath}.json' if not filepath.endswith('.json')
+                  else filepath, 'w') as f:
             json.dump(self.serialize(), f, indent=4)
-
 
     @classmethod
     def loadFromFile(cls, filepath):
@@ -581,7 +563,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return tree
 
-
     def __eq__(self, other):
         """Implements the ``==`` operator
 
@@ -599,7 +580,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return True if not self else self.rootHash == other.rootHash
 
-
     def __ne__(self, other):
         """Implements the ``!=`` operator
 
@@ -616,7 +596,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             return self.__bool__()
 
         return True if not self else self.rootHash != other.rootHash
-
 
     def __ge__(self, other):
         """
@@ -637,7 +616,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         return False if not self else \
             self.inclusionTest(other.rootHash)
 
-
     def __le__(self, other):
         """Implements the ``<=`` operator
 
@@ -651,7 +629,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise InvalidComparison
 
         return other.__ge__(self)
-
 
     def __gt__(self, other):
         """
@@ -674,7 +651,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return self.inclusionTest(other.rootHash)
 
-
     def __lt__(self, other):
         """Implements the ``<`` operator
 
@@ -688,7 +664,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise InvalidComparison
 
         return other.__gt__(self)
-
 
     def __repr__(self):
         """Sole purpose of this function is to display info about
@@ -709,16 +684,15 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 \n    length    : {length}\
                 \n    size      : {size}\
                 \n    height    : {height}\n'.format(
-                    uuid=self.uuid,
-                    hash_type=self.hash_type.upper().replace('_', '-'),
-                    encoding=self.encoding.upper().replace('_', '-'),
-                    raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
-                    security='ACTIVATED' if self.security else 'DEACTIVATED',
-                    root_hash=self.rootHash.decode(self.encoding) if self else NONE,
-                    length=self.length,
-                    size=self.size,
-                    height=self.height)
-
+            uuid=self.uuid,
+            hash_type=self.hash_type.upper().replace('_', '-'),
+            encoding=self.encoding.upper().replace('_', '-'),
+            raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
+            security='ACTIVATED' if self.security else 'DEACTIVATED',
+            root_hash=self.rootHash.decode(self.encoding) if self else NONE,
+            length=self.length,
+            size=self.size,
+            height=self.height)
 
     def __str__(self, indent=3):
         """Designed so that inserting the Merkle-tree into the *print()* function
@@ -739,7 +713,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return root.__str__(indent=indent, encoding=self.encoding)
 
-
     def serialize(self):
         """Returns a JSON entity with the Merkle-trees's current characteristics
         and digests stored by its leaves.
@@ -748,7 +721,6 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         return MerkleTreeSerializer().default(self)
 
-
     def toJSONString(self):
         """Returns a JSON text with the Merkle-tree's current characteristics
         and digests stored by its leaves.
@@ -756,4 +728,4 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :rtype: str
         """
         return json.dumps(self,
-            cls=MerkleTreeSerializer, sort_keys=True, indent=4)
+                          cls=MerkleTreeSerializer, sort_keys=True, indent=4)

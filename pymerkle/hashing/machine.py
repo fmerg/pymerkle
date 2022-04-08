@@ -7,7 +7,7 @@ from pymerkle.exceptions import UnsupportedHashType, EmptyPathException
 
 
 HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
-    'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512',]
+              'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', ]
 """Supported hash types"""
 
 
@@ -41,7 +41,7 @@ class HashMachine(Encoder):
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
-                    raw_bytes=True, security=True):
+                 raw_bytes=True, security=True):
         ht = hash_type.lower().replace('-', '_')
         if ht not in HASH_TYPES:
             err = f'Hash type {hash_type} is not supported'
@@ -49,7 +49,6 @@ class HashMachine(Encoder):
         self.hash_type = ht
         self.algorithm = getattr(hashlib, self.hash_type)
         super().__init__(encoding=encoding, raw_bytes=raw_bytes, security=security)
-
 
     def hash(self, left, right=None):
         """Core hash utility
@@ -71,7 +70,6 @@ class HashMachine(Encoder):
         hexdigest = self.algorithm(data).hexdigest()
 
         return bytes(hexdigest, self.encoding)
-
 
     def multi_hash(self, signed_hashes, start):
         """Extended hash utility

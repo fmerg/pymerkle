@@ -17,13 +17,13 @@ class Validator(HashMachine):
     :param input: [optional] a Merkle-proof or its header
     :type: Proof or dict
     """
+
     def __init__(self, input=None):
         if input is not None:
             if isinstance(input, Proof):
                 self.proof = input
                 input = input.get_validation_params()
             self.update(input)
-
 
     def update(self, input):
         """
@@ -44,8 +44,7 @@ class Validator(HashMachine):
             err = f'Hash-machine could not be configured: Missing parameter: {err}'
             raise KeyError(err)
         super().__init__(hash_type=hash_type, encoding=encoding,
-            raw_bytes=raw_bytes, security=security)
-
+                         raw_bytes=raw_bytes, security=security)
 
     def run(self, proof=None, target=None):
         """Performs Merkle-proof validation
@@ -74,7 +73,7 @@ class Validator(HashMachine):
                 err = 'No acclaimed root-hash provided'
                 raise AssertionError(err)
         proof_index = proof.body['proof_index']
-        proof_path  = proof.body['proof_path']
+        proof_path = proof.body['proof_path']
         if proof_index == -1 and proof_path == ():
             raise InvalidMerkleProof
         if target != self.multi_hash(proof_path, proof_index):
@@ -130,7 +129,8 @@ def validateProof(proof, target=None, get_receipt=False, dirpath=None):
                 os.path.join(dirpath, f"{receipt_header['uuid']}.json"),
                 'w'
             ) as __file:
-                json.dump(receipt.serialize(), __file, sort_keys=True, indent=4)
+                json.dump(receipt.serialize(), __file,
+                          sort_keys=True, indent=4)
     return result if not receipt else receipt
 
 
@@ -193,7 +193,6 @@ class Receipt(object):
         self.header = header
         self.body = body
 
-
     def __repr__(self):
         header = self.header
         body = self.body
@@ -211,13 +210,12 @@ class Receipt(object):
                 \n\
                 \n    ------------------------------- END OF RECEIPT -------------------------------\
                 \n'.format(
-                    uuid=header['uuid'],
-                    timestamp=header['timestamp'],
-                    validation_moment=header['validation_moment'],
-                    proof_uuid=body['proof_uuid'],
-                    proof_provider=body['proof_provider'],
-                    result='VALID' if body['result'] else 'NON VALID')
-
+            uuid=header['uuid'],
+            timestamp=header['timestamp'],
+            validation_moment=header['validation_moment'],
+            proof_uuid=body['proof_uuid'],
+            proof_provider=body['proof_provider'],
+            result='VALID' if body['result'] else 'NON VALID')
 
     @classmethod
     def deserialize(cls, serialized):
@@ -235,7 +233,6 @@ class Receipt(object):
             kwargs.update({'from_json': serialized})
         return cls(**kwargs)
 
-
     def serialize(self):
         """Returns a JSON entity with the receipt's characteristics
         as key-value pairs
@@ -243,7 +240,6 @@ class Receipt(object):
         :rtype: dict
         """
         return ReceiptSerializer().default(self)
-
 
     def toJSONString(self):
         """Returns a JSON text with the receipt's characteristics

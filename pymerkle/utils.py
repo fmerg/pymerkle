@@ -73,15 +73,15 @@ def stringify_path(signed_hashes, encoding):
     :type encoding: str
     :rtype: str
     """
-    order_of_magnitude = lambda num: int(log10(num)) if num != 0 else 0
-    get_with_sign = lambda num: f'{"+" if num >= 0 else ""}{num}'
+    def order_of_magnitude(num): return int(log10(num)) if num != 0 else 0
+    def get_with_sign(num): return f'{"+" if num >= 0 else ""}{num}'
     stringified_pairs = []
     append = stringified_pairs.append
     for i in range(len(signed_hashes)):
         pair = signed_hashes[i]
         append('\n%s[{i}]%s{sign}%s{hash}'
-                .format(i=i, sign=get_with_sign(pair[0]),
-                    hash=pair[1].decode(encoding=encoding) \
-                    if not isinstance(pair[1], str) else pair[1])
-                % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 3 * ' '))
+               .format(i=i, sign=get_with_sign(pair[0]),
+                       hash=pair[1].decode(encoding=encoding)
+                       if not isinstance(pair[1], str) else pair[1])
+               % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 3 * ' '))
     return ''.join(stringified_pairs)

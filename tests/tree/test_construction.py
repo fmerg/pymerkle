@@ -4,7 +4,7 @@ import json
 
 from pymerkle.core import MerkleTree
 from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-    UnsupportedEncoding, LeafConstructionError, UndecodableRecord, )
+                                 UnsupportedEncoding, LeafConstructionError, UndecodableRecord, )
 
 
 undecodableArguments = [
@@ -77,7 +77,7 @@ def test_UnsupportedEncoding():
 def test_UndecodableRecord_upon_tree_construction(byte, encoding, security):
     with pytest.raises(UndecodableRecord):
         MerkleTree('a', byte, encoding=encoding, security=security,
-            raw_bytes=False)
+                   raw_bytes=False)
 
 
 # Clearance
@@ -98,12 +98,14 @@ def test_MerkleTree_bool_implementation():
     """
     assert not MerkleTree() and MerkleTree('some record')
 
+
 def test_root_empty_tree_exception():
     """
     Tests `EmptyTreeException` upon requesting the root of an empty Merkle-tree
     """
     with pytest.raises(EmptyTreeException):
         MerkleTree().root
+
 
 def test_rootHash_empty_tree_exception():
     """
@@ -112,6 +114,7 @@ def test_rootHash_empty_tree_exception():
     """
     with pytest.raises(EmptyTreeException):
         MerkleTree().rootHash
+
 
 def test_rootHash_of_non_empty_MerkleTree():
     """
@@ -141,7 +144,7 @@ def test_LeafConstructionError_upon_update():
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_upon_update(byte, encoding, security):
     t = MerkleTree('a', 'b', 'c', encoding=encoding, security=security,
-        raw_bytes=False)
+                   raw_bytes=False)
     with pytest.raises(UndecodableRecord):
         t.update(record=byte)
 
@@ -149,6 +152,7 @@ def test_UndecodableRecord_upon_update(byte, encoding, security):
 def test_properties_of_empty_tree():
     tree = MerkleTree()
     assert (tree.length, tree.size, tree.height) == (0, 0, 0)
+
 
 def test_properties_of_tree_with_three_leaves():
     tree = MerkleTree('first', 'second', 'third')

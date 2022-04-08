@@ -36,11 +36,11 @@ for raw_bytes in (True, False):
             for encoding in ENCODINGS:
                 trees.append(
                     MerkleTree('a', 'b', 'c', 'd',            # original records
-                        hash_type=hash_type,
-                        encoding=encoding,
-                        raw_bytes=raw_bytes,
-                        security=security
-                    )
+                               hash_type=hash_type,
+                               encoding=encoding,
+                               raw_bytes=raw_bytes,
+                               security=security
+                               )
                 )
 
 
@@ -60,11 +60,11 @@ def test_defense_against_second_preimage_attack(original_tree):
 
     # Attacker's tree
     attacker_tree = MerkleTree('a', 'b', forged_record,         # forged records
-        hash_type=original_tree.hash_type,
-        encoding=original_tree.encoding,
-        raw_bytes=original_tree.raw_bytes,
-        security=original_tree.security
-    )
+                               hash_type=original_tree.hash_type,
+                               encoding=original_tree.encoding,
+                               raw_bytes=original_tree.raw_bytes,
+                               security=original_tree.security
+                               )
 
     # Check if the attacker has replicated the original root-hash
     if original_tree.security:

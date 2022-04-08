@@ -67,7 +67,6 @@ class Prover(object, metaclass=ABCMeta):
             return self.consistencyProof(subhash, commit=commit)
         raise InvalidChallengeError
 
-
     def auditProof(self, checksum, commit=False):
         """Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum
@@ -112,7 +111,6 @@ class Prover(object, metaclass=ABCMeta):
 
         return proof
 
-
     def consistencyProof(self, subhash, commit=False):
         """Response of the Merkle-tree to the request of providing a consistency
         proof for the acclaimed root-hash of some previous state
@@ -144,7 +142,8 @@ class Prover(object, metaclass=ABCMeta):
 
         for sublength in range(1, self.length + 1):
             try:
-                proof_index, left_path, full_path = self.consistency_path(sublength)
+                proof_index, left_path, full_path = self.consistency_path(
+                    sublength)
             except NoPathException:
                 pass
             else:
@@ -248,7 +247,6 @@ class Proof(object):
         self.header = header
         self.body = body
 
-
     @classmethod
     def deserialize(cls, serialized):
         """Deserializes the provided JSON entity
@@ -266,7 +264,6 @@ class Proof(object):
 
         return cls(**kwargs)
 
-
     def get_validation_params(self):
         """Extracts from the proof's header the fields required for configuring
         correctly the validator's hashing machinery.
@@ -282,7 +279,6 @@ class Proof(object):
         })
 
         return validation_params
-
 
     def __repr__(self):
         """Sole purpose of this function is to display info
@@ -317,21 +313,20 @@ class Proof(object):
                 \n\
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n'.format(
-                    uuid=header['uuid'],
-                    timestamp=header['timestamp'],
-                    creation_moment=header['creation_moment'],
-                    provider=header['provider'],
-                    hash_type=header['hash_type'].upper().replace('_', '-'),
-                    encoding=header['encoding'].upper().replace('_', '-'),
-                    raw_bytes='TRUE' if header['raw_bytes'] else 'FALSE',
-                    security='ACTIVATED' if header['security'] else 'DEACTIVATED',
-                    commitment=header['commitment'].decode() \
-                    if header['commitment'] else None,
-                    proof_index=body['proof_index'],
-                    proof_path=stringify_path(body['proof_path'], header['encoding']),
-                    status='UNVALIDATED' if header['status'] is None \
-                    else 'VALID' if header['status'] is True else 'NON VALID')
-
+            uuid=header['uuid'],
+            timestamp=header['timestamp'],
+            creation_moment=header['creation_moment'],
+            provider=header['provider'],
+            hash_type=header['hash_type'].upper().replace('_', '-'),
+            encoding=header['encoding'].upper().replace('_', '-'),
+            raw_bytes='TRUE' if header['raw_bytes'] else 'FALSE',
+            security='ACTIVATED' if header['security'] else 'DEACTIVATED',
+            commitment=header['commitment'].decode()
+            if header['commitment'] else None,
+            proof_index=body['proof_index'],
+            proof_path=stringify_path(body['proof_path'], header['encoding']),
+            status='UNVALIDATED' if header['status'] is None
+            else 'VALID' if header['status'] is True else 'NON VALID')
 
     def serialize(self):
         """Returns a JSON entity with the proof's characteristics
@@ -340,7 +335,6 @@ class Proof(object):
         :rtype: dict
         """
         return ProofSerializer().default(self)
-
 
     def toJSONString(self):
         """Returns a JSON text with the proof's characteristics

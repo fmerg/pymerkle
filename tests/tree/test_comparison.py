@@ -12,7 +12,7 @@ from tests.conftest import ENCODINGS
 
 # Files to encrypt
 parent_dir = os.path.dirname(os.path.dirname(__file__))
-short_APACHE_log  = os.path.join(parent_dir, 'log_files/short_APACHE_log')
+short_APACHE_log = os.path.join(parent_dir, 'log_files/short_APACHE_log')
 RED_HAT_LINUX_log = os.path.join(parent_dir, 'log_files/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
@@ -44,6 +44,7 @@ def test_inclusion_test_InvalidTypes(subhash):
 def test_inclusion_test_failure_for_zero_leaves_case():
     assert not MerkleTree().inclusionTest(b'something')
 
+
 def test_inclusion_test_edge_success_case():
     tree = MerkleTree()
     tree.encryptFilePerLog(short_APACHE_log)
@@ -56,6 +57,7 @@ def test_inclusion_test_edge_success_case():
 
 def test_inclusion_test_with_sublength_exceeding_length():
     assert not tree.inclusionTest(b'anything...')
+
 
 @pytest.mark.parametrize('sublength', list(range(1, tree.length)))
 def test_inclusion_test_with_invalid_subhash(sublength):
@@ -72,12 +74,13 @@ def test_inclusion_test_success(tree, subhash):
 
 # Comparison operators
 
-_0_leaves_tree  = MerkleTree()
+_0_leaves_tree = MerkleTree()
 _0_leaves_tree_ = MerkleTree()
-_1_leaves_tree  = MerkleTree('a')
+_1_leaves_tree = MerkleTree('a')
 _1_leaves_tree_ = MerkleTree('a')
-_2_leaves_tree  = MerkleTree('a', 'b')
+_2_leaves_tree = MerkleTree('a', 'b')
 _2_leaves_tree_ = MerkleTree('a', 'b')
+
 
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
                                             (_1_leaves_tree, _1_leaves_tree_),
@@ -85,12 +88,14 @@ _2_leaves_tree_ = MerkleTree('a', 'b')
 def test___eq__(tree_1, tree_2):
     assert tree_1 == tree_2
 
+
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _1_leaves_tree_),
                                             (_1_leaves_tree, _0_leaves_tree_),
                                             (_1_leaves_tree, _2_leaves_tree_),
                                             (_0_leaves_tree, _2_leaves_tree_)])
 def test___ne__(tree_1, tree_2):
     assert tree_1 != tree_2
+
 
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
                                             (_1_leaves_tree, _0_leaves_tree_),
@@ -101,17 +106,20 @@ def test___ne__(tree_1, tree_2):
 def test___ge__(tree_1, tree_2):
     assert tree_1 >= tree_2
 
+
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _1_leaves_tree_),
                                             (_0_leaves_tree, _2_leaves_tree_),
                                             (_1_leaves_tree, _2_leaves_tree_)])
 def test_not___ge__(tree_1, tree_2):
     assert not tree_1 >= tree_2
 
+
 @pytest.mark.parametrize("tree_1, tree_2", [(_1_leaves_tree, _0_leaves_tree_),
                                             (_2_leaves_tree, _0_leaves_tree_),
                                             (_2_leaves_tree, _1_leaves_tree_)])
 def test___gt__(tree_1, tree_2):
     assert tree_1 > tree_2
+
 
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree_, _0_leaves_tree),
                                             (_0_leaves_tree_, _1_leaves_tree),
@@ -122,6 +130,7 @@ def test___gt__(tree_1, tree_2):
 def test_not___gt__(tree_1, tree_2):
     assert not tree_1 > tree_2
 
+
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree, _0_leaves_tree_),
                                             (_0_leaves_tree, _1_leaves_tree_),
                                             (_0_leaves_tree, _2_leaves_tree_),
@@ -131,17 +140,20 @@ def test_not___gt__(tree_1, tree_2):
 def test___le__(tree_1, tree_2):
     assert tree_1 <= tree_2
 
+
 @pytest.mark.parametrize("tree_1, tree_2", [(_1_leaves_tree_, _0_leaves_tree),
                                             (_2_leaves_tree_, _0_leaves_tree),
                                             (_2_leaves_tree_, _1_leaves_tree)])
 def test_not___le__(tree_1, tree_2):
     assert not tree_1 <= tree_2
 
+
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree_, _1_leaves_tree),
                                             (_0_leaves_tree_, _2_leaves_tree),
                                             (_1_leaves_tree_, _2_leaves_tree)])
 def test___lt__(tree_1, tree_2):
     assert tree_1 < tree_2
+
 
 @pytest.mark.parametrize("tree_1, tree_2", [(_0_leaves_tree_, _0_leaves_tree),
                                             (_1_leaves_tree_, _0_leaves_tree),
@@ -159,37 +171,46 @@ def test___eq___InvalidComparison():
     with pytest.raises(InvalidComparison):
         MerkleTree() == 'anything except for a Merkle-tree'
 
+
 def test_not___eq___InvalidComparison():
     with pytest.raises(InvalidComparison):
         MerkleTree() != 'anything except for a Merkle-tree'
+
 
 def test___ge___InvalidComparison():
     with pytest.raises(InvalidComparison):
         MerkleTree() >= 'anything except for a Merkle-tree'
 
+
 def test_not___ge___InvalidComparison():
     with pytest.raises(InvalidComparison):
         not MerkleTree() >= 'anything except for a Merkle-tree'
+
 
 def test___le___InvalidComparison():
     with pytest.raises(InvalidComparison):
         MerkleTree() <= 'anything except for a Merkle-tree'
 
+
 def test_not___le___InvalidComparison():
     with pytest.raises(InvalidComparison):
         not MerkleTree() <= 'anything except for a Merkle-tree'
+
 
 def test___gt___InvalidComparison():
     with pytest.raises(InvalidComparison):
         MerkleTree() > 'anything except for a Merkle-tree'
 
+
 def test_not___gt___InvalidComparison():
     with pytest.raises(InvalidComparison):
         not MerkleTree() > 'anything except for a Merkle-tree'
 
+
 def test___lt___InvalidComparison():
     with pytest.raises(InvalidComparison):
         MerkleTree() < 'anything except for a Merkle-tree'
+
 
 def test_not___lt___InvalidComparison():
     with pytest.raises(InvalidComparison):
@@ -218,9 +239,11 @@ for power in range(1, 10):
             )
         )
 
+
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
     assert later_state.inclusionTest(tree.rootHash)
+
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(tree, later_state):

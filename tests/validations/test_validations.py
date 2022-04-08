@@ -34,6 +34,7 @@ challenges = [
     },
 ]
 
+
 @pytest.mark.parametrize('challenge', challenges)
 def test_validateResponse(challenge):
     proof = tree.merkleProof(challenge)
@@ -41,6 +42,7 @@ def test_validateResponse(challenge):
     assert validateProof(proof) is validateProof(proof, commitment)
 
 # Trees setup
+
 
 MAX_LENGTH = 4
 
@@ -63,7 +65,7 @@ for raw_bytes in (True, False):
 # Audit proof validation
 
 __false_audit_proofs = []
-true_audit_proofs  = []
+true_audit_proofs = []
 
 for tree in trees:
 
@@ -76,15 +78,17 @@ for tree in trees:
 
     for index in range(0, tree.length):
         true_audit_proofs.append(
-                (
-                    tree,
-                    tree.auditProof(tree.hash('%d-th record' % index))
-                )
+            (
+                tree,
+                tree.auditProof(tree.hash('%d-th record' % index))
             )
+        )
+
 
 @pytest.mark.parametrize("tree, proof", __false_audit_proofs)
 def test_false_audit_validateProof(tree, proof):
     assert not validateProof(proof, tree.rootHash)
+
 
 @pytest.mark.parametrize("tree, proof", true_audit_proofs)
 def test_true_audit_validateProof(tree, proof):
@@ -102,7 +106,7 @@ for tree in trees:
             (
                 tree,
                 MerkleTree(
-                    *['%d-th record' %_ for _ in range(sublength)],
+                    *['%d-th record' % _ for _ in range(sublength)],
                     hash_type=tree.hash_type,
                     encoding=tree.encoding,
                     raw_bytes=tree.raw_bytes,
@@ -112,27 +116,29 @@ for tree in trees:
         )
 
 __false_consistency_proofs = []
-true_consistency_proofs  = []
+true_consistency_proofs = []
 
 for (tree, subtree) in trees_and_subtrees:
 
-        __false_consistency_proofs.append(
-            (
-                tree,
-                tree.consistencyProof(b'anything except for the right hash')
-            )
+    __false_consistency_proofs.append(
+        (
+            tree,
+            tree.consistencyProof(b'anything except for the right hash')
         )
+    )
 
-        true_consistency_proofs.append(
-            (
-                tree,
-                tree.consistencyProof(subtree.rootHash)
-            )
+    true_consistency_proofs.append(
+        (
+            tree,
+            tree.consistencyProof(subtree.rootHash)
         )
+    )
+
 
 @pytest.mark.parametrize("tree, consistency_proof", __false_consistency_proofs)
 def test_false_consistency_validateProof(tree, consistency_proof):
     assert not validateProof(consistency_proof, tree.rootHash)
+
 
 @pytest.mark.parametrize("tree, consistency_proof", true_consistency_proofs)
 def test_true_consistency_validateProof(tree, consistency_proof):
@@ -144,19 +150,20 @@ def test_true_consistency_validateProof(tree, consistency_proof):
 # test KeyError in validator construction
 
 missing_configs = [
-        {
-            'encoding': 0, 'raw_bytes': 0, 'security': 0,   # missing hash_type
-        },
-        {
-            'hash_type': 0, 'raw_bytes': 0, 'security': 0,   # missing encoding
-        },
-        {
-            'hash_type': 0, 'encoding': 0, 'security': 0,   # missing raw_bytes
-        },
-        {
-            'hash_type': 0, 'encoding': 0, 'raw_bytes': 0,  # missing security
-        },
+    {
+        'encoding': 0, 'raw_bytes': 0, 'security': 0,   # missing hash_type
+    },
+    {
+        'hash_type': 0, 'raw_bytes': 0, 'security': 0,   # missing encoding
+    },
+    {
+        'hash_type': 0, 'encoding': 0, 'security': 0,   # missing raw_bytes
+    },
+    {
+        'hash_type': 0, 'encoding': 0, 'raw_bytes': 0,  # missing security
+    },
 ]
+
 
 @pytest.mark.parametrize('config', missing_configs)
 def test_validator_construction_error(config):
