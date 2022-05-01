@@ -1,8 +1,8 @@
-# PyMerkle
+# pymerkle
 
 **Cryptographic library for Merkle-proofs**
 
-[![Build Status](https://travis-ci.com/fmerg/pymerkle.svg?branch=master)](https://travis-ci.com/fmerg/pymerkle)
+[![Build Status](https://travis-ci.com/fmerg/pymerkle.svg?branch=master)](https://travis-ci.com/github/fmerg/pymerkle)
 [![codecov](https://codecov.io/gh/fmerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/fmerg/pymerkle)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
@@ -12,7 +12,7 @@ Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)*
 
 **DISCLAIMER**: This is currently a prototype. See [Security](#security) below for details.
 
-PyMerkle provides a binary balanced Merkle-tree capable of generating audit and
+Pymerkle provides a binary balanced Merkle-tree capable of generating audit and
 consistency proofs along with the corresponding verifier. It supports almost
 all combinations of hash functions and encoding schemas, with defense against
 second-preimage attack enabled.
@@ -49,7 +49,7 @@ python3 demo.py
 
 ## Security
 
-PyMerkle is a prototype requiring security review, so use at your own risk for the moment.
+Pymerkle is a prototype requiring security review, so use at your own risk for the moment.
 However, some steps have been made to this direction:
 
 ### Defense against second-preimage attack

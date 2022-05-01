@@ -45,7 +45,7 @@ done
 
 set -e
 
-CONTENT="docs/rst"    # Content that is not auto-generated from docs
+CONTENT="docs"    # Content that is not auto-generated from docs
 TARGET="docs/target"  # Will contain auto-generated files (unstaged)
 
 CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
