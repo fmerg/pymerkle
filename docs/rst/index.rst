@@ -4,10 +4,10 @@ pymerkle
 
 |Build-Status| |Coverage-Status| |PyPI-version| |Python >= 3.6|
 
-.. |Build-Status| image:: https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master
-   :target: https://travis-ci.com/FoteinosMerg/pymerkle
-.. |Coverage-Status| image:: https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/FoteinosMerg/pymerkle
+.. |Build-Status| image:: https://travis-ci.com/fmerg/pymerkle.svg?branch=master
+   :target: https://travis-ci.com/fmerg/pymerkle
+.. |Coverage-Status| image:: https://codecov.io/gh/fmerg/pymerkle/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/fmerg/pymerkle
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
 .. |Python >= 3.6| image:: https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg
@@ -140,10 +140,10 @@ any of the available validation mechanisms.
    Audit proofs and consistency proofs share identical structure,
    so that both kinds are instances of the same class.
 
-.. _GitHub: https://github.com/FoteinosMerg/pymerkle
+.. _GitHub: https://github.com/fmerg/pymerkle
 .. _tqdm: https://tqdm.github.io/
 .. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func
-.. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
+.. _test_security.py: https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
 .. _CVE-2012-2459: https://nvd.nist.gov/vuln/detail/CVE-2012-2459

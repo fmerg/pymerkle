@@ -2,8 +2,8 @@
 
 **Cryptographic library for Merkle-proofs**
 
-[![Build Status](https://travis-ci.com/FoteinosMerg/pymerkle.svg?branch=master)](https://travis-ci.com/FoteinosMerg/pymerkle)
-[![codecov](https://codecov.io/gh/FoteinosMerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/FoteinosMerg/pymerkle)
+[![Build Status](https://travis-ci.com/fmerg/pymerkle.svg?branch=master)](https://travis-ci.com/fmerg/pymerkle)
+[![codecov](https://codecov.io/gh/fmerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/fmerg/pymerkle)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 ![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)
@@ -61,7 +61,7 @@ This consists in the following standard technique:
   children with `0x01`.
 
 Refer to
-[`test_security.py`](https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py)
+[`test_security.py`](https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py)
 to see how to perform second-preimage attack against the present implementation.
 
 

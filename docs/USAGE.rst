@@ -115,7 +115,7 @@ construction for, say, testing purposes by
 Refer to `test_security.py`_ to see how to perform second-preimage attacks
 against the present implementation.
 
-.. _test_security.py: https://github.com/FoteinosMerg/pymerkle/blob/master/tests/test_security.py
+.. _test_security.py: https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py
 
 Attributes and properties
 -------------------------

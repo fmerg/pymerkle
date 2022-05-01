@@ -8,7 +8,7 @@ import io
 import pymerkle
 
 
-URL = "https://github.com/FoteinosMerg/pymerkle"
+URL = "https://github.com/fmerg/pymerkle"
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,8 +37,8 @@ def main():
             "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
             "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__,
        },
-       author="FoteinosMerg",
-       author_email="foteinosmerg@protonmail.com",
+       author="fmerg",
+       author_email="fmerg@protonmail.com",
        python_requires=">=3.6",
        install_requires=install_requires,
        zip_safe=False,
