@@ -9,7 +9,6 @@ import json
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle import MerkleTree, MerkleVerifier, verify_proof
-from pymerkle.validations.mechanisms import Receipt
 from tests.conftest import ENCODINGS
 
 # Merkle-proof validation

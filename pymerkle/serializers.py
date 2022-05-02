@@ -112,34 +112,3 @@ class ProofSerializer(json.JSONEncoder):
                 ]
             }
         }
-
-
-class ReceiptSerializer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of validation receipts.
-    """
-
-    def default(self, obj):
-        """Overrides the built-in method of JSON encoders.
-        """
-        try:
-            uuid = obj.header['uuid']
-            timestamp = obj.header['timestamp']
-            validation_moment = obj.header['validation_moment']
-            proof_uuid = obj.body['proof_uuid']
-            proof_provider = obj.body['proof_provider']
-            result = obj.body['result']
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-
-        return {
-            'header': {
-                'uuid': uuid,
-                'timestamp': timestamp,
-                'validation_moment': validation_moment
-            },
-            'body': {
-                'proof_uuid': proof_uuid,
-                'proof_provider': proof_provider,
-                'result': result
-            }
-        }

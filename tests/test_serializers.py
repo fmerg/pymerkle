@@ -2,14 +2,13 @@ import pytest
 import json
 
 from pymerkle.serializers import (MerkleTreeSerializer, LeafSerializer,
-                                  NodeSerializer, ProofSerializer, ReceiptSerializer)
+                                  NodeSerializer, ProofSerializer)
 
 serializers = [
     MerkleTreeSerializer(),
     LeafSerializer(),
     NodeSerializer(),
     ProofSerializer(),
-    ReceiptSerializer()
 ]
 
 

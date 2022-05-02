@@ -21,6 +21,3 @@ if __name__ == '__main__':
     print(proof)
 
     assert verify_proof(proof)
-
-    receipt = verify_proof(proof, get_receipt=True)
-    print(receipt)
