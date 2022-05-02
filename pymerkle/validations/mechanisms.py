@@ -2,7 +2,7 @@
 """
 
 from pymerkle.hashing import HashMachine
-from pymerkle.core.prover import Proof
+from pymerkle.core.prover import MerkleProof
 from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle.serializers import ReceiptSerializer
 import uuid
@@ -15,12 +15,12 @@ class Validator(HashMachine):
     """Encapsulates the low-level utility for Merkle-proof validation
 
     :param input: [optional] a Merkle-proof or its header
-    :type: Proof or dict
+    :type: MerkleProof or dict
     """
 
     def __init__(self, input=None):
         if input is not None:
-            if isinstance(input, Proof):
+            if isinstance(input, MerkleProof):
                 self.proof = input
                 input = input.get_validation_params()
             self.update(input)
@@ -28,9 +28,9 @@ class Validator(HashMachine):
     def update(self, input):
         """
         :param input: a Merkle-proof or its header
-        :type input: Proof or dict
+        :type input: MerkleProof or dict
         """
-        if isinstance(input, Proof):
+        if isinstance(input, MerkleProof):
             config = input.get_validation_params()
             self.proof = input
         else:
@@ -52,7 +52,7 @@ class Validator(HashMachine):
         :raises InvalidMerkleProof: if the proof is found to be invalid
 
         :param proof: the Merkle-proof under validation
-        :type proof: Proof
+        :type proof: MerkleProof
         :param target: [optional] the hash to be be presumably attained at the
             end of the validation process (i.e., acclaimed current root-hash of
             the Merkle-tree having provided the proof). If not explicitly provided,
@@ -88,7 +88,7 @@ def validateProof(proof, target=None, get_receipt=False, dirpath=None):
     receipt.
 
     :param proof: the Merkle-proof under validation
-    :type proof: Proof
+    :type proof: MerkleProof
     :param target: [optional] the hash to be be presumably attained at the
         end of the validation process (i.e., acclaimed current root-hash of
         the Merkle-tree having provided the proof). If not explicitly provided,

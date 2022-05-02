@@ -1,5 +1,5 @@
 
-Proof generation and validation
+MerkleProof generation and validation
 +++++++++++++++++++++++++++++++
 
 A tree (server) is capable of generating *Merkle-proofs* (*audit* and
@@ -94,10 +94,10 @@ where the former may be considered as the serialized version of the latter (e.g.
 of a network request). Similar considerations apply for the subhash field of the second case.
 
 
-Proof structure
+MerkleProof structure
 ---------------
 
-The produced ``merkle_proof`` is an instance of the `Proof`_ class. It consists of a
+The produced ``merkle_proof`` is an instance of the `MerkleProof`_ class. It consists of a
 path of hashes and the required parameters for validation to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
 
@@ -140,16 +140,16 @@ client's side. Invoking it from the Python interpreter, it looks like
 
     >>>
 
-.. _Proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Proof
+.. _MerkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.MerkleProof
 
-.. note:: Once generated, it is impossible to discern whether a `Proof`_ object
+.. note:: Once generated, it is impossible to discern whether a `MerkleProof`_ object
     is the result of an audit or a consistency proof request.
 
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
 uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
 configuration. They are necessary for the client to configure their hashing-machine
 appropriately in order to validate the proof and are available via the
-`Proof.get_validation_params`_ method:
+`MerkleProof.get_validation_params`_ method:
 
 .. code-block:: python
 
@@ -159,7 +159,7 @@ appropriately in order to validate the proof and are available via the
      'raw_bytes': True,
      'security': True}
 
-.. _Proof.get_validation_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.get_validation_params
+.. _MerkleProof.get_validation_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.get_validation_params
 
 *Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
 (that is, *before* any other records are possibly encrypted into the tree).
@@ -207,7 +207,7 @@ Transmission of proofs
 ----------------------
 
 Transmission of a Merkle-proof via the network presupposes its JSON serialization. This is
-possible by means of the `Proof.serialize`_ method, whose output for the above non-empty
+possible by means of the `MerkleProof.serialize`_ method, whose output for the above non-empty
 proof would be as follows:
 
 .. code-block:: python
@@ -240,10 +240,10 @@ proof would be as follows:
 
     >>>
 
-.. _Proof.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.serialize
+.. _MerkleProof.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.serialize
 
 If JSON text is preferred instead of a Python dictionary, one can alternately apply
-the `Proof.toJSONString`_ method:
+the `MerkleProof.toJSONString`_ method:
 
 .. code-block:: python
 
@@ -286,14 +286,14 @@ the `Proof.toJSONString`_ method:
 
     >>>
 
-.. _Proof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.toJSONString
+.. _MerkleProof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.toJSONString
 
-Deserialization from the client's side proceeds by means of the `Proof.deserialize`_
-classmethod, which yields the original (i.e., an instance of the `Proof`_ class):
+Deserialization from the client's side proceeds by means of the `MerkleProof.deserialize`_
+classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ class):
 
 .. code-block:: python
 
-    >>> deserialized = Proof.deserialize(serialized_proof)
+    >>> deserialized = MerkleProof.deserialize(serialized_proof)
     >>> deserialized
 
         ----------------------------------- PROOF ------------------------------------
@@ -333,7 +333,7 @@ classmethod, which yields the original (i.e., an instance of the `Proof`_ class)
 
 The provided serialized object may here be a Python dictionary or JSON text indifferently.
 
-.. _Proof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Proof.deserialize
+.. _MerkleProof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.deserialize
 
 .. note:: Deserialization is necessary for proof validation to take place from the
         client's side.

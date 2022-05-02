@@ -21,10 +21,10 @@ audit_challenge_2 = {'checksum': hash_func(b'anything non recorded...')}
 
 @pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
 def test_audit_merkleProof(challenge):
-    merkle_proof = tree.merkleProof(challenge)
-    commitment = merkle_proof.header['commitment']
+    proof = tree.merkleProof(challenge)
+    commitment = proof.header['commitment']
     audit_proof = tree.auditProof(challenge['checksum'])
-    assert commitment == tree.rootHash and merkle_proof.body == audit_proof.body
+    assert commitment == tree.rootHash and proof.body == audit_proof.body
 
 
 cons_challenge_1 = {'subhash': tree.rootHash}
@@ -38,10 +38,10 @@ for i in range(1000):
 def test_consistency_merkleProof(challenge):
     subhash = challenge['subhash']
     consistency_proof = tree.consistencyProof(subhash)
-    merkle_proof = tree.merkleProof(challenge)
-    commitment = merkle_proof.header['commitment']
+    proof = tree.merkleProof(challenge)
+    commitment = proof.header['commitment']
 
-    assert commitment == tree.rootHash and merkle_proof.body == consistency_proof.body
+    assert commitment == tree.rootHash and proof.body == consistency_proof.body
 
 
 __invalid_challenges = [

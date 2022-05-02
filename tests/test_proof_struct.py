@@ -6,7 +6,7 @@ import pytest
 import json
 
 from pymerkle import MerkleTree, validateProof
-from pymerkle.core.prover import Proof
+from pymerkle.core.prover import MerkleProof
 from pymerkle.utils import stringify_path
 
 
@@ -24,7 +24,7 @@ proof_path = (
     (-1, b'6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2'),
     (-1, b'2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8'))
 
-proof_11 = Proof(
+proof_11 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -33,7 +33,7 @@ proof_11 = Proof(
     proof_index=5,
     proof_path=proof_path)
 
-proof_21 = Proof(
+proof_21 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -42,7 +42,7 @@ proof_21 = Proof(
     proof_index=-1,
     proof_path=())
 
-proof_12 = Proof(
+proof_12 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -52,7 +52,7 @@ proof_12 = Proof(
     proof_path=proof_path
 )
 
-proof_22 = Proof(
+proof_22 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -62,7 +62,7 @@ proof_22 = Proof(
     proof_path=()
 )
 
-proof_31 = Proof(
+proof_31 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -76,7 +76,7 @@ proof_31 = Proof(
 
 @pytest.mark.parametrize('proof, proof_index, proof_path',
                          ((proof_12, 5, proof_path), (proof_22, -1, ())))
-def test_Proof_construction_with_keyword_arguments(proof, proof_index, proof_path):
+def test_MerkleProof_construction_with_keyword_arguments(proof, proof_index, proof_path):
     assert proof.__dict__ == {
         'header': {
             'uuid': proof.header['uuid'],
@@ -98,16 +98,16 @@ def test_Proof_construction_with_keyword_arguments(proof, proof_index, proof_pat
 
 
 @pytest.mark.parametrize('proof', (proof_11, proof_31))
-def test_Proof_deserialization_from_dict(proof):
+def test_MerkleProof_deserialization_from_dict(proof):
     json_proof = proof.serialize()
-    deserialized = Proof.deserialize(json_proof)
+    deserialized = MerkleProof.deserialize(json_proof)
     assert proof.__dict__ == deserialized.__dict__
 
 
 @pytest.mark.parametrize('proof', (proof_11, proof_31))
-def test_Proof_deserialization_from_text(proof):
+def test_MerkleProof_deserialization_from_text(proof):
     json_proof = proof.toJSONString()
-    deserialized = Proof.deserialize(json_proof)
+    deserialized = MerkleProof.deserialize(json_proof)
     assert proof.__dict__ == deserialized.__dict__
 
 
@@ -194,13 +194,13 @@ def test_toJSONString(proof, _json_string):
     assert proof.toJSONString() == _json_string
 
 
-proof_13 = Proof(from_json=proof_11.toJSONString())
-proof_23 = Proof(from_json=proof_21.toJSONString())
+proof_13 = MerkleProof(from_json=proof_11.toJSONString())
+proof_23 = MerkleProof(from_json=proof_21.toJSONString())
 
 
 @pytest.mark.parametrize('proof, proof_index, proof_path',
                          ((proof_13, 5, proof_path), (proof_23, -1, ())))
-def test_Proof_construction_from_json(proof, proof_index, proof_path):
+def test_MerkleProof_construction_from_json(proof, proof_index, proof_path):
     assert proof.__dict__ == {
         'header': {
             'uuid': proof.header['uuid'],
@@ -221,13 +221,13 @@ def test_Proof_construction_from_json(proof, proof_index, proof_path):
     }
 
 
-proof_14 = Proof(from_dict=json.loads(proof_11.toJSONString()))
-proof_24 = Proof(from_dict=json.loads(proof_21.toJSONString()))
+proof_14 = MerkleProof(from_dict=json.loads(proof_11.toJSONString()))
+proof_24 = MerkleProof(from_dict=json.loads(proof_21.toJSONString()))
 
 
 @pytest.mark.parametrize('proof, proof_index, proof_path',
                          ((proof_14, 5, proof_path), (proof_24, -1, ())))
-def test_Proof_construction_from_dict(proof, proof_index, proof_path):
+def test_MerkleProof_construction_from_dict(proof, proof_index, proof_path):
     assert proof.__dict__ == {
         'header': {
             'uuid': proof.header['uuid'],
