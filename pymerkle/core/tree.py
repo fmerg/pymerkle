@@ -358,7 +358,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """Complements optimally from the right the provided sequence of subroots,
         so that a full consistency-path be subsequently generated.
 
-        :param subroots: roots of a complete leftomost sequence of
+        :param subroots: roots of a complete leftmost sequence of
                 full binary subtrees
         :type subroots: list of nodes
         :rtype: list of (+1/-1, bytes)
@@ -512,7 +512,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
     def export(self, filepath):
         """
         Creates a *.json* file located at the provided path and exports into
-        it the rquired minimum, so that the Merkle-tree can be retrieved in
+        it the required minimum, so that the Merkle-tree can be retrieved in
         its current state from that file
 
         .. note:: If the provided path does not end with *.json*, then this
@@ -667,10 +667,10 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def __repr__(self):
         """Sole purpose of this function is to display info about
-        the Merkle-treee by just invoking it at console
+        the Merkle-tree by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
-            is not insertible to the eval() builtin Python function.
+            is not insertable to the eval() builtin Python function.
         """
         return '\n    uuid      : {uuid}\
                 \n\

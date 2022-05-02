@@ -285,7 +285,7 @@ class Proof(object):
         about a proof by just invoking it at console
 
         .. warning:: Contrary to convention, the output of this implementation
-            is not insertible into the *eval()* builtin Python function
+            is not insertable into the *eval()* builtin Python function
         """
         header = self.header
         body = self.body
