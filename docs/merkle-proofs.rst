@@ -414,22 +414,22 @@ Validation of a Merkle-proof presupposes correct configuration of an underlying
 hash machine. This happens automatically by just feeding the proof to any of the
 available validation mechanisms, since the required validation parameters
 (*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
-proof's header. The underlying machine is an instance of the `Validator`_ class
+proof's header. The underlying machine is an instance of the `MerkleVerifier`_ class
 (which is in turn a subclass of `HashMachine`_)
 
-.. _Validator: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.Validator
+.. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
 .. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
 
 Running a validator
 -------------------
 
-Low-level validation of proofs proceeds by means of the `Validator`_ object itself:
+Low-level validation of proofs proceeds by means of the `MerkleVerifier`_ object itself:
 
 .. code-block:: python
 
-    >>> from pymerkle import Validator
+    >>> from pymerkle import MerkleVerifier
     >>>
-    >>> validator = Validator(merkle_proof)
+    >>> validator = MerkleVerifier(merkle_proof)
     >>> validator.run()
     >>>
 
@@ -448,13 +448,13 @@ been raised instead:
     >>>
 
 Instead of feeding a proof at construction, one can alternately reconfigure the
-validator by means of the `Validator.update`_ method. This allows to use
+validator by means of the `MerkleVerifier.update`_ method. This allows to use
 the same machine for successive validation of multiple proofs:
 
 .. code-block:: python
 
     >>>
-    >>> validator = Validator()
+    >>> validator = MerkleVerifier()
     >>>
     >>> validator.update(merkle_proof_1)
     >>> validator.run()
@@ -465,7 +465,7 @@ the same machine for successive validation of multiple proofs:
     >>> validator.run()
     >>>
 
-.. _Validator.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.Validator.update
+.. _MerkleVerifier.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.MerkleVerifier.update
 
 Validation receipts
 -------------------

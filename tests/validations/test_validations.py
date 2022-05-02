@@ -8,7 +8,7 @@ import json
 
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
-from pymerkle import MerkleTree, Validator, validateProof
+from pymerkle import MerkleTree, MerkleVerifier, validateProof
 from pymerkle.validations.mechanisms import Receipt
 from tests.conftest import ENCODINGS
 
@@ -145,7 +145,7 @@ def test_true_consistency_validateProof(tree, consistency_proof):
     assert validateProof(consistency_proof, tree.rootHash)
 
 
-# Validator object
+# MerkleVerifier object
 
 # test KeyError in validator construction
 
@@ -168,13 +168,13 @@ missing_configs = [
 @pytest.mark.parametrize('config', missing_configs)
 def test_validator_construction_error(config):
     with pytest.raises(KeyError):
-        Validator(config)
+        MerkleVerifier(config)
 
 
 # Test validator main exception
 
 @pytest.mark.parametrize('tree, proof', __false_audit_proofs[:10])
 def test_validator_with_false_proofs(tree, proof):
-    validator = Validator(proof.get_validation_params())
+    validator = MerkleVerifier(proof.get_validation_params())
     with pytest.raises(InvalidMerkleProof):
         validator.run(proof, tree.rootHash)

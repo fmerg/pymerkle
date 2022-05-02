@@ -11,7 +11,7 @@ import json
 import os
 
 
-class Validator(HashMachine):
+class MerkleVerifier(HashMachine):
     """Encapsulates the low-level utility for Merkle-proof validation
 
     :param input: [optional] a Merkle-proof or its header
@@ -106,7 +106,7 @@ def validateProof(proof, target=None, get_receipt=False, dirpath=None):
     :returns: Validation result or receipt
     :rtype: bool or Receipt
     """
-    validator = Validator(input=proof.get_validation_params())
+    validator = MerkleVerifier(input=proof.get_validation_params())
     if target is None:
         target = proof.header['commitment']
     try:

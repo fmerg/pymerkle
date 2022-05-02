@@ -274,9 +274,9 @@ request). We will here employ a validator for reference.
 
 .. code-block:: python
 
-    >>> from pymerkle import Validator
+    >>> from pymerkle import MerkleVerifier
     >>>
-    >>> validator = Validator()
+    >>> validator = MerkleVerifier()
     >>> validator.update(proof)
 
 In order to run the validator, we need to manually provide the commitment

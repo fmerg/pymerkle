@@ -2,7 +2,7 @@
 """
 
 from .core import MerkleTree, MerkleProof
-from .validations import Validator, validateProof
+from .validations import MerkleVerifier, validateProof
 
 
 __version__ = "2.0.2"
@@ -10,6 +10,6 @@ __version__ = "2.0.2"
 __all__ = (
     'MerkleTree',
     'MerkleProof',
-    'Validator',
+    'MerkleVerifier',
     'validateProof',
 )
