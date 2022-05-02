@@ -5,7 +5,7 @@ Tests formal construction, serialization and representation of Merkle-proofs
 import pytest
 import json
 
-from pymerkle import MerkleTree, validateProof
+from pymerkle import MerkleTree, verify_proof
 from pymerkle.core.prover import MerkleProof
 from pymerkle.utils import stringify_path
 

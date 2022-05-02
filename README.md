@@ -26,7 +26,7 @@ pip3 install pymerkle
 ## Usage
 
 ```python3
-from pymerkle import MerkleTree, validateProof
+from pymerkle import MerkleTree, verify_proof
 
 tree = MerkleTree()
 
@@ -38,7 +38,7 @@ challenge = {
 }
 
 proof = tree.merkleProof(challenge)
-assert validateProof(proof)
+assert verify_proof(proof)
 ```
 
 ### Demo

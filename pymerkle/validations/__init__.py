@@ -1,8 +1,8 @@
-from .mechanisms import MerkleVerifier, validateProof, Receipt
+from .mechanisms import MerkleVerifier, verify_proof, Receipt
 
 
 __all__ = (
     'MerkleVerifier',
-    'validateProof',
+    'verify_proof',
     'Receipt',
 )

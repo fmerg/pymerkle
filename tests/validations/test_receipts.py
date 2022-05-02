@@ -3,7 +3,7 @@ import json
 import os
 import glob
 
-from pymerkle import MerkleTree, validateProof
+from pymerkle import MerkleTree, verify_proof
 from pymerkle.validations.mechanisms import Receipt
 
 
@@ -18,7 +18,7 @@ def test_validation_get_receipt():
     tree = MerkleTree(*['%d-th record' % _ for _ in range(5)])
 
     audit_proof = tree.auditProof(b'2-th record')
-    receipt = validateProof(
+    receipt = verify_proof(
         target=tree.rootHash,
         proof=audit_proof,
         get_receipt=True,

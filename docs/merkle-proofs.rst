@@ -342,13 +342,13 @@ Validation
 ----------
 
 Direct and easiest validation of a Merkle-proof proceeds by means of the
-`validateProof`_ function, which returns a self-explanatory boolean:
+`verify_proof`_ function, which returns a self-explanatory boolean:
 
 .. code-block:: python
 
-    >>> from pymerkle import validateProof
+    >>> from pymerkle import verify_proof
     >>>
-    >>> validateProof(merkle_proof)
+    >>> verify_proof(merkle_proof)
     >>> True
     >>>
     >>> merkle_proof
@@ -388,12 +388,12 @@ Direct and easiest validation of a Merkle-proof proceeds by means of the
 
     >>>
 
-.. _validateProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateProof
+.. _verify_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.verify_proof
 
 Like in any of the available validation mechanism, the `HashMachine.multi_hash`_ method is
 implicitly applied over the path of advertised hashes in order to recover a single hash.
 The proof is found to be valid *iff* this single hash coincides with the provided commitment.
-Note that application of `validateProof`_ has the effect of modifying the inscribed status as
+Note that application of `verify_proof`_ has the effect of modifying the inscribed status as
 ``'VALID'``, which indicates that the proof's status has changed to *True*:
 
 .. code-block:: python
@@ -470,12 +470,12 @@ the same machine for successive validation of multiple proofs:
 Validation receipts
 -------------------
 
-One can configure the `validateProof`_ function to return a receipt instead of
+One can configure the `verify_proof`_ function to return a receipt instead of
 a boolean by means of the *get_receipt* kwarg:
 
 .. code-block:: python
 
-    >>> receipt = validateProof(merkle_proof, get_receipt=True)
+    >>> receipt = verify_proof(merkle_proof, get_receipt=True)
     >>> receipt
 
         ----------------------------- VALIDATION RECEIPT -----------------------------
@@ -495,7 +495,7 @@ a boolean by means of the *get_receipt* kwarg:
 
 The produced object is an instance of the `Receipt`_ class with self-explanatory
 attributes. It could have been saved in a *.json* file by means of the *dirpath*
-kwarg (see the `validateProof`_ doc). Serialization and deserialization of
+kwarg (see the `verify_proof`_ doc). Serialization and deserialization of
 receipts follow the same rules as for proofs:
 
 .. code-block:: python

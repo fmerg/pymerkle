@@ -80,7 +80,7 @@ class MerkleVerifier(HashMachine):
             raise InvalidMerkleProof
 
 
-def validateProof(proof, target=None, get_receipt=False, dirpath=None):
+def verify_proof(proof, target=None, get_receipt=False, dirpath=None):
     """Core utility for Merkle-proof validation
 
     Validates the provided proof, modifies the proof's status as *True* or

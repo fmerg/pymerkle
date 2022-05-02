@@ -8,7 +8,7 @@ import json
 
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
-from pymerkle import MerkleTree, MerkleVerifier, validateProof
+from pymerkle import MerkleTree, MerkleVerifier, verify_proof
 from pymerkle.validations.mechanisms import Receipt
 from tests.conftest import ENCODINGS
 
@@ -39,7 +39,7 @@ challenges = [
 def test_validateResponse(challenge):
     proof = tree.merkleProof(challenge)
     commitment = proof.header['commitment']
-    assert validateProof(proof) is validateProof(proof, commitment)
+    assert verify_proof(proof) is verify_proof(proof, commitment)
 
 # Trees setup
 
@@ -86,13 +86,13 @@ for tree in trees:
 
 
 @pytest.mark.parametrize("tree, proof", __false_audit_proofs)
-def test_false_audit_validateProof(tree, proof):
-    assert not validateProof(proof, tree.rootHash)
+def test_false_audit_verify_proof(tree, proof):
+    assert not verify_proof(proof, tree.rootHash)
 
 
 @pytest.mark.parametrize("tree, proof", true_audit_proofs)
-def test_true_audit_validateProof(tree, proof):
-    assert validateProof(proof, tree.rootHash)
+def test_true_audit_verify_proof(tree, proof):
+    assert verify_proof(proof, tree.rootHash)
 
 
 # Consistency proof validation
@@ -136,13 +136,13 @@ for (tree, subtree) in trees_and_subtrees:
 
 
 @pytest.mark.parametrize("tree, consistency_proof", __false_consistency_proofs)
-def test_false_consistency_validateProof(tree, consistency_proof):
-    assert not validateProof(consistency_proof, tree.rootHash)
+def test_false_consistency_verify_proof(tree, consistency_proof):
+    assert not verify_proof(consistency_proof, tree.rootHash)
 
 
 @pytest.mark.parametrize("tree, consistency_proof", true_consistency_proofs)
-def test_true_consistency_validateProof(tree, consistency_proof):
-    assert validateProof(consistency_proof, tree.rootHash)
+def test_true_consistency_verify_proof(tree, consistency_proof):
+    assert verify_proof(consistency_proof, tree.rootHash)
 
 
 # MerkleVerifier object

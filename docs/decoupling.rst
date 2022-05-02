@@ -155,7 +155,7 @@ to validate the proof, we need to manually provide the commitment as follows:
 
     >>> commitment = tree.get_commitment()
     >>>
-    >>> validateProof(proof, commitment)
+    >>> verify_proof(proof, commitment)
     True
     >>>
 
@@ -166,7 +166,7 @@ Commiting after encryption of records would have invalidated the proof:
     >>> tree.encryptRecord('some further data...')
     >>> commitment = tree.get_commitment()
     >>>
-    >>> validateProof(proof, commitment)
+    >>> verify_proof(proof, commitment)
     False
     >>>
 
