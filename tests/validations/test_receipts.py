@@ -1,20 +1,17 @@
 import pytest
 import json
 import os
+import glob
 
 from pymerkle import MerkleTree, validateProof
 from pymerkle.validations.mechanisms import Receipt
 
 
-# Empty receipt directory first
-receipt_dir = os.path.join(os.path.dirname(__file__), 'receipts')
-for file in os.listdir(receipt_dir):
-    path = os.path.join(receipt_dir, file)
-    try:
-        if os.path.isfile(path):
-            os.unlink(path)
-    except:
-        pass
+receipts_dir = os.path.join(os.path.dirname(__file__), 'receipts')
+
+# Clean receipts dir before running tests
+for f in glob.glob(os.path.join(receipts_dir, '*.json')):
+    os.remove(f)
 
 
 def test_validation_get_receipt():

@@ -18,8 +18,6 @@ build/
 dist/
 
 # Tests
-tests/tree/exports/
-tests/validations/receipts/
 /tests/logs/NASA*
 .coverage
 

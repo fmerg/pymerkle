@@ -1,27 +1,21 @@
 import pytest
 import os
 import json
+import glob
 
 from pymerkle.core import MerkleTree
 from pymerkle.exceptions import WrongJSONFormat
 
+
+exports_dir = os.path.join(os.path.dirname(__file__), 'exports')
+
 # Clean exports dir before running tests
-for _file in os.listdir(os.path.join(os.path.dirname(__file__), 'exports')):
-    os.remove(
-        os.path.join(
-            os.path.dirname(__file__),
-            'exports',
-            _file
-        )
-    )
+for f in glob.glob(os.path.join(exports_dir, '*.json')):
+    os.remove(f)
 
 # Make tree and export
 tree = MerkleTree(*['%d-th record' % i for i in range(12)])
-export_path = os.path.join(
-    os.path.dirname(__file__),
-    'exports',
-    '%s.json' % tree.uuid
-)
+export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
 tree.export(filepath=export_path)
 
 # Load tree from export file
