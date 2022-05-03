@@ -248,6 +248,6 @@ def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(tree, later_state):
     assert verify_proof(
-        later_state.consistencyProof(tree.rootHash),
+        later_state.generate_consistency_proof(tree.rootHash),
         later_state.rootHash
     )

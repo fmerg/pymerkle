@@ -41,14 +41,14 @@ which returns ``None`` for the empty case.
 Challenge-commitment schema
 ===========================
 
-One can use the `MerkleTree.merkleProof`_ method to generate the Merkle-proof
+One can use the `MerkleTree._generate_proof`_ method to generate the Merkle-proof
 upon a submitted challenge as follows:
 
 .. code-block:: python
 
-        merkle_proof = tree.merkleProof(challenge)
+        proof = tree._generate_proof(challenge)
 
-.. _MerkleTree.merkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.merkleProof
+.. _MerkleTree._generate_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover._generate_proof
 
 Challenge structure
 -------------------
@@ -97,13 +97,13 @@ of a network request). Similar considerations apply for the subhash field of the
 MerkleProof structure
 ---------------
 
-The produced ``merkle_proof`` is an instance of the `MerkleProof`_ class. It consists of a
+The produced ``proof`` is an instance of the `MerkleProof`_ class. It consists of a
 path of hashes and the required parameters for validation to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
 
 .. code-block:: python
 
-    >>> merkle_proof
+    >>> proof
 
         ----------------------------------- PROOF ------------------------------------
 
@@ -153,7 +153,7 @@ appropriately in order to validate the proof and are available via the
 
 .. code-block:: python
 
-    >>> merkle_proof.get_validation_parameters()
+    >>> proof.get_validation_parameters()
     {'hash_type': 'sha256',
      'encoding': 'utf_8',
      'raw_bytes': True,
@@ -171,7 +171,7 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
 
 .. code-block:: python
 
-    >>> merkle_proof
+    >>> proof
 
         ----------------------------------- PROOF ------------------------------------
 
@@ -212,7 +212,7 @@ proof would be as follows:
 
 .. code-block:: python
 
-    >>> serialized_proof = merkle_proof.serialize()
+    >>> serialized_proof = proof.serialize()
     >>> serialized_proof
     {'header': {'uuid': '11a20142-f8e3-11e9-9e85-701ce71deb6a',
       'timestamp': 1572198974,
@@ -247,7 +247,7 @@ the `MerkleProof.toJSONString`_ method:
 
 .. code-block:: python
 
-    >>> proof_text = merkle_proof.toJSONString()
+    >>> proof_text = proof.toJSONString()
     >>> print(proof_text)
     {
         "header": {
@@ -348,10 +348,10 @@ Direct and easiest validation of a Merkle-proof proceeds by means of the
 
     >>> from pymerkle import verify_proof
     >>>
-    >>> verify_proof(merkle_proof)
+    >>> verify_proof(proof)
     >>> True
     >>>
-    >>> merkle_proof
+    >>> proof
 
         ----------------------------------- PROOF ------------------------------------
 
@@ -398,7 +398,7 @@ Note that application of `verify_proof`_ has the effect of modifying the inscrib
 
 .. code-block:: python
 
-    >>> merkle_proof.header['status']
+    >>> proof.header['status']
     True
 
 If the proof were found to be invalid, the corresponding value would have been
@@ -429,7 +429,7 @@ Low-level validation of proofs proceeds by means of the `MerkleVerifier`_ object
 
     >>> from pymerkle import MerkleVerifier
     >>>
-    >>> validator = MerkleVerifier(merkle_proof)
+    >>> validator = MerkleVerifier(proof)
     >>> validator.run()
     >>>
 
@@ -456,12 +456,12 @@ the same machine for successive validation of multiple proofs:
     >>>
     >>> validator = MerkleVerifier()
     >>>
-    >>> validator.update(merkle_proof_1)
+    >>> validator.update(proof_1)
     >>> validator.run()
     ...    raiseInvalidMerkleProof
     pymerkle.exceptions.InvalidMerkleProof
     >>>
-    >>> validator.update(merkle_proof_2)
+    >>> validator.update(proof_2)
     >>> validator.run()
     >>>
 

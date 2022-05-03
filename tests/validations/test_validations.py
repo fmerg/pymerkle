@@ -36,7 +36,7 @@ challenges = [
 
 @pytest.mark.parametrize('challenge', challenges)
 def test_validateResponse(challenge):
-    proof = tree.merkleProof(challenge)
+    proof = tree._generate_proof(challenge)
     commitment = proof.header['commitment']
     assert verify_proof(proof) is verify_proof(proof, commitment)
 
@@ -71,7 +71,7 @@ for tree in trees:
     __false_audit_proofs.append(
         (
             tree,
-            tree.auditProof(b'anything that has not been recorded')
+            tree.generate_audit_proof(b'anything that has not been recorded')
         )
     )
 
@@ -79,7 +79,7 @@ for tree in trees:
         true_audit_proofs.append(
             (
                 tree,
-                tree.auditProof(tree.hash('%d-th record' % index))
+                tree.generate_audit_proof(tree.hash('%d-th record' % index))
             )
         )
 
@@ -122,14 +122,14 @@ for (tree, subtree) in trees_and_subtrees:
     __false_consistency_proofs.append(
         (
             tree,
-            tree.consistencyProof(b'anything except for the right hash')
+            tree.generate_consistency_proof(b'anything except for the right hash')
         )
     )
 
     true_consistency_proofs.append(
         (
             tree,
-            tree.consistencyProof(subtree.rootHash)
+            tree.generate_consistency_proof(subtree.rootHash)
         )
     )
 

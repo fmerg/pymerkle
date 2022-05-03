@@ -17,7 +17,7 @@ if __name__ == '__main__':
         'checksum': '45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
     }
 
-    proof = tree.merkleProof(challenge)
+    proof = tree._generate_proof(challenge)
     print(proof)
 
     assert verify_proof(proof)

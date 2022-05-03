@@ -45,7 +45,7 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
-    def merkleProof(self, challenge, commit=True):
+    def _generate_proof(self, challenge, commit=True):
         """Response of the Merkle-tree to the request of providing a
         Merkle-proof based upon the provided challenge
 
@@ -61,13 +61,13 @@ class Prover(object, metaclass=ABCMeta):
         keys = set(challenge.keys())
         if keys == {'checksum'}:
             checksum = challenge['checksum']
-            return self.auditProof(checksum, commit=commit)
+            return self.generate_audit_proof(checksum, commit=commit)
         elif keys == {'subhash'}:
             subhash = challenge['subhash']
-            return self.consistencyProof(subhash, commit=commit)
+            return self.generate_consistency_proof(subhash, commit=commit)
         raise InvalidChallengeError
 
-    def auditProof(self, checksum, commit=False):
+    def generate_audit_proof(self, checksum, commit=False):
         """Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum
 
@@ -111,7 +111,7 @@ class Prover(object, metaclass=ABCMeta):
 
         return proof
 
-    def consistencyProof(self, subhash, commit=False):
+    def generate_consistency_proof(self, subhash, commit=False):
         """Response of the Merkle-tree to the request of providing a consistency
         proof for the acclaimed root-hash of some previous state
 

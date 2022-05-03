@@ -14,8 +14,8 @@ can already be ommited from proof generation as follows:
 
 .. code-block:: python
 
-    >>> merkle_proof = tree.merkleProof(challenge, commit=False)
-    >>> merkle_proof
+    >>> proof = tree._generate_proof(challenge, commit=False)
+    >>> proof
 
         ----------------------------------- PROOF ------------------------------------
 
@@ -100,14 +100,14 @@ not coincide with ``c`` or both.
 Example
 -------
 
-Use as follows the `.auditProof`_ method to produce the audit proof based upon a
+Use as follows the `.generate_audit_proof`_ method to produce the audit proof based upon a
 desired checksum:
 
 .. code-block:: python
 
     >>> checksum = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
     >>>
-    >>> proof = tree.auditProof(checksum)
+    >>> proof = tree.generate_audit_proof(checksum)
     >>> proof
 
         ----------------------------------- PROOF ------------------------------------
@@ -145,10 +145,10 @@ desired checksum:
 
     >>>
 
-.. _.auditProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.auditProof
+.. _.generate_audit_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.generate_audit_proof
 
 No commitment is by default included in the produced proof (this behaviour may
-be controlled via the *commit* kwarg of `.auditProof`_). In order
+be controlled via the *commit* kwarg of `.generate_audit_proof`_). In order
 to validate the proof, we need to manually provide the commitment as follows:
 
 .. code-block:: python
@@ -224,13 +224,13 @@ Let the monitor record the tree's current state:
     >>> subhash = b'8136f96be3d8bcc439a3037adadb166d30c2ddfd26e2e2704ca014486db2389d'
 
 At some later point of history, the server is requested to provide a consistency
-proof for the above state. Use the `.consistencyProof`_ method to produce the
+proof for the above state. Use the `.generate_consistency_proof`_ method to produce the
 desired proof as follows:
 
 .. code-block:: python
 
     >>>
-    >>> proof = tree.consistencyProof(subhash)
+    >>> proof = tree.generate_consistency_proof(subhash)
     >>> proof
 
         ----------------------------------- PROOF ------------------------------------
@@ -264,10 +264,10 @@ desired proof as follows:
 
     >>>
 
-.. _.consistencyProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.consistencyProof
+.. _.generate_consistency_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.generate_consistency_proof
 
 No commitment is by default included in the produced proof (this behaviour may
-be controlled via the *commit* kwarg of `.consistencyProof`_). Validation may
+be controlled via the *commit* kwarg of `.generate_consistency_proof`_). Validation may
 proceed exactly the same way as above (recall that validation mechanisms are
 agnostic of whether a proof is the result of an audit or a consistency proof
 request). We will here employ a validator for reference.
