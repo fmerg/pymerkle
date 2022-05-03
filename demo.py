@@ -1,6 +1,6 @@
 """pymerkle demo"""
 
-from pymerkle import MerkleTree, verify_proof
+from pymerkle import MerkleTree, MerkleVerifier
 
 
 if __name__ == '__main__':
@@ -20,4 +20,4 @@ if __name__ == '__main__':
     proof = tree._generate_proof(challenge)
     print(proof)
 
-    assert verify_proof(proof)
+    assert MerkleVerifier().verify_proof(proof)

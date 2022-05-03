@@ -5,7 +5,7 @@ Tests for inclusion-test and the comparison operators based upon it
 import pytest
 import os
 
-from pymerkle import MerkleTree, hashing, verify_proof
+from pymerkle import MerkleTree, MerkleVerifier, hashing
 from pymerkle.exceptions import InvalidTypes, InvalidComparison
 from tests.conftest import ENCODINGS
 
@@ -247,7 +247,7 @@ def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_consistency_proof_verification_with_sublength_equal_to_power_of_2(tree, later_state):
-    assert verify_proof(
+    assert MerkleVerifier().verify_proof(
         later_state.generate_consistency_proof(tree.rootHash),
         later_state.rootHash
     )

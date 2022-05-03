@@ -42,12 +42,11 @@ Typing
         from pymerkle import *
 
 makes available the `MerkleTree`_, `MerkleProof`_ and `MerkleVerifier`_
-classes along with the `verify_proof`_ standalone function.
+classes.
 
 .. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
 .. _MerkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.MerkleProof
 .. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
-.. _verify_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.verify_proof
 
 
 Security

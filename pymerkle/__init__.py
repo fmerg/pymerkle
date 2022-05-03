@@ -2,7 +2,7 @@
 """
 
 from .core import MerkleTree, MerkleProof
-from .verifications import MerkleVerifier, verify_proof
+from .verifications import MerkleVerifier
 
 
 __version__ = "2.0.2"
@@ -11,5 +11,4 @@ __all__ = (
     'MerkleTree',
     'MerkleProof',
     'MerkleVerifier',
-    'verify_proof',
 )

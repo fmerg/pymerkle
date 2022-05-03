@@ -155,7 +155,8 @@ to verify the proof, we need to manually provide the commitment as follows:
 
     >>> commitment = tree.get_commitment()
     >>>
-    >>> verify_proof(proof, commitment)
+    >>> v = MerkleVerifier()
+    >>> v.verify_proof(proof, commitment)
     True
     >>>
 
@@ -166,7 +167,8 @@ Commiting after encryption of records would have invalidated the proof:
     >>> tree.encryptRecord('some further data...')
     >>> commitment = tree.get_commitment()
     >>>
-    >>> verify_proof(proof, commitment)
+    >>> v = MerkleVerifier()
+    >>> v.verify_proof(proof, commitment)
     False
     >>>
 

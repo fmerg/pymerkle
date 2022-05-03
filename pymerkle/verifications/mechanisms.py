@@ -78,28 +78,27 @@ class MerkleVerifier(HashMachine):
         if target != self.multi_hash(proof_path, proof_index):
             raise InvalidMerkleProof
 
+    def verify_proof(self, proof, target=None):
+        """Core utility for Merkle-proof verification.
 
-def verify_proof(proof, target=None):
-    """Core utility for Merkle-proof verification
+        Verifies the provided proof, modifies the proof's status as *True* or
+        *False* accordingly and returns boolean.
 
-    Verifies the provided proof, modifies the proof's status as *True* or
-    *False* accordingly and returns boolean.
-
-    :param proof: the Merkle-proof under verification
-    :type proof: MerkleProof
-    :param target: [optional] the hash to be be presumably attained at the
-        end of the verification process (i.e., acclaimed current root-hash of
-        the Merkle-tree having provided the proof). If not explicitly provided,
-        should be included in the given proof as the value of the *commitment*
-        field
-    :type target: bytes
-    :returns: Verification result
-    """
-    verifier = MerkleVerifier(input=proof.get_verification_params())
-    if target is None:
-        target = proof.header['commitment']
-    try:
-        verifier.run(proof, target)
-    except InvalidMerkleProof:
-        return False
-    return True
+        :param proof: the Merkle-proof under verification
+        :type proof: MerkleProof
+        :param target: [optional] the hash to be be presumably attained at the
+            end of the verification process (i.e., acclaimed current root-hash of
+            the Merkle-tree having provided the proof). If not explicitly provided,
+            should be included in the given proof as the value of the *commitment*
+            field
+        :type target: bytes
+        :returns: Verification result
+        """
+        self.update(input=proof.get_verification_params())
+        if target is None:
+            target = proof.header['commitment']
+        try:
+            self.run(proof, target)
+        except InvalidMerkleProof:
+            return False
+        return True

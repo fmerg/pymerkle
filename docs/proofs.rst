@@ -339,16 +339,14 @@ The provided serialized object may here be a Python dictionary or JSON text indi
         client's side.
 
 Verification
-----------
-
-Direct and easiest verification of a Merkle-proof proceeds by means of the
-`verify_proof`_ function, which returns a self-explanatory boolean:
+------------
 
 .. code-block:: python
 
-    >>> from pymerkle import verify_proof
+    >>> from pymerkle import MerkleVerifier
     >>>
-    >>> verify_proof(proof)
+    >>> v = MerkleVerifier()
+    >>> v.verify_proof(proof)
     >>> True
     >>>
     >>> proof
@@ -388,12 +386,10 @@ Direct and easiest verification of a Merkle-proof proceeds by means of the
 
     >>>
 
-.. _verify_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.verify_proof
-
 Like in any of the available verification mechanism, the `HashMachine.multi_hash`_ method is
 implicitly applied over the path of advertised hashes in order to recover a single hash.
 The proof is found to be valid *iff* this single hash coincides with the provided commitment.
-Note that application of `verify_proof`_ has the effect of modifying the inscribed status as
+Note that application of `verify_proof` has the effect of modifying the inscribed status as
 ``'VALID'``, which indicates that the proof's status has changed to *True*:
 
 .. code-block:: python

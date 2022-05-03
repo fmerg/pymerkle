@@ -1,7 +1,6 @@
-from .mechanisms import MerkleVerifier, verify_proof
+from .mechanisms import MerkleVerifier
 
 
 __all__ = (
     'MerkleVerifier',
-    'verify_proof',
 )
