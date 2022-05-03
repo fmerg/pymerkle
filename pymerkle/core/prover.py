@@ -336,7 +336,7 @@ class MerkleProof(object):
         """
         return ProofSerializer().default(self)
 
-    def toJSONString(self):
+    def to_json_str(self):
         """Returns a JSON text with the proof's characteristics
         as key-value pairs.
 

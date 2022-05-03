@@ -93,7 +93,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         return self.__root
 
     @property
-    def rootHash(self):
+    def root_hash(self):
         """
         :returns: Current root-hash of the Merkle-tree
         :rtype:   bytes
@@ -115,7 +115,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         commitment = None
         try:
-            commitment = self.rootHash
+            commitment = self.root_hash
         except EmptyTreeException:
             pass
 
@@ -578,7 +578,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         if not other:
             return not self
 
-        return True if not self else self.rootHash == other.rootHash
+        return True if not self else self.root_hash == other.root_hash
 
     def __ne__(self, other):
         """Implements the ``!=`` operator
@@ -595,7 +595,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         if not other:
             return self.__bool__()
 
-        return True if not self else self.rootHash != other.rootHash
+        return True if not self else self.root_hash != other.root_hash
 
     def __ge__(self, other):
         """
@@ -614,7 +614,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             return True
 
         return False if not self else \
-            self.inclusionTest(other.rootHash)
+            self.inclusionTest(other.root_hash)
 
     def __le__(self, other):
         """Implements the ``<=`` operator
@@ -646,10 +646,10 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         if not other:
             return self.__bool__()
 
-        elif not self or self.rootHash == other.rootHash:
+        elif not self or self.root_hash == other.root_hash:
             return False
 
-        return self.inclusionTest(other.rootHash)
+        return self.inclusionTest(other.root_hash)
 
     def __lt__(self, other):
         """Implements the ``<`` operator
@@ -689,7 +689,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             encoding=self.encoding.upper().replace('_', '-'),
             raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
             security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.rootHash.decode(self.encoding) if self else NONE,
+            root_hash=self.root_hash.decode(self.encoding) if self else NONE,
             length=self.length,
             size=self.size,
             height=self.height)
@@ -721,7 +721,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         return MerkleTreeSerializer().default(self)
 
-    def toJSONString(self):
+    def to_json_str(self):
         """Returns a JSON text with the Merkle-tree's current characteristics
         and digests stored by its leaves.
 

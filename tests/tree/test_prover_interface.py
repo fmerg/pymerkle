@@ -24,14 +24,14 @@ def test_audit__generate_proof(challenge):
     proof = tree._generate_proof(challenge)
     commitment = proof.header['commitment']
     audit_proof = tree.generate_audit_proof(challenge['checksum'])
-    assert commitment == tree.rootHash and proof.body == audit_proof.body
+    assert commitment == tree.root_hash and proof.body == audit_proof.body
 
 
-cons_challenge_1 = {'subhash': tree.rootHash}
+cons_challenge_1 = {'subhash': tree.root_hash}
 cons_challenge_2 = {'subhash': b'anything else...'}
 
 for i in range(1000):
-    tree.encryptRecord(f'{i}-th record')
+    tree.encrypt_record(f'{i}-th record')
 
 
 @pytest.mark.parametrize('challenge', [cons_challenge_1, cons_challenge_2])
@@ -41,7 +41,7 @@ def test_consistency__generate_proof(challenge):
     proof = tree._generate_proof(challenge)
     commitment = proof.header['commitment']
 
-    assert commitment == tree.rootHash and proof.body == consistency_proof.body
+    assert commitment == tree.root_hash and proof.body == consistency_proof.body
 
 
 __invalid_challenges = [
@@ -57,7 +57,7 @@ __invalid_challenges = [
         'subhash': 100,                      # anything that is not bytes or str
     },
     {
-        'subhash': tree.rootHash,
+        'subhash': tree.root_hash,
         'extra key': 'extra value'
     },
     {
@@ -220,7 +220,7 @@ for (tree, subtree) in trees_and_subtrees:
     tree__subhash.append(
         (
             tree,
-            subtree.rootHash,
+            subtree.root_hash,
         )
     )
 
@@ -328,7 +328,7 @@ def test_conversion_at_generate_audit_proof():
     assert proof_1.body['proof_path'] == proof_2.body['proof_path']
 
 
-subhash = tree.rootHash
+subhash = tree.root_hash
 for i in range(1000):
     tree.update(f'{i}-th record')
 

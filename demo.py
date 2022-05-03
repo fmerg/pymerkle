@@ -9,7 +9,7 @@ if __name__ == '__main__':
             security=True)
 
     for i in range(7):
-        tree.encryptRecord('%d-th record' % i)
+        tree.encrypt_record('%d-th record' % i)
 
     print(repr(tree))
 

@@ -16,15 +16,15 @@ of existence and integrity of encrypted data in a mutual fashion.
 
 In Merkle-proof protocols the role of *commitment* belongs to the
 root-hash of the tree at the moment of proof generation. The
-commitment is always available via the `.rootHash`_ property
+commitment is always available via the `.root_hash`_ property
 of Merkle-trees:
 
 
 .. code-block:: python
 
-    root_hash = tree.rootHash
+    root_hash = tree.root_hash
 
-.. _.rootHash: file:///home/beast/proj/pymerkle/docs/build/pymerkle.html?highlight=roothash#pymerkle.MerkleTree.rootHash
+.. _.root_hash: file:///home/beast/proj/pymerkle/docs/build/pymerkle.html?highlight=roothash#pymerkle.MerkleTree.root_hash
 
 Note that this statement will raise an ``EmptyTreeException`` if the
 tree happens to be empty. For better semantics, one can alternately
@@ -243,11 +243,11 @@ proof would be as follows:
 .. _MerkleProof.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.serialize
 
 If JSON text is preferred instead of a Python dictionary, one can alternately apply
-the `MerkleProof.toJSONString`_ method:
+the `MerkleProof.to_json_str`_ method:
 
 .. code-block:: python
 
-    >>> proof_text = proof.toJSONString()
+    >>> proof_text = proof.to_json_str()
     >>> print(proof_text)
     {
         "header": {
@@ -286,7 +286,7 @@ the `MerkleProof.toJSONString`_ method:
 
     >>>
 
-.. _MerkleProof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.toJSONString
+.. _MerkleProof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.to_json_str
 
 Deserialization from the client's side proceeds by means of the `MerkleProof.deserialize`_
 classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ class):

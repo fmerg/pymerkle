@@ -164,7 +164,7 @@ Commiting after encryption of records would have invalidated the proof:
 
 .. code-block:: python
 
-    >>> tree.encryptRecord('some further data...')
+    >>> tree.encrypt_file_content('some further data...')
     >>> commitment = tree.get_commitment()
     >>>
     >>> v = MerkleVerifier()
@@ -222,7 +222,7 @@ Let the monitor record the tree's current state:
 
 .. code-block:: python
 
-    >>> subhash = tree.rootHash
+    >>> subhash = tree.root_hash
     >>> subhash = b'8136f96be3d8bcc439a3037adadb166d30c2ddfd26e2e2704ca014486db2389d'
 
 At some later point of history, the server is requested to provide a consistency
@@ -297,7 +297,7 @@ verifier to crash:
 
 .. code-block:: python
 
-    >>> tree.encryptRecord('some further data...')
+    >>> tree.encrypt_file_content('some further data...')
     >>> commitment = tree.get_commitment()
     >>>
     >>> verifier.run(target=commitment)

@@ -121,7 +121,7 @@ encapsulated in the following collection of attributes and properties.
 :security:
         (*bool*) - Indicates defense against second-preimage attack
 
-:`rootHash`_:
+:`root_hash`_:
         (*bytes*) - The hash currently stored by the Merkle-tree's root
 
 :`length`_:
@@ -135,7 +135,7 @@ encapsulated in the following collection of attributes and properties.
 .. _length: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.length
 .. _size: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.size
 .. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
-.. _rootHash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.rootHash
+.. _root_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.root_hash
 
 Invoking a Merkle-tree from the Python iterpeter displays the above characteristics
 in the form of an etiquette (cf. the *Representation* section below). Here is

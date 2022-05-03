@@ -15,7 +15,7 @@ from tests.conftest import ENCODINGS
 
 tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
 hash_func = tree.hash
-subhash = tree.rootHash
+subhash = tree.root_hash
 sublength = tree.length
 
 challenges = [
@@ -88,13 +88,13 @@ for tree in trees:
 @pytest.mark.parametrize("tree, proof", __false_audit_proofs)
 def test_false_audit_verify_proof(tree, proof):
     v = MerkleVerifier()
-    assert not v.verify_proof(proof, tree.rootHash)
+    assert not v.verify_proof(proof, tree.root_hash)
 
 
 @pytest.mark.parametrize("tree, proof", true_audit_proofs)
 def test_true_audit_verify_proof(tree, proof):
     v = MerkleVerifier()
-    assert v.verify_proof(proof, tree.rootHash)
+    assert v.verify_proof(proof, tree.root_hash)
 
 
 # Consistency proof verification
@@ -132,7 +132,7 @@ for (tree, subtree) in trees_and_subtrees:
     true_consistency_proofs.append(
         (
             tree,
-            tree.generate_consistency_proof(subtree.rootHash)
+            tree.generate_consistency_proof(subtree.root_hash)
         )
     )
 
@@ -140,13 +140,13 @@ for (tree, subtree) in trees_and_subtrees:
 @pytest.mark.parametrize("tree, consistency_proof", __false_consistency_proofs)
 def test_false_consistency_verify_proof(tree, consistency_proof):
     v = MerkleVerifier()
-    assert not v.verify_proof(consistency_proof, tree.rootHash)
+    assert not v.verify_proof(consistency_proof, tree.root_hash)
 
 
 @pytest.mark.parametrize("tree, consistency_proof", true_consistency_proofs)
 def test_true_consistency_verify_proof(tree, consistency_proof):
     v = MerkleVerifier()
-    assert v.verify_proof(consistency_proof, tree.rootHash)
+    assert v.verify_proof(consistency_proof, tree.root_hash)
 
 
 # MerkleVerifier object
@@ -181,4 +181,4 @@ def test_verifier_construction_error(config):
 def test_verifier_with_false_proofs(tree, proof):
     verifier = MerkleVerifier(proof.get_verification_params())
     with pytest.raises(InvalidMerkleProof):
-        verifier.run(proof, tree.rootHash)
+        verifier.run(proof, tree.root_hash)
