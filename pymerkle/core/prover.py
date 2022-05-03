@@ -175,7 +175,7 @@ class MerkleProof(object):
     :type raw_bytes: bool
     :param security: security mode of the provider Merkle-tree
     :type security: bool
-    :param proof_index: starting position of subsequent validation procedure
+    :param proof_index: starting position of subsequent verification procedure
     :type proof_index: int
     :param proof_path: path of signed hashes
     :type proof_path: tuple of (+1/-1, bytes)
@@ -264,21 +264,21 @@ class MerkleProof(object):
 
         return cls(**kwargs)
 
-    def get_validation_params(self):
+    def get_verification_params(self):
         """Extracts from the proof's header the fields required for configuring
-        correctly the validator's hashing machinery.
+        correctly the verifier's hashing machinery.
 
         :rtype: dict
         """
         header = self.header
-        validation_params = dict({
+        verification_params = dict({
             'hash_type': header['hash_type'],
             'encoding': header['encoding'],
             'raw_bytes': header['raw_bytes'],
             'security': header['security'],
         })
 
-        return validation_params
+        return verification_params
 
     def __repr__(self):
         """Sole purpose of this function is to display info
@@ -325,8 +325,8 @@ class MerkleProof(object):
             if header['commitment'] else None,
             proof_index=body['proof_index'],
             proof_path=stringify_path(body['proof_path'], header['encoding']),
-            status='UNVALIDATED' if header['status'] is None
-            else 'VALID' if header['status'] is True else 'NON VALID')
+            status='UNVERIFIED' if header['status'] is None
+            else 'VERIFIED' if header['status'] is True else 'INVALID')
 
     def serialize(self):
         """Returns a JSON entity with the proof's characteristics

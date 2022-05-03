@@ -1,5 +1,5 @@
 
-MerkleProof generation and validation
+MerkleProof generation and verification
 +++++++++++++++++++++++++++++++
 
 A tree (server) is capable of generating *Merkle-proofs* (*audit* and
@@ -7,7 +7,7 @@ A tree (server) is capable of generating *Merkle-proofs* (*audit* and
 or a monitor (client). Any such proof essentially consists of a path of
 hashes (a finite sequence of checksums and a rule for combining them into a
 single hash), leading to the acclaimed current root-hash of the Merkle-tree.
-Providing and validating Merkle-proofs certifies knowledge on
+Providing and verifying Merkle-proofs certifies knowledge on
 behalf of *both* the client and server of some part of the tree's history
 or current state, disclosing a minimum of encrypted records
 and without actual need of holding a database of the originals.
@@ -98,7 +98,7 @@ MerkleProof structure
 ---------------
 
 The produced ``proof`` is an instance of the `MerkleProof`_ class. It consists of a
-path of hashes and the required parameters for validation to proceed from the
+path of hashes and the required parameters for verification to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
 
 .. code-block:: python
@@ -134,7 +134,7 @@ client's side. Invoking it from the Python interpreter, it looks like
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
 
-        status      : UNVALIDATED
+        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
@@ -148,23 +148,23 @@ client's side. Invoking it from the Python interpreter, it looks like
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
 uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
 configuration. They are necessary for the client to configure their hashing-machine
-appropriately in order to validate the proof and are available via the
-`MerkleProof.get_validation_params`_ method:
+appropriately in order to verify the proof and are available via the
+`MerkleProof.get_verification_params`_ method:
 
 .. code-block:: python
 
-    >>> proof.get_validation_parameters()
+    >>> proof.get_verification_params()
     {'hash_type': 'sha256',
      'encoding': 'utf_8',
      'raw_bytes': True,
      'security': True}
 
-.. _MerkleProof.get_validation_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.get_validation_params
+.. _MerkleProof.get_verification_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.get_verification_params
 
 *Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
 (that is, *before* any other records are possibly encrypted into the tree).
 The Merkle-proof is valid *iff* the advertized path of hashes leads to the inscribed
-commitment (see *Validation modes* below).
+commitment (see *Verification modes* below).
 
 There are cases where the advertized path of hashes is empty or, equivalently, the inscribed
 *proof-index* has the non sensical value -1:
@@ -191,7 +191,7 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
 
-        status      : UNVALIDATED
+        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
@@ -325,7 +325,7 @@ classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ 
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
 
-        status      : UNVALIDATED
+        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
@@ -335,13 +335,13 @@ The provided serialized object may here be a Python dictionary or JSON text indi
 
 .. _MerkleProof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.deserialize
 
-.. note:: Deserialization is necessary for proof validation to take place from the
+.. note:: Deserialization is necessary for proof verification to take place from the
         client's side.
 
-Validation
+Verification
 ----------
 
-Direct and easiest validation of a Merkle-proof proceeds by means of the
+Direct and easiest verification of a Merkle-proof proceeds by means of the
 `verify_proof`_ function, which returns a self-explanatory boolean:
 
 .. code-block:: python
@@ -390,7 +390,7 @@ Direct and easiest validation of a Merkle-proof proceeds by means of the
 
 .. _verify_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.verify_proof
 
-Like in any of the available validation mechanism, the `HashMachine.multi_hash`_ method is
+Like in any of the available verification mechanism, the `HashMachine.multi_hash`_ method is
 implicitly applied over the path of advertised hashes in order to recover a single hash.
 The proof is found to be valid *iff* this single hash coincides with the provided commitment.
 Note that application of `verify_proof`_ has the effect of modifying the inscribed status as
@@ -407,12 +407,12 @@ If the proof were found to be invalid, the corresponding value would have been
 .. _HashMachine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.multi_hash
 
 
-Validation modes
+Verification modes
 ================
 
-Validation of a Merkle-proof presupposes correct configuration of an underlying
+Verification of a Merkle-proof presupposes correct configuration of an underlying
 hash machine. This happens automatically by just feeding the proof to any of the
-available validation mechanisms, since the required validation parameters
+available verification mechanisms, since the required verification parameters
 (*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
 proof's header. The underlying machine is an instance of the `MerkleVerifier`_ class
 (which is in turn a subclass of `HashMachine`_)
@@ -420,49 +420,49 @@ proof's header. The underlying machine is an instance of the `MerkleVerifier`_ c
 .. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
 .. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
 
-Running a validator
+Running a verifier
 -------------------
 
-Low-level validation of proofs proceeds by means of the `MerkleVerifier`_ object itself:
+Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ object itself:
 
 .. code-block:: python
 
     >>> from pymerkle import MerkleVerifier
     >>>
-    >>> validator = MerkleVerifier(proof)
-    >>> validator.run()
+    >>> verifier = MerkleVerifier(proof)
+    >>> verifier.run()
     >>>
 
-.. note:: Validating a proof in the above fashion leaves the proof's status unaffected.
+.. note:: Verifying a proof in the above fashion leaves the proof's status unaffected.
 
-Successful validation is implied by the fact that the process comes to its end.
+Successful verification is implied by the fact that the process comes to its end.
 If the proof were invalid, then an ``InvalidMerkleProof`` error would have
 been raised instead:
 
 .. code-block:: python
 
     >>>
-    >>> validator.run()
+    >>> verifier.run()
     ...     raiseInvalidMerkleProof
     pymerkle.exceptions.InvalidMerkleProof
     >>>
 
 Instead of feeding a proof at construction, one can alternately reconfigure the
-validator by means of the `MerkleVerifier.update`_ method. This allows to use
-the same machine for successive validation of multiple proofs:
+verifier by means of the `MerkleVerifier.update`_ method. This allows to use
+the same machine for successive verification of multiple proofs:
 
 .. code-block:: python
 
     >>>
-    >>> validator = MerkleVerifier()
+    >>> verifier = MerkleVerifier()
     >>>
-    >>> validator.update(proof_1)
-    >>> validator.run()
+    >>> verifier.update(proof_1)
+    >>> verifier.run()
     ...    raiseInvalidMerkleProof
     pymerkle.exceptions.InvalidMerkleProof
     >>>
-    >>> validator.update(proof_2)
-    >>> validator.run()
+    >>> verifier.update(proof_2)
+    >>> verifier.run()
     >>>
 
-.. _MerkleVerifier.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.validations.html#pymerkle.validations.MerkleVerifier.update
+.. _MerkleVerifier.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.verifications.html#pymerkle.verifications.MerkleVerifier.update

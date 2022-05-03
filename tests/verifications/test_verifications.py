@@ -1,5 +1,5 @@
 """
-Tests validation of Merkle-proofs
+Tests verification of Merkle-proofs
 """
 
 import pytest
@@ -11,7 +11,7 @@ from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle import MerkleTree, MerkleVerifier, verify_proof
 from tests.conftest import ENCODINGS
 
-# Merkle-proof validation
+# Merkle-proof verification
 
 tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
 hash_func = tree.hash
@@ -35,7 +35,7 @@ challenges = [
 
 
 @pytest.mark.parametrize('challenge', challenges)
-def test_validateResponse(challenge):
+def test_verify_proof_with_commitment(challenge):
     proof = tree._generate_proof(challenge)
     commitment = proof.header['commitment']
     assert verify_proof(proof) is verify_proof(proof, commitment)
@@ -61,7 +61,7 @@ for raw_bytes in (True, False):
                     )
 
 
-# Audit proof validation
+# Audit proof verification
 
 __false_audit_proofs = []
 true_audit_proofs = []
@@ -94,7 +94,7 @@ def test_true_audit_verify_proof(tree, proof):
     assert verify_proof(proof, tree.rootHash)
 
 
-# Consistency proof validation
+# Consistency proof verification
 
 trees_and_subtrees = []
 
@@ -146,7 +146,7 @@ def test_true_consistency_verify_proof(tree, consistency_proof):
 
 # MerkleVerifier object
 
-# test KeyError in validator construction
+# test KeyError in verifier construction
 
 missing_configs = [
     {
@@ -165,15 +165,15 @@ missing_configs = [
 
 
 @pytest.mark.parametrize('config', missing_configs)
-def test_validator_construction_error(config):
+def test_verifier_construction_error(config):
     with pytest.raises(KeyError):
         MerkleVerifier(config)
 
 
-# Test validator main exception
+# Test verifier main exception
 
 @pytest.mark.parametrize('tree, proof', __false_audit_proofs[:10])
-def test_validator_with_false_proofs(tree, proof):
-    validator = MerkleVerifier(proof.get_validation_params())
+def test_verifier_with_false_proofs(tree, proof):
+    verifier = MerkleVerifier(proof.get_verification_params())
     with pytest.raises(InvalidMerkleProof):
-        validator.run(proof, tree.rootHash)
+        verifier.run(proof, tree.rootHash)

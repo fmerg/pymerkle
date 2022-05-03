@@ -48,7 +48,6 @@ classes along with the `verify_proof`_ standalone function.
 .. _MerkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.MerkleProof
 .. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
 .. _verify_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.verify_proof
-.. _validateResponse: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.validateResponse
 
 
 Security

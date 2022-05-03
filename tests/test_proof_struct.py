@@ -270,7 +270,7 @@ def test___repr__(proof, generation):
                 \n\
                 \n    commitment  : %s\
                 \n\
-                \n    status      : UNVALIDATED\
+                \n    status      : UNVERIFIED\
                 \n\
                 \n    -------------------------------- END OF PROOF --------------------------------\
                 \n' % (

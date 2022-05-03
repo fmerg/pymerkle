@@ -230,13 +230,13 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """Low-level audit proof.
 
         Computes and returns the audit-path corresponding to the provided leaf
-        index along with the position where subsequent proof validation should
+        index along with the position where subsequent proof verification should
         start from.
 
         :param index: position (zero based leaf index) where audit-path
                 computation should be based upon
         :type index: int
-        :returns: Starting position of subsequent proof validation along with
+        :returns: Starting position of subsequent proof verification along with
             a sequence of signed checksums (the sign +1 or -1 indicating
             pairing with the right or left neighbour respectively)
         :rtype: (int, tuple of (+1/-1, bytes))
@@ -313,13 +313,13 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         Computes and returns the consistency-path corresponding to the tree's
         length for a previous state, along with the position where subsequent
-        proof validation should start from and the sequence of subroots
+        proof verification should start from and the sequence of subroots
         constituting the produced path from the left.
 
         :param sublength: any number equal to or smaller than the tree's
                     current length
         :type sublength: int
-        :returns: Starting position of subsequent proof validation along with
+        :returns: Starting position of subsequent proof verification along with
             sequence of subroots constituting the produced path from the left
             and the path of signed hashes per se (the sign +1 or -1 indicating
             pairing with the right or left neighbour respectively)

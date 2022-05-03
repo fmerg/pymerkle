@@ -1,4 +1,4 @@
-"""Provides utilities for Merkle-proof validation
+"""Provides utilities for Merkle-proof verification
 """
 
 from pymerkle.hashing import HashMachine
@@ -11,7 +11,7 @@ import os
 
 
 class MerkleVerifier(HashMachine):
-    """Encapsulates the low-level utility for Merkle-proof validation
+    """Encapsulates the low-level utility for Merkle-proof verification
 
     :param input: [optional] a Merkle-proof or its header
     :type: MerkleProof or dict
@@ -21,7 +21,7 @@ class MerkleVerifier(HashMachine):
         if input is not None:
             if isinstance(input, MerkleProof):
                 self.proof = input
-                input = input.get_validation_params()
+                input = input.get_verification_params()
             self.update(input)
 
     def update(self, input):
@@ -30,7 +30,7 @@ class MerkleVerifier(HashMachine):
         :type input: MerkleProof or dict
         """
         if isinstance(input, MerkleProof):
-            config = input.get_validation_params()
+            config = input.get_verification_params()
             self.proof = input
         else:
             config = input
@@ -46,14 +46,14 @@ class MerkleVerifier(HashMachine):
                          raw_bytes=raw_bytes, security=security)
 
     def run(self, proof=None, target=None):
-        """Performs Merkle-proof validation
+        """Performs Merkle-proof verification
 
         :raises InvalidMerkleProof: if the proof is found to be invalid
 
-        :param proof: the Merkle-proof under validation
+        :param proof: the Merkle-proof under verification
         :type proof: MerkleProof
         :param target: [optional] the hash to be be presumably attained at the
-            end of the validation process (i.e., acclaimed current root-hash of
+            end of the verification process (i.e., acclaimed current root-hash of
             the Merkle-tree having provided the proof). If not explicitly provided,
             should be included in the given proof as the value of the *commitment*
             field
@@ -63,7 +63,7 @@ class MerkleVerifier(HashMachine):
             try:
                 proof = self.proof
             except AttributeError:
-                err = 'No proof provided for validation'
+                err = 'No proof provided for verification'
                 raise AssertionError(err)
         if target is None:
             try:
@@ -80,26 +80,26 @@ class MerkleVerifier(HashMachine):
 
 
 def verify_proof(proof, target=None):
-    """Core utility for Merkle-proof validation
+    """Core utility for Merkle-proof verification
 
-    Validates the provided proof, modifies the proof's status as *True* or
+    Verifies the provided proof, modifies the proof's status as *True* or
     *False* accordingly and returns boolean.
 
-    :param proof: the Merkle-proof under validation
+    :param proof: the Merkle-proof under verification
     :type proof: MerkleProof
     :param target: [optional] the hash to be be presumably attained at the
-        end of the validation process (i.e., acclaimed current root-hash of
+        end of the verification process (i.e., acclaimed current root-hash of
         the Merkle-tree having provided the proof). If not explicitly provided,
         should be included in the given proof as the value of the *commitment*
         field
     :type target: bytes
-    :returns: Validation result
+    :returns: Verification result
     """
-    validator = MerkleVerifier(input=proof.get_validation_params())
+    verifier = MerkleVerifier(input=proof.get_verification_params())
     if target is None:
         target = proof.header['commitment']
     try:
-        validator.run(proof, target)
+        verifier.run(proof, target)
     except InvalidMerkleProof:
         return False
     return True

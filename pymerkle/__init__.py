@@ -2,7 +2,7 @@
 """
 
 from .core import MerkleTree, MerkleProof
-from .validations import MerkleVerifier, verify_proof
+from .verifications import MerkleVerifier, verify_proof
 
 
 __version__ = "2.0.2"

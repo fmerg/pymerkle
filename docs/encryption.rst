@@ -175,7 +175,7 @@ which is the same as
     tree.encryptRecord('{\n    "a": 1,\n    "b": 0\n}')
 
 The digest is of course different than above. Since this might lead to
-unnecessary headaches upon request and validation of audit proofs, it is
+unnecessary headaches upon request and verification of audit proofs, it is
 recommended that *sort_keys* and *indent* are left to their default values
 (``False`` and ``0`` respectively), unless special care is to be taken.
 

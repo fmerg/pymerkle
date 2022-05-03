@@ -2,8 +2,8 @@
     :maxdepth: 3
     :titlesonly:
 
-   tree-object
+   tree
    encryption
-   merkle-proofs
+   proofs
    decoupling
    inclusion
