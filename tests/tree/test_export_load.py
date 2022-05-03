@@ -58,7 +58,7 @@ def test_WrongJSONFormat_with_loadFromFile():
         MerkleTree.loadFromFile(
             os.path.join(
                 parent_dir,
-                'json_files',
+                'jsondata',
                 'sample.json'
             )
         )

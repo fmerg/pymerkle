@@ -92,7 +92,7 @@ falls under the tree's configured encoding type, otherwise an
 
     >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
     >>>
-    >>> tree.encryptFileContent('tests/log_files/large_APACHE_log')
+    >>> tree.encryptFileContent('tests/logdata/large_APACHE_log')
     Traceback (most recent call last):
     ...     raise UndecodableRecord
     pymerkle.exceptions.UndecodableRecord
@@ -111,7 +111,7 @@ per log as follows:
 
     >>> tree = MerkleTree()
     >>>
-    >>> tree.encryptFilePerLog('tests/log_files/large_APACHE_log')
+    >>> tree.encryptFilePerLog('tests/logdata/large_APACHE_log')
 
     Encrypting file per log: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
     Encryption complete
@@ -134,7 +134,7 @@ provided file falls under the tree's configured type, otherwise
     >>> tree.size
     0
     >>>
-    >>> tree.encryptFilePerLog('tests/log_files/large_APACHE_log')
+    >>> tree.encryptFilePerLog('tests/logdata/large_APACHE_log')
     Traceback (most recent call last):
     ...     raise UndecodableRecord(err)
     pymerkle.exceptions.UndecodableRecord: ...

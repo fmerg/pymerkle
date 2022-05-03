@@ -134,10 +134,10 @@ def test_encryptJSON(tree, hash_machine):
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
 
-large_APACHE_log = os.path.join(parent_dir, 'log_files/large_APACHE_log')
-short_APACHE_log = os.path.join(parent_dir, 'log_files/short_APACHE_log')
-single_object_file = os.path.join(parent_dir, 'json_files/sample.json')
-objects_list_file = os.path.join(parent_dir, 'json_files/sample-list.json')
+large_APACHE_log = os.path.join(parent_dir, 'logdata/large_APACHE_log')
+short_APACHE_log = os.path.join(parent_dir, 'logdata/short_APACHE_log')
+single_object_file = os.path.join(parent_dir, 'jsondata/sample.json')
+objects_list_file = os.path.join(parent_dir, 'jsondata/sample-list.json')
 
 with open(large_APACHE_log, 'rb') as f:
     content = f.read()
@@ -194,7 +194,7 @@ def test_deserialization_error():
     tree = MerkleTree()
     with pytest.raises(json.JSONDecodeError):
         tree.encryptJSONFromFile(
-            os.path.join(parent_dir, 'json_files/bad.json'))
+            os.path.join(parent_dir, 'jsondata/bad.json'))
 
 
 @pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
