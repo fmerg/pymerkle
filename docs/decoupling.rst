@@ -2,58 +2,12 @@ Decoupling commitments from proofs
 ++++++++++++++++++++++++++++++++++
 
 *Commitments* are by default inscribed in Merkle-proofs. One can
-however imagine scenarios where proof validation proceeds against the
+however imagine scenarios where proof verification proceeds against the
 root-hash as provided in an independent way (e.g., from a trusted third
 party). Moreover, one might desire explicit control over whether
 the requested proof is an audit or a consistency proof. It
 thus makes sense to decouple commitments from proofs and avail
 explicit methods for audit and consistency proof requests.
-
-Note that, remaining at the level of challenge-commitment schema, commitments
-can already be ommited from proof generation as follows:
-
-.. code-block:: python
-
-    >>> merkle_proof = tree.merkleProof(challenge, commit=False)
-    >>> merkle_proof
-
-        ----------------------------------- PROOF ------------------------------------
-
-        uuid        : 82cd9e02-f8ee-11e9-9e85-701ce71deb6a
-
-        timestamp   : 1572203889 (Sun Oct 27 21:18:09 2019)
-        provider    : 8002ea42-f8ee-11e9-9e85-701ce71deb6a
-
-        hash-type   : SHA256
-        encoding    : UTF-8
-        raw_bytes   : TRUE
-        security    : ACTIVATED
-
-        proof-index : 4
-        proof-path  :
-
-           [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
-           [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
-           [2]   +1   0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298
-           [3]   -1   41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c
-           [4]   +1   770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45
-           [5]   +1   c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6
-           [6]   -1   e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1
-           [7]   -1   cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe
-           [8]   +1   9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7
-           [9]   -1   dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896
-          [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
-
-        commitment  : None
-
-        status      : UNVALIDATED
-
-        -------------------------------- END OF PROOF --------------------------------
-
-    >>>
-
-
-In this case, proof validation proceeds like in the following sections.
 
 
 Audit proof
@@ -63,7 +17,7 @@ Generating the correct audit proof based upon a provided checksum proves on
 behalf of the server that the data, whose digest coincides with this checksum,
 has indeed been encrypted into the Merkle-tree. The client (*auditor*)
 verifies correctness of proof (and consequently inclusion of their
-data among the tree's encrypted records) by validating it against the
+data among the tree's encrypted records) by verifying it against the
 Merkle-tree's current root-hash. It is essential that the auditor does *not*
 need to reveal the data itself but only their checksum, whereas the server
 publishes the least possible encrypted data (at most two checksums stored by
@@ -84,7 +38,7 @@ for combining them into a single hash. Having knowledge of ``h``, the auditor
 is able to apply this rule, that is, to retrieve from ``p`` a single hash and
 compare it against the current root-hash ``c`` of the Merkle-tree (in formal
 terms, ``c`` is the server's *commitment* to the produced proof). This is the
-*validation* procedure, whose success verifies
+*verification* procedure, whose success verifies
 
 1. that the data ``x`` has indeed been encrypted by the server and
 
@@ -93,21 +47,21 @@ terms, ``c`` is the server's *commitment* to the produced proof). This is the
 It should be stressed that by *current* is meant the tree's root-hash
 immediately after generating the proof, that is, *before* any other records are
 encrypted. How the auditor knows ``c`` (e.g., from the server itself or a
-trusted third party) depends on protocol details. Failure of validation implies
+trusted third party) depends on protocol details. Failure of verification implies
 that ``x`` has not been encrypted or that the server's current root-hash does
 not coincide with ``c`` or both.
 
 Example
 -------
 
-Use as follows the `.auditProof`_ method to produce the audit proof based upon a
+Use as follows the `.generate_audit_proof`_ method to produce the audit proof based upon a
 desired checksum:
 
 .. code-block:: python
 
     >>> checksum = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
     >>>
-    >>> proof = tree.auditProof(checksum)
+    >>> proof = tree.generate_audit_proof(checksum)
     >>> proof
 
         ----------------------------------- PROOF ------------------------------------
@@ -139,23 +93,24 @@ desired checksum:
 
         commitment  : None
 
-        status      : UNVALIDATED
+        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
     >>>
 
-.. _.auditProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.auditProof
+.. _.generate_audit_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.generate_audit_proof
 
 No commitment is by default included in the produced proof (this behaviour may
-be controlled via the *commit* kwarg of `.auditProof`_). In order
-to validate the proof, we need to manually provide the commitment as follows:
+be controlled via the *commit* kwarg of `.generate_audit_proof`_). In order
+to verify the proof, we need to manually provide the commitment as follows:
 
 .. code-block:: python
 
     >>> commitment = tree.get_commitment()
     >>>
-    >>> validateProof(proof, commitment)
+    >>> v = MerkleVerifier()
+    >>> v.verify_proof(proof, commitment)
     True
     >>>
 
@@ -163,10 +118,11 @@ Commiting after encryption of records would have invalidated the proof:
 
 .. code-block:: python
 
-    >>> tree.encryptRecord('some further data...')
+    >>> tree.encrypt_file_content('some further data...')
     >>> commitment = tree.get_commitment()
     >>>
-    >>> validateProof(proof, commitment)
+    >>> v = MerkleVerifier()
+    >>> v.verify_proof(proof, commitment)
     False
     >>>
 
@@ -196,7 +152,7 @@ consisting of a path of basically interior hashes and a rule for combining them 
 a single hash. Having knowledge of the tree's hashing machinery, the monitor is
 able to apply this rule, that is, to retrieve from ``p`` a single hash and compare
 it against the current root-hash ``c`` of the Merkle-tree (in formal terms, ``c``
-is the server's *commitment* to the produced proof). This is the *validation*
+is the server's *commitment* to the produced proof). This is the *verification*
 procedure, whose success verifies
 
 1. that the tree's current state is indeed a possible evolvement of the recorded state
@@ -206,7 +162,7 @@ procedure, whose success verifies
 It should be stressed that by *current* is meant the tree's root-hash
 immediately after generating the proof, that is, *before* any other records are
 encrypted. How the monitor knows ``c`` (e.g., from the server itself or a
-trusted third party) depends on protocol details. Failure of validation implies
+trusted third party) depends on protocol details. Failure of verification implies
 tamperedness of data encrypted prior to the recorded state or that the
 server's current root-hash does not coincide with ``c``, indicating
 tamperedness after the recorded state or that the provider of ``c`` should be
@@ -220,17 +176,17 @@ Let the monitor record the tree's current state:
 
 .. code-block:: python
 
-    >>> subhash = tree.rootHash
+    >>> subhash = tree.root_hash
     >>> subhash = b'8136f96be3d8bcc439a3037adadb166d30c2ddfd26e2e2704ca014486db2389d'
 
 At some later point of history, the server is requested to provide a consistency
-proof for the above state. Use the `.consistencyProof`_ method to produce the
+proof for the above state. Use the `.generate_consistency_proof`_ method to produce the
 desired proof as follows:
 
 .. code-block:: python
 
     >>>
-    >>> proof = tree.consistencyProof(subhash)
+    >>> proof = tree.generate_consistency_proof(subhash)
     >>> proof
 
         ----------------------------------- PROOF ------------------------------------
@@ -258,47 +214,47 @@ desired proof as follows:
 
         commitment  : None
 
-        status      : UNVALIDATED
+        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
     >>>
 
-.. _.consistencyProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.consistencyProof
+.. _.generate_consistency_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.generate_consistency_proof
 
 No commitment is by default included in the produced proof (this behaviour may
-be controlled via the *commit* kwarg of `.consistencyProof`_). Validation may
-proceed exactly the same way as above (recall that validation mechanisms are
+be controlled via the *commit* kwarg of `.generate_consistency_proof`_). Verification may
+proceed exactly the same way as above (recall that verification mechanisms are
 agnostic of whether a proof is the result of an audit or a consistency proof
-request). We will here employ a validator for reference.
+request). We will here employ a verifier for reference.
 
 .. code-block:: python
 
-    >>> from pymerkle import Validator
+    >>> from pymerkle import MerkleVerifier
     >>>
-    >>> validator = Validator()
-    >>> validator.update(proof)
+    >>> verifier = MerkleVerifier()
+    >>> verifier.update(proof)
 
-In order to run the validator, we need to manually provide the commitment
+In order to run the verifier, we need to manually provide the commitment
 via the *target* kwarg as follows:
 
 .. code-block:: python
 
     >>> commitment = tree.get_commitment()
     >>>
-    >>> validator.run(target=commitment)
+    >>> verifier.run(target=commitment)
     >>>
 
 Finalization of process implies validity of proof against the acclaimed current
 root-hash. Commiting after encryption of records would have instead cause the
-validator to crash:
+verifier to crash:
 
 .. code-block:: python
 
-    >>> tree.encryptRecord('some further data...')
+    >>> tree.encrypt_file_content('some further data...')
     >>> commitment = tree.get_commitment()
     >>>
-    >>> validator.run(target=commitment)
+    >>> verifier.run(target=commitment)
     Traceback (most recent call last):
     ...    raiseInvalidMerkleProof
     pymerkle.exceptions.InvalidMerkleProof

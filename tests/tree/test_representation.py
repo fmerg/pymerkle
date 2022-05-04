@@ -35,7 +35,7 @@ def test___repr__default_non_empty_tree():
                 \n    length    : 3\
                 \n    size      : 5\
                 \n    height    : 2\n' % (
-        tree.uuid, tree.rootHash.decode(tree.encoding))
+        tree.uuid, tree.root_hash.decode(tree.encoding))
 
 
 empty_tree = MerkleTree()
@@ -118,7 +118,7 @@ def test___str__(tree, stringification):
     assert tree.__str__() == stringification
 
 
-toJSONStrings = [
+to_json_strs = [
     (
         empty_tree,
         '{\n    "hashes": [],\n    "header": {\n        "encoding": "utf_8",' +
@@ -146,6 +146,6 @@ toJSONStrings = [
 ]
 
 
-@pytest.mark.parametrize('tree, json_string', toJSONStrings)
-def test_toJSONString(tree, json_string):
-    assert tree.toJSONString() == json_string
+@pytest.mark.parametrize('tree, json_string', to_json_strs)
+def test_to_json_str(tree, json_string):
+    assert tree.to_json_str() == json_string

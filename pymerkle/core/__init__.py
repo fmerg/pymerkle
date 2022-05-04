@@ -1,7 +1,7 @@
 from .tree import MerkleTree
-from .prover import Proof
+from .prover import MerkleProof
 
 __all__ = (
     'MerkleTree',
-    'Proof',
+    'MerkleProof',
 )

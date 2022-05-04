@@ -5,15 +5,15 @@ Tests for inclusion-test and the comparison operators based upon it
 import pytest
 import os
 
-from pymerkle import MerkleTree, hashing, validateProof
+from pymerkle import MerkleTree, MerkleVerifier, hashing
 from pymerkle.exceptions import InvalidTypes, InvalidComparison
 from tests.conftest import ENCODINGS
 
 
 # Files to encrypt
 parent_dir = os.path.dirname(os.path.dirname(__file__))
-short_APACHE_log = os.path.join(parent_dir, 'log_files/short_APACHE_log')
-RED_HAT_LINUX_log = os.path.join(parent_dir, 'log_files/RED_HAT_LINUX_log')
+short_APACHE_log = os.path.join(parent_dir, 'logdata/short_APACHE_log')
+RED_HAT_LINUX_log = os.path.join(parent_dir, 'logdata/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
 for security in (True, False):
@@ -25,9 +25,9 @@ for security in (True, False):
                 encoding=encoding,
                 security=security
             )
-            subhash = tree.rootHash
+            subhash = tree.root_hash
             for record in ('f', 'g', 'h', 'k'):
-                tree.encryptRecord(record)
+                tree.encrypt_record(record)
             trees_and_subtrees.append((tree, subhash))
 
 
@@ -47,10 +47,10 @@ def test_inclusion_test_failure_for_zero_leaves_case():
 
 def test_inclusion_test_edge_success_case():
     tree = MerkleTree()
-    tree.encryptFilePerLog(short_APACHE_log)
-    subhash = tree.rootHash
-    tree.encryptFilePerLog(RED_HAT_LINUX_log)
-    assert tree.inclusionTest(tree.rootHash)
+    tree.encrypt_file_per_log(short_APACHE_log)
+    subhash = tree.root_hash
+    tree.encrypt_file_per_log(RED_HAT_LINUX_log)
+    assert tree.inclusionTest(tree.root_hash)
 
 
 # Failure cases with standard Merkle-tree
@@ -242,12 +242,12 @@ for power in range(1, 10):
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
-    assert later_state.inclusionTest(tree.rootHash)
+    assert later_state.inclusionTest(tree.root_hash)
 
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
-def test_consistency_proof_validation_with_sublength_equal_to_power_of_2(tree, later_state):
-    assert validateProof(
-        later_state.consistencyProof(tree.rootHash),
-        later_state.rootHash
+def test_consistency_proof_verification_with_sublength_equal_to_power_of_2(tree, later_state):
+    assert MerkleVerifier().verify_proof(
+        later_state.generate_consistency_proof(tree.root_hash),
+        later_state.root_hash
     )

@@ -18,6 +18,7 @@ usage() { echo -n "$usage_string" 1>&2; }
 
 EXTENDED=false
 
+pytest_args=()
 while [[ $# -gt 0 ]]
 do
     arg="$1"
@@ -31,9 +32,8 @@ do
             exit 0
             ;;
         *)
-            echo "[-] Invalid argument: $arg"
-            usage
-            exit 1
+            pytest_args+=($arg)
+            shift
             ;;
     esac
 done
@@ -54,4 +54,5 @@ fi
 
 python3 -m pytest tests/ \
   --cov-report term-missing \
-  --cov=. $*
+  --cov=. \
+  $pytest_args

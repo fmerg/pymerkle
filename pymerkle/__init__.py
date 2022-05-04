@@ -1,15 +1,14 @@
 """Cryptographic library for Merkle-proofs
 """
 
-from .core import MerkleTree, Proof
-from .validations import Validator, validateProof
+from .core import MerkleTree, MerkleProof
+from .verifier import MerkleVerifier
 
 
 __version__ = "2.0.2"
 
 __all__ = (
     'MerkleTree',
-    'Proof',
-    'Validator',
-    'validateProof',
+    'MerkleProof',
+    'MerkleVerifier',
 )

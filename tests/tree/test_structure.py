@@ -22,17 +22,17 @@ t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
 
 def test_0_leaves():
     with pytest.raises(EmptyTreeException):
-        tree.rootHash
+        tree.root_hash
 
 
 def test_1_leaves():
     update(record=t_1)
-    assert tree.rootHash == hash(t_1)
+    assert tree.root_hash == hash(t_1)
 
 
 def test_2_leaves():
     update(record=t_2)
-    assert tree.rootHash == hash(
+    assert tree.root_hash == hash(
         hash(t_1),
         hash(t_2)
     )
@@ -40,7 +40,7 @@ def test_2_leaves():
 
 def test_3_leaves():
     update(record=t_3)
-    assert tree.rootHash == hash(
+    assert tree.root_hash == hash(
         hash(
             hash(t_1),
             hash(t_2)
@@ -51,7 +51,7 @@ def test_3_leaves():
 
 def test_4_leaves():
     update(record=t_4)
-    assert tree.rootHash == hash(
+    assert tree.root_hash == hash(
         hash(
             hash(t_1),
             hash(t_2)
@@ -65,7 +65,7 @@ def test_4_leaves():
 
 def test_5_leaves():
     update(record=t_5)
-    assert tree.rootHash == hash(
+    assert tree.root_hash == hash(
         hash(
             hash(
                 hash(t_1),
@@ -83,7 +83,7 @@ def test_5_leaves():
 def test_7_leaves():
     update(record=t_6)
     update(record=t_7)
-    assert tree.rootHash == hash(
+    assert tree.root_hash == hash(
         hash(
             hash(
                 hash(t_1),
@@ -109,7 +109,7 @@ def test_11_leaves():
     update(record=t_9)
     update(record=t_10)
     update(record=t_11)
-    assert tree.rootHash == hash(
+    assert tree.root_hash == hash(
         hash(
             hash(
                 hash(

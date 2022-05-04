@@ -1,5 +1,5 @@
 """
-Tests the .merkleProof(), .auditProof(), .consistencyProof() methods
+Tests the .generate_audit_proof(), .generate_consistency_proof() methods
 """
 
 import pytest
@@ -8,68 +8,6 @@ from pymerkle import MerkleTree
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidChallengeError, InvalidChallengeError
 from tests.conftest import ENCODINGS
-
-
-# merkleProof (uniform interface)
-
-tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
-
-hash_func = tree.hash
-audit_challenge_1 = {'checksum': hash_func('100-th record')}
-audit_challenge_2 = {'checksum': hash_func(b'anything non recorded...')}
-
-
-@pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
-def test_audit_merkleProof(challenge):
-    merkle_proof = tree.merkleProof(challenge)
-    commitment = merkle_proof.header['commitment']
-    audit_proof = tree.auditProof(challenge['checksum'])
-    assert commitment == tree.rootHash and merkle_proof.body == audit_proof.body
-
-
-cons_challenge_1 = {'subhash': tree.rootHash}
-cons_challenge_2 = {'subhash': b'anything else...'}
-
-for i in range(1000):
-    tree.encryptRecord(f'{i}-th record')
-
-
-@pytest.mark.parametrize('challenge', [cons_challenge_1, cons_challenge_2])
-def test_consistency_merkleProof(challenge):
-    subhash = challenge['subhash']
-    consistency_proof = tree.consistencyProof(subhash)
-    merkle_proof = tree.merkleProof(challenge)
-    commitment = merkle_proof.header['commitment']
-
-    assert commitment == tree.rootHash and merkle_proof.body == consistency_proof.body
-
-
-__invalid_challenges = [
-    {},
-    {
-        'checksum': 100                      # anything that is not bytes or str
-    },
-    {
-        'checksum': hash_func('100-th record'),
-        'extra key': 'extra_value'
-    },
-    {
-        'subhash': 100,                      # anything that is not bytes or str
-    },
-    {
-        'subhash': tree.rootHash,
-        'extra key': 'extra value'
-    },
-    {
-        'key_1': 0, 'key_2': 1, 'key_3': 2
-    },
-]
-
-
-@pytest.mark.parametrize('challenge', __invalid_challenges)
-def test_merkleProof_with_invalid_challenges(challenge):
-    with pytest.raises(InvalidChallengeError):
-        tree.merkleProof(challenge)
 
 
 # Trees setup
@@ -112,7 +50,7 @@ __invalid_audit_proof_requests = [
 @pytest.mark.parametrize("tree, arg", __invalid_audit_proof_requests)
 def test_audit_InvalidChallengeError(tree, arg):
     with pytest.raises(InvalidChallengeError):
-        tree.auditProof(arg)
+        tree.generate_audit_proof(arg)
 
 
 tree__wrong_arg = []
@@ -137,8 +75,8 @@ for tree in trees:
 
 
 @pytest.mark.parametrize("tree, arg", tree__wrong_arg)
-def test_empty_auditProof(tree, arg):
-    audit_proof = tree.auditProof(arg)
+def test_empty_generate_audit_proof(tree, arg):
+    audit_proof = tree.generate_audit_proof(arg)
 
     assert audit_proof.__dict__ == {
         'header': {
@@ -161,8 +99,8 @@ def test_empty_auditProof(tree, arg):
 
 
 @pytest.mark.parametrize("tree, arg", tree_arg)
-def test_non_empty_auditProof(tree, arg):
-    audit_proof = tree.auditProof(arg)
+def test_non_empty_generate_audit_proof(tree, arg):
+    audit_proof = tree.generate_audit_proof(arg)
 
     assert audit_proof.__dict__ == {
         'header': {
@@ -220,7 +158,7 @@ for (tree, subtree) in trees_and_subtrees:
     tree__subhash.append(
         (
             tree,
-            subtree.rootHash,
+            subtree.root_hash,
         )
     )
 
@@ -230,15 +168,15 @@ def test_consistency_InvalidChallengeError(tree, subhash):
     """
     """
     with pytest.raises(InvalidChallengeError):
-        tree.consistencyProof(subhash)
+        tree.generate_consistency_proof(subhash)
 
 
 @pytest.mark.parametrize("tree, subhash", tree__subhash)
-def test_non_empty_consistencyProof(tree, subhash):
+def test_non_empty_generate_consistency_proof(tree, subhash):
     """
     Tests that the generated non-empty consistency proof is as expected
     """
-    consistency_proof = tree.consistencyProof(subhash)
+    consistency_proof = tree.generate_consistency_proof(subhash)
 
     assert consistency_proof.__dict__ == {
         'header': {
@@ -261,12 +199,12 @@ def test_non_empty_consistencyProof(tree, subhash):
 
 
 @pytest.mark.parametrize("tree, subhash", tree__subhash)
-def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
+def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     """
     Tests that the generated empty consistency proof, requested
     for a wrong hash, is as expected
     """
-    consistency_proof = tree.consistencyProof(subhash, sublength)
+    consistency_proof = tree.generate_consistency_proof(subhash, sublength)
 
     assert consistency_proof.__dict__ == {
         'header': {
@@ -289,12 +227,12 @@ def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
 
 
 @pytest.mark.parametrize("tree, subhash", tree__subhash)
-def test_empty_consistencyProof_with_wrong_subhash(tree, subhash):
+def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     """
     Tests that the generated empty consistency proof, requested
     for a wrong sublength, is as expected
     """
-    consistency_proof = tree.consistencyProof(subhash, sublength)
+    consistency_proof = tree.generate_consistency_proof(subhash, sublength)
 
     assert consistency_proof.__dict__ == {
         'header': {
@@ -322,19 +260,19 @@ tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
 hexstring = '15d02997b9e32d81ffefa8fad54a252a6e5303f846140e544c008455e64660ec'
 
 
-def test_conversion_at_auditProof():
-    proof_1 = tree.auditProof(hexstring)
-    proof_2 = tree.auditProof(hexstring.encode())
+def test_conversion_at_generate_audit_proof():
+    proof_1 = tree.generate_audit_proof(hexstring)
+    proof_2 = tree.generate_audit_proof(hexstring.encode())
     assert proof_1.body['proof_path'] == proof_2.body['proof_path']
 
 
-subhash = tree.rootHash
+subhash = tree.root_hash
 for i in range(1000):
     tree.update(f'{i}-th record')
 
 
-def test_conversion_at_consistencyProof():
-    consistencyProof = tree.consistencyProof
-    proof_1 = consistencyProof(subhash=subhash)
-    proof_2 = consistencyProof(subhash=subhash.decode())
+def test_conversion_at_generate_consistency_proof():
+    generate_consistency_proof = tree.generate_consistency_proof
+    proof_1 = generate_consistency_proof(subhash=subhash)
+    proof_2 = generate_consistency_proof(subhash=subhash.decode())
     assert proof_1.body['proof_path'] == proof_2.body['proof_path']

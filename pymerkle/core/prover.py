@@ -45,35 +45,13 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
-    def merkleProof(self, challenge, commit=True):
-        """Response of the Merkle-tree to the request of providing a
-        Merkle-proof based upon the provided challenge
-
-        :type challenge: dict
-        :rtype: Proof
-
-        .. warning:: Provided challenge must be of the form
-
-            ``{'checksum': <str> or <bytes>}`` or ``{'subhash': <str> or <bytes>}``,
-
-            otherwise an ``InvalidChallengeError`` is raised.
-        """
-        keys = set(challenge.keys())
-        if keys == {'checksum'}:
-            checksum = challenge['checksum']
-            return self.auditProof(checksum, commit=commit)
-        elif keys == {'subhash'}:
-            subhash = challenge['subhash']
-            return self.consistencyProof(subhash, commit=commit)
-        raise InvalidChallengeError
-
-    def auditProof(self, checksum, commit=False):
+    def generate_audit_proof(self, checksum, commit=False):
         """Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum
 
         :param checksum: Checksum which the requested proof is to be based upon
         :type checksum: str or bytes
-        :rtype: Proof
+        :rtype: MerkleProof
 
         :raises InvalidChallengeError: if the provided argument's type
             is not as prescribed
@@ -89,7 +67,7 @@ class Prover(object, metaclass=ABCMeta):
         try:
             proof_index, audit_path = self.audit_path(index)
         except NoPathException:
-            proof = Proof(
+            proof = MerkleProof(
                 provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
@@ -99,7 +77,7 @@ class Prover(object, metaclass=ABCMeta):
                 proof_index=-1,
                 proof_path=())
         else:
-            proof = Proof(
+            proof = MerkleProof(
                 provider=self.uuid,
                 hash_type=self.hash_type,
                 encoding=self.encoding,
@@ -111,7 +89,7 @@ class Prover(object, metaclass=ABCMeta):
 
         return proof
 
-    def consistencyProof(self, subhash, commit=False):
+    def generate_consistency_proof(self, subhash, commit=False):
         """Response of the Merkle-tree to the request of providing a consistency
         proof for the acclaimed root-hash of some previous state
 
@@ -119,7 +97,7 @@ class Prover(object, metaclass=ABCMeta):
                 state of the Merkle-tree
         :type subhash: str or bytes
         :type subhash: bytes
-        :rtype: Proof
+        :rtype: MerkleProof
 
         :raises InvalidChallengeError: if type of *subhash* is not as prescribed
         """
@@ -130,7 +108,7 @@ class Prover(object, metaclass=ABCMeta):
 
         commitment = self.get_commitment() if commit is True else None
 
-        proof = Proof(
+        proof = MerkleProof(
             provider=self.uuid,
             hash_type=self.hash_type,
             encoding=self.encoding,
@@ -148,7 +126,7 @@ class Prover(object, metaclass=ABCMeta):
                 pass
             else:
                 if subhash == self.multi_hash(left_path, len(left_path) - 1):
-                    proof = Proof(
+                    proof = MerkleProof(
                         provider=self.uuid,
                         hash_type=self.hash_type,
                         encoding=self.encoding,
@@ -162,7 +140,7 @@ class Prover(object, metaclass=ABCMeta):
         return proof
 
 
-class Proof(object):
+class MerkleProof(object):
     """Class for Merkle-proofs
 
     :param provider: uuid of the provider Merkle-tree
@@ -175,25 +153,25 @@ class Proof(object):
     :type raw_bytes: bool
     :param security: security mode of the provider Merkle-tree
     :type security: bool
-    :param proof_index: starting position of subsequent validation procedure
+    :param proof_index: starting position of subsequent verification procedure
     :type proof_index: int
     :param proof_path: path of signed hashes
     :type proof_path: tuple of (+1/-1, bytes)
 
     Proofs are meant to be output of proof generation mechanisms and not
-    manually constructed. Proof construction via deserialization might though
+    manually constructed. MerkleProof construction via deserialization might though
     have practical importance, so that given a proof *p* the following
     constructions are possible:
 
-    >>> from pymerkle import Proof
+    >>> from pymerkle import MerkleProof
     >>>
-    >>> q = Proof(from_dict=p.serialize())
-    >>> r = Proof(from_json=p.toJSONtext())
+    >>> q = MerkleProof(from_dict=p.serialize())
+    >>> r = MerkleProof(from_json=p.toJSONtext())
 
     or, more uniformly,
 
-    >>> q = Proof.deserialize(p.serialize())
-    >>> r = Proof.deserialize(p.toJSONtext())
+    >>> q = MerkleProof.deserialize(p.serialize())
+    >>> r = MerkleProof.deserialize(p.toJSONtext())
 
     .. note:: This is a genuine replication, since deserializations will have
         the same uuid and timestamp as the original.
@@ -252,9 +230,9 @@ class Proof(object):
         """Deserializes the provided JSON entity
 
         :params serialized: a Python dict or JSON text, assumed to be the
-            serialization of a *Proof* object
+            serialization of a *MerkleProof* object
         :type: dict or str
-        :rtype: Proof
+        :rtype: MerkleProof
         """
         kwargs = {}
         if isinstance(serialized, dict):
@@ -264,21 +242,21 @@ class Proof(object):
 
         return cls(**kwargs)
 
-    def get_validation_params(self):
+    def get_verification_params(self):
         """Extracts from the proof's header the fields required for configuring
-        correctly the validator's hashing machinery.
+        correctly the verifier's hashing machinery.
 
         :rtype: dict
         """
         header = self.header
-        validation_params = dict({
+        verification_params = dict({
             'hash_type': header['hash_type'],
             'encoding': header['encoding'],
             'raw_bytes': header['raw_bytes'],
             'security': header['security'],
         })
 
-        return validation_params
+        return verification_params
 
     def __repr__(self):
         """Sole purpose of this function is to display info
@@ -325,8 +303,8 @@ class Proof(object):
             if header['commitment'] else None,
             proof_index=body['proof_index'],
             proof_path=stringify_path(body['proof_path'], header['encoding']),
-            status='UNVALIDATED' if header['status'] is None
-            else 'VALID' if header['status'] is True else 'NON VALID')
+            status='UNVERIFIED' if header['status'] is None
+            else 'VERIFIED' if header['status'] is True else 'INVALID')
 
     def serialize(self):
         """Returns a JSON entity with the proof's characteristics
@@ -336,7 +314,7 @@ class Proof(object):
         """
         return ProofSerializer().default(self)
 
-    def toJSONString(self):
+    def to_json_str(self):
         """Returns a JSON text with the proof's characteristics
         as key-value pairs.
 

@@ -26,19 +26,19 @@ pip3 install pymerkle
 ## Usage
 
 ```python3
-from pymerkle import MerkleTree, validateProof
+from pymerkle import MerkleTree, MerkleVerifier
 
 tree = MerkleTree()
 
 for i in range(7):
-    tree.encryptRecord('%d-th record' % i)
+    tree.encrypt_record('%d-th record' % i)
 
-challenge = {
-    'checksum': '45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
-}
+challenge = b'45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
 
-proof = tree.merkleProof(challenge)
-assert validateProof(proof)
+proof = tree.generate_audit_proof(challenge, commit=True)
+
+v = MerkleVerifier()
+assert v.verify_proof(proof)
 ```
 
 ### Demo

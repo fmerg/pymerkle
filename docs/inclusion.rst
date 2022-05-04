@@ -16,7 +16,7 @@ Let *subhash* denote the Merkle-tree's root-hash at some point of history.
 .. code-block:: python
 
         >>>
-        >>> subhash = tree.rootHash
+        >>> subhash = tree.root_hash
         >>> subhash
         b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
         >>>
@@ -51,7 +51,7 @@ is equivalent to
 
 .. code-block:: python
 
-        tree_2.inclusionTest(subhash=tree_1.rootHash)
+        tree_2.inclusionTest(subhash=tree_1.root_hash)
 
 To verify whether ``tree_1`` represents a strictly previous state of ``tree_2``,
 try
@@ -80,4 +80,4 @@ is equivalent to
 
 .. code-block:: python
 
-        tree_1.rootHash == tree_2.rootHash
+        tree_1.root_hash == tree_2.root_hash

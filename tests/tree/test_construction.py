@@ -107,23 +107,23 @@ def test_root_empty_tree_exception():
         MerkleTree().root
 
 
-def test_rootHash_empty_tree_exception():
+def test_root_hash_empty_tree_exception():
     """
     Tests `EmptyTreeException` upon requesting the root-hash
     of an empty Merkle-tree
     """
     with pytest.raises(EmptyTreeException):
-        MerkleTree().rootHash
+        MerkleTree().root_hash
 
 
-def test_rootHash_of_non_empty_MerkleTree():
+def test_root_hash_of_non_empty_MerkleTree():
     """
     Tests the root-hash of a Merkle-tree with one and two leaves
     """
     t = MerkleTree('first record')
     s = MerkleTree('first record', 'second record')
-    assert t.rootHash == t.hash('first record') and \
-        s.rootHash == s.hash(s.hash('first record'), s.hash('second record'))
+    assert t.root_hash == t.hash('first record') and \
+        s.root_hash == s.hash(s.hash('first record'), s.hash('second record'))
 
 
 # Update tests
