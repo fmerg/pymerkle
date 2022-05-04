@@ -45,28 +45,6 @@ class Prover(object, metaclass=ABCMeta):
         """
         """
 
-    def _generate_proof(self, challenge, commit=True):
-        """Response of the Merkle-tree to the request of providing a
-        Merkle-proof based upon the provided challenge
-
-        :type challenge: dict
-        :rtype: MerkleProof
-
-        .. warning:: Provided challenge must be of the form
-
-            ``{'checksum': <str> or <bytes>}`` or ``{'subhash': <str> or <bytes>}``,
-
-            otherwise an ``InvalidChallengeError`` is raised.
-        """
-        keys = set(challenge.keys())
-        if keys == {'checksum'}:
-            checksum = challenge['checksum']
-            return self.generate_audit_proof(checksum, commit=commit)
-        elif keys == {'subhash'}:
-            subhash = challenge['subhash']
-            return self.generate_consistency_proof(subhash, commit=commit)
-        raise InvalidChallengeError
-
     def generate_audit_proof(self, checksum, commit=False):
         """Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum

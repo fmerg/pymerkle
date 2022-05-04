@@ -11,35 +11,16 @@ from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle import MerkleTree, MerkleVerifier
 from tests.conftest import ENCODINGS
 
+
 # Merkle-proof verification
 
-tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
-hash_func = tree.hash
-subhash = tree.root_hash
-sublength = tree.length
-
-challenges = [
-    {
-        'checksum': hash_func('100-th record')
-    },
-    {
-        'checksum': hash_func(b'anything non recorded...')
-    },
-    {
-        'subhash': subhash,
-    },
-    {
-        'subhash': b'anything else...',
-    },
-]
-
-
-@pytest.mark.parametrize('challenge', challenges)
-def test_verify_proof_with_commitment(challenge):
-    proof = tree._generate_proof(challenge)
+def test_verify_proof_with_commitment():
+    tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
+    proof = tree.generate_audit_proof(tree.hash('100-th record'), commit=True)
     commitment = proof.header['commitment']
     v = MerkleVerifier()
     assert v.verify_proof(proof) is v.verify_proof(proof, commitment)
+
 
 # Trees setup
 

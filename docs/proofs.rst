@@ -1,6 +1,6 @@
 
-MerkleProof generation and verification
-+++++++++++++++++++++++++++++++
+Generation and verification of Merkle-proofs
+++++++++++++++++++++++++++++++++++++++++++++
 
 A tree (server) is capable of generating *Merkle-proofs* (*audit* and
 *consistency proofs*) in accordance with parameters provided by an auditor
@@ -40,59 +40,6 @@ which returns ``None`` for the empty case.
 
 Challenge-commitment schema
 ===========================
-
-One can use the `MerkleTree._generate_proof`_ method to generate the Merkle-proof
-upon a submitted challenge as follows:
-
-.. code-block:: python
-
-        proof = tree._generate_proof(challenge)
-
-.. _MerkleTree._generate_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover._generate_proof
-
-Challenge structure
--------------------
-
-The provided *challenge* must be a dictionary of one of the following types,
-otherwise an ``InvalidChallengeError`` is raised and proof generation is aborted:
-
-.. code-block:: bash
-
-        {
-                'checksum': <str> or <bytes>
-        }
-
-which indicates request of an *audit proof*, or
-
-.. code-block:: bash
-
-        {
-                'subhash': <str> or <bytes>
-        }
-
-which indicates request of a *consistency proof*. In the first case, the provided checksum
-is thought of as the digest stored by some of the Merkle-tree's leaves, whereas in the
-second case *subhash* is thought of as the tree's root-hash at some previous moment.
-In either case, the provided value will be assumed by the Merkle-tree to be hexadecimal,
-that is, a hexstring or hexdigest. For example, the challenge
-
-.. code-block:: python
-
-        {
-                'checksum': '3f0941bd95131963906aa27cbea5b38a5ce2611adb4f2f22b8e4fa383cd00e33'
-        }
-
-will give rise to the same Merkle-proof as
-
-.. code-block:: python
-
-        {
-                'checksum': b'3f0941bd95131963906aa27cbea5b38a5ce2611adb4f2f22b8e4fa383cd00e33'
-        }
-
-where the former may be considered as the serialized version of the latter (e.g., the payload
-of a network request). Similar considerations apply for the subhash field of the second case.
-
 
 MerkleProof structure
 ---------------

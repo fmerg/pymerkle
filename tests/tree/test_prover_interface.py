@@ -1,5 +1,5 @@
 """
-Tests the ._generate_proof(), .generate_audit_proof(), .generate_consistency_proof() methods
+Tests the .generate_audit_proof(), .generate_consistency_proof() methods
 """
 
 import pytest
@@ -8,68 +8,6 @@ from pymerkle import MerkleTree
 from pymerkle.hashing import HASH_TYPES
 from pymerkle.exceptions import InvalidChallengeError, InvalidChallengeError
 from tests.conftest import ENCODINGS
-
-
-# _generate_proof (uniform interface)
-
-tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
-
-hash_func = tree.hash
-audit_challenge_1 = {'checksum': hash_func('100-th record')}
-audit_challenge_2 = {'checksum': hash_func(b'anything non recorded...')}
-
-
-@pytest.mark.parametrize('challenge', [audit_challenge_1, audit_challenge_2])
-def test_audit__generate_proof(challenge):
-    proof = tree._generate_proof(challenge)
-    commitment = proof.header['commitment']
-    audit_proof = tree.generate_audit_proof(challenge['checksum'])
-    assert commitment == tree.root_hash and proof.body == audit_proof.body
-
-
-cons_challenge_1 = {'subhash': tree.root_hash}
-cons_challenge_2 = {'subhash': b'anything else...'}
-
-for i in range(1000):
-    tree.encrypt_record(f'{i}-th record')
-
-
-@pytest.mark.parametrize('challenge', [cons_challenge_1, cons_challenge_2])
-def test_consistency__generate_proof(challenge):
-    subhash = challenge['subhash']
-    consistency_proof = tree.generate_consistency_proof(subhash)
-    proof = tree._generate_proof(challenge)
-    commitment = proof.header['commitment']
-
-    assert commitment == tree.root_hash and proof.body == consistency_proof.body
-
-
-__invalid_challenges = [
-    {},
-    {
-        'checksum': 100                      # anything that is not bytes or str
-    },
-    {
-        'checksum': hash_func('100-th record'),
-        'extra key': 'extra_value'
-    },
-    {
-        'subhash': 100,                      # anything that is not bytes or str
-    },
-    {
-        'subhash': tree.root_hash,
-        'extra key': 'extra value'
-    },
-    {
-        'key_1': 0, 'key_2': 1, 'key_3': 2
-    },
-]
-
-
-@pytest.mark.parametrize('challenge', __invalid_challenges)
-def test__generate_proof_with_invalid_challenges(challenge):
-    with pytest.raises(InvalidChallengeError):
-        tree._generate_proof(challenge)
 
 
 # Trees setup
