@@ -113,23 +113,6 @@ def test_UndecodableRecord_with_encrypt_record(byte, encoding, security):
         tree.encrypt_record(byte)
 
 
-@pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
-def test_encryptJSON(tree, hash_machine):
-
-    tree.encrypt_json({
-        'a': 0,
-        'b': 1
-    },
-        sort_keys=False, indent=0)
-
-    assert tree.leaves[-1].digest == hash_machine.hash(
-        json.dumps({
-            'a': 0,
-            'b': 1
-        }, sort_keys=False, indent=0)
-    )
-
-
 # Content to encrypt
 
 parent_dir = os.path.dirname(os.path.dirname(__file__))
@@ -184,21 +167,3 @@ def test_encrypt_file_per_log(tree):
                            'utf_16_be', 'iso2022_jp'):
         with pytest.raises(UndecodableRecord):
             tree.encrypt_file_per_log(short_APACHE_log)
-
-
-def test_deserialization_error():
-    """
-    Tests JSONDecodeError upon trying to encrypt a non-deserializable
-    .json file
-    """
-    tree = MerkleTree()
-    with pytest.raises(json.JSONDecodeError):
-        tree.encrypt_json_from_file(
-            os.path.join(parent_dir, 'jsondata/bad.json'))
-
-
-@pytest.mark.parametrize("tree, hash_machine", trees__hash_machines)
-def test_encryptJSONFromFile(tree, hash_machine):
-    tree.encrypt_json_from_file(single_object_file, sort_keys=False, indent=0)
-    assert tree.leaves[-1].digest == hash_machine.hash(
-        json.dumps(single_object, sort_keys=False, indent=0))
