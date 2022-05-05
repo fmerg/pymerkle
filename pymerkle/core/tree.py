@@ -9,8 +9,9 @@ from pymerkle.hashing import HashMachine
 from pymerkle.serializers import MerkleTreeSerializer
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoChildException,
-                                 EmptyTreeException, NoPathException, InvalidTypes, NoSubtreeException,
-                                 NoPrincipalSubroots, InvalidComparison, WrongJSONFormat, UndecodableRecord)
+                                 EmptyTreeException, NoPathException, NoSubtreeException,
+                                 NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
+                                 UndecodableRecord)
 import uuid
 import json
 from tqdm import tqdm
@@ -490,13 +491,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 state of the Merkle-tree
         :type subhash: bytes
         :rtype: bool
-
-        :raises InvalidTypes: if the type of any of the provided
-            arguments is not as prescribed
         """
-        if not isinstance(subhash, bytes):
-            raise InvalidTypes
-
         included = False
         multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):

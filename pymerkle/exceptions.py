@@ -31,14 +31,6 @@ class InvalidComparison(BaseException):
     pass
 
 
-class InvalidTypes(BaseException):
-    """
-    Raised when an inclusion-test is requested with arguments whose types
-    are not as prescribed.
-    """
-    pass
-
-
 class LeafConstructionError(BaseException):
     """
     Raised upon construction of a leaf if the provided arguments

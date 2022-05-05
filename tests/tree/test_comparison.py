@@ -6,7 +6,7 @@ import pytest
 import os
 
 from pymerkle import MerkleTree, MerkleVerifier, hashing
-from pymerkle.exceptions import InvalidTypes, InvalidComparison
+from pymerkle.exceptions import InvalidComparison
 from tests.conftest import ENCODINGS
 
 
@@ -29,14 +29,6 @@ for security in (True, False):
             for record in ('f', 'g', 'h', 'k'):
                 tree.encrypt_record(record)
             trees_and_subtrees.append((tree, subhash))
-
-
-# Exception cases
-
-@pytest.mark.parametrize("subhash", [100, 'no bytes'])
-def test_inclusion_test_InvalidTypes(subhash):
-    with pytest.raises(InvalidTypes):
-        MerkleTree().includes(subhash)
 
 
 # Success edge case with standard Merkle-Tree
