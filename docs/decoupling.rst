@@ -77,7 +77,7 @@ desired checksum:
         security    : ACTIVATED
 
         offset : 5
-        proof-path  :
+        path  :
 
            [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
            [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
@@ -202,7 +202,7 @@ desired proof as follows:
         security    : ACTIVATED
 
         offset : 6
-        proof-path  :
+        path  :
 
            [0]   -1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
            [1]   -1   426425d89f65c8f9f0afc57afdb26b3473417677be769658f5e96fa31e21c30c

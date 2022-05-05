@@ -75,7 +75,7 @@ class Prover(object, metaclass=ABCMeta):
                 raw_bytes=self.raw_bytes,
                 commitment=commitment,
                 offset=-1,
-                proof_path=())
+                path=())
         else:
             proof = MerkleProof(
                 provider=self.uuid,
@@ -85,7 +85,7 @@ class Prover(object, metaclass=ABCMeta):
                 raw_bytes=self.raw_bytes,
                 commitment=commitment,
                 offset=offset,
-                proof_path=audit_path)
+                path=audit_path)
 
         return proof
 
@@ -116,7 +116,7 @@ class Prover(object, metaclass=ABCMeta):
             security=self.security,
             commitment=commitment,
             offset=-1,
-            proof_path=())
+            path=())
 
         for sublength in range(1, self.length + 1):
             try:
@@ -134,7 +134,7 @@ class Prover(object, metaclass=ABCMeta):
                         security=self.security,
                         commitment=commitment,
                         offset=offset,
-                        proof_path=full_path)
+                        path=full_path)
                     break
 
         return proof
@@ -155,8 +155,8 @@ class MerkleProof(object):
     :type security: bool
     :param offset: starting position of subsequent verification procedure
     :type offset: int
-    :param proof_path: path of signed hashes
-    :type proof_path: tuple of (+1/-1, bytes)
+    :param path: path of signed hashes
+    :type path: tuple of (+1/-1, bytes)
 
     Proofs are meant to be output of proof generation mechanisms and not
     manually constructed. MerkleProof construction via deserialization might though
@@ -179,7 +179,7 @@ class MerkleProof(object):
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
         *created_at*, *provider*, *hash_type*, *encoding*,
         *raw_bytes*, *security* and *status*
-    :ivar body: (*dict*) Contains the keys *offset* and *proof_path*
+    :ivar body: (*dict*) Contains the keys *offset* and *path*
     """
 
     def __init__(self, **kwargs):
@@ -193,20 +193,20 @@ class MerkleProof(object):
             if header['commitment']:
                 header['commitment'] = header['commitment'].encode()
             body['offset'] = input['body']['offset']
-            body['proof_path'] = tuple((
+            body['path'] = tuple((
                 pair[0],
                 bytes(pair[1], header['encoding'])
-            ) for pair in input['body']['proof_path'])
+            ) for pair in input['body']['path'])
         elif kwargs.get('from_json'):
             input = json.loads(kwargs['from_json'])
             header.update(input['header'])
             if header['commitment']:
                 header['commitment'] = header['commitment'].encode()
             body['offset'] = input['body']['offset']
-            body['proof_path'] = tuple((
+            body['path'] = tuple((
                 pair[0],
                 bytes(pair[1], header['encoding'])
-            ) for pair in input['body']['proof_path'])
+            ) for pair in input['body']['path'])
         else:
             header.update({
                 'uuid': str(uuid.uuid1()),
@@ -221,7 +221,7 @@ class MerkleProof(object):
                 'status': None})
             body.update({
                 'offset': kwargs['offset'],
-                'proof_path': kwargs['proof_path']})
+                'path': kwargs['path']})
         self.header = header
         self.body = body
 
@@ -282,8 +282,8 @@ class MerkleProof(object):
                 \n    security    : {security}\
                 \n\
                 \n    offset : {offset}\
-                \n    proof-path  :\
-                \n    {proof_path}\
+                \n    path  :\
+                \n    {path}\
                 \n\
                 \n    commitment  : {commitment}\
                 \n\
@@ -302,7 +302,7 @@ class MerkleProof(object):
             commitment=header['commitment'].decode()
             if header['commitment'] else None,
             offset=body['offset'],
-            proof_path=stringify_path(body['proof_path'], header['encoding']),
+            path=stringify_path(body['path'], header['encoding']),
             status='UNVERIFIED' if header['status'] is None
             else 'VERIFIED' if header['status'] is True else 'INVALID')
 

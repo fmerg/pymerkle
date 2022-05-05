@@ -72,10 +72,10 @@ class MerkleVerifier(HashMachine):
                 err = 'No acclaimed root-hash provided'
                 raise AssertionError(err)
         offset = proof.body['offset']
-        proof_path = proof.body['proof_path']
-        if offset == -1 and proof_path == ():
+        path = proof.body['path']
+        if offset == -1 and path == ():
             raise InvalidMerkleProof
-        if target != self.multi_hash(proof_path, offset):
+        if target != self.multi_hash(path, offset):
             raise InvalidMerkleProof
 
     def verify_proof(self, proof, target=None):

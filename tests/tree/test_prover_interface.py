@@ -93,7 +93,7 @@ def test_empty_generate_audit_proof(tree, arg):
         },
         'body': {
             'offset': -1,
-            'proof_path': ()
+            'path': ()
         }
     }
 
@@ -117,7 +117,7 @@ def test_non_empty_generate_audit_proof(tree, arg):
         },
         'body': {
             'offset': audit_proof.body['offset'],
-            'proof_path': audit_proof.body['proof_path']
+            'path': audit_proof.body['path']
         }
     }
 
@@ -193,7 +193,7 @@ def test_non_empty_generate_consistency_proof(tree, subhash):
         },
         'body': {
             'offset': consistency_proof.body['offset'],
-            'proof_path': consistency_proof.body['proof_path']
+            'path': consistency_proof.body['path']
         }
     }
 
@@ -221,7 +221,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
         },
         'body': {
             'offset': consistency_proof.body['offset'],
-            'proof_path': consistency_proof.body['proof_path']
+            'path': consistency_proof.body['path']
         }
     }
 
@@ -249,7 +249,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
         },
         'body': {
             'offset': consistency_proof.body['offset'],
-            'proof_path': consistency_proof.body['proof_path']
+            'path': consistency_proof.body['path']
         }
     }
 
@@ -263,7 +263,7 @@ hexstring = '15d02997b9e32d81ffefa8fad54a252a6e5303f846140e544c008455e64660ec'
 def test_conversion_at_generate_audit_proof():
     proof_1 = tree.generate_audit_proof(hexstring)
     proof_2 = tree.generate_audit_proof(hexstring.encode())
-    assert proof_1.body['proof_path'] == proof_2.body['proof_path']
+    assert proof_1.body['path'] == proof_2.body['path']
 
 
 subhash = tree.root_hash
@@ -275,4 +275,4 @@ def test_conversion_at_generate_consistency_proof():
     generate_consistency_proof = tree.generate_consistency_proof
     proof_1 = generate_consistency_proof(subhash=subhash)
     proof_2 = generate_consistency_proof(subhash=subhash.decode())
-    assert proof_1.body['proof_path'] == proof_2.body['proof_path']
+    assert proof_1.body['path'] == proof_2.body['path']

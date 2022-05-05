@@ -85,7 +85,7 @@ class ProofSerializer(json.JSONEncoder):
             security = obj.header['security']
             raw_bytes = obj.header['raw_bytes']
             offset = obj.body['offset']
-            proof_path = obj.body['proof_path']
+            path = obj.body['path']
             commitment = obj.header['commitment']
             status = obj.header['status']
         except AttributeError:
@@ -106,9 +106,9 @@ class ProofSerializer(json.JSONEncoder):
             },
             'body': {
                 'offset': offset,
-                'proof_path': [
+                'path': [
                     [sign, digest if type(digest) is str else digest.decode()]
-                    for (sign, digest) in proof_path
+                    for (sign, digest) in path
                 ]
             }
         }

@@ -77,7 +77,7 @@ class NoParentException(BaseException):
 
 class NoPathException(BaseException):
     """
-    Raised when no proof-path exists for the provided parameters.
+    Raised when no path exists for the provided parameters.
     """
     pass
 

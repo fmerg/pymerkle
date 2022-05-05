@@ -65,7 +65,7 @@ client's side. Invoking it from the Python interpreter, it looks like
         security    : ACTIVATED
 
         offset : 4
-        proof-path  :
+        path  :
 
            [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
            [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
@@ -133,7 +133,7 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         security    : ACTIVATED
 
         offset : -1
-        proof-path  :
+        path  :
 
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
@@ -172,7 +172,7 @@ proof would be as follows:
       'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0',
       'status': None},
       'body': {'proof_index': 4,
-      'proof_path': [[1,
+      'path': [[1,
         'f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207'],
        [1, 'f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b'],
        [1, '0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298'],
@@ -211,7 +211,7 @@ the `MerkleProof.to_json_str`_ method:
         }
         "body": {
             "proof_index": 4,
-            "proof_path": [
+            "path": [
                 [
                     1,
                     "f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207"
@@ -256,7 +256,7 @@ classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ 
         security    : ACTIVATED
 
         offset : 4
-        proof-path  :
+        path  :
 
            [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
            [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
@@ -311,7 +311,7 @@ Verification
         security    : ACTIVATED
 
         offset : 5
-        proof-path  :
+        path  :
 
            [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
            [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
