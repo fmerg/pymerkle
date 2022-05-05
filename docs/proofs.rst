@@ -64,7 +64,7 @@ client's side. Invoking it from the Python interpreter, it looks like
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 4
+        offset : 4
         proof-path  :
 
            [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
@@ -114,7 +114,7 @@ The Merkle-proof is valid *iff* the advertized path of hashes leads to the inscr
 commitment (see *Verification modes* below).
 
 There are cases where the advertized path of hashes is empty or, equivalently, the inscribed
-*proof-index* has the non sensical value -1:
+*offset* has the non sensical value -1:
 
 .. code-block:: python
 
@@ -132,7 +132,7 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : -1
+        offset : -1
         proof-path  :
 
 
@@ -255,7 +255,7 @@ classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ 
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 4
+        offset : 4
         proof-path  :
 
            [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
@@ -310,7 +310,7 @@ Verification
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 5
+        offset : 5
         proof-path  :
 
            [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8

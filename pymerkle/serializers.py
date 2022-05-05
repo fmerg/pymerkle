@@ -84,7 +84,7 @@ class ProofSerializer(json.JSONEncoder):
             encoding = obj.header['encoding']
             security = obj.header['security']
             raw_bytes = obj.header['raw_bytes']
-            proof_index = obj.body['proof_index']
+            offset = obj.body['offset']
             proof_path = obj.body['proof_path']
             commitment = obj.header['commitment']
             status = obj.header['status']
@@ -105,7 +105,7 @@ class ProofSerializer(json.JSONEncoder):
                 'status': status
             },
             'body': {
-                'proof_index': proof_index,
+                'offset': offset,
                 'proof_path': [
                     [sign, digest if type(digest) is str else digest.decode()]
                     for (sign, digest) in proof_path

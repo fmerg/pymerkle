@@ -65,7 +65,7 @@ class Prover(object, metaclass=ABCMeta):
         commitment = self.get_commitment() if commit else None
 
         try:
-            proof_index, audit_path = self.audit_path(index)
+            offset, audit_path = self.audit_path(index)
         except NoPathException:
             proof = MerkleProof(
                 provider=self.uuid,
@@ -74,7 +74,7 @@ class Prover(object, metaclass=ABCMeta):
                 security=self.security,
                 raw_bytes=self.raw_bytes,
                 commitment=commitment,
-                proof_index=-1,
+                offset=-1,
                 proof_path=())
         else:
             proof = MerkleProof(
@@ -84,7 +84,7 @@ class Prover(object, metaclass=ABCMeta):
                 security=self.security,
                 raw_bytes=self.raw_bytes,
                 commitment=commitment,
-                proof_index=proof_index,
+                offset=offset,
                 proof_path=audit_path)
 
         return proof
@@ -115,12 +115,12 @@ class Prover(object, metaclass=ABCMeta):
             raw_bytes=self.raw_bytes,
             security=self.security,
             commitment=commitment,
-            proof_index=-1,
+            offset=-1,
             proof_path=())
 
         for sublength in range(1, self.length + 1):
             try:
-                proof_index, left_path, full_path = self.consistency_path(
+                offset, left_path, full_path = self.consistency_path(
                     sublength)
             except NoPathException:
                 pass
@@ -133,7 +133,7 @@ class Prover(object, metaclass=ABCMeta):
                         raw_bytes=self.raw_bytes,
                         security=self.security,
                         commitment=commitment,
-                        proof_index=proof_index,
+                        offset=offset,
                         proof_path=full_path)
                     break
 
@@ -153,8 +153,8 @@ class MerkleProof(object):
     :type raw_bytes: bool
     :param security: security mode of the provider Merkle-tree
     :type security: bool
-    :param proof_index: starting position of subsequent verification procedure
-    :type proof_index: int
+    :param offset: starting position of subsequent verification procedure
+    :type offset: int
     :param proof_path: path of signed hashes
     :type proof_path: tuple of (+1/-1, bytes)
 
@@ -179,7 +179,7 @@ class MerkleProof(object):
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
         *created_at*, *provider*, *hash_type*, *encoding*,
         *raw_bytes*, *security* and *status*
-    :ivar body: (*dict*) Contains the keys *proof_index* and *proof_path*
+    :ivar body: (*dict*) Contains the keys *offset* and *proof_path*
     """
 
     def __init__(self, **kwargs):
@@ -192,7 +192,7 @@ class MerkleProof(object):
             header.update(input['header'])
             if header['commitment']:
                 header['commitment'] = header['commitment'].encode()
-            body['proof_index'] = input['body']['proof_index']
+            body['offset'] = input['body']['offset']
             body['proof_path'] = tuple((
                 pair[0],
                 bytes(pair[1], header['encoding'])
@@ -202,7 +202,7 @@ class MerkleProof(object):
             header.update(input['header'])
             if header['commitment']:
                 header['commitment'] = header['commitment'].encode()
-            body['proof_index'] = input['body']['proof_index']
+            body['offset'] = input['body']['offset']
             body['proof_path'] = tuple((
                 pair[0],
                 bytes(pair[1], header['encoding'])
@@ -220,7 +220,7 @@ class MerkleProof(object):
                 'commitment': kwargs.get('commitment'),
                 'status': None})
             body.update({
-                'proof_index': kwargs['proof_index'],
+                'offset': kwargs['offset'],
                 'proof_path': kwargs['proof_path']})
         self.header = header
         self.body = body
@@ -281,7 +281,7 @@ class MerkleProof(object):
                 \n    raw_bytes   : {raw_bytes}\
                 \n    security    : {security}\
                 \n\
-                \n    proof-index : {proof_index}\
+                \n    offset : {offset}\
                 \n    proof-path  :\
                 \n    {proof_path}\
                 \n\
@@ -301,7 +301,7 @@ class MerkleProof(object):
             security='ACTIVATED' if header['security'] else 'DEACTIVATED',
             commitment=header['commitment'].decode()
             if header['commitment'] else None,
-            proof_index=body['proof_index'],
+            offset=body['offset'],
             proof_path=stringify_path(body['proof_path'], header['encoding']),
             status='UNVERIFIED' if header['status'] is None
             else 'VERIFIED' if header['status'] is True else 'INVALID')

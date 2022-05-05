@@ -76,7 +76,7 @@ desired checksum:
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 5
+        offset : 5
         proof-path  :
 
            [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
@@ -201,7 +201,7 @@ desired proof as follows:
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 6
+        offset : 6
         proof-path  :
 
            [0]   -1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8

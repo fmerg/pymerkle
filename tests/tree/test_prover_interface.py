@@ -92,7 +92,7 @@ def test_empty_generate_audit_proof(tree, arg):
             'status': None
         },
         'body': {
-            'proof_index': -1,
+            'offset': -1,
             'proof_path': ()
         }
     }
@@ -116,7 +116,7 @@ def test_non_empty_generate_audit_proof(tree, arg):
             'status': None
         },
         'body': {
-            'proof_index': audit_proof.body['proof_index'],
+            'offset': audit_proof.body['offset'],
             'proof_path': audit_proof.body['proof_path']
         }
     }
@@ -192,7 +192,7 @@ def test_non_empty_generate_consistency_proof(tree, subhash):
             'status': None
         },
         'body': {
-            'proof_index': consistency_proof.body['proof_index'],
+            'offset': consistency_proof.body['offset'],
             'proof_path': consistency_proof.body['proof_path']
         }
     }
@@ -220,7 +220,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
             'status': None
         },
         'body': {
-            'proof_index': consistency_proof.body['proof_index'],
+            'offset': consistency_proof.body['offset'],
             'proof_path': consistency_proof.body['proof_path']
         }
     }
@@ -248,7 +248,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
             'status': None
         },
         'body': {
-            'proof_index': consistency_proof.body['proof_index'],
+            'offset': consistency_proof.body['offset'],
             'proof_path': consistency_proof.body['proof_path']
         }
     }

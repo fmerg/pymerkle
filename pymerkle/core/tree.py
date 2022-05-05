@@ -343,16 +343,16 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             # Reset all signsto minus
             all_subroots = [(-1, _[1]) for _ in all_subroots]
             # Will start multi-hasning from rightmost
-            proof_index = len(all_subroots) - 1
+            offset = len(all_subroots) - 1
         else:
             # Will start multi-hashing from midpoint
-            proof_index = len(left_subroots) - 1
+            offset = len(left_subroots) - 1
 
         # Collect sign-hash pairs
         left_path = tuple((-1, _[1].digest) for _ in left_subroots)
         full_path = tuple((_[0], _[1].digest) for _ in all_subroots)
 
-        return proof_index, left_path, full_path
+        return offset, left_path, full_path
 
     def minimal_complement(self, subroots):
         """Complements optimally from the right the provided sequence of subroots,
