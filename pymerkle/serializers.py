@@ -77,7 +77,7 @@ class ProofSerializer(json.JSONEncoder):
         """
         try:
             uuid = obj.header['uuid']
-            creation_moment = obj.header['creation_moment']
+            created_at = obj.header['created_at']
             timestamp = obj.header['timestamp']
             provider = obj.header['provider']
             hash_type = obj.header['hash_type']
@@ -95,7 +95,7 @@ class ProofSerializer(json.JSONEncoder):
             'header': {
                 'uuid': uuid,
                 'timestamp': timestamp,
-                'creation_moment': creation_moment,
+                'created_at': created_at,
                 'provider': provider,
                 'hash_type': hash_type,
                 'encoding': encoding,

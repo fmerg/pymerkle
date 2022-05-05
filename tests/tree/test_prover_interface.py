@@ -82,7 +82,7 @@ def test_empty_generate_audit_proof(tree, arg):
         'header': {
             'uuid': audit_proof.header['uuid'],
             'timestamp': audit_proof.header['timestamp'],
-            'creation_moment': audit_proof.header['creation_moment'],
+            'created_at': audit_proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
@@ -106,7 +106,7 @@ def test_non_empty_generate_audit_proof(tree, arg):
         'header': {
             'uuid': audit_proof.header['uuid'],
             'timestamp': audit_proof.header['timestamp'],
-            'creation_moment': audit_proof.header['creation_moment'],
+            'created_at': audit_proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
@@ -182,7 +182,7 @@ def test_non_empty_generate_consistency_proof(tree, subhash):
         'header': {
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
-            'creation_moment': consistency_proof.header['creation_moment'],
+            'created_at': consistency_proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
@@ -210,7 +210,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
         'header': {
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
-            'creation_moment': consistency_proof.header['creation_moment'],
+            'created_at': consistency_proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
@@ -238,7 +238,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
         'header': {
             'uuid': consistency_proof.header['uuid'],
             'timestamp': consistency_proof.header['timestamp'],
-            'creation_moment': consistency_proof.header['creation_moment'],
+            'created_at': consistency_proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,

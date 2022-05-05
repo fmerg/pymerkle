@@ -177,7 +177,7 @@ class MerkleProof(object):
         the same uuid and timestamp as the original.
 
     :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
-        *creation_moment*, *provider*, *hash_type*, *encoding*,
+        *created_at*, *provider*, *hash_type*, *encoding*,
         *raw_bytes*, *security* and *status*
     :ivar body: (*dict*) Contains the keys *proof_index* and *proof_path*
     """
@@ -211,7 +211,7 @@ class MerkleProof(object):
             header.update({
                 'uuid': str(uuid.uuid1()),
                 'timestamp': int(time()),
-                'creation_moment': ctime(),
+                'created_at': ctime(),
                 'provider': kwargs['provider'],
                 'hash_type': kwargs['hash_type'],
                 'encoding': kwargs['encoding'],
@@ -273,7 +273,7 @@ class MerkleProof(object):
                 \n\
                 \n    uuid        : {uuid}\
                 \n\
-                \n    timestamp   : {timestamp} ({creation_moment})\
+                \n    timestamp   : {timestamp} ({created_at})\
                 \n    provider    : {provider}\
                 \n\
                 \n    hash-type   : {hash_type}\
@@ -293,7 +293,7 @@ class MerkleProof(object):
                 \n'.format(
             uuid=header['uuid'],
             timestamp=header['timestamp'],
-            creation_moment=header['creation_moment'],
+            created_at=header['created_at'],
             provider=header['provider'],
             hash_type=header['hash_type'].upper().replace('_', '-'),
             encoding=header['encoding'].upper().replace('_', '-'),

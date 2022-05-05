@@ -163,7 +163,7 @@ proof would be as follows:
     >>> serialized_proof
     {'header': {'uuid': '11a20142-f8e3-11e9-9e85-701ce71deb6a',
       'timestamp': 1572198974,
-      'creation_moment': 'Sun Oct 27 19:56:14 2019',
+      'created_at': 'Sun Oct 27 19:56:14 2019',
       'provider': '77b623a6-f8dd-11e9-9e85-701ce71deb6a',
       'hash_type': 'sha256',
       'encoding': 'utf_8',
@@ -199,7 +199,7 @@ the `MerkleProof.to_json_str`_ method:
     {
         "header": {
             "commitment": "ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0",
-            "creation_moment": "Sun Oct 27 19:56:14 2019",
+            "created_at": "Sun Oct 27 19:56:14 2019",
             "encoding": "utf_8",
             "hash_type": "sha256",
             "provider": "77b623a6-f8dd-11e9-9e85-701ce71deb6a",
