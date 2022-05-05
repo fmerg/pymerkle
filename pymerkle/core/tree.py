@@ -226,7 +226,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             self.nodes = set([new_leaf])
             self.__root = new_leaf
 
-    def audit_path(self, index):
+    def generate_audit_path(self, index):
         """Low-level audit proof.
 
         Computes and returns the audit-path corresponding to the provided leaf
@@ -308,7 +308,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return index
 
-    def consistency_path(self, sublength):
+    def generate_consistency_path(self, sublength):
         """Low-level consistency proof.
 
         Computes and returns the consistency-path corresponding to the tree's
@@ -340,9 +340,9 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         right_subroots = self.minimal_complement(left_subroots)
         all_subroots = left_subroots + right_subroots
         if not right_subroots or not left_subroots:
-            # Reset all signsto minus
+            # Reset all signs to minus
             all_subroots = [(-1, _[1]) for _ in all_subroots]
-            # Will start multi-hasning from rightmost
+            # Will start multi-hashing from rightmost
             offset = len(all_subroots) - 1
         else:
             # Will start multi-hashing from midpoint

@@ -26,17 +26,7 @@ class Prover(object, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def audit_path(self, index):
-        """
-        """
-
-    @abstractmethod
     def multi_hash(self, signed_hashes, start):
-        """
-        """
-
-    @abstractmethod
-    def consistency_path(self, sublength):
         """
         """
 
@@ -44,6 +34,25 @@ class Prover(object, metaclass=ABCMeta):
     def get_commitment(self):
         """
         """
+
+    @abstractmethod
+    def generate_audit_path(self, index):
+        """
+        """
+
+    @abstractmethod
+    def generate_consistency_path(self, sublength):
+        """
+        """
+
+    def get_proof_params(self):
+        return {
+            'provider': self.uuid,
+            'hash_type': self.hash_type,
+            'encoding': self.encoding,
+            'security': self.security,
+            'raw_bytes': self.raw_bytes,
+        }
 
     def generate_audit_proof(self, checksum, commit=False):
         """Response of the Merkle-tree to the request of providing an
@@ -53,33 +62,18 @@ class Prover(object, metaclass=ABCMeta):
         :type checksum: bytes
         :rtype: MerkleProof
         """
-        index = self.find_index(checksum)
+        params = self.get_proof_params()
         commitment = self.get_commitment() if commit else None
 
+        index = self.find_index(checksum)
         try:
-            offset, audit_path = self.audit_path(index)
+            offset, path = self.generate_audit_path(index)
         except NoPathException:
-            proof = MerkleProof(
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                raw_bytes=self.raw_bytes,
-                commitment=commitment,
-                offset=-1,
-                path=())
-        else:
-            proof = MerkleProof(
-                provider=self.uuid,
-                hash_type=self.hash_type,
-                encoding=self.encoding,
-                security=self.security,
-                raw_bytes=self.raw_bytes,
-                commitment=commitment,
-                offset=offset,
-                path=audit_path)
+            return MerkleProof(**params, commitment=commitment, offset=-1,
+                               path=())
 
-        return proof
+        return MerkleProof(**params, commitment=commitment, offset=offset,
+                           path=path)
 
     def generate_consistency_proof(self, subhash, commit=False):
         """Response of the Merkle-tree to the request of providing a consistency
@@ -92,35 +86,21 @@ class Prover(object, metaclass=ABCMeta):
         :rtype: MerkleProof
 
         """
-        commitment = self.get_commitment() if commit is True else None
+        params = self.get_proof_params()
+        commitment = self.get_commitment() if commit else None
 
-        proof = MerkleProof(
-            provider=self.uuid,
-            hash_type=self.hash_type,
-            encoding=self.encoding,
-            raw_bytes=self.raw_bytes,
-            security=self.security,
-            commitment=commitment,
-            offset=-1,
-            path=())
-
+        proof = MerkleProof(**params, commitment=commitment, offset=-1,
+                            path=())
         for sublength in range(1, self.length + 1):
             try:
-                offset, left_path, full_path = self.consistency_path(
+                offset, left_path, full_path = self.generate_consistency_path(
                     sublength)
             except NoPathException:
                 pass
             else:
                 if subhash == self.multi_hash(left_path, len(left_path) - 1):
-                    proof = MerkleProof(
-                        provider=self.uuid,
-                        hash_type=self.hash_type,
-                        encoding=self.encoding,
-                        raw_bytes=self.raw_bytes,
-                        security=self.security,
-                        commitment=commitment,
-                        offset=offset,
-                        path=full_path)
+                    proof = MerkleProof(**params, commitment=commitment,
+                                        offset=offset, path=full_path)
                     break
 
         return proof
