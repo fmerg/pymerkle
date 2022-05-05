@@ -6,7 +6,6 @@ import pytest
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import HASH_TYPES
-from pymerkle.exceptions import InvalidChallengeError, InvalidChallengeError
 from tests.conftest import ENCODINGS
 
 
@@ -28,29 +27,6 @@ for raw_bytes in (True, False):
                             security=security
                         )
                     )
-
-
-# Audit proof
-
-__invalid_audit_proof_requests = [
-    (
-        MerkleTree(),
-        100  # 'anything that is not of type... bytes'
-    ),
-    (
-        MerkleTree(),
-        {
-            'a': 200,  # 'anything that is not...',
-            'b': 300  # ... of type bytes'
-        },
-    ),
-]
-
-
-@pytest.mark.parametrize("tree, arg", __invalid_audit_proof_requests)
-def test_audit_InvalidChallengeError(tree, arg):
-    with pytest.raises(InvalidChallengeError):
-        tree.generate_audit_proof(arg)
 
 
 tree__wrong_arg = []
@@ -143,17 +119,9 @@ for tree in trees:
         )
 
 
-__invalid_consistency_proof_requests = []
 tree__subhash = []
 
 for (tree, subtree) in trees_and_subtrees:
-
-    __invalid_consistency_proof_requests.append(
-        (
-            tree,
-            100,                            # Invalid type for `subhash`
-        ),
-    )
 
     tree__subhash.append(
         (
@@ -161,14 +129,6 @@ for (tree, subtree) in trees_and_subtrees:
             subtree.root_hash,
         )
     )
-
-
-@pytest.mark.parametrize("tree, subhash", __invalid_consistency_proof_requests)
-def test_consistency_InvalidChallengeError(tree, subhash):
-    """
-    """
-    with pytest.raises(InvalidChallengeError):
-        tree.generate_consistency_proof(subhash)
 
 
 @pytest.mark.parametrize("tree, subhash", tree__subhash)

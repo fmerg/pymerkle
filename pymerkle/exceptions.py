@@ -31,13 +31,6 @@ class InvalidComparison(BaseException):
     pass
 
 
-class InvalidChallengeError(BaseException):
-    """
-    Raised when a challenge is posed, whose structure is not as prescribed.
-    """
-    pass
-
-
 class InvalidTypes(BaseException):
     """
     Raised when an inclusion-test is requested with arguments whose types

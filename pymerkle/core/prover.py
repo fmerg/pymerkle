@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 import uuid
 from time import time, ctime
 import json
-from pymerkle.exceptions import (NoPathException, InvalidChallengeError,)
+from pymerkle.exceptions import NoPathException
 from pymerkle.serializers import ProofSerializer
 from pymerkle.utils import stringify_path
 
@@ -52,14 +52,9 @@ class Prover(object, metaclass=ABCMeta):
         :param checksum: Checksum which the requested proof is to be based upon
         :type checksum: str or bytes
         :rtype: MerkleProof
-
-        :raises InvalidChallengeError: if the provided argument's type
-            is not as prescribed
         """
         if isinstance(checksum, str):
             checksum = checksum.encode()
-        elif not isinstance(checksum, bytes):
-            raise InvalidChallengeError
 
         index = self.find_index(checksum)
         commitment = self.get_commitment() if commit else None
@@ -99,12 +94,9 @@ class Prover(object, metaclass=ABCMeta):
         :type subhash: bytes
         :rtype: MerkleProof
 
-        :raises InvalidChallengeError: if type of *subhash* is not as prescribed
         """
         if isinstance(subhash, str):
             subhash = subhash.encode()
-        elif not isinstance(subhash, bytes):
-            raise InvalidChallengeError
 
         commitment = self.get_commitment() if commit is True else None
 
