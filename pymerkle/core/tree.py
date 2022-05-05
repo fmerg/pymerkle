@@ -49,10 +49,8 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                  raw_bytes=True, security=True):
         self.uuid = str(uuid.uuid1())
 
-        # Hash-machine configuration
         super().__init__(hash_type, encoding, raw_bytes, security)
 
-        # Tree generation
         self.leaves = []
         self.nodes = set()
         for record in records:
@@ -113,13 +111,10 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         :rtype: bytes or None
         """
-        commitment = None
         try:
-            commitment = self.root_hash
+            return self.root_hash
         except EmptyTreeException:
-            pass
-
-        return commitment
+            return None
 
     @property
     def length(self):
@@ -147,10 +142,14 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :rtype: int
         """
         length = len(self.leaves)
+
         if length == 0:
             return 0
-        return log_2(length) + 1 if length != 2 ** log_2(length) \
-            else log_2(length)
+
+        if length != 2 ** log_2(length):
+            return log_2(length + 1)
+
+        return log_2(length)
 
     def update(self, record=None, digest=None):
         """Updates the Merkle-tree by storing the digest of the inserted record
@@ -530,7 +529,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             json.dump(self.serialize(), f, indent=4)
 
     @classmethod
-    def loadFromFile(cls, filepath):
+    def load_from_file(cls, filepath):
         """Loads a Merkle-tree from the provided file, the latter being the result
         of an export (cf. the *MerkleTree.export()* method)
 
@@ -544,20 +543,16 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                     provided file is not a Merkle-tree export
         """
         with open(filepath, 'r') as f:
-            loaded_object = json.load(f)
+            obj = json.load(f)
         try:
-            header = loaded_object['header']
-            tree = cls(
-                hash_type=header['hash_type'],
-                encoding=header['encoding'],
-                raw_bytes=header['raw_bytes'],
-                security=header['security'])
+            header = obj['header']
+            tree = cls(**header)
         except KeyError:
             raise WrongJSONFormat
 
         tqdm.write('\nFile has been loaded')
         update = tree.update
-        for hash in tqdm(loaded_object['hashes'], desc='Retrieving tree...'):
+        for hash in tqdm(obj['hashes'], desc='Retrieving tree...'):
             update(digest=hash)
         tqdm.write('Tree has been retrieved')
 
