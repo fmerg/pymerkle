@@ -50,12 +50,9 @@ class Prover(object, metaclass=ABCMeta):
         audit proof based upon the provided checksum
 
         :param checksum: Checksum which the requested proof is to be based upon
-        :type checksum: str or bytes
+        :type checksum: bytes
         :rtype: MerkleProof
         """
-        if isinstance(checksum, str):
-            checksum = checksum.encode()
-
         index = self.find_index(checksum)
         commitment = self.get_commitment() if commit else None
 
@@ -90,14 +87,11 @@ class Prover(object, metaclass=ABCMeta):
 
         :param subhash: acclaimed root-hash of some previous
                 state of the Merkle-tree
-        :type subhash: str or bytes
+        :type subhash: bytes
         :type subhash: bytes
         :rtype: MerkleProof
 
         """
-        if isinstance(subhash, str):
-            subhash = subhash.encode()
-
         commitment = self.get_commitment() if commit is True else None
 
         proof = MerkleProof(

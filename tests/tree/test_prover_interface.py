@@ -52,19 +52,19 @@ for tree in trees:
 
 @pytest.mark.parametrize("tree, arg", tree__wrong_arg)
 def test_empty_generate_audit_proof(tree, arg):
-    audit_proof = tree.generate_audit_proof(arg)
+    proof = tree.generate_audit_proof(arg)
 
-    assert audit_proof.__dict__ == {
+    assert proof.__dict__ == {
         'header': {
-            'uuid': audit_proof.header['uuid'],
-            'timestamp': audit_proof.header['timestamp'],
-            'created_at': audit_proof.header['created_at'],
+            'uuid': proof.header['uuid'],
+            'timestamp': proof.header['timestamp'],
+            'created_at': proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
-            'commitment': audit_proof.header['commitment'],
+            'commitment': proof.header['commitment'],
             'status': None
         },
         'body': {
@@ -76,24 +76,24 @@ def test_empty_generate_audit_proof(tree, arg):
 
 @pytest.mark.parametrize("tree, arg", tree_arg)
 def test_non_empty_generate_audit_proof(tree, arg):
-    audit_proof = tree.generate_audit_proof(arg)
+    proof = tree.generate_audit_proof(arg)
 
-    assert audit_proof.__dict__ == {
+    assert proof.__dict__ == {
         'header': {
-            'uuid': audit_proof.header['uuid'],
-            'timestamp': audit_proof.header['timestamp'],
-            'created_at': audit_proof.header['created_at'],
+            'uuid': proof.header['uuid'],
+            'timestamp': proof.header['timestamp'],
+            'created_at': proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
-            'commitment': audit_proof.header['commitment'],
+            'commitment': proof.header['commitment'],
             'status': None
         },
         'body': {
-            'offset': audit_proof.body['offset'],
-            'path': audit_proof.body['path']
+            'offset': proof.body['offset'],
+            'path': proof.body['path']
         }
     }
 
@@ -136,24 +136,24 @@ def test_non_empty_generate_consistency_proof(tree, subhash):
     """
     Tests that the generated non-empty consistency proof is as expected
     """
-    consistency_proof = tree.generate_consistency_proof(subhash)
+    proof = tree.generate_consistency_proof(subhash)
 
-    assert consistency_proof.__dict__ == {
+    assert proof.__dict__ == {
         'header': {
-            'uuid': consistency_proof.header['uuid'],
-            'timestamp': consistency_proof.header['timestamp'],
-            'created_at': consistency_proof.header['created_at'],
+            'uuid': proof.header['uuid'],
+            'timestamp': proof.header['timestamp'],
+            'created_at': proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
-            'commitment': consistency_proof.header['commitment'],
+            'commitment': proof.header['commitment'],
             'status': None
         },
         'body': {
-            'offset': consistency_proof.body['offset'],
-            'path': consistency_proof.body['path']
+            'offset': proof.body['offset'],
+            'path': proof.body['path']
         }
     }
 
@@ -164,24 +164,24 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     Tests that the generated empty consistency proof, requested
     for a wrong hash, is as expected
     """
-    consistency_proof = tree.generate_consistency_proof(subhash, sublength)
+    proof = tree.generate_consistency_proof(subhash, sublength)
 
-    assert consistency_proof.__dict__ == {
+    assert proof.__dict__ == {
         'header': {
-            'uuid': consistency_proof.header['uuid'],
-            'timestamp': consistency_proof.header['timestamp'],
-            'created_at': consistency_proof.header['created_at'],
+            'uuid': proof.header['uuid'],
+            'timestamp': proof.header['timestamp'],
+            'created_at': proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
-            'commitment': consistency_proof.header['commitment'],
+            'commitment': proof.header['commitment'],
             'status': None
         },
         'body': {
-            'offset': consistency_proof.body['offset'],
-            'path': consistency_proof.body['path']
+            'offset': proof.body['offset'],
+            'path': proof.body['path']
         }
     }
 
@@ -192,47 +192,23 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     Tests that the generated empty consistency proof, requested
     for a wrong sublength, is as expected
     """
-    consistency_proof = tree.generate_consistency_proof(subhash, sublength)
+    proof = tree.generate_consistency_proof(subhash, sublength)
 
-    assert consistency_proof.__dict__ == {
+    assert proof.__dict__ == {
         'header': {
-            'uuid': consistency_proof.header['uuid'],
-            'timestamp': consistency_proof.header['timestamp'],
-            'created_at': consistency_proof.header['created_at'],
+            'uuid': proof.header['uuid'],
+            'timestamp': proof.header['timestamp'],
+            'created_at': proof.header['created_at'],
             'provider': tree.uuid,
             'hash_type': tree.hash_type,
             'encoding': tree.encoding,
             'raw_bytes': tree.raw_bytes,
             'security': tree.security,
-            'commitment': consistency_proof.header['commitment'],
+            'commitment': proof.header['commitment'],
             'status': None
         },
         'body': {
-            'offset': consistency_proof.body['offset'],
-            'path': consistency_proof.body['path']
+            'offset': proof.body['offset'],
+            'path': proof.body['path']
         }
     }
-
-
-# Test string conversion to bytes
-
-tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
-hexstring = '15d02997b9e32d81ffefa8fad54a252a6e5303f846140e544c008455e64660ec'
-
-
-def test_conversion_at_generate_audit_proof():
-    proof_1 = tree.generate_audit_proof(hexstring)
-    proof_2 = tree.generate_audit_proof(hexstring.encode())
-    assert proof_1.body['path'] == proof_2.body['path']
-
-
-subhash = tree.root_hash
-for i in range(1000):
-    tree.update(f'{i}-th record')
-
-
-def test_conversion_at_generate_consistency_proof():
-    generate_consistency_proof = tree.generate_consistency_proof
-    proof_1 = generate_consistency_proof(subhash=subhash)
-    proof_2 = generate_consistency_proof(subhash=subhash.decode())
-    assert proof_1.body['path'] == proof_2.body['path']
