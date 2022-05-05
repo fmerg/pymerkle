@@ -316,13 +316,13 @@ in respective order. For example:
   }
 
 
-One can recover the tree by means of the `.loadFromFile`_ classmethod:
+One can recover the tree by means of the `.load_from_file`_ classmethod:
 
 .. code-block:: python
 
-    loaded_tree = MerkleTree.loadFromFile('relative_path/backup.json')
+    loaded_tree = MerkleTree.load_from_file('relative_path/backup.json')
 
-.. _.loadFromFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.loadFromFile
+.. _.load_from_file: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.load_from_file
 
 Retrieval of the tree is uniquely determined by the sequence of hashes within
 the provided file, since the `.update`_ method ensures independence of the

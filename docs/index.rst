@@ -19,11 +19,9 @@ Cryptographic library for Merkle-proofs
 **DISCLAIMER**: This is currently a prototype requiring security review.
 
 Pymerkle provides a binary balanced Merkle-tree capable of generating audit and
-consistency proofs along with the corresponding verifier. It supports almost
-all combinations of hash functions and encoding schemas, with defense against
+consistency proofs along with the corresponding verification mechanism. It supports
+most combinations of hash functions and encoding schemas with defense against
 second-preimage attack enabled.
-
-The project is hosted at `GitHub`_.
 
 Installation
 ************
@@ -32,22 +30,24 @@ Installation
 
         pip install pymerkle
 
-Package exports
-***************
-
-Typing
+Usage
+*****
 
 .. code-block:: python
 
-        from pymerkle import *
-
-makes available the `MerkleTree`_, `MerkleProof`_ and `MerkleVerifier`_
-classes.
-
-.. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
-.. _MerkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.MerkleProof
-.. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
-
+        from pymerkle import MerkleTree, MerkleVerifier
+        
+        tree = MerkleTree()
+        
+        for i in range(7):
+            tree.encrypt_record('%d-th record' % i)
+        
+        challenge = b'45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
+        
+        proof = tree.generate_audit_proof(challenge, commit=True)
+        
+        v = MerkleVerifier()
+        assert v.verify_proof(proof)
 
 Security
 ********
@@ -62,10 +62,10 @@ Defense against second-preimage attack consists in the following
 security measures:
 This consists in the following standard technique:
 
-* Upon computing the hash of a leaf, prepend its record with `0x00`.
+* Upon computing the hash of a leaf, prepend its record with 0x00.
 
 * Upon computing the hash of an interior node, prepend the hashes of its
-  children with `0x01`.
+  children with 0x01.
 
 
 .. note:: One can disable this feature, say, for testing purposes,
@@ -95,15 +95,11 @@ independently of their growing strategy. This is further important for
   decreasing powers of 2).
 * efficient recalculation of the root-hash after appending a new leaf, since only
   the hashes at the tree's right-most branch need be recalculated.
-* storage, since the height as well as total number of nodes with respect
-  to the tree's length is constrained to the minimum.
+* space, since the total number of nodes with respect to the tree's length is
+  constrained to the minimum.
 
 The topology turns out to be identical with that of a binary *Sekura
 tree*, depicted in Section 5.4 of `this`_ paper.
-
-.. note:: Due to the binary balanced structure of the present
-   implementation, the consistency proof algorithm
-   significantly deviates from that outlined in `RFC 6912`_.
 
 .. _GitHub: https://github.com/fmerg/pymerkle
 .. _tqdm: https://tqdm.github.io/
@@ -114,11 +110,10 @@ tree*, depicted in Section 5.4 of `this`_ paper.
 .. _CVE-2012-2459: https://nvd.nist.gov/vuln/detail/CVE-2012-2459
 .. _this: https://keccak.team/files/Sakura.pdf
 .. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update
-.. _RFC 6912: https://tools.ietf.org/html/rfc6962#section-2.1.2
 
 
-Usage
-*****
+Examples
+********
 
 .. toctree::
     :maxdepth: 1

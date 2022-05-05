@@ -13,8 +13,8 @@ Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)*
 **DISCLAIMER**: This is currently a prototype. See [Security](#security) below for details.
 
 Pymerkle provides a binary balanced Merkle-tree capable of generating audit and
-consistency proofs along with the corresponding verifier. It supports almost
-all combinations of hash functions and encoding schemas, with defense against
+consistency proofs along with the corresponding verification mechanism. It supports
+most combinations of hash functions and encoding schemas with defense against
 second-preimage attack enabled.
 
 ## Install
@@ -89,8 +89,8 @@ independently of their growing strategy. This is further important for
   decreasing powers of 2).
 - efficient recalculation of the root-hash after appending a new leaf, since only
   the hashes at the tree's right-most branch need be recalculated.
-- storage, since the height as well as total number of nodes with respect
-  to the tree's length is constrained to the minimum.
+- space, since the total number of nodes with respect to the tree's length is
+  constrained to the minimum.
 
 The topology turns out to be identical with that of a binary _Sekura tree_,
 depicted in Section 5.4 of [this](https://keccak.team/files/Sakura.pdf) paper.

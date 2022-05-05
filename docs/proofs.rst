@@ -1,34 +1,31 @@
 
-Generation and verification of Merkle-proofs
-++++++++++++++++++++++++++++++++++++++++++++
+Merkle-proofs
++++++++++++++
 
-A tree (server) is capable of generating *Merkle-proofs* (*audit* and
+A Merkle-tree is capable of generating *Merkle-proofs* (*audit* and
 *consistency proofs*) in accordance with parameters provided by an auditor
-or a monitor (client). Any such proof essentially consists of a path of
+resp. monitor. Any such proof essentially consists of a path of
 hashes (a finite sequence of checksums and a rule for combining them into a
-single hash), leading to the acclaimed current root-hash of the Merkle-tree.
-Providing and verifying Merkle-proofs certifies knowledge on
-behalf of *both* the client and server of some part of the tree's history
-or current state, disclosing a minimum of encrypted records
-and without actual need of holding a database of the originals.
-This makes Merkle-proofs well suited for protocols involving verification
-of existence and integrity of encrypted data in a mutual fashion.
+single hash), leading to the acclaimed current root-hash of the tree.
+Requesting and generating Merkle-proofs certifies that both involved parties
+have knowledge of some part of the tree's history or current state,
+disclosing a minimum of encrypted records and without actual need of holding
+a database of the originals. This makes Merkle-proofs well suited for protocols
+involving verification of existence and integrity of encrypted data
+in a mutual fashion.
 
 In Merkle-proof protocols the role of *commitment* belongs to the
-root-hash of the tree at the moment of proof generation. The
-commitment is always available via the `.root_hash`_ property
-of Merkle-trees:
+root-hash of the tree at the moment of proof generation, which can anytime be
+retrieved as follows:
 
 
 .. code-block:: python
 
-    root_hash = tree.root_hash
-
-.. _.root_hash: file:///home/beast/proj/pymerkle/docs/build/pymerkle.html?highlight=roothash#pymerkle.MerkleTree.root_hash
+    commitment = tree.root_hash
 
 Note that this statement will raise an ``EmptyTreeException`` if the
-tree happens to be empty. For better semantics, one can alternately
-call the `.get_commitment`_ function,
+tree happens to be empty. Alternatively,
+
 
 .. code-block:: python
 
@@ -36,13 +33,30 @@ call the `.get_commitment`_ function,
 
 which returns ``None`` for the empty case.
 
-.. _.get_commitment: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.get_commitment
+Generation
+==========
+
+Audit-proof
+-----------
+
+Consistencty-proof
+------------------
+
+Verification
+============
+
+Serialization
+=============
+
+Decoupling commitments from proofs
+==================================
+
 
 Challenge-commitment schema
 ===========================
 
-MerkleProof structure
----------------
+Proof generation
+----------------
 
 The produced ``proof`` is an instance of the `MerkleProof`_ class. It consists of a
 path of hashes and the required parameters for verification to proceed from the
@@ -64,8 +78,8 @@ client's side. Invoking it from the Python interpreter, it looks like
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 4
-        proof-path  :
+        offset : 4
+        path  :
 
            [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
            [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
@@ -95,8 +109,7 @@ client's side. Invoking it from the Python interpreter, it looks like
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
 uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
 configuration. They are necessary for the client to configure their hashing-machine
-appropriately in order to verify the proof and are available via the
-`MerkleProof.get_verification_params`_ method:
+appropriately in order to verify the proof and become available as follows:
 
 .. code-block:: python
 
@@ -106,15 +119,13 @@ appropriately in order to verify the proof and are available via the
      'raw_bytes': True,
      'security': True}
 
-.. _MerkleProof.get_verification_params: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.get_verification_params
-
 *Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
 (that is, *before* any other records are possibly encrypted into the tree).
 The Merkle-proof is valid *iff* the advertized path of hashes leads to the inscribed
 commitment (see *Verification modes* below).
 
 There are cases where the advertized path of hashes is empty or, equivalently, the inscribed
-*proof-index* has the non sensical value -1:
+*offset* has the non sensical value -1:
 
 .. code-block:: python
 
@@ -132,8 +143,8 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : -1
-        proof-path  :
+        offset : -1
+        path  :
 
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
@@ -150,12 +161,8 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         some data have not been properly encrypted by the server or that the client does
         not have proper knowledge of any encrypted data or both.
 
-Transmission of proofs
-----------------------
-
-Transmission of a Merkle-proof via the network presupposes its JSON serialization. This is
-possible by means of the `MerkleProof.serialize`_ method, whose output for the above non-empty
-proof would be as follows:
+Proof serialization
+-------------------
 
 .. code-block:: python
 
@@ -163,7 +170,7 @@ proof would be as follows:
     >>> serialized_proof
     {'header': {'uuid': '11a20142-f8e3-11e9-9e85-701ce71deb6a',
       'timestamp': 1572198974,
-      'creation_moment': 'Sun Oct 27 19:56:14 2019',
+      'created_at': 'Sun Oct 27 19:56:14 2019',
       'provider': '77b623a6-f8dd-11e9-9e85-701ce71deb6a',
       'hash_type': 'sha256',
       'encoding': 'utf_8',
@@ -171,8 +178,8 @@ proof would be as follows:
       'raw_bytes': True,
       'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0',
       'status': None},
-      'body': {'proof_index': 4,
-      'proof_path': [[1,
+      'body': {'offset': 4,
+      'path': [[1,
         'f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207'],
        [1, 'f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b'],
        [1, '0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298'],
@@ -187,10 +194,8 @@ proof would be as follows:
 
     >>>
 
-.. _MerkleProof.serialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.serialize
 
-If JSON text is preferred instead of a Python dictionary, one can alternately apply
-the `MerkleProof.to_json_str`_ method:
+If JSON text is preferred instead of a Python dictionary, one can alternatively do:
 
 .. code-block:: python
 
@@ -199,7 +204,7 @@ the `MerkleProof.to_json_str`_ method:
     {
         "header": {
             "commitment": "ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0",
-            "creation_moment": "Sun Oct 27 19:56:14 2019",
+            "created_at": "Sun Oct 27 19:56:14 2019",
             "encoding": "utf_8",
             "hash_type": "sha256",
             "provider": "77b623a6-f8dd-11e9-9e85-701ce71deb6a",
@@ -210,8 +215,8 @@ the `MerkleProof.to_json_str`_ method:
             "uuid": "11a20142-f8e3-11e9-9e85-701ce71deb6a"
         }
         "body": {
-            "proof_index": 4,
-            "proof_path": [
+            "offset": 4,
+            "path": [
                 [
                     1,
                     "f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207"
@@ -233,10 +238,7 @@ the `MerkleProof.to_json_str`_ method:
 
     >>>
 
-.. _MerkleProof.toJSONstring: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.to_json_str
-
-Deserialization from the client's side proceeds by means of the `MerkleProof.deserialize`_
-classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ class):
+Deserialization proceeds as follows:
 
 .. code-block:: python
 
@@ -255,8 +257,8 @@ classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ 
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 4
-        proof-path  :
+        offset : 4
+        path  :
 
            [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
            [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
@@ -280,13 +282,8 @@ classmethod, which yields the original (i.e., an instance of the `MerkleProof`_ 
 
 The provided serialized object may here be a Python dictionary or JSON text indifferently.
 
-.. _MerkleProof.deserialize: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleProof.deserialize
-
-.. note:: Deserialization is necessary for proof verification to take place from the
-        client's side.
-
-Verification
-------------
+Proof verification
+------------------
 
 .. code-block:: python
 
@@ -310,8 +307,8 @@ Verification
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 5
-        proof-path  :
+        offset : 5
+        path  :
 
            [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
            [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
@@ -351,7 +348,7 @@ If the proof were found to be invalid, the corresponding value would have been
 
 
 Verification modes
-================
+==================
 
 Verification of a Merkle-proof presupposes correct configuration of an underlying
 hash machine. This happens automatically by just feeding the proof to any of the
@@ -364,7 +361,7 @@ proof's header. The underlying machine is an instance of the `MerkleVerifier`_ c
 .. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
 
 Running a verifier
--------------------
+------------------
 
 Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ object itself:
 

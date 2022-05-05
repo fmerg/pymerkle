@@ -38,7 +38,7 @@ for combining them into a single hash. Having knowledge of ``h``, the auditor
 is able to apply this rule, that is, to retrieve from ``p`` a single hash and
 compare it against the current root-hash ``c`` of the Merkle-tree (in formal
 terms, ``c`` is the server's *commitment* to the produced proof). This is the
-*verification* procedure, whose success verifies
+*verification* procedure, the success of which verifies
 
 1. that the data ``x`` has indeed been encrypted by the server and
 
@@ -76,8 +76,8 @@ desired checksum:
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 5
-        proof-path  :
+        offset : 5
+        path  :
 
            [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
            [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
@@ -153,7 +153,7 @@ a single hash. Having knowledge of the tree's hashing machinery, the monitor is
 able to apply this rule, that is, to retrieve from ``p`` a single hash and compare
 it against the current root-hash ``c`` of the Merkle-tree (in formal terms, ``c``
 is the server's *commitment* to the produced proof). This is the *verification*
-procedure, whose success verifies
+procedure, the success of which verifies
 
 1. that the tree's current state is indeed a possible evolvement of the recorded state
 
@@ -201,8 +201,8 @@ desired proof as follows:
         raw_bytes   : TRUE
         security    : ACTIVATED
 
-        proof-index : 6
-        proof-path  :
+        offset : 6
+        path  :
 
            [0]   -1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
            [1]   -1   426425d89f65c8f9f0afc57afdb26b3473417677be769658f5e96fa31e21c30c

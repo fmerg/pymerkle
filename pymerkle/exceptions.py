@@ -31,21 +31,6 @@ class InvalidComparison(BaseException):
     pass
 
 
-class InvalidChallengeError(BaseException):
-    """
-    Raised when a challenge is posed, whose structure is not as prescribed.
-    """
-    pass
-
-
-class InvalidTypes(BaseException):
-    """
-    Raised when an inclusion-test is requested with arguments whose types
-    are not as prescribed.
-    """
-    pass
-
-
 class LeafConstructionError(BaseException):
     """
     Raised upon construction of a leaf if the provided arguments
@@ -77,7 +62,7 @@ class NoParentException(BaseException):
 
 class NoPathException(BaseException):
     """
-    Raised when no proof-path exists for the provided parameters.
+    Raised when no path exists for the provided parameters.
     """
     pass
 

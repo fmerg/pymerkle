@@ -43,10 +43,10 @@ def test_audit_NoPathException(tree, index):
     or based upon an index either negative or exceeding the tree's current length
     """
     with pytest.raises(NoPathException):
-        tree.audit_path(index)
+        tree.generate_audit_path(index)
 
 
-_audit_paths = [
+audit_paths = [
     (
         _1_leaves_tree, 0,
         (
@@ -214,9 +214,9 @@ _audit_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, index, path', _audit_paths)
-def test_audit_path(tree, index, path):
-    assert tree.audit_path(index) == path
+@pytest.mark.parametrize('tree, index, path', audit_paths)
+def test_generate_audit_path(tree, index, path):
+    assert tree.generate_audit_path(index) == path
 
 
 # Consistency proof implementation
@@ -405,10 +405,10 @@ def test_consistency_NoPathException(tree, sublength):
     Tests NoPathException upon requesting consistency-path for incompatible sublength
     """
     with pytest.raises(NoPathException):
-        tree.consistency_path(sublength)
+        tree.generate_consistency_path(sublength)
 
 
-__consistency_paths = [
+consistency_paths = [
     (_1_leaves_tree, 0, (+0, (),
                          ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),))),
     (_1_leaves_tree, 1, (+0, ((-1, b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'),),
@@ -478,6 +478,6 @@ __consistency_paths = [
 ]
 
 
-@pytest.mark.parametrize("tree, sublength, consistency_path", __consistency_paths)
-def test_consistency_path(tree, sublength, consistency_path):
-    assert tree.consistency_path(sublength) == consistency_path
+@pytest.mark.parametrize("tree, sublength, path", consistency_paths)
+def test_generate_consistency_path(tree, sublength, path):
+    assert tree.generate_consistency_path(sublength) == path

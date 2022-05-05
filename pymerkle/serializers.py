@@ -77,15 +77,15 @@ class ProofSerializer(json.JSONEncoder):
         """
         try:
             uuid = obj.header['uuid']
-            creation_moment = obj.header['creation_moment']
+            created_at = obj.header['created_at']
             timestamp = obj.header['timestamp']
             provider = obj.header['provider']
             hash_type = obj.header['hash_type']
             encoding = obj.header['encoding']
             security = obj.header['security']
             raw_bytes = obj.header['raw_bytes']
-            proof_index = obj.body['proof_index']
-            proof_path = obj.body['proof_path']
+            offset = obj.body['offset']
+            path = obj.body['path']
             commitment = obj.header['commitment']
             status = obj.header['status']
         except AttributeError:
@@ -95,7 +95,7 @@ class ProofSerializer(json.JSONEncoder):
             'header': {
                 'uuid': uuid,
                 'timestamp': timestamp,
-                'creation_moment': creation_moment,
+                'created_at': created_at,
                 'provider': provider,
                 'hash_type': hash_type,
                 'encoding': encoding,
@@ -105,10 +105,10 @@ class ProofSerializer(json.JSONEncoder):
                 'status': status
             },
             'body': {
-                'proof_index': proof_index,
-                'proof_path': [
+                'offset': offset,
+                'path': [
                     [sign, digest if type(digest) is str else digest.decode()]
-                    for (sign, digest) in proof_path
+                    for (sign, digest) in path
                 ]
             }
         }
