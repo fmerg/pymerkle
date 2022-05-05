@@ -483,7 +483,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         return subroot
 
-    def inclusionTest(self, subhash):
+    def includes(self, subhash):
         """Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree
 
@@ -614,7 +614,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             return True
 
         return False if not self else \
-            self.inclusionTest(other.root_hash)
+            self.includes(other.root_hash)
 
     def __le__(self, other):
         """Implements the ``<=`` operator
@@ -649,7 +649,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         elif not self or self.root_hash == other.root_hash:
             return False
 
-        return self.inclusionTest(other.root_hash)
+        return self.includes(other.root_hash)
 
     def __lt__(self, other):
         """Implements the ``<`` operator

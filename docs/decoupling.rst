@@ -38,7 +38,7 @@ for combining them into a single hash. Having knowledge of ``h``, the auditor
 is able to apply this rule, that is, to retrieve from ``p`` a single hash and
 compare it against the current root-hash ``c`` of the Merkle-tree (in formal
 terms, ``c`` is the server's *commitment* to the produced proof). This is the
-*verification* procedure, whose success verifies
+*verification* procedure, the success of which verifies
 
 1. that the data ``x`` has indeed been encrypted by the server and
 
@@ -153,7 +153,7 @@ a single hash. Having knowledge of the tree's hashing machinery, the monitor is
 able to apply this rule, that is, to retrieve from ``p`` a single hash and compare
 it against the current root-hash ``c`` of the Merkle-tree (in formal terms, ``c``
 is the server's *commitment* to the produced proof). This is the *verification*
-procedure, whose success verifies
+procedure, the success of which verifies
 
 1. that the tree's current state is indeed a possible evolvement of the recorded state
 

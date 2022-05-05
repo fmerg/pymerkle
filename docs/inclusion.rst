@@ -7,9 +7,9 @@ the Merkle-tree. One can imagine scenarios where the server would like to
 verify this "inclusion" independently of any consistency proof request (i.e.,
 without responding with a proof). To this end, the afore mentioned implicit
 check has been abstracted from the consistency proof algorithm and implemented
-explicitly as the `.inclusionTest`_ method.
+explicitly as the `.includes`_ method.
 
-.. _.inclusionTest: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.inclusionTest
+.. _.includes: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.includes
 
 Let *subhash* denote the Merkle-tree's root-hash at some point of history.
 
@@ -28,10 +28,10 @@ At any subsequent moment:
         >>>
         >>> subhash = b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
         >>>
-        >>> tree.inclusionTest(subhash)
+        >>> tree.includes(subhash)
         True
         >>>
-        >>> tree.inclusionTest(subhash=b'anything else...')
+        >>> tree.includes(subhash=b'anything else...')
         False
         >>>
 
@@ -51,7 +51,7 @@ is equivalent to
 
 .. code-block:: python
 
-        tree_2.inclusionTest(subhash=tree_1.root_hash)
+        tree_2.includes(subhash=tree_1.root_hash)
 
 To verify whether ``tree_1`` represents a strictly previous state of ``tree_2``,
 try

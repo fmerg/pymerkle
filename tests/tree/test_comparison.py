@@ -36,13 +36,13 @@ for security in (True, False):
 @pytest.mark.parametrize("subhash", [100, 'no bytes'])
 def test_inclusion_test_InvalidTypes(subhash):
     with pytest.raises(InvalidTypes):
-        MerkleTree().inclusionTest(subhash)
+        MerkleTree().includes(subhash)
 
 
 # Success edge case with standard Merkle-Tree
 
 def test_inclusion_test_failure_for_zero_leaves_case():
-    assert not MerkleTree().inclusionTest(b'something')
+    assert not MerkleTree().includes(b'something')
 
 
 def test_inclusion_test_edge_success_case():
@@ -50,18 +50,18 @@ def test_inclusion_test_edge_success_case():
     tree.encrypt_file_per_log(short_APACHE_log)
     subhash = tree.root_hash
     tree.encrypt_file_per_log(RED_HAT_LINUX_log)
-    assert tree.inclusionTest(tree.root_hash)
+    assert tree.includes(tree.root_hash)
 
 
 # Failure cases with standard Merkle-tree
 
 def test_inclusion_test_with_sublength_exceeding_length():
-    assert not tree.inclusionTest(b'anything...')
+    assert not tree.includes(b'anything...')
 
 
 @pytest.mark.parametrize('sublength', list(range(1, tree.length)))
 def test_inclusion_test_with_invalid_subhash(sublength):
-    assert not tree.inclusionTest(
+    assert not tree.includes(
         b'anything except for the hash corresponding to the provided sublength')
 
 
@@ -69,7 +69,7 @@ def test_inclusion_test_with_invalid_subhash(sublength):
 
 @pytest.mark.parametrize("tree, subhash", trees_and_subtrees)
 def test_inclusion_test_success(tree, subhash):
-    assert tree.inclusionTest(subhash)
+    assert tree.includes(subhash)
 
 
 # Comparison operators
@@ -242,7 +242,7 @@ for power in range(1, 10):
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
-    assert later_state.inclusionTest(tree.root_hash)
+    assert later_state.includes(tree.root_hash)
 
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
