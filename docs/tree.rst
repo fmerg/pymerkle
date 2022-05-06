@@ -32,8 +32,7 @@ core `.hash`_ functionality via these attributes.
 
 .. note:: Manually changing the attribute values of the Merkle-tree does
   *not* affect the core hash functionality, i.e., the latter is once and
-  for ever configured at construction (refer to the `making of the
-  encoding function`_ for insight).
+  for ever configured at construction.
 
 The ``.hash_type`` attribute refers to the underlying builtin algorithm
 (imported from `hashlib`_) and ``.encoding`` is the encoding,
@@ -51,11 +50,7 @@ If the provided *hash_type* (resp. *encoding*) is not among the
 raised and the construction is is *aborted*.
 
 .. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.hash
-
-.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func
-
 .. _hashlib: https://docs.python.org/3.6/library/hashlib.html
-
 .. _supported hash types: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.machine.HASH_TYPES
 .. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.ENCODINGS
 

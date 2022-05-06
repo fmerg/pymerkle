@@ -103,7 +103,6 @@ tree*, depicted in Section 5.4 of `this`_ paper.
 
 .. _GitHub: https://github.com/fmerg/pymerkle
 .. _tqdm: https://tqdm.github.io/
-.. _making of the encoding function: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/hashing/encoding.html#Encoder.mk_encode_func
 .. _test_security.py: https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp

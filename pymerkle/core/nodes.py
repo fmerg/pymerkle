@@ -12,10 +12,10 @@ import json
 
 
 # Prefices used for node and tree printing
-L_BRACKET_SHORT = '\u2514' + '\u2500'           # └─
-L_BRACKET_LONG = '\u2514' + 2 * '\u2500'       # └──
-T_BRACKET = '\u251C' + 2 * '\u2500'       # ├──
-VERTICAL_BAR = '\u2502'                      # │
+L_BRACKET_SHORT = '└─'
+L_BRACKET_LONG = '└──'
+T_BRACKET = '├──'
+VERTICAL_BAR = '│'
 
 
 class __Node(object, metaclass=ABCMeta):

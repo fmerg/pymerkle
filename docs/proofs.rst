@@ -36,28 +36,6 @@ which returns ``None`` for the empty case.
 Generation
 ==========
 
-Audit-proof
------------
-
-Consistencty-proof
-------------------
-
-Verification
-============
-
-Serialization
-=============
-
-Decoupling commitments from proofs
-==================================
-
-
-Challenge-commitment schema
-===========================
-
-Proof generation
-----------------
-
 The produced ``proof`` is an instance of the `MerkleProof`_ class. It consists of a
 path of hashes and the required parameters for verification to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
@@ -161,8 +139,135 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         some data have not been properly encrypted by the server or that the client does
         not have proper knowledge of any encrypted data or both.
 
-Proof serialization
--------------------
+Audit-proof
+-----------
+
+Consistencty-proof
+------------------
+
+Verification
+============
+
+.. code-block:: python
+
+    >>> from pymerkle import MerkleVerifier
+    >>>
+    >>> v = MerkleVerifier()
+    >>> v.verify_proof(proof)
+    >>> True
+    >>>
+    >>> proof
+
+        ----------------------------------- PROOF ------------------------------------
+
+        uuid        : ee2bba54-fa6e-11e9-bde2-701ce71deb6a
+
+        timestamp   : 1572368996 (Tue Oct 29 19:09:56 2019)
+        provider    : eb701a62-fa6e-11e9-bde2-701ce71deb6a
+
+        hash-type   : SHA256
+        encoding    : UTF-8
+        raw_bytes   : TRUE
+        security    : ACTIVATED
+
+        offset : 5
+        path  :
+
+           [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
+           [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
+           [2]   +1   35f75fd1cfef0437bc7a4cae7387998f909fab1dfe6ced53d449c16090d8aa52
+           [3]   -1   73c027eac67a7b43af1a13427b2ad455451e4edfcaced8c2350b5d34adaa8020
+           [4]   +1   cbd441af056bf79c65a2154bc04ac2e0e40d7a2c0e77b80c27125f47d3d7cba3
+           [5]   +1   4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e
+           [6]   -1   db7f4ee8be8025dbffee11b434f179b3b0d0f3a1d7693a441f19653a65662ad3
+           [7]   -1   f235a9eb55315c9a197d069db9c75a01d99da934c5f80f9f175307fb6ac4d8fe
+           [8]   +1   e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8
+           [9]   -1   6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2
+          [10]   -1   2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8
+
+        commitment  : 11ff3293f70c0e158e0f58ef5ea4d497a9a3a5a913e0478a9ba89f3bc673300a
+
+        status      : VALID
+
+        -------------------------------- END OF PROOF --------------------------------
+
+    >>>
+
+Like in any of the available verification mechanism, the `HashMachine.multi_hash`_ method is
+implicitly applied over the path of advertised hashes in order to recover a single hash.
+The proof is found to be valid *iff* this single hash coincides with the provided commitment.
+Note that application of `verify_proof` has the effect of modifying the inscribed status as
+``'VALID'``, which indicates that the proof's status has changed to *True*:
+
+.. code-block:: python
+
+    >>> proof.header['status']
+    True
+
+If the proof were found to be invalid, the corresponding value would have been
+*False* (``'INVALID'``).
+
+.. _HashMachine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.multi_hash
+
+Verification of a Merkle-proof presupposes correct configuration of an underlying
+hash machine. This happens automatically by just feeding the proof to any of the
+available verification mechanisms, since the required verification parameters
+(*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
+proof's header. The underlying machine is an instance of the `MerkleVerifier`_ class
+(which is in turn a subclass of `HashMachine`_)
+
+.. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
+.. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
+
+Running a verifier
+------------------
+
+Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ object itself:
+
+.. code-block:: python
+
+    >>> from pymerkle import MerkleVerifier
+    >>>
+    >>> verifier = MerkleVerifier(proof)
+    >>> verifier.run()
+    >>>
+
+.. note:: Verifying a proof in the above fashion leaves the proof's status unaffected.
+
+Successful verification is implied by the fact that the process comes to its end.
+If the proof were invalid, then an ``InvalidMerkleProof`` error would have
+been raised instead:
+
+.. code-block:: python
+
+    >>>
+    >>> verifier.run()
+    ...     raiseInvalidMerkleProof
+    pymerkle.exceptions.InvalidMerkleProof
+    >>>
+
+Instead of feeding a proof at construction, one can alternately reconfigure the
+verifier by means of the `MerkleVerifier.update`_ method. This allows to use
+the same machine for successive verification of multiple proofs:
+
+.. code-block:: python
+
+    >>>
+    >>> verifier = MerkleVerifier()
+    >>>
+    >>> verifier.update(proof_1)
+    >>> verifier.run()
+    ...    raiseInvalidMerkleProof
+    pymerkle.exceptions.InvalidMerkleProof
+    >>>
+    >>> verifier.update(proof_2)
+    >>> verifier.run()
+    >>>
+
+.. _MerkleVerifier.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.verifications.html#pymerkle.verifications.MerkleVerifier.update
+
+Serialization
+=============
 
 .. code-block:: python
 
@@ -282,127 +387,5 @@ Deserialization proceeds as follows:
 
 The provided serialized object may here be a Python dictionary or JSON text indifferently.
 
-Proof verification
-------------------
-
-.. code-block:: python
-
-    >>> from pymerkle import MerkleVerifier
-    >>>
-    >>> v = MerkleVerifier()
-    >>> v.verify_proof(proof)
-    >>> True
-    >>>
-    >>> proof
-
-        ----------------------------------- PROOF ------------------------------------
-
-        uuid        : ee2bba54-fa6e-11e9-bde2-701ce71deb6a
-
-        timestamp   : 1572368996 (Tue Oct 29 19:09:56 2019)
-        provider    : eb701a62-fa6e-11e9-bde2-701ce71deb6a
-
-        hash-type   : SHA256
-        encoding    : UTF-8
-        raw_bytes   : TRUE
-        security    : ACTIVATED
-
-        offset : 5
-        path  :
-
-           [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
-           [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
-           [2]   +1   35f75fd1cfef0437bc7a4cae7387998f909fab1dfe6ced53d449c16090d8aa52
-           [3]   -1   73c027eac67a7b43af1a13427b2ad455451e4edfcaced8c2350b5d34adaa8020
-           [4]   +1   cbd441af056bf79c65a2154bc04ac2e0e40d7a2c0e77b80c27125f47d3d7cba3
-           [5]   +1   4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e
-           [6]   -1   db7f4ee8be8025dbffee11b434f179b3b0d0f3a1d7693a441f19653a65662ad3
-           [7]   -1   f235a9eb55315c9a197d069db9c75a01d99da934c5f80f9f175307fb6ac4d8fe
-           [8]   +1   e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8
-           [9]   -1   6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2
-          [10]   -1   2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8
-
-        commitment  : 11ff3293f70c0e158e0f58ef5ea4d497a9a3a5a913e0478a9ba89f3bc673300a
-
-        status      : VALID
-
-        -------------------------------- END OF PROOF --------------------------------
-
-    >>>
-
-Like in any of the available verification mechanism, the `HashMachine.multi_hash`_ method is
-implicitly applied over the path of advertised hashes in order to recover a single hash.
-The proof is found to be valid *iff* this single hash coincides with the provided commitment.
-Note that application of `verify_proof` has the effect of modifying the inscribed status as
-``'VALID'``, which indicates that the proof's status has changed to *True*:
-
-.. code-block:: python
-
-    >>> proof.header['status']
-    True
-
-If the proof were found to be invalid, the corresponding value would have been
-*False* (``'INVALID'``).
-
-.. _HashMachine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.multi_hash
-
-
-Verification modes
-==================
-
-Verification of a Merkle-proof presupposes correct configuration of an underlying
-hash machine. This happens automatically by just feeding the proof to any of the
-available verification mechanisms, since the required verification parameters
-(*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
-proof's header. The underlying machine is an instance of the `MerkleVerifier`_ class
-(which is in turn a subclass of `HashMachine`_)
-
-.. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
-.. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
-
-Running a verifier
-------------------
-
-Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ object itself:
-
-.. code-block:: python
-
-    >>> from pymerkle import MerkleVerifier
-    >>>
-    >>> verifier = MerkleVerifier(proof)
-    >>> verifier.run()
-    >>>
-
-.. note:: Verifying a proof in the above fashion leaves the proof's status unaffected.
-
-Successful verification is implied by the fact that the process comes to its end.
-If the proof were invalid, then an ``InvalidMerkleProof`` error would have
-been raised instead:
-
-.. code-block:: python
-
-    >>>
-    >>> verifier.run()
-    ...     raiseInvalidMerkleProof
-    pymerkle.exceptions.InvalidMerkleProof
-    >>>
-
-Instead of feeding a proof at construction, one can alternately reconfigure the
-verifier by means of the `MerkleVerifier.update`_ method. This allows to use
-the same machine for successive verification of multiple proofs:
-
-.. code-block:: python
-
-    >>>
-    >>> verifier = MerkleVerifier()
-    >>>
-    >>> verifier.update(proof_1)
-    >>> verifier.run()
-    ...    raiseInvalidMerkleProof
-    pymerkle.exceptions.InvalidMerkleProof
-    >>>
-    >>> verifier.update(proof_2)
-    >>> verifier.run()
-    >>>
-
-.. _MerkleVerifier.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.verifications.html#pymerkle.verifications.MerkleVerifier.update
+Decoupling commitments from proofs
+==================================
