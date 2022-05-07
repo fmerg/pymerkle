@@ -65,7 +65,7 @@ This consists in the following standard technique:
 * Upon computing the hash of a leaf, prepend its record with 0x00.
 
 * Upon computing the hash of an interior node, prepend the hashes of its
-  children with 0x01.
+  parents with 0x01.
 
 
 .. note:: One can disable this feature, say, for testing purposes,
@@ -86,7 +86,7 @@ Tree structure
 **************
 
 The tree remains always binary balanced, with all interior nodes having exacrly
-two children. In particular, upon appending a block of new leaves, instead of
+two parents. In particular, upon appending a block of new leaves, instead of
 promoting a lonely leaf to the next level or duplicating it, a bifurcation node
 is created so that trees with the same number of leaves have identical structure
 independently of their growing strategy. This is further important for

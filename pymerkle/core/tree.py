@@ -8,7 +8,7 @@ from .nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
 from pymerkle.serializers import MerkleTreeSerializer
 from pymerkle.utils import log_2, decompose, NONE
-from pymerkle.exceptions import (LeafConstructionError, NoChildException,
+from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  EmptyTreeException, NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
                                  UndecodableRecord)
@@ -82,7 +82,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """Current root of the Merkle-tree
 
         :returns: The tree's current root-node
-        :rtype: __Node
+        :rtype: Leaf or Node
 
         :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
@@ -182,7 +182,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             # Height and root of the *full* binary subtree with maximum
             # possible length containing the rightmost leaf
             last_power = decompose(len(leaves))[-1]
-            last_subroot = leaves[-1].descendant(degree=last_power)
+            last_subroot = leaves[-1].ancestor(degree=last_power)
 
             # Encrypt new record into new leaf
             try:
@@ -194,27 +194,27 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             append(new_leaf)
             add(new_leaf)
             try:
-                old_child = last_subroot.child
-            except NoChildException:
+                old_parent = last_subroot.parent
+            except NoParentException:
                 # Last subroot was previously root
                 self.__root = Node(hash, encoding, last_subroot, new_leaf)
                 add(self.__root)
             else:
                 # Create bifurcation node
-                new_child = Node(hash, encoding, last_subroot, new_leaf)
-                add(new_child)
+                new_parent = Node(hash, encoding, last_subroot, new_leaf)
+                add(new_parent)
 
                 # Interject bifurcation node
-                old_child.set_right(new_child)
-                new_child.set_child(old_child)
+                old_parent.set_right(new_parent)
+                new_parent.set_parent(old_parent)
 
                 # Recalculate hashes only at the rightmost branch of the tree
-                current_node = old_child
+                current_node = old_parent
                 while 1:
                     current_node.recalculate_hash(hash_func=hash)
                     try:
-                        current_node = current_node.child
-                    except NoChildException:
+                        current_node = current_node.parent
+                    except NoParentException:
                         break
         else:
             # Empty tree case
@@ -256,30 +256,30 @@ class MerkleTree(HashMachine, Encryptor, Prover):
             raise NoPathException  # Covers also the empty tree case
 
         initial_sign = +1
-        if current_node.is_right_parent():
+        if current_node.is_right_child():
             initial_sign = -1
         path = [(initial_sign, current_node.digest)]
         append = path.append
         start = 0
         while 1:
             try:
-                current_child = current_node.child
-            except NoChildException:
+                current_parent = current_node.parent
+            except NoParentException:
                 break
-            if current_node.is_left_parent():
-                next_digest = current_child.right.digest
-                if current_child.is_left_parent():
+            if current_node.is_left_child():
+                next_digest = current_parent.right.digest
+                if current_parent.is_left_child():
                     append((+1, next_digest))
                 else:
                     append((-1, next_digest))
             else:
-                next_digest = current_child.left.digest
-                if current_child.is_right_parent():
+                next_digest = current_parent.left.digest
+                if current_parent.is_right_child():
                     path.insert(0, (-1, next_digest))
                 else:
                     path.insert(0, (+1, next_digest))
                 start += 1
-            current_node = current_child
+            current_node = current_parent
 
         return start, tuple(path)
 
@@ -370,20 +370,20 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         append = complement.append
         while 1:
             try:
-                subroots[-1][1].child
-            except NoChildException:
+                subroots[-1][1].parent
+            except NoParentException:
                 break
 
             subroot = subroots[-1][1]
-            if subroot.is_left_parent():
-                if subroot.child.is_right_parent():
-                    append((-1, subroot.child.right))
+            if subroot.is_left_child():
+                if subroot.parent.is_right_child():
+                    append((-1, subroot.parent.right))
                 else:
-                    append((+1, subroot.child.right))
+                    append((+1, subroot.parent.right))
                 subroots = subroots[:-1]
             else:
                 subroots = subroots[:-2]
-            subroots.append((+1, subroot.child))
+            subroots.append((+1, subroot.parent))
 
         return complement
 
@@ -420,15 +420,15 @@ class MerkleTree(HashMachine, Encryptor, Prover):
                 raise NoPrincipalSubroots
 
             try:
-                child = subroot.child
-                grandchild = child.child
-            except NoChildException:
-                if subroot.is_left_parent():
+                parent = subroot.parent
+                grandparent = parent.parent
+            except NoParentException:
+                if subroot.is_left_child():
                     append((+1, subroot))
                 else:
                     append((-1, subroot))
             else:
-                if child.is_left_parent():
+                if parent.is_left_child():
                     append((+1, subroot))
                 else:
                     append((-1, subroot))
@@ -451,7 +451,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :param height: height of candidate subtree to be detected
         :type height: int
         :returns: Root of the detected subtree
-        :rtype: __Node
+        :rtype: Leaf or Node
 
         :raises NoSubtreeException: if no subtree exists for
                 the provided parameters
@@ -464,21 +464,21 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         i = 0
         while i < height:
             try:
-                next_node = subroot.child
-            except NoChildException:
+                next_node = subroot.parent
+            except NoParentException:
                 raise NoSubtreeException
             if next_node.left is not subroot:
                 raise NoSubtreeException
-            subroot = subroot.child
+            subroot = subroot.parent
             i += 1
 
         # Verify existence of *full* binary subtree
-        right_parent = subroot
+        right_child = subroot
         i = 0
         while i < height:
-            if isinstance(right_parent, Leaf):
+            if isinstance(right_child, Leaf):
                 raise NoSubtreeException
-            right_parent = right_parent.right
+            right_child = right_child.right
             i += 1
 
         return subroot
@@ -694,7 +694,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         :type indent: int
         :rtype: str
 
-        .. note:: Left parents are printed *above* the right ones
+        .. note:: Left children are printed *above* the right ones
         """
         try:
             root = self.root

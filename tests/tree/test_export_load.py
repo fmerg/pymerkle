@@ -53,11 +53,11 @@ def test_load_from_file():
 
 
 def test_WrongJSONFormat_with_load_from_file():
-    parent_dir = os.path.dirname(os.path.dirname(__file__))
+    child_dir = os.path.dirname(os.path.dirname(__file__))
     with pytest.raises(WrongJSONFormat):
         MerkleTree.load_from_file(
             os.path.join(
-                parent_dir,
+                child_dir,
                 'jsondata',
                 'sample.json'
             )

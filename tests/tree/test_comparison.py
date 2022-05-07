@@ -11,9 +11,9 @@ from tests.conftest import ENCODINGS
 
 
 # Files to encrypt
-parent_dir = os.path.dirname(os.path.dirname(__file__))
-short_APACHE_log = os.path.join(parent_dir, 'logdata/short_APACHE_log')
-RED_HAT_LINUX_log = os.path.join(parent_dir, 'logdata/RED_HAT_LINUX_log')
+child_dir = os.path.dirname(os.path.dirname(__file__))
+short_APACHE_log = os.path.join(child_dir, 'logdata/short_APACHE_log')
+RED_HAT_LINUX_log = os.path.join(child_dir, 'logdata/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
 for security in (True, False):

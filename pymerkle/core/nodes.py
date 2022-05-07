@@ -4,9 +4,9 @@
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.serializers import NodeSerializer, LeafSerializer
-from pymerkle.exceptions import (NoChildException, NoDescendantException,
-                                 NoParentException, LeafConstructionError, UndecodableArgumentError,
-                                 UndecodableRecord)
+from pymerkle.exceptions import (NoParentException, NoAncestorException,
+                                 NoChildException, LeafConstructionError,
+                                 UndecodableArgumentError, UndecodableRecord)
 from pymerkle.utils import NONE
 import json
 
@@ -22,7 +22,7 @@ class __Node(object, metaclass=ABCMeta):
     """Abstract base class for Merkle-tree leaves and internal nodes
     """
 
-    __slots__ = ('__encoding', '__child',)
+    __slots__ = ('__encoding', '__parent',)
 
     def __init__(self, encoding):
         self.__encoding = encoding
@@ -42,104 +42,104 @@ class __Node(object, metaclass=ABCMeta):
         return self.__encoding
 
     @property
-    def child(self):
+    def parent(self):
         """
-        :raises NoChildException: if the node has no *.child* attribute
+        :raises NoParentException: if the node has no *.parent* attribute
         """
         try:
-            return self.__child
+            return self.__parent
         except AttributeError:
-            raise NoChildException
+            raise NoParentException
 
-    def set_child(self, child):
-        self.__child = child
+    def set_parent(self, parent):
+        self.__parent = parent
 
     @property
     def left(self):
         """
-        :raises NoChildException: if the node has no *.left* attribute
+        :raises NoParentException: if the node has no *.left* attribute
         """
         try:
             return self.__left
         except AttributeError:
-            raise NoParentException
+            raise NoChildException
 
     @property
     def right(self):
         """
-        :raises NoChildException: if the node has no *.right* attribute
+        :raises NoParentException: if the node has no *.right* attribute
         """
         try:
             return self.__right
         except AttributeError:
-            raise NoParentException
+            raise NoChildException
 
-    def is_left_parent(self):
-        """Checks if the node is a left parent.
+    def is_left_child(self):
+        """Checks if the node is a left child.
 
         :returns: *True* iff the node is the *.left* attribute of some
                 other node inside the containing tree
         :rtype: bool
         """
         try:
-            _child = self.child
-        except NoChildException:
+            parent = self.parent
+        except NoParentException:
             return False
 
-        return self == _child.left
+        return self == parent.left
 
-    def is_right_parent(self):
-        """Checks if the node is a right parent.
+    def is_right_child(self):
+        """Checks if the node is a right child.
 
         :returns: *True* iff the node is the *.right* attribute of some
                 other node inside the containing tree
         :rtype: bool
         """
         try:
-            _child = self.child
-        except NoChildException:
+            parent = self.parent
+        except NoParentException:
             return False
 
-        return self == _child.right
+        return self == parent.right
 
-    def is_parent(self):
-        """Checks if the node is a parent.
+    def is_child(self):
+        """Checks if the node is a child.
 
         :returns: *True* iff the node is the *.right* or *.left*
             attribute of some other node inside the containing tree
         :rtype: bool
         """
         try:
-            self.child
-        except NoChildException:
+            self.parent
+        except NoParentException:
             return False
 
         return True
 
-    def descendant(self, degree):
+    def ancestor(self, degree):
         """Detects and returns the node that is *degree* steps
         upwards within the containing Merkle-tree.
 
-        .. note:: Descendant of degree 0 is the node itself, descendant
-                of degree 1 is the node's child, etc.
+        .. note:: Descendant of degree 0 is the node itself, ancestor
+                of degree 1 is the node's parent, etc.
 
         :param degree: depth of descendancy
         :type degree:  int
-        :returns:      the descendant corresdponding to the requested depth
+        :returns:      the ancestor corresdponding to the requested depth
         :rtype:        __Node
 
-        :raises NoDescendantException: if the provided degree
+        :raises NoAncestorException: if the provided degree
             exceeds possibilities
         """
         if degree == 0:
             return self
 
         try:
-            _child = self.child
-        except NoChildException:
-            raise NoDescendantException
+            parent = self.parent
+        except NoParentException:
+            raise NoAncestorException
 
-        return _child.descendant(degree - 1)
+        return parent.ancestor(degree - 1)
 
     def __repr__(self):
         """Sole purpose of this function is to easy display info
@@ -151,26 +151,26 @@ class __Node(object, metaclass=ABCMeta):
         def memory_id(obj): return str(hex(id(obj)))
 
         try:
-            child_id = memory_id(self.child)
-        except NoChildException:
-            child_id = NONE
+            parent_id = memory_id(self.parent)
+        except NoParentException:
+            parent_id = NONE
         try:
             left_id = memory_id(self.left)
-        except NoParentException:
+        except NoChildException:
             left_id = NONE
             right_id = NONE
         else:
             right_id = memory_id(self.right)
 
         return '\n    memory-id    : {self_id}\
-                \n    left parent  : {left_id}\
-                \n    right parent : {right_id}\
-                \n    child        : {child_id}\
+                \n    left child  : {left_id}\
+                \n    right child : {right_id}\
+                \n    parent        : {parent_id}\
                 \n    hash         : {hash}\n'\
                 .format(self_id=memory_id(self),
                         left_id=left_id,
                         right_id=right_id,
-                        child_id=child_id,
+                        parent_id=parent_id,
                         hash=self.digest.decode(self.encoding))
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
@@ -203,11 +203,11 @@ class __Node(object, metaclass=ABCMeta):
         :type ignore: list of integers
         :rtype: str
 
-        .. note:: Left parents appear above the right ones.
+        .. note:: Left children appear above the right ones.
         """
         if level == 0:
             output = '\n'
-            if not self.is_left_parent() and not self.is_right_parent():
+            if not self.is_left_child() and not self.is_right_child():
                 # Case root
                 output += f' {L_BRACKET_SHORT}'
         else:
@@ -221,9 +221,9 @@ class __Node(object, metaclass=ABCMeta):
             output += indent * ' '
         new_ignore = ignore[:]
         del ignore
-        if self.is_left_parent():
+        if self.is_left_child():
             output += f' {T_BRACKET}'
-        if self.is_right_parent():
+        if self.is_right_child():
             output += f' {L_BRACKET_LONG}'
             new_ignore.append(level)
         encoding = encoding if encoding else self.encoding
@@ -241,7 +241,7 @@ class __Node(object, metaclass=ABCMeta):
 class Leaf(__Node):
     """Class for the Merkle-tree's leaves
 
-    By leaf is meant a parentless node storing the checksum
+    By leaf is meant a childless node storing the checksum
     of some encrypted record
 
     :param hash_func: hash function to be used for encryption.
@@ -263,20 +263,23 @@ class Leaf(__Node):
     __slots__ = ('__digest',)
 
     def __init__(self, hash_func, encoding, record=None, digest=None):
+        super().__init__(encoding)
         if digest is None and record:
             try:
                 digest = hash_func(record)
             except UndecodableArgumentError:
                 raise UndecodableRecord
             else:
-                super().__init__(encoding)
                 self.__digest = digest
         elif record is None and digest:
-            super().__init__(encoding)
             self.__digest = bytes(digest, encoding)
         else:
             err = 'Either record or digest may be provided'
             raise LeafConstructionError(err)
+
+    @classmethod
+    def from_record(hash_func, encoding, record):
+        pass
 
     @property
     def digest(self):
@@ -304,16 +307,16 @@ class Leaf(__Node):
 class Node(__Node):
     """Class for Merkle-tree's internal nodes
 
-    By internal is meant a node with exactly two parents.
+    By internal is meant a node with exactly two children.
 
     :param hash_func: hash function to be used for encryption
     :type hash_func: method
     :param encoding: encoding type to be used when decoding the digest
             stored by the node
     :type encoding: str
-    :param left: [optional] the node's left parent
+    :param left: [optional] the node's left child
     :type left: __Node
-    :param right: [optional] the node's right parent
+    :param right: [optional] the node's right child
     :type right: __Node
     """
 
@@ -326,8 +329,8 @@ class Node(__Node):
         self.__digest = digest
         self.__left = left
         self.__right = right
-        left.__child = self
-        right.__child = self
+        left.__parent = self
+        right.__parent = self
 
     @property
     def digest(self):
@@ -338,16 +341,16 @@ class Node(__Node):
         return self.__digest
 
     def set_right(self, right):
-        """Sets the node's right parent.
+        """Sets the node's right child.
 
-        :param right: the new right parent
+        :param right: the new right child
         :type: __Node
         """
         self.__right = right
 
     def recalculate_hash(self, hash_func):
         """Recalculates the node's digest under account of the (possibly new)
-        digests stored by its parents.
+        digests stored by its children.
 
         :param hash_func: hash function to be used for recalculation
         :type hash_func: method
@@ -359,7 +362,7 @@ class Node(__Node):
 
         :rtype: dict
 
-        .. note:: The *.child* attribute is ommited from node serialization
+        .. note:: The *.parent* attribute is ommited from node serialization
             in order for circular reference error to be avoided.
         """
         return NodeSerializer().default(self)

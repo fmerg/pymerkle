@@ -261,7 +261,7 @@ based platforms:
 .. note:: Avoid printing huge Merkle-trees in the above fashion.
 
 Note that each node is represented by the digest it currently stores, with left
-parents printed above the right ones. It can be saved in a file as follows:
+children printed above the right ones. It can be saved in a file as follows:
 
 .. code-block:: python
 

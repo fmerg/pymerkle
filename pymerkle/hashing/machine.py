@@ -75,7 +75,7 @@ class HashMachine(Encoder):
         """Extended hash utility
 
         Repeatedly applies the *.hash()* method over the provided iterable of
-        signed hashes (signs indicating parenthetization during repetition and
+        signed hashes (signs indicating childhetization during repetition and
         *start* indicating starting position of application).
         Schematically speaking,
 
@@ -93,7 +93,7 @@ class HashMachine(Encoder):
             equals ``a`` (no hashing over single elements)
 
         .. warning:: When using this method, make sure that the combination of
-                signs corresponds indeed to a valid parenthetization
+                signs corresponds indeed to a valid childhetization
 
         :param signed_hashes: a finite sequence of signed hashes
         :type signed_hashes: iterable of (+1/-1, bytes)

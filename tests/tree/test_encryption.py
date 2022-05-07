@@ -115,12 +115,12 @@ def test_UndecodableRecord_with_encrypt_record(byte, encoding, security):
 
 # Content to encrypt
 
-parent_dir = os.path.dirname(os.path.dirname(__file__))
+child_dir = os.path.dirname(os.path.dirname(__file__))
 
-large_APACHE_log = os.path.join(parent_dir, 'logdata/large_APACHE_log')
-short_APACHE_log = os.path.join(parent_dir, 'logdata/short_APACHE_log')
-single_object_file = os.path.join(parent_dir, 'jsondata/sample.json')
-objects_list_file = os.path.join(parent_dir, 'jsondata/sample-list.json')
+large_APACHE_log = os.path.join(child_dir, 'logdata/large_APACHE_log')
+short_APACHE_log = os.path.join(child_dir, 'logdata/short_APACHE_log')
+single_object_file = os.path.join(child_dir, 'jsondata/sample.json')
+objects_list_file = os.path.join(child_dir, 'jsondata/sample-list.json')
 
 with open(large_APACHE_log, 'rb') as f:
     content = f.read()

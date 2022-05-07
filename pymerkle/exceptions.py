@@ -39,23 +39,23 @@ class LeafConstructionError(BaseException):
     pass
 
 
-class NoChildException(BaseException):
+class NoParentException(BaseException):
     """
-    Raised when the non-existent child of a node is invoked.
+    Raised when the non-existent parent of a node is invoked.
     """
     pass
 
 
-class NoDescendantException(BaseException):
+class NoAncestorException(BaseException):
     """
-    Raised when the non-existent descentant of a node is requested
+    Raised when the non-existent ancestor of a node is requested
     (i.e., with a descendancy-degree exceeding current possibilities).
     """
 
 
-class NoParentException(BaseException):
+class NoChildException(BaseException):
     """
-    Raised when the non-existent left or right parent of a node is invoked.
+    Raised when the non-existent left or right child of a node is invoked.
     """
     pass
 

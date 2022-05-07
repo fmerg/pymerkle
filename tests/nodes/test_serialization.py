@@ -17,7 +17,7 @@ pair_of_leaves = (
     Leaf(hash_func=hash_func, encoding=encoding,
          digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
 
-# Full binary structure (child-parent relations): 4 leaves, 7 nodes in total
+# Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
 leaf_1 = Leaf(hash_func=hash_func, encoding=encoding,
               record=b'first record...')
 leaf_2 = Leaf(hash_func=hash_func, encoding=encoding,
@@ -35,43 +35,43 @@ root = Node(hash_func=hash_func, encoding=encoding,
 
 
 @pytest.mark.parametrize("leaf", (leaf_1, leaf_2, leaf_3, leaf_4))
-def test___repr__for_leafs_with_child(leaf):
+def test___repr__for_leafs_with_parent(leaf):
     assert leaf.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left parent  : {left_id}\
-                \n    right parent : {right_id}\
-                \n    child        : {child_id}\
+                \n    left child  : {left_id}\
+                \n    right child : {right_id}\
+                \n    parent        : {parent_id}\
                 \n    hash         : {hash}\n'\
                 .format(self_id=str(hex(id(leaf))),
                         left_id='[None]',
                         right_id='[None]',
-                        child_id=str(hex(id(leaf.child))),
+                        parent_id=str(hex(id(leaf.parent))),
                         hash=leaf.digest.decode(leaf.encoding))
 
 
 @pytest.mark.parametrize("node", (node_12, node_34))
-def test___repr__for_nodes_with_child(node):
+def test___repr__for_nodes_with_parent(node):
     assert node.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left parent  : {left_id}\
-                \n    right parent : {right_id}\
-                \n    child        : {child_id}\
+                \n    left child  : {left_id}\
+                \n    right child : {right_id}\
+                \n    parent        : {parent_id}\
                 \n    hash         : {hash}\n'\
                 .format(self_id=str(hex(id(node))),
                         left_id=str(hex(id(node.left))),
                         right_id=str(hex(id(node.right))),
-                        child_id=str(hex(id(node.child))),
+                        parent_id=str(hex(id(node.parent))),
                         hash=node.digest.decode(node.encoding))
 
 
-def test___repr__for_node_without_child():
+def test___repr__for_node_without_parent():
     assert root.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left parent  : {left_id}\
-                \n    right parent : {right_id}\
-                \n    child        : {child_id}\
+                \n    left child  : {left_id}\
+                \n    right child : {right_id}\
+                \n    parent        : {parent_id}\
                 \n    hash         : {hash}\n'\
                 .format(self_id=str(hex(id(root))),
                         left_id=str(hex(id(root.left))),
                         right_id=str(hex(id(root.right))),
-                        child_id='[None]',
+                        parent_id='[None]',
                         hash=root.digest.decode(root.encoding))
 
 

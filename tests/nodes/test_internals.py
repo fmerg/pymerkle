@@ -6,8 +6,8 @@ import pytest
 
 from pymerkle.core.nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
-from pymerkle.exceptions import (NoChildException, NoDescendantException,
-                                 NoParentException, LeafConstructionError, UndecodableRecord,)
+from pymerkle.exceptions import (NoParentException, NoAncestorException,
+                                 NoChildException, LeafConstructionError, UndecodableRecord,)
 
 
 _ = HashMachine()
@@ -19,7 +19,7 @@ pair_of_leaves = (
     Leaf(hash_func=hash_func, encoding=encoding,
          digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
 
-# Full binary structure (child-parent relations): 4 leaves, 7 nodes in total
+# Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
 leaf_1 = Leaf(hash_func=hash_func, encoding=encoding,
               record=b'first record...')
 leaf_2 = Leaf(hash_func=hash_func, encoding=encoding,
@@ -56,176 +56,176 @@ def test_leaf_construction_exception_with_both_record_and_digest():
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_leaf_left_parent_exception(leaf):
+def test_leaf_left_child_exception(leaf):
     """
-    Tests that invoking the ``.left``, ``.right`` and ``.child`` properties of
+    Tests that invoking the ``.left``, ``.right`` and ``.parent`` properties of
     a ``node.Leaf`` instance raises appropriate exceptions when
     these attributes are not available
     """
-    with pytest.raises(NoParentException):
+    with pytest.raises(NoChildException):
         leaf.left
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_leaf_right_parent_exception(leaf):
+def test_leaf_right_child_exception(leaf):
     """
-    Tests that invoking the ``.left``, ``.right`` and ``.child`` properties of
+    Tests that invoking the ``.left``, ``.right`` and ``.parent`` properties of
     a ``node.Leaf`` instance raises appropriate exceptions when these attributes
     are not available
     """
-    with pytest.raises(NoParentException):
+    with pytest.raises(NoChildException):
         leaf.right
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_leaf_child_exception(leaf):
+def test_leaf_parent_exception(leaf):
     """
-    Tests that invoking the ``.left``, ``.right`` and ``.child`` properties of
+    Tests that invoking the ``.left``, ``.right`` and ``.parent`` properties of
     a ``node.Leaf`` instance raises appropriate exceptions when these attributes
     are not available
     """
-    with pytest.raises(NoChildException):
-        leaf.child
+    with pytest.raises(NoParentException):
+        leaf.parent
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_childless_leaf_is_not_left_parent(leaf):
+def test_parentless_leaf_is_not_left_child(leaf):
     """
-    Tests that ``.is_left_parent`` returns ``False`` for a leaf without child
+    Tests that ``.is_left_child`` returns ``False`` for a leaf without parent
     """
-    assert not leaf.is_left_parent()
+    assert not leaf.is_left_child()
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_childless_leaf_is_not_right_parent(leaf):
+def test_parentless_leaf_is_not_right_child(leaf):
     """
-    Tests that ``.is_left_parent`` returns ``False`` for a leaf without a child
+    Tests that ``.is_left_child`` returns ``False`` for a leaf without a parent
     """
-    assert not leaf.is_right_parent()
+    assert not leaf.is_right_child()
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_childless_leaf_is_not_parent(leaf):
+def test_parentless_leaf_is_not_child(leaf):
     """
-    Tests that ``.is_left_parent`` returns ``False`` for a leaf without a child
+    Tests that ``.is_left_child`` returns ``False`` for a leaf without a parent
     """
-    assert not leaf.is_parent()
+    assert not leaf.is_child()
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_childless_leaf_no_descendant_exception(leaf):
+def test_parentless_leaf_no_ancestor_exception(leaf):
     """
-    Tests that the appropriate exception is raised when the descendant
+    Tests that the appropriate exception is raised when the ancestor
     of a chidless leaf is requested
     """
-    with pytest.raises(NoDescendantException):
-        leaf.descendant(degree=1)
+    with pytest.raises(NoAncestorException):
+        leaf.ancestor(degree=1)
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_childless_leaf___repr__(leaf):
+def test_parentless_leaf___repr__(leaf):
     """
-    Tests that the representation of a childless leaf has the expected format
+    Tests that the representation of a parentless leaf has the expected format
     """
     assert leaf.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left parent  : {left_id}\
-                \n    right parent : {right_id}\
-                \n    child        : {child_id}\
+                \n    left child  : {left_id}\
+                \n    right child : {right_id}\
+                \n    parent        : {parent_id}\
                 \n    hash         : {hash}\n'\
                 .format(self_id=str(hex(id(leaf))),
                         left_id='[None]',
                         right_id='[None]',
-                        child_id='[None]',
+                        parent_id='[None]',
                         hash=leaf.digest.decode(leaf.encoding))
 
 
-# Leaves with children and internal nodes tests
+# Leaves with parentren and internal nodes tests
 
 # Exception tests
 
-def test_no_child_exception():
+def test_no_parent_exception():
     """
-    Tests that NoChildException is raised for the unique childless node
+    Tests that NoParentException is raised for the unique parentless node
     """
-    with pytest.raises(NoChildException):
-        root.child
+    with pytest.raises(NoParentException):
+        root.parent
 
 
 @pytest.mark.parametrize("node", (leaf_1, leaf_2, leaf_3, leaf_4))
-def test_no_parent_exception_for_left(node):
+def test_no_child_exception_for_left(node):
     """
-    Tests NoParentException with `.light` for all parentless cases
+    Tests NoChildException with `.light` for all childless cases
     """
-    with pytest.raises(NoParentException):
+    with pytest.raises(NoChildException):
         node.left
 
 
 @pytest.mark.parametrize("node", (leaf_1, leaf_2, leaf_3, leaf_4))
-def test_no_parent_exception_for_right(node):
+def test_no_child_exception_for_right(node):
     """
-    Tests NoParentException with `.right` for all parentless cases
+    Tests NoChildException with `.right` for all childless cases
     """
-    with pytest.raises(NoParentException):
+    with pytest.raises(NoChildException):
         node.right
 
 
-# Child-parent relation tests
+# Child-child relation tests
 
-@pytest.mark.parametrize("node, child", ((leaf_1, node_12), (leaf_2, node_12),
+@pytest.mark.parametrize("node, parent", ((leaf_1, node_12), (leaf_2, node_12),
                                          (leaf_3, node_34), (leaf_4, node_34),
                                          (node_12, root), (node_34, root)))
-def test_child(node, child):
+def test_parent(node, parent):
     """
-    Tests child for all valid cases
+    Tests parent for all valid cases
     """
-    assert node.child is child
+    assert node.parent is parent
 
 
 @pytest.mark.parametrize("node, left",
                          ((node_12, leaf_1), (node_34, leaf_3), (root, node_12)))
-def test_left_parent(node, left):
+def test_left_child(node, left):
     """
-    Tests left parent for all valid cases
+    Tests left child for all valid cases
     """
     assert node.left is left
 
 
 @pytest.mark.parametrize("node, right",
                          ((node_12, leaf_2), (node_34, leaf_4), (root, node_34)))
-def test_right_parent(node, right):
+def test_right_child(node, right):
     """
-    Tests left parent for all valid cases
+    Tests left child for all valid cases
     """
     assert node.right is right
 
 
 @pytest.mark.parametrize("node", (leaf_1, leaf_3, node_12))
-def test_is_left_parent(node):
+def test_is_left_child(node):
     """
-    Tests a node's property of being a left parent
-    (excluding the possibility of being right parent)
+    Tests a node's property of being a left child
+    (excluding the possibility of being right child)
     """
-    assert node.is_left_parent() and not node.is_right_parent()
+    assert node.is_left_child() and not node.is_right_child()
 
 
 @pytest.mark.parametrize("node", (leaf_2, leaf_4, node_34))
-def test_is_right_parent(node):
+def test_is_right_child(node):
     """
-    Tests a node's property of being a right parent
-    (excluding the possibility of being left parent)
+    Tests a node's property of being a right child
+    (excluding the possibility of being left child)
     """
-    assert node.is_right_parent() and not node.is_left_parent()
+    assert node.is_right_child() and not node.is_left_child()
 
 
 @pytest.mark.parametrize("node, expected", ((leaf_1, True), (leaf_2, True),
                                             (leaf_4, True), (leaf_4, True),
                                             (node_12, True), (node_34, True),
                                             (root, False)))
-def test_is_parent(node, expected):
+def test_is_child(node, expected):
     """
-    Tests a node's property of being a parent
+    Tests a node's property of being a child
     """
-    assert node.is_parent() is expected
+    assert node.is_child() is expected
 
 
 # Descendancy tests
@@ -234,40 +234,40 @@ def test_is_parent(node, expected):
                                           (leaf_3, 3), (leaf_4, 3),
                                           (node_12, 2), (node_34, 2),
                                           (root, 1)))
-def test_no_descendant_exception(node, degree):
+def test_no_ancestor_exception(node, degree):
     """
-    Tests that NoDescendantException is raised for the minimum
+    Tests that NoAncestorException is raised for the minimum
     degree of descendancy exceeding all possibilities
     """
-    with pytest.raises(NoDescendantException):
-        node.descendant(degree=degree)
+    with pytest.raises(NoAncestorException):
+        node.ancestor(degree=degree)
 
 
 @pytest.mark.parametrize("node", (leaf_1, leaf_2, leaf_3, leaf_4,
                                   node_12, node_34, root))
-def test_zero_degree_descendant(node):
+def test_zero_degree_ancestor(node):
     """
     Tests that zero degree descendancy points to the node itself
     """
-    assert node.descendant(degree=0) is node
+    assert node.ancestor(degree=0) is node
 
 
 @pytest.mark.parametrize("node, expected", ((leaf_1, node_12), (leaf_2, node_12),
                                             (leaf_3, node_34), (leaf_4, node_34),
                                             (node_12, root), (node_34, root)))
-def test_degree_one_descendant(node, expected):
+def test_degree_one_ancestor(node, expected):
     """
     Tests descendancy of degree 1 for all valid cases
     """
-    assert node.descendant(degree=1) is expected
+    assert node.ancestor(degree=1) is expected
 
 
 @pytest.mark.parametrize("node", (leaf_1, leaf_2, leaf_3, leaf_4))
-def test_degree_two_descendant(node):
+def test_degree_two_ancestor(node):
     """
     Tests descendancy  of degree 2 for all valid cases
     """
-    assert node.descendant(degree=2) is root
+    assert node.ancestor(degree=2) is root
 
 
 # Recalculation tests
