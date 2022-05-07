@@ -5,32 +5,32 @@ Tests hashing in raw-bytes mode
 import pytest
 import hashlib
 
-from pymerkle.hashing import HashMachine, HASH_TYPES
+from pymerkle.core.hashing import HashEngine, SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
-from tests.conftest import ENCODINGS
+from tests.conftest import SUPPORTED_ENCODINGS
 
 
 MESSAGE = 'oculusnonviditnecaurisaudivit'
 
-machines = []
-machines__hash_types__encodings__securities = []
-machines__single_args = []
+engines = []
+engines__hash_types__encodings__securities = []
+engines__single_args = []
 
 for security in (True, False):
-    for hash_type in HASH_TYPES:
-        for encoding in ENCODINGS:
-            machine = HashMachine(
+    for hash_type in SUPPORTED_HASH_TYPES:
+        for encoding in SUPPORTED_ENCODINGS:
+            engine = HashEngine(
                 hash_type=hash_type,
                 encoding=encoding,
                 raw_bytes=True,
                 security=security
             )
 
-            machines.append(machine)
-            machines__hash_types__encodings__securities.extend(
+            engines.append(engine)
+            engines__hash_types__encodings__securities.extend(
                 [
                     (
-                        machine,
+                        engine,
                         hash_type,
                         encoding,
                         security
@@ -38,14 +38,14 @@ for security in (True, False):
                 ]
             )
 
-            machines__single_args.extend(
+            engines__single_args.extend(
                 [
                     (
-                        machine,
+                        engine,
                         MESSAGE
                     ),
                     (
-                        machine,
+                        engine,
                         bytes(MESSAGE, encoding)
                     )
                 ]
@@ -54,11 +54,11 @@ for security in (True, False):
 
 # .hash()
 
-@pytest.mark.parametrize("machine, hash_type, encoding, security",
-                         machines__hash_types__encodings__securities)
-def test_single_string_hash(machine, hash_type, encoding, security):
+@pytest.mark.parametrize("engine, hash_type, encoding, security",
+                         engines__hash_types__encodings__securities)
+def test_single_string_hash(engine, hash_type, encoding, security):
     if security:
-        assert machine.hash(MESSAGE) == bytes(
+        assert engine.hash(MESSAGE) == bytes(
             getattr(hashlib, hash_type)(
                 ('\x00').encode(encoding) +
                 (MESSAGE).encode(encoding)
@@ -66,17 +66,17 @@ def test_single_string_hash(machine, hash_type, encoding, security):
             encoding
         )
     else:
-        assert machine.hash(MESSAGE) == bytes(
+        assert engine.hash(MESSAGE) == bytes(
             getattr(hashlib, hash_type)(bytes(MESSAGE, encoding)).hexdigest(),
             encoding
         )
 
 
-@pytest.mark.parametrize("machine, hash_type, encoding, security",
-                         machines__hash_types__encodings__securities)
-def test_single_bytes_hash(machine, hash_type, encoding, security):
+@pytest.mark.parametrize("engine, hash_type, encoding, security",
+                         engines__hash_types__encodings__securities)
+def test_single_bytes_hash(engine, hash_type, encoding, security):
     if security:
-        assert machine.hash(bytes(MESSAGE, encoding)) == bytes(
+        assert engine.hash(bytes(MESSAGE, encoding)) == bytes(
             getattr(hashlib, hash_type)(
                 bytes('\x00', encoding) +
                 bytes(MESSAGE, encoding)
@@ -84,17 +84,17 @@ def test_single_bytes_hash(machine, hash_type, encoding, security):
             encoding
         )
     else:
-        assert machine.hash(bytes(MESSAGE, encoding)) == bytes(
+        assert engine.hash(bytes(MESSAGE, encoding)) == bytes(
             getattr(hashlib, hash_type)(bytes(MESSAGE, encoding)).hexdigest(),
             encoding
         )
 
 
-@pytest.mark.parametrize("machine, hash_type, encoding, security",
-                         machines__hash_types__encodings__securities)
-def test_double_bytes_hash(machine, hash_type, encoding, security):
+@pytest.mark.parametrize("engine, hash_type, encoding, security",
+                         engines__hash_types__encodings__securities)
+def test_double_bytes_hash(engine, hash_type, encoding, security):
     if security:
-        assert machine.hash(
+        assert engine.hash(
             bytes(MESSAGE, encoding),
             bytes(MESSAGE, encoding)) == bytes(
             getattr(hashlib, hash_type)(
@@ -106,7 +106,7 @@ def test_double_bytes_hash(machine, hash_type, encoding, security):
             encoding
         )
     else:
-        assert machine.hash(
+        assert engine.hash(
             bytes(MESSAGE, encoding),
             bytes(MESSAGE, encoding)) == bytes(
                 getattr(hashlib, hash_type)(
@@ -119,25 +119,25 @@ def test_double_bytes_hash(machine, hash_type, encoding, security):
 
 # multi_hash()
 
-@pytest.mark.parametrize('machine', machines)
-def test_0_elems_multi_hash(machine):
+@pytest.mark.parametrize('engine', engines)
+def test_0_elems_multi_hash(engine):
     with pytest.raises(EmptyPathException):
-        assert machine.multi_hash((), start='anything')
+        assert engine.multi_hash((), start='anything')
 
 
-@pytest.mark.parametrize('machine, single_arg', machines__single_args)
-def test_1_elems_multi_hash(machine, single_arg):
-    assert machine.multi_hash(
-        ((+1, machine.hash(single_arg)),), start=0
-    ) == machine.hash(single_arg)
+@pytest.mark.parametrize('engine, single_arg', engines__single_args)
+def test_1_elems_multi_hash(engine, single_arg):
+    assert engine.multi_hash(
+        ((+1, engine.hash(single_arg)),), start=0
+    ) == engine.hash(single_arg)
 
 
-@pytest.mark.parametrize('machine', machines)
-def test_2_elems_multi_hash(machine):
-    hash = machine.hash
-    multi_hash = machine.multi_hash
-    encoding = machine.encoding
-    if machine.security:
+@pytest.mark.parametrize('engine', engines)
+def test_2_elems_multi_hash(engine):
+    hash = engine.hash
+    multi_hash = engine.multi_hash
+    encoding = engine.encoding
+    if engine.security:
         assert multi_hash(
             (
                 (
@@ -191,12 +191,12 @@ def test_2_elems_multi_hash(machine):
         ) == hash(bytes(MESSAGE, encoding), bytes(MESSAGE, encoding))
 
 
-@pytest.mark.parametrize('machine', machines)
-def test_3_elems_multi_hash_case_1(machine):
-    hash = machine.hash
-    multi_hash = machine.multi_hash
-    encoding = machine.encoding
-    if machine.security:
+@pytest.mark.parametrize('engine', engines)
+def test_3_elems_multi_hash_case_1(engine):
+    hash = engine.hash
+    multi_hash = engine.multi_hash
+    encoding = engine.encoding
+    if engine.security:
         assert multi_hash(
             signed_hashes=(
                 (
@@ -278,12 +278,12 @@ def test_3_elems_multi_hash_case_1(machine):
         )
 
 
-@pytest.mark.parametrize('machine', machines)
-def test_3_elems_multi_hash_case_2(machine):
-    hash = machine.hash
-    multi_hash = machine.multi_hash
-    encoding = machine.encoding
-    if machine.security:
+@pytest.mark.parametrize('engine', engines)
+def test_3_elems_multi_hash_case_2(engine):
+    hash = engine.hash
+    multi_hash = engine.multi_hash
+    encoding = engine.encoding
+    if engine.security:
         assert multi_hash(
             signed_hashes=(
                 (
@@ -365,12 +365,12 @@ def test_3_elems_multi_hash_case_2(machine):
         )
 
 
-@pytest.mark.parametrize('machine', machines)
-def test_4_elems_multi_hash_edge_case_1(machine):
-    hash = machine.hash
-    multi_hash = machine.multi_hash
-    encoding = machine.encoding
-    if machine.security:
+@pytest.mark.parametrize('engine', engines)
+def test_4_elems_multi_hash_edge_case_1(engine):
+    hash = engine.hash
+    multi_hash = engine.multi_hash
+    encoding = engine.encoding
+    if engine.security:
         assert multi_hash(
             signed_hashes=(
                 (
@@ -434,12 +434,12 @@ def test_4_elems_multi_hash_edge_case_1(machine):
         )
 
 
-@pytest.mark.parametrize('machine', machines)
-def test_4_elems_multi_hash_edge_case_2(machine):
-    hash = machine.hash
-    multi_hash = machine.multi_hash
-    encoding = machine.encoding
-    if machine.security:
+@pytest.mark.parametrize('engine', engines)
+def test_4_elems_multi_hash_edge_case_2(engine):
+    hash = engine.hash
+    multi_hash = engine.multi_hash
+    encoding = engine.encoding
+    if engine.security:
         assert multi_hash(
             signed_hashes=(
                 (
@@ -503,12 +503,12 @@ def test_4_elems_multi_hash_edge_case_2(machine):
         )
 
 
-@pytest.mark.parametrize('machine', machines)
-def test_4_elems_multi_hash(machine):
-    hash = machine.hash
-    multi_hash = machine.multi_hash
-    encoding = machine.encoding
-    if machine.security:
+@pytest.mark.parametrize('engine', engines)
+def test_4_elems_multi_hash(engine):
+    hash = engine.hash
+    multi_hash = engine.multi_hash
+    encoding = engine.encoding
+    if engine.security:
         assert multi_hash(
             signed_hashes=(
                 (

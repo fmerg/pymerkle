@@ -4,7 +4,7 @@ Tests UndecodableArgumentError in no raw-bytes mode
 
 import pytest
 
-from pymerkle.hashing import HashMachine
+from pymerkle.core.hashing import HashEngine
 from pymerkle.exceptions import UndecodableArgumentError
 
 undecodableArguments = [
@@ -55,15 +55,15 @@ undecodableArguments = [
 
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_single_undecodableArgumentError(byte, encoding, security):
-    machine = HashMachine(
+    engine = HashEngine(
         encoding=encoding, security=security, raw_bytes=False)
     with pytest.raises(UndecodableArgumentError):
-        machine.hash(byte)
+        engine.hash(byte)
 
 
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_double_undecodableArgumentError(byte, encoding, security):
-    machine = HashMachine(
+    engine = HashEngine(
         encoding=encoding, security=security, raw_bytes=False)
     with pytest.raises(UndecodableArgumentError):
-        machine.hash(byte, byte)
+        engine.hash(byte, byte)

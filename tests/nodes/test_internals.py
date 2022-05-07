@@ -5,12 +5,12 @@ Tests construction and properies of nodes
 import pytest
 
 from pymerkle.core.nodes import Node, Leaf
-from pymerkle.hashing import HashMachine
+from pymerkle.core.hashing import HashEngine
 from pymerkle.exceptions import (NoParentException, NoAncestorException,
                                  NoChildException, LeafConstructionError, UndecodableRecord,)
 
 
-_ = HashMachine()
+_ = HashEngine()
 encoding = _.encoding
 hash_func = _.hash
 
@@ -284,80 +284,80 @@ def test_hash_recalculation():
 
 # Decoding error tests
 
-bytesmachines = [
-    (b'\xc2', HashMachine(encoding='ascii',           raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='ascii',           raw_bytes=False, security=False)),
-    (b'\x72', HashMachine(encoding='cp424',           raw_bytes=False, security=True)),
-    (b'\x72', HashMachine(encoding='cp424',           raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='hz',              raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='hz',              raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='utf_7',           raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='utf_7',           raw_bytes=False, security=False)),
-    (b'\x74', HashMachine(encoding='utf_16',          raw_bytes=False, security=True)),
-    (b'\x74', HashMachine(encoding='utf_16',          raw_bytes=False, security=False)),
-    (b'\x74', HashMachine(encoding='utf_16_le',       raw_bytes=False, security=True)),
-    (b'\x74', HashMachine(encoding='utf_16_le',       raw_bytes=False, security=False)),
-    (b'\x74', HashMachine(encoding='utf_16_be',       raw_bytes=False, security=True)),
-    (b'\x74', HashMachine(encoding='utf_16_be',       raw_bytes=False, security=False)),
-    (b'\x74', HashMachine(encoding='utf_32',          raw_bytes=False, security=True)),
-    (b'\x74', HashMachine(encoding='utf_32',          raw_bytes=False, security=False)),
-    (b'\x74', HashMachine(encoding='utf_32_le',       raw_bytes=False, security=True)),
-    (b'\x74', HashMachine(encoding='utf_32_le',       raw_bytes=False, security=False)),
-    (b'\x74', HashMachine(encoding='utf_32_be',       raw_bytes=False, security=True)),
-    (b'\x74', HashMachine(encoding='utf_32_be',       raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp',      raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp',      raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_1',    raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_1',    raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_2',    raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_2',    raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_3',    raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_3',    raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_ext',  raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_ext',  raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_2004', raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_jp_2004', raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso2022_kr',      raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso2022_kr',      raw_bytes=False, security=False)),
-    (b'\xae', HashMachine(encoding='iso8859_3',       raw_bytes=False, security=True)),
-    (b'\xae', HashMachine(encoding='iso8859_3',       raw_bytes=False, security=False)),
-    (b'\xb6', HashMachine(encoding='iso8859_6',       raw_bytes=False, security=True)),
-    (b'\xb6', HashMachine(encoding='iso8859_6',       raw_bytes=False, security=False)),
-    (b'\xae', HashMachine(encoding='iso8859_7',       raw_bytes=False, security=True)),
-    (b'\xae', HashMachine(encoding='iso8859_7',       raw_bytes=False, security=False)),
-    (b'\xc2', HashMachine(encoding='iso8859_8',       raw_bytes=False, security=True)),
-    (b'\xc2', HashMachine(encoding='iso8859_8',       raw_bytes=False, security=False)),
+bytesengines = [
+    (b'\xc2', HashEngine(encoding='ascii',           raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='ascii',           raw_bytes=False, security=False)),
+    (b'\x72', HashEngine(encoding='cp424',           raw_bytes=False, security=True)),
+    (b'\x72', HashEngine(encoding='cp424',           raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='hz',              raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='hz',              raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='utf_7',           raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='utf_7',           raw_bytes=False, security=False)),
+    (b'\x74', HashEngine(encoding='utf_16',          raw_bytes=False, security=True)),
+    (b'\x74', HashEngine(encoding='utf_16',          raw_bytes=False, security=False)),
+    (b'\x74', HashEngine(encoding='utf_16_le',       raw_bytes=False, security=True)),
+    (b'\x74', HashEngine(encoding='utf_16_le',       raw_bytes=False, security=False)),
+    (b'\x74', HashEngine(encoding='utf_16_be',       raw_bytes=False, security=True)),
+    (b'\x74', HashEngine(encoding='utf_16_be',       raw_bytes=False, security=False)),
+    (b'\x74', HashEngine(encoding='utf_32',          raw_bytes=False, security=True)),
+    (b'\x74', HashEngine(encoding='utf_32',          raw_bytes=False, security=False)),
+    (b'\x74', HashEngine(encoding='utf_32_le',       raw_bytes=False, security=True)),
+    (b'\x74', HashEngine(encoding='utf_32_le',       raw_bytes=False, security=False)),
+    (b'\x74', HashEngine(encoding='utf_32_be',       raw_bytes=False, security=True)),
+    (b'\x74', HashEngine(encoding='utf_32_be',       raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp',      raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp',      raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_1',    raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_1',    raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_2',    raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_2',    raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_3',    raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_3',    raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_ext',  raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_ext',  raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_2004', raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_jp_2004', raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso2022_kr',      raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso2022_kr',      raw_bytes=False, security=False)),
+    (b'\xae', HashEngine(encoding='iso8859_3',       raw_bytes=False, security=True)),
+    (b'\xae', HashEngine(encoding='iso8859_3',       raw_bytes=False, security=False)),
+    (b'\xb6', HashEngine(encoding='iso8859_6',       raw_bytes=False, security=True)),
+    (b'\xb6', HashEngine(encoding='iso8859_6',       raw_bytes=False, security=False)),
+    (b'\xae', HashEngine(encoding='iso8859_7',       raw_bytes=False, security=True)),
+    (b'\xae', HashEngine(encoding='iso8859_7',       raw_bytes=False, security=False)),
+    (b'\xc2', HashEngine(encoding='iso8859_8',       raw_bytes=False, security=True)),
+    (b'\xc2', HashEngine(encoding='iso8859_8',       raw_bytes=False, security=False)),
 ]
 
 
-@pytest.mark.parametrize('byte, machine', bytesmachines)
-def test_leaf_UndecodableRecord(byte, machine):
+@pytest.mark.parametrize('byte, engine', bytesengines)
+def test_leaf_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
-        Leaf(record=byte, encoding=machine.encoding, hash_func=machine.hash)
+        Leaf(record=byte, encoding=engine.encoding, hash_func=engine.hash)
 
 
-@pytest.mark.parametrize('byte, machine', bytesmachines)
-def test_node_UndecodableRecord(byte, machine):
+@pytest.mark.parametrize('byte, engine', bytesengines)
+def test_node_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
-        left = Leaf(record=byte, encoding=machine.encoding,
-                    hash_func=machine.hash)
-        _right = Leaf(record=byte, encoding=machine.encoding,
-                      hash_func=machine.hash)
+        left = Leaf(record=byte, encoding=engine.encoding,
+                    hash_func=engine.hash)
+        _right = Leaf(record=byte, encoding=engine.encoding,
+                      hash_func=engine.hash)
         with pytest.raises(UndecodableRecord):
-            Node(left=left, right=_right, encoding=machine.encoding,
-                 hash_func=machine.hash)
+            Node(left=left, right=_right, encoding=engine.encoding,
+                 hash_func=engine.hash)
 
 
-@pytest.mark.parametrize('byte, machine', bytesmachines)
-def test_hash_recalculation_UndecodableRecord(byte, machine):
+@pytest.mark.parametrize('byte, engine', bytesengines)
+def test_hash_recalculation_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
-        left = Leaf(record='left record', encoding=machine.encoding,
-                    hash_func=machine.hash)
-        right = Leaf(record='right record', encoding=machine.encoding,
-                     hash_func=machine.hash)
-        node = Node(left=left, right=right, encoding=machine.encoding,
-                    hash_func=machine.hash)
-        left = Leaf(record=byte, encoding=machine.encoding,
-                    hash_func=machine.hash)
+        left = Leaf(record='left record', encoding=engine.encoding,
+                    hash_func=engine.hash)
+        right = Leaf(record='right record', encoding=engine.encoding,
+                     hash_func=engine.hash)
+        node = Node(left=left, right=right, encoding=engine.encoding,
+                    hash_func=engine.hash)
+        left = Leaf(record=byte, encoding=engine.encoding,
+                    hash_func=engine.hash)
         node.set_left(_left)
-        node.recalculate_hash(machine.hash)
+        node.recalculate_hash(engine.hash)

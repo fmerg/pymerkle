@@ -11,7 +11,7 @@ from pymerkle.core.nodes import NodeSerializer, LeafSerializer
                                         MerkleProofSerialilzer(),
                                         ])
 def test_serialization_error(serializer):
-    class Empty(object):
+    class Empty:
         pass
     with pytest.raises(TypeError):
         serializer.default(Empty())

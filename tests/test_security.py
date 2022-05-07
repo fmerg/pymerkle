@@ -26,14 +26,14 @@ Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.hashing import HASH_TYPES
-from tests.conftest import ENCODINGS
+from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from tests.conftest import SUPPORTED_ENCODINGS
 
 trees = []
 for raw_bytes in (True, False):
     for security in (True, False):
-        for hash_type in HASH_TYPES:
-            for encoding in ENCODINGS:
+        for hash_type in SUPPORTED_HASH_TYPES:
+            for encoding in SUPPORTED_ENCODINGS:
                 trees.append(
                     MerkleTree('a', 'b', 'c', 'd',
                                hash_type=hash_type,

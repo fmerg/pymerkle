@@ -17,7 +17,7 @@ T_BRACKET = '├──'
 VERTICAL_BAR = '│'
 
 
-class __Node(object, metaclass=ABCMeta):
+class __Node(metaclass=ABCMeta):
     """Abstract base class for Merkle-tree leaves and internal nodes
     """
 

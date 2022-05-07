@@ -5,10 +5,10 @@ Tests represenation and serialization of nodes
 import pytest
 
 from pymerkle.core.nodes import Node, Leaf
-from pymerkle.hashing import HashMachine
+from pymerkle.core.hashing import HashEngine
 
 
-_ = HashMachine()
+_ = HashEngine()
 encoding = _.encoding
 hash_func = _.hash
 

@@ -35,7 +35,7 @@ PROOF_TEMPLATE = """
 """
 
 
-class Prover(object, metaclass=ABCMeta):
+class Prover(metaclass=ABCMeta):
     """High-level prover interface for Merkle-trees
     """
 
@@ -131,7 +131,7 @@ class Prover(object, metaclass=ABCMeta):
         return proof
 
 
-class MerkleProof(object):
+class MerkleProof:
     """Class for Merkle-proofs
 
     :param provider: uuid of the provider Merkle-tree
@@ -290,7 +290,8 @@ class MerkleProof(object):
 
         :rtype: str
         """
-        return json.dumps(self, cls=MerkleProofSerialilzer, sort_keys=True, indent=4)
+        return json.dumps(self, cls=MerkleProofSerialilzer,
+                          sort_keys=True, indent=4)
 
 
 class MerkleProofSerialilzer(json.JSONEncoder):

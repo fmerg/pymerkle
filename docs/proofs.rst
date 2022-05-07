@@ -86,7 +86,7 @@ client's side. Invoking it from the Python interpreter, it looks like
 
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
 uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
-configuration. They are necessary for the client to configure their hashing-machine
+configuration. They are necessary for the client to configure their hashing engine
 appropriately in order to verify the proof and become available as follows:
 
 .. code-block:: python
@@ -193,7 +193,7 @@ Verification
 
     >>>
 
-Like in any of the available verification mechanism, the `HashMachine.multi_hash`_ method is
+Like in any of the available verification mechanism, the `HashEngine.multi_hash`_ method is
 implicitly applied over the path of advertised hashes in order to recover a single hash.
 The proof is found to be valid *iff* this single hash coincides with the provided commitment.
 Note that application of `verify_proof` has the effect of modifying the inscribed status as
@@ -207,17 +207,17 @@ Note that application of `verify_proof` has the effect of modifying the inscribe
 If the proof were found to be invalid, the corresponding value would have been
 *False* (``'INVALID'``).
 
-.. _HashMachine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.multi_hash
+.. _HashEngine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine.multi_hash
 
 Verification of a Merkle-proof presupposes correct configuration of an underlying
-hash machine. This happens automatically by just feeding the proof to any of the
+hashing engine. This happens automatically by just feeding the proof to any of the
 available verification mechanisms, since the required verification parameters
 (*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
-proof's header. The underlying machine is an instance of the `MerkleVerifier`_ class
-(which is in turn a subclass of `HashMachine`_)
+proof's header. The underlying engine is an instance of the `MerkleVerifier`_ class
+(which is in turn a subclass of `HashEngine`_)
 
 .. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
-.. _HashMachine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine
+.. _HashEngine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine
 
 Running a verifier
 ------------------
@@ -248,7 +248,7 @@ been raised instead:
 
 Instead of feeding a proof at construction, one can alternately reconfigure the
 verifier by means of the `MerkleVerifier.update`_ method. This allows to use
-the same machine for successive verification of multiple proofs:
+the same engine for successive verification of multiple proofs:
 
 .. code-block:: python
 

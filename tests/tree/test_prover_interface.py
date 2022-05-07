@@ -5,8 +5,8 @@ Tests the .generate_audit_proof(), .generate_consistency_proof() methods
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.hashing import HASH_TYPES
-from tests.conftest import ENCODINGS
+from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from tests.conftest import SUPPORTED_ENCODINGS
 
 
 # Trees setup
@@ -16,8 +16,8 @@ trees = []
 for raw_bytes in (True, False):
     for security in (True, False):
         for length in range(0, MAX_LENGTH + 1):
-            for hash_type in HASH_TYPES:
-                for encoding in ENCODINGS:
+            for hash_type in SUPPORTED_HASH_TYPES:
+                for encoding in SUPPORTED_ENCODINGS:
                     trees.append(
                         MerkleTree(
                             *['%d-th record' % _ for _ in range(length)],

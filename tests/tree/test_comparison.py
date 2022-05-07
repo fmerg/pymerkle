@@ -5,9 +5,10 @@ Tests for inclusion-test and the comparison operators based upon it
 import pytest
 import os
 
-from pymerkle import MerkleTree, MerkleVerifier, hashing
+from pymerkle import MerkleTree, MerkleVerifier
+from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import InvalidComparison
-from tests.conftest import ENCODINGS
+from tests.conftest import SUPPORTED_ENCODINGS
 
 
 # Files to encrypt
@@ -17,8 +18,8 @@ RED_HAT_LINUX_log = os.path.join(child_dir, 'logdata/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
 for security in (True, False):
-    for hash_type in hashing.HASH_TYPES:
-        for encoding in ENCODINGS:
+    for hash_type in SUPPORTED_HASH_TYPES:
+        for encoding in SUPPORTED_ENCODINGS:
             tree = MerkleTree(
                 'a', 'b', 'c', 'd', 'e',
                 hash_type=hash_type,

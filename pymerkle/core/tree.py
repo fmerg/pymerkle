@@ -5,7 +5,7 @@ of proof generation
 from .encryption import Encryptor
 from .prover import Prover
 from .nodes import Node, Leaf
-from pymerkle.hashing import HashMachine
+from .hashing import HashEngine
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  EmptyTreeException, NoPathException, NoSubtreeException,
@@ -32,7 +32,7 @@ TREE_TEMPLATE = """
 """
 
 
-class MerkleTree(HashMachine, Encryptor, Prover):
+class MerkleTree(HashEngine, Encryptor, Prover):
     """Class for Merkle-trees
 
     :param \\*records: [optional] Records encrypted into the Merkle-tree at

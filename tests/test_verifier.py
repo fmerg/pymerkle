@@ -6,10 +6,10 @@ import pytest
 import os
 import json
 
-from pymerkle.hashing import HASH_TYPES
+from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import InvalidMerkleProof
 from pymerkle import MerkleTree, MerkleVerifier
-from tests.conftest import ENCODINGS
+from tests.conftest import SUPPORTED_ENCODINGS
 
 
 # Merkle-proof verification
@@ -31,8 +31,8 @@ trees = []
 for raw_bytes in (True, False):
     for security in (True, False):
         for length in range(1, MAX_LENGTH + 1):
-            for hash_type in HASH_TYPES:
-                for encoding in ENCODINGS:
+            for hash_type in SUPPORTED_HASH_TYPES:
+                for encoding in SUPPORTED_ENCODINGS:
                     trees.append(
                         MerkleTree(
                             *['%d-th record' % i for i in range(length)],

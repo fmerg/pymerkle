@@ -49,10 +49,10 @@ If the provided *hash_type* (resp. *encoding*) is not among the
 ``UnsupportedHashType`` (resp. ``UnsupportedEncoding``) is
 raised and the construction is is *aborted*.
 
-.. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashMachine.hash
+.. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine.hash
 .. _hashlib: https://docs.python.org/3.6/library/hashlib.html
-.. _supported hash types: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.machine.HASH_TYPES
-.. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.encoding.ENCODINGS
+.. _supported hash types: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.core.hashing.SUPPORTED_HASH_TYPES
+.. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.core.hashing.SUPPORTED_ENCODINGS
 
 The ``.raw_bytes`` attribute refers to the tree's ability of consuming
 arbitrary binary data, which is the default choice (*True*). If *False*,

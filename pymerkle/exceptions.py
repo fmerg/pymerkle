@@ -18,7 +18,7 @@ class EmptyTreeException(Exception):
 
 class EmptyPathException(Exception):
     """
-    Raised when *HashMachine.multi_hash()* is called with an empty argument.
+    Raised when *HashEngine.multi_hash()* is called with an empty argument.
     """
     pass
 
@@ -83,14 +83,14 @@ class NoSubtreeException(Exception):
 
 class UnsupportedEncoding(Exception):
     """
-    Raised when a hash-machine with unsupported encoding-type is requested.
+    Raised when a hashing engine with unsupported encoding-type is requested.
     """
     pass
 
 
 class UnsupportedHashType(Exception):
     """
-    Raised when a hash-machine with unsupported hash-type is requested.
+    Raised when a hashing engine with unsupported hash-type is requested.
     """
     pass
 

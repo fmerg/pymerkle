@@ -1,7 +1,7 @@
 """Provides utilities for Merkle-proof verification
 """
 
-from pymerkle.hashing import HashMachine
+from pymerkle.core.hashing import HashEngine
 from pymerkle.core.prover import MerkleProof
 from pymerkle.exceptions import InvalidMerkleProof
 import uuid
@@ -10,7 +10,7 @@ import json
 import os
 
 
-class MerkleVerifier(HashMachine):
+class MerkleVerifier(HashEngine):
     """Encapsulates the low-level utility for Merkle-proof verification
 
     :param input: [optional] a Merkle-proof or its header
@@ -40,7 +40,7 @@ class MerkleVerifier(HashMachine):
             raw_bytes = config['raw_bytes']
             security = config['security']
         except KeyError as err:
-            err = f'Hash-machine could not be configured: Missing parameter: {err}'
+            err = f'Hashing engine could not be configured: Missing parameter: {err}'
             raise KeyError(err)
         super().__init__(hash_type=hash_type, encoding=encoding,
                          raw_bytes=raw_bytes, security=security)

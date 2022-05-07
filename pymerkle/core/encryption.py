@@ -13,7 +13,7 @@ from pymerkle.exceptions import UndecodableRecord
 abspath = os.path.abspath
 
 
-class Encryptor(object, metaclass=ABCMeta):
+class Encryptor(metaclass=ABCMeta):
     """High-level encryption interface for Merkle-trees
     """
 
@@ -94,7 +94,7 @@ class Encryptor(object, metaclass=ABCMeta):
             # Check that no line of the provided file is outside
             # the tree's encoding type and discard otherwise
             encoding = self.encoding
-            while 1:
+            while True:
                 record = readline()
                 if not record:
                     break
@@ -105,7 +105,7 @@ class Encryptor(object, metaclass=ABCMeta):
                 append(record)
         else:
             # No need to check anything, just load all lines
-            while 1:
+            while True:
                 record = readline()
                 if not record:
                     break
@@ -114,6 +114,7 @@ class Encryptor(object, metaclass=ABCMeta):
         # Perform line by line encryption
         tqdm.write('')
         update = self.update
-        for record in tqdm(records, desc='Encrypting file per log', total=len(records)):
+        for record in tqdm(
+                records, desc='Encrypting file per log', total=len(records)):
             update(record=record)
         tqdm.write('Encryption complete\n')

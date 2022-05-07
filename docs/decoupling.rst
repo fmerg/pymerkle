@@ -28,7 +28,7 @@ Schema
 
 The auditor requests from the server to encrypt a record ``x``, that is, to append
 the checksum ``y = h(x)`` as a new leaf to the tree (where ``h`` stands for the
-tree's hashing machinery). At a later moment, after further records have
+tree's hashing enginery). At a later moment, after further records have
 possibly been encrypted, the auditor requests from the server to prove that ``x``
 has indeed been encrypted by only revealing ``y``. In formal terms,
 ``y`` is the *challenge* posed by the auditor to the server. Disclosing at most
@@ -149,7 +149,7 @@ their current state is a valid later stage of the recorded one. In formal terms,
 the recorded previous state is the *challenge* posed by the monitor to the server.
 Disclosing only one leaf checksum, the server responds with a proof ``p``
 consisting of a path of basically interior hashes and a rule for combining them into
-a single hash. Having knowledge of the tree's hashing machinery, the monitor is
+a single hash. Having knowledge of the tree's hashing enginery, the monitor is
 able to apply this rule, that is, to retrieve from ``p`` a single hash and compare
 it against the current root-hash ``c`` of the Merkle-tree (in formal terms, ``c``
 is the server's *commitment* to the produced proof). This is the *verification*
