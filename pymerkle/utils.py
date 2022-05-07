@@ -62,7 +62,7 @@ def decompose(num):
 
 
 def stringify_path(signed_hashes, encoding):
-    """Returns a stringification of the provided sequence of signed hashes
+    """Returns a string representing the provided sequence of signed hashes.
 
     .. note:: Printed hashes occure after decoding the given ones in
         accordance under the provided encoding type
@@ -75,13 +75,15 @@ def stringify_path(signed_hashes, encoding):
     """
     def order_of_magnitude(num): return int(log10(num)) if num != 0 else 0
     def get_with_sign(num): return f'{"+" if num >= 0 else ""}{num}'
-    stringified_pairs = []
-    append = stringified_pairs.append
-    for i in range(len(signed_hashes)):
-        pair = signed_hashes[i]
-        append('\n%s[{i}]%s{sign}%s{hash}'
-               .format(i=i, sign=get_with_sign(pair[0]),
-                       hash=pair[1].decode(encoding=encoding)
-                       if not isinstance(pair[1], str) else pair[1])
-               % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 3 * ' '))
-    return ''.join(stringified_pairs)
+    pairs = []
+    pair_template = '\n{left}[{index}]{middle}{sign}{right}{digest}'
+    for index, curr in enumerate(signed_hashes):
+        pairs.append(
+            pair_template.format(left=(7 - order_of_magnitude(index)) * ' ',
+                                 index=index,
+                                 middle=3 * ' ',
+                                 sign=get_with_sign(curr[0]),
+                                 right=3 * ' ',
+                                 digest=curr[1].decode(encoding) if not isinstance(curr[1], str)
+                                 else curr[1]))
+    return ''.join(pairs)
