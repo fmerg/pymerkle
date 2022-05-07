@@ -6,7 +6,7 @@ from pymerkle import MerkleTree, MerkleVerifier
 if __name__ == '__main__':
 
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True,
-            security=True)
+                      security=True)
 
     for i in range(7):
         tree.encrypt_record('%d-th record' % i)

@@ -16,15 +16,29 @@ import uuid
 import json
 from tqdm import tqdm
 
-NONE_BAR = '\n ' + '\u2514' + '\u2500' + NONE  # └─[None]
+NONE_BAR = '\n └─[None]'
+TREE_TEMPLATE = """
+    uuid      : {uuid}
+
+    hash-type : {hash_type}
+    encoding  : {encoding}
+    raw-bytes : {raw_bytes}
+    security  : {security}
+
+    root-hash : {root_hash}
+
+    length    : {length}
+    size      : {size}
+    height    : {height}
+"""
 
 
 class MerkleTree(HashMachine, Encryptor, Prover):
     """Class for Merkle-trees
 
-    :param \*records: [optional] Records encrypted into the Merkle-tree at
+    :param \\*records: [optional] Records encrypted into the Merkle-tree at
                 construction.
-    :type \*records: str or bytes
+    :type \\*records: str or bytes
     :param hash_type: [optional] Specifies the Merkle-tree's hashing algorithm.
                     Defaults to *sha256*.
     :type hash_type: str
@@ -210,7 +224,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
                 # Recalculate hashes only at the rightmost branch of the tree
                 current_node = old_parent
-                while 1:
+                while True:
                     current_node.recalculate_hash(hash_func=hash)
                     try:
                         current_node = current_node.parent
@@ -261,7 +275,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         path = [(initial_sign, current_node.digest)]
         append = path.append
         start = 0
-        while 1:
+        while True:
             try:
                 current_parent = current_node.parent
             except NoParentException:
@@ -296,7 +310,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         index = -1
         count = 0
         leaves = (leaf for leaf in self.leaves)
-        while 1:
+        while True:
             try:
                 leaf = next(leaves)
             except StopIteration:
@@ -368,7 +382,7 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
         complement = []
         append = complement.append
-        while 1:
+        while True:
             try:
                 subroots[-1][1].parent
             except NoParentException:
@@ -657,27 +671,16 @@ class MerkleTree(HashMachine, Encryptor, Prover):
 
     def __repr__(self):
         """Sole purpose of this function is to display info about
-        the Merkle-tree by just invoking it at console
+        the Merkle-tree by just invoking it at console.
 
         .. warning:: Contrary to convention, the output of this implementation
             is not insertable to the eval() builtin Python function.
         """
-        return '\n    uuid      : {uuid}\
-                \n\
-                \n    hash-type : {hash_type}\
-                \n    encoding  : {encoding}\
-                \n    raw-bytes : {raw_bytes}\
-                \n    security  : {security}\
-                \n\
-                \n    root-hash : {root_hash}\
-                \n\
-                \n    length    : {length}\
-                \n    size      : {size}\
-                \n    height    : {height}\n'.format(
+        return TREE_TEMPLATE.format(
             uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', '-'),
+            hash_type=self.hash_type.upper().replace('_', ''),
             encoding=self.encoding.upper().replace('_', '-'),
-            raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
+            raw_bytes=str(self.raw_bytes).upper(),
             security='ACTIVATED' if self.security else 'DEACTIVATED',
             root_hash=self.root_hash.decode(self.encoding) if self else NONE,
             length=self.length,

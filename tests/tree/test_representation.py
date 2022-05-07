@@ -3,39 +3,34 @@ import os
 import json
 
 from pymerkle.core import MerkleTree
+from pymerkle.core.tree import TREE_TEMPLATE
 
 
 def test___repr__non_default_empty_tree():
     tree = MerkleTree(hash_type='sha512', encoding='UTF-32', security=False)
-    assert tree.__repr__() == '\n    uuid      : %s\
-                \n\
-                \n    hash-type : SHA512\
-                \n    encoding  : UTF-32\
-                \n    raw-bytes : TRUE\
-                \n    security  : DEACTIVATED\
-                \n\
-                \n    root-hash : [None]\
-                \n\
-                \n    length    : 0\
-                \n    size      : 0\
-                \n    height    : 0\n' % tree.uuid
+    assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
+                                                   hash_type='SHA512',
+                                                   encoding='UTF-32',
+                                                   raw_bytes='TRUE',
+                                                   security='DEACTIVATED',
+                                                   root_hash='[None]',
+                                                   length=0,
+                                                   size=0,
+                                                   height=0)
 
 
 def test___repr__default_non_empty_tree():
     tree = MerkleTree(b'first', b'second', b'third')
-    assert tree.__repr__() == '\n    uuid      : %s\
-                \n\
-                \n    hash-type : SHA256\
-                \n    encoding  : UTF-8\
-                \n    raw-bytes : TRUE\
-                \n    security  : ACTIVATED\
-                \n\
-                \n    root-hash : %s\
-                \n\
-                \n    length    : 3\
-                \n    size      : 5\
-                \n    height    : 2\n' % (
-        tree.uuid, tree.root_hash.decode(tree.encoding))
+    assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
+                                                   hash_type='SHA256',
+                                                   encoding='UTF-8',
+                                                   raw_bytes='TRUE',
+                                                   security='ACTIVATED',
+                                                   root_hash=tree.root_hash.decode(
+                                                       tree.encoding),
+                                                   length=3,
+                                                   size=5,
+                                                   height=2)
 
 
 empty_tree = MerkleTree()

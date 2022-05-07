@@ -252,33 +252,18 @@ def test_MerkleProof_construction_from_dict(proof, offset, path):
                          ((proof_11, True), (proof_12, True), (proof_13, True), (proof_14, True),
                           (proof_21, False), (proof_22, False), (proof_23, False), (proof_24, False)))
 def test___repr__(proof, generation):
-    assert proof.__repr__() == '\n    ----------------------------------- PROOF ------------------------------------\
-                \n\
-                \n    uuid        : %s\
-                \n\
-                \n    timestamp   : %d (%s)\
-                \n    provider    : %s\
-                \n\
-                \n    hash-type   : SHA-256\
-                \n    encoding    : UTF-8\
-                \n    raw_bytes   : TRUE\
-                \n    security    : ACTIVATED\
-                \n\
-                \n    offset : %d\
-                \n    path  :\
-                \n    %s\
-                \n\
-                \n    commitment  : %s\
-                \n\
-                \n    status      : UNVERIFIED\
-                \n\
-                \n    -------------------------------- END OF PROOF --------------------------------\
-                \n' % (
-        proof.header['uuid'],
-        proof.header['timestamp'],
-        proof.header['created_at'],
-        provider,
-        5 if generation else -1,
-        stringify_path(path, 'utf_8') if generation else '',
-        proof.header['commitment'],
-    )
+    from pymerkle.core.prover import PROOF_TEMPLATE
+    assert proof.__repr__() == PROOF_TEMPLATE.format(uuid=proof.header['uuid'],
+                                                     timestamp=proof.header['timestamp'],
+                                                     created_at=proof.header['created_at'],
+                                                     provider=provider,
+                                                     hash_type='SHA256',
+                                                     encoding='UTF-8',
+                                                     raw_bytes='TRUE',
+                                                     security='ACTIVATED',
+                                                     offset=5 if generation else -1,
+                                                     path=stringify_path(
+                                                         path, 'utf-8')
+                                                     if generation else '',
+                                                     commitment=proof.header['commitment'],
+                                                     status='UNVERIFIED')

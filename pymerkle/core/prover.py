@@ -9,6 +9,31 @@ from pymerkle.exceptions import NoPathException
 from pymerkle.serializers import ProofSerializer
 from pymerkle.utils import stringify_path
 
+PROOF_TEMPLATE = """
+    ----------------------------------- PROOF ------------------------------------
+
+    uuid        : {uuid}
+
+    timestamp   : {timestamp} ({created_at})
+    provider    : {provider}
+
+    hash-type   : {hash_type}
+    encoding    : {encoding}
+    raw_bytes   : {raw_bytes}
+    security    : {security}
+
+    node path   :
+    {path}
+
+    offset      : {offset}
+
+    commitment  : {commitment}
+
+    status      : {status}
+
+    -------------------------------- END OF PROOF --------------------------------
+"""
+
 
 class Prover(object, metaclass=ABCMeta):
     """High-level prover interface for Merkle-trees
@@ -235,33 +260,12 @@ class MerkleProof(object):
         body = self.body
         encoding = header['encoding']
 
-        return '\n    ----------------------------------- PROOF ------------------------------------\
-                \n\
-                \n    uuid        : {uuid}\
-                \n\
-                \n    timestamp   : {timestamp} ({created_at})\
-                \n    provider    : {provider}\
-                \n\
-                \n    hash-type   : {hash_type}\
-                \n    encoding    : {encoding}\
-                \n    raw_bytes   : {raw_bytes}\
-                \n    security    : {security}\
-                \n\
-                \n    offset : {offset}\
-                \n    path  :\
-                \n    {path}\
-                \n\
-                \n    commitment  : {commitment}\
-                \n\
-                \n    status      : {status}\
-                \n\
-                \n    -------------------------------- END OF PROOF --------------------------------\
-                \n'.format(
+        return PROOF_TEMPLATE.format(
             uuid=header['uuid'],
             timestamp=header['timestamp'],
             created_at=header['created_at'],
             provider=header['provider'],
-            hash_type=header['hash_type'].upper().replace('_', '-'),
+            hash_type=header['hash_type'].upper().replace('_', ''),
             encoding=header['encoding'].upper().replace('_', '-'),
             raw_bytes='TRUE' if header['raw_bytes'] else 'FALSE',
             security='ACTIVATED' if header['security'] else 'DEACTIVATED',
