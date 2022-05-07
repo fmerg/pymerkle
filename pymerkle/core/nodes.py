@@ -3,7 +3,6 @@
 
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.serializers import NodeSerializer, LeafSerializer
 from pymerkle.exceptions import (NoParentException, NoAncestorException,
                                  NoChildException, LeafConstructionError,
                                  UndecodableArgumentError, UndecodableRecord)
@@ -373,3 +372,42 @@ class Node(__Node):
         :rtype: str
         """
         return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)
+
+
+class NodeSerializer(json.JSONEncoder):
+    """Used implicitly in the JSON serialization of nodes.
+    """
+
+    def default(self, obj):
+        """Overrides the built-in method of JSON encoders.
+        """
+        try:
+            left = obj.left
+            right = obj.right
+            digest = obj.digest
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
+
+        return {
+            'left': left.serialize(),
+            'right': right.serialize(),
+            'hash': digest.decode(encoding=obj.encoding)
+        }
+
+
+class LeafSerializer(json.JSONEncoder):
+    """Used implicitly in the JSON serialization of leafs.
+    """
+
+    def default(self, obj):
+        """Overrides the built-in method of JSON encoders.
+        """
+        try:
+            encoding = obj.encoding
+            digest = obj.digest
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
+
+        return {
+            'hash': digest.decode(encoding=obj.encoding)
+        }

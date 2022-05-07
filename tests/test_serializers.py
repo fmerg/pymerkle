@@ -1,22 +1,17 @@
 import pytest
-import json
 
-from pymerkle.serializers import (MerkleTreeSerializer, LeafSerializer,
-                                  NodeSerializer, ProofSerializer)
-
-serializers = [
-    MerkleTreeSerializer(),
-    LeafSerializer(),
-    NodeSerializer(),
-    ProofSerializer(),
-]
+from pymerkle.core.tree import MerkleTreeSerializer
+from pymerkle.core.prover import MerkleProofSerialilzer
+from pymerkle.core.nodes import NodeSerializer, LeafSerializer
 
 
-class Empty(object):
-    pass
-
-
-@pytest.mark.parametrize('serializer', serializers)
+@pytest.mark.parametrize('serializer', [MerkleTreeSerializer(),
+                                        LeafSerializer(),
+                                        NodeSerializer(),
+                                        MerkleProofSerialilzer(),
+                                        ])
 def test_serialization_error(serializer):
+    class Empty(object):
+        pass
     with pytest.raises(TypeError):
         serializer.default(Empty())

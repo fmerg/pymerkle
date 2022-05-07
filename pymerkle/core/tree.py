@@ -6,7 +6,6 @@ from .encryption import Encryptor
 from .prover import Prover
 from .nodes import Node, Leaf
 from pymerkle.hashing import HashMachine
-from pymerkle.serializers import MerkleTreeSerializer
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  EmptyTreeException, NoPathException, NoSubtreeException,
@@ -722,3 +721,28 @@ class MerkleTree(HashMachine, Encryptor, Prover):
         """
         return json.dumps(self,
                           cls=MerkleTreeSerializer, sort_keys=True, indent=4)
+
+
+class MerkleTreeSerializer(json.JSONEncoder):
+    """Used implicitly in the JSON serialization of Merkle-trees.
+    """
+
+    def default(self, obj):
+        """Overrides the built-in method of JSON encoders.
+        """
+        try:
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
+            leaves = obj.leaves
+            raw_bytes = obj.raw_bytes
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
+        return {
+            'header': {
+                'hash_type': hash_type,
+                'encoding': encoding,
+                'raw_bytes': raw_bytes,
+                'security': security},
+            'hashes': [leaf.digest.decode(encoding) for leaf in leaves]
+        }

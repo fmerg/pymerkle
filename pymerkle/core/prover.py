@@ -1,13 +1,13 @@
 """Provides high-level prover interface for Merkle-trees
 """
 
-from abc import ABCMeta, abstractmethod
 import uuid
-from time import time, ctime
 import json
+from abc import ABCMeta, abstractmethod
+from time import time, ctime
 from pymerkle.exceptions import NoPathException
-from pymerkle.serializers import ProofSerializer
 from pymerkle.utils import stringify_path
+
 
 PROOF_TEMPLATE = """
     ----------------------------------- PROOF ------------------------------------
@@ -282,7 +282,7 @@ class MerkleProof(object):
 
         :rtype: dict
         """
-        return ProofSerializer().default(self)
+        return MerkleProofSerialilzer().default(self)
 
     def to_json_str(self):
         """Returns a JSON text with the proof's characteristics
@@ -290,4 +290,51 @@ class MerkleProof(object):
 
         :rtype: str
         """
-        return json.dumps(self, cls=ProofSerializer, sort_keys=True, indent=4)
+        return json.dumps(self, cls=MerkleProofSerialilzer, sort_keys=True, indent=4)
+
+
+class MerkleProofSerialilzer(json.JSONEncoder):
+    """Used implicitly in the JSON serialization of proofs.
+    """
+
+    def default(self, obj):
+        """Overrides the built-in method of JSON encoders.
+        """
+        try:
+            uuid = obj.header['uuid']
+            created_at = obj.header['created_at']
+            timestamp = obj.header['timestamp']
+            provider = obj.header['provider']
+            hash_type = obj.header['hash_type']
+            encoding = obj.header['encoding']
+            security = obj.header['security']
+            raw_bytes = obj.header['raw_bytes']
+            offset = obj.body['offset']
+            path = obj.body['path']
+            commitment = obj.header['commitment']
+            status = obj.header['status']
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
+
+        return {
+            'header': {
+                'uuid': uuid,
+                'timestamp': timestamp,
+                'created_at': created_at,
+                'provider': provider,
+                'hash_type': hash_type,
+                'encoding': encoding,
+                'security': security,
+                'raw_bytes': raw_bytes,
+                'commitment': commitment.decode() if commitment else None,
+                'status': status
+            },
+            'body': {
+                'offset': offset,
+                'path': [
+                    [sign, digest if isinstance(
+                        digest, str) else digest.decode()]
+                    for (sign, digest) in path
+                ]
+            }
+        }
