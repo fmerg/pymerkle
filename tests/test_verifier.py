@@ -45,12 +45,11 @@ for raw_bytes in (True, False):
 
 # Audit proof verification
 
-__false_audit_proofs = []
-true_audit_proofs = []
+false_audit_proofs = []
+valid_audit_proofs = []
 
 for tree in trees:
-
-    __false_audit_proofs.append(
+    false_audit_proofs.append(
         (
             tree,
             tree.generate_audit_proof(b'anything that has not been recorded')
@@ -58,7 +57,7 @@ for tree in trees:
     )
 
     for index in range(0, tree.length):
-        true_audit_proofs.append(
+        valid_audit_proofs.append(
             (
                 tree,
                 tree.generate_audit_proof(tree.hash('%d-th record' % index))
@@ -66,13 +65,13 @@ for tree in trees:
         )
 
 
-@pytest.mark.parametrize("tree, proof", __false_audit_proofs)
+@pytest.mark.parametrize("tree, proof", false_audit_proofs)
 def test_false_audit_verify_proof(tree, proof):
     v = MerkleVerifier()
     assert not v.verify_proof(proof, tree.root_hash)
 
 
-@pytest.mark.parametrize("tree, proof", true_audit_proofs)
+@pytest.mark.parametrize("tree, proof", valid_audit_proofs)
 def test_true_audit_verify_proof(tree, proof):
     v = MerkleVerifier()
     assert v.verify_proof(proof, tree.root_hash)
@@ -98,19 +97,18 @@ for tree in trees:
             )
         )
 
-__false_consistency_proofs = []
-true_consistency_proofs = []
+false_consistency_proofs = []
+valid_consistency_proofs = []
 
 for (tree, subtree) in trees_and_subtrees:
-
-    __false_consistency_proofs.append(
+    false_consistency_proofs.append(
         (
             tree,
             tree.generate_consistency_proof(b'anything except for the right hash')
         )
     )
 
-    true_consistency_proofs.append(
+    valid_consistency_proofs.append(
         (
             tree,
             tree.generate_consistency_proof(subtree.root_hash)
@@ -118,48 +116,13 @@ for (tree, subtree) in trees_and_subtrees:
     )
 
 
-@pytest.mark.parametrize("tree, consistency_proof", __false_consistency_proofs)
+@pytest.mark.parametrize("tree, consistency_proof", false_consistency_proofs)
 def test_false_consistency_verify_proof(tree, consistency_proof):
     v = MerkleVerifier()
     assert not v.verify_proof(consistency_proof, tree.root_hash)
 
 
-@pytest.mark.parametrize("tree, consistency_proof", true_consistency_proofs)
+@pytest.mark.parametrize("tree, consistency_proof", valid_consistency_proofs)
 def test_true_consistency_verify_proof(tree, consistency_proof):
     v = MerkleVerifier()
     assert v.verify_proof(consistency_proof, tree.root_hash)
-
-
-# MerkleVerifier object
-
-# test KeyError in verifier construction
-
-missing_configs = [
-    {
-        'encoding': 0, 'raw_bytes': 0, 'security': 0,   # missing hash_type
-    },
-    {
-        'hash_type': 0, 'raw_bytes': 0, 'security': 0,   # missing encoding
-    },
-    {
-        'hash_type': 0, 'encoding': 0, 'security': 0,   # missing raw_bytes
-    },
-    {
-        'hash_type': 0, 'encoding': 0, 'raw_bytes': 0,  # missing security
-    },
-]
-
-
-@pytest.mark.parametrize('config', missing_configs)
-def test_verifier_construction_error(config):
-    with pytest.raises(KeyError):
-        MerkleVerifier(config)
-
-
-# Test verifier main exception
-
-@pytest.mark.parametrize('tree, proof', __false_audit_proofs[:10])
-def test_verifier_with_false_proofs(tree, proof):
-    verifier = MerkleVerifier(proof.get_verification_params())
-    with pytest.raises(InvalidMerkleProof):
-        verifier.run(proof, tree.root_hash)

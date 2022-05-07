@@ -240,14 +240,17 @@ class MerkleProof:
         :rtype: dict
         """
         header = self.header
-        verification_params = dict({
+        return {
             'hash_type': header['hash_type'],
             'encoding': header['encoding'],
             'raw_bytes': header['raw_bytes'],
             'security': header['security'],
-        })
+        }
 
         return verification_params
+
+    def get_commitment(self):
+        return self.header.get('commitment', None)
 
     def __repr__(self):
         """Sole purpose of this function is to display info
