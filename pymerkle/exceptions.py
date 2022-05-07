@@ -2,28 +2,28 @@
 """
 
 
-class InvalidMerkleProof(BaseException):
+class InvalidMerkleProof(Exception):
     """
     Raised when a Merkle-proof is found to be invalid.
     """
     pass
 
 
-class EmptyTreeException(BaseException):
+class EmptyTreeException(Exception):
     """
     Raised when the root or root-hash of an empty Merkle-tree is requested.
     """
     pass
 
 
-class EmptyPathException(BaseException):
+class EmptyPathException(Exception):
     """
     Raised when *HashMachine.multi_hash()* is called with an empty argument.
     """
     pass
 
 
-class InvalidComparison(BaseException):
+class InvalidComparison(Exception):
     """
     Raised when a Merkle-tree is compared with an object that is not
     instance of the *MerkleTree* class.
@@ -31,7 +31,7 @@ class InvalidComparison(BaseException):
     pass
 
 
-class LeafConstructionError(BaseException):
+class LeafConstructionError(Exception):
     """
     Raised upon construction of a leaf if the provided arguments
     are not as prescribed.
@@ -39,63 +39,63 @@ class LeafConstructionError(BaseException):
     pass
 
 
-class NoParentException(BaseException):
+class NoParentException(Exception):
     """
     Raised when the non-existent parent of a node is invoked.
     """
     pass
 
 
-class NoAncestorException(BaseException):
+class NoAncestorException(Exception):
     """
     Raised when the non-existent ancestor of a node is requested
     (i.e., with a descendancy-degree exceeding current possibilities).
     """
 
 
-class NoChildException(BaseException):
+class NoChildException(Exception):
     """
     Raised when the non-existent left or right child of a node is invoked.
     """
     pass
 
 
-class NoPathException(BaseException):
+class NoPathException(Exception):
     """
     Raised when no path exists for the provided parameters.
     """
     pass
 
 
-class NoPrincipalSubroots(BaseException):
+class NoPrincipalSubroots(Exception):
     """
     Raised when no sequence of subroots exists for the provided parameters.
     """
     pass
 
 
-class NoSubtreeException(BaseException):
+class NoSubtreeException(Exception):
     """
     Raised when no full-binary subtree exists for the provided parameters.
     """
     pass
 
 
-class UnsupportedEncoding(BaseException):
+class UnsupportedEncoding(Exception):
     """
     Raised when a hash-machine with unsupported encoding-type is requested.
     """
     pass
 
 
-class UnsupportedHashType(BaseException):
+class UnsupportedHashType(Exception):
     """
     Raised when a hash-machine with unsupported hash-type is requested.
     """
     pass
 
 
-class UndecodableArgumentError(BaseException):
+class UndecodableArgumentError(Exception):
     """
     Raised when an argument is passed into the hash function,
     which cannot be decoded under the configured encoding type.
@@ -103,7 +103,7 @@ class UndecodableArgumentError(BaseException):
     pass
 
 
-class UndecodableRecord(BaseException):
+class UndecodableRecord(Exception):
     """
     Raised when raw-bytes mode is disabled and an argument is passed
     which cannot be decoded under the configured encoding type.
@@ -111,7 +111,7 @@ class UndecodableRecord(BaseException):
     pass
 
 
-class WrongJSONFormat(BaseException):
+class WrongJSONFormat(Exception):
     """
     Raised when a deserialized object is not as expected
     """
