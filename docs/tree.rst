@@ -82,9 +82,8 @@ The ``.security`` attribute refers to the tree's ability of defending against
 second-preimage attacks, which is the default choice (*True*). In this case,
 the `.hash`_ function will prepend ``0x00`` or ``0x01`` before hashing single or
 double arguments respectively. The actual prefices will be the images of these
-hexadecimals under the tree's configured encoding type (see the `making
-of the encoding function`_ for insight). One can disable this feature at
-construction for, say, testing purposes by
+hexadecimals under the tree's configured encoding type. One can disable this
+feature at construction for, say, testing purposes by
 
 .. code-block:: python
 
