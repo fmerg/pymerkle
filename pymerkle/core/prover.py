@@ -121,12 +121,11 @@ class Prover(metaclass=ABCMeta):
                 offset, left_path, full_path = self.generate_consistency_path(
                     sublength)
             except NoPathException:
-                pass
-            else:
-                if subhash == self.multi_hash(left_path, len(left_path) - 1):
-                    proof = MerkleProof(**params, commitment=commitment,
-                                        offset=offset, path=full_path)
-                    break
+                continue
+            if subhash == self.multi_hash(left_path, len(left_path) - 1):
+                proof = MerkleProof(**params, commitment=commitment,
+                                    offset=offset, path=full_path)
+                break
 
         return proof
 
