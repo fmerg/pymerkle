@@ -256,6 +256,6 @@ verifier to crash:
     >>>
     >>> verifier.run(target=commitment)
     Traceback (most recent call last):
-    ...    raiseInvalidMerkleProof
-    pymerkle.exceptions.InvalidMerkleProof
+    ...    raiseInvalidProof
+    pymerkle.exceptions.InvalidProof
     >>>

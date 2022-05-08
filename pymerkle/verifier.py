@@ -1,9 +1,9 @@
-"""Provides utilities for Merkle-proof verification
+"""Utilities for Merkle-proof verification
 """
 
 from pymerkle.core.hashing import HashEngine
 from pymerkle.core.prover import MerkleProof
-from pymerkle.exceptions import InvalidMerkleProof
+from pymerkle.exceptions import InvalidProof
 
 
 class MerkleVerifier:
@@ -37,11 +37,11 @@ class MerkleVerifier:
         offset = proof.body['offset']
         path = proof.body['path']
         if offset == -1 and path == ():
-            # raise InvalidMerkleProof      # TODO
+            # raise InvalidProof      # TODO
             return False
         config = proof.get_verification_params()
         self.engine = HashEngine(**config)
         if target != self.engine.multi_hash(path, offset):
-            # raise InvalidMerkleProof      # TODO
+            # raise InvalidProof      # TODO
             return False
         return True

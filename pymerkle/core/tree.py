@@ -713,7 +713,7 @@ class MerkleTree(HashEngine, Encryptor, Prover):
         """
         return MerkleTreeSerializer().default(self)
 
-    def to_json_str(self):
+    def toJSONtext(self):
         """Returns a JSON text with the Merkle-tree's current characteristics
         and digests stored by its leaves.
 

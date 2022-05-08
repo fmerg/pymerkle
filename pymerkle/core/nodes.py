@@ -32,7 +32,7 @@ class __Node(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def to_json_str(self):
+    def toJSONtext(self):
         """
         """
 
@@ -295,7 +295,7 @@ class Leaf(__Node):
         """
         return LeafSerializer().default(self)
 
-    def to_json_str(self):
+    def toJSONtext(self):
         """Returns a JSON text with the leaf's characteristics as key-value pairs.
 
         :rtype: str
@@ -366,7 +366,7 @@ class Node(__Node):
         """
         return NodeSerializer().default(self)
 
-    def to_json_str(self):
+    def toJSONtext(self):
         """Returns a JSON text with the node's characteristics as key-value pairs.
 
         :rtype: str

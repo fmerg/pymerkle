@@ -2,7 +2,7 @@
 """
 
 
-class InvalidMerkleProof(Exception):
+class InvalidProof(Exception):
     """
     Raised when a Merkle-proof is found to be invalid.
     """

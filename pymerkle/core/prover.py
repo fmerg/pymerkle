@@ -155,8 +155,8 @@ class MerkleProof:
 
     >>> from pymerkle import MerkleProof
     >>>
-    >>> q = MerkleProof(from_dict=p.serialize())
-    >>> r = MerkleProof(from_json=p.toJSONtext())
+    >>> q = MerkleProof.from_dict(p.serialize())
+    >>> r = MerkleProof.from_json(p.toJSONtext())
 
     or, more uniformly,
 
@@ -172,48 +172,47 @@ class MerkleProof:
     :ivar body: (*dict*) Contains the keys *offset* and *path*
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kw):
         """
         """
-        header = {}
-        body = {}
-        if kwargs.get('from_dict'):
-            input = kwargs['from_dict']
-            header.update(input['header'])
-            if header['commitment']:
-                header['commitment'] = header['commitment'].encode()
-            body['offset'] = input['body']['offset']
-            body['path'] = tuple((
-                pair[0],
-                bytes(pair[1], header['encoding'])
-            ) for pair in input['body']['path'])
-        elif kwargs.get('from_json'):
-            input = json.loads(kwargs['from_json'])
-            header.update(input['header'])
-            if header['commitment']:
-                header['commitment'] = header['commitment'].encode()
-            body['offset'] = input['body']['offset']
-            body['path'] = tuple((
-                pair[0],
-                bytes(pair[1], header['encoding'])
-            ) for pair in input['body']['path'])
-        else:
-            header.update({
-                'uuid': str(uuid.uuid1()),
-                'timestamp': int(time()),
-                'created_at': ctime(),
-                'provider': kwargs['provider'],
-                'hash_type': kwargs['hash_type'],
-                'encoding': kwargs['encoding'],
-                'raw_bytes': kwargs['raw_bytes'],
-                'security': kwargs['security'],
-                'commitment': kwargs.get('commitment'),
-                'status': None})
-            body.update({
-                'offset': kwargs['offset'],
-                'path': kwargs['path']})
-        self.header = header
-        self.body = body
+        self.header = {
+            'uuid': kw.get('uuid', str(uuid.uuid1())),
+            'timestamp': kw.get('timestamp', int(time())),
+            'created_at': kw.get('created_at', ctime()),
+            'provider': kw['provider'],
+            'hash_type': kw['hash_type'],
+            'encoding': kw['encoding'],
+            'raw_bytes': kw['raw_bytes'],
+            'security': kw['security'],
+            'commitment': kw.get('commitment', None),
+            'status': kw.get('status', None)
+        }
+        self.body = {
+            'offset': kw['offset'],
+            'path': kw['path']
+        }
+
+    @classmethod
+    def from_dict(cls, proof):
+        kw = {}
+        header = proof['header']
+        body = proof['body']
+        kw.update(header)
+        commitment = header.get('commitment', None)
+        if commitment:
+            kw['commitment'] = commitment.encode()
+        kw['offset'] = body['offset']
+        encoding = header['encoding']
+        kw['path'] = tuple((
+            pair[0],
+            bytes(pair[1], encoding)
+        ) for pair in body['path'])
+
+        return cls(**kw)
+
+    @classmethod
+    def from_json(cls, text):
+        return cls.from_dict(json.loads(text))
 
     @classmethod
     def deserialize(cls, serialized):
@@ -224,13 +223,10 @@ class MerkleProof:
         :type: dict or str
         :rtype: MerkleProof
         """
-        kwargs = {}
         if isinstance(serialized, dict):
-            kwargs.update({'from_dict': serialized})
+            return cls.from_dict(serialized)
         elif isinstance(serialized, str):
-            kwargs.update({'from_json': serialized})
-
-        return cls(**kwargs)
+            return cls.from_json(serialized)
 
     def get_verification_params(self):
         """Extracts from the proof's header the fields required for configuring
@@ -245,8 +241,6 @@ class MerkleProof:
             'raw_bytes': header['raw_bytes'],
             'security': header['security'],
         }
-
-        return verification_params
 
     def get_commitment(self):
         return self.header.get('commitment', None)
@@ -286,7 +280,7 @@ class MerkleProof:
         """
         return MerkleProofSerialilzer().default(self)
 
-    def to_json_str(self):
+    def toJSONtext(self):
         """Returns a JSON text with the proof's characteristics
         as key-value pairs.
 

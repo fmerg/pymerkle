@@ -181,7 +181,7 @@ def test_node_serialization(node, serialization):
     assert node.serialize() == serialization
 
 
-to_json_strs = [
+json_texts = [
     (
         leaf_1,
         '{\n    "hash": "9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7"\n}'
@@ -224,6 +224,6 @@ to_json_strs = [
 ]
 
 
-@pytest.mark.parametrize("node, json_string", to_json_strs)
-def test_node_to_json_str(node, json_string):
-    assert node.to_json_str() == json_string
+@pytest.mark.parametrize("node, json_text", json_texts)
+def test_node_toJSONtext(node, json_text):
+    assert node.toJSONtext() == json_text

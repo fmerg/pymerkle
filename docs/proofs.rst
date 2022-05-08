@@ -235,15 +235,15 @@ Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ obje
 .. note:: Verifying a proof in the above fashion leaves the proof's status unaffected.
 
 Successful verification is implied by the fact that the process comes to its end.
-If the proof were invalid, then an ``InvalidMerkleProof`` error would have
+If the proof were invalid, then an ``InvalidProof`` error would have
 been raised instead:
 
 .. code-block:: python
 
     >>>
     >>> verifier.run()
-    ...     raiseInvalidMerkleProof
-    pymerkle.exceptions.InvalidMerkleProof
+    ...     raiseInvalidProof
+    pymerkle.exceptions.InvalidProof
     >>>
 
 Instead of feeding a proof at construction, one can alternately reconfigure the
@@ -257,8 +257,8 @@ the same engine for successive verification of multiple proofs:
     >>>
     >>> verifier.update(proof_1)
     >>> verifier.run()
-    ...    raiseInvalidMerkleProof
-    pymerkle.exceptions.InvalidMerkleProof
+    ...    raiseInvalidProof
+    pymerkle.exceptions.InvalidProof
     >>>
     >>> verifier.update(proof_2)
     >>> verifier.run()
@@ -304,7 +304,7 @@ If JSON text is preferred instead of a Python dictionary, one can alternatively 
 
 .. code-block:: python
 
-    >>> proof_text = proof.to_json_str()
+    >>> proof_text = proof.toJSONtext()
     >>> print(proof_text)
     {
         "header": {
