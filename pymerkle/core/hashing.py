@@ -21,32 +21,64 @@ SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125'
                        'mac_latin2', 'mac_roman', 'mac_turkish', 'ptcp154', 'shift_jis',
                        'shift_jis_2004', 'shift_jisx0213', 'tis_620', 'utf_16', 'utf_16_be',
                        'utf_16_le', 'utf_32', 'utf_32_be', 'utf_32_le', 'utf_7', 'utf_8', ]
-"""Supported encoding types"""
 
 
 SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
                         'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', ]
-"""Supported hash types"""
 
 
-class Encoder:
-    """Encapsulates the encoding functionality of hashing engines.
+class HashEngine:
+    """Encapsulates the hash utilities used accross the *pymerkle* library
+
+    :param hash_type: [optional] Specifies the hash algorithm used by the
+            engine. Defaults to *sha256*.
+    :type hash_type: str
+    :param encoding: [optional] Specifies the encoding algorithm used by the
+            engine before hashing. Defaults to *utf_8*.
+    :type encoding: str
+    :param raw_bytes: [optional] Specifies whether the engine accepts raw
+            binary data independently of its configured encoding type.
+            Defaults to *True*.
+    :type raw_bytes: bool
+    :param security: [optional] Specifies whether defense against
+            second-preimage attack will be enabled. Defaults to *True*.
+    :type security: bool
+
+    :raises UnsupportedHashType: if the provided encoding is not
+                        contained in *SUPPORTED_ENCODINGS*.
+    :raises UnsupportedHashType: if the provided hash-type is not
+                        contained in *SUPPORTED_HASH_TYPES*.
+
+    :ivar algorithm: (*builtin_function_or_method*) Hash algorithm used
+                    by the engine
+    :ivar encoding: (*str*) See the constructor's homonymous argument
+    :ivar raw_bytes: (*bool*) See the constructor's homonymous argument
+    :ivar security: (*bool*) See the constructor's homonymous argument
     """
 
-    def __init__(self, encoding='utf-8', raw_bytes=True, security=True):
-        enc = encoding.lower().replace('-', '_')
-        if enc not in SUPPORTED_ENCODINGS:
+    def __init__(self, hash_type='sha256', encoding='utf-8',
+                 raw_bytes=True, security=True):
+        ht = hash_type.lower().replace('-', '_')
+        if ht not in SUPPORTED_HASH_TYPES:
+            err = f'Hash type {hash_type} is not supported'
+            raise UnsupportedHashType(err)
+        self.hash_type = ht
+        self.algorithm = getattr(hashlib, self.hash_type)
+        # super().__init__(encoding=encoding, raw_bytes=raw_bytes, security=security)
+        encoding = encoding.lower().replace('-', '_')
+        if encoding not in SUPPORTED_ENCODINGS:
             err = f'Encoding type {encoding} is not supported'
             raise UnsupportedEncoding(err)
-        self.encoding = enc
+        self.encoding = encoding
         self.raw_bytes = raw_bytes
         self.security = security
-        self.encode = self.mk_encode_func()
+        self.encode = self._mk_encode_func()
 
-    def mk_encode_func(self):
-        """Constructs and returns the core utility of the present encoding
-        engine in accordance with its initial configuration (*encoding type*,
-        *raw-bytes* mode and *security* mode)
+
+    def _mk_encode_func(self):
+        """Constructs the encoding functionality of the present engine in
+        accordance with its initial configuration (*encoding type*, *raw-bytes*
+        mode and *security* mode)
         """
         encoding = self.encoding
 
@@ -93,46 +125,6 @@ class Encoder:
                 return data
 
         return encode_func
-
-
-class HashEngine(Encoder):
-    """Encapsulates the hash utilities used accross the *pymerkle* library
-
-    :param hash_type: [optional] Specifies the hash algorithm used by the
-            engine. Defaults to *sha256*.
-    :type hash_type: str
-    :param encoding: [optional] Specifies the encoding algorithm used by the
-            engine before hashing. Defaults to *utf_8*.
-    :type encoding: str
-    :param raw_bytes: [optional] Specifies whether the engine accepts raw
-            binary data independently of its configured encoding type.
-            Defaults to *True*.
-    :type raw_bytes: bool
-    :param security: [optional] Specifies whether defense against
-            second-preimage attack will be enabled. Defaults to *True*.
-    :type security: bool
-
-    :raises UnsupportedHashType: if the provided encoding is not
-                        contained in *SUPPORTED_ENCODINGS*.
-    :raises UnsupportedHashType: if the provided hash-type is not
-                        contained in *SUPPORTED_HASH_TYPES*.
-
-    :ivar algorithm: (*builtin_function_or_method*) Hash algorithm used
-                    by the engine
-    :ivar encoding: (*str*) See the constructor's homonymous argument
-    :ivar raw_bytes: (*bool*) See the constructor's homonymous argument
-    :ivar security: (*bool*) See the constructor's homonymous argument
-    """
-
-    def __init__(self, hash_type='sha256', encoding='utf-8',
-                 raw_bytes=True, security=True):
-        ht = hash_type.lower().replace('-', '_')
-        if ht not in SUPPORTED_HASH_TYPES:
-            err = f'Hash type {hash_type} is not supported'
-            raise UnsupportedHashType(err)
-        self.hash_type = ht
-        self.algorithm = getattr(hashlib, self.hash_type)
-        super().__init__(encoding=encoding, raw_bytes=raw_bytes, security=security)
 
     def hash(self, left, right=None):
         """Core hash utility
