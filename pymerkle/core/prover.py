@@ -70,14 +70,18 @@ class Prover(metaclass=ABCMeta):
         """
         """
 
-    def get_proof_params(self):
-        return {
-            'provider': self.uuid,
-            'hash_type': self.hash_type,
-            'encoding': self.encoding,
-            'security': self.security,
-            'raw_bytes': self.raw_bytes,
-        }
+    def create_proof(self, offset, path, commit=False):
+        commitment = self.get_commitment() if commit else None
+        proof = MerkleProof(provider=self.uuid,
+                            hash_type=self.hash_type,
+                            encoding=self.encoding,
+                            security=self.security,
+                            raw_bytes=self.raw_bytes,
+                            commitment=commitment,
+                            offset=offset,
+                            path=path)
+        return proof
+
 
     def generate_audit_proof(self, checksum, commit=False):
         """Response of the Merkle-tree to the request of providing an
@@ -87,18 +91,16 @@ class Prover(metaclass=ABCMeta):
         :type checksum: bytes
         :rtype: MerkleProof
         """
-        params = self.get_proof_params()
-        commitment = self.get_commitment() if commit else None
-
+        offset = -1
+        path = ()
         index = self.find_index(checksum)
         try:
             offset, path = self.generate_audit_path(index)
         except NoPathException:
-            return MerkleProof(**params, commitment=commitment, offset=-1,
-                               path=())
+            pass
 
-        return MerkleProof(**params, commitment=commitment, offset=offset,
-                           path=path)
+        proof = self.create_proof(offset, path, commit=commit)
+        return proof
 
     def generate_consistency_proof(self, subhash, commit=False):
         """Response of the Merkle-tree to the request of providing a consistency
@@ -110,22 +112,20 @@ class Prover(metaclass=ABCMeta):
         :rtype: MerkleProof
 
         """
-        params = self.get_proof_params()
-        commitment = self.get_commitment() if commit else None
-
-        proof = MerkleProof(**params, commitment=commitment, offset=-1,
-                            path=())
+        offset = -1
+        path = ()
         for sublength in range(1, self.length + 1):
             try:
-                offset, left_path, full_path = self.generate_consistency_path(
+                _offset, left_path, _path = self.generate_consistency_path(
                     sublength)
             except NoPathException:
                 continue
             if subhash == self.multi_hash(left_path, len(left_path) - 1):
-                proof = MerkleProof(**params, commitment=commitment,
-                                    offset=offset, path=full_path)
+                offset = _offset
+                path = _path
                 break
 
+        proof = self.create_proof(offset, path, commit=commit)
         return proof
 
 

@@ -362,9 +362,9 @@ class MerkleTree(HashEngine, Encryptor, Prover):
 
         # Collect sign-hash pairs
         left_path = tuple((-1, _[1].digest) for _ in left_subroots)
-        full_path = tuple((_[0], _[1].digest) for _ in all_subroots)
+        path = tuple((_[0], _[1].digest) for _ in all_subroots)
 
-        return offset, left_path, full_path
+        return offset, left_path, path
 
     def minimal_complement(self, subroots):
         """Complements optimally from the right the provided sequence of subroots,
