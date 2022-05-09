@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # Populate tree with some records
 
     for i in range(7):
-        tree.encrypt_record('%d-th record' % i)
+        tree.encrypt('%d-th record' % i)
     print(repr(tree))
 
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # Append further leaves
 
     for i in range(7, 10):
-        tree.encrypt_record('%d-th record' % i)
+        tree.encrypt('%d-th record' % i)
 
 
     # Prove and verify saved previous state

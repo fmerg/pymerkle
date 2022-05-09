@@ -95,7 +95,7 @@ class Prover(metaclass=ABCMeta):
                             path=path)
         return proof
 
-    def encrypt_record(self, record):
+    def encrypt(self, record):
         """Updates the Merkle-tree by storing the checksum of the provided record
         into a newly-created leaf.
 

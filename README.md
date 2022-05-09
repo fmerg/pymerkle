@@ -36,7 +36,7 @@ v = MerkleVerifier()
 # Populate tree with some records
 
 for i in range(7):
-    tree.encrypt_record('%d-th record' % i)
+    tree.encrypt('%d-th record' % i)
 
 
 # Prove and verify encryption of 2nd record
@@ -54,7 +54,7 @@ subhash = tree.root_hash
 # Append further leaves
 
 for i in range(7, 10):
-    tree.encrypt_record('%d-th record' % i)
+    tree.encrypt('%d-th record' % i)
 
 
 # Prove and verify saved previous state

@@ -28,7 +28,7 @@ for security in (True, False):
             )
             subhash = tree.root_hash
             for record in ('f', 'g', 'h', 'k'):
-                tree.encrypt_record(record)
+                tree.encrypt(record)
             trees_and_subtrees.append((tree, subhash))
 
 

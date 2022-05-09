@@ -53,8 +53,8 @@ for (tree, hash_engine) in trees__hash_engines:
 
 
 @pytest.mark.parametrize("tree, hash_engine, record", single_records)
-def test_encrypt_record(tree, hash_engine, record):
-    encrypted = tree.encrypt_record(record)
+def test_encrypt(tree, hash_engine, record):
+    encrypted = tree.encrypt(record)
     assert tree.leaves[-1].digest == hash_engine.hash(record)
 
 
@@ -106,11 +106,11 @@ undecodableArguments = [
 
 
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
-def test_UndecodableRecord_with_encrypt_record(byte, encoding, security):
+def test_UndecodableRecord_with_encrypt(byte, encoding, security):
     tree = MerkleTree('a', 'b', 'c',
                       encoding=encoding, raw_bytes=False, security=security)
     with pytest.raises(UndecodableRecord):
-        tree.encrypt_record(byte)
+        tree.encrypt(byte)
 
 
 # Content to encrypt
