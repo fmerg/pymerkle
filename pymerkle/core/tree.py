@@ -2,7 +2,6 @@
 of proof generation
 """
 
-from .encryption import Encryptor
 from .prover import Prover
 from .nodes import Node, Leaf
 from .hashing import HashEngine
@@ -32,7 +31,7 @@ TREE_TEMPLATE = """
 """
 
 
-class MerkleTree(HashEngine, Encryptor, Prover):
+class MerkleTree(HashEngine, Prover):
     """Class for Merkle-trees
 
     :param \\*records: [optional] Records encrypted into the Merkle-tree at

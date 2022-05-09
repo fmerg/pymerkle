@@ -27,8 +27,7 @@ possibly different gradual development).
 
 .. _.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.update
 
-An equivalent functionality is achieved by the recommended
-`.encrypt_file_content`_ method as follows:
+Equivalent functionality can be achieved as follows:
 
 .. code-block:: python
 
@@ -42,8 +41,6 @@ An equivalent functionality is achieved by the recommended
         └──18fdc8b7d007fbce7d71ca3721700212691e51b87a101e3f8178390f863b94e7
 
     >>>
-
-.. _.encrypt_file_content: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encrypt_file_content
 
 If raw-bytes mode is disabled, trying to encrypt bytes outside
 the configured encoding type will raise ``UndecodableRecord``
@@ -68,9 +65,7 @@ Bulk file encryption
 *Encrypting the content of a file into* the Merkle-tree means
 updating it with one newly-created leaf storing the digest of
 that content (that is, encrypting the file's content into
-the Merkle-tree as a single record). Use the
-`.encrypt_file_content`_ method to encrypt
-a file's content as follows:
+the Merkle-tree as a single record).
 
 .. code-block:: python
 
@@ -78,8 +73,6 @@ a file's content as follows:
 
 where the provided path is the file's relative path with respect to
 the current working directory.
-
-.. _.encrypt_file_content: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encrypt_file_content
 
 If raw-bytes mode is disabled, make sure that the file's content
 falls under the tree's configured encoding type, otherwise an
@@ -102,8 +95,7 @@ Per log file encryption
 *Encrypting per log a file into* the Merkle-tree means updating
 it with each line ("log") of that file successively (that is,
 encrypting the file's lines as single records in the respective
-order). Use the `.encrypt_file_per_log`_ method to encrypt a file
-per log as follows:
+order).
 
 .. code-block:: python
 
@@ -118,8 +110,6 @@ per log as follows:
 
 where the provided argument is the file's relative path with respect
 to the current working directory.
-
-.. _.encrypt_file_per_log: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.encryption.Encryptor.encrypt_file_per_log
 
 If raw-bytes mode is disabled, make sure that every line of the
 provided file falls under the tree's configured type, otherwise
