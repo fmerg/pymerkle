@@ -54,9 +54,6 @@ not coincide with ``c`` or both.
 Example
 -------
 
-Use as follows the `.generate_audit_proof`_ method to produce the audit proof based upon a
-desired checksum:
-
 .. code-block:: python
 
     >>> checksum = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
@@ -99,10 +96,7 @@ desired checksum:
 
     >>>
 
-.. _.generate_audit_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.generate_audit_proof
-
-No commitment is by default included in the produced proof (this behaviour may
-be controlled via the *commit* kwarg of `.generate_audit_proof`_). In order
+No commitment is by default included in the produced proof. In order
 to verify the proof, we need to manually provide the commitment as follows:
 
 .. code-block:: python
@@ -180,8 +174,7 @@ Let the monitor record the tree's current state:
     >>> subhash = b'8136f96be3d8bcc439a3037adadb166d30c2ddfd26e2e2704ca014486db2389d'
 
 At some later point of history, the server is requested to provide a consistency
-proof for the above state. Use the `.generate_consistency_proof`_ method to produce the
-desired proof as follows:
+proof for the above state.
 
 .. code-block:: python
 
@@ -220,10 +213,7 @@ desired proof as follows:
 
     >>>
 
-.. _.generate_consistency_proof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.Prover.generate_consistency_proof
-
-No commitment is by default included in the produced proof (this behaviour may
-be controlled via the *commit* kwarg of `.generate_consistency_proof`_). Verification may
+No commitment is by default included in the produced proof. Verification may
 proceed exactly the same way as above (recall that verification mechanisms are
 agnostic of whether a proof is the result of an audit or a consistency proof
 request). We will here employ a verifier for reference.

@@ -2,17 +2,19 @@
 of proof generation
 """
 
-from .prover import Prover
-from .nodes import Node, Leaf
-from .hashing import HashEngine
+import uuid
+import json
+from tqdm import tqdm
+
+from pymerkle.prover import Prover
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  EmptyTreeException, NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
                                  UndecodableRecord)
-import uuid
-import json
-from tqdm import tqdm
+
+from .nodes import Node, Leaf
+from .hashing import HashEngine
 
 NONE_BAR = '\n └─[None]'
 TREE_TEMPLATE = """

@@ -6,7 +6,7 @@ import pytest
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.core.prover import MerkleProof
+from pymerkle.prover import MerkleProof, PROOF_TEMPLATE
 from pymerkle.utils import stringify_path
 
 
@@ -252,7 +252,6 @@ def test_MerkleProof_construction_from_dict(proof, offset, path):
                          ((proof_11, True), (proof_12, True), (proof_13, True), (proof_14, True),
                           (proof_21, False), (proof_22, False), (proof_23, False), (proof_24, False)))
 def test___repr__(proof, generation):
-    from pymerkle.core.prover import PROOF_TEMPLATE
     assert proof.__repr__() == PROOF_TEMPLATE.format(uuid=proof.header['uuid'],
                                                      timestamp=proof.header['timestamp'],
                                                      created_at=proof.header['created_at'],

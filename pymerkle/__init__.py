@@ -1,7 +1,8 @@
 """Cryptographic library for Merkle-proofs
 """
 
-from .core import MerkleTree, MerkleProof
+from .core import MerkleTree
+from .prover import MerkleProof
 from .verifier import MerkleVerifier
 
 

@@ -2,7 +2,7 @@
 """
 
 from pymerkle.core.hashing import HashEngine
-from pymerkle.core.prover import MerkleProof
+from pymerkle.prover import MerkleProof
 from pymerkle.exceptions import InvalidProof
 
 
