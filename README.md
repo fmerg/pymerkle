@@ -12,7 +12,7 @@ Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)*
 
 **DISCLAIMER**: This is currently a prototype. See [Security](#security) below for details.
 
-Pymerkle provides a binary balanced Merkle-tree capable of generating audit and
+Pymerkle provides a Merkle-tree object capable of generating audit and
 consistency proofs along with the corresponding verification mechanism. It supports
 most combinations of hash functions and encoding schemas with defense against
 second-preimage attack enabled.
@@ -89,30 +89,24 @@ to see how to perform second-preimage attack against the present implementation.
 
 ### Defense against CVE-2012-2459 DOS
 
-In contrast to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
-specification for Merkle-trees, lonely leaves are not duplicated in order for
-the tree to remain binary. Instead, creating bifurcation nodes at the
-rightmost branch allows the tree to remain both binary and balanced upon any update
-(see _Tree structure_ below). As a consequence, the present implementation
-should be invulnerable to the DOS attack reported as
+Contrary to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
+specification for Merkle-trees, lonely leaves are not duplicated while the tree is grwoing.
+Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
+(see _Tree structure_ below). As a consequence, the present implementation should be
+invulnerable to the DOS attack reported as
 [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459) (see also
 [here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
 for explanation).
 
 ## Tree structure
 
-The tree remains always binary balanced, with all interior nodes having exacty
-two parents. In particular, upon appending a block of new leaves, instead of
-promoting a lonely leaf to the next level or duplicating it, a bifurcation node
-is created so that trees with the same number of leaves have identical structure
-independently of their growing strategy. This is further important for
-
-- efficient generation of consistency proofs (based on additive decompositions in
-  decreasing powers of 2).
-- efficient recalculation of the root-hash after appending a new leaf, since only
-  the hashes at the tree's right-most branch need be recalculated.
-- space, since the total number of nodes with respect to the tree's length is
-  constrained to the minimum.
+When appending a block of new leaves, instead of promoting a lonely leaf to the
+next level or duplicating it, a bifurcation node is created so that trees with
+the same number of leaves have identical structure independently of their
+growing strategy. This is important for efficient generation of consistency proofs
+(based on additive decompositions in decreasing powers of 2) and efficient
+recalculation of the root-hash (since only the hashes at the tree's rightmost
+branch need be recalculated upon any update).
 
 The topology turns out to be identical with that of a binary _Sekura tree_,
 depicted in Section 5.4 of [this](https://keccak.team/files/Sakura.pdf) paper.

@@ -107,7 +107,6 @@ class Prover(metaclass=ABCMeta):
         :param subhash: acclaimed root-hash of some previous
                 state of the Merkle-tree
         :type subhash: bytes
-        :type subhash: bytes
         :rtype: MerkleProof
 
         """

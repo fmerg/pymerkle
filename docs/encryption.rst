@@ -18,9 +18,7 @@ as follows:
     tree.update(record=b'some byte sequence')
 
 
-This method is completely responsible for the tree'
-s gradual development, preserving its property of being
-*binary balanced* and ensuring that trees with the same
+This method ensures that trees with the same
 number of leaves have the same topology (despite their
 possibly different gradual development).
 

@@ -150,8 +150,7 @@ class MerkleTree(HashEngine, Encryptor, Prover):
     def height(self):
         """Current height of the Merkle-tree
 
-        .. note:: Since the tree is binary *balanced*, its height coincides
-                with the length of its leftmost branch
+        .. note:: This coincides with the length of the tree's leftmost branch.
 
         :rtype: int
         """

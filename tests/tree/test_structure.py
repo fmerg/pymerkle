@@ -1,7 +1,6 @@
 """
 Utilizes hash comparison in order to verify that the the .update() method of
-the tree.MerkleTree class behaves as prescribed (preserves the tree's property
-of being binary-balanced)
+the tree.MerkleTree class behaves as prescribed.
 """
 
 import pytest
