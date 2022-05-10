@@ -6,7 +6,7 @@ import pytest
 import os
 
 from pymerkle import MerkleTree, MerkleVerifier
-from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import InvalidComparison
 from tests.conftest import SUPPORTED_ENCODINGS
 

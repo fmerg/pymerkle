@@ -1,7 +1,7 @@
 """Utilities for Merkle-proof verification
 """
 
-from pymerkle.core.hashing import HashEngine
+from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.exceptions import InvalidProof
 

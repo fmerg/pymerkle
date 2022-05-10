@@ -5,7 +5,7 @@ Tests the .generate_audit_proof(), .generate_consistency_proof() methods
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from tests.conftest import SUPPORTED_ENCODINGS
 
 

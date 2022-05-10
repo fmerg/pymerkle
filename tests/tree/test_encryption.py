@@ -3,7 +3,7 @@ import os
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.core.hashing import HashEngine, SUPPORTED_HASH_TYPES
+from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import UndecodableRecord
 
 from tests.conftest import SUPPORTED_ENCODINGS

@@ -26,7 +26,7 @@ Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from tests.conftest import SUPPORTED_ENCODINGS
 
 trees = []
@@ -59,7 +59,7 @@ def test_defense_against_second_preimage_attack(original_tree):
     forged_record = F + G
 
     # Attacker's tree
-    attacker_tree = MerkleTree('a', 'b', forged_record,         # forged records
+    attacker_tree = MerkleTree('a', 'b', forged_record,
                                hash_type=original_tree.hash_type,
                                encoding=original_tree.encoding,
                                raw_bytes=original_tree.raw_bytes,

@@ -6,6 +6,7 @@ import uuid
 import json
 from tqdm import tqdm
 
+from pymerkle.hashing import HashEngine
 from pymerkle.prover import Prover
 from pymerkle.utils import log_2, decompose, NONE
 from pymerkle.exceptions import (LeafConstructionError, NoParentException,
@@ -14,7 +15,6 @@ from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  UndecodableRecord)
 
 from pymerkle.core.nodes import Node, Leaf
-from pymerkle.core.hashing import HashEngine
 
 NONE_BAR = '\n └─[None]'
 TREE_TEMPLATE = """

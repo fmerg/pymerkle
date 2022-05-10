@@ -6,7 +6,7 @@ import pytest
 import os
 import json
 
-from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import InvalidProof
 from pymerkle import MerkleTree, MerkleVerifier
 from tests.conftest import SUPPORTED_ENCODINGS

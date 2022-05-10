@@ -4,7 +4,7 @@ Tests UndecodableArgumentError in no raw-bytes mode
 
 import pytest
 
-from pymerkle.core.hashing import HashEngine
+from pymerkle.hashing import HashEngine
 from pymerkle.exceptions import UndecodableArgumentError
 
 undecodableArguments = [

@@ -6,7 +6,7 @@ the tree.MerkleTree class behaves as prescribed.
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.core.hashing import HashEngine
+from pymerkle.hashing import HashEngine
 from pymerkle.exceptions import EmptyTreeException
 
 
