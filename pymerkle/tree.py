@@ -2,13 +2,12 @@
 of proof generation
 """
 
-import uuid
 import json
 from tqdm import tqdm
 
 from pymerkle.hashing import HashEngine
 from pymerkle.prover import Prover
-from pymerkle.utils import log_2, decompose, NONE
+from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  EmptyTreeException, NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
@@ -36,9 +35,6 @@ TREE_TEMPLATE = """
 class MerkleTree(HashEngine, Prover):
     """Class for Merkle-trees
 
-    :param \\*records: [optional] Records encrypted into the Merkle-tree at
-                construction.
-    :type \\*records: str or bytes
     :param hash_type: [optional] Specifies the Merkle-tree's hashing algorithm.
                     Defaults to *sha256*.
     :type hash_type: str
@@ -60,19 +56,35 @@ class MerkleTree(HashEngine, Prover):
     :ivar security: (*bool*) See the constructor's homonymous argument
     """
 
-    def __init__(self, *records, hash_type='sha256', encoding='utf-8',
+    def __init__(self, hash_type='sha256', encoding='utf-8',
                  raw_bytes=True, security=True):
-        self.uuid = str(uuid.uuid1())
 
-        super().__init__(hash_type, encoding, raw_bytes, security)
-
+        self.uuid = generate_uuid()
         self.leaves = []
         self.nodes = set()
+        super().__init__(hash_type, encoding, raw_bytes, security)
+
+    @classmethod
+    def init_from_records(cls, *records, config=None):
+        """
+        """
+        if not config:
+            config = {}
+        tree = cls(**config)
         for record in records:
             try:
-                self.update(record=record)
+                tree.update(record)
             except UndecodableRecord:
                 raise
+        return tree
+
+    def get_config(self):
+        return {
+            'hash_type': self.hash_type,
+            'encoding': self.encoding,
+            'raw_bytes': self.raw_bytes,
+            'security': self.security,
+        }
 
     def clear(self):
         """Deletes all nodes of the Merkle-tree

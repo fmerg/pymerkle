@@ -14,12 +14,12 @@ from pymerkle.exceptions import (NoSubtreeException, NoPathException,
 
 # Audit proof implementation
 
-_0_leaves_tree = MerkleTree()
-_1_leaves_tree = MerkleTree('a')
-_2_leaves_tree = MerkleTree('a', 'b')
-_3_leaves_tree = MerkleTree('a', 'b', 'c')
-_4_leaves_tree = MerkleTree('a', 'b', 'c', 'd')
-_5_leaves_tree = MerkleTree('a', 'b', 'c', 'd', 'e')
+_0_leaves_tree = MerkleTree.init_from_records()
+_1_leaves_tree = MerkleTree.init_from_records('a')
+_2_leaves_tree = MerkleTree.init_from_records('a', 'b')
+_3_leaves_tree = MerkleTree.init_from_records('a', 'b', 'c')
+_4_leaves_tree = MerkleTree.init_from_records('a', 'b', 'c', 'd')
+_5_leaves_tree = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
 
 no_path_exceptions = [
     (_0_leaves_tree, +0),
@@ -304,7 +304,7 @@ def test_NoSubrootsException(tree, sublength):
         tree.principal_subroots(sublength)
 
 
-__principal_subroots = [
+principal_subroots = [
     (_0_leaves_tree, 0, []),
     (_1_leaves_tree, 0, []),
     (_1_leaves_tree, 1, [(+1, _1_leaves_tree.root)]),
@@ -333,7 +333,8 @@ __principal_subroots = [
 ]
 
 
-@pytest.mark.parametrize("tree, sublength, principal_subroots", __principal_subroots)
+@pytest.mark.parametrize("tree, sublength, principal_subroots",
+                         principal_subroots)
 def test_principalSubroots(tree, sublength, principal_subroots):
     assert tree.principal_subroots(sublength) == principal_subroots
 
@@ -377,7 +378,8 @@ minimal_complements = [
 ]
 
 
-@pytest.mark.parametrize("tree, subroots, _minimal_complement", minimal_complements)
+@pytest.mark.parametrize("tree, subroots, _minimal_complement",
+                         minimal_complements)
 def test_minimal_complement(tree, subroots, _minimal_complement):
     assert tree.minimal_complement(subroots) == _minimal_complement
 

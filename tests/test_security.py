@@ -34,14 +34,11 @@ for raw_bytes in (True, False):
     for security in (True, False):
         for hash_type in SUPPORTED_HASH_TYPES:
             for encoding in SUPPORTED_ENCODINGS:
-                trees.append(
-                    MerkleTree('a', 'b', 'c', 'd',
-                               hash_type=hash_type,
-                               encoding=encoding,
-                               raw_bytes=raw_bytes,
-                               security=security
-                               )
-                )
+                config = {'hash_type': hash_type, 'encoding': encoding,
+                          'raw_bytes': raw_bytes, 'security': security}
+                tree = MerkleTree.init_from_records('a', 'b', 'c', 'd',
+                                                    config=config)
+                trees.append(tree)
 
 
 @pytest.mark.parametrize("original_tree", trees)
@@ -59,12 +56,8 @@ def test_defense_against_second_preimage_attack(original_tree):
     forged_record = F + G
 
     # Attacker's tree
-    attacker_tree = MerkleTree('a', 'b', forged_record,
-                               hash_type=original_tree.hash_type,
-                               encoding=original_tree.encoding,
-                               raw_bytes=original_tree.raw_bytes,
-                               security=original_tree.security
-                               )
+    attacker_tree = MerkleTree.init_from_records('a', 'b', forged_record,
+                                                 config=original_tree.get_config())
 
     # Check if the attacker has replicated the original root-hash
     if original_tree.security:

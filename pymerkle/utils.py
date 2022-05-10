@@ -2,9 +2,14 @@
 """
 
 from math import log, log10
+import uuid
 
 
 NONE = '[None]'
+
+
+def generate_uuid():
+    return str(uuid.uuid1())
 
 
 def log_2(num):

@@ -5,21 +5,16 @@ import os
 import json
 import mmap
 import contextlib
-import uuid
 import json
 from abc import ABCMeta, abstractmethod
 from time import time, ctime
 from tqdm import tqdm
 
 from pymerkle.exceptions import NoPathException
-from pymerkle.utils import stringify_path
+from pymerkle.utils import stringify_path, generate_uuid
 from pymerkle.exceptions import UndecodableRecord
 
 abspath = os.path.abspath
-
-
-def generate_uuid():
-    return str(uuid.uuid1())
 
 
 PROOF_TEMPLATE = """
