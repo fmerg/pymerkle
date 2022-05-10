@@ -196,8 +196,6 @@ class MerkleTree(HashEngine, Prover):
         :raises UndecodableRecord: if the Merkle-tree is not in raw-bytes mode
             and the provided record does not fall under its configured type
         """
-
-        # Encrypt new record into new leaf
         try:
             new_leaf = Leaf(self.hash, self.encoding, record, digest)
         except (LeafConstructionError, UndecodableRecord):
@@ -565,9 +563,10 @@ class MerkleTree(HashEngine, Prover):
             raise WrongJSONFormat
 
         tqdm.write('\nFile has been loaded')
-        update = tree.update
-        for hash in tqdm(obj['hashes'], desc='Retrieving tree...'):
-            update(digest=hash)
+        append_leaf = tree.append_leaf
+        for checksum in tqdm(obj['hashes'], desc='Retrieving tree...'):
+            new_leaf = Leaf(tree.hash, tree.encoding, digest=checksum)
+            append_leaf(new_leaf)
         tqdm.write('Tree has been retrieved')
 
         return tree
