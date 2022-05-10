@@ -29,7 +29,7 @@ tree happens to be empty. Alternatively,
 
 .. code-block:: python
 
-    commitment = tree.get_commitment()
+    commitment = tree.get_root_hash()
 
 which returns ``None`` for the empty case.
 

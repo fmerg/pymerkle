@@ -132,7 +132,7 @@ class MerkleTree(HashEngine, Prover):
 
         return root.digest
 
-    def get_commitment(self):
+    def get_root_hash(self):
         """Returns the current root-hash of the Merkle-tree if the latter is
         not empty, otherwise *None*.
 

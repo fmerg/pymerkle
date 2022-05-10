@@ -150,10 +150,10 @@ def test_encrypt_file_content(tree, hash_engine):
 
 
 @pytest.mark.parametrize('tree', [tree for tree, _ in trees__hash_engines])
-def test_encrypt_file_per_log(tree):
+def test_encrypt_file_per_line(tree):
     if tree.raw_bytes:
         tree.clear()
-        encrypted = tree.encrypt_file_per_log(short_APACHE_log)
+        encrypted = tree.encrypt_file_per_line(short_APACHE_log)
         clone = MerkleTree.init_from_records(*records,
                                              config=tree.get_config())
         assert tree.root_hash == clone.root_hash
@@ -163,4 +163,4 @@ def test_encrypt_file_per_log(tree):
                            'iso2022_jp_ext', 'utf_16', 'cp424', 'iso2022_jp_2', 'utf_16_le',
                            'utf_16_be', 'iso2022_jp'):
         with pytest.raises(UndecodableRecord):
-            tree.encrypt_file_per_log(short_APACHE_log)
+            tree.encrypt_file_per_line(short_APACHE_log)

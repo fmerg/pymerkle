@@ -38,9 +38,9 @@ def test_inclusion_test_failure_for_zero_leaves_case():
 
 def test_inclusion_test_edge_success_case():
     tree = MerkleTree()
-    tree.encrypt_file_per_log(short_APACHE_log)
+    tree.encrypt_file_per_line(short_APACHE_log)
     subhash = tree.root_hash
-    tree.encrypt_file_per_log(RED_HAT_LINUX_log)
+    tree.encrypt_file_per_line(RED_HAT_LINUX_log)
     assert tree.includes(tree.root_hash)
 
 

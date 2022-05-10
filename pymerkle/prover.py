@@ -68,7 +68,7 @@ class Prover(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def get_commitment(self):
+    def get_root_hash(self):
         """
         """
 
@@ -83,7 +83,7 @@ class Prover(metaclass=ABCMeta):
         """
 
     def create_proof(self, offset, path, commit=False):
-        commitment = self.get_commitment() if commit else None
+        commitment = self.get_root_hash() if commit else None
         proof = MerkleProof(provider=self.uuid,
                             hash_type=self.hash_type,
                             encoding=self.encoding,
@@ -136,8 +136,8 @@ class Prover(metaclass=ABCMeta):
                 except UndecodableRecord:
                     raise
 
-    def encrypt_file_per_log(self, filepath):
-        """Per log encryption of the provided file into the Merkle-tree.
+    def encrypt_file_per_line(self, filepath):
+        """Per line encryption of the provided file into the Merkle-tree.
 
         Successively updates the tree with each line of the provided
         file in respective order
@@ -158,7 +158,7 @@ class Prover(metaclass=ABCMeta):
                 access=mmap.ACCESS_READ
             )
 
-        # Extract logs
+        # Extract lines
         records = []
         readline = buffer.readline
         append = records.append
@@ -187,7 +187,7 @@ class Prover(metaclass=ABCMeta):
         tqdm.write('')
         update = self.update
         for record in tqdm(
-                records, desc='Encrypting file per log', total=len(records)):
+                records, desc='Encrypting file per line', total=len(records)):
             update(record=record)
         tqdm.write('Encryption complete\n')
 
@@ -350,7 +350,7 @@ class MerkleProof:
             'security': header['security'],
         }
 
-    def get_commitment(self):
+    def get_root_hash(self):
         return self.header.get('commitment', None)
 
     def __repr__(self):

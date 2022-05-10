@@ -29,7 +29,7 @@ class MerkleVerifier:
         :returns: Verification result
         """
         if target is None:
-            commitment = proof.get_commitment()
+            commitment = proof.get_root_hash()
             if not commitment:
                 err = 'No acclaimed root-hash provided'
                 raise AssertionError(err)
