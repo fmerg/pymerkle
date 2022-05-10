@@ -2,9 +2,9 @@ import pytest
 import os
 import json
 
-from pymerkle.core import MerkleTree
+from pymerkle import MerkleTree
 from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-                                 UnsupportedEncoding, LeafConstructionError, UndecodableRecord, )
+                                 UnsupportedEncoding, UndecodableRecord, )
 
 
 undecodableArguments = [
@@ -76,14 +76,15 @@ def test_UnsupportedEncoding():
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_upon_tree_construction(byte, encoding, security):
     with pytest.raises(UndecodableRecord):
-        MerkleTree('a', byte, encoding=encoding, security=security,
-                   raw_bytes=False)
+        config = {'encoding': encoding, 'security': security,
+                  'raw_bytes': False}
+        MerkleTree.init_from_records('a', byte, config=config)
 
 
 # Clearance
 
 def test_clear():
-    tree = MerkleTree('a', 'b', 'c')
+    tree = MerkleTree.init_from_records('a', 'b', 'c')
     tree.clear()
     with pytest.raises(EmptyTreeException):
         tree.root
@@ -96,7 +97,7 @@ def test_MerkleTree_bool_implementation():
     """
     Tests that a Merkle-tree is equivalent to `False` iff it is empty
     """
-    assert not MerkleTree() and MerkleTree('some record')
+    assert not MerkleTree() and MerkleTree.init_from_records('some record')
 
 
 def test_root_empty_tree_exception():
@@ -120,33 +121,19 @@ def test_root_hash_of_non_empty_MerkleTree():
     """
     Tests the root-hash of a Merkle-tree with one and two leaves
     """
-    t = MerkleTree('first record')
-    s = MerkleTree('first record', 'second record')
+    t = MerkleTree.init_from_records('first record')
+    s = MerkleTree.init_from_records('first record', 'second record')
     assert t.root_hash == t.hash('first record') and \
         s.root_hash == s.hash(s.hash('first record'), s.hash('second record'))
 
 
-# Update tests
-
-def test_LeafConstructionError_upon_update():
-    """
-    Tests that a `LeafConstructionError` is raised if both `record` and
-    `digest` are provided as arguments to the `MerkleTree.update()` method
-    """
-    t = MerkleTree()
-    with pytest.raises(LeafConstructionError):
-        t.update(
-            record='some record',
-            digest='540ef8fc9eefa3ec0fbe55bc5d10dbea03d5bac5591b3d7db3af79ec24b3f74c'
-        )
-
-
 @pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
 def test_UndecodableRecord_upon_update(byte, encoding, security):
-    t = MerkleTree('a', 'b', 'c', encoding=encoding, security=security,
-                   raw_bytes=False)
+    config = {'encoding': encoding, 'security': security,
+              'raw_bytes': False}
+    t = MerkleTree.init_from_records('a', 'b', 'c', config=config)
     with pytest.raises(UndecodableRecord):
-        t.update(record=byte)
+        t.update(byte)
 
 
 def test_properties_of_empty_tree():
@@ -155,5 +142,5 @@ def test_properties_of_empty_tree():
 
 
 def test_properties_of_tree_with_three_leaves():
-    tree = MerkleTree('first', 'second', 'third')
+    tree = MerkleTree.init_from_records('first', 'second', 'third')
     assert (tree.length, tree.size, tree.height) == (3, 5, 2)

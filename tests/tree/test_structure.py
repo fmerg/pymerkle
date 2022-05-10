@@ -6,7 +6,7 @@ the tree.MerkleTree class behaves as prescribed.
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.core.hashing import HashEngine
+from pymerkle.hashing import HashEngine
 from pymerkle.exceptions import EmptyTreeException
 
 
@@ -25,12 +25,12 @@ def test_0_leaves():
 
 
 def test_1_leaves():
-    update(record=t_1)
+    update(t_1)
     assert tree.root_hash == hash(t_1)
 
 
 def test_2_leaves():
-    update(record=t_2)
+    update(t_2)
     assert tree.root_hash == hash(
         hash(t_1),
         hash(t_2)
@@ -38,7 +38,7 @@ def test_2_leaves():
 
 
 def test_3_leaves():
-    update(record=t_3)
+    update(t_3)
     assert tree.root_hash == hash(
         hash(
             hash(t_1),
@@ -49,7 +49,7 @@ def test_3_leaves():
 
 
 def test_4_leaves():
-    update(record=t_4)
+    update(t_4)
     assert tree.root_hash == hash(
         hash(
             hash(t_1),
@@ -63,7 +63,7 @@ def test_4_leaves():
 
 
 def test_5_leaves():
-    update(record=t_5)
+    update(t_5)
     assert tree.root_hash == hash(
         hash(
             hash(
@@ -80,8 +80,8 @@ def test_5_leaves():
 
 
 def test_7_leaves():
-    update(record=t_6)
-    update(record=t_7)
+    update(t_6)
+    update(t_7)
     assert tree.root_hash == hash(
         hash(
             hash(
@@ -104,10 +104,10 @@ def test_7_leaves():
 
 
 def test_11_leaves():
-    update(record=t_8)
-    update(record=t_9)
-    update(record=t_10)
-    update(record=t_11)
+    update(t_8)
+    update(t_9)
+    update(t_10)
+    update(t_11)
     assert tree.root_hash == hash(
         hash(
             hash(

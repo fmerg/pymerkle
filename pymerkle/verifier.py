@@ -1,7 +1,7 @@
 """Utilities for Merkle-proof verification
 """
 
-from pymerkle.core.hashing import HashEngine
+from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.exceptions import InvalidProof
 
@@ -29,7 +29,7 @@ class MerkleVerifier:
         :returns: Verification result
         """
         if target is None:
-            commitment = proof.get_commitment()
+            commitment = proof.get_root_hash()
             if not commitment:
                 err = 'No acclaimed root-hash provided'
                 raise AssertionError(err)

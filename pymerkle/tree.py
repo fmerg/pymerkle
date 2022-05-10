@@ -2,19 +2,18 @@
 of proof generation
 """
 
-import uuid
 import json
 from tqdm import tqdm
 
+from pymerkle.hashing import HashEngine
 from pymerkle.prover import Prover
-from pymerkle.utils import log_2, decompose, NONE
-from pymerkle.exceptions import (LeafConstructionError, NoParentException,
-                                 EmptyTreeException, NoPathException, NoSubtreeException,
-                                 NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
-                                 UndecodableRecord)
+from pymerkle.utils import log_2, decompose, NONE, generate_uuid
+from pymerkle.exceptions import (NoParentException, EmptyTreeException,
+                                 NoPathException, NoSubtreeException,
+                                 NoPrincipalSubroots, InvalidComparison,
+                                 WrongJSONFormat, UndecodableRecord)
 
-from .nodes import Node, Leaf
-from .hashing import HashEngine
+from pymerkle.core.nodes import Node, Leaf
 
 NONE_BAR = '\n └─[None]'
 TREE_TEMPLATE = """
@@ -36,9 +35,6 @@ TREE_TEMPLATE = """
 class MerkleTree(HashEngine, Prover):
     """Class for Merkle-trees
 
-    :param \\*records: [optional] Records encrypted into the Merkle-tree at
-                construction.
-    :type \\*records: str or bytes
     :param hash_type: [optional] Specifies the Merkle-tree's hashing algorithm.
                     Defaults to *sha256*.
     :type hash_type: str
@@ -60,19 +56,35 @@ class MerkleTree(HashEngine, Prover):
     :ivar security: (*bool*) See the constructor's homonymous argument
     """
 
-    def __init__(self, *records, hash_type='sha256', encoding='utf-8',
+    def __init__(self, hash_type='sha256', encoding='utf-8',
                  raw_bytes=True, security=True):
-        self.uuid = str(uuid.uuid1())
 
-        super().__init__(hash_type, encoding, raw_bytes, security)
-
+        self.uuid = generate_uuid()
         self.leaves = []
         self.nodes = set()
+        super().__init__(hash_type, encoding, raw_bytes, security)
+
+    @classmethod
+    def init_from_records(cls, *records, config=None):
+        """
+        """
+        if not config:
+            config = {}
+        tree = cls(**config)
         for record in records:
             try:
-                self.update(record=record)
+                tree.update(record)
             except UndecodableRecord:
                 raise
+        return tree
+
+    def get_config(self):
+        return {
+            'hash_type': self.hash_type,
+            'encoding': self.encoding,
+            'raw_bytes': self.raw_bytes,
+            'security': self.security,
+        }
 
     def clear(self):
         """Deletes all nodes of the Merkle-tree
@@ -120,7 +132,7 @@ class MerkleTree(HashEngine, Prover):
 
         return root.digest
 
-    def get_commitment(self):
+    def get_root_hash(self):
         """Returns the current root-hash of the Merkle-tree if the latter is
         not empty, otherwise *None*.
 
@@ -165,7 +177,7 @@ class MerkleTree(HashEngine, Prover):
 
         return log_2(length)
 
-    def update(self, record=None, digest=None):
+    def update(self, record):
         """Updates the Merkle-tree by storing the digest of the inserted record
         into a newly-created leaf. Restructures the tree appropriately and
         recalculates appropriate interior hashes
@@ -173,49 +185,38 @@ class MerkleTree(HashEngine, Prover):
         :param record: [optional] The record whose digest is to be stored into
                     a new leaf
         :type record:  str or bytes
-        :param digest: [optional] The digest to be stored into the new leaf
-        :type digest:  str
-
-        .. warning:: Exactly one of either record or digest
-            should be provided
-
-        :raises LeafConstructionError: if both record and digest
-                                    were provided
         :raises UndecodableRecord: if the Merkle-tree is not in raw-bytes mode
             and the provided record does not fall under its configured type
         """
-        encoding = self.encoding
-        hash = self.hash
+        try:
+            new_leaf = Leaf.from_record(record, self.hash, self.encoding)
+        except UndecodableRecord:
+            raise
 
+        self.append_leaf(new_leaf)
+
+    def append_leaf(self, leaf):
+        """
+        """
         if self:
-            leaves = self.leaves
-            append = leaves.append
-            add = self.nodes.add
-
             # Height and root of the *full* binary subtree with maximum
             # possible length containing the rightmost leaf
-            last_power = decompose(len(leaves))[-1]
-            last_subroot = leaves[-1].ancestor(degree=last_power)
-
-            # Encrypt new record into new leaf
-            try:
-                new_leaf = Leaf(hash, encoding, record, digest)
-            except (LeafConstructionError, UndecodableRecord):
-                raise
+            last_power = decompose(len(self.leaves))[-1]
+            last_subroot = self.leaves[-1].ancestor(degree=last_power)
 
             # Assimilate new leaf
-            append(new_leaf)
-            add(new_leaf)
+            self.leaves.append(leaf)
+            self.nodes.add(leaf)
             try:
                 old_parent = last_subroot.parent
             except NoParentException:
                 # Last subroot was previously root
-                self.__root = Node(hash, encoding, last_subroot, new_leaf)
-                add(self.__root)
+                self.__root = Node(self.hash, self.encoding, last_subroot, leaf)
+                self.nodes.add(self.__root)
             else:
                 # Create bifurcation node
-                new_parent = Node(hash, encoding, last_subroot, new_leaf)
-                add(new_parent)
+                new_parent = Node(self.hash, self.encoding, last_subroot, leaf)
+                self.nodes.add(new_parent)
 
                 # Interject bifurcation node
                 old_parent.set_right(new_parent)
@@ -224,20 +225,15 @@ class MerkleTree(HashEngine, Prover):
                 # Recalculate hashes only at the rightmost branch of the tree
                 current_node = old_parent
                 while True:
-                    current_node.recalculate_hash(hash_func=hash)
+                    current_node.recalculate_hash(hash_func=self.hash)
                     try:
                         current_node = current_node.parent
                     except NoParentException:
                         break
         else:
-            # Empty tree case
-            try:
-                new_leaf = Leaf(hash, encoding, record, digest)
-            except (LeafConstructionError, UndecodableRecord):
-                raise
-            self.leaves = [new_leaf]
-            self.nodes = set([new_leaf])
-            self.__root = new_leaf
+            self.leaves = [leaf]
+            self.nodes = set([leaf])
+            self.__root = leaf
 
     def generate_audit_path(self, index):
         """Low-level audit proof.
@@ -559,9 +555,10 @@ class MerkleTree(HashEngine, Prover):
             raise WrongJSONFormat
 
         tqdm.write('\nFile has been loaded')
-        update = tree.update
-        for hash in tqdm(obj['hashes'], desc='Retrieving tree...'):
-            update(digest=hash)
+        append_leaf = tree.append_leaf
+        for checksum in tqdm(obj['hashes'], desc='Retrieving tree...'):
+            new_leaf = Leaf(checksum, tree.encoding)
+            append_leaf(new_leaf)
         tqdm.write('Tree has been retrieved')
 
         return tree

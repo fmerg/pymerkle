@@ -14,8 +14,8 @@ as follows:
 
     tree = MerkleTree()
 
-    tree.update(record='some string')
-    tree.update(record=b'some byte sequence')
+    tree.update('some string')
+    tree.update(b'some byte sequence')
 
 
 This method ensures that trees with the same
@@ -89,11 +89,11 @@ falls under the tree's configured encoding type, otherwise an
     pymerkle.exceptions.UndecodableRecord
     >>>
 
-Per log file encryption
+Perline file encryption
 -----------------------
 
-*Encrypting per log a file into* the Merkle-tree means updating
-it with each line ("log") of that file successively (that is,
+*Encrypting per line a file into* the Merkle-tree means updating
+it with each line of that file successively (that is,
 encrypting the file's lines as single records in the respective
 order).
 
@@ -101,9 +101,9 @@ order).
 
     >>> tree = MerkleTree()
     >>>
-    >>> tree.encrypt_file_per_log('tests/logdata/large_APACHE_log')
+    >>> tree.encrypt_file_per_line('tests/logdata/large_APACHE_log')
 
-    Encrypting file per log: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
+    Encrypting file per line: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
     Encryption complete
 
     >>>
@@ -122,7 +122,7 @@ provided file falls under the tree's configured type, otherwise
     >>> tree.size
     0
     >>>
-    >>> tree.encrypt_file_per_log('tests/logdata/large_APACHE_log')
+    >>> tree.encrypt_file_per_line('tests/logdata/large_APACHE_log')
     Traceback (most recent call last):
     ...     raise UndecodableRecord(err)
     pymerkle.exceptions.UndecodableRecord: ...

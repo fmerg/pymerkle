@@ -5,9 +5,9 @@ Tests construction and properies of nodes
 import pytest
 
 from pymerkle.core.nodes import Node, Leaf
-from pymerkle.core.hashing import HashEngine
+from pymerkle.hashing import HashEngine
 from pymerkle.exceptions import (NoParentException, NoAncestorException,
-                                 NoChildException, LeafConstructionError, UndecodableRecord,)
+                                 NoChildException, UndecodableRecord,)
 
 
 _ = HashEngine()
@@ -15,19 +15,16 @@ encoding = _.encoding
 hash_func = _.hash
 
 pair_of_leaves = (
-    Leaf(hash_func=hash_func, encoding=encoding, record=b'some record...'),
-    Leaf(hash_func=hash_func, encoding=encoding,
-         digest='5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4'))
+    Leaf.from_record(b'some record...', hash_func, encoding),
+    Leaf.from_record('5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
+         hash_func, encoding)
+)
 
 # Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf_1 = Leaf(hash_func=hash_func, encoding=encoding,
-              record=b'first record...')
-leaf_2 = Leaf(hash_func=hash_func, encoding=encoding,
-              record=b'second record...')
-leaf_3 = Leaf(hash_func=hash_func, encoding=encoding,
-              record=b'third record...')
-leaf_4 = Leaf(hash_func=hash_func, encoding=encoding,
-              record=b'fourth record...')
+leaf_1 = Leaf.from_record(b'first record...', hash_func, encoding)
+leaf_2 = Leaf.from_record(b'second record...', hash_func, encoding)
+leaf_3 = Leaf.from_record(b'third record...', hash_func, encoding)
+leaf_4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
 node_12 = Node(hash_func=hash_func, encoding=encoding,
                left=leaf_1, right=leaf_2)
 node_34 = Node(hash_func=hash_func, encoding=encoding,
@@ -37,23 +34,6 @@ root = Node(hash_func=hash_func, encoding=encoding,
 
 
 # Childless leaves tests
-
-def test_leaf_construction_exception_with_neither_record_nor_digest():
-    """
-    Tests `TypeError` if neither `record` nor `digest` is provided
-    """
-    with pytest.raises(LeafConstructionError):
-        Leaf(hash_func=hash_func, encoding=encoding)
-
-
-def test_leaf_construction_exception_with_both_record_and_digest():
-    """
-    Tests `TypeError` if both `record` and `digest` are provided
-    """
-    with pytest.raises(LeafConstructionError):
-        Leaf(hash_func=hash_func, encoding=encoding, record=b'anything...',
-             digest=hash_func('whatever...'))
-
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_leaf_left_child_exception(leaf):
@@ -273,8 +253,7 @@ def test_degree_two_ancestor(node):
 # Recalculation tests
 
 def test_hash_recalculation():
-    new_leaf = Leaf(hash_func=hash_func, encoding=encoding,
-                    record=b'new record...')
+    new_leaf = Leaf.from_record(b'new record...', hash_func, encoding)
     node_34.set_right(new_leaf)
     node_34.recalculate_hash(hash_func=hash_func)
     root.recalculate_hash(hash_func=hash_func)
@@ -333,16 +312,14 @@ bytesengines = [
 @pytest.mark.parametrize('byte, engine', bytesengines)
 def test_leaf_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
-        Leaf(record=byte, encoding=engine.encoding, hash_func=engine.hash)
+        Leaf.from_record(byte, engine.hash, engine.encoding)
 
 
 @pytest.mark.parametrize('byte, engine', bytesengines)
 def test_node_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
-        left = Leaf(record=byte, encoding=engine.encoding,
-                    hash_func=engine.hash)
-        _right = Leaf(record=byte, encoding=engine.encoding,
-                      hash_func=engine.hash)
+        left = Leaf.from_record(byte, engine.hash, engine.encoding)
+        _right = Leaf.from_record(byte, engine.hash, engine.encoding)
         with pytest.raises(UndecodableRecord):
             Node(left=left, right=_right, encoding=engine.encoding,
                  hash_func=engine.hash)
@@ -351,13 +328,10 @@ def test_node_UndecodableRecord(byte, engine):
 @pytest.mark.parametrize('byte, engine', bytesengines)
 def test_hash_recalculation_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
-        left = Leaf(record='left record', encoding=engine.encoding,
-                    hash_func=engine.hash)
-        right = Leaf(record='right record', encoding=engine.encoding,
-                     hash_func=engine.hash)
+        left = Leaf.from_record('left record', engine.hash, engine.encoding)
+        right = Leaf.from_record('right record', engine.hash, engine.encoding)
         node = Node(left=left, right=right, encoding=engine.encoding,
                     hash_func=engine.hash)
-        left = Leaf(record=byte, encoding=engine.encoding,
-                    hash_func=engine.hash)
+        left = Leaf.from_record(byte, engine.hash, engine.encoding)
         node.set_left(_left)
         node.recalculate_hash(engine.hash)

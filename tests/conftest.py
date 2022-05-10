@@ -1,4 +1,4 @@
-from pymerkle.core import hashing
+from pymerkle import hashing
 
 
 EXTENDED = hashing.SUPPORTED_ENCODINGS

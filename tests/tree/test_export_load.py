@@ -3,7 +3,7 @@ import os
 import json
 import glob
 
-from pymerkle.core import MerkleTree
+from pymerkle import MerkleTree
 from pymerkle.exceptions import WrongJSONFormat
 
 
@@ -14,7 +14,7 @@ for f in glob.glob(os.path.join(exports_dir, '*.json')):
     os.remove(f)
 
 # Make tree and export
-tree = MerkleTree(*['%d-th record' % i for i in range(12)])
+tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
 export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
 tree.export(filepath=export_path)
 

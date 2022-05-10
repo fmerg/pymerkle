@@ -5,14 +5,13 @@ import os
 import json
 import mmap
 import contextlib
-import uuid
 import json
 from abc import ABCMeta, abstractmethod
 from time import time, ctime
 from tqdm import tqdm
 
 from pymerkle.exceptions import NoPathException
-from pymerkle.utils import stringify_path
+from pymerkle.utils import stringify_path, generate_uuid
 from pymerkle.exceptions import UndecodableRecord
 
 abspath = os.path.abspath
@@ -69,7 +68,7 @@ class Prover(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def get_commitment(self):
+    def get_root_hash(self):
         """
         """
 
@@ -84,7 +83,7 @@ class Prover(metaclass=ABCMeta):
         """
 
     def create_proof(self, offset, path, commit=False):
-        commitment = self.get_commitment() if commit else None
+        commitment = self.get_root_hash() if commit else None
         proof = MerkleProof(provider=self.uuid,
                             hash_type=self.hash_type,
                             encoding=self.encoding,
@@ -106,7 +105,7 @@ class Prover(metaclass=ABCMeta):
             and the provided record is out of its configured encoding type
         """
         try:
-            self.update(record=record)
+            self.update(record)
         except UndecodableRecord:
             raise
 
@@ -133,12 +132,12 @@ class Prover(metaclass=ABCMeta):
                 )
             ) as buff:
                 try:
-                    self.update(record=buff.read())
+                    self.update(buff.read())
                 except UndecodableRecord:
                     raise
 
-    def encrypt_file_per_log(self, filepath):
-        """Per log encryption of the provided file into the Merkle-tree.
+    def encrypt_file_per_line(self, filepath):
+        """Per line encryption of the provided file into the Merkle-tree.
 
         Successively updates the tree with each line of the provided
         file in respective order
@@ -153,15 +152,15 @@ class Prover(metaclass=ABCMeta):
         """
         absolute_filepath = abspath(filepath)
         with open(absolute_filepath, mode='r') as f:
-            buffer = mmap.mmap(
+            buff = mmap.mmap(
                 f.fileno(),
                 0,
                 access=mmap.ACCESS_READ
             )
 
-        # Extract logs
+        # Extract lines
         records = []
-        readline = buffer.readline
+        readline = buff.readline
         append = records.append
         if not self.raw_bytes:
             # Check that no line of the provided file is outside
@@ -188,8 +187,8 @@ class Prover(metaclass=ABCMeta):
         tqdm.write('')
         update = self.update
         for record in tqdm(
-                records, desc='Encrypting file per log', total=len(records)):
-            update(record=record)
+                records, desc='Encrypting file per line', total=len(records)):
+            update(record)
         tqdm.write('Encryption complete\n')
 
     def generate_audit_proof(self, checksum, commit=False):
@@ -280,24 +279,25 @@ class MerkleProof:
     :ivar body: (*dict*) Contains the keys *offset* and *path*
     """
 
-    def __init__(self, **kw):
-        """
-        """
+    def __init__(self, provider, hash_type, encoding, raw_bytes, security,
+                 offset, path, uuid=None, timestamp=None, created_at=None,
+                 commitment=None, status=None):
+
         self.header = {
-            'uuid': kw.get('uuid', str(uuid.uuid1())),
-            'timestamp': kw.get('timestamp', int(time())),
-            'created_at': kw.get('created_at', ctime()),
-            'provider': kw['provider'],
-            'hash_type': kw['hash_type'],
-            'encoding': kw['encoding'],
-            'raw_bytes': kw['raw_bytes'],
-            'security': kw['security'],
-            'commitment': kw.get('commitment', None),
-            'status': kw.get('status', None)
+            'uuid': uuid or generate_uuid(),
+            'timestamp': timestamp or int(time()),
+            'created_at': created_at or ctime(),
+            'provider': provider,
+            'hash_type': hash_type,
+            'encoding': encoding,
+            'raw_bytes': raw_bytes,
+            'security': security,
+            'commitment': commitment,
+            'status': status,
         }
         self.body = {
-            'offset': kw['offset'],
-            'path': kw['path']
+            'offset': offset,
+            'path': path,
         }
 
     @classmethod
@@ -313,7 +313,7 @@ class MerkleProof:
         encoding = header['encoding']
         kw['path'] = tuple((
             pair[0],
-            bytes(pair[1], encoding)
+            pair[1].encode(encoding)
         ) for pair in body['path'])
 
         return cls(**kw)
@@ -350,7 +350,7 @@ class MerkleProof:
             'security': header['security'],
         }
 
-    def get_commitment(self):
+    def get_root_hash(self):
         return self.header.get('commitment', None)
 
     def __repr__(self):

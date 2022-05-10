@@ -2,8 +2,8 @@ import pytest
 import os
 import json
 
-from pymerkle.core import MerkleTree
-from pymerkle.core.tree import TREE_TEMPLATE
+from pymerkle import MerkleTree
+from pymerkle.tree import TREE_TEMPLATE
 
 
 def test___repr__non_default_empty_tree():
@@ -20,7 +20,7 @@ def test___repr__non_default_empty_tree():
 
 
 def test___repr__default_non_empty_tree():
-    tree = MerkleTree(b'first', b'second', b'third')
+    tree = MerkleTree.init_from_records(b'first', b'second', b'third')
     assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
                                                    hash_type='SHA256',
                                                    encoding='UTF-8',
@@ -33,9 +33,9 @@ def test___repr__default_non_empty_tree():
                                                    height=2)
 
 
-empty_tree = MerkleTree()
-one_leaf_tree = MerkleTree('first')
-three_leaves_tree = MerkleTree('first', 'second', 'third')
+empty_tree = MerkleTree.init_from_records()
+one_leaf_tree = MerkleTree.init_from_records('first')
+three_leaves_tree = MerkleTree.init_from_records('first', 'second', 'third')
 
 serializations = [
     (

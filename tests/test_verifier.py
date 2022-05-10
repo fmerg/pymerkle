@@ -6,7 +6,7 @@ import pytest
 import os
 import json
 
-from pymerkle.core.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import InvalidProof
 from pymerkle import MerkleTree, MerkleVerifier
 from tests.conftest import SUPPORTED_ENCODINGS
@@ -15,7 +15,8 @@ from tests.conftest import SUPPORTED_ENCODINGS
 # Merkle-proof verification
 
 def test_verify_proof_with_commitment():
-    tree = MerkleTree(*[f'{i}-th record' for i in range(666)])
+    tree = MerkleTree.init_from_records(
+        *[f'{i}-th record' for i in range(666)])
     proof = tree.generate_audit_proof(tree.hash('100-th record'), commit=True)
     commitment = proof.header['commitment']
     v = MerkleVerifier()
@@ -33,14 +34,12 @@ for raw_bytes in (True, False):
         for length in range(1, MAX_LENGTH + 1):
             for hash_type in SUPPORTED_HASH_TYPES:
                 for encoding in SUPPORTED_ENCODINGS:
-                    trees.append(
-                        MerkleTree(
-                            *['%d-th record' % i for i in range(length)],
-                            hash_type=hash_type,
-                            encoding=encoding,
-                            security=security
-                        )
-                    )
+                    config = {'hash_type': hash_type, 'encoding': encoding,
+                              'security': security}
+                    tree = MerkleTree.init_from_records(
+                        *['%d-th record' % i for i in range(length)],
+                        config=config)
+                    trees.append(tree)
 
 
 # Audit proof verification
@@ -87,13 +86,9 @@ for tree in trees:
         trees_and_subtrees.append(
             (
                 tree,
-                MerkleTree(
+                MerkleTree.init_from_records(
                     *['%d-th record' % _ for _ in range(sublength)],
-                    hash_type=tree.hash_type,
-                    encoding=tree.encoding,
-                    raw_bytes=tree.raw_bytes,
-                    security=tree.security
-                )
+                    config=tree.get_config())
             )
         )
 
@@ -104,7 +99,8 @@ for (tree, subtree) in trees_and_subtrees:
     false_consistency_proofs.append(
         (
             tree,
-            tree.generate_consistency_proof(b'anything except for the right hash')
+            tree.generate_consistency_proof(
+                b'anything except for the right hash')
         )
     )
 

@@ -5,7 +5,7 @@ Tests hashing in no raw-bytes mode
 import pytest
 import hashlib
 
-from pymerkle.core.hashing import HashEngine, SUPPORTED_HASH_TYPES
+from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
 from tests.conftest import SUPPORTED_ENCODINGS
 
