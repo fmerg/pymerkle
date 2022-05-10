@@ -105,7 +105,7 @@ class Prover(metaclass=ABCMeta):
             and the provided record is out of its configured encoding type
         """
         try:
-            self.update(record=record)
+            self.update(record)
         except UndecodableRecord:
             raise
 
@@ -132,7 +132,7 @@ class Prover(metaclass=ABCMeta):
                 )
             ) as buff:
                 try:
-                    self.update(record=buff.read())
+                    self.update(buff.read())
                 except UndecodableRecord:
                     raise
 
@@ -188,7 +188,7 @@ class Prover(metaclass=ABCMeta):
         update = self.update
         for record in tqdm(
                 records, desc='Encrypting file per line', total=len(records)):
-            update(record=record)
+            update(record)
         tqdm.write('Encryption complete\n')
 
     def generate_audit_proof(self, checksum, commit=False):

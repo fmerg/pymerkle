@@ -14,8 +14,8 @@ as follows:
 
     tree = MerkleTree()
 
-    tree.update(record='some string')
-    tree.update(record=b'some byte sequence')
+    tree.update('some string')
+    tree.update(b'some byte sequence')
 
 
 This method ensures that trees with the same

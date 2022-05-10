@@ -177,7 +177,7 @@ class MerkleTree(HashEngine, Prover):
 
         return log_2(length)
 
-    def update(self, record=None, digest=None):
+    def update(self, record):
         """Updates the Merkle-tree by storing the digest of the inserted record
         into a newly-created leaf. Restructures the tree appropriately and
         recalculates appropriate interior hashes
@@ -185,19 +185,11 @@ class MerkleTree(HashEngine, Prover):
         :param record: [optional] The record whose digest is to be stored into
                     a new leaf
         :type record:  str or bytes
-        :param digest: [optional] The digest to be stored into the new leaf
-        :type digest:  str
-
-        .. warning:: Exactly one of either record or digest
-            should be provided
-
-        :raises LeafConstructionError: if both record and digest
-                                    were provided
         :raises UndecodableRecord: if the Merkle-tree is not in raw-bytes mode
             and the provided record does not fall under its configured type
         """
         try:
-            new_leaf = Leaf(self.hash, self.encoding, record, digest)
+            new_leaf = Leaf(self.hash, self.encoding, record=record)
         except (LeafConstructionError, UndecodableRecord):
             raise
 
