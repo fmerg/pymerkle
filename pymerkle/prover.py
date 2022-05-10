@@ -18,6 +18,10 @@ from pymerkle.exceptions import UndecodableRecord
 abspath = os.path.abspath
 
 
+def generate_uuid():
+    return str(uuid.uuid1())
+
+
 PROOF_TEMPLATE = """
     ----------------------------------- PROOF ------------------------------------
 
@@ -280,24 +284,25 @@ class MerkleProof:
     :ivar body: (*dict*) Contains the keys *offset* and *path*
     """
 
-    def __init__(self, **kw):
-        """
-        """
+    def __init__(self, provider, hash_type, encoding, raw_bytes, security,
+                 offset, path, uuid=None, timestamp=None, created_at=None,
+                 commitment=None, status=None):
+
         self.header = {
-            'uuid': kw.get('uuid', str(uuid.uuid1())),
-            'timestamp': kw.get('timestamp', int(time())),
-            'created_at': kw.get('created_at', ctime()),
-            'provider': kw['provider'],
-            'hash_type': kw['hash_type'],
-            'encoding': kw['encoding'],
-            'raw_bytes': kw['raw_bytes'],
-            'security': kw['security'],
-            'commitment': kw.get('commitment', None),
-            'status': kw.get('status', None)
+            'uuid': uuid or generate_uuid(),
+            'timestamp': timestamp or int(time()),
+            'created_at': created_at or ctime(),
+            'provider': provider,
+            'hash_type': hash_type,
+            'encoding': encoding,
+            'raw_bytes': raw_bytes,
+            'security': security,
+            'commitment': commitment,
+            'status': status,
         }
         self.body = {
-            'offset': kw['offset'],
-            'path': kw['path']
+            'offset': offset,
+            'path': path,
         }
 
     @classmethod
@@ -313,7 +318,7 @@ class MerkleProof:
         encoding = header['encoding']
         kw['path'] = tuple((
             pair[0],
-            bytes(pair[1], encoding)
+            pair[1].encode(encoding)
         ) for pair in body['path'])
 
         return cls(**kw)
