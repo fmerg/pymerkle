@@ -2,8 +2,8 @@ import pytest
 import os
 import json
 
-from pymerkle.core import MerkleTree
-from pymerkle.core.tree import TREE_TEMPLATE
+from pymerkle import MerkleTree
+from pymerkle.tree import TREE_TEMPLATE
 
 
 def test___repr__non_default_empty_tree():

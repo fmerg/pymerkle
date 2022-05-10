@@ -3,7 +3,7 @@ import os
 import json
 import glob
 
-from pymerkle.core import MerkleTree
+from pymerkle import MerkleTree
 from pymerkle.exceptions import WrongJSONFormat
 
 

@@ -7,7 +7,7 @@ import pytest
 import os
 import json
 
-from pymerkle.core import MerkleTree
+from pymerkle import MerkleTree
 from pymerkle.exceptions import (NoSubtreeException, NoPathException,
                                  NoPrincipalSubroots,)
 

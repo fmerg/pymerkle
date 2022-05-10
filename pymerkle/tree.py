@@ -13,8 +13,8 @@ from pymerkle.exceptions import (LeafConstructionError, NoParentException,
                                  NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
                                  UndecodableRecord)
 
-from .nodes import Node, Leaf
-from .hashing import HashEngine
+from pymerkle.core.nodes import Node, Leaf
+from pymerkle.core.hashing import HashEngine
 
 NONE_BAR = '\n └─[None]'
 TREE_TEMPLATE = """
