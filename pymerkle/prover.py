@@ -152,7 +152,7 @@ class Prover(metaclass=ABCMeta):
         """
         absolute_filepath = abspath(filepath)
         with open(absolute_filepath, mode='r') as f:
-            buffer = mmap.mmap(
+            buff = mmap.mmap(
                 f.fileno(),
                 0,
                 access=mmap.ACCESS_READ
@@ -160,7 +160,7 @@ class Prover(metaclass=ABCMeta):
 
         # Extract lines
         records = []
-        readline = buffer.readline
+        readline = buff.readline
         append = records.append
         if not self.raw_bytes:
             # Check that no line of the provided file is outside

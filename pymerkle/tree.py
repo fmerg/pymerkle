@@ -196,38 +196,37 @@ class MerkleTree(HashEngine, Prover):
         :raises UndecodableRecord: if the Merkle-tree is not in raw-bytes mode
             and the provided record does not fall under its configured type
         """
-        encoding = self.encoding
-        hash = self.hash
 
+        # Encrypt new record into new leaf
+        try:
+            new_leaf = Leaf(self.hash, self.encoding, record, digest)
+        except (LeafConstructionError, UndecodableRecord):
+            raise
+
+        self.append_leaf(new_leaf)
+
+    def append_leaf(self, leaf):
+        """
+        """
         if self:
-            leaves = self.leaves
-            append = leaves.append
-            add = self.nodes.add
-
             # Height and root of the *full* binary subtree with maximum
             # possible length containing the rightmost leaf
-            last_power = decompose(len(leaves))[-1]
-            last_subroot = leaves[-1].ancestor(degree=last_power)
-
-            # Encrypt new record into new leaf
-            try:
-                new_leaf = Leaf(hash, encoding, record, digest)
-            except (LeafConstructionError, UndecodableRecord):
-                raise
+            last_power = decompose(len(self.leaves))[-1]
+            last_subroot = self.leaves[-1].ancestor(degree=last_power)
 
             # Assimilate new leaf
-            append(new_leaf)
-            add(new_leaf)
+            self.leaves.append(leaf)
+            self.nodes.add(leaf)
             try:
                 old_parent = last_subroot.parent
             except NoParentException:
                 # Last subroot was previously root
-                self.__root = Node(hash, encoding, last_subroot, new_leaf)
-                add(self.__root)
+                self.__root = Node(self.hash, self.encoding, last_subroot, leaf)
+                self.nodes.add(self.__root)
             else:
                 # Create bifurcation node
-                new_parent = Node(hash, encoding, last_subroot, new_leaf)
-                add(new_parent)
+                new_parent = Node(self.hash, self.encoding, last_subroot, leaf)
+                self.nodes.add(new_parent)
 
                 # Interject bifurcation node
                 old_parent.set_right(new_parent)
@@ -236,20 +235,15 @@ class MerkleTree(HashEngine, Prover):
                 # Recalculate hashes only at the rightmost branch of the tree
                 current_node = old_parent
                 while True:
-                    current_node.recalculate_hash(hash_func=hash)
+                    current_node.recalculate_hash(hash_func=self.hash)
                     try:
                         current_node = current_node.parent
                     except NoParentException:
                         break
         else:
-            # Empty tree case
-            try:
-                new_leaf = Leaf(hash, encoding, record, digest)
-            except (LeafConstructionError, UndecodableRecord):
-                raise
-            self.leaves = [new_leaf]
-            self.nodes = set([new_leaf])
-            self.__root = new_leaf
+            self.leaves = [leaf]
+            self.nodes = set([leaf])
+            self.__root = leaf
 
     def generate_audit_path(self, index):
         """Low-level audit proof.
