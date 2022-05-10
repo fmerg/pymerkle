@@ -4,8 +4,8 @@
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.exceptions import (NoParentException, NoAncestorException,
-                                 NoChildException, LeafConstructionError,
-                                 UndecodableArgumentError, UndecodableRecord)
+                                 NoChildException, UndecodableArgumentError,
+                                 UndecodableRecord)
 from pymerkle.utils import NONE
 import json
 
@@ -243,42 +243,30 @@ class Leaf(__Node):
     By leaf is meant a childless node storing the checksum
     of some encrypted record
 
-    :param hash_func: hash function to be used for encryption.
-    :type hash_func: method
+    :param digest: The checksum to be stored by the leaf.
+    :type digest: bytes or str
     :param encoding: encoding type to be used when decoding the
             digest stored by the leaf
     :type encoding: str
-    :param record: [optional] the record to be encrypted within the leaf.
-            If provided, then *digest* should not be provided.
-    :type record: str or bytes
-    :param digest: [optional] The checksum to be stored by the leaf.
-                If provided, then *record* should not be provided.
-    :type digest: str
-
-    :raises LeafConstructionError: if both *record* and *digest* were
-        provided
     """
 
     __slots__ = ('__digest',)
 
-    def __init__(self, hash_func, encoding, record=None, digest=None):
+    def __init__(self, digest, encoding):
+        if isinstance(digest, str):
+            digest = digest.encode(encoding)
+        self.__digest = digest
+
         super().__init__(encoding)
-        if digest is None and record:
-            try:
-                digest = hash_func(record)
-            except UndecodableArgumentError:
-                raise UndecodableRecord
-            else:
-                self.__digest = digest
-        elif record is None and digest:
-            self.__digest = bytes(digest, encoding)
-        else:
-            err = 'Either record or digest may be provided'
-            raise LeafConstructionError(err)
 
     @classmethod
-    def from_record(hash_func, encoding, record):
-        pass
+    def from_record(cls, record, hash_func, encoding):
+        try:
+            digest = hash_func(record)
+        except UndecodableArgumentError:
+            raise UndecodableRecord
+
+        return cls(digest, encoding)
 
     @property
     def digest(self):

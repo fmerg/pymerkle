@@ -8,10 +8,10 @@ from tqdm import tqdm
 from pymerkle.hashing import HashEngine
 from pymerkle.prover import Prover
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
-from pymerkle.exceptions import (LeafConstructionError, NoParentException,
-                                 EmptyTreeException, NoPathException, NoSubtreeException,
-                                 NoPrincipalSubroots, InvalidComparison, WrongJSONFormat,
-                                 UndecodableRecord)
+from pymerkle.exceptions import (NoParentException, EmptyTreeException,
+                                 NoPathException, NoSubtreeException,
+                                 NoPrincipalSubroots, InvalidComparison,
+                                 WrongJSONFormat, UndecodableRecord)
 
 from pymerkle.core.nodes import Node, Leaf
 
@@ -189,8 +189,8 @@ class MerkleTree(HashEngine, Prover):
             and the provided record does not fall under its configured type
         """
         try:
-            new_leaf = Leaf(self.hash, self.encoding, record=record)
-        except (LeafConstructionError, UndecodableRecord):
+            new_leaf = Leaf.from_record(record, self.hash, self.encoding)
+        except UndecodableRecord:
             raise
 
         self.append_leaf(new_leaf)
@@ -557,7 +557,7 @@ class MerkleTree(HashEngine, Prover):
         tqdm.write('\nFile has been loaded')
         append_leaf = tree.append_leaf
         for checksum in tqdm(obj['hashes'], desc='Retrieving tree...'):
-            new_leaf = Leaf(tree.hash, tree.encoding, digest=checksum)
+            new_leaf = Leaf(checksum, tree.encoding)
             append_leaf(new_leaf)
         tqdm.write('Tree has been retrieved')
 

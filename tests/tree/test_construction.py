@@ -4,7 +4,7 @@ import json
 
 from pymerkle import MerkleTree
 from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
-                                 UnsupportedEncoding, LeafConstructionError, UndecodableRecord, )
+                                 UnsupportedEncoding, UndecodableRecord, )
 
 
 undecodableArguments = [

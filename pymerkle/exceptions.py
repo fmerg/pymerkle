@@ -31,14 +31,6 @@ class InvalidComparison(Exception):
     pass
 
 
-class LeafConstructionError(Exception):
-    """
-    Raised upon construction of a leaf if the provided arguments
-    are not as prescribed.
-    """
-    pass
-
-
 class NoParentException(Exception):
     """
     Raised when the non-existent parent of a node is invoked.
