@@ -7,7 +7,7 @@ import pytest
 from pymerkle.core.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 from pymerkle.exceptions import (NoAncestorException,
-                                 NoChildException, UndecodableRecord,)
+                                 UndecodableRecord,)
 
 
 _ = HashEngine()
@@ -25,39 +25,25 @@ leaf1 = Leaf.from_record(b'first record...', hash_func, encoding)
 leaf2 = Leaf.from_record(b'second record...', hash_func, encoding)
 leaf3 = Leaf.from_record(b'third record...', hash_func, encoding)
 leaf4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
-node12 = Node(leaf1, leaf2, hash_func, encoding)
-node34 = Node(leaf3, leaf4, hash_func, encoding)
-root = Node(node12, node34, hash_func, encoding)
+node12 = Node.from_children(leaf1, leaf2, hash_func, encoding)
+node34 = Node.from_children(leaf3, leaf4, hash_func, encoding)
+root = Node.from_children(node12, node34, hash_func, encoding)
 
 
 # Childless leaves tests
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_leaf_left_child_exception(leaf):
-    """
-    Tests that invoking the ``.left``, ``.right`` and ``.parent`` properties of
-    a ``node.Leaf`` instance raises appropriate exceptions when
-    these attributes are not available
-    """
-    with pytest.raises(NoChildException):
-        leaf.left
+def test_has_no_left_child(leaf):
+    assert leaf.left is None
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_leaf_right_child_exception(leaf):
-    """
-    Tests that invoking the ``.left``, ``.right`` and ``.parent`` properties of
-    a ``node.Leaf`` instance raises appropriate exceptions when these attributes
-    are not available
-    """
-    with pytest.raises(NoChildException):
-        leaf.right
+def test_leaf_has_no_right_child(leaf):
+    assert leaf.right is None
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_leaf_without_parent(leaf):
-    """
-    """
     assert leaf.parent is None
 
 
@@ -114,21 +100,13 @@ def test_root_has_no_parent():
 
 
 @pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4))
-def test_no_child_exception_for_left(node):
-    """
-    Tests NoChildException with `.light` for all childless cases
-    """
-    with pytest.raises(NoChildException):
-        node.left
+def test_node_without_left(node):
+    assert node.left is None
 
 
 @pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4))
-def test_no_child_exception_for_right(node):
-    """
-    Tests NoChildException with `.right` for all childless cases
-    """
-    with pytest.raises(NoChildException):
-        node.right
+def test_node_without_right(node):
+    assert node.left is None
 
 
 # Child-child relation tests
@@ -311,7 +289,7 @@ def test_hash_recalculation_UndecodableRecord(byte, engine):
     with pytest.raises(UndecodableRecord):
         left = Leaf.from_record('left record', engine.hash, engine.encoding)
         right = Leaf.from_record('right record', engine.hash, engine.encoding)
-        node = Node(left, right, engine.hash, engine.encoding)
+        node = Node.from_children(left, right, engine.hash, engine.encoding)
         left = Leaf.from_record(byte, engine.hash, engine.encoding)
         node.set_left(_left)
         node.recalculate_hash(engine.hash)

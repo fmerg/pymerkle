@@ -210,11 +210,11 @@ class MerkleTree(HashEngine, Prover):
             old_parent = last_subroot.parent
             if not old_parent:
                 # Last subroot was previously root
-                self.__root = Node(last_subroot, leaf, self.hash, self.encoding)
+                self.__root = Node.from_children(last_subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(self.__root)
             else:
                 # Create bifurcation node
-                new_parent = Node(last_subroot, leaf, self.hash, self.encoding)
+                new_parent = Node.from_children(last_subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(new_parent)
 
                 # Interject bifurcation node

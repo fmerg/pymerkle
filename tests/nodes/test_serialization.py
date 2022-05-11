@@ -23,9 +23,9 @@ leaf1 = Leaf.from_record(b'first record...', hash_func, encoding)
 leaf2 = Leaf.from_record(b'second record...', hash_func, encoding)
 leaf3 = Leaf.from_record(b'third record...', hash_func, encoding)
 leaf4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
-node12 = Node(leaf1, leaf2, hash_func, encoding)
-node34 = Node(leaf3, leaf4, hash_func, encoding)
-root = Node(node12, node34, hash_func, encoding)
+node12 = Node.from_children(leaf1, leaf2, hash_func, encoding)
+node34 = Node.from_children(leaf3, leaf4, hash_func, encoding)
+root = Node.from_children(node12, node34, hash_func, encoding)
 
 
 @pytest.mark.parametrize("leaf", (leaf1, leaf2, leaf3, leaf4))
