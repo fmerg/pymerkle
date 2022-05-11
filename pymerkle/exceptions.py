@@ -38,13 +38,6 @@ class NoAncestorException(Exception):
     """
 
 
-class NoChildException(Exception):
-    """
-    Raised when the non-existent left or right child of a node is invoked.
-    """
-    pass
-
-
 class NoPathException(Exception):
     """
     Raised when no path exists for the provided parameters.

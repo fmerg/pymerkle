@@ -64,14 +64,6 @@ def test_parentless_leaf_is_not_right_child(leaf):
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_parentless_leaf_is_not_child(leaf):
-    """
-    Tests that ``.is_left_child`` returns ``False`` for a leaf without a parent
-    """
-    assert not leaf.is_child()
-
-
-@pytest.mark.parametrize("leaf", pair_of_leaves)
 def test_parentless_leaf_no_ancestor_exception(leaf):
     """
     Tests that the appropriate exception is raised when the ancestor
@@ -155,17 +147,6 @@ def test_is_right_child(node):
     (excluding the possibility of being left child)
     """
     assert node.is_right_child() and not node.is_left_child()
-
-
-@pytest.mark.parametrize("node, expected", ((leaf1, True), (leaf2, True),
-                                            (leaf4, True), (leaf4, True),
-                                            (node12, True), (node34, True),
-                                            (root, False)))
-def test_is_child(node, expected):
-    """
-    Tests a node's property of being a child
-    """
-    assert node.is_child() is expected
 
 
 # Descendancy tests
