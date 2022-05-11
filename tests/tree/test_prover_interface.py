@@ -38,11 +38,11 @@ for tree in trees:
         )
     )
 
-    for index in range(tree.length):
+    for i in range(tree.length):
         tree_arg.append(
             (
                 tree,
-                tree.hash('%d-th record' % index)
+                tree.hash('%d-th record' % i)
             )
         )
 

@@ -73,7 +73,7 @@ class Prover(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def generate_audit_path(self, index):
+    def generate_audit_path(self, offset):
         """
         """
 
@@ -201,9 +201,9 @@ class Prover(metaclass=ABCMeta):
         """
         offset = -1
         path = ()
-        index = self.find_index(checksum)
+        offset = self.find_index(checksum)
         try:
-            offset, path = self.generate_audit_path(index)
+            offset, path = self.generate_audit_path(offset)
         except NoPathException:
             pass
 

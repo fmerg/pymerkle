@@ -211,11 +211,11 @@ class MerkleTree(HashEngine, Prover):
                 old_parent = last_subroot.parent
             except NoParentException:
                 # Last subroot was previously root
-                self.__root = Node(self.hash, self.encoding, last_subroot, leaf)
+                self.__root = Node(last_subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(self.__root)
             else:
                 # Create bifurcation node
-                new_parent = Node(self.hash, self.encoding, last_subroot, leaf)
+                new_parent = Node(last_subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(new_parent)
 
                 # Interject bifurcation node
@@ -235,32 +235,32 @@ class MerkleTree(HashEngine, Prover):
             self.nodes = set([leaf])
             self.__root = leaf
 
-    def generate_audit_path(self, index):
+    def generate_audit_path(self, offset):
         """Low-level audit proof.
 
         Computes and returns the audit-path corresponding to the provided leaf
         index along with the position where subsequent proof verification should
         start from.
 
-        :param index: position (zero based leaf index) where audit-path
+        :param offset: position (zero based leaf index) where audit-path
                 computation should be based upon
-        :type index: int
+        :type offset: int
         :returns: Starting position of subsequent proof verification along with
             a sequence of signed checksums (the sign +1 or -1 indicating
             pairing with the right or left neighbour respectively)
         :rtype: (int, tuple of (+1/-1, bytes))
 
-        :raises NoPathException: if the provided index exceed's the tree's
+        :raises NoPathException: if the provided offset exceed's the tree's
             current length
         """
-        if index < 0:
-            # Handle negative index case as NoPathException, since
+        if offset  < 0:
+            # Handle negative offset case as NoPathException, since
             # certain negative indices might otherwise be
             # considered as valid positions
             raise NoPathException
 
         try:
-            current_node = self.leaves[index]
+            current_node = self.leaves[offset]
         except IndexError:
             raise NoPathException  # Covers also the empty tree case
 
@@ -302,7 +302,7 @@ class MerkleTree(HashEngine, Prover):
         # if no such leaf exists (i.e., the inserted argument has not been
         # encrypted into the tree), leave index equal to -1 so that an
         # appropriate NoPathException be subsequently raised
-        index = -1
+        offset = -1
         count = 0
         leaves = (leaf for leaf in self.leaves)
         while True:
@@ -311,11 +311,11 @@ class MerkleTree(HashEngine, Prover):
             except StopIteration:
                 break
             if checksum == leaf.digest:
-                index = count
+                offset = count
                 break
             count += 1
 
-        return index
+        return offset
 
     def generate_consistency_path(self, sublength):
         """Low-level consistency proof.

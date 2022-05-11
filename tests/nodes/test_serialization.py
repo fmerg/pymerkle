@@ -4,7 +4,7 @@ Tests represenation and serialization of nodes
 
 import pytest
 
-from pymerkle.core.nodes import Node, Leaf
+from pymerkle.core.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 
 
@@ -15,88 +15,70 @@ hash_func = _.hash
 pair_of_leaves = (
     Leaf.from_record(b'some record...', hash_func, encoding),
     Leaf.from_record('5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
-         hash_func, encoding)
+                     hash_func, encoding)
 )
 
 # Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf_1 = Leaf.from_record(b'first record...', hash_func, encoding)
-leaf_2 = Leaf.from_record(b'second record...', hash_func, encoding)
-leaf_3 = Leaf.from_record(b'third record...', hash_func, encoding)
-leaf_4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
-node_12 = Node(hash_func=hash_func, encoding=encoding,
-               left=leaf_1, right=leaf_2)
-node_34 = Node(hash_func=hash_func, encoding=encoding,
-               left=leaf_3, right=leaf_4)
-root = Node(hash_func=hash_func, encoding=encoding,
-            left=node_12, right=node_34)
+leaf1 = Leaf.from_record(b'first record...', hash_func, encoding)
+leaf2 = Leaf.from_record(b'second record...', hash_func, encoding)
+leaf3 = Leaf.from_record(b'third record...', hash_func, encoding)
+leaf4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
+node12 = Node(leaf1, leaf2, hash_func, encoding)
+node34 = Node(leaf3, leaf4, hash_func, encoding)
+root = Node(node12, node34, hash_func, encoding)
 
 
-@pytest.mark.parametrize("leaf", (leaf_1, leaf_2, leaf_3, leaf_4))
+@pytest.mark.parametrize("leaf", (leaf1, leaf2, leaf3, leaf4))
 def test___repr__for_leafs_with_parent(leaf):
-    assert leaf.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left child  : {left_id}\
-                \n    right child : {right_id}\
-                \n    parent        : {parent_id}\
-                \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(leaf))),
-                        left_id='[None]',
-                        right_id='[None]',
-                        parent_id=str(hex(id(leaf.parent))),
-                        hash=leaf.digest.decode(leaf.encoding))
+    assert leaf.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(leaf))),
+                                                   left_id='[None]',
+                                                   right_id='[None]',
+                                                   parent_id=str(hex(id(leaf.parent))),
+                                                   checksum=leaf.digest.decode(leaf.encoding))
 
 
-@pytest.mark.parametrize("node", (node_12, node_34))
+@pytest.mark.parametrize("node", (node12, node34))
 def test___repr__for_nodes_with_parent(node):
-    assert node.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left child  : {left_id}\
-                \n    right child : {right_id}\
-                \n    parent        : {parent_id}\
-                \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(node))),
-                        left_id=str(hex(id(node.left))),
-                        right_id=str(hex(id(node.right))),
-                        parent_id=str(hex(id(node.parent))),
-                        hash=node.digest.decode(node.encoding))
+    assert node.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(node))),
+                                                   left_id=str(hex(id(node.left))),
+                                                   right_id=str(hex(id(node.right))),
+                                                   parent_id=str(hex(id(node.parent))),
+                                                   checksum=node.digest.decode(node.encoding))
 
 
 def test___repr__for_node_without_parent():
-    assert root.__repr__() == '\n    memory-id    : {self_id}\
-                \n    left child  : {left_id}\
-                \n    right child : {right_id}\
-                \n    parent        : {parent_id}\
-                \n    hash         : {hash}\n'\
-                .format(self_id=str(hex(id(root))),
-                        left_id=str(hex(id(root.left))),
-                        right_id=str(hex(id(root.right))),
-                        parent_id='[None]',
-                        hash=root.digest.decode(root.encoding))
+    assert root.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(root))),
+                                                   left_id=str(hex(id(root.left))),
+                                                   right_id=str(hex(id(root.right))),
+                                                   parent_id='[None]',
+                                                   checksum=root.digest.decode(root.encoding))
 
 
 stringifications = [
     (
-        leaf_1,
+        leaf1,
         '\n ├──9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7\n'
     ),
     (
-        leaf_2,
+        leaf2,
         '\n └──9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa\n'
     ),
     (
-        leaf_3,
+        leaf3,
         '\n ├──ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f\n'
     ),
     (
-        leaf_4,
+        leaf4,
         '\n └──8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69\n'
     ),
     (
-        node_12,
+        node12,
         '\n ├──cd607f7f417c7f796bc863647558eb068d7f6400683978e32137c688ce128321\n\
      ├──9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7\n\
      └──9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa\n'
     ),
     (
-        node_34,
+        node34,
         '\n └──3c4dfc97969d64c2434ed613b1ad931af2dfac935407bf1b7ab2af4b07680b57\n\
      ├──ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f\n\
      └──8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69\n'
@@ -123,7 +105,7 @@ def test___str__(node, stringification):
 
 serializations = [
     (
-        node_12,
+        node12,
         {
             'left': {
                 'hash': '9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7'
@@ -135,7 +117,7 @@ serializations = [
         }
     ),
     (
-        node_34,
+        node34,
         {
             'left': {
                 'hash': 'ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f'
@@ -180,30 +162,30 @@ def test_node_serialization(node, serialization):
 
 json_texts = [
     (
-        leaf_1,
+        leaf1,
         '{\n    "hash": "9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7"\n}'
     ),
     (
-        leaf_2,
+        leaf2,
         '{\n    "hash": "9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa"\n}'
     ),
     (
-        leaf_3,
+        leaf3,
         '{\n    "hash": "ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f"\n}'
     ),
     (
-        leaf_4,
+        leaf4,
         '{\n    "hash": "8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69"\n}'
     ),
 
     (
-        node_12,
+        node12,
         '{\n    "hash": "cd607f7f417c7f796bc863647558eb068d7f6400683978e32137c688ce128321",\n\
     "left": {\n        "hash": "9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7"\n    },\n\
     "right": {\n        "hash": "9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa"\n    }\n}'
     ),
     (
-        node_34,
+        node34,
         '{\n    "hash": "3c4dfc97969d64c2434ed613b1ad931af2dfac935407bf1b7ab2af4b07680b57",\n\
     "left": {\n        "hash": "ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f"\n    },\n\
     "right": {\n        "hash": "8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69"\n    }\n}'

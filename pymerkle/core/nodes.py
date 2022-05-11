@@ -17,6 +17,17 @@ T_BRACKET = '├──'
 VERTICAL_BAR = '│'
 
 
+NODE_TEMPLATE = """
+
+    memid   : {self_id}
+    left    : {left_id}
+    right   : {right_id}
+    parent  : {parent_id}
+    hash    : {checksum}
+
+"""
+
+
 class __Node(metaclass=ABCMeta):
     """Abstract base class for Merkle-tree leaves and internal nodes
     """
@@ -160,17 +171,13 @@ class __Node(metaclass=ABCMeta):
             right_id = NONE
         else:
             right_id = memory_id(self.right)
+        checksum = self.digest.decode(self.encoding)
 
-        return '\n    memory-id    : {self_id}\
-                \n    left child  : {left_id}\
-                \n    right child : {right_id}\
-                \n    parent        : {parent_id}\
-                \n    hash         : {hash}\n'\
-                .format(self_id=memory_id(self),
+        return NODE_TEMPLATE.format(self_id=memory_id(self),
                         left_id=left_id,
                         right_id=right_id,
                         parent_id=parent_id,
-                        hash=self.digest.decode(self.encoding))
+                        checksum=checksum)
 
     def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
         """Designed so that inserting the node as an argument to the builtin
@@ -307,17 +314,17 @@ class Node(__Node):
     :type right: __Node
     """
 
-    __slots__ = ('__digest', '__left', '__right',)
+    __slots__ = ('__left', '__right', '__digest')
 
-    def __init__(self, hash_func, encoding, left, right):
-        super().__init__(encoding=encoding)
-
+    def __init__(self, left, right, hash_func, encoding):
         digest = hash_func(left.digest, right.digest)
         self.__digest = digest
         self.__left = left
         self.__right = right
         left.__parent = self
         right.__parent = self
+
+        super().__init__(encoding=encoding)
 
     @property
     def digest(self):

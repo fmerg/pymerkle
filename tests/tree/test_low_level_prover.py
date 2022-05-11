@@ -36,14 +36,14 @@ no_path_exceptions = [
 ]
 
 
-@pytest.mark.parametrize('tree, index', no_path_exceptions)
-def test_audit_NoPathException(tree, index):
+@pytest.mark.parametrize('tree, offset', no_path_exceptions)
+def test_audit_NoPathException(tree, offset):
     """
     Tests NoPathException upon requesting audit-path from an empty Merkle-tree
-    or based upon an index either negative or exceeding the tree's current length
+    or based upon an offset either negative or exceeding the tree's current length
     """
     with pytest.raises(NoPathException):
-        tree.generate_audit_path(index)
+        tree.generate_audit_path(offset)
 
 
 audit_paths = [
@@ -214,9 +214,9 @@ audit_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, index, path', audit_paths)
-def test_generate_audit_path(tree, index, path):
-    assert tree.generate_audit_path(index) == path
+@pytest.mark.parametrize('tree, offsetn, path', audit_paths)
+def test_generate_audit_path(tree, offset, path):
+    assert tree.generate_audit_path(offset) == path
 
 
 # Consistency proof implementation
