@@ -31,13 +31,6 @@ class InvalidComparison(Exception):
     pass
 
 
-class NoParentException(Exception):
-    """
-    Raised when the non-existent parent of a node is invoked.
-    """
-    pass
-
-
 class NoAncestorException(Exception):
     """
     Raised when the non-existent ancestor of a node is requested

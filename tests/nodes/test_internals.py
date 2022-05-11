@@ -6,7 +6,7 @@ import pytest
 
 from pymerkle.core.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
-from pymerkle.exceptions import (NoParentException, NoAncestorException,
+from pymerkle.exceptions import (NoAncestorException,
                                  NoChildException, UndecodableRecord,)
 
 
@@ -55,14 +55,10 @@ def test_leaf_right_child_exception(leaf):
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
-def test_leaf_parent_exception(leaf):
+def test_leaf_without_parent(leaf):
     """
-    Tests that invoking the ``.left``, ``.right`` and ``.parent`` properties of
-    a ``node.Leaf`` instance raises appropriate exceptions when these attributes
-    are not available
     """
-    with pytest.raises(NoParentException):
-        leaf.parent
+    assert leaf.parent is None
 
 
 @pytest.mark.parametrize("leaf", pair_of_leaves)
@@ -113,12 +109,8 @@ def test_parentless_leaf___repr__(leaf):
 
 # Exception tests
 
-def test_no_parent_exception():
-    """
-    Tests that NoParentException is raised for the unique parentless node
-    """
-    with pytest.raises(NoParentException):
-        root.parent
+def test_root_has_no_parent():
+    assert root.parent is None
 
 
 @pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4))

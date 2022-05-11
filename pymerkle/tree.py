@@ -8,7 +8,7 @@ from tqdm import tqdm
 from pymerkle.hashing import HashEngine
 from pymerkle.prover import Prover
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
-from pymerkle.exceptions import (NoParentException, EmptyTreeException,
+from pymerkle.exceptions import (EmptyTreeException,
                                  NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison,
                                  WrongJSONFormat, UndecodableRecord)
@@ -207,9 +207,8 @@ class MerkleTree(HashEngine, Prover):
             # Assimilate new leaf
             self.leaves.append(leaf)
             self.nodes.add(leaf)
-            try:
-                old_parent = last_subroot.parent
-            except NoParentException:
+            old_parent = last_subroot.parent
+            if not old_parent:
                 # Last subroot was previously root
                 self.__root = Node(last_subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(self.__root)
@@ -224,12 +223,9 @@ class MerkleTree(HashEngine, Prover):
 
                 # Recalculate hashes only at the rightmost branch of the tree
                 curr = old_parent
-                while True:
+                while curr:
                     curr.recalculate_hash(hash_func=self.hash)
-                    try:
-                        curr = curr.parent
-                    except NoParentException:
-                        break
+                    curr = curr.parent
         else:
             self.leaves = [leaf]
             self.nodes = set([leaf])
@@ -270,11 +266,8 @@ class MerkleTree(HashEngine, Prover):
         path = [(initial_sign, curr.digest)]
 
         offset = 0
-        while True:
-            try:
-                parent = curr.parent
-            except NoParentException:
-                break
+        while curr.parent:
+            parent = curr.parent
             if curr.is_left_child():
                 checksum = parent.right.digest
                 if parent.is_left_child():
@@ -378,12 +371,11 @@ class MerkleTree(HashEngine, Prover):
 
         complement = []
         while True:
-            try:
-                subroots[-1][1].parent
-            except NoParentException:
+            subroot = subroots[-1][1]
+            if not subroot.parent:
                 break
 
-            subroot = subroots[-1][1]
+            # subroot = subroots[-1][1]
             if subroot.is_left_child():
                 if subroot.parent.is_right_child():
                     sign = -1
@@ -428,10 +420,8 @@ class MerkleTree(HashEngine, Prover):
                 # Incompatibility issue detected
                 raise NoPrincipalSubroots
 
-            try:
-                parent = subroot.parent
-                grandparent = parent.parent
-            except NoParentException:
+            parent = subroot.parent
+            if not parent or not parent.parent:
                 if subroot.is_left_child():
                     sign = +1
                 else:
@@ -441,9 +431,8 @@ class MerkleTree(HashEngine, Prover):
                     sign = +1
                 else:
                     sign = -1
-            finally:
-                principals.append((sign, subroot))
-                offset += 2 ** power
+            principals.append((sign, subroot))
+            offset += 2 ** power
 
         if len(principals) > 0:
             # Modify last sign
@@ -473,22 +462,21 @@ class MerkleTree(HashEngine, Prover):
             raise NoSubtreeException
         i = 0
         while i < height:
-            try:
-                next_node = subroot.parent
-            except NoParentException:
+            curr = subroot.parent
+            if not curr:
                 raise NoSubtreeException
-            if next_node.left is not subroot:
+            if curr.left is not subroot:
                 raise NoSubtreeException
-            subroot = subroot.parent
+            subroot = curr
             i += 1
 
         # Verify existence of *full* binary subtree
-        right_child = subroot
+        curr = subroot
         i = 0
         while i < height:
-            if isinstance(right_child, Leaf):
+            if isinstance(curr, Leaf):
                 raise NoSubtreeException
-            right_child = right_child.right
+            curr = curr.right
             i += 1
 
         return subroot

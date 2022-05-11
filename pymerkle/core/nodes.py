@@ -3,7 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.exceptions import (NoParentException, NoAncestorException,
+from pymerkle.exceptions import (NoAncestorException,
                                  NoChildException, UndecodableArgumentError,
                                  UndecodableRecord)
 from pymerkle.utils import NONE
@@ -36,6 +36,7 @@ class __Node(metaclass=ABCMeta):
 
     def __init__(self, encoding):
         self.__encoding = encoding
+        self.__parent = None
 
     @abstractmethod
     def serialize(self):
@@ -54,12 +55,8 @@ class __Node(metaclass=ABCMeta):
     @property
     def parent(self):
         """
-        :raises NoParentException: if the node has no *.parent* attribute
         """
-        try:
-            return self.__parent
-        except AttributeError:
-            raise NoParentException
+        return self.__parent
 
     def set_parent(self, parent):
         self.__parent = parent
@@ -67,7 +64,7 @@ class __Node(metaclass=ABCMeta):
     @property
     def left(self):
         """
-        :raises NoParentException: if the node has no *.left* attribute
+        :raises NoChildException: if the node has no *.left* attribute
         """
         try:
             return self.__left
@@ -77,7 +74,7 @@ class __Node(metaclass=ABCMeta):
     @property
     def right(self):
         """
-        :raises NoParentException: if the node has no *.right* attribute
+        :raises NoChildException: if the node has no *.right* attribute
         """
         try:
             return self.__right
@@ -87,13 +84,12 @@ class __Node(metaclass=ABCMeta):
     def is_left_child(self):
         """Checks if the node is a left child.
 
-        :returns: *True* iff the node is the *.left* attribute of some
+        :returns: *True* iff the node is the *left* attribute of some
                 other node inside the containing tree
         :rtype: bool
         """
-        try:
-            parent = self.parent
-        except NoParentException:
+        parent = self.__parent
+        if not parent:
             return False
 
         return self == parent.left
@@ -101,13 +97,12 @@ class __Node(metaclass=ABCMeta):
     def is_right_child(self):
         """Checks if the node is a right child.
 
-        :returns: *True* iff the node is the *.right* attribute of some
+        :returns: *True* iff the node is the *right* attribute of some
                 other node inside the containing tree
         :rtype: bool
         """
-        try:
-            parent = self.parent
-        except NoParentException:
+        parent = self.__parent
+        if not parent:
             return False
 
         return self == parent.right
@@ -115,13 +110,11 @@ class __Node(metaclass=ABCMeta):
     def is_child(self):
         """Checks if the node is a child.
 
-        :returns: *True* iff the node is the *.right* or *.left*
+        :returns: *True* iff the node is the *right* or *left*
             attribute of some other node inside the containing tree
         :rtype: bool
         """
-        try:
-            self.parent
-        except NoParentException:
+        if not self.__parent:
             return False
 
         return True
@@ -144,12 +137,10 @@ class __Node(metaclass=ABCMeta):
         if degree == 0:
             return self
 
-        try:
-            parent = self.parent
-        except NoParentException:
+        if not self.__parent:
             raise NoAncestorException
 
-        return parent.ancestor(degree - 1)
+        return self.__parent.ancestor(degree - 1)
 
     def __repr__(self):
         """Sole purpose of this function is to easy display info
@@ -158,22 +149,19 @@ class __Node(metaclass=ABCMeta):
         .. warning:: Contrary to convention, the output of this implementation
             is not insertable into the *eval()* builtin Python function
         """
-        def memory_id(obj): return str(hex(id(obj)))
+        def memid(obj): return str(hex(id(obj)))
 
+        parent_id = NONE if not self.__parent else memid(self.__parent)
         try:
-            parent_id = memory_id(self.parent)
-        except NoParentException:
-            parent_id = NONE
-        try:
-            left_id = memory_id(self.left)
+            left_id = memid(self.left)
         except NoChildException:
             left_id = NONE
             right_id = NONE
         else:
-            right_id = memory_id(self.right)
+            right_id = memid(self.right)
         checksum = self.digest.decode(self.encoding)
 
-        return NODE_TEMPLATE.format(self_id=memory_id(self),
+        return NODE_TEMPLATE.format(self_id=memid(self),
                         left_id=left_id,
                         right_id=right_id,
                         parent_id=parent_id,
