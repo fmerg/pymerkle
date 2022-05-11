@@ -66,14 +66,14 @@ def decompose(num):
     return tuple(powers)
 
 
-def stringify_path(signed_hashes, encoding):
+def stringify_path(path, encoding):
     """Returns a string representing the provided sequence of signed hashes.
 
     .. note:: Printed hashes occure after decoding the given ones in
         accordance under the provided encoding type
 
-    :param signed_hashes: sequence of signed hashes
-    :type signed_hashes: tuple of (+1/-1, bytes) or (+1/-1, str)
+    :param path: sequence of signed hashes
+    :type path: tuple of (+1/-1, bytes) or (+1/-1, str)
     :param encoding: encoding type to be used for decoding
     :type encoding: str
     :rtype: str
@@ -82,7 +82,7 @@ def stringify_path(signed_hashes, encoding):
     def get_with_sign(num): return f'{"+" if num >= 0 else ""}{num}'
     pairs = []
     pair_template = '\n{left}[{index}]{middle}{sign}{right}{digest}'
-    for index, curr in enumerate(signed_hashes):
+    for index, curr in enumerate(path):
         pairs.append(
             pair_template.format(left=(7 - order_of_magnitude(index)) * ' ',
                                  index=index,

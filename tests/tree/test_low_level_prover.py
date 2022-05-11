@@ -214,7 +214,7 @@ audit_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, offsetn, path', audit_paths)
+@pytest.mark.parametrize('tree, offset, path', audit_paths)
 def test_generate_audit_path(tree, offset, path):
     assert tree.generate_audit_path(offset) == path
 
@@ -246,10 +246,10 @@ no_subtree_exceptions = [
 ]
 
 
-@pytest.mark.parametrize('tree, start, height', no_subtree_exceptions)
-def test_NoSubtreeException(tree, start, height):
+@pytest.mark.parametrize('tree, offset, height', no_subtree_exceptions)
+def test_NoSubtreeException(tree, offset, height):
     with pytest.raises(NoSubtreeException):
-        tree.subroot(start, height)
+        tree.subroot(offset, height)
 
 
 subroots = [
@@ -279,9 +279,9 @@ subroots = [
 ]
 
 
-@pytest.mark.parametrize('tree, start, height, subroot', subroots)
-def test_subroot(tree, start, height, subroot):
-    assert tree.subroot(start, height) is subroot
+@pytest.mark.parametrize('tree, offset, height, subroot', subroots)
+def test_subroot(tree, offset, height, subroot):
+    assert tree.subroot(offset, height) is subroot
 
 
 no_principal_subroots_exceptions = [

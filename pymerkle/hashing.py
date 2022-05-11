@@ -58,37 +58,41 @@ class HashEngine:
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
                  raw_bytes=True, security=True):
-        ht = hash_type.lower().replace('-', '_')
-        if ht not in SUPPORTED_HASH_TYPES:
-            err = f'Hash type {hash_type} is not supported'
-            raise UnsupportedHashType(err)
-        self.hash_type = ht
+
+        _hash_type = hash_type.lower().replace('-', '_')
+        if _hash_type not in SUPPORTED_HASH_TYPES:
+            raise UnsupportedHashType('Hash type %s is not supported'
+                                      % _hash_type)
+
+        _encoding = encoding.lower().replace('-', '_')
+        if _encoding not in SUPPORTED_ENCODINGS:
+            raise UnsupportedEncoding('Encoding type %s is not supported'
+                                      % _encoding)
+
+        self.hash_type = _hash_type
         self.algorithm = getattr(hashlib, self.hash_type)
-        # super().__init__(encoding=encoding, raw_bytes=raw_bytes, security=security)
-        encoding = encoding.lower().replace('-', '_')
-        if encoding not in SUPPORTED_ENCODINGS:
-            err = f'Encoding type {encoding} is not supported'
-            raise UnsupportedEncoding(err)
-        self.encoding = encoding
+        self.encoding = _encoding
         self.raw_bytes = raw_bytes
         self.security = security
-        self.encode = self._mk_encode_func()
 
+        self.concatenate = self._mk_encode_func()
 
     def _mk_encode_func(self):
         """Constructs the encoding functionality of the present engine in
         accordance with its initial configuration (*encoding type*, *raw-bytes*
         mode and *security* mode)
         """
-        encoding = self.encoding
-
         # Resolve security prefices
         if self.security:
-            prefix_0_dec, prefix_0_enc = '\x00', bytes('\x00', encoding)
-            prefix_1_dec, prefix_1_enc = '\x01', bytes('\x01', encoding)
+            prefix_0_dec = '\x00'
+            prefix_1_dec = '\x01'
+            prefix_0_enc = bytes('\x00', self.encoding)
+            prefix_1_enc = bytes('\x01', self.encoding)
         else:
-            prefix_0_dec, prefix_0_enc = '', bytes()
-            prefix_1_dec, prefix_1_enc = '', bytes()
+            prefix_0_dec = ''
+            prefix_1_dec = ''
+            prefix_0_enc = bytes()
+            prefix_1_enc = bytes()
 
         # Make encoding funtion
         if self.raw_bytes:
@@ -97,7 +101,7 @@ class HashEngine:
                     if isinstance(left, bytes):
                         data = prefix_0_enc + left
                     else:
-                        data = prefix_0_enc + bytes(left, encoding)
+                        data = prefix_0_enc + bytes(left, self.encoding)
                 else:
                     data = prefix_1_enc + left + prefix_1_enc + right
                 return data
@@ -106,22 +110,20 @@ class HashEngine:
                 if not right:
                     if isinstance(left, bytes):
                         try:
-                            left_decoded = left.decode(encoding)
+                            left = left.decode(self.encoding)
                         except UnicodeDecodeError:
                             raise UndecodableArgumentError
-                        data = bytes(prefix_0_dec + left_decoded,
-                                     encoding=encoding)
+                        data = bytes(prefix_0_dec + left, self.encoding)
                     else:
-                        data = bytes(prefix_0_dec + left, encoding)
+                        data = bytes(prefix_0_dec + left, self.encoding)
                 else:
                     try:
-                        left_decoded = left.decode(encoding)
-                        right_decoded = right.decode(encoding)
+                        left = left.decode(self.encoding)
+                        right = right.decode(self.encoding)
                     except UnicodeDecodeError:
                         raise UndecodableArgumentError
-                    data = bytes(prefix_1_dec + left_decoded +
-                                 prefix_1_dec + right_decoded,
-                                 encoding=encoding)
+                    data = bytes(prefix_1_dec + left + prefix_1_dec + right,
+                                 self.encoding)
                 return data
 
         return encode_func
@@ -142,17 +144,17 @@ class HashEngine:
                 provided arguments
         :rtype: bytes
         """
-        data = self.encode(left, right)
-        hexdigest = self.algorithm(data).hexdigest()
+        bytestring = self.concatenate(left, right)
+        checksum = self.algorithm(bytestring).hexdigest()
 
-        return bytes(hexdigest, self.encoding)
+        return checksum.encode(self.encoding)
 
-    def multi_hash(self, signed_hashes, start):
+    def multi_hash(self, path, offset):
         """Extended hash utility
 
         Repeatedly applies the *.hash()* method over the provided iterable of
         signed hashes (signs indicating childhetization during repetition and
-        *start* indicating starting position of application).
+        *offset* indicating starting position of application).
         Schematically speaking,
 
         ``multi_hash([(1, a), (1, b), (-1, c), (-1, d)], 1)``
@@ -164,52 +166,54 @@ class HashEngine:
         .. note:: If the provided iterable contains only one element, then this
             single hash is returned (without sign), that is,
 
-                 ``multi_hash(signed_hashes=((+/-1, a)), start=0)``
+                 ``multi_hash(((+/-1, a)), 0)``
 
             equals ``a`` (no hashing over single elements)
 
         .. warning:: When using this method, make sure that the combination of
                 signs corresponds indeed to a valid childhetization
 
-        :param signed_hashes: a finite sequence of signed hashes
-        :type signed_hashes: iterable of (+1/-1, bytes)
-        :param start: starting position for application of *.hash()*
-        :type start: int
+        :param path: a finite sequence of signed hashes
+        :type path: iterable of (+1/-1, bytes)
+        :param offset: starting position for application of *.hash()*
+        :type offset: int
         :rtype: bytes
 
         :raises EmptyPathException: if the provided sequence was empty
         """
         hash = self.hash
 
-        signed_hashes = list(signed_hashes)
-        if signed_hashes == []:
+        path = list(path)
+        if path == []:
             raise EmptyPathException
-        elif len(signed_hashes) == 1:
-            return signed_hashes[0][1]
+        elif len(path) == 1:
+            return path[0][1]
 
-        i = start
-        while len(signed_hashes) > 1:
-            if signed_hashes[i][0] == +1:
+        i = offset
+        while len(path) > 1:
+
+            if path[i][0] == +1:
+
                 # Pair with the right neighbour
                 if i == 0:
-                    new_sign = +1
+                    sign = +1
                 else:
-                    new_sign = signed_hashes[i + 1][0]
-                new_hash = hash(
-                    signed_hashes[i][1],
-                    signed_hashes[i + 1][1])
+                    sign = path[i + 1][0]
+                checksum = hash(path[i][1], path[i + 1][1])
                 move = +1
+
             else:
+
                 # Pair with left neighbour
-                new_sign = signed_hashes[i - 1][0]
-                new_hash = hash(
-                    signed_hashes[i - 1][1],
-                    signed_hashes[i][1])
+                sign = path[i - 1][0]
+                checksum = hash(path[i - 1][1], path[i][1])
                 move = -1
-            signed_hashes[i] = (new_sign, new_hash)
+
+            path[i] = (sign, checksum)
+
             # Shrink
-            del signed_hashes[i + move]
+            del path[i + move]
             if move < 0:
                 i -= 1
 
-        return signed_hashes[0][1]
+        return path[0][1]

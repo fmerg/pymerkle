@@ -53,12 +53,12 @@ class Prover(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def find_index(self, checksum):
+    def _detect_offset(self, checksum):
         """
         """
 
     @abstractmethod
-    def multi_hash(self, signed_hashes, start):
+    def multi_hash(self, path, offset):
         """
         """
 
@@ -195,13 +195,14 @@ class Prover(metaclass=ABCMeta):
         """Response of the Merkle-tree to the request of providing an
         audit proof based upon the provided checksum
 
-        :param checksum: Checksum which the requested proof is to be based upon
+        :param checksum: checksum which the requested proof should be based
+            upon
         :type checksum: bytes
         :rtype: MerkleProof
         """
         offset = -1
         path = ()
-        offset = self.find_index(checksum)
+        offset = self._detect_offset(checksum)
         try:
             offset, path = self.generate_audit_path(offset)
         except NoPathException:

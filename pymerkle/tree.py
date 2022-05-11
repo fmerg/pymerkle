@@ -223,11 +223,11 @@ class MerkleTree(HashEngine, Prover):
                 new_parent.set_parent(old_parent)
 
                 # Recalculate hashes only at the rightmost branch of the tree
-                current_node = old_parent
+                curr = old_parent
                 while True:
-                    current_node.recalculate_hash(hash_func=self.hash)
+                    curr.recalculate_hash(hash_func=self.hash)
                     try:
-                        current_node = current_node.parent
+                        curr = curr.parent
                     except NoParentException:
                         break
         else:
@@ -260,50 +260,52 @@ class MerkleTree(HashEngine, Prover):
             raise NoPathException
 
         try:
-            current_node = self.leaves[offset]
+            curr = self.leaves[offset]
         except IndexError:
             raise NoPathException  # Covers also the empty tree case
 
         initial_sign = +1
-        if current_node.is_right_child():
+        if curr.is_right_child():
             initial_sign = -1
-        path = [(initial_sign, current_node.digest)]
-        append = path.append
-        start = 0
+        path = [(initial_sign, curr.digest)]
+
+        offset = 0
         while True:
             try:
-                current_parent = current_node.parent
+                parent = curr.parent
             except NoParentException:
                 break
-            if current_node.is_left_child():
-                next_digest = current_parent.right.digest
-                if current_parent.is_left_child():
-                    append((+1, next_digest))
+            if curr.is_left_child():
+                checksum = parent.right.digest
+                if parent.is_left_child():
+                    sign = +1
                 else:
-                    append((-1, next_digest))
+                    sign = -1
+                path.append((sign, checksum))
             else:
-                next_digest = current_parent.left.digest
-                if current_parent.is_right_child():
-                    path.insert(0, (-1, next_digest))
+                checksum = parent.left.digest
+                if parent.is_right_child():
+                    sign = -1
                 else:
-                    path.insert(0, (+1, next_digest))
-                start += 1
-            current_node = current_parent
+                    sign = +1
+                path.insert(0, (sign, checksum))
+                offset += 1
+            curr = parent
 
-        return start, tuple(path)
+        return offset, tuple(path)
 
-    def find_index(self, checksum):
-        """Detects the (zero-based) index of the leftmost leaf which stores the
-        provided checksum
+    def _detect_offset(self, checksum):
+        """Returns the (zero-based) index of the leftmost leaf storing the
+        provided checksum.
 
-        :type: bytes
+        .. note:: Returns -1 if no such leaf node exists.
+
+        :param checksum:
+        :type checksum: bytes
+        :rtype: int
         """
-        # Detect the index of the first leaf storing the provided checksum;
-        # if no such leaf exists (i.e., the inserted argument has not been
-        # encrypted into the tree), leave index equal to -1 so that an
-        # appropriate NoPathException be subsequently raised
         offset = -1
-        count = 0
+        curr = 0
         leaves = (leaf for leaf in self.leaves)
         while True:
             try:
@@ -311,9 +313,9 @@ class MerkleTree(HashEngine, Prover):
             except StopIteration:
                 break
             if checksum == leaf.digest:
-                offset = count
+                offset = curr
                 break
-            count += 1
+            curr += 1
 
         return offset
 
@@ -349,12 +351,11 @@ class MerkleTree(HashEngine, Prover):
         right_subroots = self.minimal_complement(left_subroots)
         all_subroots = left_subroots + right_subroots
         if not right_subroots or not left_subroots:
-            # Reset all signs to minus
+            # Reset all signs to minus and start hashing from rightmost
             all_subroots = [(-1, _[1]) for _ in all_subroots]
-            # Will start multi-hashing from rightmost
             offset = len(all_subroots) - 1
         else:
-            # Will start multi-hashing from midpoint
+            # Start hashing from midpoint
             offset = len(left_subroots) - 1
 
         # Collect sign-hash pairs
@@ -376,7 +377,6 @@ class MerkleTree(HashEngine, Prover):
             return self.principal_subroots(self.length)
 
         complement = []
-        append = complement.append
         while True:
             try:
                 subroots[-1][1].parent
@@ -386,9 +386,10 @@ class MerkleTree(HashEngine, Prover):
             subroot = subroots[-1][1]
             if subroot.is_left_child():
                 if subroot.parent.is_right_child():
-                    append((-1, subroot.parent.right))
+                    sign = -1
                 else:
-                    append((+1, subroot.parent.right))
+                    sign = +1
+                complement.append((sign, subroot.parent.right))
                 subroots = subroots[:-1]
             else:
                 subroots = subroots[:-2]
@@ -417,13 +418,12 @@ class MerkleTree(HashEngine, Prover):
             # Mask negative input as incompatiblitity
             raise NoPrincipalSubroots
 
-        principal_subroots = []
-        append = principal_subroots.append
+        principals = []
         powers = decompose(sublength)
-        start = 0
+        offset = 0
         for power in powers:
             try:
-                subroot = self.subroot(start, power)
+                subroot = self.subroot(offset, power)
             except NoSubtreeException:
                 # Incompatibility issue detected
                 raise NoPrincipalSubroots
@@ -433,30 +433,31 @@ class MerkleTree(HashEngine, Prover):
                 grandparent = parent.parent
             except NoParentException:
                 if subroot.is_left_child():
-                    append((+1, subroot))
+                    sign = +1
                 else:
-                    append((-1, subroot))
+                    sign = -1
             else:
                 if parent.is_left_child():
-                    append((+1, subroot))
+                    sign = +1
                 else:
-                    append((-1, subroot))
+                    sign = -1
             finally:
-                start += 2 ** power
+                principals.append((sign, subroot))
+                offset += 2 ** power
 
-        if len(principal_subroots) > 0:
+        if len(principals) > 0:
             # Modify last sign
-            principal_subroots[-1] = (+1, principal_subroots[-1][1])
+            principals[-1] = (+1, principals[-1][1])
 
-        return principal_subroots
+        return principals
 
-    def subroot(self, start, height):
+    def subroot(self, offset, height):
         """Detects the root of the unique full binary subtree with leftmost
-        leaf located at position *start* and height equal to *height*.
+        leaf located at position *offset* and height equal to *height*.
 
-        :param start: leaf position (zero based) where detection of
+        :param offset: leaf position (zero based) where detection of
                 subtree should start from
-        :type start: int
+        :type offset: int
         :param height: height of candidate subtree to be detected
         :type height: int
         :returns: Root of the detected subtree
@@ -467,7 +468,7 @@ class MerkleTree(HashEngine, Prover):
         """
         # Detect candidate subroot
         try:
-            subroot = self.leaves[start]
+            subroot = self.leaves[offset]
         except IndexError:
             raise NoSubtreeException
         i = 0
