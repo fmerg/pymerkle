@@ -77,7 +77,7 @@ Defense against second-preimage attack
 Contrary to the `bitcoin`_
 specification for Merkle-trees, lonely leaves are not duplicated while the tree is grwoing.
 Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
-(see _Tree structure_ below). As a consequence, the present implementation should be
+(see *Tree structure* below). As a consequence, the present implementation should be
 invulnerable to the DOS attack reported as `CVE-2012-2459`_ (see also
 `here`_ for explanation).
 
@@ -90,7 +90,7 @@ the same number of leaves have identical structure independently of their
 growing strategy. This is important for efficient generation of consistency proofs
 (based on additive decompositions in decreasing powers of 2) and efficient
 recalculation of the root-hash (since only the hashes at the tree's rightmost
-branch need be recalculated upon any update).
+branch need be recalculated upon any appending new leaves).
 
 The topology turns out to be identical with that of a binary *Sekura
 tree*, depicted in Section 5.4 of `this`_ paper.

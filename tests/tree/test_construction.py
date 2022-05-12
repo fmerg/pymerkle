@@ -7,7 +7,7 @@ from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
                                  UnsupportedEncoding, UndecodableRecord, )
 
 
-undecodableArguments = [
+undecodables = [
     (b'\xc2', 'ascii', True),
     (b'\xc2', 'ascii', False),
     (b'\x72', 'cp424', True),
@@ -73,7 +73,7 @@ def test_UnsupportedEncoding():
         MerkleTree(encoding='anything unsupported...')
 
 
-@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
+@pytest.mark.parametrize('byte, encoding, security', undecodables)
 def test_UndecodableRecord_upon_tree_construction(byte, encoding, security):
     with pytest.raises(UndecodableRecord):
         config = {'encoding': encoding, 'security': security,
@@ -127,13 +127,13 @@ def test_root_hash_of_non_empty_MerkleTree():
         s.root_hash == s.hash(s.hash('first record'), s.hash('second record'))
 
 
-@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
-def test_UndecodableRecord_upon_update(byte, encoding, security):
+@pytest.mark.parametrize('byte, encoding, security', undecodables)
+def test_UndecodableRecord_upon_encrypt(byte, encoding, security):
     config = {'encoding': encoding, 'security': security,
               'raw_bytes': False}
     t = MerkleTree.init_from_records('a', 'b', 'c', config=config)
     with pytest.raises(UndecodableRecord):
-        t.update(byte)
+        t.encrypt(byte)
 
 
 def test_properties_of_empty_tree():

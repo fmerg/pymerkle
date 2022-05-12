@@ -65,7 +65,7 @@ raising an ``UndecodableRecord`` error instead:
 
     >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
     >>>
-    >>> tree.update(b'\x74')
+    >>> tree.encrypt(b'\x74')
     Traceback (most recent call last):
     ...    raise UndecodableRecord
     pymerkle.exceptions.UndecodableRecord

@@ -1,5 +1,5 @@
-"""Provides the class for Merkle-trees containing the low-level algorithms
-of proof generation
+"""
+Provides abstract interfaces and concrete implementations for Merkle-trees
 """
 
 import json
@@ -41,6 +41,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     Encryption and prover interface for Merkle-trees.
     """
 
+    def __init__(self, hash_type='sha256', encoding='utf-8', raw_bytes=True,
+                 security=True):
+
+        HashEngine.__init__(self, hash_type, encoding, raw_bytes, security)
+
     @property
     @abstractmethod
     def length(self):
@@ -49,11 +54,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     @abstractmethod
     def _detect_offset(self, checksum):
-        """
-        """
-
-    @abstractmethod
-    def update(self, record):
         """
         """
 
@@ -93,11 +93,24 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :raises UndecodableRecord: if the tree does not accept arbitrary bytes
             and the provided record is out of its configured encoding type
+        TODO
+        Updates the Merkle-tree by storing the digest of the inserted record
+        into a newly-created leaf. Restructures the tree appropriately and
+        recalculates appropriate interior hashes
+
+        :param record: [optional] The record whose digest is to be stored into
+                    a new leaf
+        :type record:  str or bytes
+
+        :raises UndecodableRecord: if *raw_modes* is disabled and the provided
+            record is not compatible with the tree's encoding type.
         """
         try:
-            self.update(record)
+            new_leaf = Leaf.from_record(record, self.hash, self.encoding)
         except UndecodableRecord:
             raise
+
+        self.append_leaf(new_leaf)
 
     def encrypt_file_content(self, filepath):
         """Encrypts the provided file as a single new leaf into the Merkle-tree.
@@ -122,7 +135,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                 )
             ) as buff:
                 try:
-                    self.update(buff.read())
+                    self.encrypt(buff.read())
                 except UndecodableRecord:
                     raise
 
@@ -175,10 +188,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         # Perform line by line encryption
         tqdm.write('')
-        update = self.update
+        encrypt = self.encrypt
         for record in tqdm(
                 records, desc='Encrypting file per line', total=len(records)):
-            update(record)
+            encrypt(record)
         tqdm.write('Encryption complete\n')
 
     def generate_audit_proof(self, checksum, commit=False):
@@ -230,27 +243,21 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
 class MerkleTree(BaseMerkleTree):
     """
-    Concrete Merkle-tree implementation
+    Concrete Merkle-tree implementation.
 
-    :param hash_type: [optional] Specifies the Merkle-tree's hashing algorithm.
-                    Defaults to *sha256*.
+    :param hash_type: [optional] Specifies the tree's hashing algorithm.
+        Defaults to *sha256*.
     :type hash_type: str
-    :param encoding: [optional] Specifies the Merkle-tree's encoding type.
-                    Defaults to *utf_8*.
+    :param encoding: [optional] Specifies the tree's encoding type. Defaults to
+        *utf_8*.
     :type encoding: str
-    :param raw_bytes: [optional] Specifies whether the Merkle-tree will accept
-                raw binary data (independently of its configured encoding
-                type). Defaults to *True*.
+    :param raw_bytes: [optional] Specifies whether the tree will accept
+        arbitrary binary data independently of its encoding type. Defaults to
+        *True*.
     :type raw_bytes: bool
     :param security: [optional Specifies if defense against second-preimage
-                attack is enabled. Defaults to *True*.
+        attack will be enabled. Defaults to *True*.
     :type security: bool
-
-    :ivar uuid: (*str*) uuid of the Merkle-tree (time-based)
-    :ivar hash_type: (*str*) See the constructor's homonymous argument
-    :ivar encoding: (*str*) See the constructor's homonymous argument
-    :ivar raw_bytes: (*bool*) See the constructor's homonymous argument
-    :ivar security: (*bool*) See the constructor's homonymous argument
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
@@ -259,32 +266,44 @@ class MerkleTree(BaseMerkleTree):
         self.uuid = generate_uuid()
         self.leaves = []
         self.nodes = set()
+
         super().__init__(hash_type, encoding, raw_bytes, security)
+
+    def get_config(self):
+        """
+        Returns the configuration of the Merkle-tree, containing the parameters
+        ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+
+        :rtype: dict
+        """
+        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+                'raw_bytes': self.raw_bytes, 'security': self.security}
 
     @classmethod
     def init_from_records(cls, *records, config=None):
         """
+        Create Merkle-tree from initial records.
+
+        :param records: Initial records to encrypt into the Merkle-tree.
+        :type records: iterable of bytes or str
+        :param config: Configuration of tree. Must contain a subset of keys
+            ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+        :type config: dict
+
+        :raises UndecodableRecord: if *raw_modes* is disabled and any of the
+            provided record is not compatible with the tree's encoding type.
         """
-        if not config:
-            config = {}
+        config = {} if not config else config
         tree = cls(**config)
+
         for record in records:
-            try:
-                tree.update(record)
-            except UndecodableRecord:
-                raise
+            tree.encrypt(record)
+
         return tree
 
-    def get_config(self):
-        return {
-            'hash_type': self.hash_type,
-            'encoding': self.encoding,
-            'raw_bytes': self.raw_bytes,
-            'security': self.security,
-        }
-
     def clear(self):
-        """Deletes all nodes of the Merkle-tree
+        """
+        Deletes all nodes of the Merkle-tree.
         """
         self.leaves = []
         self.nodes = set()
@@ -302,10 +321,11 @@ class MerkleTree(BaseMerkleTree):
 
     @property
     def root(self):
-        """Current root of the Merkle-tree
+        """
+        Current root of the Merkle-tree.
 
-        :returns: The tree's current root-node
-        :rtype: Leaf or Node
+        :returns: The tree's current root-node.
+        :rtype: Node
 
         :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
@@ -374,26 +394,6 @@ class MerkleTree(BaseMerkleTree):
 
         return log_2(length)
 
-
-    def update(self, record):
-        """Updates the Merkle-tree by storing the digest of the inserted record
-        into a newly-created leaf. Restructures the tree appropriately and
-        recalculates appropriate interior hashes
-
-        :param record: [optional] The record whose digest is to be stored into
-                    a new leaf
-        :type record:  str or bytes
-        :raises UndecodableRecord: if the Merkle-tree is not in raw-bytes mode
-            and the provided record does not fall under its configured type
-        """
-        try:
-            new_leaf = Leaf.from_record(record, self.hash, self.encoding)
-        except UndecodableRecord:
-            raise
-
-        self.append_leaf(new_leaf)
-
-
     def _get_last_subroot(self):
         """
         Returns the root of the *full* binary subtree with maximum possible
@@ -456,7 +456,7 @@ class MerkleTree(BaseMerkleTree):
         :raises NoPathException: if the provided offset exceed's the tree's
             current length
         """
-        if offset  < 0:
+        if offset < 0:
             # Handle negative offset case as NoPathException, since
             # certain negative indices might otherwise be
             # considered as valid positions

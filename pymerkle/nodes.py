@@ -283,6 +283,8 @@ class Leaf(Node):
 class NodeSerializer(json.JSONEncoder):
 
     def default(self, obj):
+        """
+        """
         try:
             digest = obj.digest
             encoding = obj.encoding
