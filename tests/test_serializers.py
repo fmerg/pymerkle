@@ -2,7 +2,7 @@ import pytest
 
 from pymerkle.prover import MerkleProofSerialilzer
 from pymerkle.tree import MerkleTreeSerializer
-from pymerkle.core.nodes import NodeSerializer
+from pymerkle.nodes import NodeSerializer
 
 
 @pytest.mark.parametrize('serializer', [MerkleTreeSerializer(),

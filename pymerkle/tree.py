@@ -16,7 +16,7 @@ from pymerkle.exceptions import (EmptyTreeException,
                                  NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison,
                                  WrongJSONFormat, UndecodableRecord)
-from pymerkle.core.nodes import Node, Leaf
+from pymerkle.nodes import Node, Leaf
 
 
 NONE_BAR = '\n └─[None]'

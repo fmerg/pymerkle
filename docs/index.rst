@@ -102,7 +102,6 @@ tree*, depicted in Section 5.4 of `this`_ paper.
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
 .. _CVE-2012-2459: https://nvd.nist.gov/vuln/detail/CVE-2012-2459
 .. _this: https://keccak.team/files/Sakura.pdf
-.. _.update: https://pymerkle.readthedocs.io/en/latest/_modules/pymerkle/core/tree.html#MerkleTree.update
 
 
 Examples

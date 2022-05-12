@@ -36,7 +36,7 @@ which returns ``None`` for the empty case.
 Generation
 ==========
 
-The produced ``proof`` is an instance of the `MerkleProof`_ class. It consists of a
+The produced ``proof`` is an instance of the ``MerkleProof`` class. It consists of a
 path of hashes and the required parameters for verification to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
 
@@ -78,8 +78,6 @@ client's side. Invoking it from the Python interpreter, it looks like
         -------------------------------- END OF PROOF --------------------------------
 
     >>>
-
-.. _MerkleProof: https://pymerkle.readthedocs.io/en/latest/pymerkle.core.html#pymerkle.core.prover.MerkleProof
 
 .. note:: Once generated, it is impossible to discern whether a `MerkleProof`_ object
     is the result of an audit or a consistency proof request.

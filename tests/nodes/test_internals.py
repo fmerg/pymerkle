@@ -4,7 +4,7 @@ Tests construction and properies of nodes
 
 import pytest
 
-from pymerkle.core.nodes import Node, Leaf, NODE_TEMPLATE
+from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 from pymerkle.exceptions import NoAncestorException, UndecodableRecord
 
