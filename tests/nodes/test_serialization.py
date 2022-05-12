@@ -28,29 +28,29 @@ node34 = Node.from_children(leaf3, leaf4, hash_func, encoding)
 root = Node.from_children(node12, node34, hash_func, encoding)
 
 
-@pytest.mark.parametrize("leaf", (leaf1, leaf2, leaf3, leaf4))
+@pytest.mark.parametrize('leaf', (leaf1, leaf2, leaf3, leaf4))
 def test___repr__for_leafs_with_parent(leaf):
-    assert leaf.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(leaf))),
-                                                   left_id='[None]',
-                                                   right_id='[None]',
-                                                   parent_id=str(hex(id(leaf.parent))),
+    assert leaf.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(leaf))),
+                                                   left='[None]',
+                                                   right='[None]',
+                                                   parent=str(hex(id(leaf.parent))),
                                                    checksum=leaf.digest.decode(leaf.encoding))
 
 
-@pytest.mark.parametrize("node", (node12, node34))
+@pytest.mark.parametrize('node', (node12, node34))
 def test___repr__for_nodes_with_parent(node):
-    assert node.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(node))),
-                                                   left_id=str(hex(id(node.left))),
-                                                   right_id=str(hex(id(node.right))),
-                                                   parent_id=str(hex(id(node.parent))),
+    assert node.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(node))),
+                                                   left=str(hex(id(node.left))),
+                                                   right=str(hex(id(node.right))),
+                                                   parent=str(hex(id(node.parent))),
                                                    checksum=node.digest.decode(node.encoding))
 
 
 def test___repr__for_node_without_parent():
-    assert root.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(root))),
-                                                   left_id=str(hex(id(root.left))),
-                                                   right_id=str(hex(id(root.right))),
-                                                   parent_id='[None]',
+    assert root.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(root))),
+                                                   left=str(hex(id(root.left))),
+                                                   right=str(hex(id(root.right))),
+                                                   parent='[None]',
                                                    checksum=root.digest.decode(root.encoding))
 
 

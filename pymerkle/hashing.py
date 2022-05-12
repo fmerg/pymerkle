@@ -1,4 +1,5 @@
-"""Provides hash utilities used accross the *pymerkle* library
+"""
+Provides the underlying hashing engine of Merkle-trees and verifiers.
 """
 
 import hashlib
@@ -28,7 +29,8 @@ SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
 
 
 class HashEngine:
-    """Encapsulates the hash utilities used accross the *pymerkle* library
+    """
+    Encapsulates the hashing functionality for Merkle-trees and verifiers.
 
     :param hash_type: [optional] Specifies the hash algorithm used by the
             engine. Defaults to *sha256*.
@@ -48,12 +50,6 @@ class HashEngine:
                         contained in *SUPPORTED_ENCODINGS*.
     :raises UnsupportedHashType: if the provided hash-type is not
                         contained in *SUPPORTED_HASH_TYPES*.
-
-    :ivar algorithm: (*builtin_function_or_method*) Hash algorithm used
-                    by the engine
-    :ivar encoding: (*str*) See the constructor's homonymous argument
-    :ivar raw_bytes: (*bool*) See the constructor's homonymous argument
-    :ivar security: (*bool*) See the constructor's homonymous argument
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
@@ -78,9 +74,9 @@ class HashEngine:
         self.concatenate = self._mk_encode_func()
 
     def _mk_encode_func(self):
-        """Constructs the encoding functionality of the present engine in
-        accordance with its initial configuration (*encoding type*, *raw-bytes*
-        mode and *security* mode)
+        """
+        Constructs the encoding functionality of the present engine in
+        accordance with its initial configuration.
         """
         # Resolve security prefices
         if self.security:
@@ -129,8 +125,7 @@ class HashEngine:
         return encode_func
 
     def hash(self, left, right=None):
-        """Core hash utility
-
+        """
         Computes the digest of the provided arguments' concatenation. If only
         one argument is passed in, then the disgest of this single argument
         is computed.
@@ -150,12 +145,10 @@ class HashEngine:
         return checksum.encode(self.encoding)
 
     def multi_hash(self, path, offset):
-        """Extended hash utility
-
-        Repeatedly applies the *.hash()* method over the provided iterable of
-        signed hashes (signs indicating childhetization during repetition and
-        *offset* indicating starting position of application).
-        Schematically speaking,
+        """
+        Repeatedly applies the *hash()* method over the provided iterable of
+        signed hashes, where signs indicate parenthetization and *offset* is
+        the starting position. Schematically speaking,
 
         ``multi_hash([(1, a), (1, b), (-1, c), (-1, d)], 1)``
 
@@ -171,20 +164,18 @@ class HashEngine:
             equals ``a`` (no hashing over single elements)
 
         .. warning:: When using this method, make sure that the combination of
-                signs corresponds indeed to a valid childhetization
+                signs corresponds indeed to a valid parenthetization.
 
-        :param path: a finite sequence of signed hashes
+        :param path: sequence of signed hashes
         :type path: iterable of (+1/-1, bytes)
-        :param offset: starting position for application of *.hash()*
+        :param offset: starting position for hashing
         :type offset: int
         :rtype: bytes
 
         :raises EmptyPathException: if the provided sequence was empty
         """
-        hash = self.hash
-
         path = list(path)
-        if path == []:
+        if not path:
             raise EmptyPathException
         elif len(path) == 1:
             return path[0][1]
@@ -199,14 +190,16 @@ class HashEngine:
                     sign = +1
                 else:
                     sign = path[i + 1][0]
-                checksum = hash(path[i][1], path[i + 1][1])
+
+                checksum = self.hash(path[i][1], path[i + 1][1])
                 move = +1
 
             else:
 
                 # Pair with left neighbour
                 sign = path[i - 1][0]
-                checksum = hash(path[i - 1][1], path[i][1])
+
+                checksum = self.hash(path[i - 1][1], path[i][1])
                 move = -1
 
             path[i] = (sign, checksum)

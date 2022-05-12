@@ -699,7 +699,7 @@ class MerkleTree(HashEngine, Prover):
         except EmptyTreeException:
             return NONE_BAR
 
-        return root.__str__(indent=indent, encoding=self.encoding)
+        return root.__str__(indent=indent)
 
     def serialize(self):
         """Returns a JSON entity with the Merkle-trees's current characteristics

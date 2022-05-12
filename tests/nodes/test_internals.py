@@ -6,8 +6,7 @@ import pytest
 
 from pymerkle.core.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
-from pymerkle.exceptions import (NoAncestorException,
-                                 UndecodableRecord,)
+from pymerkle.exceptions import NoAncestorException, UndecodableRecord
 
 
 _ = HashEngine()
@@ -32,144 +31,100 @@ root = Node.from_children(node12, node34, hash_func, encoding)
 
 # Childless leaves tests
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_has_no_left_child(leaf):
     assert leaf.left is None
 
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_leaf_has_no_right_child(leaf):
     assert leaf.right is None
 
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_leaf_without_parent(leaf):
     assert leaf.parent is None
 
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_parentless_leaf_is_not_left_child(leaf):
-    """
-    Tests that ``.is_left_child`` returns ``False`` for a leaf without parent
-    """
     assert not leaf.is_left_child()
 
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_parentless_leaf_is_not_right_child(leaf):
-    """
-    Tests that ``.is_left_child`` returns ``False`` for a leaf without a parent
-    """
     assert not leaf.is_right_child()
 
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_parentless_leaf_no_ancestor_exception(leaf):
-    """
-    Tests that the appropriate exception is raised when the ancestor
-    of a chidless leaf is requested
-    """
     with pytest.raises(NoAncestorException):
         leaf.ancestor(degree=1)
 
 
-@pytest.mark.parametrize("leaf", pair_of_leaves)
+@pytest.mark.parametrize('leaf', pair_of_leaves)
 def test_parentless_leaf___repr__(leaf):
-    """
-    Tests that the representation of a parentless leaf has the expected format
-    """
-    assert leaf.__repr__() == NODE_TEMPLATE.format(self_id=str(hex(id(leaf))),
-                                                   left_id='[None]',
-                                                   right_id='[None]',
-                                                   parent_id='[None]',
+    assert leaf.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(leaf))),
+                                                   left='[None]',
+                                                   right='[None]',
+                                                   parent='[None]',
                                                    checksum=leaf.digest.decode(leaf.encoding))
-
-
-# Exception tests
 
 def test_root_has_no_parent():
     assert root.parent is None
 
 
-@pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4))
+@pytest.mark.parametrize('node', (leaf1, leaf2, leaf3, leaf4))
 def test_node_without_left(node):
     assert node.left is None
 
 
-@pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4))
+@pytest.mark.parametrize('node', (leaf1, leaf2, leaf3, leaf4))
 def test_node_without_right(node):
     assert node.left is None
 
-
-# Child-child relation tests
 
 @pytest.mark.parametrize("node, parent", ((leaf1, node12), (leaf2, node12),
                                           (leaf3, node34), (leaf4, node34),
                                           (node12, root), (node34, root)))
 def test_parent(node, parent):
-    """
-    Tests parent for all valid cases
-    """
     assert node.parent is parent
 
 
 @pytest.mark.parametrize("node, left",
                          ((node12, leaf1), (node34, leaf3), (root, node12)))
 def test_left_child(node, left):
-    """
-    Tests left child for all valid cases
-    """
     assert node.left is left
 
 
 @pytest.mark.parametrize("node, right",
                          ((node12, leaf2), (node34, leaf4), (root, node34)))
 def test_right_child(node, right):
-    """
-    Tests left child for all valid cases
-    """
     assert node.right is right
 
 
-@pytest.mark.parametrize("node", (leaf1, leaf3, node12))
+@pytest.mark.parametrize('node', (leaf1, leaf3, node12))
 def test_is_left_child(node):
-    """
-    Tests a node's property of being a left child
-    (excluding the possibility of being right child)
-    """
     assert node.is_left_child() and not node.is_right_child()
 
 
-@pytest.mark.parametrize("node", (leaf2, leaf4, node34))
+@pytest.mark.parametrize('node', (leaf2, leaf4, node34))
 def test_is_right_child(node):
-    """
-    Tests a node's property of being a right child
-    (excluding the possibility of being left child)
-    """
     assert node.is_right_child() and not node.is_left_child()
 
-
-# Descendancy tests
 
 @pytest.mark.parametrize("node, degree", ((leaf1, 3), (leaf2, 3),
                                           (leaf3, 3), (leaf4, 3),
                                           (node12, 2), (node34, 2),
                                           (root, 1)))
 def test_no_ancestor_exception(node, degree):
-    """
-    Tests that NoAncestorException is raised for the minimum
-    degree of descendancy exceeding all possibilities
-    """
     with pytest.raises(NoAncestorException):
         node.ancestor(degree=degree)
 
 
-@pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4,
+@pytest.mark.parametrize('node', (leaf1, leaf2, leaf3, leaf4,
                                   node12, node34, root))
 def test_zero_degree_ancestor(node):
-    """
-    Tests that zero degree descendancy points to the node itself
-    """
     assert node.ancestor(degree=0) is node
 
 
@@ -177,21 +132,13 @@ def test_zero_degree_ancestor(node):
                                             (leaf3, node34), (leaf4, node34),
                                             (node12, root), (node34, root)))
 def test_degree_one_ancestor(node, expected):
-    """
-    Tests descendancy of degree 1 for all valid cases
-    """
     assert node.ancestor(degree=1) is expected
 
 
-@pytest.mark.parametrize("node", (leaf1, leaf2, leaf3, leaf4))
+@pytest.mark.parametrize('node', (leaf1, leaf2, leaf3, leaf4))
 def test_degree_two_ancestor(node):
-    """
-    Tests descendancy of degree 2 for all valid cases
-    """
     assert node.ancestor(degree=2) is root
 
-
-# Recalculation tests
 
 def test_hash_recalculation():
     new_leaf = Leaf.from_record(b'new record...', hash_func, encoding)
@@ -248,29 +195,3 @@ bytesengines = [
     (b'\xc2', HashEngine(encoding='iso8859_8', raw_bytes=False, security=True)),
     (b'\xc2', HashEngine(encoding='iso8859_8', raw_bytes=False, security=False)),
 ]
-
-
-@pytest.mark.parametrize('byte, engine', bytesengines)
-def test_leaf_UndecodableRecord(byte, engine):
-    with pytest.raises(UndecodableRecord):
-        Leaf.from_record(byte, engine.hash, engine.encoding)
-
-
-@pytest.mark.parametrize('byte, engine', bytesengines)
-def test_node_UndecodableRecord(byte, engine):
-    with pytest.raises(UndecodableRecord):
-        left = Leaf.from_record(byte, engine.hash, engine.encoding)
-        _right = Leaf.from_record(byte, engine.hash, engine.encoding)
-        with pytest.raises(UndecodableRecord):
-            Node(left, _right, engine.encoding, engine.hash)
-
-
-@pytest.mark.parametrize('byte, engine', bytesengines)
-def test_hash_recalculation_UndecodableRecord(byte, engine):
-    with pytest.raises(UndecodableRecord):
-        left = Leaf.from_record('left record', engine.hash, engine.encoding)
-        right = Leaf.from_record('right record', engine.hash, engine.encoding)
-        node = Node.from_children(left, right, engine.hash, engine.encoding)
-        left = Leaf.from_record(byte, engine.hash, engine.encoding)
-        node.set_left(_left)
-        node.recalculate_hash(engine.hash)

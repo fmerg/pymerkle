@@ -1,16 +1,15 @@
-"""Provides classes for the Merkle-tree's leaves and internal nodes
+"""
+Provides node classes for the Merkle-tree data structure.
 """
 
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.exceptions import (NoAncestorException,
-                                 UndecodableArgumentError,
+from pymerkle.exceptions import (NoAncestorException, UndecodableArgumentError,
                                  UndecodableRecord)
 from pymerkle.utils import NONE
 import json
 
 
-# Prefices used for node and tree printing
 L_BRACKET_SHORT = '└─'
 L_BRACKET_LONG = '└──'
 T_BRACKET = '├──'
@@ -19,21 +18,36 @@ VERTICAL_BAR = '│'
 
 NODE_TEMPLATE = """
 
-    memid   : {self_id}
-    left    : {left_id}
-    right   : {right_id}
-    parent  : {parent_id}
+    memid   : {node}
+    left    : {left}
+    right   : {right}
+    parent  : {parent}
     hash    : {checksum}
 
 """
 
+
 class Node:
     """
-    Merkle-tree node
+    Merkle-tree node.
+
+    :param digest: The checksum to be stored by the node.
+    :type digest: bytes
+    :param encoding: encoding type to be used when decoding the
+            digest stored by the node.
+    :type encoding: str
+    :param parent: [optional] parent node. Defaults to *None*.
+    :type parent: Node
+    :param left: [optional] parent node. Defaults to *None*.
+    :type left: Node
+    :param right: [optional] right child. Defaults to *None*.
+    :type right: Node
+    :returns: Node storing the digest of the concatenation of the
+        provided nodes' checksums.
+    :rtype: Node
     """
 
     __slots__ = ('__digest', '__encoding', '__parent', '__left', '__right')
-
 
     def __init__(self, digest, encoding, parent=None, left=None, right=None):
         self.__digest = digest
@@ -42,21 +56,18 @@ class Node:
         self.__left = left
         self.__right = right
 
-        if left: left.__parent = self
-        if right: right.__parent = self
+        if left:
+            left.__parent = self
+        if right:
+            right.__parent = self
 
-    @classmethod
-    def from_children(cls, left, right, hash_func, encoding):
-        digest = hash_func(left.__digest, right.__digest)
-        return cls(digest, encoding, left=left, right=right, parent=None)
+    @property
+    def digest(self):
+        return self.__digest
 
     @property
     def encoding(self):
         return self.__encoding
-
-    @property
-    def parent(self):
-        return self.__parent
 
     @property
     def left(self):
@@ -65,6 +76,16 @@ class Node:
     @property
     def right(self):
         return self.__right
+
+    @property
+    def parent(self):
+        return self.__parent
+
+    def set_left(self, left):
+        self.__left = left
+
+    def set_right(self, right):
+        self.__right = right
 
     def set_parent(self, parent):
         self.__parent = parent
@@ -83,6 +104,29 @@ class Node:
 
         return self == parent.right
 
+    def is_leaf(self):
+        return isinstance(self, Leaf)
+
+    @classmethod
+    def from_children(cls, left, right, hash_func, encoding):
+        """
+        Construction of node from a given pair of nodes.
+
+        :param left: left child
+        :type left: Node
+        :param right: right child
+        :type right: Node
+        :returns: A node storing the digest of the concatenation of the
+            provided nodes' checksums
+        :rtype: Node
+
+        .. note:: No parent is specified during construction. Relation must be
+            set afterwards.
+        """
+        digest = hash_func(left.__digest, right.__digest)
+
+        return cls(digest, encoding, left=left, right=right, parent=None)
+
     def ancestor(self, degree):
         """
         Detects and returns the node that is *degree* steps upwards within
@@ -92,12 +136,12 @@ class Node:
                 of degree 1 is the node's parent, etc.
 
         :param degree: depth of ancenstry
-        :type degree:  int
-        :returns:      the ancestor corresdponding to the requested depth
-        :rtype:        Node
+        :type degree: int
+        :returns: the ancestor corresdponding to the requested degree
+        :rtype: Node
 
-        :raises NoAncestorException: if the provided degree
-            exceeds possibilities
+        :raises NoAncestorException: if the requested degree
+            exceeds possibilities.
         """
         if degree == 0:
             return self
@@ -107,114 +151,90 @@ class Node:
 
         return self.__parent.ancestor(degree - 1)
 
-    def __repr__(self):
-        """
-        Easily display info about the node when invoking at console.
-
-        .. warning:: Contrary to convention, the output of this implementation
-            is not insertable into the *eval()* builtin Python function
-        """
-        def memid(obj): return str(hex(id(obj)))
-
-        parent_id = NONE if not self.__parent else memid(self.__parent)
-        left_id = NONE if not self.__left else memid(self.__left)
-        right_id = NONE if not self.__right else memid(self.__right)
-
-        checksum = self.digest.decode(self.encoding)
-
-        return NODE_TEMPLATE.format(self_id=memid(self),
-                        left_id=left_id,
-                        right_id=right_id,
-                        parent_id=parent_id,
-                        checksum=checksum)
-
-    def __str__(self, encoding=None, level=0, indent=3, ignore=[]):
-        """
-        Designed so that inserting the node as an argument to the builtin
-        *print()* Python function displays the subtree of the Merkle-tree
-        whose root is the present node.
-
-        Sole purpose of this function is to be used for printing Merkle-trees
-        in a terminal friendly way (similar to what is printed at console when
-        running the ``tree`` command of Unix based platforms)
-
-        :param encoding: [optional] encoding type to be used for decoding
-                    the digest stored by the present node
-        :type encoding: str
-        :param level: [optional] Defaults to 0. Must be left equal to the
-                default value when called externally by the user. Increased by
-                1 whenever the function is recursively called, in order for
-                track be kept of depth while printing
-        :type level: int
-        :param indent: [optional] Defaults to 3. The horizontal depth at
-                    which each level of the tree will be indented with
-                    respect to the previous one. Increase to achieve
-                    better visibility of the tree's structure.
-        :type indent: int
-        :param ignore: [optional] Defaults to the empty list. Must be left
-                    equal to the *default* value when called externally by the
-                    user. Augmented appropriately whenever the function is
-                    recursively invoked, in order for track to be kept of the
-                    positions where vertical bars should be omitted.
-        :type ignore: list of integers
-        :rtype: str
-
-        .. note:: Left children appear above the right ones.
-        """
-        if level == 0:
-            output = '\n'
-            if not self.is_left_child() and not self.is_right_child():
-                output += f' {L_BRACKET_SHORT}'
-        else:
-            output = (indent + 1) * ' '
-        for _ in range(1, level):
-            if _ not in ignore:
-                output += f' {VERTICAL_BAR}'
-            else:
-                output += 2 * ' '
-            output += indent * ' '
-        new_ignore = ignore[:]
-        del ignore
-        if self.is_left_child():
-            output += f' {T_BRACKET}'
-        if self.is_right_child():
-            output += f' {L_BRACKET_LONG}'
-            new_ignore.append(level)
-        encoding = encoding if encoding else self.encoding
-        output += f'{self.digest.decode(encoding)}\n'
-        if not isinstance(self, Leaf):
-            output += self.left.__str__(encoding, level + 1,
-                                        indent, new_ignore)
-            output += self.right.__str__(encoding, level + 1,
-                                         indent, new_ignore)
-
-        return output
-
-    @property
-    def digest(self):
-        """
-        The checksum currently stored by the node.
-
-        :rtype: bytes
-        """
-        return self.__digest
-
-    def set_right(self, right):
-        self.__right = right
-
     def recalculate_hash(self, hash_func):
         """
-        Recalculates the node's digest under account of the (possibly new)
-        digests stored by its children.
+        Recalculates the node's digest under account of the possibly new
+        digests of its children.
 
         :param hash_func: hash function to be used for recalculation
         :type hash_func: method
         """
         self.__digest = hash_func(self.left.digest, self.right.digest)
 
+    def __repr__(self):
+        """
+        .. warning:: Contrary to convention, the output of this method is not
+            insertable into the *eval()* Python builtin function.
+        """
+        def memid(obj): return str(hex(id(obj)))
+
+        parent = NONE if not self.__parent else memid(self.__parent)
+        left = NONE if not self.__left else memid(self.__left)
+        right = NONE if not self.__right else memid(self.__right)
+        checksum = self.digest.decode(self.encoding)
+
+        return NODE_TEMPLATE.format(node=memid(self), parent=parent, left=left,
+                                    right=right, checksum=checksum)
+
+    def __str__(self, level=0, indent=3, ignored=None):
+        """
+        Designed so that printing the node amounts to printing the subtree
+        having the node as root (similar to what is printed as console when
+        running the ``tree`` command of Unix based platforms).
+
+        :param level: [optional] Defaults to 0. Must be left equal to the
+                default value when called externally by the user. Increased by
+                1 whenever the function is recursively called, in order to keep
+                track of depth while printing.
+        :type level: int
+        :param indent: [optional] Defaults to 3. The horizontal depth at
+                    which each level of the tree will be indented with
+                    respect to the previous one. Increase to achieve
+                    better visibility of the tree's structure.
+        :type indent: int
+        :param ignored: [optional] Defaults to the empty list. Must be left
+                    equal to the *default* value when called externally by the
+                    user. Augmented appropriately whenever the function is
+                    recursively invoked, in order to keep track of the
+                    positions where vertical bars should be omitted.
+        :type ignored: list of int
+        :rtype: str
+
+        .. note:: Left children appear above the right ones.
+        """
+        if level == 0:
+            out = '\n'
+            if not self.is_left_child() and not self.is_right_child():
+                out += f' {L_BRACKET_SHORT}'
+        else:
+            out = (indent + 1) * ' '
+
+        count = 1
+        if ignored is None:
+            ignored = []
+        while count < level:
+            out += f' {VERTICAL_BAR}' if count not in ignored else 2 * ' '
+            out += indent * ' '
+            count += 1
+
+        if self.is_left_child():
+            out += f' {T_BRACKET}'
+        if self.is_right_child():
+            out += f' {L_BRACKET_LONG}'
+            ignored.append(level)
+
+        checksum = self.digest.decode(self.encoding)
+        out += f'{checksum}\n'
+
+        if not self.is_leaf():
+            out += self.left.__str__(level + 1, indent, ignored)
+            out += self.right.__str__(level + 1, indent, ignored)
+
+        return out
+
     def serialize(self):
         """
-        Returns a JSON entity with the node's characteristics as key-value pairs.
+        Returns a JSON dictionary with the node's characteristics as key-value pairs.
 
         :rtype: dict
 
@@ -232,64 +252,19 @@ class Node:
         return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)
 
 
-class NodeSerializer(json.JSONEncoder):
-    """
-    Used implicitly in the JSON serialization of nodes.
-    """
-
-    def default(self, obj):
-        """
-        Overrides the built-in method of JSON encoders.
-        """
-        try:
-            left = obj.left
-            right = obj.right
-            digest = obj.digest
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-
-        return {
-            'left': left.serialize(),
-            'right': right.serialize(),
-            'hash': digest.decode(encoding=obj.encoding)
-        }
-
-
-class LeafSerializer(json.JSONEncoder):
-    """
-    Used implicitly in the JSON serialization of leafs.
-    """
-
-    def default(self, obj):
-        """
-        Overrides the built-in method of JSON encoders.
-        """
-        try:
-            encoding = obj.encoding
-            digest = obj.digest
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-
-        return {
-            'hash': digest.decode(encoding=obj.encoding)
-        }
-
-
 class Leaf(Node):
     """
-    Merkle-tree leaf node
+    Merkle-tree leaf node.
 
     :param digest: The checksum to be stored by the leaf.
     :type digest: bytes or str
     :param encoding: encoding type to be used when decoding the
-            digest stored by the leaf
+            digest stored by the leaf.
     :type encoding: str
     """
 
-    __slots__ = ('__digest',)
-
-
     def __init__(self, digest, encoding):
+
         if isinstance(digest, str):
             digest = digest.encode(encoding)
 
@@ -304,18 +279,24 @@ class Leaf(Node):
 
         return cls(digest, encoding)
 
-    def serialize(self):
-        """
-        Returns a JSON entity with the leaf's characteristics as key-value pairs.
 
-        :rtype: dict
-        """
-        return LeafSerializer().default(self)
+class NodeSerializer(json.JSONEncoder):
 
-    def toJSONtext(self):
-        """i
-        Returns a JSON text with the leaf's characteristics as key-value pairs.
+    def default(self, obj):
+        try:
+            digest = obj.digest
+            encoding = obj.encoding
+            left = obj.left
+            right = obj.right
+            digest = obj.digest
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
 
-        :rtype: str
-        """
-        return json.dumps(self, cls=LeafSerializer, sort_keys=True, indent=4)
+        serialized = {}
+        if left:
+            serialized['left'] = left.serialize()
+        if right:
+            serialized['right'] = right.serialize()
+
+        serialized['hash'] = digest.decode(encoding)
+        return serialized
