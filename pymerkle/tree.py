@@ -177,6 +177,7 @@ class MerkleTree(HashEngine, Prover):
 
         return log_2(length)
 
+
     def update(self, record):
         """Updates the Merkle-tree by storing the digest of the inserted record
         into a newly-created leaf. Restructures the tree appropriately and
@@ -195,41 +196,50 @@ class MerkleTree(HashEngine, Prover):
 
         self.append_leaf(new_leaf)
 
+
+    def _get_last_subroot(self):
+        """
+        Returns the root of the *full* binary subtree with maximum possible
+        length containing the rightmost leaf
+        """
+        last_power = decompose(len(self.leaves))[-1]
+        subroot = self.leaves[-1].ancestor(degree=last_power)
+
+        return subroot
+
     def append_leaf(self, leaf):
         """
         """
-        if self:
-            # Height and root of the *full* binary subtree with maximum
-            # possible length containing the rightmost leaf
-            last_power = decompose(len(self.leaves))[-1]
-            last_subroot = self.leaves[-1].ancestor(degree=last_power)
+        if not self:
+            self.leaves = [leaf]
+            self.nodes = set([leaf])
+            self.__root = leaf
+        else:
+            subroot = self._get_last_subroot()
 
             # Assimilate new leaf
             self.leaves.append(leaf)
             self.nodes.add(leaf)
-            old_parent = last_subroot.parent
-            if not old_parent:
-                # Last subroot was previously root
-                self.__root = Node.from_children(last_subroot, leaf, self.hash, self.encoding)
+
+            parent = subroot.parent
+            if not parent:
+                # Subroot was previously root
+                self.__root = Node.from_children(subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(self.__root)
             else:
                 # Create bifurcation node
-                new_parent = Node.from_children(last_subroot, leaf, self.hash, self.encoding)
-                self.nodes.add(new_parent)
+                new_node = Node.from_children(subroot, leaf, self.hash, self.encoding)
+                self.nodes.add(new_node)
 
                 # Interject bifurcation node
-                old_parent.set_right(new_parent)
-                new_parent.set_parent(old_parent)
+                parent.set_right(new_node)
+                new_node.set_parent(parent)
 
                 # Recalculate hashes only at the rightmost branch of the tree
-                curr = old_parent
+                curr = parent
                 while curr:
                     curr.recalculate_hash(hash_func=self.hash)
                     curr = curr.parent
-        else:
-            self.leaves = [leaf]
-            self.nodes = set([leaf])
-            self.__root = leaf
 
     def generate_audit_path(self, offset):
         """Low-level audit proof.
