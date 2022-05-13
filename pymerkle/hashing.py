@@ -141,8 +141,9 @@ class HashEngine:
         """
         bytestring = self.concatenate(left, right)
         checksum = self.algorithm(bytestring).hexdigest()
+        digest = checksum.encode(self.encoding)
 
-        return checksum.encode(self.encoding)
+        return digest
 
     def multi_hash(self, path, offset):
         """
@@ -191,7 +192,7 @@ class HashEngine:
                 else:
                     sign = path[i + 1][0]
 
-                checksum = self.hash(path[i][1], path[i + 1][1])
+                digest = self.hash(path[i][1], path[i + 1][1])
                 move = +1
 
             else:
@@ -199,10 +200,10 @@ class HashEngine:
                 # Pair with left neighbour
                 sign = path[i - 1][0]
 
-                checksum = self.hash(path[i - 1][1], path[i][1])
+                digest = self.hash(path[i - 1][1], path[i][1])
                 move = -1
 
-            path[i] = (sign, checksum)
+            path[i] = (sign, digest)
 
             # Shrink
             del path[i + move]

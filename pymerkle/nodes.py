@@ -31,7 +31,7 @@ class Node:
     """
     Merkle-tree node.
 
-    :param digest: The checksum to be stored by the node.
+    :param digest: the digest to be stored by the node.
     :type digest: bytes
     :param encoding: encoding type to be used when decoding the
             digest stored by the node.
@@ -43,7 +43,7 @@ class Node:
     :param right: [optional] right child. Defaults to *None*.
     :type right: Node
     :returns: Node storing the digest of the concatenation of the
-        provided nodes' checksums.
+        provided nodes' digests.
     :rtype: Node
     """
 
@@ -116,8 +116,8 @@ class Node:
         :type left: Node
         :param right: right child
         :type right: Node
-        :returns: A node storing the digest of the concatenation of the
-            provided nodes' checksums
+        :returns: a node storing the digest of the concatenation of the
+            provided nodes' digests.
         :rtype: Node
 
         .. note:: No parent is specified during construction. Relation must be
@@ -256,7 +256,7 @@ class Leaf(Node):
     """
     Merkle-tree leaf node.
 
-    :param digest: The checksum to be stored by the leaf.
+    :param digest: the digest to be stored by the leaf.
     :type digest: bytes or str
     :param encoding: encoding type to be used when decoding the
             digest stored by the leaf.

@@ -38,7 +38,7 @@ TREE_TEMPLATE = """
 
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
-    Encryption and prover interface for Merkle-trees.
+    Interfaces and abstract functionality for Merkle-trees.
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8', raw_bytes=True,
@@ -53,7 +53,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def _detect_offset(self, checksum):
+    def _detect_offset(self, digest):
         """
         """
 
@@ -85,25 +85,16 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     def encrypt(self, record):
-        """Updates the Merkle-tree by storing the checksum of the provided record
-        into a newly-created leaf.
+        """
+        Creates a new leaf node with the digest of the provided record and
+        appends it to the Merkle-tree by restructuring it and recalculating the
+        appropriate interior hashes.
 
-        :param record: Record whose checksum is to be stored into a new leaf
+        :param record: Record to encrypt.
         :type record: str or bytes
 
-        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided record is out of its configured encoding type
-        TODO
-        Updates the Merkle-tree by storing the digest of the inserted record
-        into a newly-created leaf. Restructures the tree appropriately and
-        recalculates appropriate interior hashes
-
-        :param record: [optional] The record whose digest is to be stored into
-                    a new leaf
-        :type record:  str or bytes
-
-        :raises UndecodableRecord: if *raw_modes* is disabled and the provided
-            record is not compatible with the tree's encoding type.
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided record is outside its configured encoding type.
         """
         try:
             new_leaf = Leaf.from_record(record, self.hash, self.encoding)
@@ -113,20 +104,19 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         self.append_leaf(new_leaf)
 
     def encrypt_file_content(self, filepath):
-        """Encrypts the provided file as a single new leaf into the Merkle-tree.
+        """
+        Creates a new leaf node with the digest of the file's content and
+        appends it to the Merkle-tree by restructuring it and recalculating the
+        appropriate interior hashes.
 
-        Updates the Merkle-tree with *one* newly-created leaf storing the
-        checksum of the provided file's content.
-
-        :param filepath: Relative path of the file under encryption with
-                respect to the current working directory
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
         :type filepath: str
 
-        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided files contains sequences out of the tree's
-            configured encoding type
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided file contains bytes outside its configured encoding type.
         """
-        with open(os.path.abspath(filepath), mode='r') as f:
+        with open(os.path.abspath(filepath), mode='rb') as f:
             with contextlib.closing(
                 mmap.mmap(
                     f.fileno(),
@@ -134,27 +124,29 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                     access=mmap.ACCESS_READ
                 )
             ) as buff:
+                # TODO: Should we remove newlines from content?
+                content = buff.read()
                 try:
-                    self.encrypt(buff.read())
+                    self.encrypt(content)
                 except UndecodableRecord:
                     raise
 
     def encrypt_file_per_line(self, filepath):
-        """Per line encryption of the provided file into the Merkle-tree.
+        """
+        Per line encryption of the provided file into the Merkle-tree.
 
-        Successively updates the tree with each line of the provided
-        file in respective order
+        For each line of the provided file, successively create a leaf storing
+        its digest and append ii to the tree by restructuring it and
+        realculating appropriate interior hashes.
 
-        :param filepath: Relative path of the file under enryption with
-            respect to the current working directory
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
         :type filepath: str
 
-        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided files contains sequences out of the tree's
-            configured encoding type
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided file contains bytes outside its configured encoding type.
         """
-        absolute_filepath = os.path.abspath(filepath)
-        with open(absolute_filepath, mode='r') as f:
+        with open(os.path.abspath(filepath), mode='rb') as f:
             buff = mmap.mmap(
                 f.fileno(),
                 0,
@@ -163,49 +155,55 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         # Extract lines
         records = []
-        readline = buff.readline
-        append = records.append
         if not self.raw_bytes:
             # Check that no line of the provided file is outside
             # the tree's encoding type and discard otherwise
             encoding = self.encoding
             while True:
-                record = readline()
+
+                # TODO: Should we string newline from content?
+                record = buff.readline()
                 if not record:
                     break
+
                 try:
                     record = record.decode(encoding)
                 except UnicodeDecodeError as err:
                     raise UndecodableRecord(err)
-                append(record)
+
+                records.append(record)
         else:
             # No need to check anything, just load all lines
             while True:
-                record = readline()
+
+                # TODO: Should we strip newline from content?
+                record = buff.readline()
                 if not record:
                     break
-                append(record)
 
-        # Perform line by line encryption
+                records.append(record)
+
+        # Line by line encryption
         tqdm.write('')
         encrypt = self.encrypt
-        for record in tqdm(
-                records, desc='Encrypting file per line', total=len(records)):
+        for record in tqdm(records, desc='Encrypting file per line',
+                           total=len(records)):
             encrypt(record)
+
         tqdm.write('Encryption complete\n')
 
-    def generate_audit_proof(self, checksum, commit=False):
+    def generate_audit_proof(self, digest, commit=False):
         """Response of the Merkle-tree to the request of providing an
-        audit proof based upon the provided checksum
+        audit proof based upon the provided digest.
 
-        :param checksum: checksum which the requested proof should be based
+        :param digest: digest which the requested proof should be based
             upon
-        :type checksum: bytes
+        :type digest: bytes
         :rtype: MerkleProof
         """
         offset = -1
         path = ()
-        offset = self._detect_offset(checksum)
+        offset = self._detect_offset(digest)
         try:
             offset, path = self.generate_audit_path(offset)
         except NoPathException:
@@ -501,14 +499,13 @@ class MerkleTree(BaseMerkleTree):
 
         return offset, tuple(path)
 
-    def _detect_offset(self, checksum):
+    def _detect_offset(self, digest):
         """Returns the (zero-based) index of the leftmost leaf storing the
-        provided checksum.
+        provided digest.
 
         .. note:: Returns -1 if no such leaf node exists.
 
-        :param checksum:
-        :type checksum: bytes
+        :type digest: bytes
         :rtype: int
         """
         offset = -1
@@ -519,7 +516,7 @@ class MerkleTree(BaseMerkleTree):
                 leaf = next(leaves)
             except StopIteration:
                 break
-            if checksum == leaf.digest:
+            if digest == leaf.digest:
                 offset = curr
                 break
             curr += 1
@@ -736,32 +733,35 @@ class MerkleTree(BaseMerkleTree):
             json.dump(self.serialize(), f, indent=4)
 
     @classmethod
-    def load_from_file(cls, filepath):
-        """Loads a Merkle-tree from the provided file, the latter being the result
-        of an export (cf. the *MerkleTree.export()* method)
+    def fromJSONFile(cls, filepath):
+        """
+        Loads a Merkle-tree from the provided JSON file, the latter being the
+        result of an export (cf. the MerkleTree ``export()`` method).
 
-        :param filepath: relative path of the file to load from with
-                respect to the current working directory
+        :param filepath: relative path of file with respect to the current
+            working directory.
         :type filepath: str
-        :returns: The tree loaded from the provided file
+        :returns: the loaded tree
         :rtype: MerkleTree
 
-        :raises WrongJSONFormat: if the JSON object loaded from within the
-                    provided file is not a Merkle-tree export
+        :raises WrongJSONFormat: if the provided JSON object is not
+            a Merkle-tree JSON export.
         """
         with open(filepath, 'r') as f:
             obj = json.load(f)
+
         try:
             header = obj['header']
+            digests = obj['hashes']
             tree = cls(**header)
         except KeyError:
             raise WrongJSONFormat
 
         tqdm.write('\nFile has been loaded')
-        append_leaf = tree.append_leaf
-        for checksum in tqdm(obj['hashes'], desc='Retrieving tree...'):
-            new_leaf = Leaf(checksum, tree.encoding)
-            append_leaf(new_leaf)
+        append = tree.append_leaf
+        for digest in tqdm(digests, desc='Retrieving tree...'):
+            leaf = Leaf(digest, tree.encoding)
+            append(leaf)
         tqdm.write('Tree has been retrieved')
 
         return tree
