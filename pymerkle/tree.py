@@ -46,6 +46,16 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         HashEngine.__init__(self, hash_type, encoding, raw_bytes, security)
 
+    def get_config(self):
+        """
+        Returns the configuration of the Merkle-tree, containing the parameters
+        ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+
+        :rtype: dict
+        """
+        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+                'raw_bytes': self.raw_bytes, 'security': self.security}
+
     @property
     @abstractmethod
     def length(self):
@@ -73,15 +83,26 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     def create_proof(self, offset, path, commit=False):
+        """
+        Creates a proof object for the provided path of hashes including the
+        configuration of the present tree as verification parameters.
+
+        :param offset: starting position of the verification procedure
+        :type offset: int
+        :param path: path of hashes
+        :type path: iterable of (+1/-1, bytes)
+        :param commit: [optional] Include current root-hash as commitment.
+            Defaults to *False*.
+        :type commit: bool
+        :returns: proof object consisting of the above components
+        :rtype: MerkleProof
+        """
+        params = self.get_config()
+        params.update({'provider': self.uuid})  # TODO
         commitment = self.get_root_hash() if commit else None
-        proof = MerkleProof(provider=self.uuid,
-                            hash_type=self.hash_type,
-                            encoding=self.encoding,
-                            security=self.security,
-                            raw_bytes=self.raw_bytes,
-                            commitment=commitment,
-                            offset=offset,
-                            path=path)
+
+        proof = MerkleProof(path=path, offset=offset, commitment=commitment,
+                            **params)
         return proof
 
     def encrypt(self, record):
@@ -266,16 +287,6 @@ class MerkleTree(BaseMerkleTree):
         self.nodes = set()
 
         super().__init__(hash_type, encoding, raw_bytes, security)
-
-    def get_config(self):
-        """
-        Returns the configuration of the Merkle-tree, containing the parameters
-        ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
-
-        :rtype: dict
-        """
-        return {'hash_type': self.hash_type, 'encoding': self.encoding,
-                'raw_bytes': self.raw_bytes, 'security': self.security}
 
     @classmethod
     def init_from_records(cls, *records, config=None):
