@@ -146,6 +146,52 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         self.append_leaf(leaf)
 
+    def generate_audit_proof(self, digest, commit=False):
+        """Response of the Merkle-tree to the request of providing an
+        audit proof based upon the provided digest.
+
+        :param digest: digest which the requested proof should be based
+            upon
+        :type digest: bytes
+        :rtype: MerkleProof
+        """
+        offset = -1
+        path = ()
+        offset = self._detect_offset(digest)
+        try:
+            offset, path = self.generate_audit_path(offset)
+        except NoPathException:
+            pass
+
+        proof = self.create_proof(offset, path, commit=commit)
+        return proof
+
+    def generate_consistency_proof(self, subhash, commit=False):
+        """Response of the Merkle-tree to the request of providing a consistency
+        proof for the acclaimed root-hash of some previous state
+
+        :param subhash: acclaimed root-hash of some previous
+            state of the Merkle-tree
+        :type subhash: bytes
+        :rtype: MerkleProof
+
+        """
+        offset = -1
+        path = ()
+        for sublength in range(1, self.length + 1):
+            try:
+                _offset, left_path, _path = self.generate_consistency_path(
+                    sublength)
+            except NoPathException:
+                continue
+            if subhash == self.multi_hash(left_path, len(left_path) - 1):
+                offset = _offset
+                path = _path
+                break
+
+        proof = self.create_proof(offset, path, commit=commit)
+        return proof
+
     def encrypt_file_content(self, filepath):
         """
         Creates a new leaf node with the digest of the file's content and
@@ -235,51 +281,54 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         tqdm.write('Encryption complete\n')
 
-    def generate_audit_proof(self, digest, commit=False):
-        """Response of the Merkle-tree to the request of providing an
-        audit proof based upon the provided digest.
-
-        :param digest: digest which the requested proof should be based
-            upon
-        :type digest: bytes
-        :rtype: MerkleProof
+    def export(self, filepath, indent=4):
         """
-        offset = -1
-        path = ()
-        offset = self._detect_offset(digest)
+        Exports the JSON serialization of the Merkle-tree into the provided
+        file.
+
+        .. warning:: The file is created if it does not exist. If the file
+            already exists then it will be overwritten.
+
+        :param filepath: relevant path of export file with respect to the
+            current working directory.
+        :type filepath: str
+        """
+        with open(filepath, 'w') as f:
+            json.dump(self.serialize(), f, indent=indent)
+
+    @classmethod
+    def fromJSONFile(cls, filepath):
+        """
+        Loads a Merkle-tree from the provided JSON file, the latter being the
+        result of an export (cf. the MerkleTree ``export()`` method).
+
+        :param filepath: relative path of file with respect to the current
+            working directory.
+        :type filepath: str
+        :returns: the loaded tree
+        :rtype: MerkleTree
+
+        :raises WrongJSONFormat: if the provided JSON object is not
+            the serialization of a Merkle-tree.
+        """
+        with open(filepath, 'r') as f:
+            obj = json.load(f)
+
         try:
-            offset, path = self.generate_audit_path(offset)
-        except NoPathException:
-            pass
+            header = obj['header']
+            digests = obj['hashes']
+            tree = cls(**header)
+        except KeyError:
+            raise WrongJSONFormat
 
-        proof = self.create_proof(offset, path, commit=commit)
-        return proof
+        tqdm.write('\nFile has been loaded')
+        append = tree.append_leaf
+        for digest in tqdm(digests, desc='Retrieving tree...'):
+            leaf = Leaf(digest, tree.encoding)
+            append(leaf)
+        tqdm.write('Tree has been retrieved')
 
-    def generate_consistency_proof(self, subhash, commit=False):
-        """Response of the Merkle-tree to the request of providing a consistency
-        proof for the acclaimed root-hash of some previous state
-
-        :param subhash: acclaimed root-hash of some previous
-                state of the Merkle-tree
-        :type subhash: bytes
-        :rtype: MerkleProof
-
-        """
-        offset = -1
-        path = ()
-        for sublength in range(1, self.length + 1):
-            try:
-                _offset, left_path, _path = self.generate_consistency_path(
-                    sublength)
-            except NoPathException:
-                continue
-            if subhash == self.multi_hash(left_path, len(left_path) - 1):
-                offset = _offset
-                path = _path
-                break
-
-        proof = self.create_proof(offset, path, commit=commit)
-        return proof
+        return tree
 
 
 class MerkleTree(BaseMerkleTree):
@@ -718,60 +767,6 @@ class MerkleTree(BaseMerkleTree):
                 break
 
         return included
-
-    def export(self, filepath):
-        """
-        Creates a *.json* file located at the provided path and exports into
-        it the required minimum, so that the Merkle-tree can be retrieved in
-        its current state from that file
-
-        .. note:: If the provided path does not end with *.json*, then this
-            extension will be automatically appended to it before exporting
-
-        .. warning:: If a file already exists at the provided path,
-                then it will be overwritten
-
-        :param filepath: relative path of the export file with respect to the
-                current working directory
-        :type filepath: str
-        """
-        with open(f'{filepath}.json' if not filepath.endswith('.json')
-                  else filepath, 'w') as f:
-            json.dump(self.serialize(), f, indent=4)
-
-    @classmethod
-    def fromJSONFile(cls, filepath):
-        """
-        Loads a Merkle-tree from the provided JSON file, the latter being the
-        result of an export (cf. the MerkleTree ``export()`` method).
-
-        :param filepath: relative path of file with respect to the current
-            working directory.
-        :type filepath: str
-        :returns: the loaded tree
-        :rtype: MerkleTree
-
-        :raises WrongJSONFormat: if the provided JSON object is not
-            a Merkle-tree JSON export.
-        """
-        with open(filepath, 'r') as f:
-            obj = json.load(f)
-
-        try:
-            header = obj['header']
-            digests = obj['hashes']
-            tree = cls(**header)
-        except KeyError:
-            raise WrongJSONFormat
-
-        tqdm.write('\nFile has been loaded')
-        append = tree.append_leaf
-        for digest in tqdm(digests, desc='Retrieving tree...'):
-            leaf = Leaf(digest, tree.encoding)
-            append(leaf)
-        tqdm.write('Tree has been retrieved')
-
-        return tree
 
     def __eq__(self, other):
         """Implements the ``==`` operator

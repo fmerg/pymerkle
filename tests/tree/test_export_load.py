@@ -7,24 +7,21 @@ from pymerkle import MerkleTree
 from pymerkle.exceptions import WrongJSONFormat
 
 
-exports_dir = os.path.join(os.path.dirname(__file__), 'exports')
-
 # Clean exports dir before running tests
-for f in glob.glob(os.path.join(exports_dir, '*.json')):
+exports_dir = os.path.join(os.path.dirname(__file__), 'exports')
+for f in glob.glob(os.path.join(exports_dir, '*')):
     os.remove(f)
-
-# Make tree and export
-tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
-export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
-tree.export(filepath=export_path)
-
-# Load tree from export file
-with open(export_path, 'rb') as f:
-    exported_version = json.load(f)
 
 
 def test_export():
-    assert exported_version == {
+    tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
+    export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
+    tree.export(filepath=export_path)
+
+    with open(export_path, 'rb') as f:
+        exported = json.load(f)
+
+    assert exported == {
         "header": {
             "encoding": "utf_8",
             "hash_type": "sha256",
@@ -49,16 +46,16 @@ def test_export():
 
 
 def test_fromJSONFile():
+    tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
+    export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
+    tree.export(filepath=export_path)
+
     assert tree.serialize() == MerkleTree.fromJSONFile(export_path).serialize()
 
 
 def test_WrongJSONFormat_with_fromJSONFile():
     child_dir = os.path.dirname(os.path.dirname(__file__))
+    sample_json = os.path.join(child_dir, 'jsondata', 'sample.json')
+
     with pytest.raises(WrongJSONFormat):
-        MerkleTree.fromJSONFile(
-            os.path.join(
-                child_dir,
-                'jsondata',
-                'sample.json'
-            )
-        )
+        MerkleTree.fromJSONFile(sample_json)
