@@ -118,11 +118,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             provided record is outside its configured encoding type.
         """
         try:
-            new_leaf = Leaf.from_record(record, self.hash, self.encoding)
+            leaf = Leaf.from_record(record, self.hash, self.encoding)
         except UndecodableRecord:
             raise
 
-        self.append_leaf(new_leaf)
+        self.append_leaf(leaf)
 
     def encrypt_file_content(self, filepath):
         """
@@ -281,7 +281,6 @@ class MerkleTree(BaseMerkleTree):
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
                  raw_bytes=True, security=True):
-
         self.uuid = generate_uuid()
         self.leaves = []
         self.nodes = set()
@@ -511,8 +510,13 @@ class MerkleTree(BaseMerkleTree):
         return offset, tuple(path)
 
     def _detect_offset(self, digest):
-        """Returns the (zero-based) index of the leftmost leaf storing the
-        provided digest.
+        """
+        Detects the position of the leftmost leaf node storing the digest
+        counting from zero.
+
+        :type digest: bytes
+        :returns: position of corresponding leaf counting from zero
+        :rtype: int
 
         .. note:: Returns -1 if no such leaf node exists.
 
@@ -523,13 +527,16 @@ class MerkleTree(BaseMerkleTree):
         curr = 0
         leaves = (leaf for leaf in self.leaves)
         while True:
+
             try:
                 leaf = next(leaves)
             except StopIteration:
                 break
+
             if digest == leaf.digest:
                 offset = curr
                 break
+
             curr += 1
 
         return offset

@@ -34,7 +34,7 @@ def test___repr__for_leafs_with_parent(leaf):
                                                    left='[None]',
                                                    right='[None]',
                                                    parent=str(hex(id(leaf.parent))),
-                                                   checksum=leaf.digest.decode(leaf.encoding))
+                                                   checksum=leaf.get_checksum())
 
 
 @pytest.mark.parametrize('node', (node12, node34))
@@ -43,7 +43,7 @@ def test___repr__for_nodes_with_parent(node):
                                                    left=str(hex(id(node.left))),
                                                    right=str(hex(id(node.right))),
                                                    parent=str(hex(id(node.parent))),
-                                                   checksum=node.digest.decode(node.encoding))
+                                                   checksum=node.get_checksum())
 
 
 def test___repr__for_node_without_parent():
@@ -51,7 +51,7 @@ def test___repr__for_node_without_parent():
                                                    left=str(hex(id(root.left))),
                                                    right=str(hex(id(root.right))),
                                                    parent='[None]',
-                                                   checksum=root.digest.decode(root.encoding))
+                                                   checksum=root.get_checksum())
 
 
 stringifications = [

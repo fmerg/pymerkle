@@ -107,6 +107,15 @@ class Node:
     def is_leaf(self):
         return isinstance(self, Leaf)
 
+    def get_checksum(self):
+        """
+        Returns the hex string representing the digest stored by the present
+        node.
+
+        :rtype: str
+        """
+        return self.digest.decode(self.encoding)
+
     @classmethod
     def from_children(cls, left, right, hash_func, encoding):
         """
@@ -171,7 +180,7 @@ class Node:
         parent = NONE if not self.__parent else memid(self.__parent)
         left = NONE if not self.__left else memid(self.__left)
         right = NONE if not self.__right else memid(self.__right)
-        checksum = self.digest.decode(self.encoding)
+        checksum = self.get_checksum()
 
         return NODE_TEMPLATE.format(node=memid(self), parent=parent, left=left,
                                     right=right, checksum=checksum)
@@ -223,7 +232,7 @@ class Node:
             out += f' {L_BRACKET_LONG}'
             ignored.append(level)
 
-        checksum = self.digest.decode(self.encoding)
+        checksum = self.get_checksum()
         out += f'{checksum}\n'
 
         if not self.is_leaf():
