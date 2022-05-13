@@ -281,6 +281,31 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         tqdm.write('Encryption complete\n')
 
+    def serialize(self):
+        """
+        Returns a JSON dictionary with the Merkle-tree's characteristics along
+        with the hash values stored by its node leaves.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
+
+        :rtype: dict
+        """
+        return MerkleTreeSerializer().default(self)
+
+    def toJSONtext(self, indent=4):
+        """
+        Returns a JSON text with the Merkle-tree's characteristics along
+        with the hash values stored by its node leaves.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
+
+        :rtype: str
+        """
+        return json.dumps(self, cls=MerkleTreeSerializer, sort_keys=True,
+                          indent=indent)
+
     def export(self, filepath, indent=4):
         """
         Exports the JSON serialization of the Merkle-tree into the provided
@@ -329,6 +354,33 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         tqdm.write('Tree has been retrieved')
 
         return tree
+
+
+class MerkleTreeSerializer(json.JSONEncoder):
+
+    def default(self, obj):
+        """
+        """
+        try:
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
+            leaves = obj.leaves
+            raw_bytes = obj.raw_bytes
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
+
+        hashes = [leaf.get_checksum() for leaf in leaves]
+
+        return {
+            'header': {
+                'hash_type': hash_type,
+                'encoding': encoding,
+                'raw_bytes': raw_bytes,
+                'security': security
+            },
+            'hashes': hashes,
+        }
 
 
 class MerkleTree(BaseMerkleTree):
@@ -907,23 +959,6 @@ class MerkleTree(BaseMerkleTree):
 
         return root.__str__(indent=indent)
 
-    def serialize(self):
-        """Returns a JSON entity with the Merkle-trees's current characteristics
-        and digests stored by its leaves.
-
-        :rtype: dict
-        """
-        return MerkleTreeSerializer().default(self)
-
-    def toJSONtext(self):
-        """Returns a JSON text with the Merkle-tree's current characteristics
-        and digests stored by its leaves.
-
-        :rtype: str
-        """
-        return json.dumps(self,
-                          cls=MerkleTreeSerializer, sort_keys=True, indent=4)
-
     def clear(self):
         """
         Deletes all nodes of the Merkle-tree.
@@ -934,28 +969,3 @@ class MerkleTree(BaseMerkleTree):
             del self.__root
         except AttributeError:
             pass
-
-
-class MerkleTreeSerializer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of Merkle-trees.
-    """
-
-    def default(self, obj):
-        """Overrides the built-in method of JSON encoders.
-        """
-        try:
-            hash_type = obj.hash_type
-            encoding = obj.encoding
-            security = obj.security
-            leaves = obj.leaves
-            raw_bytes = obj.raw_bytes
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-        return {
-            'header': {
-                'hash_type': hash_type,
-                'encoding': encoding,
-                'raw_bytes': raw_bytes,
-                'security': security},
-            'hashes': [leaf.digest.decode(encoding) for leaf in leaves]
-        }
