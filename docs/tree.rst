@@ -4,15 +4,9 @@ Merkle-tree object
 
     from pymerkle import MerkleTree
 
-imports the `MerkleTree`_ class and
-
-.. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
-
-.. code-block:: python
-
     tree = MerkleTree()
 
-creates an empty Merkle-tree with hash algorithm SHA256 and encoding type
+This creates an empty Merkle-tree with hash algorithm SHA256 and encoding type
 UTF-8, capable of consuming arbitrary bytes (*raw-bytes mode* enabled) and
 defending against second-preimage attacks (*security mode* enabled).
 

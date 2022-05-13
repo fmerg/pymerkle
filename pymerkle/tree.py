@@ -56,6 +56,28 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return {'hash_type': self.hash_type, 'encoding': self.encoding,
                 'raw_bytes': self.raw_bytes, 'security': self.security}
 
+    @classmethod
+    def init_from_records(cls, *records, config=None):
+        """
+        Create Merkle-tree from initial records.
+
+        :param records: Initial records to encrypt into the Merkle-tree.
+        :type records: iterable of bytes or str
+        :param config: Configuration of tree. Must contain a subset of keys
+            ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+        :type config: dict
+
+        :raises UndecodableRecord: if *raw_modes* is disabled and any of the
+            provided record is not compatible with the tree's encoding type.
+        """
+        config = {} if not config else config
+        tree = cls(**config)
+
+        for record in records:
+            tree.encrypt(record)
+
+        return tree
+
     @property
     @abstractmethod
     def length(self):
@@ -286,39 +308,6 @@ class MerkleTree(BaseMerkleTree):
         self.nodes = set()
 
         super().__init__(hash_type, encoding, raw_bytes, security)
-
-    @classmethod
-    def init_from_records(cls, *records, config=None):
-        """
-        Create Merkle-tree from initial records.
-
-        :param records: Initial records to encrypt into the Merkle-tree.
-        :type records: iterable of bytes or str
-        :param config: Configuration of tree. Must contain a subset of keys
-            ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
-        :type config: dict
-
-        :raises UndecodableRecord: if *raw_modes* is disabled and any of the
-            provided record is not compatible with the tree's encoding type.
-        """
-        config = {} if not config else config
-        tree = cls(**config)
-
-        for record in records:
-            tree.encrypt(record)
-
-        return tree
-
-    def clear(self):
-        """
-        Deletes all nodes of the Merkle-tree.
-        """
-        self.leaves = []
-        self.nodes = set()
-        try:
-            del self.__root
-        except AttributeError:
-            pass
 
     def __bool__(self):
         """
@@ -939,6 +928,17 @@ class MerkleTree(BaseMerkleTree):
         """
         return json.dumps(self,
                           cls=MerkleTreeSerializer, sort_keys=True, indent=4)
+
+    def clear(self):
+        """
+        Deletes all nodes of the Merkle-tree.
+        """
+        self.leaves = []
+        self.nodes = set()
+        try:
+            del self.__root
+        except AttributeError:
+            pass
 
 
 class MerkleTreeSerializer(json.JSONEncoder):
