@@ -46,6 +46,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         HashEngine.__init__(self, hash_type, encoding, raw_bytes, security)
 
+    @abstractmethod
+    def __bool__(self):
+        """
+        This should return *False* iff the Merkle-tree is empty.
+        """
+
     def get_config(self):
         """
         Returns the configuration of the Merkle-tree, containing the parameters
@@ -191,6 +197,127 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         proof = self.create_proof(offset, path, commit=commit)
         return proof
+
+    @abstractmethod
+    def includes(self, subhash):
+        """
+        Override this method to specify how the tree should verify if the
+        provided digest corresponds to a valid previous state.
+        """
+
+    def __eq__(self, other):
+        """
+        Implements the ``==`` operator
+
+        :param other: Merkle-tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return not self
+
+        if not self:
+            return True
+
+        return self.root_hash == other.root_hash
+
+    def __ne__(self, other):
+        """
+        Implements the ``!=`` operator
+
+        :param other: Merkle-tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return self.__bool__()
+
+        if not self:
+            return True
+
+        return self.root_hash != other.root_hash
+
+    def __ge__(self, other):
+        """
+        Implements the ``>=`` operator
+
+        :param other: Merkle-tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+        is not instance of the ``tree.MerkleTree`` class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return True
+
+        if not self:
+            return False
+
+        return self.includes(other.root_hash)
+
+    def __le__(self, other):
+        """
+        Implements the ``<=`` operator
+
+        :param other: Merkle-tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        return other.__ge__(self)
+
+    def __gt__(self, other):
+        """
+        Implements the ``>`` operator
+
+        :param other: Merkle-tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return self.__bool__()
+
+        elif not self or self.root_hash == other.root_hash:
+            return False
+
+        return self.includes(other.root_hash)
+
+    def __lt__(self, other):
+        """
+        Implements the ``<`` operator
+
+        :param other: Merkle-tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        return other.__gt__(self)
 
     def encrypt_file_content(self, filepath):
         """
@@ -411,10 +538,7 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(hash_type, encoding, raw_bytes, security)
 
     def __bool__(self):
-        """
-        :returns: *False* iff the Merkle-tree is empty (no nodes)
-        :rtype: bool
-        """
+
         return bool(self.nodes)
 
     @property
@@ -694,7 +818,6 @@ class MerkleTree(BaseMerkleTree):
             if not subroot.parent:
                 break
 
-            # subroot = subroots[-1][1]
             if subroot.is_left_child():
                 if subroot.parent.is_right_child():
                     sign = -1
@@ -801,126 +924,29 @@ class MerkleTree(BaseMerkleTree):
         return subroot
 
     def includes(self, subhash):
-        """Verifies that the provided parameter corresponds to a valid previous
-        state of the Merkle-tree
+        """
+        Verifies that the provided parameter corresponds to a valid previous
+        state of the Merkle-tree.
 
-        :param subhash: acclaimed root-hash of some previous
-                state of the Merkle-tree
+        :param subhash: acclaimed root-hash of some previous state of the
+            Merkle-tree.
         :type subhash: bytes
         :rtype: bool
         """
-        included = False
+        result = False
+
         multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):
-            left_roots = self.principal_subroots(sublength)
-            left_path = tuple((-1, _[1].digest) for _ in left_roots)
-            if subhash == multi_hash(left_path, len(left_path) - 1):
-                included = True
+
+            subroots = self.principal_subroots(sublength)
+            path = [(-1, r[1].digest) for r in subroots]
+
+            offset = len(path) - 1
+            if subhash == multi_hash(path, offset):
+                result = True
                 break
 
-        return included
-
-    def __eq__(self, other):
-        """Implements the ``==`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return not self
-
-        return True if not self else self.root_hash == other.root_hash
-
-    def __ne__(self, other):
-        """Implements the ``!=`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return self.__bool__()
-
-        return True if not self else self.root_hash != other.root_hash
-
-    def __ge__(self, other):
-        """
-        Implements the ``>=`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-        is not instance of the ``tree.MerkleTree`` class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return True
-
-        return False if not self else \
-            self.includes(other.root_hash)
-
-    def __le__(self, other):
-        """Implements the ``<=`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        return other.__ge__(self)
-
-    def __gt__(self, other):
-        """
-        Implements the ``>`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return self.__bool__()
-
-        elif not self or self.root_hash == other.root_hash:
-            return False
-
-        return self.includes(other.root_hash)
-
-    def __lt__(self, other):
-        """Implements the ``<`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        return other.__gt__(self)
+        return result
 
     def __repr__(self):
         """Sole purpose of this function is to display info about
