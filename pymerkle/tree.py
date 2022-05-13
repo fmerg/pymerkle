@@ -438,58 +438,65 @@ class MerkleTree(BaseMerkleTree):
                     curr.recalculate_hash(hash_func=self.hash)
                     curr = curr.parent
 
-    def generate_audit_path(self, offset):
-        """Low-level audit proof.
+    def get_leaf(self, offset):
+        """
+        Get the leaf node corresponding to the provided position counting from
+        zero. Returns *None* if the provided position is negative or exceeds
+        the current number of leaves.
 
-        Computes and returns the audit-path corresponding to the provided leaf
-        index along with the position where subsequent proof verification should
-        start from.
-
-        :param offset: position (zero based leaf index) where audit-path
-                computation should be based upon
+        :param offset: position of leaf node
         :type offset: int
-        :returns: Starting position of subsequent proof verification along with
-            a sequence of signed checksums (the sign +1 or -1 indicating
-            pairing with the right or left neighbour respectively)
+        :returns: leaf at provided position
+        :rtype: Leaf
+        """
+        if offset < 0:
+            return None
+
+        try:
+            leaf = self.leaves[offset]
+        except IndexError:
+            return None
+
+        return leaf
+
+    def generate_audit_path(self, offset):
+        """
+        Computes the audit-path corresponding to the provided leaf index.
+
+        :param offset: leaf position (zero based) where audit-path computation
+            should be based upon.
+        :type offset: int
+        :returns: sequence of signed digests along with starting position for
+            subsequent proof verification. The sign -1 or +1 indicates pairing
+            with the left resp. right neighbour when hashing.
         :rtype: (int, tuple of (+1/-1, bytes))
 
         :raises NoPathException: if the provided offset exceed's the tree's
-            current length
+            current length or is negative.
         """
-        if offset < 0:
-            # Handle negative offset case as NoPathException, since
-            # certain negative indices might otherwise be
-            # considered as valid positions
+        leaf = self.get_leaf(offset)
+
+        if not leaf:
             raise NoPathException
 
-        try:
-            curr = self.leaves[offset]
-        except IndexError:
-            raise NoPathException  # Covers also the empty tree case
+        sign = -1 if leaf.is_right_child() else +1
+        path = [(sign, leaf.digest)]
 
-        initial_sign = +1
-        if curr.is_right_child():
-            initial_sign = -1
-        path = [(initial_sign, curr.digest)]
-
+        curr = leaf
         offset = 0
         while curr.parent:
             parent = curr.parent
+
             if curr.is_left_child():
-                checksum = parent.right.digest
-                if parent.is_left_child():
-                    sign = +1
-                else:
-                    sign = -1
-                path.append((sign, checksum))
+                digest = parent.right.digest
+                sign = +1 if parent.is_left_child() else -1
+                path.append((sign, digest))
             else:
-                checksum = parent.left.digest
-                if parent.is_right_child():
-                    sign = -1
-                else:
-                    sign = +1
-                path.insert(0, (sign, checksum))
+                digest = parent.left.digest
+                sign = -1 if parent.is_right_child() else +1
+                path.insert(0, (sign, digest))
                 offset += 1
+
             curr = parent
 
         return offset, tuple(path)
