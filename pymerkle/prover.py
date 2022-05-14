@@ -7,6 +7,7 @@ from time import time, ctime
 from tqdm import tqdm
 
 from pymerkle.exceptions import NoPathException
+from pymerkle.hashing import HashEngine
 from pymerkle.utils import stringify_path, generate_uuid
 from pymerkle.exceptions import UndecodableRecord
 
@@ -151,6 +152,40 @@ class MerkleProof:
 
     def get_commitment(self):
         return self.header.get('commitment', None)
+
+    def compute_checksum(self):
+        """
+        """
+        offset = self.body['offset']
+        path = self.body['path']
+
+        engine = HashEngine(**self.get_verification_params())
+        checksum = engine.multi_hash(path, offset)
+
+        return checksum
+
+    def verify(self, target=None):
+        """
+        """
+        if target is None:
+            commitment = self.get_commitment()
+
+            if not commitment:
+                err = 'No acclaimed root-hash provided'
+                raise AssertionError(err)
+
+            target = commitment
+
+        offset = self.body['offset']
+        path = self.body['path']
+
+        if offset == -1 and path == ():
+            return False
+
+        if target != self.compute_checksum():
+            return False
+
+        return True
 
     def __repr__(self):
         """Sole purpose of this function is to display info

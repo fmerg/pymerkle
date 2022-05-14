@@ -8,7 +8,7 @@ import json
 
 from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.exceptions import InvalidProof
-from pymerkle import MerkleTree, MerkleVerifier
+from pymerkle import MerkleTree
 from tests.conftest import SUPPORTED_ENCODINGS
 
 
@@ -19,8 +19,7 @@ def test_verify_proof_with_commitment():
         *[f'{i}-th record' for i in range(666)])
     proof = tree.generate_audit_proof(tree.hash('100-th record'))
     commitment = proof.header['commitment']
-    v = MerkleVerifier()
-    assert v.verify_proof(proof) is v.verify_proof(proof, commitment)
+    assert proof.verify() is proof.verify(target=commitment)
 
 
 # Trees setup
@@ -66,14 +65,12 @@ for tree in trees:
 
 @pytest.mark.parametrize("tree, proof", false_audit_proofs)
 def test_false_audit_verify_proof(tree, proof):
-    v = MerkleVerifier()
-    assert not v.verify_proof(proof, tree.root_hash)
+    assert not proof.verify(target=tree.root_hash)
 
 
 @pytest.mark.parametrize("tree, proof", valid_audit_proofs)
 def test_true_audit_verify_proof(tree, proof):
-    v = MerkleVerifier()
-    assert v.verify_proof(proof, tree.root_hash)
+    assert proof.verify(target=tree.root_hash)
 
 
 # Consistency proof verification
@@ -112,13 +109,11 @@ for (tree, subtree) in trees_and_subtrees:
     )
 
 
-@pytest.mark.parametrize("tree, consistency_proof", false_consistency_proofs)
-def test_false_consistency_verify_proof(tree, consistency_proof):
-    v = MerkleVerifier()
-    assert not v.verify_proof(consistency_proof, tree.root_hash)
+@pytest.mark.parametrize("tree, proof", false_consistency_proofs)
+def test_false_consistency_verify_proof(tree, proof):
+    assert not proof.verify(target=tree.root_hash)
 
 
-@pytest.mark.parametrize("tree, consistency_proof", valid_consistency_proofs)
-def test_true_consistency_verify_proof(tree, consistency_proof):
-    v = MerkleVerifier()
-    assert v.verify_proof(consistency_proof, tree.root_hash)
+@pytest.mark.parametrize("tree, proof", valid_consistency_proofs)
+def test_true_consistency_verify_proof(tree, proof):
+    assert proof.verify(target=tree.root_hash)

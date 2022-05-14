@@ -103,8 +103,7 @@ to verify the proof, we need to manually provide the commitment as follows:
 
     >>> commitment = tree.root_hash
     >>>
-    >>> v = MerkleVerifier()
-    >>> v.verify_proof(proof, commitment)
+    >>> proof.verify(target=commitment)
     True
     >>>
 
@@ -115,8 +114,7 @@ Commiting after encryption of records would have invalidated the proof:
     >>> tree.encrypt_file_content('some further data...')
     >>> commitment = tree.root_hash
     >>>
-    >>> v = MerkleVerifier()
-    >>> v.verify_proof(proof, commitment)
+    >>> proof.verify(target=commitment)
     False
     >>>
 
@@ -213,28 +211,6 @@ proof for the above state.
 
     >>>
 
-No commitment is by default included in the produced proof. Verification may
-proceed exactly the same way as above (recall that verification mechanisms are
-agnostic of whether a proof is the result of an audit or a consistency proof
-request). We will here employ a verifier for reference.
-
-.. code-block:: python
-
-    >>> from pymerkle import MerkleVerifier
-    >>>
-    >>> verifier = MerkleVerifier()
-    >>> verifier.update(proof)
-
-In order to run the verifier, we need to manually provide the commitment
-via the *target* kwarg as follows:
-
-.. code-block:: python
-
-    >>> commitment = tree.root_hash
-    >>>
-    >>> verifier.run(target=commitment)
-    >>>
-
 Finalization of process implies validity of proof against the acclaimed current
 root-hash. Commiting after encryption of records would have instead cause the
 verifier to crash:
@@ -244,8 +220,6 @@ verifier to crash:
     >>> tree.encrypt_file_content('some further data...')
     >>> commitment = tree.root_hash
     >>>
-    >>> verifier.run(target=commitment)
-    Traceback (most recent call last):
-    ...    raiseInvalidProof
-    pymerkle.exceptions.InvalidProof
+    >>> proof.verify(target=commitment)
+    False
     >>>
