@@ -183,7 +183,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def generate_audit_proof(self, digest, commit=True):
         """
-        Computes an audit-proof for the provided hash value.
+        Computes audit-proof for the provided hash value.
 
         .. note:: The output is intended to prove that the provided hash value
             is the digest of a record that has indeed been appended to the tree.
@@ -214,7 +214,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def generate_consistency_proof(self, subhash, commit=True):
         """
-        Computes a consistency-proof for the provided hash value.
+        Computes consistency-proof for the provided hash value.
 
         .. note:: The output is intended to prove that the provided hash value
             is the acclaimed root-hash of some previous state of the tree.
@@ -689,7 +689,7 @@ class MerkleTree(BaseMerkleTree):
 
         return self.__root.digest
 
-    def _get_last_subroot(self):
+    def get_last_subroot(self):
         """
         Returns the root of the *full* binary subtree with maximum possible
         length containing the rightmost leaf
@@ -710,7 +710,7 @@ class MerkleTree(BaseMerkleTree):
         :type leaf: Leaf
         """
         if self:
-            subroot = self._get_last_subroot()
+            subroot = self.get_last_subroot()
 
             # Assimilate new leaf
             self.leaves.append(leaf)
@@ -915,6 +915,51 @@ class MerkleTree(BaseMerkleTree):
 
         return complement
 
+    def get_subroot(self, offset, height):
+        """
+        Detects the root of the unique full binary subtree with leftmost
+        leaf located at position *offset* and height equal to *height*.
+
+        :param offset: position of leaf where detection should start from
+            counting from zero
+        :type offset: int
+        :param height: height of candidate subtree to be detected
+        :type height: int
+        :returns: root of the detected subtree
+        :rtype: Leaf or Node
+
+        :raises NoSubtreeException: if no subtree exists for
+            the provided parameters.
+        """
+        try:
+            subroot = self.leaves[offset]
+        except IndexError:
+            raise NoSubtreeException
+
+        i = 0
+        while i < height:
+            curr = subroot.parent
+
+            if not curr:
+                raise NoSubtreeException
+            if curr.left is not subroot:
+                raise NoSubtreeException
+
+            subroot = curr
+            i += 1
+
+        # Verify existence of *full* binary subtree
+        curr = subroot
+        i = 0
+        while i < height:
+            if isinstance(curr, Leaf):
+                raise NoSubtreeException
+
+            curr = curr.right
+            i += 1
+
+        return subroot
+
     def principal_subroots(self, sublength):
         """Detects in corresponding order the roots of the successive, leftmost,
         full binary subtrees of maximum (and thus decreasing) length, whose
@@ -941,7 +986,7 @@ class MerkleTree(BaseMerkleTree):
         offset = 0
         for power in powers:
             try:
-                subroot = self.subroot(offset, power)
+                subroot = self.get_subroot(offset, power)
             except NoSubtreeException:
                 # Incompatibility issue detected
                 raise NoPrincipalSubroots
@@ -965,47 +1010,6 @@ class MerkleTree(BaseMerkleTree):
             principals[-1] = (+1, principals[-1][1])
 
         return principals
-
-    def subroot(self, offset, height):
-        """Detects the root of the unique full binary subtree with leftmost
-        leaf located at position *offset* and height equal to *height*.
-
-        :param offset: leaf position (zero based) where detection of
-                subtree should start from
-        :type offset: int
-        :param height: height of candidate subtree to be detected
-        :type height: int
-        :returns: Root of the detected subtree
-        :rtype: Leaf or Node
-
-        :raises NoSubtreeException: if no subtree exists for
-                the provided parameters
-        """
-        # Detect candidate subroot
-        try:
-            subroot = self.leaves[offset]
-        except IndexError:
-            raise NoSubtreeException
-        i = 0
-        while i < height:
-            curr = subroot.parent
-            if not curr:
-                raise NoSubtreeException
-            if curr.left is not subroot:
-                raise NoSubtreeException
-            subroot = curr
-            i += 1
-
-        # Verify existence of *full* binary subtree
-        curr = subroot
-        i = 0
-        while i < height:
-            if isinstance(curr, Leaf):
-                raise NoSubtreeException
-            curr = curr.right
-            i += 1
-
-        return subroot
 
     def includes(self, subhash):
         """

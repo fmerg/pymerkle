@@ -249,7 +249,7 @@ no_subtree_exceptions = [
 @pytest.mark.parametrize('tree, offset, height', no_subtree_exceptions)
 def test_NoSubtreeException(tree, offset, height):
     with pytest.raises(NoSubtreeException):
-        tree.subroot(offset, height)
+        tree.get_subroot(offset, height)
 
 
 subroots = [
@@ -280,8 +280,8 @@ subroots = [
 
 
 @pytest.mark.parametrize('tree, offset, height, subroot', subroots)
-def test_subroot(tree, offset, height, subroot):
-    assert tree.subroot(offset, height) is subroot
+def test_get_subroot(tree, offset, height, subroot):
+    assert tree.get_subroot(offset, height) is subroot
 
 
 no_principal_subroots_exceptions = [
