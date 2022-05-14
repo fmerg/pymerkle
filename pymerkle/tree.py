@@ -1023,11 +1023,3 @@ class MerkleTree(BaseMerkleTree):
                 break
 
         return result
-
-    def clear(self):
-        """
-        Deletes all nodes of the Merkle-tree.
-        """
-        self.leaves = []
-        self.nodes = set()
-        self.__root = None

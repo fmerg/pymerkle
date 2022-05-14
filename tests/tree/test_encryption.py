@@ -152,7 +152,7 @@ def test_encrypt_file_content(tree, hash_engine):
 @pytest.mark.parametrize('tree', [tree for tree, _ in trees__hash_engines])
 def test_encrypt_file_per_line(tree):
     if tree.raw_bytes:
-        tree.clear()
+        tree = MerkleTree(**tree.get_config())
         encrypted = tree.encrypt_file_per_line(short_APACHE_log)
         clone = MerkleTree.init_from_records(*records,
                                              config=tree.get_config())
