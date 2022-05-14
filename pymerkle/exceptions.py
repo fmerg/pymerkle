@@ -17,14 +17,6 @@ class EmptyPathException(Exception):
     pass
 
 
-class InvalidComparison(Exception):
-    """
-    Raised when a Merkle-tree is compared with an object that is not
-    instance of the *MerkleTree* class.
-    """
-    pass
-
-
 class NoAncestorException(Exception):
     """
     Raised when the non-existent ancestor of a node is requested

@@ -13,8 +13,7 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import (NoPathException, InvalidComparison,
-                                 WrongJSONFormat, UndecodableRecord)
+from pymerkle.exceptions import NoPathException, WrongJSONFormat, UndecodableRecord
 
 NONE_BAR = '\n └─[None]'
 
@@ -263,11 +262,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return not self
@@ -284,11 +283,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return self.__bool__()
@@ -305,11 +304,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
         is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return True
@@ -326,11 +325,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         return other.__ge__(self)
 
@@ -341,11 +340,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return self.__bool__()
@@ -362,11 +361,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         return other.__gt__(self)
 
