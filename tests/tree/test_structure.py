@@ -7,7 +7,6 @@ import pytest
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import HashEngine
-from pymerkle.exceptions import EmptyTreeException
 
 
 tree = MerkleTree()
@@ -19,8 +18,7 @@ t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
 
 
 def test_0_leaves():
-    with pytest.raises(EmptyTreeException):
-        tree.root_hash
+    assert not tree.root_hash
 
 
 def test_1_leaves():

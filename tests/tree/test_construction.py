@@ -3,7 +3,7 @@ import os
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.exceptions import (EmptyTreeException, UnsupportedHashType,
+from pymerkle.exceptions import (UnsupportedHashType,
                                  UnsupportedEncoding, UndecodableRecord, )
 
 
@@ -86,35 +86,23 @@ def test_UndecodableRecord_upon_tree_construction(byte, encoding, security):
 def test_clear():
     tree = MerkleTree.init_from_records('a', 'b', 'c')
     tree.clear()
-    with pytest.raises(EmptyTreeException):
-        tree.root
-    assert not tree.leaves and not tree.nodes
+    assert all((
+        not tree.leaves, not tree.nodes, not tree.root
+    ))
 
 
 # Boolean implementation and root-hash
 
 def test_MerkleTree_bool_implementation():
-    """
-    Tests that a Merkle-tree is equivalent to `False` iff it is empty
-    """
     assert not MerkleTree() and MerkleTree.init_from_records('some record')
 
 
 def test_root_empty_tree_exception():
-    """
-    Tests `EmptyTreeException` upon requesting the root of an empty Merkle-tree
-    """
-    with pytest.raises(EmptyTreeException):
-        MerkleTree().root
+    assert not MerkleTree().root
 
 
-def test_root_hash_empty_tree_exception():
-    """
-    Tests `EmptyTreeException` upon requesting the root-hash
-    of an empty Merkle-tree
-    """
-    with pytest.raises(EmptyTreeException):
-        MerkleTree().root_hash
+def test_root_hash_for_empty_tree():
+    assert not MerkleTree().root_hash
 
 
 def test_root_hash_of_non_empty_MerkleTree():

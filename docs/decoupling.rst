@@ -101,7 +101,7 @@ to verify the proof, we need to manually provide the commitment as follows:
 
 .. code-block:: python
 
-    >>> commitment = tree.get_root_hash()
+    >>> commitment = tree.root_hash
     >>>
     >>> v = MerkleVerifier()
     >>> v.verify_proof(proof, commitment)
@@ -113,7 +113,7 @@ Commiting after encryption of records would have invalidated the proof:
 .. code-block:: python
 
     >>> tree.encrypt_file_content('some further data...')
-    >>> commitment = tree.get_root_hash()
+    >>> commitment = tree.root_hash
     >>>
     >>> v = MerkleVerifier()
     >>> v.verify_proof(proof, commitment)
@@ -230,7 +230,7 @@ via the *target* kwarg as follows:
 
 .. code-block:: python
 
-    >>> commitment = tree.get_root_hash()
+    >>> commitment = tree.root_hash
     >>>
     >>> verifier.run(target=commitment)
     >>>
@@ -242,7 +242,7 @@ verifier to crash:
 .. code-block:: python
 
     >>> tree.encrypt_file_content('some further data...')
-    >>> commitment = tree.get_root_hash()
+    >>> commitment = tree.root_hash
     >>>
     >>> verifier.run(target=commitment)
     Traceback (most recent call last):

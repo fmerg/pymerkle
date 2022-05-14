@@ -23,14 +23,6 @@ retrieved as follows:
 
     commitment = tree.root_hash
 
-Note that this statement will raise an ``EmptyTreeException`` if the
-tree happens to be empty. Alternatively,
-
-
-.. code-block:: python
-
-    commitment = tree.get_root_hash()
-
 which returns ``None`` for the empty case.
 
 Generation

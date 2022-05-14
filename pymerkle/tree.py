@@ -13,8 +13,7 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import (EmptyTreeException,
-                                 NoPathException, NoSubtreeException,
+from pymerkle.exceptions import (NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison,
                                  WrongJSONFormat, UndecodableRecord)
 
@@ -144,13 +143,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the hash value stored by the tree's current root node.
         """
 
-    @abstractmethod
-    def get_root_hash(self):
-        """
-        Should return the hash value stored by the tree's current root node if
-        the tree is not empty or *None*.
-        """
-
     def create_proof(self, offset, path, commit=True):
         """
         Creates a proof object from the provided path of hashes including the
@@ -168,7 +160,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         params = self.get_config()
         params.update({'provider': self.uuid})
-        commitment = self.get_root_hash() if commit else None
+        commitment = None
+        if self and commit:
+            commitment = self.root_hash
 
         proof = MerkleProof(path=path, offset=offset, commitment=commitment,
                             **params)
@@ -405,12 +399,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         .. note:: Left children appear above the right ones.
         """
-        try:
-            root = self.root
-        except EmptyTreeException:
+        if not self:
             return NONE_BAR
 
-        return root.__str__(indent=indent)
+        return self.root.__str__(indent=indent)
 
     def encrypt_file_content(self, filepath):
         """
@@ -626,6 +618,7 @@ class MerkleTree(BaseMerkleTree):
                  raw_bytes=True, security=True):
         self.leaves = []
         self.nodes = set()
+        self.__root = None
 
         super().__init__(hash_type, encoding, raw_bytes, security)
 
@@ -678,10 +671,8 @@ class MerkleTree(BaseMerkleTree):
         :returns: The tree's current root-node.
         :rtype: Node
 
-        :raises EmptyTreeException: if the Merkle-tree is currently empty
+        .. note:: Returns *None* if the tree is empty.
         """
-        if not self:
-            raise EmptyTreeException
 
         return self.__root
 
@@ -691,25 +682,12 @@ class MerkleTree(BaseMerkleTree):
         :returns: Current root-hash of the Merkle-tree
         :rtype: bytes
 
-        :raises EmptyTreeException: if the Merkle-tree is currently empty
+        .. note:: Returns *None* if the tree is empty.
         """
-        try:
-            root = self.__root
-        except AttributeError:
-            raise EmptyTreeException
-
-        return root.digest
-
-    def get_root_hash(self):
-        """Returns the current root-hash of the Merkle-tree if the latter is
-        not empty, otherwise *None*.
-
-        :rtype: bytes or None
-        """
-        try:
-            return self.root_hash
-        except EmptyTreeException:
+        if not self.__root:
             return None
+
+        return self.__root.digest
 
     def _get_last_subroot(self):
         """
@@ -1057,7 +1035,4 @@ class MerkleTree(BaseMerkleTree):
         """
         self.leaves = []
         self.nodes = set()
-        try:
-            del self.__root
-        except AttributeError:
-            pass
+        self.__root = None

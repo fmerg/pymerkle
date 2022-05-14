@@ -149,7 +149,7 @@ class MerkleProof:
             'security': header['security'],
         }
 
-    def get_root_hash(self):
+    def get_commitment(self):
         return self.header.get('commitment', None)
 
     def __repr__(self):

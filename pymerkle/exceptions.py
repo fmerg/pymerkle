@@ -1,17 +1,11 @@
-"""Provides the exceptions used accross the *pymerkle* library.
+"""
+Provides the exceptions used accross the *pymerkle* library.
 """
 
 
 class InvalidProof(Exception):
     """
     Raised when a Merkle-proof is found to be invalid.
-    """
-    pass
-
-
-class EmptyTreeException(Exception):
-    """
-    Raised when the root or root-hash of an empty Merkle-tree is requested.
     """
     pass
 
