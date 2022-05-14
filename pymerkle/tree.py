@@ -12,14 +12,14 @@ from tqdm import tqdm
 from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
+from pymerkle.nodes import Node, Leaf
 from pymerkle.exceptions import (EmptyTreeException,
                                  NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison,
                                  WrongJSONFormat, UndecodableRecord)
-from pymerkle.nodes import Node, Leaf
-
 
 NONE_BAR = '\n └─[None]'
+
 TREE_TEMPLATE = """
     uuid      : {uuid}
 
@@ -38,19 +38,17 @@ TREE_TEMPLATE = """
 
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
-    Interfaces and abstract functionality for Merkle-trees.
+    Interface and abstract functionality for Merkle-trees.
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8', raw_bytes=True,
                  security=True):
+        self.hash_type = hash_type
+        self.encoding = encoding
+        self.raw_bytes = raw_bytes
+        self.security = security
 
-        HashEngine.__init__(self, hash_type, encoding, raw_bytes, security)
-
-    @abstractmethod
-    def __bool__(self):
-        """
-        This should return *False* iff the Merkle-tree is empty.
-        """
+        HashEngine.__init__(self, **self.get_config())
 
     def get_config(self):
         """
@@ -61,6 +59,31 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         return {'hash_type': self.hash_type, 'encoding': self.encoding,
                 'raw_bytes': self.raw_bytes, 'security': self.security}
+
+    def encrypt(self, record):
+        """
+        Creates a new leaf node with the digest of the provided record and
+        appends it to the Merkle-tree by restructuring it and recalculating the
+        appropriate interior hashes.
+
+        :param record: Record to encrypt.
+        :type record: str or bytes
+
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided record is outside its configured encoding type.
+        """
+        try:
+            leaf = Leaf.from_record(record, self.hash, self.encoding)
+        except UndecodableRecord:
+            raise
+
+        self.append_leaf(leaf)
+
+    @abstractmethod
+    def append_leaf(self):
+        """
+        Define here the tree's growing strategy.
+        """
 
     @classmethod
     def init_from_records(cls, *records, config=None):
@@ -88,31 +111,47 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def length(self):
         """
+        Should return the current number of leaf nodes.
         """
 
+    @property
     @abstractmethod
-    def _detect_offset(self, digest):
+    def size(self):
         """
+        Should return the current number of nodes
+        """
+
+    @property
+    @abstractmethod
+    def height(self):
+        """
+        Should return the current height of the tree.
+        """
+
+    @property
+    @abstractmethod
+    def root(self):
+        """
+        Should return the current root of the tree.
+        """
+
+    @property
+    @abstractmethod
+    def root_hash(self):
+        """
+        Should return the hash value stored by the tree's current root node.
         """
 
     @abstractmethod
     def get_root_hash(self):
         """
+        Should return the hash value stored by the tree's current root node if
+        the tree is not empty or *None*.
         """
 
-    @abstractmethod
-    def generate_audit_path(self, offset):
+    def create_proof(self, offset, path, commit=True):
         """
-        """
-
-    @abstractmethod
-    def generate_consistency_path(self, sublength):
-        """
-        """
-
-    def create_proof(self, offset, path, commit=False):
-        """
-        Creates a proof object for the provided path of hashes including the
+        Creates a proof object from the provided path of hashes including the
         configuration of the present tree as verification parameters.
 
         :param offset: starting position of the verification procedure
@@ -120,7 +159,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
         :param commit: [optional] Include current root-hash as commitment.
-            Defaults to *False*.
+            Defaults to *True*.
         :type commit: bool
         :returns: proof object consisting of the above components
         :rtype: MerkleProof
@@ -133,37 +172,36 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                             **params)
         return proof
 
-    def encrypt(self, record):
+    @abstractmethod
+    def detect_offset(self, digest):
         """
-        Creates a new leaf node with the digest of the provided record and
-        appends it to the Merkle-tree by restructuring it and recalculating the
-        appropriate interior hashes.
-
-        :param record: Record to encrypt.
-        :type record: str or bytes
-
-        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
-            provided record is outside its configured encoding type.
+        Define here how to locate the leaf node storing the provided hash
+        value.
         """
-        try:
-            leaf = Leaf.from_record(record, self.hash, self.encoding)
-        except UndecodableRecord:
-            raise
 
-        self.append_leaf(leaf)
+    @abstractmethod
+    def generate_audit_path(self, offset):
+        """
+        Define here how to construct path of hashes for audit-proofs.
+        """
 
-    def generate_audit_proof(self, digest, commit=False):
-        """Response of the Merkle-tree to the request of providing an
-        audit proof based upon the provided digest.
+    def generate_audit_proof(self, digest, commit=True):
+        """
+        Computes an audit-proof for the provided hash value.
 
-        :param digest: digest which the requested proof should be based
-            upon
+        .. note:: The output is intended to prove that the provided hash value
+            is the digest of a record that has indeed been appended to the tree.
+
+        :param digest: hash value to be proven
         :type digest: bytes
+        :param commit: [optional] Include current root-hash as commitment.
+            Defaults to *True*.
+        :type commit: bool
         :rtype: MerkleProof
         """
         offset = -1
         path = ()
-        offset = self._detect_offset(digest)
+        offset = self.detect_offset(digest)
         try:
             offset, path = self.generate_audit_path(offset)
         except NoPathException:
@@ -172,18 +210,30 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.create_proof(offset, path, commit=commit)
         return proof
 
-    def generate_consistency_proof(self, subhash, commit=False):
-        """Response of the Merkle-tree to the request of providing a consistency
-        proof for the acclaimed root-hash of some previous state
+    @abstractmethod
+    def generate_consistency_path(self, sublength):
+        """
+        Define here how to construct path of hashes for consistency-proofs.
+        """
 
-        :param subhash: acclaimed root-hash of some previous
-            state of the Merkle-tree
+    def generate_consistency_proof(self, subhash, commit=True):
+        """
+        Computes a consistency-proof for the provided hash value.
+
+        .. note:: The output is intended to prove that the provided hash value
+            is the acclaimed root-hash of some previous state of the tree.
+
+        :param subhash: acclaimed root-hash of some previous state of the tree.
         :type subhash: bytes
+        :param commit: [optional] Include current root-hash as commitment.
+            Defaults to *True*.
+        :type commit: bool
         :rtype: MerkleProof
 
         """
         offset = -1
         path = ()
+        # TODO: Make this loop a binary search
         for sublength in range(1, self.length + 1):
             try:
                 _offset, left_path, _path = self.generate_consistency_path(
@@ -201,15 +251,21 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def includes(self, subhash):
         """
-        Override this method to specify how the tree should verify if the
-        provided digest corresponds to a valid previous state.
+        Define here how the tree should validate whether the provided hash
+        value corresponds to a previius state.
+        """
+
+    @abstractmethod
+    def __bool__(self):
+        """
+        This should return *False* iff the Merkle-tree is empty.
         """
 
     def __eq__(self, other):
         """
         Implements the ``==`` operator
 
-        :param other: Merkle-tree to compare with
+        :param other: tree to compare with
         :type other: MerkleTree
 
         :raises InvalidComparison: if compared with an object that
@@ -230,7 +286,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Implements the ``!=`` operator
 
-        :param other: Merkle-tree to compare with
+        :param other: tree to compare with
         :type other: MerkleTree
 
         :raises InvalidComparison: if compared with an object that
@@ -251,7 +307,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Implements the ``>=`` operator
 
-        :param other: Merkle-tree to compare with
+        :param other: tree to compare with
         :type other: MerkleTree
 
         :raises InvalidComparison: if compared with an object that
@@ -272,7 +328,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Implements the ``<=`` operator
 
-        :param other: Merkle-tree to compare with
+        :param other: tree to compare with
         :type other: MerkleTree
 
         :raises InvalidComparison: if compared with an object that
@@ -287,7 +343,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Implements the ``>`` operator
 
-        :param other: Merkle-tree to compare with
+        :param other: tree to compare with
         :type other: MerkleTree
 
         :raises InvalidComparison: if compared with an object that
@@ -308,7 +364,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Implements the ``<`` operator
 
-        :param other: Merkle-tree to compare with
+        :param other: tree to compare with
         :type other: MerkleTree
 
         :raises InvalidComparison: if compared with an object that
@@ -577,9 +633,46 @@ class MerkleTree(BaseMerkleTree):
         return bool(self.nodes)
 
     @property
+    def length(self):
+        """
+        Current number of leaf nodes.
+
+        :rtype: int
+        """
+        return len(self.leaves)
+
+    @property
+    def size(self):
+        """
+        Current number of nodes.
+
+        :rtype: int
+        """
+        return len(self.nodes)
+
+    @property
+    def height(self):
+        """
+        Current height of tree.
+
+        .. note:: This coincides with the length of the tree's leftmost branch.
+
+        :rtype: int
+        """
+        length = len(self.leaves)
+
+        if length == 0:
+            return 0
+
+        if length != 2 ** log_2(length):
+            return log_2(length + 1)
+
+        return log_2(length)
+
+    @property
     def root(self):
         """
-        Current root of the Merkle-tree.
+        Current root of the tree.
 
         :returns: The tree's current root-node.
         :rtype: Node
@@ -617,40 +710,6 @@ class MerkleTree(BaseMerkleTree):
         except EmptyTreeException:
             return None
 
-    @property
-    def length(self):
-        """Current length of the Merkle-tree (i.e., number of its leaves)
-
-        :rtype: int
-        """
-        return len(self.leaves)
-
-    @property
-    def size(self):
-        """Current number of the Merkle-tree's nodes
-
-        :rtype: int
-        """
-        return len(self.nodes)
-
-    @property
-    def height(self):
-        """Current height of the Merkle-tree
-
-        .. note:: This coincides with the length of the tree's leftmost branch.
-
-        :rtype: int
-        """
-        length = len(self.leaves)
-
-        if length == 0:
-            return 0
-
-        if length != 2 ** log_2(length):
-            return log_2(length + 1)
-
-        return log_2(length)
-
     def _get_last_subroot(self):
         """
         Returns the root of the *full* binary subtree with maximum possible
@@ -663,6 +722,13 @@ class MerkleTree(BaseMerkleTree):
 
     def append_leaf(self, leaf):
         """
+        Insert the provided leaf to the tree by restructuring it appropriately.
+
+        .. note:: This includes creation of possibly new internal nodes and
+            recalculation of hash values for some existing ones.
+
+        :param leaf: leaf node to append
+        :type leaf: Leaf
         """
         if not self:
             self.leaves = [leaf]
@@ -758,7 +824,7 @@ class MerkleTree(BaseMerkleTree):
 
         return offset, tuple(path)
 
-    def _detect_offset(self, digest):
+    def detect_offset(self, digest):
         """
         Detects the position of the leftmost leaf node storing the digest
         counting from zero.
@@ -775,6 +841,7 @@ class MerkleTree(BaseMerkleTree):
         offset = -1
         curr = 0
         leaves = (leaf for leaf in self.leaves)
+        # TODO: Make this loop a binary search
         while True:
 
             try:

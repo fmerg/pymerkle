@@ -17,13 +17,11 @@ VERTICAL_BAR = '│'
 
 
 NODE_TEMPLATE = """
-
     memid   : {node}
     left    : {left}
     right   : {right}
     parent  : {parent}
     hash    : {checksum}
-
 """
 
 
