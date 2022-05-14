@@ -863,7 +863,7 @@ class MerkleTree(BaseMerkleTree):
             raise NoPathException
 
         try:
-            left_subroots = self.principal_subroots(sublength)
+            left_subroots = self.get_principal_subroots(sublength)
         except NoPrincipalSubroots:
             # Incompatilibity issue detected
             raise NoPathException
@@ -894,7 +894,7 @@ class MerkleTree(BaseMerkleTree):
         :rtype: list of (+1/-1, bytes)
         """
         if len(subroots) == 0:
-            return self.principal_subroots(self.length)
+            return self.get_principal_subroots(self.length)
 
         complement = []
         while True:
@@ -960,7 +960,7 @@ class MerkleTree(BaseMerkleTree):
 
         return subroot
 
-    def principal_subroots(self, sublength):
+    def get_principal_subroots(self, sublength):
         """Detects in corresponding order the roots of the successive, leftmost,
         full binary subtrees of maximum (and thus decreasing) length, whose
         lengths sum up to the provided argument. Detected nodes are prepended
@@ -1026,7 +1026,7 @@ class MerkleTree(BaseMerkleTree):
         multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):
 
-            subroots = self.principal_subroots(sublength)
+            subroots = self.get_principal_subroots(sublength)
             path = [(-1, r[1].digest) for r in subroots]
 
             offset = len(path) - 1

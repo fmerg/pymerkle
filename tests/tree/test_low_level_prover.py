@@ -301,7 +301,7 @@ no_principal_subroots_exceptions = [
 @pytest.mark.parametrize("tree, sublength", no_principal_subroots_exceptions)
 def test_NoSubrootsException(tree, sublength):
     with pytest.raises(NoPrincipalSubroots):
-        tree.principal_subroots(sublength)
+        tree.get_principal_subroots(sublength)
 
 
 principal_subroots = [
@@ -336,7 +336,7 @@ principal_subroots = [
 @pytest.mark.parametrize("tree, sublength, principal_subroots",
                          principal_subroots)
 def test_principalSubroots(tree, sublength, principal_subroots):
-    assert tree.principal_subroots(sublength) == principal_subroots
+    assert tree.get_principal_subroots(sublength) == principal_subroots
 
 
 minimal_complements = [
