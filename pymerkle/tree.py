@@ -13,9 +13,7 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import (NoPathException, NoSubtreeException,
-                                 NoPrincipalSubroots, InvalidComparison,
-                                 WrongJSONFormat, UndecodableRecord)
+from pymerkle.exceptions import NoPathException, WrongJSONFormat, UndecodableRecord
 
 NONE_BAR = '\n └─[None]'
 
@@ -264,11 +262,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return not self
@@ -285,11 +283,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return self.__bool__()
@@ -306,11 +304,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
         is not instance of the ``tree.MerkleTree`` class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return True
@@ -327,11 +325,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         return other.__ge__(self)
 
@@ -342,11 +340,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         if not other:
             return self.__bool__()
@@ -363,11 +361,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param other: tree to compare with
         :type other: MerkleTree
 
-        :raises InvalidComparison: if compared with an object that
+        :raises TypeError: if compared with an object that
             is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise InvalidComparison
+            raise TypeError
 
         return other.__gt__(self)
 
@@ -771,7 +769,7 @@ class MerkleTree(BaseMerkleTree):
         :param offset: leaf position (zero based) where audit-path computation
             should be based upon.
         :type offset: int
-        :returns: sequence of signed digests along with starting position for
+        :returns: sequence of signed hashes along with starting position for
             subsequent proof verification. The sign -1 or +1 indicates pairing
             with the left resp. right neighbour when hashing.
         :rtype: (int, tuple of (+1/-1, bytes))
@@ -840,77 +838,71 @@ class MerkleTree(BaseMerkleTree):
         return offset
 
     def generate_consistency_path(self, sublength):
-        """Low-level consistency proof.
+        """
+        Computes the consistency-path for the previous state that corresponds
+        to the provided number of lefmost leaves.
 
-        Computes and returns the consistency-path corresponding to the tree's
-        length for a previous state, along with the position where subsequent
-        proof verification should start from and the sequence of subroots
-        constituting the produced path from the left.
-
-        :param sublength: any number equal to or smaller than the tree's
-                    current length
+        :param sublength: non-negative integer equal to or smaller than the
+            current length of the tree.
         :type sublength: int
-        :returns: Starting position of subsequent proof verification along with
-            sequence of subroots constituting the produced path from the left
-            and the path of signed hashes per se (the sign +1 or -1 indicating
-            pairing with the right or left neighbour respectively)
-        :rtype: (int, tuple of (+1/-1, bytes), tuple of (+1/-1, bytes))
+        :returns: sequence of signed hashes along with starting position for
+            subsequent proof verification. The sign -1 or +1 indicates pairing
+            with the left resp. right neighbour when hashing.
+        :rtype: (int, tuple of (+1/-1, bytes))
 
         :raises NoPathException: if the provided *sublength* is non-positive
-            or no sequence of subroots corresponds to it
+            or does not correspond to any sequence of subroots.
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
 
-        try:
-            left_subroots = self.principal_subroots(sublength)
-        except NoPrincipalSubroots:
-            # Incompatilibity issue detected
+        lefts = self.get_principal_subroots(sublength)
+
+        if lefts is None:
             raise NoPathException
 
-        right_subroots = self.minimal_complement(left_subroots)
-        all_subroots = left_subroots + right_subroots
-        if not right_subroots or not left_subroots:
-            # Reset all signs to minus and start hashing from rightmost
-            all_subroots = [(-1, _[1]) for _ in all_subroots]
-            offset = len(all_subroots) - 1
-        else:
-            # Start hashing from midpoint
-            offset = len(left_subroots) - 1
+        rights = self.minimal_complement(lefts)
+        subroots = lefts + rights
 
-        # Collect sign-hash pairs
-        left_path = tuple((-1, _[1].digest) for _ in left_subroots)
-        path = tuple((_[0], _[1].digest) for _ in all_subroots)
+        if not rights or not lefts:
+            subroots = [(-1, _[1]) for _ in subroots]
+            offset = len(subroots) - 1
+        else:
+            offset = len(lefts) - 1
+
+        left_path = tuple((-1, _[1].digest) for _ in lefts)
+        path = tuple((_[0], _[1].digest) for _ in subroots)
 
         return offset, left_path, path
 
     def minimal_complement(self, subroots):
-        """Complements optimally from the right the provided sequence of subroots,
-        so that a full consistency-path be subsequently generated.
+        """
+        Complements from the right the provided sequence of subroots, so that
+        a full consistenct path can subsequently be generated.
 
-        :param subroots: roots of a complete leftmost sequence of
-                full binary subtrees
-        :type subroots: list of nodes
+        :param subroots: respective sequence of roots of complete full binary
+            subtrees from the left
+        :type subroots: list of Node
         :rtype: list of (+1/-1, bytes)
         """
-        if len(subroots) == 0:
-            return self.principal_subroots(self.length)
+        if not subroots:
+            return self.get_principal_subroots(self.length)
 
         complement = []
         while True:
             subroot = subroots[-1][1]
+
             if not subroot.parent:
                 break
 
             if subroot.is_left_child():
-                if subroot.parent.is_right_child():
-                    sign = -1
-                else:
-                    sign = +1
-                complement.append((sign, subroot.parent.right))
+                sign = -1 if subroot.parent.is_right_child() else + 1
+                node = subroot.parent.right
+                complement.append((sign, node))
                 subroots = subroots[:-1]
             else:
                 subroots = subroots[:-2]
+
             subroots.append((+1, subroot.parent))
 
         return complement
@@ -920,6 +912,9 @@ class MerkleTree(BaseMerkleTree):
         Detects the root of the unique full binary subtree with leftmost
         leaf located at position *offset* and height equal to *height*.
 
+        .. note:: Returns *None* if not subtree exists for the provided
+            parameters.
+
         :param offset: position of leaf where detection should start from
             counting from zero
         :type offset: int
@@ -927,23 +922,21 @@ class MerkleTree(BaseMerkleTree):
         :type height: int
         :returns: root of the detected subtree
         :rtype: Leaf or Node
-
-        :raises NoSubtreeException: if no subtree exists for
-            the provided parameters.
         """
         try:
             subroot = self.leaves[offset]
         except IndexError:
-            raise NoSubtreeException
+            return None
 
         i = 0
         while i < height:
             curr = subroot.parent
 
             if not curr:
-                raise NoSubtreeException
+                return None
+
             if curr.left is not subroot:
-                raise NoSubtreeException
+                return None
 
             subroot = curr
             i += 1
@@ -952,60 +945,55 @@ class MerkleTree(BaseMerkleTree):
         curr = subroot
         i = 0
         while i < height:
-            if isinstance(curr, Leaf):
-                raise NoSubtreeException
+            if curr.is_leaf():
+                return None
 
             curr = curr.right
             i += 1
 
         return subroot
 
-    def principal_subroots(self, sublength):
-        """Detects in corresponding order the roots of the successive, leftmost,
-        full binary subtrees of maximum (and thus decreasing) length, whose
-        lengths sum up to the provided argument. Detected nodes are prepended
-        with a sign (+1 or -1), carrying information for subsequent generation
-        of consistency proofs.
+    def get_principal_subroots(self, sublength):
+        """
+        Returns in respective order the roots of the successive, leftmost, full
+        binary subtrees of maximum (and thus decreasing) length, whosel lengths
+        sum up to the provided number.
+
+        .. note:: Detected nodes are prepended with a sign (+1 or -1) carrying
+        information for generation of consistency proofs.
+
+        .. note:: Returns *None* if the provided number does not fulfill the
+            prescribed conditions.
 
         :param sublength: non negative integer smaller than or equal to the
-                tree's current length, such that the corresponding sequence
-                of subroots exists
-        :returns: Signed roots of the detected subtrees, whose hashes to be
-                    utilized in generation of consistency proofs
+        tree's current length, such that corresponding sequence of subroots
+        exists.
+        :returns: Signed roots of the detected subtrees.
         :rtype: list of signed nodes
-
-        :raises NoPrincipalSubroots: if the provided number does not fulfill
-            the prescribed conditions
         """
         if sublength < 0:
-            # Mask negative input as incompatiblitity
-            raise NoPrincipalSubroots
+            return None
 
         principals = []
         powers = decompose(sublength)
         offset = 0
         for power in powers:
-            try:
-                subroot = self.get_subroot(offset, power)
-            except NoSubtreeException:
-                # Incompatibility issue detected
-                raise NoPrincipalSubroots
+            subroot = self.get_subroot(offset, power)
+
+            if not subroot:
+                return None
 
             parent = subroot.parent
+
             if not parent or not parent.parent:
-                if subroot.is_left_child():
-                    sign = +1
-                else:
-                    sign = -1
+                sign = +1 if subroot.is_left_child() else -1
             else:
-                if parent.is_left_child():
-                    sign = +1
-                else:
-                    sign = -1
+                sign = +1 if parent.is_left_child() else -1
+
             principals.append((sign, subroot))
             offset += 2 ** power
 
-        if len(principals) > 0:
+        if principals:
             # Modify last sign
             principals[-1] = (+1, principals[-1][1])
 
@@ -1026,7 +1014,7 @@ class MerkleTree(BaseMerkleTree):
         multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):
 
-            subroots = self.principal_subroots(sublength)
+            subroots = self.get_principal_subroots(sublength)
             path = [(-1, r[1].digest) for r in subroots]
 
             offset = len(path) - 1
@@ -1035,11 +1023,3 @@ class MerkleTree(BaseMerkleTree):
                 break
 
         return result
-
-    def clear(self):
-        """
-        Deletes all nodes of the Merkle-tree.
-        """
-        self.leaves = []
-        self.nodes = set()
-        self.__root = None

@@ -8,8 +8,7 @@ import os
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.exceptions import (NoSubtreeException, NoPathException,
-                                 NoPrincipalSubroots,)
+from pymerkle.exceptions import NoPathException
 
 
 # Audit proof implementation
@@ -221,7 +220,7 @@ def test_generate_audit_path(tree, offset, path):
 
 # Consistency proof implementation
 
-no_subtree_exceptions = [
+no_subroot_cases = [
     (_0_leaves_tree, 0, 'anything'),
     (_1_leaves_tree, 1, 'anything'),
     (_2_leaves_tree, 2, 'anything'),
@@ -246,10 +245,9 @@ no_subtree_exceptions = [
 ]
 
 
-@pytest.mark.parametrize('tree, offset, height', no_subtree_exceptions)
-def test_NoSubtreeException(tree, offset, height):
-    with pytest.raises(NoSubtreeException):
-        tree.get_subroot(offset, height)
+@pytest.mark.parametrize('tree, offset, height', no_subroot_cases)
+def test_none_subroot(tree, offset, height):
+    assert not tree.get_subroot(offset, height)
 
 
 subroots = [
@@ -284,7 +282,7 @@ def test_get_subroot(tree, offset, height, subroot):
     assert tree.get_subroot(offset, height) is subroot
 
 
-no_principal_subroots_exceptions = [
+no_principal_subroots_cases = [
     (_1_leaves_tree, -1),
     (_1_leaves_tree, +2),
     (_2_leaves_tree, -1),
@@ -298,10 +296,9 @@ no_principal_subroots_exceptions = [
 ]
 
 
-@pytest.mark.parametrize("tree, sublength", no_principal_subroots_exceptions)
-def test_NoSubrootsException(tree, sublength):
-    with pytest.raises(NoPrincipalSubroots):
-        tree.principal_subroots(sublength)
+@pytest.mark.parametrize("tree, sublength", no_principal_subroots_cases)
+def test_no_principal_subroots(tree, sublength):
+    assert tree.get_principal_subroots(sublength) is None
 
 
 principal_subroots = [
@@ -336,7 +333,7 @@ principal_subroots = [
 @pytest.mark.parametrize("tree, sublength, principal_subroots",
                          principal_subroots)
 def test_principalSubroots(tree, sublength, principal_subroots):
-    assert tree.principal_subroots(sublength) == principal_subroots
+    assert tree.get_principal_subroots(sublength) == principal_subroots
 
 
 minimal_complements = [

@@ -81,16 +81,6 @@ def test_UndecodableRecord_upon_tree_construction(byte, encoding, security):
         MerkleTree.init_from_records('a', byte, config=config)
 
 
-# Clearance
-
-def test_clear():
-    tree = MerkleTree.init_from_records('a', 'b', 'c')
-    tree.clear()
-    assert all((
-        not tree.leaves, not tree.nodes, not tree.root
-    ))
-
-
 # Boolean implementation and root-hash
 
 def test_MerkleTree_bool_implementation():

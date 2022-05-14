@@ -7,7 +7,6 @@ import os
 
 from pymerkle import MerkleTree, MerkleVerifier
 from pymerkle.hashing import SUPPORTED_HASH_TYPES
-from pymerkle.exceptions import InvalidComparison
 from tests.conftest import SUPPORTED_ENCODINGS
 
 
@@ -159,53 +158,53 @@ def test_not___lt__(tree_1, tree_2):
 
 # Invalid comparison tests
 
-def test___eq___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test___eq___TypeError():
+    with pytest.raises(TypeError):
         MerkleTree() == 'anything except for a Merkle-tree'
 
 
-def test_not___eq___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test_not___eq___TypeError():
+    with pytest.raises(TypeError):
         MerkleTree() != 'anything except for a Merkle-tree'
 
 
-def test___ge___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test___ge___TypeError():
+    with pytest.raises(TypeError):
         MerkleTree() >= 'anything except for a Merkle-tree'
 
 
-def test_not___ge___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test_not___ge___TypeError():
+    with pytest.raises(TypeError):
         not MerkleTree() >= 'anything except for a Merkle-tree'
 
 
-def test___le___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test___le___TypeError():
+    with pytest.raises(TypeError):
         MerkleTree() <= 'anything except for a Merkle-tree'
 
 
-def test_not___le___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test_not___le___TypeError():
+    with pytest.raises(TypeError):
         not MerkleTree() <= 'anything except for a Merkle-tree'
 
 
-def test___gt___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test___gt___TypeError():
+    with pytest.raises(TypeError):
         MerkleTree() > 'anything except for a Merkle-tree'
 
 
-def test_not___gt___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test_not___gt___TypeError():
+    with pytest.raises(TypeError):
         not MerkleTree() > 'anything except for a Merkle-tree'
 
 
-def test___lt___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test___lt___TypeError():
+    with pytest.raises(TypeError):
         MerkleTree() < 'anything except for a Merkle-tree'
 
 
-def test_not___lt___InvalidComparison():
-    with pytest.raises(InvalidComparison):
+def test_not___lt___TypeError():
+    with pytest.raises(TypeError):
         not MerkleTree() < 'anything except for a Merkle-tree'
 
 
