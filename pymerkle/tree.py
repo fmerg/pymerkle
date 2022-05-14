@@ -885,32 +885,33 @@ class MerkleTree(BaseMerkleTree):
         return offset, left_path, path
 
     def minimal_complement(self, subroots):
-        """Complements optimally from the right the provided sequence of subroots,
-        so that a full consistency-path be subsequently generated.
+        """
+        Complements from the right the provided sequence of subroots, so that
+        a full consistenct path can subsequently be generated.
 
-        :param subroots: roots of a complete leftmost sequence of
-                full binary subtrees
-        :type subroots: list of nodes
+        :param subroots: respective sequence of roots of complete full binary
+            subtrees from the left
+        :type subroots: list of Node
         :rtype: list of (+1/-1, bytes)
         """
-        if len(subroots) == 0:
+        if not subroots:
             return self.get_principal_subroots(self.length)
 
         complement = []
         while True:
             subroot = subroots[-1][1]
+
             if not subroot.parent:
                 break
 
             if subroot.is_left_child():
-                if subroot.parent.is_right_child():
-                    sign = -1
-                else:
-                    sign = +1
-                complement.append((sign, subroot.parent.right))
+                sign = -1 if subroot.parent.is_right_child() else + 1
+                node = subroot.parent.right
+                complement.append((sign, node))
                 subroots = subroots[:-1]
             else:
                 subroots = subroots[:-2]
+
             subroots.append((+1, subroot.parent))
 
         return complement
