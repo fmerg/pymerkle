@@ -1,6 +1,6 @@
 """
-Utilizes hash comparison in order to verify that the the .update() method of
-the tree.MerkleTree class behaves as prescribed.
+Utilizes hash comparison in order to verify that the the encrypt() method
+restructures the Merkle-tree as excepcted
 """
 
 import pytest
@@ -12,7 +12,6 @@ from pymerkle.exceptions import EmptyTreeException
 
 tree = MerkleTree()
 engine = HashEngine()
-update = tree.update
 hash = engine.hash
 
 t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
@@ -25,12 +24,12 @@ def test_0_leaves():
 
 
 def test_1_leaves():
-    update(t_1)
+    tree.encrypt(t_1)
     assert tree.root_hash == hash(t_1)
 
 
 def test_2_leaves():
-    update(t_2)
+    tree.encrypt(t_2)
     assert tree.root_hash == hash(
         hash(t_1),
         hash(t_2)
@@ -38,7 +37,7 @@ def test_2_leaves():
 
 
 def test_3_leaves():
-    update(t_3)
+    tree.encrypt(t_3)
     assert tree.root_hash == hash(
         hash(
             hash(t_1),
@@ -49,7 +48,7 @@ def test_3_leaves():
 
 
 def test_4_leaves():
-    update(t_4)
+    tree.encrypt(t_4)
     assert tree.root_hash == hash(
         hash(
             hash(t_1),
@@ -63,7 +62,7 @@ def test_4_leaves():
 
 
 def test_5_leaves():
-    update(t_5)
+    tree.encrypt(t_5)
     assert tree.root_hash == hash(
         hash(
             hash(
@@ -80,8 +79,8 @@ def test_5_leaves():
 
 
 def test_7_leaves():
-    update(t_6)
-    update(t_7)
+    tree.encrypt(t_6)
+    tree.encrypt(t_7)
     assert tree.root_hash == hash(
         hash(
             hash(
@@ -104,10 +103,10 @@ def test_7_leaves():
 
 
 def test_11_leaves():
-    update(t_8)
-    update(t_9)
-    update(t_10)
-    update(t_11)
+    tree.encrypt(t_8)
+    tree.encrypt(t_9)
+    tree.encrypt(t_10)
+    tree.encrypt(t_11)
     assert tree.root_hash == hash(
         hash(
             hash(

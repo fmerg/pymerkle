@@ -79,7 +79,7 @@ client's side. Invoking it from the Python interpreter, it looks like
 
     >>>
 
-.. note:: Once generated, it is impossible to discern whether a `MerkleProof`_ object
+.. note:: Once generated, it is impossible to discern whether a `MerkleProof` object
     is the result of an audit or a consistency proof request.
 
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
@@ -217,8 +217,8 @@ proof's header. The underlying engine is an instance of the `MerkleVerifier`_ cl
 .. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
 .. _HashEngine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine
 
-Running a verifier
-------------------
+Verification
+============
 
 Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ object itself:
 
@@ -226,43 +226,11 @@ Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ obje
 
     >>> from pymerkle import MerkleVerifier
     >>>
-    >>> verifier = MerkleVerifier(proof)
-    >>> verifier.run()
+    >>> verifier = MerkleVerifier()
+    >>> verifier.verify_proof(proof)
     >>>
 
 .. note:: Verifying a proof in the above fashion leaves the proof's status unaffected.
-
-Successful verification is implied by the fact that the process comes to its end.
-If the proof were invalid, then an ``InvalidProof`` error would have
-been raised instead:
-
-.. code-block:: python
-
-    >>>
-    >>> verifier.run()
-    ...     raiseInvalidProof
-    pymerkle.exceptions.InvalidProof
-    >>>
-
-Instead of feeding a proof at construction, one can alternately reconfigure the
-verifier by means of the `MerkleVerifier.update`_ method. This allows to use
-the same engine for successive verification of multiple proofs:
-
-.. code-block:: python
-
-    >>>
-    >>> verifier = MerkleVerifier()
-    >>>
-    >>> verifier.update(proof_1)
-    >>> verifier.run()
-    ...    raiseInvalidProof
-    pymerkle.exceptions.InvalidProof
-    >>>
-    >>> verifier.update(proof_2)
-    >>> verifier.run()
-    >>>
-
-.. _MerkleVerifier.update: https://pymerkle.readthedocs.io/en/latest/pymerkle.verifications.html#pymerkle.verifications.MerkleVerifier.update
 
 Serialization
 =============

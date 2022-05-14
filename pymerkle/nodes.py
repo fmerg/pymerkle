@@ -17,13 +17,11 @@ VERTICAL_BAR = '│'
 
 
 NODE_TEMPLATE = """
-
     memid   : {node}
     left    : {left}
     right   : {right}
     parent  : {parent}
     hash    : {checksum}
-
 """
 
 
@@ -31,7 +29,7 @@ class Node:
     """
     Merkle-tree node.
 
-    :param digest: The checksum to be stored by the node.
+    :param digest: the digest to be stored by the node.
     :type digest: bytes
     :param encoding: encoding type to be used when decoding the
             digest stored by the node.
@@ -43,7 +41,7 @@ class Node:
     :param right: [optional] right child. Defaults to *None*.
     :type right: Node
     :returns: Node storing the digest of the concatenation of the
-        provided nodes' checksums.
+        provided nodes' digests.
     :rtype: Node
     """
 
@@ -107,6 +105,15 @@ class Node:
     def is_leaf(self):
         return isinstance(self, Leaf)
 
+    def get_checksum(self):
+        """
+        Returns the hex string representing the digest stored by the present
+        node.
+
+        :rtype: str
+        """
+        return self.digest.decode(self.encoding)
+
     @classmethod
     def from_children(cls, left, right, hash_func, encoding):
         """
@@ -116,8 +123,8 @@ class Node:
         :type left: Node
         :param right: right child
         :type right: Node
-        :returns: A node storing the digest of the concatenation of the
-            provided nodes' checksums
+        :returns: a node storing the digest of the concatenation of the
+            provided nodes' digests.
         :rtype: Node
 
         .. note:: No parent is specified during construction. Relation must be
@@ -164,14 +171,14 @@ class Node:
     def __repr__(self):
         """
         .. warning:: Contrary to convention, the output of this method is not
-            insertable into the *eval()* Python builtin function.
+            insertable into the *eval()* builtin Python function.
         """
         def memid(obj): return str(hex(id(obj)))
 
         parent = NONE if not self.__parent else memid(self.__parent)
         left = NONE if not self.__left else memid(self.__left)
         right = NONE if not self.__right else memid(self.__right)
-        checksum = self.digest.decode(self.encoding)
+        checksum = self.get_checksum()
 
         return NODE_TEMPLATE.format(node=memid(self), parent=parent, left=left,
                                     right=right, checksum=checksum)
@@ -223,7 +230,7 @@ class Node:
             out += f' {L_BRACKET_LONG}'
             ignored.append(level)
 
-        checksum = self.digest.decode(self.encoding)
+        checksum = self.get_checksum()
         out += f'{checksum}\n'
 
         if not self.is_leaf():
@@ -256,7 +263,7 @@ class Leaf(Node):
     """
     Merkle-tree leaf node.
 
-    :param digest: The checksum to be stored by the leaf.
+    :param digest: the digest to be stored by the leaf.
     :type digest: bytes or str
     :param encoding: encoding type to be used when decoding the
             digest stored by the leaf.
@@ -283,6 +290,8 @@ class Leaf(Node):
 class NodeSerializer(json.JSONEncoder):
 
     def default(self, obj):
+        """
+        """
         try:
             digest = obj.digest
             encoding = obj.encoding

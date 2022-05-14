@@ -4,15 +4,9 @@ Merkle-tree object
 
     from pymerkle import MerkleTree
 
-imports the `MerkleTree`_ class and
-
-.. _MerkleTree: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree
-
-.. code-block:: python
-
     tree = MerkleTree()
 
-creates an empty Merkle-tree with hash algorithm SHA256 and encoding type
+This creates an empty Merkle-tree with hash algorithm SHA256 and encoding type
 UTF-8, capable of consuming arbitrary bytes (*raw-bytes mode* enabled) and
 defending against second-preimage attacks (*security mode* enabled).
 
@@ -65,7 +59,7 @@ raising an ``UndecodableRecord`` error instead:
 
     >>> tree = MerkleTree(encoding='utf-16', raw_bytes=False)
     >>>
-    >>> tree.update(b'\x74')
+    >>> tree.encrypt(b'\x74')
     Traceback (most recent call last):
     ...    raise UndecodableRecord
     pymerkle.exceptions.UndecodableRecord
@@ -310,13 +304,13 @@ in respective order. For example:
   }
 
 
-One can recover the tree by means of the `.load_from_file`_ classmethod:
+One can recover the tree by means of the `.fromJSONFile`_ classmethod:
 
 .. code-block:: python
 
-    loaded_tree = MerkleTree.load_from_file('relative_path/backup.json')
+    loaded_tree = MerkleTree.fromJSONFile('relative_path/backup.json')
 
-.. _.load_from_file: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.load_from_file
+.. _.fromJSONFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.fromJSONFile
 
 Retrieval of the tree is uniquely determined by the sequence of hashes within
 the provided file

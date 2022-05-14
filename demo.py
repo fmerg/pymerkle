@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Prove and verify encryption of 2nd record
 
     challenge = b'45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
-    proof = tree.generate_audit_proof(challenge, commit=True)
+    proof = tree.generate_audit_proof(challenge)
     print(proof)
     assert v.verify_proof(proof)
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
 
     # Prove and verify saved previous state
-    proof = tree.generate_consistency_proof(subhash, commit=True)
+    proof = tree.generate_consistency_proof(subhash)
     print(proof)
     assert v.verify_proof(proof)
 

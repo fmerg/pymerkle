@@ -1,5 +1,5 @@
-"""Provides the class for Merkle-trees containing the low-level algorithms
-of proof generation
+"""
+Provides abstract interfaces and concrete implementations for Merkle-trees
 """
 
 import json
@@ -12,14 +12,14 @@ from tqdm import tqdm
 from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
+from pymerkle.nodes import Node, Leaf
 from pymerkle.exceptions import (EmptyTreeException,
                                  NoPathException, NoSubtreeException,
                                  NoPrincipalSubroots, InvalidComparison,
                                  WrongJSONFormat, UndecodableRecord)
-from pymerkle.nodes import Node, Leaf
-
 
 NONE_BAR = '\n └─[None]'
+
 TREE_TEMPLATE = """
     uuid      : {uuid}
 
@@ -38,161 +38,170 @@ TREE_TEMPLATE = """
 
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
-    Encryption and prover interface for Merkle-trees.
+    Interface and abstract functionality for Merkle-trees.
     """
+
+    def __init__(self, hash_type='sha256', encoding='utf-8', raw_bytes=True,
+                 security=True):
+        self.hash_type = hash_type
+        self.encoding = encoding
+        self.raw_bytes = raw_bytes
+        self.security = security
+
+        HashEngine.__init__(self, **self.get_config())
+
+    def get_config(self):
+        """
+        Returns the configuration of the Merkle-tree, containing the parameters
+        ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+
+        :rtype: dict
+        """
+        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+                'raw_bytes': self.raw_bytes, 'security': self.security}
+
+    def encrypt(self, record):
+        """
+        Creates a new leaf node with the digest of the provided record and
+        appends it to the Merkle-tree by restructuring it and recalculating the
+        appropriate interior hashes.
+
+        :param record: Record to encrypt.
+        :type record: str or bytes
+
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided record is outside its configured encoding type.
+        """
+        try:
+            leaf = Leaf.from_record(record, self.hash, self.encoding)
+        except UndecodableRecord:
+            raise
+
+        self.append_leaf(leaf)
+
+    @abstractmethod
+    def append_leaf(self):
+        """
+        Define here the tree's growing strategy.
+        """
+
+    @classmethod
+    def init_from_records(cls, *records, config=None):
+        """
+        Create Merkle-tree from initial records.
+
+        :param records: Initial records to encrypt into the Merkle-tree.
+        :type records: iterable of bytes or str
+        :param config: Configuration of tree. Must contain a subset of keys
+            ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+        :type config: dict
+
+        :raises UndecodableRecord: if *raw_modes* is disabled and any of the
+            provided record is not compatible with the tree's encoding type.
+        """
+        config = {} if not config else config
+        tree = cls(**config)
+
+        for record in records:
+            tree.encrypt(record)
+
+        return tree
 
     @property
     @abstractmethod
     def length(self):
         """
+        Should return the current number of leaf nodes.
         """
 
+    @property
     @abstractmethod
-    def _detect_offset(self, checksum):
+    def size(self):
         """
+        Should return the current number of nodes
         """
 
+    @property
     @abstractmethod
-    def update(self, record):
+    def height(self):
         """
+        Should return the current height of the tree.
+        """
+
+    @property
+    @abstractmethod
+    def root(self):
+        """
+        Should return the current root of the tree.
+        """
+
+    @property
+    @abstractmethod
+    def root_hash(self):
+        """
+        Should return the hash value stored by the tree's current root node.
         """
 
     @abstractmethod
     def get_root_hash(self):
         """
+        Should return the hash value stored by the tree's current root node if
+        the tree is not empty or *None*.
+        """
+
+    def create_proof(self, offset, path, commit=True):
+        """
+        Creates a proof object from the provided path of hashes including the
+        configuration of the present tree as verification parameters.
+
+        :param offset: starting position of the verification procedure
+        :type offset: int
+        :param path: path of hashes
+        :type path: iterable of (+1/-1, bytes)
+        :param commit: [optional] Include current root-hash as commitment.
+            Defaults to *True*.
+        :type commit: bool
+        :returns: proof object consisting of the above components
+        :rtype: MerkleProof
+        """
+        params = self.get_config()
+        params.update({'provider': self.uuid})  # TODO
+        commitment = self.get_root_hash() if commit else None
+
+        proof = MerkleProof(path=path, offset=offset, commitment=commitment,
+                            **params)
+        return proof
+
+    @abstractmethod
+    def detect_offset(self, digest):
+        """
+        Define here how to locate the leaf node storing the provided hash
+        value.
         """
 
     @abstractmethod
     def generate_audit_path(self, offset):
         """
+        Define here how to construct path of hashes for audit-proofs.
         """
 
-    @abstractmethod
-    def generate_consistency_path(self, sublength):
+    def generate_audit_proof(self, digest, commit=True):
         """
-        """
+        Computes an audit-proof for the provided hash value.
 
-    def create_proof(self, offset, path, commit=False):
-        commitment = self.get_root_hash() if commit else None
-        proof = MerkleProof(provider=self.uuid,
-                            hash_type=self.hash_type,
-                            encoding=self.encoding,
-                            security=self.security,
-                            raw_bytes=self.raw_bytes,
-                            commitment=commitment,
-                            offset=offset,
-                            path=path)
-        return proof
+        .. note:: The output is intended to prove that the provided hash value
+            is the digest of a record that has indeed been appended to the tree.
 
-    def encrypt(self, record):
-        """Updates the Merkle-tree by storing the checksum of the provided record
-        into a newly-created leaf.
-
-        :param record: Record whose checksum is to be stored into a new leaf
-        :type record: str or bytes
-
-        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided record is out of its configured encoding type
-        """
-        try:
-            self.update(record)
-        except UndecodableRecord:
-            raise
-
-    def encrypt_file_content(self, filepath):
-        """Encrypts the provided file as a single new leaf into the Merkle-tree.
-
-        Updates the Merkle-tree with *one* newly-created leaf storing the
-        checksum of the provided file's content.
-
-        :param filepath: Relative path of the file under encryption with
-                respect to the current working directory
-        :type filepath: str
-
-        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided files contains sequences out of the tree's
-            configured encoding type
-        """
-        with open(os.path.abspath(filepath), mode='r') as f:
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-                try:
-                    self.update(buff.read())
-                except UndecodableRecord:
-                    raise
-
-    def encrypt_file_per_line(self, filepath):
-        """Per line encryption of the provided file into the Merkle-tree.
-
-        Successively updates the tree with each line of the provided
-        file in respective order
-
-        :param filepath: Relative path of the file under enryption with
-            respect to the current working directory
-        :type filepath: str
-
-        :raises UndecodableRecord: if the tree does not accept arbitrary bytes
-            and the provided files contains sequences out of the tree's
-            configured encoding type
-        """
-        absolute_filepath = os.path.abspath(filepath)
-        with open(absolute_filepath, mode='r') as f:
-            buff = mmap.mmap(
-                f.fileno(),
-                0,
-                access=mmap.ACCESS_READ
-            )
-
-        # Extract lines
-        records = []
-        readline = buff.readline
-        append = records.append
-        if not self.raw_bytes:
-            # Check that no line of the provided file is outside
-            # the tree's encoding type and discard otherwise
-            encoding = self.encoding
-            while True:
-                record = readline()
-                if not record:
-                    break
-                try:
-                    record = record.decode(encoding)
-                except UnicodeDecodeError as err:
-                    raise UndecodableRecord(err)
-                append(record)
-        else:
-            # No need to check anything, just load all lines
-            while True:
-                record = readline()
-                if not record:
-                    break
-                append(record)
-
-        # Perform line by line encryption
-        tqdm.write('')
-        update = self.update
-        for record in tqdm(
-                records, desc='Encrypting file per line', total=len(records)):
-            update(record)
-        tqdm.write('Encryption complete\n')
-
-    def generate_audit_proof(self, checksum, commit=False):
-        """Response of the Merkle-tree to the request of providing an
-        audit proof based upon the provided checksum
-
-        :param checksum: checksum which the requested proof should be based
-            upon
-        :type checksum: bytes
+        :param digest: hash value to be proven
+        :type digest: bytes
+        :param commit: [optional] Include current root-hash as commitment.
+            Defaults to *True*.
+        :type commit: bool
         :rtype: MerkleProof
         """
         offset = -1
         path = ()
-        offset = self._detect_offset(checksum)
+        offset = self.detect_offset(digest)
         try:
             offset, path = self.generate_audit_path(offset)
         except NoPathException:
@@ -201,18 +210,30 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.create_proof(offset, path, commit=commit)
         return proof
 
-    def generate_consistency_proof(self, subhash, commit=False):
-        """Response of the Merkle-tree to the request of providing a consistency
-        proof for the acclaimed root-hash of some previous state
+    @abstractmethod
+    def generate_consistency_path(self, sublength):
+        """
+        Define here how to construct path of hashes for consistency-proofs.
+        """
 
-        :param subhash: acclaimed root-hash of some previous
-                state of the Merkle-tree
+    def generate_consistency_proof(self, subhash, commit=True):
+        """
+        Computes a consistency-proof for the provided hash value.
+
+        .. note:: The output is intended to prove that the provided hash value
+            is the acclaimed root-hash of some previous state of the tree.
+
+        :param subhash: acclaimed root-hash of some previous state of the tree.
         :type subhash: bytes
+        :param commit: [optional] Include current root-hash as commitment.
+            Defaults to *True*.
+        :type commit: bool
         :rtype: MerkleProof
 
         """
         offset = -1
         path = ()
+        # TODO: Make this loop a binary search
         for sublength in range(1, self.length + 1):
             try:
                 _offset, left_path, _path = self.generate_consistency_path(
@@ -227,85 +248,434 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.create_proof(offset, path, commit=commit)
         return proof
 
+    @abstractmethod
+    def includes(self, subhash):
+        """
+        Define here how the tree should validate whether the provided hash
+        value corresponds to a previius state.
+        """
+
+    @abstractmethod
+    def __bool__(self):
+        """
+        This should return *False* iff the Merkle-tree is empty.
+        """
+
+    def __eq__(self, other):
+        """
+        Implements the ``==`` operator
+
+        :param other: tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return not self
+
+        if not self:
+            return True
+
+        return self.root_hash == other.root_hash
+
+    def __ne__(self, other):
+        """
+        Implements the ``!=`` operator
+
+        :param other: tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return self.__bool__()
+
+        if not self:
+            return True
+
+        return self.root_hash != other.root_hash
+
+    def __ge__(self, other):
+        """
+        Implements the ``>=`` operator
+
+        :param other: tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+        is not instance of the ``tree.MerkleTree`` class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return True
+
+        if not self:
+            return False
+
+        return self.includes(other.root_hash)
+
+    def __le__(self, other):
+        """
+        Implements the ``<=`` operator
+
+        :param other: tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        return other.__ge__(self)
+
+    def __gt__(self, other):
+        """
+        Implements the ``>`` operator
+
+        :param other: tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        if not other:
+            return self.__bool__()
+
+        elif not self or self.root_hash == other.root_hash:
+            return False
+
+        return self.includes(other.root_hash)
+
+    def __lt__(self, other):
+        """
+        Implements the ``<`` operator
+
+        :param other: tree to compare with
+        :type other: MerkleTree
+
+        :raises InvalidComparison: if compared with an object that
+            is not instance of the *MerkleTree* class
+        """
+        if not isinstance(other, self.__class__):
+            raise InvalidComparison
+
+        return other.__gt__(self)
+
+    def __repr__(self):
+        """
+        .. warning:: Contrary to convention, the output of this method is not
+            insertable into the *eval()* builtin Python function.
+        """
+        hash_type = self.hash_type.upper().replace('_', '')
+        encoding = self.encoding.upper().replace('_', '-')
+        security = 'ACTIVATED' if self.security else 'DEACTIVATED'
+        raw_bytes = str(self.raw_bytes).upper()
+        root_hash = self.root_hash.decode(self.encoding) if self else NONE
+
+        kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
+              'raw_bytes': raw_bytes, 'security': security,
+              'root_hash': root_hash, 'length': self.length,
+              'size': self.size, 'height': self.height}
+
+        return TREE_TEMPLATE.format(**kw)
+
+    def __str__(self, indent=3):
+        """
+        Designed so that printing the tree has an output similar to what is
+        printed at console when running the ``tree`` command of Unix based
+        platforms.
+
+        :rtype: str
+
+        .. note:: Left children appear above the right ones.
+        """
+        try:
+            root = self.root
+        except EmptyTreeException:
+            return NONE_BAR
+
+        return root.__str__(indent=indent)
+
+    def encrypt_file_content(self, filepath):
+        """
+        Creates a new leaf node with the digest of the file's content and
+        appends it to the Merkle-tree by restructuring it and recalculating the
+        appropriate interior hashes.
+
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
+        :type filepath: str
+
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided file contains bytes outside its configured encoding type.
+        """
+        with open(os.path.abspath(filepath), mode='rb') as f:
+            with contextlib.closing(
+                mmap.mmap(
+                    f.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
+            ) as buff:
+                # TODO: Should we remove newlines from content?
+                content = buff.read()
+                try:
+                    self.encrypt(content)
+                except UndecodableRecord:
+                    raise
+
+    def encrypt_file_per_line(self, filepath):
+        """
+        Per line encryption of the provided file into the Merkle-tree.
+
+        For each line of the provided file, successively create a leaf storing
+        its digest and append ii to the tree by restructuring it and
+        realculating appropriate interior hashes.
+
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
+        :type filepath: str
+
+        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
+            provided file contains bytes outside its configured encoding type.
+        """
+        with open(os.path.abspath(filepath), mode='rb') as f:
+            buff = mmap.mmap(
+                f.fileno(),
+                0,
+                access=mmap.ACCESS_READ
+            )
+
+        # Extract lines
+        records = []
+        if not self.raw_bytes:
+            # Check that no line of the provided file is outside
+            # the tree's encoding type and discard otherwise
+            encoding = self.encoding
+            while True:
+
+                # TODO: Should we string newline from content?
+                record = buff.readline()
+                if not record:
+                    break
+
+                try:
+                    record = record.decode(encoding)
+                except UnicodeDecodeError as err:
+                    raise UndecodableRecord(err)
+
+                records.append(record)
+        else:
+            # No need to check anything, just load all lines
+            while True:
+
+                # TODO: Should we strip newline from content?
+                record = buff.readline()
+                if not record:
+                    break
+
+                records.append(record)
+
+        # Line by line encryption
+        tqdm.write('')
+        encrypt = self.encrypt
+        for record in tqdm(records, desc='Encrypting file per line',
+                           total=len(records)):
+            encrypt(record)
+
+        tqdm.write('Encryption complete\n')
+
+    def serialize(self):
+        """
+        Returns a JSON dictionary with the Merkle-tree's characteristics along
+        with the hash values stored by its node leaves.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
+
+        :rtype: dict
+        """
+        return MerkleTreeSerializer().default(self)
+
+    def toJSONtext(self, indent=4):
+        """
+        Returns a JSON text with the Merkle-tree's characteristics along
+        with the hash values stored by its node leaves.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
+
+        :rtype: str
+        """
+        return json.dumps(self, cls=MerkleTreeSerializer, sort_keys=True,
+                          indent=indent)
+
+    def export(self, filepath, indent=4):
+        """
+        Exports the JSON serialization of the Merkle-tree into the provided
+        file.
+
+        .. warning:: The file is created if it does not exist. If the file
+            already exists then it will be overwritten.
+
+        :param filepath: relevant path of export file with respect to the
+            current working directory.
+        :type filepath: str
+        """
+        with open(filepath, 'w') as f:
+            json.dump(self.serialize(), f, indent=indent)
+
+    @classmethod
+    def fromJSONFile(cls, filepath):
+        """
+        Loads a Merkle-tree from the provided JSON file, the latter being the
+        result of an export (cf. the MerkleTree ``export()`` method).
+
+        :param filepath: relative path of file with respect to the current
+            working directory.
+        :type filepath: str
+        :returns: the loaded tree
+        :rtype: MerkleTree
+
+        :raises WrongJSONFormat: if the provided JSON object is not
+            the serialization of a Merkle-tree.
+        """
+        with open(filepath, 'r') as f:
+            obj = json.load(f)
+
+        try:
+            header = obj['header']
+            digests = obj['hashes']
+            tree = cls(**header)
+        except KeyError:
+            raise WrongJSONFormat
+
+        tqdm.write('\nFile has been loaded')
+        append = tree.append_leaf
+        for digest in tqdm(digests, desc='Retrieving tree...'):
+            leaf = Leaf(digest, tree.encoding)
+            append(leaf)
+        tqdm.write('Tree has been retrieved')
+
+        return tree
+
+
+class MerkleTreeSerializer(json.JSONEncoder):
+
+    def default(self, obj):
+        """
+        """
+        try:
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
+            leaves = obj.leaves
+            raw_bytes = obj.raw_bytes
+        except AttributeError:
+            return json.JSONEncoder.default(self, obj)
+
+        hashes = [leaf.get_checksum() for leaf in leaves]
+
+        return {
+            'header': {
+                'hash_type': hash_type,
+                'encoding': encoding,
+                'raw_bytes': raw_bytes,
+                'security': security
+            },
+            'hashes': hashes,
+        }
+
 
 class MerkleTree(BaseMerkleTree):
     """
-    Concrete Merkle-tree implementation
+    Concrete Merkle-tree implementation.
 
-    :param hash_type: [optional] Specifies the Merkle-tree's hashing algorithm.
-                    Defaults to *sha256*.
+    :param hash_type: [optional] Specifies the tree's hashing algorithm.
+        Defaults to *sha256*.
     :type hash_type: str
-    :param encoding: [optional] Specifies the Merkle-tree's encoding type.
-                    Defaults to *utf_8*.
+    :param encoding: [optional] Specifies the tree's encoding type. Defaults to
+        *utf_8*.
     :type encoding: str
-    :param raw_bytes: [optional] Specifies whether the Merkle-tree will accept
-                raw binary data (independently of its configured encoding
-                type). Defaults to *True*.
+    :param raw_bytes: [optional] Specifies whether the tree will accept
+        arbitrary binary data independently of its encoding type. Defaults to
+        *True*.
     :type raw_bytes: bool
     :param security: [optional Specifies if defense against second-preimage
-                attack is enabled. Defaults to *True*.
+        attack will be enabled. Defaults to *True*.
     :type security: bool
-
-    :ivar uuid: (*str*) uuid of the Merkle-tree (time-based)
-    :ivar hash_type: (*str*) See the constructor's homonymous argument
-    :ivar encoding: (*str*) See the constructor's homonymous argument
-    :ivar raw_bytes: (*bool*) See the constructor's homonymous argument
-    :ivar security: (*bool*) See the constructor's homonymous argument
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
                  raw_bytes=True, security=True):
-
         self.uuid = generate_uuid()
         self.leaves = []
         self.nodes = set()
+
         super().__init__(hash_type, encoding, raw_bytes, security)
 
-    @classmethod
-    def init_from_records(cls, *records, config=None):
-        """
-        """
-        if not config:
-            config = {}
-        tree = cls(**config)
-        for record in records:
-            try:
-                tree.update(record)
-            except UndecodableRecord:
-                raise
-        return tree
-
-    def get_config(self):
-        return {
-            'hash_type': self.hash_type,
-            'encoding': self.encoding,
-            'raw_bytes': self.raw_bytes,
-            'security': self.security,
-        }
-
-    def clear(self):
-        """Deletes all nodes of the Merkle-tree
-        """
-        self.leaves = []
-        self.nodes = set()
-        try:
-            del self.__root
-        except AttributeError:
-            pass
-
     def __bool__(self):
-        """
-        :returns: *False* iff the Merkle-tree is empty (no nodes)
-        :rtype: bool
-        """
+
         return bool(self.nodes)
 
     @property
-    def root(self):
-        """Current root of the Merkle-tree
+    def length(self):
+        """
+        Current number of leaf nodes.
 
-        :returns: The tree's current root-node
-        :rtype: Leaf or Node
+        :rtype: int
+        """
+        return len(self.leaves)
+
+    @property
+    def size(self):
+        """
+        Current number of nodes.
+
+        :rtype: int
+        """
+        return len(self.nodes)
+
+    @property
+    def height(self):
+        """
+        Current height of tree.
+
+        .. note:: This coincides with the length of the tree's leftmost branch.
+
+        :rtype: int
+        """
+        length = len(self.leaves)
+
+        if length == 0:
+            return 0
+
+        if length != 2 ** log_2(length):
+            return log_2(length + 1)
+
+        return log_2(length)
+
+    @property
+    def root(self):
+        """
+        Current root of the tree.
+
+        :returns: The tree's current root-node.
+        :rtype: Node
 
         :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
@@ -340,60 +710,6 @@ class MerkleTree(BaseMerkleTree):
         except EmptyTreeException:
             return None
 
-    @property
-    def length(self):
-        """Current length of the Merkle-tree (i.e., number of its leaves)
-
-        :rtype: int
-        """
-        return len(self.leaves)
-
-    @property
-    def size(self):
-        """Current number of the Merkle-tree's nodes
-
-        :rtype: int
-        """
-        return len(self.nodes)
-
-    @property
-    def height(self):
-        """Current height of the Merkle-tree
-
-        .. note:: This coincides with the length of the tree's leftmost branch.
-
-        :rtype: int
-        """
-        length = len(self.leaves)
-
-        if length == 0:
-            return 0
-
-        if length != 2 ** log_2(length):
-            return log_2(length + 1)
-
-        return log_2(length)
-
-
-    def update(self, record):
-        """Updates the Merkle-tree by storing the digest of the inserted record
-        into a newly-created leaf. Restructures the tree appropriately and
-        recalculates appropriate interior hashes
-
-        :param record: [optional] The record whose digest is to be stored into
-                    a new leaf
-        :type record:  str or bytes
-        :raises UndecodableRecord: if the Merkle-tree is not in raw-bytes mode
-            and the provided record does not fall under its configured type
-        """
-        try:
-            new_leaf = Leaf.from_record(record, self.hash, self.encoding)
-        except UndecodableRecord:
-            raise
-
-        self.append_leaf(new_leaf)
-
-
     def _get_last_subroot(self):
         """
         Returns the root of the *full* binary subtree with maximum possible
@@ -406,6 +722,13 @@ class MerkleTree(BaseMerkleTree):
 
     def append_leaf(self, leaf):
         """
+        Insert the provided leaf to the tree by restructuring it appropriately.
+
+        .. note:: This includes creation of possibly new internal nodes and
+            recalculation of hash values for some existing ones.
+
+        :param leaf: leaf node to append
+        :type leaf: Leaf
         """
         if not self:
             self.leaves = [leaf]
@@ -438,83 +761,98 @@ class MerkleTree(BaseMerkleTree):
                     curr.recalculate_hash(hash_func=self.hash)
                     curr = curr.parent
 
-    def generate_audit_path(self, offset):
-        """Low-level audit proof.
+    def get_leaf(self, offset):
+        """
+        Get the leaf node corresponding to the provided position counting from
+        zero. Returns *None* if the provided position is negative or exceeds
+        the current number of leaves.
 
-        Computes and returns the audit-path corresponding to the provided leaf
-        index along with the position where subsequent proof verification should
-        start from.
-
-        :param offset: position (zero based leaf index) where audit-path
-                computation should be based upon
+        :param offset: position of leaf node
         :type offset: int
-        :returns: Starting position of subsequent proof verification along with
-            a sequence of signed checksums (the sign +1 or -1 indicating
-            pairing with the right or left neighbour respectively)
+        :returns: leaf at provided position
+        :rtype: Leaf
+        """
+        if offset < 0:
+            return None
+
+        try:
+            leaf = self.leaves[offset]
+        except IndexError:
+            return None
+
+        return leaf
+
+    def generate_audit_path(self, offset):
+        """
+        Computes the audit-path corresponding to the provided leaf index.
+
+        :param offset: leaf position (zero based) where audit-path computation
+            should be based upon.
+        :type offset: int
+        :returns: sequence of signed digests along with starting position for
+            subsequent proof verification. The sign -1 or +1 indicates pairing
+            with the left resp. right neighbour when hashing.
         :rtype: (int, tuple of (+1/-1, bytes))
 
         :raises NoPathException: if the provided offset exceed's the tree's
-            current length
+            current length or is negative.
         """
-        if offset  < 0:
-            # Handle negative offset case as NoPathException, since
-            # certain negative indices might otherwise be
-            # considered as valid positions
+        leaf = self.get_leaf(offset)
+
+        if not leaf:
             raise NoPathException
 
-        try:
-            curr = self.leaves[offset]
-        except IndexError:
-            raise NoPathException  # Covers also the empty tree case
+        sign = -1 if leaf.is_right_child() else +1
+        path = [(sign, leaf.digest)]
 
-        initial_sign = +1
-        if curr.is_right_child():
-            initial_sign = -1
-        path = [(initial_sign, curr.digest)]
-
+        curr = leaf
         offset = 0
         while curr.parent:
             parent = curr.parent
+
             if curr.is_left_child():
-                checksum = parent.right.digest
-                if parent.is_left_child():
-                    sign = +1
-                else:
-                    sign = -1
-                path.append((sign, checksum))
+                digest = parent.right.digest
+                sign = +1 if parent.is_left_child() else -1
+                path.append((sign, digest))
             else:
-                checksum = parent.left.digest
-                if parent.is_right_child():
-                    sign = -1
-                else:
-                    sign = +1
-                path.insert(0, (sign, checksum))
+                digest = parent.left.digest
+                sign = -1 if parent.is_right_child() else +1
+                path.insert(0, (sign, digest))
                 offset += 1
+
             curr = parent
 
         return offset, tuple(path)
 
-    def _detect_offset(self, checksum):
-        """Returns the (zero-based) index of the leftmost leaf storing the
-        provided checksum.
+    def detect_offset(self, digest):
+        """
+        Detects the position of the leftmost leaf node storing the digest
+        counting from zero.
+
+        :type digest: bytes
+        :returns: position of corresponding leaf counting from zero
+        :rtype: int
 
         .. note:: Returns -1 if no such leaf node exists.
 
-        :param checksum:
-        :type checksum: bytes
+        :type digest: bytes
         :rtype: int
         """
         offset = -1
         curr = 0
         leaves = (leaf for leaf in self.leaves)
+        # TODO: Make this loop a binary search
         while True:
+
             try:
                 leaf = next(leaves)
             except StopIteration:
                 break
-            if checksum == leaf.digest:
+
+            if digest == leaf.digest:
                 offset = curr
                 break
+
             curr += 1
 
         return offset
@@ -582,7 +920,6 @@ class MerkleTree(BaseMerkleTree):
             if not subroot.parent:
                 break
 
-            # subroot = subroots[-1][1]
             if subroot.is_left_child():
                 if subroot.parent.is_right_child():
                     sign = -1
@@ -689,253 +1026,37 @@ class MerkleTree(BaseMerkleTree):
         return subroot
 
     def includes(self, subhash):
-        """Verifies that the provided parameter corresponds to a valid previous
-        state of the Merkle-tree
+        """
+        Verifies that the provided parameter corresponds to a valid previous
+        state of the Merkle-tree.
 
-        :param subhash: acclaimed root-hash of some previous
-                state of the Merkle-tree
+        :param subhash: acclaimed root-hash of some previous state of the
+            Merkle-tree.
         :type subhash: bytes
         :rtype: bool
         """
-        included = False
+        result = False
+
         multi_hash = self.multi_hash
         for sublength in range(1, self.length + 1):
-            left_roots = self.principal_subroots(sublength)
-            left_path = tuple((-1, _[1].digest) for _ in left_roots)
-            if subhash == multi_hash(left_path, len(left_path) - 1):
-                included = True
+
+            subroots = self.principal_subroots(sublength)
+            path = [(-1, r[1].digest) for r in subroots]
+
+            offset = len(path) - 1
+            if subhash == multi_hash(path, offset):
+                result = True
                 break
 
-        return included
+        return result
 
-    def export(self, filepath):
+    def clear(self):
         """
-        Creates a *.json* file located at the provided path and exports into
-        it the required minimum, so that the Merkle-tree can be retrieved in
-        its current state from that file
-
-        .. note:: If the provided path does not end with *.json*, then this
-            extension will be automatically appended to it before exporting
-
-        .. warning:: If a file already exists at the provided path,
-                then it will be overwritten
-
-        :param filepath: relative path of the export file with respect to the
-                current working directory
-        :type filepath: str
+        Deletes all nodes of the Merkle-tree.
         """
-        with open(f'{filepath}.json' if not filepath.endswith('.json')
-                  else filepath, 'w') as f:
-            json.dump(self.serialize(), f, indent=4)
-
-    @classmethod
-    def load_from_file(cls, filepath):
-        """Loads a Merkle-tree from the provided file, the latter being the result
-        of an export (cf. the *MerkleTree.export()* method)
-
-        :param filepath: relative path of the file to load from with
-                respect to the current working directory
-        :type filepath: str
-        :returns: The tree loaded from the provided file
-        :rtype: MerkleTree
-
-        :raises WrongJSONFormat: if the JSON object loaded from within the
-                    provided file is not a Merkle-tree export
-        """
-        with open(filepath, 'r') as f:
-            obj = json.load(f)
+        self.leaves = []
+        self.nodes = set()
         try:
-            header = obj['header']
-            tree = cls(**header)
-        except KeyError:
-            raise WrongJSONFormat
-
-        tqdm.write('\nFile has been loaded')
-        append_leaf = tree.append_leaf
-        for checksum in tqdm(obj['hashes'], desc='Retrieving tree...'):
-            new_leaf = Leaf(checksum, tree.encoding)
-            append_leaf(new_leaf)
-        tqdm.write('Tree has been retrieved')
-
-        return tree
-
-    def __eq__(self, other):
-        """Implements the ``==`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return not self
-
-        return True if not self else self.root_hash == other.root_hash
-
-    def __ne__(self, other):
-        """Implements the ``!=`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return self.__bool__()
-
-        return True if not self else self.root_hash != other.root_hash
-
-    def __ge__(self, other):
-        """
-        Implements the ``>=`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-        is not instance of the ``tree.MerkleTree`` class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return True
-
-        return False if not self else \
-            self.includes(other.root_hash)
-
-    def __le__(self, other):
-        """Implements the ``<=`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        return other.__ge__(self)
-
-    def __gt__(self, other):
-        """
-        Implements the ``>`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        if not other:
-            return self.__bool__()
-
-        elif not self or self.root_hash == other.root_hash:
-            return False
-
-        return self.includes(other.root_hash)
-
-    def __lt__(self, other):
-        """Implements the ``<`` operator
-
-        :param other: Merkle-tree to compare with
-        :type other: MerkleTree
-
-        :raises InvalidComparison: if compared with an object that
-            is not instance of the *MerkleTree* class
-        """
-        if not isinstance(other, self.__class__):
-            raise InvalidComparison
-
-        return other.__gt__(self)
-
-    def __repr__(self):
-        """Sole purpose of this function is to display info about
-        the Merkle-tree by just invoking it at console.
-
-        .. warning:: Contrary to convention, the output of this implementation
-            is not insertable to the eval() builtin Python function.
-        """
-        return TREE_TEMPLATE.format(
-            uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', ''),
-            encoding=self.encoding.upper().replace('_', '-'),
-            raw_bytes=str(self.raw_bytes).upper(),
-            security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.root_hash.decode(self.encoding) if self else NONE,
-            length=self.length,
-            size=self.size,
-            height=self.height)
-
-    def __str__(self, indent=3):
-        """Designed so that inserting the Merkle-tree into the *print()* function
-        displays it in a terminal friendly way, that is, resembles the output
-        of the ``tree`` command at Unix based platforms
-
-        :param indent: [optional] The horizontal depth at which each level will
-                be indented with respect to its previous one. Defaults to 3.
-        :type indent: int
-        :rtype: str
-
-        .. note:: Left children are printed *above* the right ones
-        """
-        try:
-            root = self.root
-        except EmptyTreeException:
-            return NONE_BAR
-
-        return root.__str__(indent=indent)
-
-    def serialize(self):
-        """Returns a JSON entity with the Merkle-trees's current characteristics
-        and digests stored by its leaves.
-
-        :rtype: dict
-        """
-        return MerkleTreeSerializer().default(self)
-
-    def toJSONtext(self):
-        """Returns a JSON text with the Merkle-tree's current characteristics
-        and digests stored by its leaves.
-
-        :rtype: str
-        """
-        return json.dumps(self,
-                          cls=MerkleTreeSerializer, sort_keys=True, indent=4)
-
-
-class MerkleTreeSerializer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of Merkle-trees.
-    """
-
-    def default(self, obj):
-        """Overrides the built-in method of JSON encoders.
-        """
-        try:
-            hash_type = obj.hash_type
-            encoding = obj.encoding
-            security = obj.security
-            leaves = obj.leaves
-            raw_bytes = obj.raw_bytes
+            del self.__root
         except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-        return {
-            'header': {
-                'hash_type': hash_type,
-                'encoding': encoding,
-                'raw_bytes': raw_bytes,
-                'security': security},
-            'hashes': [leaf.digest.decode(encoding) for leaf in leaves]
-        }
+            pass

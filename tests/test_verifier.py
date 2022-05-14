@@ -17,7 +17,7 @@ from tests.conftest import SUPPORTED_ENCODINGS
 def test_verify_proof_with_commitment():
     tree = MerkleTree.init_from_records(
         *[f'{i}-th record' for i in range(666)])
-    proof = tree.generate_audit_proof(tree.hash('100-th record'), commit=True)
+    proof = tree.generate_audit_proof(tree.hash('100-th record'))
     commitment = proof.header['commitment']
     v = MerkleVerifier()
     assert v.verify_proof(proof) is v.verify_proof(proof, commitment)
@@ -100,7 +100,7 @@ for (tree, subtree) in trees_and_subtrees:
         (
             tree,
             tree.generate_consistency_proof(
-                b'anything except for the right hash')
+                b'anything except for the right hash value')
         )
     )
 
