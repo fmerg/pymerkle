@@ -48,6 +48,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         self.raw_bytes = raw_bytes
         self.security = security
 
+        self.uuid = generate_uuid()
+
         HashEngine.__init__(self, **self.get_config())
 
     def get_config(self):
@@ -165,7 +167,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :rtype: MerkleProof
         """
         params = self.get_config()
-        params.update({'provider': self.uuid})  # TODO
+        params.update({'provider': self.uuid})
         commitment = self.get_root_hash() if commit else None
 
         proof = MerkleProof(path=path, offset=offset, commitment=commitment,
@@ -622,7 +624,6 @@ class MerkleTree(BaseMerkleTree):
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
                  raw_bytes=True, security=True):
-        self.uuid = generate_uuid()
         self.leaves = []
         self.nodes = set()
 
@@ -688,7 +689,7 @@ class MerkleTree(BaseMerkleTree):
     def root_hash(self):
         """
         :returns: Current root-hash of the Merkle-tree
-        :rtype:   bytes
+        :rtype: bytes
 
         :raises EmptyTreeException: if the Merkle-tree is currently empty
         """
