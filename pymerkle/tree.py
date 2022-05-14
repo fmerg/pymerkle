@@ -709,23 +709,22 @@ class MerkleTree(BaseMerkleTree):
         :param leaf: leaf node to append
         :type leaf: Leaf
         """
-        if not self:
-            self.leaves = [leaf]
-            self.nodes = set([leaf])
-            self.__root = leaf
-        else:
+        if self:
             subroot = self._get_last_subroot()
 
             # Assimilate new leaf
             self.leaves.append(leaf)
             self.nodes.add(leaf)
 
-            parent = subroot.parent
-            if not parent:
-                # Subroot was previously root
+            if not subroot.parent:
+
+                # Increase height by one
                 self.__root = Node.from_children(subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(self.__root)
+
             else:
+                parent = subroot.parent
+
                 # Create bifurcation node
                 new_node = Node.from_children(subroot, leaf, self.hash, self.encoding)
                 self.nodes.add(new_node)
@@ -739,6 +738,10 @@ class MerkleTree(BaseMerkleTree):
                 while curr:
                     curr.recalculate_hash(hash_func=self.hash)
                     curr = curr.parent
+        else:
+            self.leaves.append(leaf)
+            self.nodes.add(leaf)
+            self.__root = leaf
 
     def get_leaf(self, offset):
         """
