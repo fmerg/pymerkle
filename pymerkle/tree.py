@@ -13,9 +13,8 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import (NoPathException, NoPrincipalSubroots,
-                                 InvalidComparison, WrongJSONFormat,
-                                 UndecodableRecord)
+from pymerkle.exceptions import (NoPathException, InvalidComparison,
+                                 WrongJSONFormat, UndecodableRecord)
 
 NONE_BAR = '\n └─[None]'
 
@@ -771,7 +770,7 @@ class MerkleTree(BaseMerkleTree):
         :param offset: leaf position (zero based) where audit-path computation
             should be based upon.
         :type offset: int
-        :returns: sequence of signed digests along with starting position for
+        :returns: sequence of signed hashes along with starting position for
             subsequent proof verification. The sign -1 or +1 indicates pairing
             with the left resp. right neighbour when hashing.
         :rtype: (int, tuple of (+1/-1, bytes))
@@ -840,47 +839,40 @@ class MerkleTree(BaseMerkleTree):
         return offset
 
     def generate_consistency_path(self, sublength):
-        """Low-level consistency proof.
+        """
+        Computes the consistency-path for the previous state that corresponds
+        to the provided number of lefmost leaves.
 
-        Computes and returns the consistency-path corresponding to the tree's
-        length for a previous state, along with the position where subsequent
-        proof verification should start from and the sequence of subroots
-        constituting the produced path from the left.
-
-        :param sublength: any number equal to or smaller than the tree's
-                    current length
+        :param sublength: non-negative integer equal to or smaller than the
+            current length of the tree.
         :type sublength: int
-        :returns: Starting position of subsequent proof verification along with
-            sequence of subroots constituting the produced path from the left
-            and the path of signed hashes per se (the sign +1 or -1 indicating
-            pairing with the right or left neighbour respectively)
-        :rtype: (int, tuple of (+1/-1, bytes), tuple of (+1/-1, bytes))
+        :returns: sequence of signed hashes along with starting position for
+            subsequent proof verification. The sign -1 or +1 indicates pairing
+            with the left resp. right neighbour when hashing.
+        :rtype: (int, tuple of (+1/-1, bytes))
 
         :raises NoPathException: if the provided *sublength* is non-positive
-            or no sequence of subroots corresponds to it
+            or does not correspond to any sequence of subroots.
         """
         if sublength < 0 or self.length == 0:
             raise NoPathException
 
-        try:
-            left_subroots = self.get_principal_subroots(sublength)
-        except NoPrincipalSubroots:
-            # Incompatilibity issue detected
+        lefts = self.get_principal_subroots(sublength)
+
+        if lefts is None:
             raise NoPathException
 
-        right_subroots = self.minimal_complement(left_subroots)
-        all_subroots = left_subroots + right_subroots
-        if not right_subroots or not left_subroots:
-            # Reset all signs to minus and start hashing from rightmost
-            all_subroots = [(-1, _[1]) for _ in all_subroots]
-            offset = len(all_subroots) - 1
-        else:
-            # Start hashing from midpoint
-            offset = len(left_subroots) - 1
+        rights = self.minimal_complement(lefts)
+        subroots = lefts + rights
 
-        # Collect sign-hash pairs
-        left_path = tuple((-1, _[1].digest) for _ in left_subroots)
-        path = tuple((_[0], _[1].digest) for _ in all_subroots)
+        if not rights or not lefts:
+            subroots = [(-1, _[1]) for _ in subroots]
+            offset = len(subroots) - 1
+        else:
+            offset = len(lefts) - 1
+
+        left_path = tuple((-1, _[1].digest) for _ in lefts)
+        path = tuple((_[0], _[1].digest) for _ in subroots)
 
         return offset, left_path, path
 
@@ -971,17 +963,17 @@ class MerkleTree(BaseMerkleTree):
         .. note:: Detected nodes are prepended with a sign (+1 or -1) carrying
         information for generation of consistency proofs.
 
+        .. note:: Returns *None* if the provided number does not fulfill the
+            prescribed conditions.
+
         :param sublength: non negative integer smaller than or equal to the
         tree's current length, such that corresponding sequence of subroots
         exists.
         :returns: Signed roots of the detected subtrees.
         :rtype: list of signed nodes
-
-        :raises NoPrincipalSubroots: if the provided number does not fulfill
-            the prescribed conditions.
         """
         if sublength < 0:
-            raise NoPrincipalSubroots
+            return None
 
         principals = []
         powers = decompose(sublength)
@@ -990,7 +982,7 @@ class MerkleTree(BaseMerkleTree):
             subroot = self.get_subroot(offset, power)
 
             if not subroot:
-                raise NoPrincipalSubroots
+                return None
 
             parent = subroot.parent
 
