@@ -319,6 +319,41 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return other.__gt__(self)
 
+    def __repr__(self):
+        """
+        .. warning:: Contrary to convention, the output of this method is not
+            insertable into the *eval()* builtin Python function.
+        """
+        hash_type = self.hash_type.upper().replace('_', '')
+        encoding = self.encoding.upper().replace('_', '-')
+        security = 'ACTIVATED' if self.security else 'DEACTIVATED'
+        raw_bytes = str(self.raw_bytes).upper()
+        root_hash = self.root_hash.decode(self.encoding) if self else NONE
+
+        kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
+              'raw_bytes': raw_bytes, 'security': security,
+              'root_hash': root_hash, 'length': self.length,
+              'size': self.size, 'height': self.height}
+
+        return TREE_TEMPLATE.format(**kw)
+
+    def __str__(self, indent=3):
+        """
+        Designed so that printing the tree has an output similar to what is
+        printed at console when running the ``tree`` command of Unix based
+        platforms.
+
+        :rtype: str
+
+        .. note:: Left children appear above the right ones.
+        """
+        try:
+            root = self.root
+        except EmptyTreeException:
+            return NONE_BAR
+
+        return root.__str__(indent=indent)
+
     def encrypt_file_content(self, filepath):
         """
         Creates a new leaf node with the digest of the file's content and
@@ -947,43 +982,6 @@ class MerkleTree(BaseMerkleTree):
                 break
 
         return result
-
-    def __repr__(self):
-        """Sole purpose of this function is to display info about
-        the Merkle-tree by just invoking it at console.
-
-        .. warning:: Contrary to convention, the output of this implementation
-            is not insertable to the eval() builtin Python function.
-        """
-        return TREE_TEMPLATE.format(
-            uuid=self.uuid,
-            hash_type=self.hash_type.upper().replace('_', ''),
-            encoding=self.encoding.upper().replace('_', '-'),
-            raw_bytes=str(self.raw_bytes).upper(),
-            security='ACTIVATED' if self.security else 'DEACTIVATED',
-            root_hash=self.root_hash.decode(self.encoding) if self else NONE,
-            length=self.length,
-            size=self.size,
-            height=self.height)
-
-    def __str__(self, indent=3):
-        """Designed so that inserting the Merkle-tree into the *print()* function
-        displays it in a terminal friendly way, that is, resembles the output
-        of the ``tree`` command at Unix based platforms
-
-        :param indent: [optional] The horizontal depth at which each level will
-                be indented with respect to its previous one. Defaults to 3.
-        :type indent: int
-        :rtype: str
-
-        .. note:: Left children are printed *above* the right ones
-        """
-        try:
-            root = self.root
-        except EmptyTreeException:
-            return NONE_BAR
-
-        return root.__str__(indent=indent)
 
     def clear(self):
         """

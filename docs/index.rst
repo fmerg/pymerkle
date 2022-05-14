@@ -75,7 +75,7 @@ Defense against second-preimage attack
 ======================================
 
 Contrary to the `bitcoin`_
-specification for Merkle-trees, lonely leaves are not duplicated while the tree is grwoing.
+specification for Merkle-trees, lonely leaves are not duplicated while the tree is growing.
 Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
 (see *Tree structure* below). As a consequence, the present implementation should be
 invulnerable to the DOS attack reported as `CVE-2012-2459`_ (see also

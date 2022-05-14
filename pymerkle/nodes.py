@@ -173,7 +173,7 @@ class Node:
     def __repr__(self):
         """
         .. warning:: Contrary to convention, the output of this method is not
-            insertable into the *eval()* Python builtin function.
+            insertable into the *eval()* builtin Python function.
         """
         def memid(obj): return str(hex(id(obj)))
 
