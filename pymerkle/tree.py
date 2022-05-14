@@ -942,6 +942,7 @@ class MerkleTree(BaseMerkleTree):
 
             if not curr:
                 raise NoSubtreeException
+
             if curr.left is not subroot:
                 raise NoSubtreeException
 
@@ -952,7 +953,7 @@ class MerkleTree(BaseMerkleTree):
         curr = subroot
         i = 0
         while i < height:
-            if isinstance(curr, Leaf):
+            if curr.is_leaf():
                 raise NoSubtreeException
 
             curr = curr.right
@@ -961,51 +962,48 @@ class MerkleTree(BaseMerkleTree):
         return subroot
 
     def get_principal_subroots(self, sublength):
-        """Detects in corresponding order the roots of the successive, leftmost,
-        full binary subtrees of maximum (and thus decreasing) length, whose
-        lengths sum up to the provided argument. Detected nodes are prepended
-        with a sign (+1 or -1), carrying information for subsequent generation
-        of consistency proofs.
+        """
+        Returns in respective order the roots of the successive, leftmost, full
+        binary subtrees of maximum (and thus decreasing) length, whosel lengths
+        sum up to the provided number.
+
+        .. note:: Detected nodes are prepended with a sign (+1 or -1) carrying
+        information for generation of consistency proofs.
 
         :param sublength: non negative integer smaller than or equal to the
-                tree's current length, such that the corresponding sequence
-                of subroots exists
-        :returns: Signed roots of the detected subtrees, whose hashes to be
-                    utilized in generation of consistency proofs
+        tree's current length, such that corresponding sequence of subroots
+        exists.
+        :returns: Signed roots of the detected subtrees.
         :rtype: list of signed nodes
 
         :raises NoPrincipalSubroots: if the provided number does not fulfill
-            the prescribed conditions
+            the prescribed conditions.
         """
         if sublength < 0:
-            # Mask negative input as incompatiblitity
             raise NoPrincipalSubroots
 
         principals = []
         powers = decompose(sublength)
         offset = 0
         for power in powers:
+
             try:
                 subroot = self.get_subroot(offset, power)
             except NoSubtreeException:
-                # Incompatibility issue detected
                 raise NoPrincipalSubroots
 
             parent = subroot.parent
+
             if not parent or not parent.parent:
-                if subroot.is_left_child():
-                    sign = +1
-                else:
-                    sign = -1
+                sign = +1 if subroot.is_left_child() else -1
             else:
-                if parent.is_left_child():
-                    sign = +1
-                else:
-                    sign = -1
+                sign = +1 if parent.is_left_child() else -1
+
             principals.append((sign, subroot))
             offset += 2 ** power
 
-        if len(principals) > 0:
+        # if len(principals) > 0:
+        if principals:
             # Modify last sign
             principals[-1] = (+1, principals[-1][1])
 
