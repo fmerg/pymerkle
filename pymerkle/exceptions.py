@@ -46,13 +46,6 @@ class NoPrincipalSubroots(Exception):
     pass
 
 
-class NoSubtreeException(Exception):
-    """
-    Raised when no full-binary subtree exists for the provided parameters.
-    """
-    pass
-
-
 class UnsupportedEncoding(Exception):
     """
     Raised when a hashing engine with unsupported encoding-type is requested.

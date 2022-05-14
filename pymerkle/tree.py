@@ -13,9 +13,9 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import (NoPathException, NoSubtreeException,
-                                 NoPrincipalSubroots, InvalidComparison,
-                                 WrongJSONFormat, UndecodableRecord)
+from pymerkle.exceptions import (NoPathException, NoPrincipalSubroots,
+                                 InvalidComparison, WrongJSONFormat,
+                                 UndecodableRecord)
 
 NONE_BAR = '\n └─[None]'
 
@@ -920,6 +920,9 @@ class MerkleTree(BaseMerkleTree):
         Detects the root of the unique full binary subtree with leftmost
         leaf located at position *offset* and height equal to *height*.
 
+        .. note:: Returns *None* if not subtree exists for the provided
+            parameters.
+
         :param offset: position of leaf where detection should start from
             counting from zero
         :type offset: int
@@ -927,24 +930,21 @@ class MerkleTree(BaseMerkleTree):
         :type height: int
         :returns: root of the detected subtree
         :rtype: Leaf or Node
-
-        :raises NoSubtreeException: if no subtree exists for
-            the provided parameters.
         """
         try:
             subroot = self.leaves[offset]
         except IndexError:
-            raise NoSubtreeException
+            return None
 
         i = 0
         while i < height:
             curr = subroot.parent
 
             if not curr:
-                raise NoSubtreeException
+                return None
 
             if curr.left is not subroot:
-                raise NoSubtreeException
+                return None
 
             subroot = curr
             i += 1
@@ -954,7 +954,7 @@ class MerkleTree(BaseMerkleTree):
         i = 0
         while i < height:
             if curr.is_leaf():
-                raise NoSubtreeException
+                return None
 
             curr = curr.right
             i += 1
@@ -986,10 +986,9 @@ class MerkleTree(BaseMerkleTree):
         powers = decompose(sublength)
         offset = 0
         for power in powers:
+            subroot = self.get_subroot(offset, power)
 
-            try:
-                subroot = self.get_subroot(offset, power)
-            except NoSubtreeException:
+            if not subroot:
                 raise NoPrincipalSubroots
 
             parent = subroot.parent
@@ -1002,7 +1001,6 @@ class MerkleTree(BaseMerkleTree):
             principals.append((sign, subroot))
             offset += 2 ** power
 
-        # if len(principals) > 0:
         if principals:
             # Modify last sign
             principals[-1] = (+1, principals[-1][1])

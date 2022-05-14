@@ -8,8 +8,7 @@ import os
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.exceptions import (NoSubtreeException, NoPathException,
-                                 NoPrincipalSubroots,)
+from pymerkle.exceptions import NoPathException, NoPrincipalSubroots
 
 
 # Audit proof implementation
@@ -247,9 +246,8 @@ no_subtree_exceptions = [
 
 
 @pytest.mark.parametrize('tree, offset, height', no_subtree_exceptions)
-def test_NoSubtreeException(tree, offset, height):
-    with pytest.raises(NoSubtreeException):
-        tree.get_subroot(offset, height)
+def test_none_subroot(tree, offset, height):
+    assert not tree.get_subroot(offset, height)
 
 
 subroots = [
