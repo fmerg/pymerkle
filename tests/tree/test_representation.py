@@ -41,43 +41,37 @@ serializations = [
     (
         empty_tree,
         {
+            "encoding": "utf_8",
+            "hash_type": "sha256",
+            "raw_bytes": True,
+            "security": True,
             "hashes": [],
-            "header": {
-                "encoding": "utf_8",
-                "hash_type": "sha256",
-                "raw_bytes": True,
-                "security": True
-            }
         }
     ),
     (
         one_leaf_tree,
         {
+            "encoding": "utf_8",
+            "hash_type": "sha256",
+            "raw_bytes": True,
+            "security": True,
             "hashes": [
                 "a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d"
             ],
-            "header": {
-                "encoding": "utf_8",
-                "hash_type": "sha256",
-                "raw_bytes": True,
-                "security": True
-            }
         }
     ),
     (
         three_leaves_tree,
         {
+            "encoding": "utf_8",
+            "hash_type": "sha256",
+            "raw_bytes": True,
+            "security": True,
             "hashes": [
                 "a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d",
                 "a94dd4d3c2c6d2548ca4e560d72727bab5d795500191f5b85579130dd3b14603",
                 "656d3e8f544238cdf6e32d640f51ba0914959b14edd7a52d0b8b99ab4c8ac6c6"
             ],
-            "header": {
-                "encoding": "utf_8",
-                "hash_type": "sha256",
-                "raw_bytes": True,
-                "security": True
-            }
         }
     )
 ]
@@ -86,6 +80,10 @@ serializations = [
 @pytest.mark.parametrize('tree, serialization', serializations)
 def test_serialization(tree, serialization):
     assert tree.serialize() == serialization
+
+@pytest.mark.parametrize('tree, serialized', serializations)
+def test_tree_toJSONtext(tree, serialized):
+    assert tree.toJSONtext() == json.dumps(serialized, indent=4, sort_keys=True)
 
 
 stringifications = [
@@ -111,36 +109,3 @@ stringifications = [
 @pytest.mark.parametrize('tree, stringification', stringifications)
 def test___str__(tree, stringification):
     assert tree.__str__() == stringification
-
-
-json_texts = [
-    (
-        empty_tree,
-        '{\n    "hashes": [],\n    "header": {\n        "encoding": "utf_8",' +
-        '\n        "hash_type": "sha256",\n        "raw_bytes": true,' +
-        '\n        "security": true\n    }\n}'
-    ),
-    (
-        one_leaf_tree,
-        '{\n    "hashes": [\n        ' +
-        '"a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d"\n' +
-        '    ],\n    "header": {\n        "encoding": "utf_8",\n        ' +
-        '"hash_type": "sha256",\n        "raw_bytes": true,\n        ' +
-        '"security": true\n    }\n}'
-    ),
-    (
-        three_leaves_tree,
-        '{\n    "hashes": [\n        ' +
-        '"a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d",\n' +
-        '        "a94dd4d3c2c6d2548ca4e560d72727bab5d795500191f5b85579130dd3b14603",' +
-        '\n        "656d3e8f544238cdf6e32d640f51ba0914959b14edd7a52d0b8b99ab4c8ac6c6"' +
-        '\n    ],\n    "header": {\n        "encoding": "utf_8",\n        ' +
-        '"hash_type": "sha256",\n        "raw_bytes": true,\n        ' +
-        '"security": true\n    }\n}'
-    )
-]
-
-
-@pytest.mark.parametrize('tree, json_text', json_texts)
-def test_tree_toJSONtext(tree, json_text):
-    assert tree.toJSONtext() == json_text

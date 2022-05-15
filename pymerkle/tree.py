@@ -13,7 +13,7 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import NoPathException, WrongJSONFormat, UndecodableRecord
+from pymerkle.exceptions import NoPathException, UndecodableRecord
 
 NONE_BAR = '\n └─[None]'
 
@@ -490,7 +490,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :rtype: dict
         """
-        return MerkleTreeSerializer().default(self)
+        hashes = [leaf.get_checksum() for leaf in self.leaves]
+
+        return {**self.get_config(), 'hashes': hashes}
 
     def toJSONtext(self, indent=4):
         """
@@ -502,8 +504,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :rtype: str
         """
-        return json.dumps(self, cls=MerkleTreeSerializer, sort_keys=True,
-                          indent=indent)
+        return json.dumps(self.serialize(), sort_keys=True, indent=indent)
 
     def export(self, filepath, indent=4):
         """
@@ -531,55 +532,22 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type filepath: str
         :returns: the loaded tree
         :rtype: MerkleTree
-
-        :raises WrongJSONFormat: if the provided JSON object is not
-            the serialization of a Merkle-tree.
         """
         with open(filepath, 'r') as f:
             obj = json.load(f)
 
-        try:
-            header = obj['header']
-            digests = obj['hashes']
-            tree = cls(**header)
-        except KeyError:
-            raise WrongJSONFormat
+        hashes = obj.pop('hashes')
+        tree = cls(**obj)
 
         tqdm.write('\nFile has been loaded')
         append = tree.append_leaf
-        for digest in tqdm(digests, desc='Retrieving tree...'):
+        for digest in tqdm(hashes, desc='Retrieving tree...'):
             leaf = Leaf(digest, tree.encoding)
             append(leaf)
+
         tqdm.write('Tree has been retrieved')
 
         return tree
-
-
-class MerkleTreeSerializer(json.JSONEncoder):
-
-    def default(self, obj):
-        """
-        """
-        try:
-            hash_type = obj.hash_type
-            encoding = obj.encoding
-            security = obj.security
-            leaves = obj.leaves
-            raw_bytes = obj.raw_bytes
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-
-        hashes = [leaf.get_checksum() for leaf in leaves]
-
-        return {
-            'header': {
-                'hash_type': hash_type,
-                'encoding': encoding,
-                'raw_bytes': raw_bytes,
-                'security': security
-            },
-            'hashes': hashes,
-        }
 
 
 class MerkleTree(BaseMerkleTree):
