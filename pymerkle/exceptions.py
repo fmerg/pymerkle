@@ -45,11 +45,3 @@ class UnsupportedHashType(Exception):
     Raised when a hashing engine with unsupported hash-type is requested.
     """
     pass
-
-
-class UndecodableArgumentError(Exception):
-    """
-    Raised when an argument is passed into the hash function,
-    which cannot be decoded under the configured encoding type.
-    """
-    pass

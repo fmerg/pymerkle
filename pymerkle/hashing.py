@@ -4,7 +4,7 @@ Provides the underlying hashing engine for Merkle-trees and proof verification.
 
 import hashlib
 from pymerkle.exceptions import (UnsupportedHashType, UnsupportedEncoding,
-                                 EmptyPathException, UndecodableArgumentError)
+                                 EmptyPathException)
 
 
 SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',

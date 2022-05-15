@@ -5,7 +5,7 @@ import pytest
 import hashlib
 
 from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
-from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
+from pymerkle.exceptions import EmptyPathException
 from tests.conftest import SUPPORTED_ENCODINGS
 
 
