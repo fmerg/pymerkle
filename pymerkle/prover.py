@@ -22,7 +22,6 @@ PROOF_TEMPLATE = """
 
     hash-type   : {hash_type}
     encoding    : {encoding}
-    raw_bytes   : {raw_bytes}
     security    : {security}
 
     {path}
@@ -71,8 +70,6 @@ class MerkleProof:
     :type hash_type: str
     :param encoding: encoding type of the provider tree
     :type encoding: str
-    :param raw_bytes: raw-bytes mode of the provider tree
-    :type raw_bytes: bool
     :param security: security mode of the provider tree
     :type security: bool
     :param offset: starting position of hashing during verification
@@ -97,16 +94,15 @@ class MerkleProof:
         >>> r = MerkleProof.deserialize(p.toJSONtext())
     """
 
-    def __init__(self, provider, hash_type, encoding, raw_bytes, security,
-                 offset, path, uuid=None, timestamp=None, created_at=None,
-                 commitment=None, status=None):
+    def __init__(self, provider, hash_type, encoding, security, offset, path,
+                 uuid=None, timestamp=None, created_at=None, commitment=None,
+                 status=None):
         self.uuid = uuid or generate_uuid()
         self.timestamp = timestamp or int(time())
         self.created_at = created_at or ctime()
         self.provider = provider
         self.hash_type = hash_type
         self.encoding = encoding
-        self.raw_bytes = raw_bytes
         self.security = security
         self.commitment = commitment
         self.status = status
@@ -120,7 +116,7 @@ class MerkleProof:
         :rtype: dict
         """
         return {'hash_type': self.hash_type, 'encoding': self.encoding,
-                'raw_bytes': self.raw_bytes, 'security': self.security}
+                'security': self.security}
 
     def compute_checksum(self):
         """
@@ -167,7 +163,6 @@ class MerkleProof:
         provider = self.provider
         hash_type = self.hash_type.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
-        raw_bytes = 'TRUE' if self.raw_bytes else 'FALSE'
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         commitment = self.commitment.decode(self.encoding) if self.commitment \
                 else None
@@ -180,9 +175,9 @@ class MerkleProof:
 
         kw = {'uuid': uuid, 'timestamp': timestamp, 'created_at': created_at,
               'provider': provider, 'hash_type': hash_type,
-              'encoding': encoding, 'raw_bytes': raw_bytes,
-              'security': security, 'commitment': commitment,
-              'offset': offset, 'path': path, 'status': status}
+              'encoding': encoding, 'security': security,
+              'commitment': commitment, 'offset': offset,
+              'path': path, 'status': status}
 
         return PROOF_TEMPLATE.format(**kw)
 
@@ -200,7 +195,6 @@ class MerkleProof:
         hash_type = self.hash_type
         encoding = self.encoding
         security = self.security
-        raw_bytes = self.raw_bytes
         commitment = self.commitment.decode(self.encoding) if self.commitment \
                 else None
         status = self.status
@@ -221,7 +215,6 @@ class MerkleProof:
                 'hash_type': hash_type,
                 'encoding': encoding,
                 'security': security,
-                'raw_bytes': raw_bytes,
                 'commitment': commitment,
                 'status': status,
             },

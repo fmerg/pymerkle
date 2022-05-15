@@ -39,10 +39,6 @@ class HashEngine:
     :param encoding: [optional] Specifies the encoding algorithm used by the
             engine before hashing. Defaults to *utf_8*.
     :type encoding: str
-    :param raw_bytes: [optional] Specifies whether the engine accepts raw
-            binary data independently of its configured encoding type.
-            Defaults to *True*.
-    :type raw_bytes: bool
     :param security: [optional] Specifies whether defense against
             second-preimage attack will be enabled. Defaults to *True*.
     :type security: bool
@@ -54,7 +50,7 @@ class HashEngine:
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8',
-                 raw_bytes=True, security=True):
+                 security=True):
 
         _hash_type = hash_type.lower().replace('-', '_')
         if _hash_type not in SUPPORTED_HASH_TYPES:
@@ -69,7 +65,6 @@ class HashEngine:
         self.hash_type = _hash_type
         self.algorithm = getattr(hashlib, self.hash_type)
         self.encoding = _encoding
-        self.raw_bytes = raw_bytes
         self.security = security
 
         self.concatenate = self._mk_encode_func()
@@ -92,36 +87,15 @@ class HashEngine:
             prefix_1_enc = bytes()
 
         # Make encoding funtion
-        if self.raw_bytes:
-            def encode_func(left, right=None):
-                if not right:
-                    if isinstance(left, bytes):
-                        data = prefix_0_enc + left
-                    else:
-                        data = prefix_0_enc + bytes(left, self.encoding)
+        def encode_func(left, right=None):
+            if not right:
+                if isinstance(left, bytes):
+                    data = prefix_0_enc + left
                 else:
-                    data = prefix_1_enc + left + prefix_1_enc + right
-                return data
-        else:
-            def encode_func(left, right=None):
-                if not right:
-                    if isinstance(left, bytes):
-                        try:
-                            left = left.decode(self.encoding)
-                        except UnicodeDecodeError:
-                            raise UndecodableArgumentError
-                        data = bytes(prefix_0_dec + left, self.encoding)
-                    else:
-                        data = bytes(prefix_0_dec + left, self.encoding)
-                else:
-                    try:
-                        left = left.decode(self.encoding)
-                        right = right.decode(self.encoding)
-                    except UnicodeDecodeError:
-                        raise UndecodableArgumentError
-                    data = bytes(prefix_1_dec + left + prefix_1_dec + right,
-                                 self.encoding)
-                return data
+                    data = prefix_0_enc + bytes(left, self.encoding)
+            else:
+                data = prefix_1_enc + left + prefix_1_enc + right
+            return data
 
         return encode_func
 

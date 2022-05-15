@@ -22,7 +22,6 @@ TREE_TEMPLATE = """
 
     hash-type : {hash_type}
     encoding  : {encoding}
-    raw-bytes : {raw_bytes}
     security  : {security}
 
     root-hash : {root_hash}
@@ -38,11 +37,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     Interface and abstract functionality for Merkle-trees.
     """
 
-    def __init__(self, hash_type='sha256', encoding='utf-8', raw_bytes=True,
-                 security=True):
+    def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
         self.hash_type = hash_type
         self.encoding = encoding
-        self.raw_bytes = raw_bytes
         self.security = security
 
         self.uuid = generate_uuid()
@@ -52,12 +49,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     def get_config(self):
         """
         Returns the configuration of the Merkle-tree, containing the parameters
-        ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+        ``hash_type``, ``encoding`` and ``security``.
 
         :rtype: dict
         """
         return {'hash_type': self.hash_type, 'encoding': self.encoding,
-                'raw_bytes': self.raw_bytes, 'security': self.security}
+                'security': self.security}
 
     def encrypt(self, record):
         """
@@ -67,9 +64,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param record: Record to encrypt.
         :type record: str or bytes
-
-        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
-            provided record is outside its configured encoding type.
         """
         try:
             leaf = Leaf.from_record(record, self.hash, self.encoding)
@@ -92,11 +86,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param records: Initial records to encrypt into the Merkle-tree.
         :type records: iterable of bytes or str
         :param config: Configuration of tree. Must contain a subset of keys
-            ``hash_type``, ``encoding``, ``raw_bytes`` and ``security``.
+            ``hash_type``, ``encoding`` and ``security``.
         :type config: dict
-
-        :raises UndecodableRecord: if *raw_modes* is disabled and any of the
-            provided record is not compatible with the tree's encoding type.
         """
         config = {} if not config else config
         tree = cls(**config)
@@ -366,13 +357,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         hash_type = self.hash_type.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
-        raw_bytes = str(self.raw_bytes).upper()
         root_hash = self.root_hash.decode(self.encoding) if self else NONE
 
         kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
-              'raw_bytes': raw_bytes, 'security': security,
-              'root_hash': root_hash, 'length': self.length,
-              'size': self.size, 'height': self.height}
+              'security': security, 'root_hash': root_hash,
+              'length': self.length, 'size': self.size,
+              'height': self.height}
 
         return TREE_TEMPLATE.format(**kw)
 
@@ -400,9 +390,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param filepath: Relative path of the file to encrypt with respect to
             the current working directory.
         :type filepath: str
-
-        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
-            provided file contains bytes outside its configured encoding type.
         """
         with open(os.path.abspath(filepath), mode='rb') as f:
             with contextlib.closing(
@@ -430,9 +417,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param filepath: Relative path of the file to encrypt with respect to
             the current working directory.
         :type filepath: str
-
-        :raises UndecodableRecord: if the tree is not in raw-bytes mode and the
-            provided file contains bytes outside its configured encoding type.
         """
         with open(os.path.abspath(filepath), mode='rb') as f:
             buff = mmap.mmap(
@@ -443,33 +427,15 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         # Extract lines
         records = []
-        if not self.raw_bytes:
-            # Check that no line of the provided file is outside
-            # the tree's encoding type and discard otherwise
-            encoding = self.encoding
-            while True:
+        # No need to check anything, just load all lines
+        while True:
 
-                # TODO: Should we string newline from content?
-                record = buff.readline()
-                if not record:
-                    break
+            # TODO: Should we strip newline from content?
+            record = buff.readline()
+            if not record:
+                break
 
-                try:
-                    record = record.decode(encoding)
-                except UnicodeDecodeError as err:
-                    raise UndecodableRecord(err)
-
-                records.append(record)
-        else:
-            # No need to check anything, just load all lines
-            while True:
-
-                # TODO: Should we strip newline from content?
-                record = buff.readline()
-                if not record:
-                    break
-
-                records.append(record)
+            records.append(record)
 
         # Line by line encryption
         tqdm.write('')
@@ -560,22 +526,17 @@ class MerkleTree(BaseMerkleTree):
     :param encoding: [optional] Specifies the tree's encoding type. Defaults to
         *utf_8*.
     :type encoding: str
-    :param raw_bytes: [optional] Specifies whether the tree will accept
-        arbitrary binary data independently of its encoding type. Defaults to
-        *True*.
-    :type raw_bytes: bool
     :param security: [optional Specifies if defense against second-preimage
         attack will be enabled. Defaults to *True*.
     :type security: bool
     """
 
-    def __init__(self, hash_type='sha256', encoding='utf-8',
-                 raw_bytes=True, security=True):
+    def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
         self.leaves = []
         self.nodes = set()
         self.__root = None
 
-        super().__init__(hash_type, encoding, raw_bytes, security)
+        super().__init__(hash_type, encoding, security)
 
     def __bool__(self):
 

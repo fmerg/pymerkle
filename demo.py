@@ -6,8 +6,7 @@ from pymerkle import MerkleTree
 if __name__ == '__main__':
 
 
-    tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True,
-                      security=True)
+    tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 
 
     # Populate tree with some records
