@@ -13,7 +13,7 @@ from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import NoPathException, UndecodableRecord
+from pymerkle.exceptions import NoPathException
 
 NONE_BAR = '\n └─[None]'
 
@@ -65,10 +65,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param record: Record to encrypt.
         :type record: str or bytes
         """
-        try:
-            leaf = Leaf.from_record(record, self.hash, self.encoding)
-        except UndecodableRecord:
-            raise
+        leaf = Leaf.from_record(record, self.hash, self.encoding)
 
         self.append_leaf(leaf)
 
@@ -401,10 +398,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             ) as buff:
                 # TODO: Should we remove newlines from content?
                 content = buff.read()
-                try:
-                    self.encrypt(content)
-                except UndecodableRecord:
-                    raise
+                self.encrypt(content)
 
     def encrypt_file_per_line(self, filepath):
         """

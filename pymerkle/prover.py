@@ -9,7 +9,6 @@ from time import time, ctime
 from pymerkle.exceptions import NoPathException
 from pymerkle.hashing import HashEngine
 from pymerkle.utils import log10, generate_uuid
-from pymerkle.exceptions import UndecodableRecord
 
 
 PROOF_TEMPLATE = """
