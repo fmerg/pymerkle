@@ -1,8 +1,3 @@
-"""
-Provides the exceptions used accross the *pymerkle* library.
-"""
-
-
 class InvalidProof(Exception):
     """
     Raised when a Merkle-proof is found to be invalid.
@@ -64,12 +59,5 @@ class UndecodableRecord(Exception):
     """
     Raised when raw-bytes mode is disabled and an argument is passed
     which cannot be decoded under the configured encoding type.
-    """
-    pass
-
-
-class WrongJSONFormat(Exception):
-    """
-    Raised when a deserialized object is not as expected
     """
     pass

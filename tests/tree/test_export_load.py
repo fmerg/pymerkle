@@ -4,7 +4,6 @@ import json
 import glob
 
 from pymerkle import MerkleTree
-from pymerkle.exceptions import WrongJSONFormat
 
 
 # Clean exports dir before running tests
@@ -22,12 +21,10 @@ def test_export():
         exported = json.load(f)
 
     assert exported == {
-        "header": {
-            "encoding": "utf_8",
-            "hash_type": "sha256",
-            "raw_bytes": True,
-            "security": True
-        },
+        "encoding": "utf_8",
+        "hash_type": "sha256",
+        "raw_bytes": True,
+        "security": True,
         "hashes": [
             "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
             "3dbbc4898d7e909de7fc7bb1c0af36feba78abc802102556e4ea52c28ccb517f",
@@ -51,11 +48,3 @@ def test_fromJSONFile():
     tree.export(filepath=export_path)
 
     assert tree.serialize() == MerkleTree.fromJSONFile(export_path).serialize()
-
-
-def test_WrongJSONFormat_with_fromJSONFile():
-    child_dir = os.path.dirname(os.path.dirname(__file__))
-    sample_json = os.path.join(child_dir, 'jsondata', 'sample.json')
-
-    with pytest.raises(WrongJSONFormat):
-        MerkleTree.fromJSONFile(sample_json)
