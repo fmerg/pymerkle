@@ -1,12 +1,11 @@
 """
-Test hashing in no raw-bytes mode
 """
 
 import pytest
 import hashlib
 
 from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
-from pymerkle.exceptions import EmptyPathException, UndecodableArgumentError
+from pymerkle.exceptions import EmptyPathException
 from tests.conftest import SUPPORTED_ENCODINGS
 
 
@@ -21,7 +20,7 @@ for security in (True, False):
         for encoding in SUPPORTED_ENCODINGS:
             config = {'hash_type': hash_type, 'encoding': encoding,
                       'security': security}
-            engine = HashEngine(**config, raw_bytes=False)
+            engine = HashEngine(**config)
 
             engines.append(engine)
             engines__hash_types__encodings__securities.extend(
@@ -34,6 +33,7 @@ for security in (True, False):
                     )
                 ]
             )
+
             engines__single_args.extend(
                 [
                     (
@@ -56,7 +56,9 @@ def test_single_string_hash(engine, hash_type, encoding, security):
     if security:
         assert engine.hash(message) == bytes(
             getattr(hashlib, hash_type)(
-                ('\x00%s' % message).encode(encoding)).hexdigest(),
+                ('\x00').encode(encoding) +
+                (message).encode(encoding)
+            ).hexdigest(),
             encoding
         )
     else:
@@ -72,7 +74,9 @@ def test_single_bytes_hash(engine, hash_type, encoding, security):
     if security:
         assert engine.hash(bytes(message, encoding)) == bytes(
             getattr(hashlib, hash_type)(
-                bytes('\x00%s' % message, encoding)).hexdigest(),
+                bytes('\x00', encoding) +
+                bytes(message, encoding)
+            ).hexdigest(),
             encoding
         )
     else:
@@ -90,9 +94,10 @@ def test_double_bytes_hash(engine, hash_type, encoding, security):
             bytes(message, encoding),
             bytes(message, encoding)) == bytes(
             getattr(hashlib, hash_type)(
-                bytes(
-                    '\x01%s\x01%s' % (message, message),
-                    encoding)
+                bytes('\x01', encoding) +
+                bytes(message, encoding) +
+                bytes('\x01', encoding) +
+                bytes(message, encoding)
             ).hexdigest(),
             encoding
         )
@@ -101,10 +106,9 @@ def test_double_bytes_hash(engine, hash_type, encoding, security):
             bytes(message, encoding),
             bytes(message, encoding)) == bytes(
                 getattr(hashlib, hash_type)(
-                    bytes(
-                        message + message,
-                        encoding
-                    )).hexdigest(),
+                    bytes(message, encoding) +
+                    bytes(message, encoding)
+                ).hexdigest(),
                 encoding
         )
 
@@ -180,7 +184,7 @@ def test_2_elems_multi_hash(engine):
                 )
             ),
             1
-        ) == hash('%s%s' % (message, message))
+        ) == hash(bytes(message, encoding), bytes(message, encoding))
 
 
 @pytest.mark.parametrize('engine', engines)
@@ -245,6 +249,7 @@ def test_3_elems_multi_hash_case_1(engine):
                 )
             ),
             0
+
         ) == multi_hash(
             (
                 (
@@ -262,7 +267,9 @@ def test_3_elems_multi_hash_case_1(engine):
             ),
             1
         ) == hash(
-            hash('%s%s' % (message, message)),
+            hash(
+                bytes(message, encoding),
+                bytes(message, encoding)),
             bytes(message, encoding)
         )
 
@@ -347,7 +354,10 @@ def test_3_elems_multi_hash_case_2(engine):
             1
         ) == hash(
             bytes(message, encoding),
-            hash('%s%s' % (message, message))
+            hash(
+                bytes(message, encoding),
+                bytes(message, encoding)
+            )
         )
 
 
@@ -410,7 +420,10 @@ def test_4_elems_multi_hash_edge_case_1(engine):
             0
         ) == hash(
             hash(
-                hash('%s%s' % (message, message)),
+                hash(
+                    bytes(message, encoding),
+                    bytes(message, encoding)
+                ),
                 bytes(message, encoding)
             ),
             bytes(message, encoding)
@@ -478,7 +491,10 @@ def test_4_elems_multi_hash_edge_case_2(engine):
             bytes(message, encoding),
             hash(
                 bytes(message, encoding),
-                hash('%s%s' % (message, message))
+                hash(
+                    bytes(message, encoding),
+                    bytes(message, encoding)
+                )
             )
         )
 
@@ -542,7 +558,10 @@ def test_4_elems_multi_hash(engine):
         ) == hash(
             hash(
                 bytes(message, encoding),
-                hash('%s%s' % (message, message))
+                hash(
+                    bytes(message, encoding),
+                    bytes(message, encoding)
+                )
             ),
             bytes(message, encoding)
         )

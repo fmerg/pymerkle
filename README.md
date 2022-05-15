@@ -123,9 +123,8 @@ pip3 install -r requirements-dev.txt
 ```
 
 to run tests against the limited set of encoding schemas UTF-8, UTF-16 and
-UTF-32 (108 combinations in total). To run tests against all possible hash
-types, encoding schemas, raw-bytes modes and security modes (3240 combinations
-in total), run
+UTF-32. To run tests against all possible hash types, encoding schemas
+and security modes, run
 
 ```commandline
 ./test.sh --extended

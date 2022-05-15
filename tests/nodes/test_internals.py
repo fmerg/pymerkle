@@ -2,7 +2,7 @@ import pytest
 
 from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
-from pymerkle.exceptions import NoAncestorException, UndecodableRecord
+from pymerkle.exceptions import NoAncestorException
 
 
 h = HashEngine()
@@ -143,51 +143,3 @@ def test_hash_recalculation():
     root.recalculate_hash(hash_func=hash_func)
     assert node3.digest == hash_func(leaf3.digest, new_leaf.digest) \
         and root.digest == hash_func(node1.digest, node3.digest)
-
-
-# Decoding error tests
-
-bytesengines = [
-    (b'\xc2', HashEngine(encoding='ascii', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='ascii', raw_bytes=False, security=False)),
-    (b'\x72', HashEngine(encoding='cp424', raw_bytes=False, security=True)),
-    (b'\x72', HashEngine(encoding='cp424', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='hz', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='hz', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='utf_7', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='utf_7', raw_bytes=False, security=False)),
-    (b'\x74', HashEngine(encoding='utf_16', raw_bytes=False, security=True)),
-    (b'\x74', HashEngine(encoding='utf_16', raw_bytes=False, security=False)),
-    (b'\x74', HashEngine(encoding='utf_16_le', raw_bytes=False, security=True)),
-    (b'\x74', HashEngine(encoding='utf_16_le', raw_bytes=False, security=False)),
-    (b'\x74', HashEngine(encoding='utf_16_be', raw_bytes=False, security=True)),
-    (b'\x74', HashEngine(encoding='utf_16_be', raw_bytes=False, security=False)),
-    (b'\x74', HashEngine(encoding='utf_32', raw_bytes=False, security=True)),
-    (b'\x74', HashEngine(encoding='utf_32', raw_bytes=False, security=False)),
-    (b'\x74', HashEngine(encoding='utf_32_le', raw_bytes=False, security=True)),
-    (b'\x74', HashEngine(encoding='utf_32_le', raw_bytes=False, security=False)),
-    (b'\x74', HashEngine(encoding='utf_32_be', raw_bytes=False, security=True)),
-    (b'\x74', HashEngine(encoding='utf_32_be', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_1', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_1', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_2', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_2', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_3', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_3', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_ext', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_ext', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_2004', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_jp_2004', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso2022_kr', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso2022_kr', raw_bytes=False, security=False)),
-    (b'\xae', HashEngine(encoding='iso8859_3', raw_bytes=False, security=True)),
-    (b'\xae', HashEngine(encoding='iso8859_3', raw_bytes=False, security=False)),
-    (b'\xb6', HashEngine(encoding='iso8859_6', raw_bytes=False, security=True)),
-    (b'\xb6', HashEngine(encoding='iso8859_6', raw_bytes=False, security=False)),
-    (b'\xae', HashEngine(encoding='iso8859_7', raw_bytes=False, security=True)),
-    (b'\xae', HashEngine(encoding='iso8859_7', raw_bytes=False, security=False)),
-    (b'\xc2', HashEngine(encoding='iso8859_8', raw_bytes=False, security=True)),
-    (b'\xc2', HashEngine(encoding='iso8859_8', raw_bytes=False, security=False)),
-]

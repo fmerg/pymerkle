@@ -4,32 +4,28 @@ import json
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
-from pymerkle.exceptions import UndecodableRecord
 
 from tests.conftest import SUPPORTED_ENCODINGS
 
 trees__hash_engines = []
-for raw_bytes in (True, False):
-    for security in (True, False):
-        for hash_type in SUPPORTED_HASH_TYPES:
-            for encoding in SUPPORTED_ENCODINGS:
+for security in (True, False):
+    for hash_type in SUPPORTED_HASH_TYPES:
+        for encoding in SUPPORTED_ENCODINGS:
 
-                trees__hash_engines.append(
-                    (
-                        MerkleTree(
-                            hash_type=hash_type,
-                            encoding=encoding,
-                            raw_bytes=raw_bytes,
-                            security=security
-                        ),
-                        HashEngine(
-                            hash_type=hash_type,
-                            encoding=encoding,
-                            raw_bytes=raw_bytes,
-                            security=security
-                        )
+            trees__hash_engines.append(
+                (
+                    MerkleTree(
+                        hash_type=hash_type,
+                        encoding=encoding,
+                        security=security
+                    ),
+                    HashEngine(
+                        hash_type=hash_type,
+                        encoding=encoding,
+                        security=security
                     )
                 )
+            )
 
 
 single_records = []
@@ -105,15 +101,6 @@ undecodableArguments = [
 ]
 
 
-@pytest.mark.parametrize('byte, encoding, security', undecodableArguments)
-def test_UndecodableRecord_with_encrypt(byte, encoding, security):
-    config = {'encoding': encoding, 'security': security,
-              'raw_bytes': raw_bytes}
-    tree = MerkleTree.init_from_records('a', 'b', 'c', config=config)
-    with pytest.raises(UndecodableRecord):
-        tree.encrypt(byte)
-
-
 # Content to encrypt
 
 child_dir = os.path.dirname(os.path.dirname(__file__))
@@ -140,27 +127,14 @@ with open(objects_list_file, 'rb') as f:
 
 @pytest.mark.parametrize('tree, hash_engine', trees__hash_engines)
 def test_encrypt_file_content(tree, hash_engine):
-    if tree.raw_bytes:
-        encrypted = tree.encrypt_file_content(large_APACHE_log)
-        assert tree.leaves[-1].digest == hash_engine.hash(content)
-    elif tree.encoding in ('cp424', 'utf_16', 'utf_16_le', 'utf_16_be',
-                           'utf_32', 'utf_32_le', 'utf_32_be'):
-        with pytest.raises(UndecodableRecord):
-            tree.encrypt_file_content(large_APACHE_log)
+    encrypted = tree.encrypt_file_content(large_APACHE_log)
+    assert tree.leaves[-1].digest == hash_engine.hash(content)
 
 
 @pytest.mark.parametrize('tree', [tree for tree, _ in trees__hash_engines])
 def test_encrypt_file_per_line(tree):
-    if tree.raw_bytes:
-        tree = MerkleTree(**tree.get_config())
-        encrypted = tree.encrypt_file_per_line(short_APACHE_log)
-        clone = MerkleTree.init_from_records(*records,
-                                             config=tree.get_config())
-        assert tree.root_hash == clone.root_hash
-    elif tree.encoding in ('iso8859_8', 'iso2022_kr', 'iso8859_3', 'ascii',
-                           'utf_7', 'utf_32_be', 'iso2022_jp_1', 'utf_32_le', 'utf_32',
-                           'iso2022_jp_3', 'iso2022_jp_2004', 'hz', 'iso8859_7', 'iso8859_6',
-                           'iso2022_jp_ext', 'utf_16', 'cp424', 'iso2022_jp_2', 'utf_16_le',
-                           'utf_16_be', 'iso2022_jp'):
-        with pytest.raises(UndecodableRecord):
-            tree.encrypt_file_per_line(short_APACHE_log)
+    tree = MerkleTree(**tree.get_config())
+    encrypted = tree.encrypt_file_per_line(short_APACHE_log)
+    clone = MerkleTree.init_from_records(*records,
+                                         config=tree.get_config())
+    assert tree.root_hash == clone.root_hash

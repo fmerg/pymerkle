@@ -70,7 +70,6 @@ Example
 
         hash-type   : SHA256
         encoding    : UTF-8
-        raw_bytes   : TRUE
         security    : ACTIVATED
 
         offset : 5
@@ -189,7 +188,6 @@ proof for the above state.
 
         hash-type   : SHA256
         encoding    : UTF-8
-        raw_bytes   : TRUE
         security    : ACTIVATED
 
         offset : 6

@@ -4,8 +4,7 @@ Provides node classes for the Merkle-tree data structure.
 
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.exceptions import (NoAncestorException, UndecodableArgumentError,
-                                 UndecodableRecord)
+from pymerkle.exceptions import NoAncestorException
 from pymerkle.utils import NONE
 import json
 
@@ -289,9 +288,4 @@ class Leaf(Node):
 
     @classmethod
     def from_record(cls, record, hash_func, encoding):
-        try:
-            digest = hash_func(record)
-        except UndecodableArgumentError:
-            raise UndecodableRecord
-
-        return cls(digest, encoding)
+        return cls(hash_func(record), encoding)

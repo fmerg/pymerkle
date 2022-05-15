@@ -45,7 +45,6 @@ client's side. Invoking it from the Python interpreter, it looks like
 
         hash-type   : SHA256
         encoding    : UTF-8
-        raw_bytes   : TRUE
         security    : ACTIVATED
 
         offset : 4
@@ -75,7 +74,7 @@ client's side. Invoking it from the Python interpreter, it looks like
     is the result of an audit or a consistency proof request.
 
 The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
-uuid whereas *hash-type*, *encoding*, *raw-bytes* and *security* encapsulate the tree's fixed
+uuid whereas *hash-type*, *encoding* and *security* encapsulate the tree's fixed
 configuration. They are necessary for the client to configure their hashing engine
 appropriately in order to verify the proof and become available as follows:
 
@@ -84,7 +83,6 @@ appropriately in order to verify the proof and become available as follows:
     >>> proof.get_verification_params()
     {'hash_type': 'sha256',
      'encoding': 'utf_8',
-     'raw_bytes': True,
      'security': True}
 
 *Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
@@ -108,7 +106,6 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
 
         hash-type   : SHA256
         encoding    : UTF-8
-        raw_bytes   : TRUE
         security    : ACTIVATED
 
         offset : -1
@@ -154,7 +151,6 @@ Verification
 
         hash-type   : SHA256
         encoding    : UTF-8
-        raw_bytes   : TRUE
         security    : ACTIVATED
 
         offset : 5
@@ -199,7 +195,7 @@ If the proof were found to be invalid, the corresponding value would have been
 Verification of a Merkle-proof presupposes correct configuration of an underlying
 hashing engine. This happens automatically by just feeding the proof to any of the
 available verification mechanisms, since the required verification parameters
-(*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
+(*hash-type*, *encoding*, *security* mode) are included in the
 proof's header.
 
 .. _HashEngine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine
@@ -221,7 +217,6 @@ Serialization
       'hash_type': 'sha256',
       'encoding': 'utf_8',
       'security': True,
-      'raw_bytes': True,
       'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0',
       'status': None},
       'body': {'offset': 4,
@@ -254,7 +249,6 @@ If JSON text is preferred instead of a Python dictionary, one can alternatively 
             "encoding": "utf_8",
             "hash_type": "sha256",
             "provider": "77b623a6-f8dd-11e9-9e85-701ce71deb6a",
-            "raw_bytes": true,
             "security": true,
             "status": null,
             "timestamp": 1572198974,
@@ -300,7 +294,6 @@ Deserialization proceeds as follows:
 
         hash-type   : SHA256
         encoding    : UTF-8
-        raw_bytes   : TRUE
         security    : ACTIVATED
 
         offset : 4
