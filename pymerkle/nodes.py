@@ -180,8 +180,10 @@ class Node:
         right = NONE if not self.__right else memid(self.__right)
         checksum = self.get_checksum()
 
-        return NODE_TEMPLATE.format(node=memid(self), parent=parent, left=left,
-                                    right=right, checksum=checksum)
+        kw = {'node': memid(self), 'parent': parent, 'left': left,
+              'right': right, 'checksum': checksum}
+
+        return NODE_TEMPLATE.format(**kw)
 
     def __str__(self, level=0, indent=3, ignored=None):
         """
@@ -245,18 +247,26 @@ class Node:
 
         :rtype: dict
 
-        .. note:: The *.parent* attribute is ommited from node serialization
+        .. note:: The *parent* attribute is ommited from node serialization
             in order for circular reference error to be avoided.
         """
-        return NodeSerializer().default(self)
+        out = {'hash': self.digest.decode(self.encoding)}
 
-    def toJSONtext(self):
+        if self.left:
+            out.update({'left': self.left.serialize()})
+
+        if self.right:
+            out.update({'right': self.right.serialize()})
+
+        return out
+
+    def toJSONtext(self, indent=4):
         """
         Returns a JSON text with the node's characteristics as key-value pairs.
 
         :rtype: str
         """
-        return json.dumps(self, cls=NodeSerializer, sort_keys=True, indent=4)
+        return json.dumps(self.serialize(), sort_keys=True, indent=indent)
 
 
 class Leaf(Node):
@@ -285,27 +295,3 @@ class Leaf(Node):
             raise UndecodableRecord
 
         return cls(digest, encoding)
-
-
-class NodeSerializer(json.JSONEncoder):
-
-    def default(self, obj):
-        """
-        """
-        try:
-            digest = obj.digest
-            encoding = obj.encoding
-            left = obj.left
-            right = obj.right
-            digest = obj.digest
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-
-        serialized = {}
-        if left:
-            serialized['left'] = left.serialize()
-        if right:
-            serialized['right'] = right.serialize()
-
-        serialized['hash'] = digest.decode(encoding)
-        return serialized
