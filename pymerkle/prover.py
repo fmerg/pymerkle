@@ -29,8 +29,6 @@ PROOF_TEMPLATE = """
 
     commitment  : {commitment}
 
-    status      : {status}
-
     -------------------------------- END OF PROOF --------------------------------
 """
 
@@ -94,8 +92,7 @@ class MerkleProof:
     """
 
     def __init__(self, provider, hash_type, encoding, security, offset, path,
-                 uuid=None, timestamp=None, created_at=None, commitment=None,
-                 status=None):
+                 uuid=None, timestamp=None, created_at=None, commitment=None):
         self.uuid = uuid or generate_uuid()
         self.timestamp = timestamp or int(time())
         self.created_at = created_at or ctime()
@@ -104,7 +101,6 @@ class MerkleProof:
         self.encoding = encoding
         self.security = security
         self.commitment = commitment
-        self.status = status
         self.offset = offset
         self.path = path
 
@@ -165,10 +161,6 @@ class MerkleProof:
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         commitment = self.commitment.decode(self.encoding) if self.commitment \
                 else None
-        if self.status is None:
-            status = 'UNVERIFIED'
-        else:
-            status = 'VERIFIED' if self.status is True else 'INVALID'
         offset = self.offset
         path = stringify_path(self.path, self.encoding)
 
@@ -176,7 +168,7 @@ class MerkleProof:
               'provider': provider, 'hash_type': hash_type,
               'encoding': encoding, 'security': security,
               'commitment': commitment, 'offset': offset,
-              'path': path, 'status': status}
+              'path': path}
 
         return PROOF_TEMPLATE.format(**kw)
 
@@ -196,7 +188,6 @@ class MerkleProof:
         security = self.security
         commitment = self.commitment.decode(self.encoding) if self.commitment \
                 else None
-        status = self.status
         offset = self.offset
 
         path = []
@@ -215,7 +206,6 @@ class MerkleProof:
                 'encoding': encoding,
                 'security': security,
                 'commitment': commitment,
-                'status': status,
             },
             'body': {
                 'offset': offset,

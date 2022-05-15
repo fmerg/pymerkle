@@ -158,7 +158,6 @@ serializations = [
                 'encoding': 'utf_8',
                 'security': True,
                 'commitment': None,
-                'status': None
             },
             'body': {
                 'offset': 5,
@@ -190,7 +189,6 @@ serializations = [
                 'encoding': 'utf_8',
                 'security': True,
                 'commitment': None,
-                'status': None
             },
             'body': {
                 'offset': -1,
@@ -226,5 +224,4 @@ def test___repr__(proof, generation):
                                                      path=stringify_path(
                                                          path, 'utf-8')
                                                      if generation else '',
-                                                     commitment=proof.commitment,
-                                                     status='UNVERIFIED')
+                                                     commitment=proof.commitment)

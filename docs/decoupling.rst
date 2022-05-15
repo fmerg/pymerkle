@@ -89,8 +89,6 @@ Example
 
         commitment  : None
 
-        status      : UNVERIFIED
-
         -------------------------------- END OF PROOF --------------------------------
 
     >>>
@@ -202,8 +200,6 @@ proof for the above state.
            [6]   -1   506e3bfa7f8088555b9b2bb0e50a31645e6f1a01be44bab70b7ebebc4368ca84
 
         commitment  : None
-
-        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 

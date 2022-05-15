@@ -59,7 +59,6 @@ def test_empty_generate_audit_proof(tree, challenge):
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
-        'status': None,
         'offset': -1,
         'path': [],
     }
@@ -78,7 +77,6 @@ def test_non_empty_generate_audit_proof(tree, challenge):
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
-        'status': None,
         'offset': proof.offset,
         'path': proof.path,
     }
@@ -126,7 +124,6 @@ def test_non_empty_generate_consistency_proof(tree, challenge):
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
-        'status': None,
         'offset': proof.offset,
         'path': proof.path,
     }
@@ -145,7 +142,6 @@ def test_empty_generate_consistency_proof_with_wrong_challenge(tree, challenge):
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
-        'status': None,
         'offset': proof.offset,
         'path': proof.path,
     }
@@ -164,7 +160,6 @@ def test_empty_generate_consistency_proof_with_wrong_challenge(tree, challenge):
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
-        'status': None,
         'offset': proof.offset,
         'path': proof.path,
     }

@@ -64,8 +64,6 @@ client's side. Invoking it from the Python interpreter, it looks like
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
 
-        status      : UNVERIFIED
-
         -------------------------------- END OF PROOF --------------------------------
 
     >>>
@@ -113,8 +111,6 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
 
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
-
-        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
@@ -170,8 +166,6 @@ Verification
 
         commitment  : 11ff3293f70c0e158e0f58ef5ea4d497a9a3a5a913e0478a9ba89f3bc673300a
 
-        status      : VALID
-
         -------------------------------- END OF PROOF --------------------------------
 
     >>>
@@ -179,16 +173,6 @@ Verification
 Like in any of the available verification mechanism, the `HashEngine.multi_hash`_ method is
 implicitly applied over the path of advertised hashes in order to recover a single hash.
 The proof is found to be valid *iff* this single hash coincides with the provided commitment.
-Note that application of `verify_proof` has the effect of modifying the inscribed status as
-``'VALID'``, which indicates that the proof's status has changed to *True*:
-
-.. code-block:: python
-
-    >>> proof.header['status']
-    True
-
-If the proof were found to be invalid, the corresponding value would have been
-*False* (``'INVALID'``).
 
 .. _HashEngine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine.multi_hash
 
@@ -217,8 +201,7 @@ Serialization
       'hash_type': 'sha256',
       'encoding': 'utf_8',
       'security': True,
-      'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0',
-      'status': None},
+      'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'},
       'body': {'offset': 4,
       'path': [[1,
         'f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207'],
@@ -250,7 +233,6 @@ If JSON text is preferred instead of a Python dictionary, one can alternatively 
             "hash_type": "sha256",
             "provider": "77b623a6-f8dd-11e9-9e85-701ce71deb6a",
             "security": true,
-            "status": null,
             "timestamp": 1572198974,
             "uuid": "11a20142-f8e3-11e9-9e85-701ce71deb6a"
         }
@@ -312,8 +294,6 @@ Deserialization proceeds as follows:
           [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
 
         commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
-
-        status      : UNVERIFIED
 
         -------------------------------- END OF PROOF --------------------------------
 
