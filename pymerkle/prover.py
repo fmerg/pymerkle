@@ -1,10 +1,10 @@
-"""Provides encryption and prover API of Merkle-trees
+"""
+Provides the Merkle-proof object
 """
 
 import os
 import json
 from time import time, ctime
-from tqdm import tqdm
 
 from pymerkle.exceptions import NoPathException
 from pymerkle.hashing import HashEngine
@@ -38,70 +38,61 @@ PROOF_TEMPLATE = """
 
 
 class MerkleProof:
-    """Class for Merkle-proofs
-
-    :param provider: uuid of the provider Merkle-tree
+    """
+    :param provider: uuid of the provider tree
     :type provider: str
-    :param hash_type: hash type of the provider Merkle-tree
+    :param hash_type: hash-type of the provider tree
     :type hash_type: str
-    :param encoding: encoding type of the provider Merkle-tree
+    :param encoding: encoding type of the provider tree
     :type encoding: str
-    :param raw_bytes: raw-bytes mode of the provider Merkle-tree
+    :param raw_bytes: raw-bytes mode of the provider tree
     :type raw_bytes: bool
-    :param security: security mode of the provider Merkle-tree
+    :param security: security mode of the provider tree
     :type security: bool
-    :param offset: starting position of subsequent verification procedure
+    :param offset: starting position of hashing during verification
     :type offset: int
-    :param path: path of signed hashes
+    :param path: path of hashes
     :type path: tuple of (+1/-1, bytes)
 
-    Proofs are meant to be output of proof generation mechanisms and not
-    manually constructed. MerkleProof construction via deserialization might though
-    have practical importance, so that given a proof *p* the following
-    constructions are possible:
 
-    >>> from pymerkle import MerkleProof
-    >>>
-    >>> q = MerkleProof.from_dict(p.serialize())
-    >>> r = MerkleProof.from_json(p.toJSONtext())
+    .. note:: Merkle-proofs are intended to be the output of proof generation
+        mechanisms and not be manually constructed. Construction via
+        deserialization might though have practical importance, so that given
+        a proof *p* the following constructions are possible:
 
-    or, more uniformly,
+        >>> from pymerkle import MerkleProof
+        >>>
+        >>> q = MerkleProof.from_dict(p.serialize())
+        >>> r = MerkleProof.from_json(p.toJSONtext())
 
-    >>> q = MerkleProof.deserialize(p.serialize())
-    >>> r = MerkleProof.deserialize(p.toJSONtext())
+        or, more uniformly,
 
-    .. note:: This is a genuine replication, since deserializations will have
-        the same uuid and timestamp as the original.
-
-    :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
-        *created_at*, *provider*, *hash_type*, *encoding*,
-        *raw_bytes*, *security* and *status*
-    :ivar body: (*dict*) Contains the keys *offset* and *path*
+        >>> q = MerkleProof.deserialize(p.serialize())
+        >>> r = MerkleProof.deserialize(p.toJSONtext())
     """
 
     def __init__(self, provider, hash_type, encoding, raw_bytes, security,
                  offset, path, uuid=None, timestamp=None, created_at=None,
                  commitment=None, status=None):
-
-        self.header = {
-            'uuid': uuid or generate_uuid(),
-            'timestamp': timestamp or int(time()),
-            'created_at': created_at or ctime(),
-            'provider': provider,
-            'hash_type': hash_type,
-            'encoding': encoding,
-            'raw_bytes': raw_bytes,
-            'security': security,
-            'commitment': commitment,
-            'status': status,
-        }
-        self.body = {
-            'offset': offset,
-            'path': path,
-        }
+        self.uuid = uuid or generate_uuid()
+        self.timestamp = timestamp or int(time())
+        self.created_at = created_at or ctime()
+        self.provider = provider
+        self.hash_type = hash_type
+        self.encoding = encoding
+        self.raw_bytes = raw_bytes
+        self.security = security
+        self.commitment = commitment
+        self.status = status
+        self.offset = offset
+        self.path = path
 
     @classmethod
     def from_dict(cls, proof):
+        """
+        :param proof: proof
+        :type proof: dict
+        """
         kw = {}
         header = proof['header']
         body = proof['body']
@@ -137,21 +128,16 @@ class MerkleProof:
             return cls.from_json(serialized)
 
     def get_verification_params(self):
-        """Extracts from the proof's header the fields required for configuring
-        correctly the verifier's hashing machinery.
+        """
+        Parameters required for configuring the verification hashing machinery.
 
         :rtype: dict
         """
-        header = self.header
-        return {
-            'hash_type': header['hash_type'],
-            'encoding': header['encoding'],
-            'raw_bytes': header['raw_bytes'],
-            'security': header['security'],
-        }
+        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+                'raw_bytes': self.raw_bytes, 'security': self.security}
 
     def get_commitment(self):
-        return self.header.get('commitment', None)
+        return self.commitment
 
     def compute_checksum(self):
         """
@@ -159,11 +145,8 @@ class MerkleProof:
 
         :rtype: bytes
         """
-        offset = self.body['offset']
-        path = self.body['path']
-
         engine = HashEngine(**self.get_verification_params())
-        checksum = engine.multi_hash(path, offset)
+        checksum = engine.multi_hash(self.path, self.offset)
 
         return checksum
 
@@ -182,10 +165,7 @@ class MerkleProof:
         """
         target = self.get_commitment() if target is None else target
 
-        offset = self.body['offset']
-        path = self.body['path']
-
-        if offset == -1 and path == ():
+        if self.offset == -1 and self.path == ():
             return False
 
         if target != self.compute_checksum():
@@ -194,43 +174,43 @@ class MerkleProof:
         return True
 
     def __repr__(self):
-        """Sole purpose of this function is to display info
-        about a proof by just invoking it at console
-
-        .. warning:: Contrary to convention, the output of this implementation
-            is not insertable into the *eval()* builtin Python function
         """
-        header = self.header
-        body = self.body
-        encoding = header['encoding']
+        .. warning:: Contrary to convention, the output of this method is not
+            insertable into the *eval()* builtin Python function.
+        """
+        encoding = self.encoding
 
         return PROOF_TEMPLATE.format(
-            uuid=header['uuid'],
-            timestamp=header['timestamp'],
-            created_at=header['created_at'],
-            provider=header['provider'],
-            hash_type=header['hash_type'].upper().replace('_', ''),
-            encoding=header['encoding'].upper().replace('_', '-'),
-            raw_bytes='TRUE' if header['raw_bytes'] else 'FALSE',
-            security='ACTIVATED' if header['security'] else 'DEACTIVATED',
-            commitment=header['commitment'].decode()
-            if header['commitment'] else None,
-            offset=body['offset'],
-            path=stringify_path(body['path'], header['encoding']),
-            status='UNVERIFIED' if header['status'] is None
-            else 'VERIFIED' if header['status'] is True else 'INVALID')
+            uuid=self.uuid,
+            timestamp=self.timestamp,
+            created_at=self.created_at,
+            provider=self.provider,
+            hash_type=self.hash_type.upper().replace('_', ''),
+            encoding=encoding.upper().replace('_', '-'),
+            raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
+            security='ACTIVATED' if self.security else 'DEACTIVATED',
+            commitment=self.commitment,
+            offset=self.offset,
+            path=stringify_path(self.path, self.encoding),
+            status='UNVERIFIED' if self.status is None
+            else 'VERIFIED' if self.status is True else 'INVALID')
 
     def serialize(self):
-        """Returns a JSON entity with the proof's characteristics
-        as key-value pairs.
+        """
+        Returns a JSON dictionary with the proof's characteristics as key-value
+        pairs.
 
         :rtype: dict
         """
         return MerkleProofSerialilzer().default(self)
 
     def toJSONtext(self):
-        """Returns a JSON text with the proof's characteristics
-        as key-value pairs.
+        """
+        Returns a JSON text with the proof's characteristics as key-value
+        pairs.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
 
         :rtype: str
         """
@@ -239,25 +219,23 @@ class MerkleProof:
 
 
 class MerkleProofSerialilzer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of proofs.
-    """
 
     def default(self, obj):
-        """Overrides the built-in method of JSON encoders.
+        """
         """
         try:
-            uuid = obj.header['uuid']
-            created_at = obj.header['created_at']
-            timestamp = obj.header['timestamp']
-            provider = obj.header['provider']
-            hash_type = obj.header['hash_type']
-            encoding = obj.header['encoding']
-            security = obj.header['security']
-            raw_bytes = obj.header['raw_bytes']
-            offset = obj.body['offset']
-            path = obj.body['path']
-            commitment = obj.header['commitment']
-            status = obj.header['status']
+            uuid = obj.uuid
+            created_at = obj.created_at
+            timestamp = obj.timestamp
+            provider = obj.provider
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
+            raw_bytes = obj.raw_bytes
+            offset = obj.offset
+            path = obj.path
+            commitment = obj.commitment
+            status = obj.status
         except AttributeError:
             return json.JSONEncoder.default(self, obj)
 

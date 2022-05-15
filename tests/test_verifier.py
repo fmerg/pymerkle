@@ -18,7 +18,7 @@ def test_verify_proof_with_commitment():
     tree = MerkleTree.init_from_records(
         *[f'{i}-th record' for i in range(666)])
     proof = tree.generate_audit_proof(tree.hash('100-th record'))
-    commitment = proof.header['commitment']
+    commitment = proof.commitment
     assert proof.verify() is proof.verify(target=commitment)
 
 
