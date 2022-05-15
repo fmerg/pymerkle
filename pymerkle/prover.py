@@ -193,20 +193,43 @@ class MerkleProof:
 
         :rtype: dict
         """
-        return MerkleProofSerialilzer().default(self)
+        uuid = self.uuid
+        created_at = self.created_at
+        timestamp = self.timestamp
+        provider = self.provider
+        hash_type = self.hash_type
+        encoding = self.encoding
+        security = self.security
+        raw_bytes = self.raw_bytes
+        commitment = self.commitment.decode(self.encoding) if self.commitment \
+                else None
+        status = self.status
+        offset = self.offset
 
-    def toJSONtext(self):
-        """
-        Returns a JSON text with the proof's characteristics as key-value
-        pairs.
+        path = []
+        for (sign, digest) in self.path:
+            checksum = digest if isinstance(digest, str) else \
+                    digest.decode(self.encoding)
+            path.append([sign, checksum])
 
-        .. note:: This is the minimum required information for recostruction
-            the tree from its serialization.
-
-        :rtype: str
-        """
-        return json.dumps(self, cls=MerkleProofSerialilzer,
-                          sort_keys=True, indent=4)
+        return {
+            'header': {
+                'uuid': uuid,
+                'timestamp': timestamp,
+                'created_at': created_at,
+                'provider': provider,
+                'hash_type': hash_type,
+                'encoding': encoding,
+                'security': security,
+                'raw_bytes': raw_bytes,
+                'commitment': commitment,
+                'status': status,
+            },
+            'body': {
+                'offset': offset,
+                'path': path,
+            }
+        }
 
     @classmethod
     def from_dict(cls, proof):
@@ -230,6 +253,18 @@ class MerkleProof:
 
         return cls(**kw)
 
+    def toJSONtext(self, indent=4):
+        """
+        Returns a JSON text with the proof's characteristics as key-value
+        pairs.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
+
+        :rtype: str
+        """
+        return json.dumps(self.serialize(), sort_keys=True, indent=indent)
+
     @classmethod
     def from_json(cls, text):
         """
@@ -250,52 +285,3 @@ class MerkleProof:
             return cls.from_dict(serialized)
         elif isinstance(serialized, str):
             return cls.from_json(serialized)
-
-
-class MerkleProofSerialilzer(json.JSONEncoder):
-
-    def default(self, obj):
-        """
-        """
-        try:
-            uuid = obj.uuid
-            created_at = obj.created_at
-            timestamp = obj.timestamp
-            provider = obj.provider
-            hash_type = obj.hash_type
-            encoding = obj.encoding
-            security = obj.security
-            raw_bytes = obj.raw_bytes
-            commitment = obj.commitment
-            status = obj.status
-            offset = obj.offset
-            path = obj.path
-        except AttributeError:
-            return json.JSONEncoder.default(self, obj)
-
-        commitment = obj.commitment.decode(obj.encoding) if obj.commitment \
-                else None
-        path = []
-        for (sign, digest) in obj.path:
-            checksum = digest if isinstance(digest, str) else \
-                    digest.decode(obj.encoding)
-            path.append([sign, checksum])
-
-        return {
-            'header': {
-                'uuid': uuid,
-                'timestamp': timestamp,
-                'created_at': created_at,
-                'provider': provider,
-                'hash_type': hash_type,
-                'encoding': encoding,
-                'security': security,
-                'raw_bytes': raw_bytes,
-                'commitment': commitment,
-                'status': status,
-            },
-            'body': {
-                'offset': offset,
-                'path': path,
-            }
-        }
