@@ -8,7 +8,7 @@ from time import time, ctime
 
 from pymerkle.exceptions import NoPathException
 from pymerkle.hashing import HashEngine
-from pymerkle.utils import stringify_path, generate_uuid
+from pymerkle.utils import log10, generate_uuid
 from pymerkle.exceptions import UndecodableRecord
 
 
@@ -35,6 +35,32 @@ PROOF_TEMPLATE = """
 
     -------------------------------- END OF PROOF --------------------------------
 """
+
+
+def stringify_path(path, encoding):
+    """
+    Returns a string composed of the provided path of hashes.
+
+    :param path: sequence of signed hashes
+    :type path: tuple of (+1/-1, bytes) or (+1/-1, str)
+    :param encoding: encoding type to be used for decoding
+    :type encoding: str
+    :rtype: str
+    """
+    def order_of_magnitude(num): return int(log10(num)) if num != 0 else 0
+    def get_with_sign(num): return f'{"+" if num >= 0 else ""}{num}'
+    pairs = []
+    pair_template = '\n{left}[{index}]{middle}{sign}{right}{digest}'
+    for index, curr in enumerate(path):
+        pairs.append(
+            pair_template.format(left=(7 - order_of_magnitude(index)) * ' ',
+                                 index=index,
+                                 middle=3 * ' ',
+                                 sign=get_with_sign(curr[0]),
+                                 right=3 * ' ',
+                                 digest=curr[1].decode(encoding) if not isinstance(curr[1], str)
+                                 else curr[1]))
+    return ''.join(pairs)
 
 
 class MerkleProof:
@@ -87,46 +113,6 @@ class MerkleProof:
         self.offset = offset
         self.path = path
 
-    @classmethod
-    def from_dict(cls, proof):
-        """
-        :param proof: proof
-        :type proof: dict
-        """
-        kw = {}
-        header = proof['header']
-        body = proof['body']
-        kw.update(header)
-        commitment = header.get('commitment', None)
-        if commitment:
-            kw['commitment'] = commitment.encode()
-        kw['offset'] = body['offset']
-        encoding = header['encoding']
-        kw['path'] = tuple((
-            pair[0],
-            pair[1].encode(encoding)
-        ) for pair in body['path'])
-
-        return cls(**kw)
-
-    @classmethod
-    def from_json(cls, text):
-        return cls.from_dict(json.loads(text))
-
-    @classmethod
-    def deserialize(cls, serialized):
-        """Deserializes the provided JSON entity
-
-        :params serialized: a Python dict or JSON text, assumed to be the
-            serialization of a *MerkleProof* object
-        :type: dict or str
-        :rtype: MerkleProof
-        """
-        if isinstance(serialized, dict):
-            return cls.from_dict(serialized)
-        elif isinstance(serialized, str):
-            return cls.from_json(serialized)
-
     def get_verification_params(self):
         """
         Parameters required for configuring the verification hashing machinery.
@@ -136,12 +122,9 @@ class MerkleProof:
         return {'hash_type': self.hash_type, 'encoding': self.encoding,
                 'raw_bytes': self.raw_bytes, 'security': self.security}
 
-    def get_commitment(self):
-        return self.commitment
-
     def compute_checksum(self):
         """
-        Compute the hash value resulting from the included path of hashes.
+        Computes the hash value resulting from the included path of hashes.
 
         :rtype: bytes
         """
@@ -163,7 +146,7 @@ class MerkleProof:
         :returns: the verification result
         :rtype: bool
         """
-        target = self.get_commitment() if target is None else target
+        target = self.commitment if target is None else target
 
         if self.offset == -1 and self.path == ():
             return False
@@ -178,22 +161,30 @@ class MerkleProof:
         .. warning:: Contrary to convention, the output of this method is not
             insertable into the *eval()* builtin Python function.
         """
-        encoding = self.encoding
+        uuid = self.uuid
+        timestamp = self.timestamp
+        created_at = self.created_at
+        provider = self.provider
+        hash_type = self.hash_type.upper().replace('_', '')
+        encoding = self.encoding.upper().replace('_', '-')
+        raw_bytes = 'TRUE' if self.raw_bytes else 'FALSE'
+        security = 'ACTIVATED' if self.security else 'DEACTIVATED'
+        commitment = self.commitment.decode(self.encoding) if self.commitment \
+                else None
+        if self.status is None:
+            status = 'UNVERIFIED'
+        else:
+            status = 'VERIFIED' if self.status is True else 'INVALID'
+        offset = self.offset
+        path = stringify_path(self.path, self.encoding)
 
-        return PROOF_TEMPLATE.format(
-            uuid=self.uuid,
-            timestamp=self.timestamp,
-            created_at=self.created_at,
-            provider=self.provider,
-            hash_type=self.hash_type.upper().replace('_', ''),
-            encoding=encoding.upper().replace('_', '-'),
-            raw_bytes='TRUE' if self.raw_bytes else 'FALSE',
-            security='ACTIVATED' if self.security else 'DEACTIVATED',
-            commitment=self.commitment,
-            offset=self.offset,
-            path=stringify_path(self.path, self.encoding),
-            status='UNVERIFIED' if self.status is None
-            else 'VERIFIED' if self.status is True else 'INVALID')
+        kw = {'uuid': uuid, 'timestamp': timestamp, 'created_at': created_at,
+              'provider': provider, 'hash_type': hash_type,
+              'encoding': encoding, 'raw_bytes': raw_bytes,
+              'security': security, 'commitment': commitment,
+              'offset': offset, 'path': path, 'status': status}
+
+        return PROOF_TEMPLATE.format(**kw)
 
     def serialize(self):
         """
@@ -217,6 +208,49 @@ class MerkleProof:
         return json.dumps(self, cls=MerkleProofSerialilzer,
                           sort_keys=True, indent=4)
 
+    @classmethod
+    def from_dict(cls, proof):
+        """
+        :param proof: serialized Merkle-proof as JSON dict
+        :type proof: dict
+        """
+        kw = {}
+        header = proof['header']
+        body = proof['body']
+        kw.update(header)
+        commitment = header.get('commitment', None)
+        if commitment:
+            kw['commitment'] = commitment.encode()
+        kw['offset'] = body['offset']
+        encoding = header['encoding']
+        kw['path'] = tuple((
+            pair[0],
+            pair[1].encode(encoding)
+        ) for pair in body['path'])
+
+        return cls(**kw)
+
+    @classmethod
+    def from_json(cls, text):
+        """
+        :param text: serialized Merkle-proof as JSON text
+        :type text: str
+        """
+        return cls.from_dict(json.loads(text))
+
+    @classmethod
+    def deserialize(cls, serialized):
+        """
+        :params serialized: JSON dict or text, assumed to be the serialization
+            of a Merkle-proof
+        :type: dict or str
+        :rtype: MerkleProof
+        """
+        if isinstance(serialized, dict):
+            return cls.from_dict(serialized)
+        elif isinstance(serialized, str):
+            return cls.from_json(serialized)
+
 
 class MerkleProofSerialilzer(json.JSONEncoder):
 
@@ -232,12 +266,20 @@ class MerkleProofSerialilzer(json.JSONEncoder):
             encoding = obj.encoding
             security = obj.security
             raw_bytes = obj.raw_bytes
-            offset = obj.offset
-            path = obj.path
             commitment = obj.commitment
             status = obj.status
+            offset = obj.offset
+            path = obj.path
         except AttributeError:
             return json.JSONEncoder.default(self, obj)
+
+        commitment = obj.commitment.decode(obj.encoding) if obj.commitment \
+                else None
+        path = []
+        for (sign, digest) in obj.path:
+            checksum = digest if isinstance(digest, str) else \
+                    digest.decode(obj.encoding)
+            path.append([sign, checksum])
 
         return {
             'header': {
@@ -249,15 +291,11 @@ class MerkleProofSerialilzer(json.JSONEncoder):
                 'encoding': encoding,
                 'security': security,
                 'raw_bytes': raw_bytes,
-                'commitment': commitment.decode() if commitment else None,
-                'status': status
+                'commitment': commitment,
+                'status': status,
             },
             'body': {
                 'offset': offset,
-                'path': [
-                    [sign, digest if isinstance(
-                        digest, str) else digest.decode()]
-                    for (sign, digest) in path
-                ]
+                'path': path,
             }
         }
