@@ -2,7 +2,6 @@ import pytest
 
 from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
-from pymerkle.exceptions import NoAncestorException
 
 
 h = HashEngine()
@@ -54,8 +53,7 @@ def test_parentless_leaf_is_not_right_child(leaf):
 
 @pytest.mark.parametrize('leaf', pairs)
 def test_parentless_leaf_no_ancestor_exception(leaf):
-    with pytest.raises(NoAncestorException):
-        leaf.ancestor(degree=1)
+    assert not leaf.ancestor(degree=1)
 
 
 @pytest.mark.parametrize('leaf', pairs)
@@ -114,8 +112,7 @@ def test_is_right_child(node):
                                           (node1, 2), (node3, 2),
                                           (root, 1)))
 def test_no_ancestor_exception(node, degree):
-    with pytest.raises(NoAncestorException):
-        node.ancestor(degree=degree)
+        assert not node.ancestor(degree=degree)
 
 
 @pytest.mark.parametrize('node', (leaf1, leaf2, leaf3, leaf4,

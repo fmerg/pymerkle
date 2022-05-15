@@ -12,13 +12,6 @@ class EmptyPathException(Exception):
     pass
 
 
-class NoAncestorException(Exception):
-    """
-    Raised when the non-existent ancestor of a node is requested
-    (i.e., with a descendancy-degree exceeding current possibilities).
-    """
-
-
 class NoPathException(Exception):
     """
     Raised when no path exists for the provided parameters.

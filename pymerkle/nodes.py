@@ -3,10 +3,9 @@ Provides node classes for the Merkle-tree data structure.
 """
 
 from abc import ABCMeta, abstractmethod
-
-from pymerkle.exceptions import NoAncestorException
-from pymerkle.utils import NONE
 import json
+
+from pymerkle.utils import NONE
 
 
 L_BRACKET_SHORT = '└─'
@@ -138,6 +137,8 @@ class Node:
         Detects and returns the node that is *degree* steps upwards within
         the containing Merkle-tree.
 
+        .. note:: Returns *None* if the requested degree exceeds possibilities.
+
         .. note:: Ancestor of degree 0 is the node itself, ancestor
                 of degree 1 is the node's parent, etc.
 
@@ -145,15 +146,12 @@ class Node:
         :type degree: int
         :returns: the ancestor corresdponding to the requested degree
         :rtype: Node
-
-        :raises NoAncestorException: if the requested degree
-            exceeds possibilities.
         """
         if degree == 0:
             return self
 
         if not self.__parent:
-            raise NoAncestorException
+            return None
 
         return self.__parent.ancestor(degree - 1)
 
