@@ -155,6 +155,9 @@ class MerkleProof:
 
     def compute_checksum(self):
         """
+        Compute the hash value resulting from the included path of hashes.
+
+        :rtype: bytes
         """
         offset = self.body['offset']
         path = self.body['path']
@@ -166,15 +169,18 @@ class MerkleProof:
 
     def verify(self, target=None):
         """
+        Merkle-proof verification.
+
+        Verifies that the hash value resulting from the included path of hashes
+        coincides with the target.
+
+        :param target: [optional] target hash to compare against. Defaults to
+            the commitment included in the proof.
+        :type target: bytes
+        :returns: the verification result
+        :rtype: bool
         """
-        if target is None:
-            commitment = self.get_commitment()
-
-            if not commitment:
-                err = 'No acclaimed root-hash provided'
-                raise AssertionError(err)
-
-            target = commitment
+        target = self.get_commitment() if target is None else target
 
         offset = self.body['offset']
         path = self.body['path']

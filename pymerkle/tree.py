@@ -141,7 +141,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the hash value stored by the tree's current root node.
         """
 
-    def create_proof(self, offset, path, commit=True):
+    def create_proof(self, offset, path):
         """
         Creates a proof object from the provided path of hashes including the
         configuration of the present tree as verification parameters.
@@ -150,18 +150,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type offset: int
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
-        :param commit: [optional] Include current root-hash as commitment.
-            Defaults to *True*.
-        :type commit: bool
         :returns: proof object consisting of the above components
         :rtype: MerkleProof
         """
         params = self.get_config()
         params.update({'provider': self.uuid})
-        commitment = None
-        if self and commit:
-            commitment = self.root_hash
 
+        commitment = self.root_hash if self else None
         proof = MerkleProof(path=path, offset=offset, commitment=commitment,
                             **params)
         return proof
@@ -179,7 +174,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Define here how to construct path of hashes for audit-proofs.
         """
 
-    def generate_audit_proof(self, digest, commit=True):
+    def generate_audit_proof(self, digest):
         """
         Computes audit-proof for the provided hash value.
 
@@ -188,9 +183,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param digest: hash value to be proven
         :type digest: bytes
-        :param commit: [optional] Include current root-hash as commitment.
-            Defaults to *True*.
-        :type commit: bool
         :rtype: MerkleProof
         """
         offset = -1
@@ -201,7 +193,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         except NoPathException:
             pass
 
-        proof = self.create_proof(offset, path, commit=commit)
+        proof = self.create_proof(offset, path)
         return proof
 
     @abstractmethod
@@ -210,7 +202,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Define here how to construct path of hashes for consistency-proofs.
         """
 
-    def generate_consistency_proof(self, subhash, commit=True):
+    def generate_consistency_proof(self, subhash):
         """
         Computes consistency-proof for the provided hash value.
 
@@ -219,9 +211,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param subhash: acclaimed root-hash of some previous state of the tree.
         :type subhash: bytes
-        :param commit: [optional] Include current root-hash as commitment.
-            Defaults to *True*.
-        :type commit: bool
         :rtype: MerkleProof
 
         """
@@ -239,7 +228,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                 path = _path
                 break
 
-        proof = self.create_proof(offset, path, commit=commit)
+        proof = self.create_proof(offset, path)
         return proof
 
     @abstractmethod

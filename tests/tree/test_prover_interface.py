@@ -1,5 +1,5 @@
 """
-Tests the .generate_audit_proof(), .generate_consistency_proof() methods
+Tests proof generation methods
 """
 
 import pytest
@@ -157,7 +157,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     Tests that the generated empty consistency proof, requested
     for a wrong hash, is as expected
     """
-    proof = tree.generate_consistency_proof(subhash, sublength)
+    proof = tree.generate_consistency_proof(subhash)
 
     assert proof.__dict__ == {
         'header': {
@@ -185,7 +185,7 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     Tests that the generated empty consistency proof, requested
     for a wrong sublength, is as expected
     """
-    proof = tree.generate_consistency_proof(subhash, sublength)
+    proof = tree.generate_consistency_proof(subhash)
 
     assert proof.__dict__ == {
         'header': {
