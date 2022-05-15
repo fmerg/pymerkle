@@ -1,13 +1,14 @@
-"""Provides encryption and prover API of Merkle-trees
+"""
+Provides the Merkle-proof object
 """
 
 import os
 import json
 from time import time, ctime
-from tqdm import tqdm
 
 from pymerkle.exceptions import NoPathException
-from pymerkle.utils import stringify_path, generate_uuid
+from pymerkle.hashing import HashEngine
+from pymerkle.utils import log10, generate_uuid
 from pymerkle.exceptions import UndecodableRecord
 
 
@@ -36,71 +37,183 @@ PROOF_TEMPLATE = """
 """
 
 
-class MerkleProof:
-    """Class for Merkle-proofs
+def stringify_path(path, encoding):
+    """
+    Returns a string composed of the provided path of hashes.
 
-    :param provider: uuid of the provider Merkle-tree
-    :type provider: str
-    :param hash_type: hash type of the provider Merkle-tree
-    :type hash_type: str
-    :param encoding: encoding type of the provider Merkle-tree
+    :param path: sequence of signed hashes
+    :type path: tuple of (+1/-1, bytes) or (+1/-1, str)
+    :param encoding: encoding type to be used for decoding
     :type encoding: str
-    :param raw_bytes: raw-bytes mode of the provider Merkle-tree
+    :rtype: str
+    """
+    def order_of_magnitude(num): return int(log10(num)) if num != 0 else 0
+    def get_with_sign(num): return f'{"+" if num >= 0 else ""}{num}'
+    pairs = []
+    pair_template = '\n{left}[{index}]{middle}{sign}{right}{digest}'
+    for index, curr in enumerate(path):
+        pairs.append(
+            pair_template.format(left=(7 - order_of_magnitude(index)) * ' ',
+                                 index=index,
+                                 middle=3 * ' ',
+                                 sign=get_with_sign(curr[0]),
+                                 right=3 * ' ',
+                                 digest=curr[1].decode(encoding) if not isinstance(curr[1], str)
+                                 else curr[1]))
+    return ''.join(pairs)
+
+
+class MerkleProof:
+    """
+    :param provider: uuid of the provider tree
+    :type provider: str
+    :param hash_type: hash-type of the provider tree
+    :type hash_type: str
+    :param encoding: encoding type of the provider tree
+    :type encoding: str
+    :param raw_bytes: raw-bytes mode of the provider tree
     :type raw_bytes: bool
-    :param security: security mode of the provider Merkle-tree
+    :param security: security mode of the provider tree
     :type security: bool
-    :param offset: starting position of subsequent verification procedure
+    :param offset: starting position of hashing during verification
     :type offset: int
-    :param path: path of signed hashes
+    :param path: path of hashes
     :type path: tuple of (+1/-1, bytes)
 
-    Proofs are meant to be output of proof generation mechanisms and not
-    manually constructed. MerkleProof construction via deserialization might though
-    have practical importance, so that given a proof *p* the following
-    constructions are possible:
 
-    >>> from pymerkle import MerkleProof
-    >>>
-    >>> q = MerkleProof.from_dict(p.serialize())
-    >>> r = MerkleProof.from_json(p.toJSONtext())
+    .. note:: Merkle-proofs are intended to be the output of proof generation
+        mechanisms and not be manually constructed. Construction via
+        deserialization might though have practical importance, so that given
+        a proof *p* the following constructions are possible:
 
-    or, more uniformly,
+        >>> from pymerkle import MerkleProof
+        >>>
+        >>> q = MerkleProof.from_dict(p.serialize())
+        >>> r = MerkleProof.from_json(p.toJSONtext())
 
-    >>> q = MerkleProof.deserialize(p.serialize())
-    >>> r = MerkleProof.deserialize(p.toJSONtext())
+        or, more uniformly,
 
-    .. note:: This is a genuine replication, since deserializations will have
-        the same uuid and timestamp as the original.
-
-    :ivar header: (*dict*) contains the keys *uuid*, *timestamp*,
-        *created_at*, *provider*, *hash_type*, *encoding*,
-        *raw_bytes*, *security* and *status*
-    :ivar body: (*dict*) Contains the keys *offset* and *path*
+        >>> q = MerkleProof.deserialize(p.serialize())
+        >>> r = MerkleProof.deserialize(p.toJSONtext())
     """
 
     def __init__(self, provider, hash_type, encoding, raw_bytes, security,
                  offset, path, uuid=None, timestamp=None, created_at=None,
                  commitment=None, status=None):
+        self.uuid = uuid or generate_uuid()
+        self.timestamp = timestamp or int(time())
+        self.created_at = created_at or ctime()
+        self.provider = provider
+        self.hash_type = hash_type
+        self.encoding = encoding
+        self.raw_bytes = raw_bytes
+        self.security = security
+        self.commitment = commitment
+        self.status = status
+        self.offset = offset
+        self.path = path
 
-        self.header = {
-            'uuid': uuid or generate_uuid(),
-            'timestamp': timestamp or int(time()),
-            'created_at': created_at or ctime(),
-            'provider': provider,
-            'hash_type': hash_type,
-            'encoding': encoding,
-            'raw_bytes': raw_bytes,
-            'security': security,
-            'commitment': commitment,
-            'status': status,
-        }
-        self.body = {
-            'offset': offset,
-            'path': path,
-        }
+    def get_verification_params(self):
+        """
+        Parameters required for configuring the verification hashing machinery.
+
+        :rtype: dict
+        """
+        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+                'raw_bytes': self.raw_bytes, 'security': self.security}
+
+    def compute_checksum(self):
+        """
+        Computes the hash value resulting from the included path of hashes.
+
+        :rtype: bytes
+        """
+        engine = HashEngine(**self.get_verification_params())
+        checksum = engine.multi_hash(self.path, self.offset)
+
+        return checksum
+
+    def verify(self, target=None):
+        """
+        Merkle-proof verification.
+
+        Verifies that the hash value resulting from the included path of hashes
+        coincides with the target.
+
+        :param target: [optional] target hash to compare against. Defaults to
+            the commitment included in the proof.
+        :type target: bytes
+        :returns: the verification result
+        :rtype: bool
+        """
+        target = self.commitment if target is None else target
+
+        if self.offset == -1 and self.path == ():
+            return False
+
+        if target != self.compute_checksum():
+            return False
+
+        return True
+
+    def __repr__(self):
+        """
+        .. warning:: Contrary to convention, the output of this method is not
+            insertable into the *eval()* builtin Python function.
+        """
+        uuid = self.uuid
+        timestamp = self.timestamp
+        created_at = self.created_at
+        provider = self.provider
+        hash_type = self.hash_type.upper().replace('_', '')
+        encoding = self.encoding.upper().replace('_', '-')
+        raw_bytes = 'TRUE' if self.raw_bytes else 'FALSE'
+        security = 'ACTIVATED' if self.security else 'DEACTIVATED'
+        commitment = self.commitment.decode(self.encoding) if self.commitment \
+                else None
+        if self.status is None:
+            status = 'UNVERIFIED'
+        else:
+            status = 'VERIFIED' if self.status is True else 'INVALID'
+        offset = self.offset
+        path = stringify_path(self.path, self.encoding)
+
+        kw = {'uuid': uuid, 'timestamp': timestamp, 'created_at': created_at,
+              'provider': provider, 'hash_type': hash_type,
+              'encoding': encoding, 'raw_bytes': raw_bytes,
+              'security': security, 'commitment': commitment,
+              'offset': offset, 'path': path, 'status': status}
+
+        return PROOF_TEMPLATE.format(**kw)
+
+    def serialize(self):
+        """
+        Returns a JSON dictionary with the proof's characteristics as key-value
+        pairs.
+
+        :rtype: dict
+        """
+        return MerkleProofSerialilzer().default(self)
+
+    def toJSONtext(self):
+        """
+        Returns a JSON text with the proof's characteristics as key-value
+        pairs.
+
+        .. note:: This is the minimum required information for recostruction
+            the tree from its serialization.
+
+        :rtype: str
+        """
+        return json.dumps(self, cls=MerkleProofSerialilzer,
+                          sort_keys=True, indent=4)
 
     @classmethod
     def from_dict(cls, proof):
+        """
+        :param proof: serialized Merkle-proof as JSON dict
+        :type proof: dict
+        """
         kw = {}
         header = proof['header']
         body = proof['body']
@@ -119,14 +232,17 @@ class MerkleProof:
 
     @classmethod
     def from_json(cls, text):
+        """
+        :param text: serialized Merkle-proof as JSON text
+        :type text: str
+        """
         return cls.from_dict(json.loads(text))
 
     @classmethod
     def deserialize(cls, serialized):
-        """Deserializes the provided JSON entity
-
-        :params serialized: a Python dict or JSON text, assumed to be the
-            serialization of a *MerkleProof* object
+        """
+        :params serialized: JSON dict or text, assumed to be the serialization
+            of a Merkle-proof
         :type: dict or str
         :rtype: MerkleProof
         """
@@ -135,90 +251,35 @@ class MerkleProof:
         elif isinstance(serialized, str):
             return cls.from_json(serialized)
 
-    def get_verification_params(self):
-        """Extracts from the proof's header the fields required for configuring
-        correctly the verifier's hashing machinery.
-
-        :rtype: dict
-        """
-        header = self.header
-        return {
-            'hash_type': header['hash_type'],
-            'encoding': header['encoding'],
-            'raw_bytes': header['raw_bytes'],
-            'security': header['security'],
-        }
-
-    def get_commitment(self):
-        return self.header.get('commitment', None)
-
-    def __repr__(self):
-        """Sole purpose of this function is to display info
-        about a proof by just invoking it at console
-
-        .. warning:: Contrary to convention, the output of this implementation
-            is not insertable into the *eval()* builtin Python function
-        """
-        header = self.header
-        body = self.body
-        encoding = header['encoding']
-
-        return PROOF_TEMPLATE.format(
-            uuid=header['uuid'],
-            timestamp=header['timestamp'],
-            created_at=header['created_at'],
-            provider=header['provider'],
-            hash_type=header['hash_type'].upper().replace('_', ''),
-            encoding=header['encoding'].upper().replace('_', '-'),
-            raw_bytes='TRUE' if header['raw_bytes'] else 'FALSE',
-            security='ACTIVATED' if header['security'] else 'DEACTIVATED',
-            commitment=header['commitment'].decode()
-            if header['commitment'] else None,
-            offset=body['offset'],
-            path=stringify_path(body['path'], header['encoding']),
-            status='UNVERIFIED' if header['status'] is None
-            else 'VERIFIED' if header['status'] is True else 'INVALID')
-
-    def serialize(self):
-        """Returns a JSON entity with the proof's characteristics
-        as key-value pairs.
-
-        :rtype: dict
-        """
-        return MerkleProofSerialilzer().default(self)
-
-    def toJSONtext(self):
-        """Returns a JSON text with the proof's characteristics
-        as key-value pairs.
-
-        :rtype: str
-        """
-        return json.dumps(self, cls=MerkleProofSerialilzer,
-                          sort_keys=True, indent=4)
-
 
 class MerkleProofSerialilzer(json.JSONEncoder):
-    """Used implicitly in the JSON serialization of proofs.
-    """
 
     def default(self, obj):
-        """Overrides the built-in method of JSON encoders.
+        """
         """
         try:
-            uuid = obj.header['uuid']
-            created_at = obj.header['created_at']
-            timestamp = obj.header['timestamp']
-            provider = obj.header['provider']
-            hash_type = obj.header['hash_type']
-            encoding = obj.header['encoding']
-            security = obj.header['security']
-            raw_bytes = obj.header['raw_bytes']
-            offset = obj.body['offset']
-            path = obj.body['path']
-            commitment = obj.header['commitment']
-            status = obj.header['status']
+            uuid = obj.uuid
+            created_at = obj.created_at
+            timestamp = obj.timestamp
+            provider = obj.provider
+            hash_type = obj.hash_type
+            encoding = obj.encoding
+            security = obj.security
+            raw_bytes = obj.raw_bytes
+            commitment = obj.commitment
+            status = obj.status
+            offset = obj.offset
+            path = obj.path
         except AttributeError:
             return json.JSONEncoder.default(self, obj)
+
+        commitment = obj.commitment.decode(obj.encoding) if obj.commitment \
+                else None
+        path = []
+        for (sign, digest) in obj.path:
+            checksum = digest if isinstance(digest, str) else \
+                    digest.decode(obj.encoding)
+            path.append([sign, checksum])
 
         return {
             'header': {
@@ -230,15 +291,11 @@ class MerkleProofSerialilzer(json.JSONEncoder):
                 'encoding': encoding,
                 'security': security,
                 'raw_bytes': raw_bytes,
-                'commitment': commitment.decode() if commitment else None,
-                'status': status
+                'commitment': commitment,
+                'status': status,
             },
             'body': {
                 'offset': offset,
-                'path': [
-                    [sign, digest if isinstance(
-                        digest, str) else digest.decode()]
-                    for (sign, digest) in path
-                ]
+                'path': path,
             }
         }

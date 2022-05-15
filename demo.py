@@ -1,6 +1,6 @@
 """pymerkle demo"""
 
-from pymerkle import MerkleTree, MerkleVerifier
+from pymerkle import MerkleTree
 
 
 if __name__ == '__main__':
@@ -8,7 +8,6 @@ if __name__ == '__main__':
 
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True,
                       security=True)
-    v = MerkleVerifier()
 
 
     # Populate tree with some records
@@ -23,7 +22,7 @@ if __name__ == '__main__':
     challenge = b'45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
     proof = tree.generate_audit_proof(challenge)
     print(proof)
-    assert v.verify_proof(proof)
+    assert proof.verify()
 
 
     # Save current tree state
@@ -40,5 +39,4 @@ if __name__ == '__main__':
     # Prove and verify saved previous state
     proof = tree.generate_consistency_proof(subhash)
     print(proof)
-    assert v.verify_proof(proof)
-
+    assert proof.verify()

@@ -1,5 +1,5 @@
 """
-Provides the underlying hashing engine of Merkle-trees and verifiers.
+Provides the underlying hashing engine for Merkle-trees and proof verification.
 """
 
 import hashlib
@@ -30,7 +30,8 @@ SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
 
 class HashEngine:
     """
-    Encapsulates the hashing functionality for Merkle-trees and verifiers.
+    Encapsulates the hashing functionality of Merkle-trees and proof
+    verification.
 
     :param hash_type: [optional] Specifies the hash algorithm used by the
             engine. Defaults to *sha256*.

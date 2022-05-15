@@ -140,10 +140,7 @@ Verification
 
 .. code-block:: python
 
-    >>> from pymerkle import MerkleVerifier
-    >>>
-    >>> v = MerkleVerifier()
-    >>> v.verify_proof(proof)
+    >>> proof.verify()
     >>> True
     >>>
     >>> proof
@@ -203,26 +200,12 @@ Verification of a Merkle-proof presupposes correct configuration of an underlyin
 hashing engine. This happens automatically by just feeding the proof to any of the
 available verification mechanisms, since the required verification parameters
 (*hash-type*, *encoding*, *raw-bytes* mode, *security* mode) are included in the
-proof's header. The underlying engine is an instance of the `MerkleVerifier`_ class
-(which is in turn a subclass of `HashEngine`_)
+proof's header.
 
-.. _MerkleVerifier: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleVerifier
 .. _HashEngine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine
 
 Verification
 ============
-
-Low-level verification of proofs proceeds by means of the `MerkleVerifier`_ object itself:
-
-.. code-block:: python
-
-    >>> from pymerkle import MerkleVerifier
-    >>>
-    >>> verifier = MerkleVerifier()
-    >>> verifier.verify_proof(proof)
-    >>>
-
-.. note:: Verifying a proof in the above fashion leaves the proof's status unaffected.
 
 Serialization
 =============
