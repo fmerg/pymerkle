@@ -61,7 +61,7 @@ def test_empty_generate_audit_proof(tree, arg):
         'commitment': proof.commitment,
         'status': None,
         'offset': -1,
-        'path': (),
+        'path': [],
     }
 
 

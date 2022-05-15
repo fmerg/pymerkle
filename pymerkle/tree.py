@@ -174,7 +174,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :rtype: MerkleProof
         """
         offset = -1
-        path = ()
+        path = []
         offset = self.detect_offset(digest)
         try:
             offset, path = self.generate_audit_path(offset)
@@ -203,7 +203,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         """
         offset = -1
-        path = ()
+        path = []
         # TODO: Make this loop a binary search
         for sublength in range(1, self.length + 1):
             try:
@@ -684,7 +684,7 @@ class MerkleTree(BaseMerkleTree):
         :returns: sequence of signed hashes along with starting position for
             subsequent proof verification. The sign -1 or +1 indicates pairing
             with the left resp. right neighbour when hashing.
-        :rtype: (int, tuple of (+1/-1, bytes))
+        :rtype: (int, list of (+1/-1, bytes))
 
         :raises NoPathException: if the provided offset exceed's the tree's
             current length or is negative.
@@ -714,7 +714,7 @@ class MerkleTree(BaseMerkleTree):
 
             curr = parent
 
-        return offset, tuple(path)
+        return offset, path
 
     def detect_offset(self, digest):
         """
@@ -760,7 +760,7 @@ class MerkleTree(BaseMerkleTree):
         :returns: sequence of signed hashes along with starting position for
             subsequent proof verification. The sign -1 or +1 indicates pairing
             with the left resp. right neighbour when hashing.
-        :rtype: (int, tuple of (+1/-1, bytes))
+        :rtype: (int, list of (+1/-1, bytes))
 
         :raises NoPathException: if the provided *sublength* is non-positive
             or does not correspond to any sequence of subroots.
@@ -782,8 +782,8 @@ class MerkleTree(BaseMerkleTree):
         else:
             offset = len(lefts) - 1
 
-        left_path = tuple((-1, _[1].digest) for _ in lefts)
-        path = tuple((_[0], _[1].digest) for _ in subroots)
+        left_path = [(-1, r[1].digest) for r in lefts]
+        path = [(r[0], r[1].digest) for r in subroots]
 
         return offset, left_path, path
 

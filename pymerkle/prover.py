@@ -40,7 +40,7 @@ def stringify_path(path, encoding):
     Returns a string composed of the provided path of hashes.
 
     :param path: sequence of signed hashes
-    :type path: tuple of (+1/-1, bytes) or (+1/-1, str)
+    :type path: list of (+1/-1, bytes) or (+1/-1, str)
     :param encoding: encoding type to be used for decoding
     :type encoding: str
     :rtype: str
@@ -74,7 +74,7 @@ class MerkleProof:
     :param offset: starting position of hashing during verification
     :type offset: int
     :param path: path of hashes
-    :type path: tuple of (+1/-1, bytes)
+    :type path: list of (+1/-1, bytes)
 
 
     .. note:: Merkle-proofs are intended to be the output of proof generation
@@ -143,7 +143,7 @@ class MerkleProof:
         """
         target = self.commitment if target is None else target
 
-        if self.offset == -1 and self.path == ():
+        if self.offset == -1 and self.path == []:
             return False
 
         if target != self.compute_checksum():
@@ -238,10 +238,8 @@ class MerkleProof:
             kw['commitment'] = commitment.encode()
         kw['offset'] = body['offset']
         encoding = header['encoding']
-        kw['path'] = tuple((
-            pair[0],
-            pair[1].encode(encoding)
-        ) for pair in body['path'])
+        kw['path'] = [(pair[0], pair[1].encode(encoding)) for pair in
+                body['path']]
 
         return cls(**kw)
 
