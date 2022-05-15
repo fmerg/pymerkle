@@ -28,17 +28,16 @@ def test_verify_proof_with_commitment():
 MAX_LENGTH = 4
 
 trees = []
-for raw_bytes in (True, False):
-    for security in (True, False):
-        for length in range(1, MAX_LENGTH + 1):
-            for hash_type in SUPPORTED_HASH_TYPES:
-                for encoding in SUPPORTED_ENCODINGS:
-                    config = {'hash_type': hash_type, 'encoding': encoding,
-                              'security': security}
-                    tree = MerkleTree.init_from_records(
-                        *['%d-th record' % i for i in range(length)],
-                        config=config)
-                    trees.append(tree)
+for security in (True, False):
+    for length in range(1, MAX_LENGTH + 1):
+        for hash_type in SUPPORTED_HASH_TYPES:
+            for encoding in SUPPORTED_ENCODINGS:
+                config = {'hash_type': hash_type, 'encoding': encoding,
+                          'security': security}
+                tree = MerkleTree.init_from_records(
+                    *['%d-th record' % i for i in range(length)],
+                    config=config)
+                trees.append(tree)
 
 
 # Audit proof verification

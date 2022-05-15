@@ -90,7 +90,6 @@ proof_11 = MerkleProof(
     hash_type='sha_256',
     encoding='utf_8',
     security=True,
-    raw_bytes=True,
     offset=5,
     path=path
 )
@@ -100,7 +99,6 @@ proof_21 = MerkleProof(
     hash_type='sha_256',
     encoding='utf_8',
     security=True,
-    raw_bytes=True,
     offset=-1,
     path=())
 
@@ -108,7 +106,6 @@ proof_12 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
-    raw_bytes=True,
     security=True,
     offset=5,
     path=path
@@ -118,7 +115,6 @@ proof_22 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
-    raw_bytes=True,
     security=True,
     offset=-1,
     path=()
@@ -128,7 +124,6 @@ proof_31 = MerkleProof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
-    raw_bytes=True,
     security=True,
     commitment=b'd079da3aee8025dbffee11b434f1abd52e97caa1d7693a441f196093abc64993',
     offset=5,
@@ -161,7 +156,6 @@ serializations = [
                 'provider': provider,
                 'hash_type': 'sha_256',
                 'encoding': 'utf_8',
-                'raw_bytes': True,
                 'security': True,
                 'commitment': None,
                 'status': None
@@ -194,7 +188,6 @@ serializations = [
                 'provider': provider,
                 'hash_type': 'sha_256',
                 'encoding': 'utf_8',
-                'raw_bytes': True,
                 'security': True,
                 'commitment': None,
                 'status': None
@@ -228,7 +221,6 @@ def test___repr__(proof, generation):
                                                      provider=provider,
                                                      hash_type='SHA256',
                                                      encoding='UTF-8',
-                                                     raw_bytes='TRUE',
                                                      security='ACTIVATED',
                                                      offset=5 if generation else -1,
                                                      path=stringify_path(

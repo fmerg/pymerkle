@@ -11,7 +11,6 @@ def test___repr__non_default_empty_tree():
     assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
                                                    hash_type='SHA512',
                                                    encoding='UTF-32',
-                                                   raw_bytes='TRUE',
                                                    security='DEACTIVATED',
                                                    root_hash='[None]',
                                                    length=0,
@@ -24,7 +23,6 @@ def test___repr__default_non_empty_tree():
     assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
                                                    hash_type='SHA256',
                                                    encoding='UTF-8',
-                                                   raw_bytes='TRUE',
                                                    security='ACTIVATED',
                                                    root_hash=tree.root_hash.decode(
                                                        tree.encoding),
@@ -43,7 +41,6 @@ serializations = [
         {
             "encoding": "utf_8",
             "hash_type": "sha256",
-            "raw_bytes": True,
             "security": True,
             "hashes": [],
         }
@@ -53,7 +50,6 @@ serializations = [
         {
             "encoding": "utf_8",
             "hash_type": "sha256",
-            "raw_bytes": True,
             "security": True,
             "hashes": [
                 "a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d"
@@ -65,7 +61,6 @@ serializations = [
         {
             "encoding": "utf_8",
             "hash_type": "sha256",
-            "raw_bytes": True,
             "security": True,
             "hashes": [
                 "a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d",

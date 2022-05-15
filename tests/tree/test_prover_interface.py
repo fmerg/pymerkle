@@ -13,17 +13,16 @@ from tests.conftest import SUPPORTED_ENCODINGS
 
 MAX_LENGTH = 4
 trees = []
-for raw_bytes in (True, False):
-    for security in (True, False):
-        for length in range(0, MAX_LENGTH + 1):
-            for hash_type in SUPPORTED_HASH_TYPES:
-                for encoding in SUPPORTED_ENCODINGS:
-                    config = {'hash_type': hash_type, 'encoding': encoding,
-                              'raw_bytes': raw_bytes, 'security': security}
-                    tree = MerkleTree.init_from_records(
-                        *['%d-th record' % _ for _ in range(length)],
-                        config=config)
-                    trees.append(tree)
+for security in (True, False):
+    for length in range(0, MAX_LENGTH + 1):
+        for hash_type in SUPPORTED_HASH_TYPES:
+            for encoding in SUPPORTED_ENCODINGS:
+                config = {'hash_type': hash_type, 'encoding': encoding,
+                          'security': security}
+                tree = MerkleTree.init_from_records(
+                    *['%d-th record' % _ for _ in range(length)],
+                    config=config)
+                trees.append(tree)
 
 
 tree__wrong_arg = []
@@ -58,7 +57,6 @@ def test_empty_generate_audit_proof(tree, arg):
         'provider': tree.uuid,
         'hash_type': tree.hash_type,
         'encoding': tree.encoding,
-        'raw_bytes': tree.raw_bytes,
         'security': tree.security,
         'commitment': proof.commitment,
         'status': None,
@@ -78,7 +76,6 @@ def test_non_empty_generate_audit_proof(tree, arg):
         'provider': tree.uuid,
         'hash_type': tree.hash_type,
         'encoding': tree.encoding,
-        'raw_bytes': tree.raw_bytes,
         'security': tree.security,
         'commitment': proof.commitment,
         'status': None,
@@ -127,7 +124,6 @@ def test_non_empty_generate_consistency_proof(tree, subhash):
         'provider': tree.uuid,
         'hash_type': tree.hash_type,
         'encoding': tree.encoding,
-        'raw_bytes': tree.raw_bytes,
         'security': tree.security,
         'commitment': proof.commitment,
         'status': None,
@@ -147,7 +143,6 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
         'provider': tree.uuid,
         'hash_type': tree.hash_type,
         'encoding': tree.encoding,
-        'raw_bytes': tree.raw_bytes,
         'security': tree.security,
         'commitment': proof.commitment,
         'status': None,
@@ -167,7 +162,6 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
         'provider': tree.uuid,
         'hash_type': tree.hash_type,
         'encoding': tree.encoding,
-        'raw_bytes': tree.raw_bytes,
         'security': tree.security,
         'commitment': proof.commitment,
         'status': None,
