@@ -25,12 +25,12 @@ for security in (True, False):
                 trees.append(tree)
 
 
-tree__wrong_arg = []
-tree_arg = []
+tree__wrong_challenge = []
+tree_challenge = []
 
 for tree in trees:
 
-    tree__wrong_arg.append(
+    tree__wrong_challenge.append(
         (
             tree,
             b'anything that has not been recorded'
@@ -38,7 +38,7 @@ for tree in trees:
     )
 
     for i in range(tree.length):
-        tree_arg.append(
+        tree_challenge.append(
             (
                 tree,
                 tree.hash('%d-th record' % i)
@@ -46,9 +46,9 @@ for tree in trees:
         )
 
 
-@pytest.mark.parametrize("tree, arg", tree__wrong_arg)
-def test_empty_generate_audit_proof(tree, arg):
-    proof = tree.generate_audit_proof(arg)
+@pytest.mark.parametrize('tree, challenge', tree__wrong_challenge)
+def test_empty_generate_audit_proof(tree, challenge):
+    proof = tree.generate_audit_proof(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,
@@ -65,9 +65,9 @@ def test_empty_generate_audit_proof(tree, arg):
     }
 
 
-@pytest.mark.parametrize("tree, arg", tree_arg)
-def test_non_empty_generate_audit_proof(tree, arg):
-    proof = tree.generate_audit_proof(arg)
+@pytest.mark.parametrize('tree, challenge', tree_challenge)
+def test_non_empty_generate_audit_proof(tree, challenge):
+    proof = tree.generate_audit_proof(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,
@@ -101,11 +101,11 @@ for tree in trees:
         )
 
 
-tree__subhash = []
+tree_challenge = []
 
 for (tree, subtree) in trees_and_subtrees:
 
-    tree__subhash.append(
+    tree_challenge.append(
         (
             tree,
             subtree.root_hash,
@@ -113,9 +113,9 @@ for (tree, subtree) in trees_and_subtrees:
     )
 
 
-@pytest.mark.parametrize("tree, subhash", tree__subhash)
-def test_non_empty_generate_consistency_proof(tree, subhash):
-    proof = tree.generate_consistency_proof(subhash)
+@pytest.mark.parametrize('tree, challenge', tree_challenge)
+def test_non_empty_generate_consistency_proof(tree, challenge):
+    proof = tree.generate_consistency_proof(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,
@@ -132,9 +132,9 @@ def test_non_empty_generate_consistency_proof(tree, subhash):
     }
 
 
-@pytest.mark.parametrize("tree, subhash", tree__subhash)
-def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
-    proof = tree.generate_consistency_proof(subhash)
+@pytest.mark.parametrize('tree, challenge', tree_challenge)
+def test_empty_generate_consistency_proof_with_wrong_challenge(tree, challenge):
+    proof = tree.generate_consistency_proof(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,
@@ -151,9 +151,9 @@ def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
     }
 
 
-@pytest.mark.parametrize("tree, subhash", tree__subhash)
-def test_empty_generate_consistency_proof_with_wrong_subhash(tree, subhash):
-    proof = tree.generate_consistency_proof(subhash)
+@pytest.mark.parametrize('tree, challenge', tree_challenge)
+def test_empty_generate_consistency_proof_with_wrong_challenge(tree, challenge):
+    proof = tree.generate_consistency_proof(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,

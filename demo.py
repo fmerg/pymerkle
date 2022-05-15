@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Save current tree state
 
-    subhash = tree.root_hash
+    challenge = tree.root_hash
 
 
     # Append further leaves
@@ -36,6 +36,6 @@ if __name__ == '__main__':
 
 
     # Prove and verify saved previous state
-    proof = tree.generate_consistency_proof(subhash)
+    proof = tree.generate_consistency_proof(challenge)
     print(proof)
     assert proof.verify()

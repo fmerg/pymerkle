@@ -47,7 +47,7 @@ assert proof.verify()
 
 # Save current tree state
 
-subhash = tree.root_hash
+challenge = tree.root_hash
 
 
 # Append further leaves
@@ -58,7 +58,7 @@ for i in range(7, 10):
 
 # Prove and verify saved previous state
 
-proof = tree.generate_consistency_proof(subhash)
+proof = tree.generate_consistency_proof(challenge)
 assert proof.verify()
 ```
 

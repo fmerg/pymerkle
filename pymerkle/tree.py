@@ -162,20 +162,20 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Define here how to construct path of hashes for audit-proofs.
         """
 
-    def generate_audit_proof(self, digest):
+    def generate_audit_proof(self, challenge):
         """
         Computes audit-proof for the provided hash value.
 
         .. note:: The output is intended to prove that the provided hash value
             is the digest of a record that has indeed been appended to the tree.
 
-        :param digest: hash value to be proven
-        :type digest: bytes
+        :param challenge: hash value to be proven
+        :type challenge: bytes
         :rtype: MerkleProof
         """
         offset = -1
         path = []
-        offset = self.detect_offset(digest)
+        offset = self.detect_offset(challenge)
         try:
             offset, path = self.generate_audit_path(offset)
         except NoPathException:
@@ -190,20 +190,21 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Define here how to construct path of hashes for consistency-proofs.
         """
 
-    def generate_consistency_proof(self, subhash):
+    def generate_consistency_proof(self, challenge):
         """
         Computes consistency-proof for the provided hash value.
 
         .. note:: The output is intended to prove that the provided hash value
             is the acclaimed root-hash of some previous state of the tree.
 
-        :param subhash: acclaimed root-hash of some previous state of the tree.
-        :type subhash: bytes
+        :param challenge: acclaimed root-hash of some previous state of the tree.
+        :type challenge: bytes
         :rtype: MerkleProof
 
         """
         offset = -1
         path = []
+
         # TODO: Make this loop a binary search
         for sublength in range(1, self.length + 1):
             try:
@@ -211,7 +212,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                     sublength)
             except NoPathException:
                 continue
-            if subhash == self.multi_hash(left_path, len(left_path) - 1):
+            if challenge == self.multi_hash(left_path, len(left_path) - 1):
                 offset = _offset
                 path = _path
                 break
@@ -223,7 +224,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     def includes(self, subhash):
         """
         Define here how the tree should validate whether the provided hash
-        value corresponds to a previius state.
+        value is the root-hash of some previous state.
         """
 
     @abstractmethod
@@ -916,8 +917,7 @@ class MerkleTree(BaseMerkleTree):
         Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree.
 
-        :param subhash: acclaimed root-hash of some previous state of the
-            Merkle-tree.
+        :param subhash: acclaimed root-hash of some previous state of the tree.
         :type subhash: bytes
         :rtype: bool
         """

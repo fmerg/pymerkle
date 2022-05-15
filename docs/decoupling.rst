@@ -56,9 +56,9 @@ Example
 
 .. code-block:: python
 
-    >>> checksum = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
+    >>> challenge = b'4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e'
     >>>
-    >>> proof = tree.generate_audit_proof(checksum)
+    >>> proof = tree.generate_audit_proof(challenge)
     >>> proof
 
         ----------------------------------- PROOF ------------------------------------
@@ -167,8 +167,8 @@ Let the monitor record the tree's current state:
 
 .. code-block:: python
 
-    >>> subhash = tree.root_hash
-    >>> subhash = b'8136f96be3d8bcc439a3037adadb166d30c2ddfd26e2e2704ca014486db2389d'
+    >>> challenge = tree.root_hash
+    >>> challenge = b'8136f96be3d8bcc439a3037adadb166d30c2ddfd26e2e2704ca014486db2389d'
 
 At some later point of history, the server is requested to provide a consistency
 proof for the above state.
@@ -176,7 +176,7 @@ proof for the above state.
 .. code-block:: python
 
     >>>
-    >>> proof = tree.generate_consistency_proof(subhash)
+    >>> proof = tree.generate_consistency_proof(challenge)
     >>> proof
 
         ----------------------------------- PROOF ------------------------------------
