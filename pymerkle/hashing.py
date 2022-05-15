@@ -22,10 +22,12 @@ SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125'
                        'mac_latin2', 'mac_roman', 'mac_turkish', 'ptcp154', 'shift_jis',
                        'shift_jis_2004', 'shift_jisx0213', 'tis_620', 'utf_16', 'utf_16_be',
                        'utf_16_le', 'utf_32', 'utf_32_be', 'utf_32_le', 'utf_7', 'utf_8', ]
+"""List of supported hash types"""
 
 
 SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
                         'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', ]
+"""List of supported encding types"""
 
 
 class HashEngine:
@@ -43,14 +45,13 @@ class HashEngine:
             second-preimage attack will be enabled. Defaults to *True*.
     :type security: bool
 
-    :raises UnsupportedHashType: if the provided encoding is not
-                        contained in *SUPPORTED_ENCODINGS*.
-    :raises UnsupportedHashType: if the provided hash-type is not
-                        contained in *SUPPORTED_HASH_TYPES*.
+    :raises UnsupportedHashType: if the provided hash-type is not contained in
+                                 ``SUPPORTED_HASH_TYPES``.
+    :raises UnsupportedEncoding: if the provided encoding is not contained in
+                                 ``SUPPORTED_ENCODINGS``.
     """
 
-    def __init__(self, hash_type='sha256', encoding='utf-8',
-                 security=True):
+    def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
 
         _hash_type = hash_type.lower().replace('-', '_')
         if _hash_type not in SUPPORTED_HASH_TYPES:
@@ -67,37 +68,32 @@ class HashEngine:
         self.encoding = _encoding
         self.security = security
 
-        self.concatenate = self._mk_encode_func()
-
-    def _mk_encode_func(self):
-        """
-        Constructs the encoding functionality of the present engine in
-        accordance with its initial configuration.
-        """
-        # Resolve security prefices
         if self.security:
-            prefix_0_dec = '\x00'
-            prefix_1_dec = '\x01'
-            prefix_0_enc = bytes('\x00', self.encoding)
-            prefix_1_enc = bytes('\x01', self.encoding)
+            self.prefix_0 = '\x00'.encode(self.encoding)
+            self.prefix_1 = '\x01'.encode(self.encoding)
         else:
-            prefix_0_dec = ''
-            prefix_1_dec = ''
-            prefix_0_enc = bytes()
-            prefix_1_enc = bytes()
+            self.prefix_0 = bytes()
+            self.prefix_1 = bytes()
 
-        # Make encoding funtion
-        def encode_func(left, right=None):
-            if not right:
-                if isinstance(left, bytes):
-                    data = prefix_0_enc + left
-                else:
-                    data = prefix_0_enc + bytes(left, self.encoding)
-            else:
-                data = prefix_1_enc + left + prefix_1_enc + right
-            return data
+    def concatenate(self, left, right=None):
+        """
+        :param left: left member
+        :type left: bytes
+        :param right: [optional] right member
+        :type right: bytes
+        :returns: the concatenation of the provided arguments as determined by
+            the encoding type and security mode of the present engine.
+        :rtype: bytes
+        """
+        if right is None:
 
-        return encode_func
+            if isinstance(left, bytes):
+                return self.prefix_0 + left
+
+            return self.prefix_0 + left.encode(self.encoding)
+
+        return self.prefix_1 + left + self.prefix_1 + right
+
 
     def hash(self, left, right=None):
         """
@@ -151,6 +147,7 @@ class HashEngine:
         :raises EmptyPathException: if the provided sequence was empty
         """
         path = list(path)
+
         if not path:
             raise EmptyPathException
         elif len(path) == 1:
@@ -160,21 +157,19 @@ class HashEngine:
         while len(path) > 1:
 
             if path[i][0] == +1:
-
                 # Pair with the right neighbour
+
                 if i == 0:
                     sign = +1
                 else:
                     sign = path[i + 1][0]
-
                 digest = self.hash(path[i][1], path[i + 1][1])
                 move = +1
 
             else:
-
                 # Pair with left neighbour
-                sign = path[i - 1][0]
 
+                sign = path[i - 1][0]
                 digest = self.hash(path[i - 1][1], path[i][1])
                 move = -1
 
