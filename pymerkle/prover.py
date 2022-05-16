@@ -65,7 +65,7 @@ class InvalidProof(Exception):
     pass
 
 
-class MerkleProof:
+class Proof:
     """
     :param provider: uuid of the provider tree
     :type provider: str
@@ -86,15 +86,15 @@ class MerkleProof:
         deserialization might though have practical importance, so that given
         a proof *p* the following constructions are possible:
 
-        >>> from pymerkle import MerkleProof
+        >>> from pymerkle import Proof
         >>>
-        >>> q = MerkleProof.from_dict(p.serialize())
-        >>> r = MerkleProof.fromJSONText(p.toJSONText())
+        >>> q = Proof.from_dict(p.serialize())
+        >>> r = Proof.fromJSONText(p.toJSONText())
 
         or, more uniformly,
 
-        >>> q = MerkleProof.deserialize(p.serialize())
-        >>> r = MerkleProof.deserialize(p.toJSONText())
+        >>> q = Proof.deserialize(p.serialize())
+        >>> r = Proof.deserialize(p.toJSONText())
     """
 
     def __init__(self, provider, hash_type, encoding, security, offset, path,
@@ -266,7 +266,7 @@ class MerkleProof:
         :params serialized: JSON dict or text, assumed to be the serialization
             of a Merkle-proof
         :type: dict or str
-        :rtype: MerkleProof
+        :rtype: Proof
         """
         if isinstance(serialized, dict):
             return cls.from_dict(serialized)

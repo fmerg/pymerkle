@@ -10,7 +10,7 @@ import contextlib
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
-from pymerkle.prover import MerkleProof
+from pymerkle.prover import Proof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
 
@@ -146,13 +146,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
         :returns: proof object consisting of the above components
-        :rtype: MerkleProof
+        :rtype: Proof
         """
         params = self.get_config()
         params.update({'provider': self.uuid})
 
         commitment = self.root_hash if self else None
-        proof = MerkleProof(path=path, offset=offset, commitment=commitment,
+        proof = Proof(path=path, offset=offset, commitment=commitment,
                             **params)
         return proof
 
@@ -178,7 +178,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: hash value to be proven
         :type challenge: bytes
-        :rtype: MerkleProof
+        :rtype: Proof
         """
         offset = -1
         path = []
@@ -206,7 +206,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: acclaimed root-hash of some previous state of the tree.
         :type challenge: bytes
-        :rtype: MerkleProof
+        :rtype: Proof
 
         """
         offset = -1
