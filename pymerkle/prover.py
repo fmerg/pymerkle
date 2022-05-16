@@ -6,7 +6,6 @@ import os
 import json
 from time import time, ctime
 
-from pymerkle.exceptions import NoPathException, InvalidProof
 from pymerkle.hashing import HashEngine
 from pymerkle.utils import log10, generate_uuid
 
@@ -57,6 +56,13 @@ def stringify_path(path, encoding):
                                  digest=curr[1].decode(encoding) if not isinstance(curr[1], str)
                                  else curr[1]))
     return ''.join(pairs)
+
+
+class InvalidProof(Exception):
+    """
+    Raised when a Merkle-proof is found to be invalid.
+    """
+    pass
 
 
 class MerkleProof:

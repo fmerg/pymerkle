@@ -9,11 +9,10 @@ import sys
 import contextlib
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.hashing import HashEngine
+from pymerkle.hashing import HashEngine, UnsupportedParameter
 from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import NoPathException
 
 
 NONE_BAR = '\n └─[None]'
@@ -31,6 +30,13 @@ TREE_TEMPLATE = """
     size      : {size}
     height    : {height}
 """
+
+
+class NoPathException(Exception):
+    """
+    Raised when no path of hashes exists for the provided parameters.
+    """
+    pass
 
 
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):

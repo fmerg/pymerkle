@@ -2,8 +2,7 @@ import pytest
 import os
 import json
 
-from pymerkle import MerkleTree
-from pymerkle.exceptions import UnsupportedParameter
+from pymerkle.tree import MerkleTree, UnsupportedParameter
 
 
 def test_unsupported_hash_type():

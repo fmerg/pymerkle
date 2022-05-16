@@ -4,7 +4,6 @@ verification.
 """
 
 import hashlib
-from pymerkle.exceptions import UnsupportedParameter, EmptyPathException
 
 
 SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
@@ -28,6 +27,20 @@ SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125'
 SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
                         'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', ]
 """List of supported encoding types"""
+
+
+class UnsupportedParameter(Exception):
+    """
+    Raised when a hashing engine with unsupported paramter is requested.
+    """
+    pass
+
+
+class EmptyPathException(Exception):
+    """
+    Raised when an empty path of hashes is fed to a hashing engine.
+    """
+    pass
 
 
 class HashEngine:

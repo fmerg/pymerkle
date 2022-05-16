@@ -7,7 +7,7 @@ import os
 import json
 
 from pymerkle.hashing import SUPPORTED_HASH_TYPES
-from pymerkle.exceptions import InvalidProof
+from pymerkle.prover import InvalidProof
 from pymerkle import MerkleTree
 from tests.conftest import SUPPORTED_ENCODINGS
 

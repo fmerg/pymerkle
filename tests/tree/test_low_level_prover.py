@@ -1,17 +1,15 @@
 """
-Tests the internal functionalities of Merkle-trees invoked in the
-implementation of audit- and consistency proof generation
+Tests utilities for Merkle-proof generation
 """
 
 import pytest
 import os
 import json
 
-from pymerkle import MerkleTree
-from pymerkle.exceptions import NoPathException
+from pymerkle.tree import MerkleTree, NoPathException
 
 
-# Audit proof implementation
+# Audit path
 
 _0_leaves_tree = MerkleTree.init_from_records()
 _1_leaves_tree = MerkleTree.init_from_records('a')
@@ -214,7 +212,7 @@ def test_generate_audit_path(tree, offset, path):
     assert tree.generate_audit_path(offset) == path
 
 
-# Consistency proof implementation
+# Consistency path
 
 no_subroot_cases = [
     (_0_leaves_tree, 0, 'anything'),
