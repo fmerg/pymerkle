@@ -30,15 +30,8 @@ class NoPrincipalSubroots(Exception):
     pass
 
 
-class UnsupportedEncoding(Exception):
+class UnsupportedParameter(Exception):
     """
-    Raised when a hashing engine with unsupported encoding type is requested.
-    """
-    pass
-
-
-class UnsupportedHashType(Exception):
-    """
-    Raised when a hashing engine with unsupported hash type is requested.
+    Raised when a hashing engine with unsupported paramter is requested.
     """
     pass

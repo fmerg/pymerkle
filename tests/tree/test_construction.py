@@ -3,30 +3,18 @@ import os
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.exceptions import UnsupportedHashType, UnsupportedEncoding
+from pymerkle.exceptions import UnsupportedParameter
 
 
-# Construction
-
-def test_UnsupportedHashType():
-    """
-    Tests that a `UnsupportedHashType` is raised when a Merkle-tree
-    for an unsupported hash-type is requested
-    """
-    with pytest.raises(UnsupportedHashType):
+def test_unsupported_hash_type():
+    with pytest.raises(UnsupportedParameter):
         MerkleTree(hash_type='anything unsupported...')
 
 
-def test_UnsupportedEncoding():
-    """
-    Tests that a `UnsupportedEncoding` is raised when a Merkle-tree
-    for an unsupported encoding type is requested
-    """
-    with pytest.raises(UnsupportedEncoding):
+def test_unsupported_encoding():
+    with pytest.raises(UnsupportedParameter):
         MerkleTree(encoding='anything unsupported...')
 
-
-# Boolean implementation and root-hash
 
 def test_MerkleTree_bool_implementation():
     assert not MerkleTree() and MerkleTree.init_from_records('some record')
@@ -41,20 +29,17 @@ def test_root_hash_for_empty_tree():
 
 
 def test_root_hash_of_non_empty_MerkleTree():
-    """
-    Tests the root-hash of a Merkle-tree with one and two leaves
-    """
     t = MerkleTree.init_from_records('first record')
     s = MerkleTree.init_from_records('first record', 'second record')
     assert t.root_hash == t.hash('first record') and \
         s.root_hash == s.hash(s.hash('first record'), s.hash('second record'))
 
 
-def test_properties_of_empty_tree():
+def test_dimensions_of_empty_tree():
     tree = MerkleTree()
     assert (tree.length, tree.size, tree.height) == (0, 0, 0)
 
 
-def test_properties_of_tree_with_three_leaves():
+def test_dimensions_of_tree_with_three_leaves():
     tree = MerkleTree.init_from_records('first', 'second', 'third')
     assert (tree.length, tree.size, tree.height) == (3, 5, 2)

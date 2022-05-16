@@ -4,8 +4,7 @@ verification.
 """
 
 import hashlib
-from pymerkle.exceptions import (UnsupportedHashType, UnsupportedEncoding,
-                                 EmptyPathException)
+from pymerkle.exceptions import UnsupportedParameter, EmptyPathException
 
 
 SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
@@ -37,30 +36,29 @@ class HashEngine:
     verification.
 
     :param hash_type: [optional] Specifies the hash algorithm used by the
-            engine. Defaults to *sha256*.
+        engine. Defaults to *sha256*.
     :type hash_type: str
     :param encoding: [optional] Specifies the encoding algorithm used by the
-            engine before hashing. Defaults to *utf_8*.
+        engine before hashing. Defaults to *utf_8*.
     :type encoding: str
     :param security: [optional] Specifies whether defense against
-            second-preimage attack will be enabled. Defaults to *True*.
+        second-preimage attack will be enabled. Defaults to *True*.
     :type security: bool
 
-    :raises UnsupportedHashType: if the provided hash-type is not contained in
-                                 ``SUPPORTED_HASH_TYPES``.
-    :raises UnsupportedEncoding: if the provided encoding is not contained in
-                                 ``SUPPORTED_ENCODINGS``.
+    :raises UnsupportedParameter: if the provided hash-type or encoding is not
+        included in ``SUPPORTED_HASH_TYPES`` or ``SUPPORTED_ENCODINGS``
+        respectively.
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
 
         _hash_type = hash_type.lower().replace('-', '_')
         if _hash_type not in SUPPORTED_HASH_TYPES:
-            raise UnsupportedHashType(f'{hash_type} is not supported')
+            raise UnsupportedParameter(f'{hash_type} is not supported')
 
         _encoding = encoding.lower().replace('-', '_')
         if _encoding not in SUPPORTED_ENCODINGS:
-            raise UnsupportedEncoding(f'{encoding} is not supported')
+            raise UnsupportedParameter(f'{encoding} is not supported')
 
         self.hash_type = _hash_type
         self.algorithm = getattr(hashlib, self.hash_type)
