@@ -89,7 +89,7 @@ to see how to perform second-preimage attack against the present implementation.
 ### Defense against CVE-2012-2459 DOS
 
 Contrary to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
-specification for Merkle-trees, lonely leaves are not duplicated while the tree is grwoing.
+specification for Merkle-trees, lonely leaves are not duplicated while the tree is growing.
 Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
 (see _Tree structure_ below). As a consequence, the present implementation should be
 invulnerable to the DOS attack reported as
@@ -107,7 +107,7 @@ growing strategy. This is important for efficient generation of consistency proo
 recalculation of the root-hash (since only the hashes at the tree's rightmost
 branch need be recalculated upon appending new leaves).
 
-The topology turns out to be identical with that of a binary _Sekura tree_,
+The topology turns out to be identical with that of a binary _Sakura tree_,
 depicted in Section 5.4 of [this](https://keccak.team/files/Sakura.pdf) paper.
 
 ## Development

@@ -90,7 +90,7 @@ growing strategy. This is important for efficient generation of consistency proo
 recalculation of the root-hash (since only the hashes at the tree's rightmost
 branch need be recalculated upon any appending new leaves).
 
-The topology turns out to be identical with that of a binary *Sekura
+The topology turns out to be identical with that of a binary *Sakura
 tree*, depicted in Section 5.4 of `this`_ paper.
 
 .. _GitHub: https://github.com/fmerg/pymerkle
