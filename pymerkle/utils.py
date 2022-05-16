@@ -1,4 +1,5 @@
-"""Provides standalone utilities invoked across the *pymerkle* library
+"""
+Utilities
 """
 
 from math import log, log10
@@ -9,23 +10,28 @@ NONE = '[None]'
 
 
 def generate_uuid():
+    """
+    :returns: UUID1 universal identifier
+    :rtype: str
+    """
     return str(uuid.uuid1())
 
 
 def log_2(num):
-    """Computes and returns the base 2 logarithm of the provided number
-    (i.e., the greatest power of 2 equal to or smaller than *num*)
+    """
+    Computes the base 2 logarithm of the provided integer (i.e., the greatest
+    power of 2 equal to or smaller than *num*).
 
-    .. note:: Given any *balanced* binary tree, whose number of leaves
-        equals the provided argument, this function returns the tree's
-        height (i.e., the depth of its left-most branch)
+    .. note:: Given a left-balanced binary tree whose number of leaves equals
+        the provided argument, this function returns the tree's height (i.e.,
+        the depth of its leftmost branch).
 
-    :param num: the number whose logarithm is to be computed
+    .. note:: By convention, this function returns 0 for the zero argument.
+
+    :param num: the integer whose logarithm is to compute
     :type num: int
-    :returns: the computed logarithm
+    :returns: base 2 logarithm of the provided integer
     :rtype: int
-
-    .. note:: By convention, it returns 0 for the zero argument
 
     :raises ValueError: for arguments smaller than zero
     """
@@ -33,13 +39,14 @@ def log_2(num):
 
 
 def decompose(num):
-    """Additive decomposition in decreasing powers of 2
+    """
+    Additive decomposition in decreasing powers of 2.
 
     Given a positive integer uniquely decomposed as
 
     ``2 ^ p_m + ... + 2 ^ p_1, p_m > ... > p_1 >= 0``
 
-    then the tuple *(p_m, ..., p_1)* is returned
+    then the sequence *(p_m, ..., p_1)* is returned.
 
     :Example:
 
@@ -47,20 +54,19 @@ def decompose(num):
     True
     >>>
     >>> decompose(45)
-    (5, 3, 2, 0)
+    [5, 3, 2, 0]
 
-    :param num: the number to be decomposed
+    :param num: the integer to decompose
     :type num: int
     :returns: powers of 2 in decreasing order
-    :rtype: tuple of integers
+    :rtype: list
 
-    .. note:: Returns the nonsensical empty tuple for
-        arguments equal to or smaller than zero
+    .. note:: Returns the nonsensical empty list for
+        arguments equal to or smaller than zero.
     """
     powers = []
-    append = powers.append
     while num > 0:
         power = log_2(num)
-        append(power)
+        powers += [power]
         num -= 2 ** power
-    return tuple(powers)
+    return powers
