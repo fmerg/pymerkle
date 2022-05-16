@@ -223,7 +223,7 @@ If JSON text is preferred instead of a Python dictionary, one can alternatively 
 
 .. code-block:: python
 
-    >>> proof_text = proof.toJSONtext()
+    >>> proof_text = proof.toJSONText()
     >>> print(proof_text)
     {
         "header": {

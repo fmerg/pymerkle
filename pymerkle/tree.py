@@ -1,5 +1,5 @@
 """
-Provides abstract interfaces and concrete implementations for Merkle-trees
+Provides abstract interfaces and concrete implementations of Merkle-trees.
 """
 
 import json
@@ -14,6 +14,7 @@ from pymerkle.prover import MerkleProof
 from pymerkle.utils import log_2, decompose, NONE, generate_uuid
 from pymerkle.nodes import Node, Leaf
 from pymerkle.exceptions import NoPathException
+
 
 NONE_BAR = '\n └─[None]'
 
@@ -34,7 +35,7 @@ TREE_TEMPLATE = """
 
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
-    Interface and abstract functionality for Merkle-trees.
+    Interface and abstract functionality of Merkle-trees.
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
@@ -48,8 +49,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def get_config(self):
         """
-        Returns the configuration of the Merkle-tree, containing the parameters
-        ``hash_type``, ``encoding`` and ``security``.
+        Returns the tree's configuration, consisting of ``hash_type``,
+        ``encoding`` and ``security``.
 
         :rtype: dict
         """
@@ -59,7 +60,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     def encrypt(self, record):
         """
         Creates a new leaf node with the digest of the provided record and
-        appends it to the Merkle-tree by restructuring it and recalculating the
+        appends it to the tree by restructuring it and recalculating the
         appropriate interior hashes.
 
         :param record: Record to encrypt.
@@ -445,7 +446,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Returns a JSON dictionary with the Merkle-tree's characteristics along
         with the hash values stored by its node leaves.
 
-        .. note:: This is the minimum required information for recostruction
+        .. note:: This is the minimum required information for recostructing
             the tree from its serialization.
 
         :rtype: dict
@@ -455,12 +456,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return {**self.get_config(), 'hashes': hashes}
 
-    def toJSONtext(self, indent=4):
+    def toJSONText(self, indent=4):
         """
         Returns a JSON text with the Merkle-tree's characteristics along
         with the hash values stored by its node leaves.
 
-        .. note:: This is the minimum required information for recostruction
+        .. note:: This is the minimum required information for reconstructing
             the tree from its serialization.
 
         :rtype: str
@@ -902,10 +903,10 @@ class MerkleTree(BaseMerkleTree):
             return None
 
         principals = []
-        powers = decompose(sublength)
+        heights = decompose(sublength)
         offset = 0
-        for power in powers:
-            subroot = self.get_subroot(offset, power)
+        for height in heights:
+            subroot = self.get_subroot(offset, height)
 
             if not subroot:
                 return None
@@ -918,7 +919,7 @@ class MerkleTree(BaseMerkleTree):
                 sign = +1 if parent.is_left_child() else -1
 
             principals.append((sign, subroot))
-            offset += 2 ** power
+            offset += 2 ** height
 
         if principals:
             # Modify last sign

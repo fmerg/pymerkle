@@ -7,34 +7,38 @@ class InvalidProof(Exception):
 
 class EmptyPathException(Exception):
     """
-    Raised when *HashEngine.multi_hash()* is called with an empty argument.
+    Raised when an empty path of hashes is fed to a hashing engine.
     """
     pass
 
 
 class NoPathException(Exception):
     """
-    Raised when no path exists for the provided parameters.
+    Raised when no path of hashes exists for the provided parameters.
     """
     pass
 
 
 class NoPrincipalSubroots(Exception):
     """
-    Raised when no sequence of subroots exists for the provided parameters.
+    Raised when no sequence of principal subroots is found for the provided
+    parameters.
+
+    .. note:: By *principal subroot* is meant the root of a full binary subtree
+        of maximal length.
     """
     pass
 
 
 class UnsupportedEncoding(Exception):
     """
-    Raised when a hashing engine with unsupported encoding-type is requested.
+    Raised when a hashing engine with unsupported encoding type is requested.
     """
     pass
 
 
 class UnsupportedHashType(Exception):
     """
-    Raised when a hashing engine with unsupported hash-type is requested.
+    Raised when a hashing engine with unsupported hash type is requested.
     """
     pass
