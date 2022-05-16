@@ -6,7 +6,7 @@ import os
 import json
 from time import time, ctime
 
-from pymerkle.exceptions import NoPathException
+from pymerkle.exceptions import NoPathException, InvalidProof
 from pymerkle.hashing import HashEngine
 from pymerkle.utils import log10, generate_uuid
 
@@ -140,10 +140,10 @@ class MerkleProof:
         target = self.commitment if target is None else target
 
         if self.offset == -1 and self.path == []:
-            return False
+            raise InvalidProof
 
         if target != self.compute_checksum():
-            return False
+            raise InvalidProof
 
         return True
 
@@ -220,12 +220,14 @@ class MerkleProof:
         :type proof: dict
         """
         kw = {}
+
         header = proof['header']
-        body = proof['body']
         kw.update(header)
         commitment = header.get('commitment', None)
         if commitment:
             kw['commitment'] = commitment.encode()
+
+        body = proof['body']
         kw['offset'] = body['offset']
         encoding = header['encoding']
         kw['path'] = [(pair[0], pair[1].encode(encoding)) for pair in
