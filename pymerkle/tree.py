@@ -528,14 +528,13 @@ class MerkleTree(BaseMerkleTree):
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
         self.leaves = []
-        self.nodes = set()
         self.__root = None
 
         super().__init__(hash_type, encoding, security)
 
     def __bool__(self):
 
-        return bool(self.nodes)
+        return bool(self.leaves)
 
     @property
     def length(self):
@@ -551,9 +550,24 @@ class MerkleTree(BaseMerkleTree):
         """
         Current number of nodes.
 
+        .. note:: Following the tree's growing strategy (cf. the
+            *append_leaf()*) method, appending a new leaf leads to the creation
+            of two new nodes. If *s(n)* denotes the total number of nodes with
+            respect to the number *n* of leaves, this is equivalent to the
+            recursive relation
+
+                    ``s(n + 1) = s(n) + 2, n > 1,    s(1) = 1, s(0) = 0``
+
+            which in closed form yields
+
+                    ``s(n) = 2 * n - 1, n > 0,   s(0) = 0``
+
         :rtype: int
         """
-        return len(self.nodes)
+        if not self:
+            return 0
+
+        return 2 * len(self.leaves) - 1
 
     @property
     def height(self):
@@ -625,20 +639,17 @@ class MerkleTree(BaseMerkleTree):
 
             # Assimilate new leaf
             self.leaves.append(leaf)
-            self.nodes.add(leaf)
 
             if not subroot.parent:
 
                 # Increase height by one
                 self.__root = Node.from_children(subroot, leaf, self.hash, self.encoding)
-                self.nodes.add(self.__root)
 
             else:
                 parent = subroot.parent
 
                 # Create bifurcation node
                 new_node = Node.from_children(subroot, leaf, self.hash, self.encoding)
-                self.nodes.add(new_node)
 
                 # Interject bifurcation node
                 parent.set_right(new_node)
@@ -651,7 +662,6 @@ class MerkleTree(BaseMerkleTree):
                     curr = curr.parent
         else:
             self.leaves.append(leaf)
-            self.nodes.add(leaf)
             self.__root = leaf
 
     def get_leaf(self, offset):
