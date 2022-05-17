@@ -31,35 +31,35 @@ for security in (True, False):
 
 # Success edge case with standard Merkle-Tree
 
-def test_inclusion_test_failure_for_zero_leaves_case():
-    assert not MerkleTree().includes(b'something')
+def test_has_previous_state_failure_for_zero_leaves_case():
+    assert not MerkleTree().has_previous_state(b'something')
 
 
-def test_inclusion_test_edge_success_case():
+def test_has_previous_state_edge_success_case():
     tree = MerkleTree()
     tree.encrypt_file_per_line(short_APACHE_log)
     subhash = tree.root_hash
     tree.encrypt_file_per_line(RED_HAT_LINUX_log)
-    assert tree.includes(tree.root_hash)
+    assert tree.has_previous_state(tree.root_hash)
 
 
 # Failure cases with standard Merkle-tree
 
-def test_inclusion_test_with_sublength_exceeding_length():
-    assert not tree.includes(b'anything...')
+def test_has_previous_state_with_sublength_exceeding_length():
+    assert not tree.has_previous_state(b'anything...')
 
 
 @pytest.mark.parametrize('sublength', list(range(1, tree.length)))
-def test_inclusion_test_with_invalid_subhash(sublength):
-    assert not tree.includes(
+def test_has_previous_state_with_invalid_subhash(sublength):
+    assert not tree.has_previous_state(
         b'anything except for the hash corresponding to the provided sublength')
 
 
 # Intermediate success case for all possible tree types
 
 @pytest.mark.parametrize("tree, subhash", trees_and_subtrees)
-def test_inclusion_test_success(tree, subhash):
-    assert tree.includes(subhash)
+def test_has_previous_state_success(tree, subhash):
+    assert tree.has_previous_state(subhash)
 
 
 # Comparison operators
@@ -230,8 +230,8 @@ for power in range(1, 10):
 
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
-def test_inclusion_test_with_sublength_equal_to_power_of_2(tree, later_state):
-    assert later_state.includes(tree.root_hash)
+def test_has_previous_state_with_sublength_equal_to_power_of_2(tree, later_state):
+    assert later_state.has_previous_state(tree.root_hash)
 
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)

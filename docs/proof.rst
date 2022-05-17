@@ -28,6 +28,21 @@ which returns ``None`` for the empty case.
 Generation
 ==========
 
+Audit-proof
+-----------
+
+Consistency-proof
+-----------------
+
+Verification
+============
+
+Serialization
+=============
+
+Generation
+==========
+
 The produced ``proof`` is an instance of the ``Proof`` class. It consists of a
 path of hashes and the required parameters for verification to proceed from the
 client's side. Invoking it from the Python interpreter, it looks like
@@ -122,11 +137,6 @@ There are cases where the advertized path of hashes is empty or, equivalently, t
         some data have not been properly encrypted by the server or that the client does
         not have proper knowledge of any encrypted data or both.
 
-Audit-proof
------------
-
-Consistencty-proof
-------------------
 
 Verification
 ============
@@ -183,9 +193,6 @@ available verification mechanisms, since the required verification parameters
 proof's header.
 
 .. _HashEngine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine
-
-Verification
-============
 
 Serialization
 =============

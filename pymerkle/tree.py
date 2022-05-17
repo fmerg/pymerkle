@@ -228,7 +228,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     @abstractmethod
-    def includes(self, subhash):
+    def has_previous_state(self, subhash):
         """
         Define here how the tree should validate whether the provided hash
         value is the root-hash of some previous state.
@@ -301,7 +301,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not self:
             return False
 
-        return self.includes(other.root_hash)
+        return self.has_previous_state(other.root_hash)
 
     def __le__(self, other):
         """
@@ -337,7 +337,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         elif not self or self.root_hash == other.root_hash:
             return False
 
-        return self.includes(other.root_hash)
+        return self.has_previous_state(other.root_hash)
 
     def __lt__(self, other):
         """
@@ -544,7 +544,11 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(hash_type, encoding, security)
 
     def __bool__(self):
+        """
+        Returns *False* if the tree is empty (that is, contains no nodes).
 
+        :rtype: bool
+        """
         return bool(self.leaves)
 
     @property
@@ -639,7 +643,7 @@ class MerkleTree(BaseMerkleTree):
         """
         Insert the provided leaf to the tree by restructuring it appropriately.
 
-        .. note:: This includes creation of possibly new internal nodes and
+        .. note:: This includes creation of exactly one new internal nodes and
             recalculation of hash values for some existing ones.
 
         :param leaf: leaf node to append
@@ -647,8 +651,6 @@ class MerkleTree(BaseMerkleTree):
         """
         if self:
             subroot = self.get_last_subroot()
-
-            # Assimilate new leaf
             self.leaves.append(leaf)
 
             if not subroot.parent:
@@ -933,7 +935,7 @@ class MerkleTree(BaseMerkleTree):
 
         return principals
 
-    def includes(self, subhash):
+    def has_previous_state(self, subhash):
         """
         Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree.
