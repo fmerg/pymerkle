@@ -16,8 +16,6 @@ pymerkle
 Cryptographic library for Merkle-proofs
 ***************************************
 
-**DISCLAIMER**: This is currently a prototype requiring security review.
-
 Pymerkle provides a Merkle-tree object capable of generating audit and
 consistency proofs along with the corresponding verification mechanism. It supports
 most combinations of hash functions and encoding schemas with defense against
@@ -72,12 +70,11 @@ This consists in the following standard technique:
 Defense against second-preimage attack
 ======================================
 
-Contrary to the `bitcoin`_
-specification for Merkle-trees, lonely leaves are not duplicated while the tree is growing.
-Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
-(see *Tree structure* below). As a consequence, the present implementation should be
-invulnerable to the DOS attack reported as `CVE-2012-2459`_ (see also
-`here`_ for explanation).
+Contrary to the `bitcoin`_ specification for Merkle-trees, lonely leaves are not
+duplicated while the tree is growing. Instead, when appending new leaves, a bifurcation
+node is created at the rightmost branch (see *Tree structure* below). As a consequence,
+the present implementation should be invulnerable to the DOS attack reported as
+`CVE-2012-2459`_ (see also `here`_ for explanation).
 
 Tree structure
 **************

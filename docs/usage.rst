@@ -3,7 +3,6 @@
     :titlesonly:
 
    tree
-   encryption
-   proofs
+   proof
    decoupling
    inclusion

@@ -89,9 +89,10 @@ class HashEngine:
         """
         Computes the concatenation of the provided byte strings.
 
-        If in security mode (as is default), the left and right sequence are
-        prepended with ``0x00`` resp. ``0x01`` under the engine's encoding
-        type.
+        If in security mode (as is default), the provided sequences are
+        prepended with ``0x01`` under the engine's encoding type. If the
+        secondf argument is omitted, then the provided one is prepended with
+        ``0x01``.
 
         :param left: left sequence
         :type left: bytes

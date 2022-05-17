@@ -46,7 +46,10 @@ def decompose(num):
 
     ``2 ^ p_m + ... + 2 ^ p_1, p_m > ... > p_1 >= 0``
 
-    then the sequence *(p_m, ..., p_1)* is returned.
+    then the sequence ``(p_m, ..., p_1)`` is returned.
+
+    .. note:: Returns the nonsensical empty list for arguments equal to or
+        smaller than zero.
 
     :Example:
 
@@ -60,9 +63,6 @@ def decompose(num):
     :type num: int
     :returns: powers of 2 in decreasing order
     :rtype: list
-
-    .. note:: Returns the nonsensical empty list for
-        arguments equal to or smaller than zero.
     """
     powers = []
     while num > 0:

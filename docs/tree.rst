@@ -1,5 +1,5 @@
-Merkle-tree object
-++++++++++++++++++
+Merkle-tree
++++++++++++
 .. code-block:: python
 
     from pymerkle import MerkleTree
@@ -10,8 +10,9 @@ This creates an empty Merkle-tree with hash algorithm SHA256 and encoding type
 UTF-8, capable of consuming arbitrary bytes and defending against
 second-preimage attacks.
 
-Configuration
-=============
+
+Construction
+============
 
 The above construction is equivalent to
 
@@ -20,87 +21,65 @@ The above construction is equivalent to
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 
 
-where the provided kwargs directly specify the homonymous attributes at
-construction. Configuration of a Merkle-tree amounts to configuring its
-core `.hash`_ functionality via these attributes.
+where the provided kwargs specify the homonymous attributes at construction.
+Configuration of a Merkle-tree amounts to configuring its core hashing
+functionality via these attributes.
 
-.. note:: Manually changing the attribute values of the Merkle-tree does
-  *not* affect the core hash functionality, i.e., the latter is once and
-  for ever configured at construction.
-
-The ``.hash_type`` attribute refers to the underlying builtin algorithm
-(imported from `hashlib`_) and ``.encoding`` is the encoding,
-to which any new record of type *str* will be submitted before
-being hashed. For example,
+The ``hash_type`` attribute refers to the underlying hash algorithm
+(imported from `hashlib`_) and ``encoding`` determines the encoding before
+hashing. For example,
 
 .. code-block:: python
 
     tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 
-creates a SHA512/UTF-32 Merkle-tree in security mode.
-If the provided *hash_type* (resp. *encoding*) is not among the
-`supported hash types`_ (resp. `supported encodings`_), then an
-``UnsupportedHashType`` (resp. ``UnsupportedEncoding``) is
-raised and the construction is is *aborted*.
+creates a SHA512/UTF-32 Merkle-tree in security mode. If the provided *hash_type* or
+*encoding* parameter is not among the supported ones, then ``UnsupportedParameter``
+is raised and the construction is aborted.
 
-.. _.hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine.hash
 .. _hashlib: https://docs.python.org/3.6/library/hashlib.html
-.. _supported hash types: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.SUPPORTED_HASH_TYPES
-.. _supported encodings: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.SUPPORTED_ENCODINGS
 
 The ``security`` attribute refers to the tree's ability of defending against
 second-preimage attacks, which is the default choice (*True*). In this case,
-the `.hash`_ function will prepend ``0x00`` or ``0x01`` before hashing single or
+the hashing function will prepend ``0x00`` or ``0x01`` before hashing single or
 double arguments respectively. The actual prefices will be the images of these
 hexadecimals under the tree's configured encoding type. One can disable this
-feature at construction for, say, testing purposes by
+feature at construction for, say, testing purposes as follows:
 
 .. code-block:: python
 
     tree = MerkleTree(..., security=False)
 
-Refer to `test_security.py`_ to see how to perform second-preimage attacks
-against the present implementation.
-
-.. _test_security.py: https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py
 
 Attributes and properties
 -------------------------
 
-The identity, current state and fixed configuration of a Merkle-tree are
-encapsulated in the following collection of attributes and properties.
-
 :uuid:
-        (*str*) - Unique identifier (time-based uuid)
+        (*str*) - unique identifier (time-based uuid)
 
 :hash_type:
-        (*str*) - Name of the underlying hash algorithm
+        (*str*) - hash algorithm
 
 :encoding:
-        (*str*) - Encoding applied before hashing
+        (*str*) - encoding type
 
 :security:
-        (*bool*) - Indicates defense against second-preimage attack
+        (*bool*) - defense against second-preimage attack
 
-:`root_hash`_:
-        (*bytes*) - The hash currently stored by the Merkle-tree's root
+:root_hash:
+       (*bytes*) - checksum currently stored by the tree root
 
-:`length`_:
-        (*int*) - Current number of leaves (exterior nodes)
+:length:
+       (*int*) - current number of leaves
 
-:`size`_:
-        (*int*) - Current number of nodes (both exterior and interior)
+:size:
+       (*int*) - current number of nodes
 
-:`height`_:
-        (*int*) - Current height (length of the tree's leftmost branch)
-.. _length: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.length
-.. _size: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.size
-.. _height: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.height
-.. _root_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.root_hash
+:height:
+        (*int*) - current tree height
 
-Invoking a Merkle-tree from the Python iterpeter displays the above characteristics
-in the form of an etiquette (cf. the *Representation* section below). Here is
-how the empty standard (SHA256/UTF-8) Merkle-tree would look like:
+Invoking a Merkle-tree from the Python interpreter displays the above
+characteristics in the following fashion:
 
 .. code-block:: python
 
@@ -149,8 +128,59 @@ indifferently) in respective order:
 
     >>>
 
-Representation
-==============
+
+Encryption
+==========
+
+Single record encryption
+------------------------
+
+.. code-block:: python
+
+    tree = MerkleTree()
+
+    tree.encrypt('some string')
+    tree.encrypt(b'some bytestring')
+
+
+Bulk file encryption
+--------------------
+
+*Encrypting the content of a file into* the Merkle-tree means updating it with
+the newly created leaf storing the digest if that content (i.e., encrypting the
+file's content as a single record).
+
+.. code-block:: python
+
+        tree.encrypt_file_content('relative_path/to/sample_file')
+
+The provided path is the file's relative path with respect to the current
+working directory.
+
+
+Per line file encryption
+------------------------
+
+*Encrypting per line a file into* the Merkle-tree means encrypting its lines
+successively as single records.
+
+.. code-block:: python
+
+    >>> tree = MerkleTree()
+    >>>
+    >>> tree.encrypt_file_per_line('tests/logdata/large_APACHE_log')
+
+    Encrypting file per line: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
+    Encryption complete
+
+    >>>
+
+The provided argument is the file's relative path with respect to the current
+working directory.
+
+
+Inspection
+==========
 
 Invoking a Merkle-tree from inside the Python interpreter displays info about
 its idenity (*uuid*), fixed configuration (*hash type*, *encoding type*,
@@ -216,10 +246,9 @@ children printed above the right ones. It can be saved in a file as follows:
     with open('structure', 'w') as f:
         f.write(tree.__str__())
 
-Persistence
-===========
 
-.. note:: On-disk persistence is *not* currently supported.
+Backup
+======
 
 The required minimum may be exported into a specified file, so that the tree's
 current state be retrievable from that file:
@@ -236,11 +265,9 @@ in respective order. For example:
 .. code-block:: bash
 
   {
-      "header": {
-          "encoding": "utf_8",
-          "hash_type": "sha256",
-          "security": true
-      },
+      "encoding": "utf_8",
+      "hash_type": "sha256",
+      "security": true
       "hashes": [
           "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
           "3dbbc4898d7e909de7fc7bb1c0af36feba78abc802102556e4ea52c28ccb517f",
@@ -258,13 +285,15 @@ in respective order. For example:
   }
 
 
-One can recover the tree by means of the `.fromJSONFile`_ classmethod:
+One can retrieve the tree as follows:
 
 .. code-block:: python
 
     loaded_tree = MerkleTree.fromJSONFile('relative_path/backup.json')
 
-.. _.fromJSONFile: https://pymerkle.readthedocs.io/en/latest/pymerkle.html#pymerkle.MerkleTree.fromJSONFile
 
-Retrieval of the tree is uniquely determined by the sequence of hashes within
-the provided file
+Persistence
+===========
+
+.. attention:: On-disk persistence is not currently supported.
+

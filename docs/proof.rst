@@ -1,6 +1,6 @@
 
-Merkle-proofs
-+++++++++++++
+Proofs
+++++++
 
 A Merkle-tree is capable of generating *Merkle-proofs* (*audit* and
 *consistency proofs*) in accordance with parameters provided by an auditor
