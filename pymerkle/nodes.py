@@ -208,7 +208,7 @@ class Node:
             return self
 
         if not self.__parent:
-            return None
+            return
 
         return self.__parent.ancestor(degree - 1)
 

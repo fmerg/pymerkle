@@ -137,13 +137,13 @@ class Proof:
         Verifies that the hash value resulting from the included path of hashes
         coincides with the target.
 
+        :raises InvalidProof: if the proof fails to verify.
+
         :param target: [optional] target hash to compare against. Defaults to
             the commitment included in the proof.
         :type target: bytes
         :returns: the verification result (*True*) in case of success.
         :rtype: bool
-
-        :raises InvalidProof: if the proof fails to verify.
         """
         target = self.commitment if target is None else target
 

@@ -180,7 +180,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type challenge: bytes
         :rtype: Proof
         """
-        offset = -1
         path = []
         offset = self.detect_offset(challenge)
         try:
@@ -429,7 +428,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         # Extract lines
         records = []
-        # No need to check anything, just load all lines
         while True:
 
             # TODO: Should we strip newline from content?
@@ -625,7 +623,7 @@ class MerkleTree(BaseMerkleTree):
         .. note:: Returns *None* if the tree is empty.
         """
         if not self.__root:
-            return None
+            return
 
         return self.__root.digest
 
@@ -689,12 +687,12 @@ class MerkleTree(BaseMerkleTree):
         :rtype: Leaf
         """
         if offset < 0:
-            return None
+            return
 
         try:
             leaf = self.leaves[offset]
         except IndexError:
-            return None
+            return
 
         return leaf
 
@@ -755,9 +753,10 @@ class MerkleTree(BaseMerkleTree):
         :rtype: int
         """
         offset = -1
-        curr = 0
-        leaves = (leaf for leaf in self.leaves)
+
         # TODO: Make this loop a binary search
+        leaves = (leaf for leaf in self.leaves)
+        curr = 0
         while True:
 
             try:
@@ -801,7 +800,7 @@ class MerkleTree(BaseMerkleTree):
         subroots = lefts + rights
 
         if not rights or not lefts:
-            subroots = [(-1, _[1]) for _ in subroots]
+            subroots = [(-1, r[1]) for r in subroots]
             offset = len(subroots) - 1
         else:
             offset = len(lefts) - 1
@@ -859,20 +858,19 @@ class MerkleTree(BaseMerkleTree):
         :returns: root of the detected subtree
         :rtype: Leaf or Node
         """
-        try:
-            subroot = self.leaves[offset]
-        except IndexError:
-            return None
+        subroot = self.get_leaf(offset)
+        if not subroot:
+            return
 
         i = 0
         while i < height:
             curr = subroot.parent
 
             if not curr:
-                return None
+                return
 
             if curr.left is not subroot:
-                return None
+                return
 
             subroot = curr
             i += 1
@@ -882,7 +880,7 @@ class MerkleTree(BaseMerkleTree):
         i = 0
         while i < height:
             if curr.is_leaf():
-                return None
+                return
 
             curr = curr.right
             i += 1
@@ -908,7 +906,7 @@ class MerkleTree(BaseMerkleTree):
         :rtype: list of signed nodes
         """
         if sublength < 0:
-            return None
+            return
 
         principals = []
         heights = decompose(sublength)
@@ -917,7 +915,7 @@ class MerkleTree(BaseMerkleTree):
             subroot = self.get_subroot(offset, height)
 
             if not subroot:
-                return None
+                return
 
             parent = subroot.parent
 

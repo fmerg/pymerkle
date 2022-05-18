@@ -39,22 +39,21 @@ is raised and the construction is aborted.
 .. _hashlib: https://docs.python.org/3.6/library/hashlib.html
 
 The ``security`` attribute refers to the tree's ability of defending against
-second-preimage attacks, which is the default choice (*True*). In this case,
-the hashing function will prepend ``0x00`` or ``0x01`` before hashing single or
-double arguments respectively. The actual prefices will be the images of these
-hexadecimals under the tree's configured encoding type. One can disable this
-feature at construction for, say, testing purposes as follows:
+second-preimage attacks. If in default mode (enabled), the tree hashing
+function will prepend ``0x00`` or ``0x01`` before hashing single or double
+arguments arguments respectively. The actual prefices will be the images of these
+hexadecimals under the tree's configured encoding type.
 
-.. code-block:: python
+.. note:: One can disable security mode at construction, say, for testing
+      purposes, as follows:
 
-    tree = MerkleTree(..., security=False)
+      .. code-block:: python
+
+          tree = MerkleTree(..., security=False)
 
 
-Attributes and properties
--------------------------
-
-:uuid:
-        (*str*) - unique identifier (time-based uuid)
+Attributes
+----------
 
 :hash_type:
         (*str*) - hash algorithm
@@ -65,20 +64,24 @@ Attributes and properties
 :security:
         (*bool*) - defense against second-preimage attack
 
-:root_hash:
-       (*bytes*) - checksum currently stored by the tree root
+:uuid:
+        (*str*) - time based unique identifier
+
+Properties
+----------
 
 :length:
        (*int*) - current number of leaves
 
-:size:
-       (*int*) - current number of nodes
-
 :height:
         (*int*) - current tree height
 
+:size:
+       (*int*) - current number of nodes
+
+
 Invoking a Merkle-tree from the Python interpreter displays the above
-characteristics in the following fashion:
+characteristics:
 
 .. code-block:: python
 
@@ -102,15 +105,16 @@ characteristics in the following fashion:
 Initial records
 ---------------
 
-One can provide an arbitrary number of records at construction, in which
-case the created Merkle-tree will be *non* empty. The following statement
-creates a standard (SHA256/UTF-8) tree with three leaves from the outset,
-occurring from the provided *positional* arguments (*str* or *bytes*
-indifferently) in respective order:
+One can provide an arbitrary number of records to be encrypted at construction
+as follows:
 
 .. code-block:: python
 
-    >>> tree = MerkleTree(b'first_record', b'second_record', 'third_record')
+    >>> config = {'hash_type': 'sha256', 'encoding': 'utf-8', 'security': True}
+    >>>
+    >>> records = [b'first_record', b'second_record', b'third_record']
+    >>>
+    >>> tree = MerkleTree.init_from_records(*records, config=config)
     >>> tree
 
         uuid      : 75ecc98a-e609-11e9-9e4a-701ce71deb6a
@@ -127,63 +131,73 @@ indifferently) in respective order:
 
     >>>
 
+If no config is provided, then a default SHA256/UTF-8 tree in security mode
+is constructed.
+
 
 Encryption
 ==========
+
+Encrypting a record into the Merkle-tree means to append a new leaf storing the
+hash value of that record, restructure the tree accordingly and recalculate some
+interior hashes, which culminates in the recalculation of the root-hash
+represeting the tree's updated state. The final structure is uniquely
+determined by the growing strategy of the tree, as specified by its internal
+mechanics.
 
 Single record encryption
 ------------------------
 
 .. code-block:: python
 
-    tree = MerkleTree()
-
-    tree.encrypt('some string')
-    tree.encrypt(b'some bytestring')
+    tree.encrypt('string value')
+    tree.encrypt(b'bytestring')
 
 
 Bulk file encryption
 --------------------
 
-*Encrypting the content of a file into* the Merkle-tree means updating it with
-the newly created leaf storing the digest if that content (i.e., encrypting the
-file's content as a single record).
+Encrypting the content of a file means to append a new leaf storing the hash
+value of that content (i.e., encrypting the file's content as a single record):
 
 .. code-block:: python
 
-        tree.encrypt_file_content('relative_path/to/sample_file')
+    tree.encrypt_file_content('relative_path/to/sample_file')
 
-The provided path is the file's relative path with respect to the current
-working directory.
+.. note:: The provided path must be relative with respect to the current
+      working directory.
 
 
 Per line file encryption
 ------------------------
 
-*Encrypting per line a file into* the Merkle-tree means encrypting its lines
-successively as single records.
+Encrypting per line a file means to encrypt successively its lines as single
+records:
 
 .. code-block:: python
 
     >>> tree = MerkleTree()
+    >>> tree.size
+    0
     >>>
     >>> tree.encrypt_file_per_line('tests/logdata/large_APACHE_log')
 
     Encrypting file per line: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
     Encryption complete
 
+    >>> tree.size
+    3091
     >>>
 
-The provided argument is the file's relative path with respect to the current
-working directory.
+.. note:: The provided path must be relative with respect to the current
+      working directory.
 
 
 Inspection
 ==========
 
-Invoking a Merkle-tree from inside the Python interpreter displays info about
-its idenity (*uuid*), fixed configuration (*hash type*, *encoding type*,
-*security mode*) and current state (*size*, *length*, *height*, *root-hash*):
+Invoking a Merkle-tree inside the Python interpreter displays info about its
+fixed configuration and and current state:
 
 .. code-block:: python
 
@@ -203,17 +217,10 @@ its idenity (*uuid*), fixed configuration (*hash type*, *encoding type*,
 
     >>>
 
-This info can saved in a file as follows:
 
-.. code-block:: python
-
-    with open('current_state', 'w') as f:
-        f.write(tree.__repr__())
-
-
-Similarly, feeding the tree into the ``print()`` Python function displays it in a
-terminal friendly way, similar to the output of the ``tree`` command of Unix
-based platforms:
+Printing the trye displays it in a terminal friendly way, where nodes are
+represented by theyr hash value and left children are printed above the right
+ones.
 
 .. code-block:: python
 
@@ -235,51 +242,43 @@ based platforms:
 
     >>>
 
-.. note:: Avoid printing huge Merkle-trees in the above fashion.
-
-Note that each node is represented by the digest it currently stores, with left
-children printed above the right ones. It can be saved in a file as follows:
-
-.. code-block:: python
-
-    with open('structure', 'w') as f:
-        f.write(tree.__str__())
-
 
 Comparison
 ==========
 
+The tree's root-hash encodes its current state, in the sense that it is
+uniquely determined by the current tree structure and the hash values stored by
+its leaf nodes. Consecquently, the history of a tree may be conceived of as the
+sequence of its successive root-hashes while growing. Merkle-trees are
+intrinsically capable of checking whether a hash value is the acclaimed
+root-hash of a previous state (which is in parallel with their ability to
+provide consistency proofs of their growing history). This establishes a natural
+comparison relation among trees which, for the present implementation, can be
+further enhanced by the fact that the tree structure is uniquely determined by
+the number of leaf nodes.
+
+
 Previous state
 --------------
 
-Upon generating a consistency proof, the server can implicitly infer whether
-the parameters provided by the client correspond to an actual previous state of
-the Merkle-tree. One can imagine scenarios where the server would like to
-verify this "inclusion" independently of any consistency proof request (i.e.,
-without responding with a proof). To this end, the afore mentioned implicit
-check has been abstracted from the consistency proof algorithm.
-
-Let *subhash* denote the Merkle-tree's root-hash at some point of history.
+Let *subhash* denote current state of the tree at some point of history.
 
 .. code-block:: python
 
-        >>>
         >>> subhash = tree.root_hash
         >>> subhash
         b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
         >>>
 
-At any subsequent moment:
+At any subsequent moment (i.e., after encrypting arbitrary records into the
+tree):
 
 .. code-block:: python
 
-        >>>
-        >>> subhash = b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
-        >>>
         >>> tree.has_previous_state(subhash)
         True
         >>>
-        >>> tree.has_previous_state(subhash=b'forged')
+        >>> tree.has_previous_state(b'something forged')
         False
         >>>
 
@@ -287,64 +286,42 @@ At any subsequent moment:
 Tree operators
 --------------
 
-Instead of performing inclusion-test upon a provided subhash, one can directly
-verify whether a Merkle-tree represents a valid previous state of another by
-means of the `<=` operator. Given two Merkle-trees, the statement
+One can directly verify whether a tree is a valid previous state of another by
+means of the `<=` operator. In particular, the statement
 
 .. code-block:: python
 
         tree_1 <= tree_2
 
-is equivalent to
-
-.. code-block:: python
-
-        tree_2.has_previous_state(subhash=tree_1.root_hash)
-
-To verify whether ``tree_1`` represents a strictly previous state of ``tree_2``,
-try
+is equivalent to ``tree_2.has_previous_state(tree_1.root_hash)``. To verify
+whether ``treeP1`` is a strictly previous state of ``tree_2``, try
 
 .. code-block:: python
 
         tree_1 < tree_2
 
-which will be *True* only if
-
-.. code-block:: python
-
-        tree_1 <= tree_2
-
-*and* the trees' current root-hashes do not coincide.
-
-Since, in the present implementation, trees with the same number of leaves
-have identical structure, equality of Merkle-trees amounts to identification
-of their current root-hashes, i.e.,
+which will be *True* only iff ``tree_1 <= tree_2`` and the trees' root-hashes
+do not coincide. Since, for the present implementation, treees with the same
+number of leaf nodes have identical structure, equality of trees amounts to
+identification of their current root-hashes, i.e.,
 
 .. code-block:: python
 
         tree_1 == tree_2
 
-is equivalent to
-
-.. code-block:: python
-
-        tree_1.root_hash == tree_2.root_hash
+is equivalent to ``tree_1.root_hash = tree_2.root_hash``.
 
 
 Backup
 ======
 
-The required minimum may be exported into a specified file, so that the tree's
-current state be retrievable from that file:
-
 .. code-block:: python
 
    tree.export('relative_path/backup.json')
 
-The file *backup.json* (which will be overwritten if it already exists) will
-contain a JSON entity with keys ``header``, mapping to the tree's configuration,
-and ``hashes``, mapping to the checksums currently stored by the tree's leaves
-in respective order. For example:
+This creates a file containing a JSON dictionary with the minimum required info
+for retrieving the tree, where ``hashes`` maps to the hash valued stored by the
+leaf nodes in respective order at the moment od export:
 
 .. code-block:: bash
 
@@ -369,11 +346,11 @@ in respective order. For example:
   }
 
 
-One can retrieve the tree as follows:
+The tree can be retrieved as follows:
 
 .. code-block:: python
 
-    loaded_tree = MerkleTree.fromJSONFile('relative_path/backup.json')
+    loaded = MerkleTree.fromJSONFile('relative_path/backup.json')
 
 
 Persistence
