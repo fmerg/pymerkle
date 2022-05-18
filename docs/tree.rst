@@ -261,12 +261,12 @@ the number of leaf nodes.
 Previous state
 --------------
 
-Let *subhash* denote current state of the tree at some point of history.
+Let *state* denote current state of the tree at some point of history.
 
 .. code-block:: python
 
-        >>> subhash = tree.root_hash
-        >>> subhash
+        >>> state = tree.root_hash
+        >>> state
         b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
         >>>
 
@@ -275,7 +275,7 @@ tree):
 
 .. code-block:: python
 
-        >>> tree.has_previous_state(subhash)
+        >>> tree.has_previous_state(state)
         True
         >>>
         >>> tree.has_previous_state(b'something forged')

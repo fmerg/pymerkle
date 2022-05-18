@@ -218,6 +218,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                     sublength)
             except NoPathException:
                 continue
+
             if challenge == self.multi_hash(left_path, len(left_path) - 1):
                 offset = _offset
                 path = _path
@@ -227,7 +228,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     @abstractmethod
-    def has_previous_state(self, subhash):
+    def has_previous_state(self, checksum):
         """
         Define here how the tree should validate whether the provided hash
         value is the root-hash of some previous state.
@@ -563,11 +564,10 @@ class MerkleTree(BaseMerkleTree):
         """
         Current number of nodes.
 
-        .. note:: Following the tree's growing strategy (cf. the
-            *append_leaf()*) method, appending a new leaf leads to the creation
-            of two new nodes. If *s(n)* denotes the total number of nodes with
-            respect to the number *n* of leaves, this is equivalent to the
-            recursive relation
+        .. note:: Following the tree's growing strategy (cf. *append_leaf()*),
+            appending a new leaf leads to the creation of two new nodes. If
+            *s(n)* denotes the total number of nodes with respect to the number
+            *n* of leaves, this is equivalent to the recursive relation
 
                     ``s(n + 1) = s(n) + 2, n > 1,    s(1) = 1, s(0) = 0``
 
@@ -894,14 +894,14 @@ class MerkleTree(BaseMerkleTree):
         sum up to the provided number.
 
         .. note:: Detected nodes are prepended with a sign (+1 or -1) carrying
-        information for generation of consistency proofs.
+            information for generation of consistency proofs.
 
         .. note:: Returns *None* if the provided number does not fulfill the
             prescribed conditions.
 
         :param sublength: non negative integer smaller than or equal to the
-        tree's current length, such that corresponding sequence of subroots
-        exists.
+            tree's current length, such that corresponding sequence of subroots
+            exists.
         :returns: Signed roots of the detected subtrees.
         :rtype: list of signed nodes
         """
@@ -933,13 +933,13 @@ class MerkleTree(BaseMerkleTree):
 
         return principals
 
-    def has_previous_state(self, subhash):
+    def has_previous_state(self, checksum):
         """
         Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree.
 
-        :param subhash: acclaimed root-hash of some previous state of the tree.
-        :type subhash: bytes
+        :param checksum: acclaimed root-hash of some previous state of the tree.
+        :type checksum: bytes
         :rtype: bool
         """
         result = False
@@ -951,7 +951,7 @@ class MerkleTree(BaseMerkleTree):
             path = [(-1, r[1].digest) for r in subroots]
 
             offset = len(path) - 1
-            if subhash == multi_hash(path, offset):
+            if checksum == multi_hash(path, offset):
                 result = True
                 break
 

@@ -19,11 +19,11 @@ def generate_uuid():
 
 def log_2(num):
     """
-    Computes the base 2 logarithm of the provided integer (i.e., the greatest
+    Computes the base 2 logarithm of the provided value (i.e., the greatest
     power of 2 equal to or smaller than *num*).
 
     .. note:: Given a left-balanced binary tree whose number of leaves equals
-        the provided argument, this function returns the tree's height (i.e.,
+        the provided value, this function returns the tree's height (i.e.,
         the depth of its leftmost branch).
 
     .. note:: By convention, this function returns 0 for the zero argument.

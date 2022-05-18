@@ -27,7 +27,7 @@ class Node:
     """
     Merkle-tree generic node.
 
-    :param digest: the digest to be stored by the node.
+    :param digest: the hash value to be stored by the node.
     :type digest: bytes
     :param parent: [optional] parent node. Defaults to *None*.
     :type parent: Node
@@ -161,7 +161,10 @@ class Node:
 
     def get_checksum(self, encoding):
         """
-        Returns the hex string representing the node's sigest.
+        Returns the hex string representing hash value stored by the node.
+
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
 
         :rtype: str
         """
@@ -228,6 +231,8 @@ class Node:
         having that node as root (similar to what is printed at console when
         running the ``tree`` command of Unix based platforms).
 
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
         :param level: [optional] Defaults to 0. Must be left equal to the
             default value when called externally by the user. Increased by
             1 whenever the function is recursively called in order to keep
@@ -271,8 +276,9 @@ class Node:
         out += f'{checksum}\n'
 
         if not self.is_leaf():
-            out += self.left.__str__(encoding, level + 1, indent, ignored)
-            out += self.right.__str__(encoding, level + 1, indent, ignored)
+            args = (encoding, level + 1, indent, ignored)
+            out += self.left.__str__(*args)
+            out += self.right.__str__(*args)
 
         return out
 
@@ -280,6 +286,8 @@ class Node:
         """
         Returns a JSON dictionary with the node's characteristics as key-value pairs.
 
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
         :rtype: dict
 
         .. note:: The *parent* attribute is ommited from node serialization in
@@ -299,10 +307,12 @@ class Node:
         """
         Returns a JSON text with the node's characteristics as key-value pairs.
 
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
+        :rtype: str
+
         .. note:: The *parent* attribute is ommited from node serialization in
             order for circular reference error to be avoided.
-
-        :rtype: str
         """
         return json.dumps(self.serialize(encoding), sort_keys=True, indent=indent)
 
@@ -313,8 +323,6 @@ class Leaf(Node):
 
     :param digest: the digest to be stored by the leaf.
     :type digest: bytes
-    :param encoding: encoding type for decoding the leaf's digest if needed.
-    :type encoding: str
     :rtype: Leaf
     """
 
@@ -323,4 +331,15 @@ class Leaf(Node):
 
     @classmethod
     def from_record(cls, record, hash_func):
+        """
+        Creates a leaf storing the digest of the provided record under the
+        provided hash function.
+
+        :param record: byte string to encrypt
+        :type record: bytes
+        :param hash_func: hash function to use
+        :type hash_func: function
+        :returns: the created leaf
+        :rtype: Leaf
+        """
         return cls(hash_func(record))
