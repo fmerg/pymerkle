@@ -65,7 +65,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param record: Record to encrypt.
         :type record: str or bytes
         """
-        leaf = Leaf.from_record(record, self.hash, self.encoding)
+        leaf = Leaf.from_record(record, self.hash)
 
         self.append_leaf(leaf)
 
@@ -377,7 +377,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not self:
             return NONE_BAR
 
-        return self.root.__str__(indent=indent)
+        return self.root.__str__(encoding=self.encoding, indent=indent)
 
     def encrypt_file_content(self, filepath):
         """
@@ -451,7 +451,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :rtype: dict
         """
-        hashes = [leaf.get_checksum() for leaf in self.leaves]
+        encoding = self.encoding
+        hashes = [leaf.get_checksum(encoding) for leaf in self.leaves]
 
         return {**self.get_config(), 'hashes': hashes}
 
@@ -499,11 +500,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         hashes = obj.pop('hashes')
         tree = cls(**obj)
+        digests = map(lambda x: x.encode(tree.encoding), hashes)
 
-        tqdm.write('\nFile has been loaded')
+        tqdm.write('\nFile content has been loaded')
         append = tree.append_leaf
-        for digest in tqdm(hashes, desc='Retrieving tree...'):
-            leaf = Leaf(digest, tree.encoding)
+        for digest in tqdm(digests, desc='Retrieving tree...'):
+            leaf = Leaf(digest)
             append(leaf)
 
         tqdm.write('Tree has been retrieved')
@@ -643,13 +645,13 @@ class MerkleTree(BaseMerkleTree):
             if not subroot.parent:
 
                 # Increase height by one
-                self.__root = Node.from_children(subroot, leaf, self.hash, self.encoding)
+                self.__root = Node.from_children(subroot, leaf, self.hash)
 
             else:
                 parent = subroot.parent
 
                 # Create bifurcation node
-                new_node = Node.from_children(subroot, leaf, self.hash, self.encoding)
+                new_node = Node.from_children(subroot, leaf, self.hash)
 
                 # Interject bifurcation node
                 parent.set_right(new_node)

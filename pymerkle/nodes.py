@@ -29,9 +29,6 @@ class Node:
 
     :param digest: the digest to be stored by the node.
     :type digest: bytes
-    :param encoding: encoding type to be used when decoding the
-            digest stored by the node.
-    :type encoding: str
     :param parent: [optional] parent node. Defaults to *None*.
     :type parent: Node
     :param left: [optional] parent node. Defaults to *None*.
@@ -43,11 +40,10 @@ class Node:
     :rtype: Node
     """
 
-    __slots__ = ('__digest', '__encoding', '__parent', '__left', '__right')
+    __slots__ = ('__digest', '__parent', '__left', '__right')
 
-    def __init__(self, digest, encoding, parent=None, left=None, right=None):
+    def __init__(self, digest, parent=None, left=None, right=None):
         self.__digest = digest
-        self.__encoding = encoding
         self.__parent = parent
         self.__left = left
         self.__right = right
@@ -60,10 +56,6 @@ class Node:
     @property
     def digest(self):
         return self.__digest
-
-    @property
-    def encoding(self):
-        return self.__encoding
 
     @property
     def left(self):
@@ -103,17 +95,17 @@ class Node:
     def is_leaf(self):
         return isinstance(self, Leaf)
 
-    def get_checksum(self):
+    def get_checksum(self, encoding):
         """
         Returns the hex string representing the digest stored by the present
         node.
 
         :rtype: str
         """
-        return self.digest.decode(self.encoding)
+        return self.digest.decode(encoding)
 
     @classmethod
-    def from_children(cls, left, right, hash_func, encoding):
+    def from_children(cls, left, right, hash_func):
         """
         Construction of node from a given pair of nodes.
 
@@ -130,7 +122,7 @@ class Node:
         """
         digest = hash_func(left.__digest, right.__digest)
 
-        return cls(digest, encoding, left=left, right=right, parent=None)
+        return cls(digest, left=left, right=right, parent=None)
 
     def ancestor(self, degree):
         """
@@ -165,24 +157,7 @@ class Node:
         """
         self.__digest = hash_func(self.left.digest, self.right.digest)
 
-    def __repr__(self):
-        """
-        .. warning:: Contrary to convention, the output of this method is not
-            insertable into the *eval()* builtin Python function.
-        """
-        def memid(obj): return str(hex(id(obj)))
-
-        parent = NONE if not self.__parent else memid(self.__parent)
-        left = NONE if not self.__left else memid(self.__left)
-        right = NONE if not self.__right else memid(self.__right)
-        checksum = self.get_checksum()
-
-        kw = {'node': memid(self), 'parent': parent, 'left': left,
-              'right': right, 'checksum': checksum}
-
-        return NODE_TEMPLATE.format(**kw)
-
-    def __str__(self, level=0, indent=3, ignored=None):
+    def __str__(self, encoding, level=0, indent=3, ignored=None):
         """
         Designed so that printing the node amounts to printing the subtree
         having the node as root (similar to what is printed as console when
@@ -229,16 +204,16 @@ class Node:
             out += f' {L_BRACKET_LONG}'
             ignored.append(level)
 
-        checksum = self.get_checksum()
+        checksum = self.get_checksum(encoding)
         out += f'{checksum}\n'
 
         if not self.is_leaf():
-            out += self.left.__str__(level + 1, indent, ignored)
-            out += self.right.__str__(level + 1, indent, ignored)
+            out += self.left.__str__(encoding, level + 1, indent, ignored)
+            out += self.right.__str__(encoding, level + 1, indent, ignored)
 
         return out
 
-    def serialize(self):
+    def serialize(self, encoding):
         """
         Returns a JSON dictionary with the node's characteristics as key-value pairs.
 
@@ -247,23 +222,23 @@ class Node:
         .. note:: The *parent* attribute is ommited from node serialization
             in order for circular reference error to be avoided.
         """
-        out = {'hash': self.digest.decode(self.encoding)}
+        out = {'hash': self.get_checksum(encoding)}
 
         if self.left:
-            out.update({'left': self.left.serialize()})
+            out.update({'left': self.left.serialize(encoding)})
 
         if self.right:
-            out.update({'right': self.right.serialize()})
+            out.update({'right': self.right.serialize(encoding)})
 
         return out
 
-    def toJSONtext(self, indent=4):
+    def toJSONtext(self, encoding, indent=4):
         """
         Returns a JSON text with the node's characteristics as key-value pairs.
 
         :rtype: str
         """
-        return json.dumps(self.serialize(), sort_keys=True, indent=indent)
+        return json.dumps(self.serialize(encoding), sort_keys=True, indent=indent)
 
 
 class Leaf(Node):
@@ -277,13 +252,9 @@ class Leaf(Node):
     :type encoding: str
     """
 
-    def __init__(self, digest, encoding):
-
-        if isinstance(digest, str):
-            digest = digest.encode(encoding)
-
-        super().__init__(digest, encoding)
+    def __init__(self, digest):
+        super().__init__(digest)
 
     @classmethod
-    def from_record(cls, record, hash_func, encoding):
-        return cls(hash_func(record), encoding)
+    def from_record(cls, record, hash_func):
+        return cls(hash_func(record))

@@ -4,24 +4,22 @@ from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 
 
-h = HashEngine()
-encoding = h.encoding
-hash_func = h.hash
+hash_func = HashEngine().hash
 
 pairs = (
-    Leaf.from_record(b'some record...', hash_func, encoding),
+    Leaf.from_record(b'some record...', hash_func),
     Leaf.from_record('5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
-                     hash_func, encoding)
+                     hash_func)
 )
 
 # Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf1 = Leaf.from_record(b'first record...', hash_func, encoding)
-leaf2 = Leaf.from_record(b'second record...', hash_func, encoding)
-leaf3 = Leaf.from_record(b'third record...', hash_func, encoding)
-leaf4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
-node1 = Node.from_children(leaf1, leaf2, hash_func, encoding)
-node3 = Node.from_children(leaf3, leaf4, hash_func, encoding)
-root = Node.from_children(node1, node3, hash_func, encoding)
+leaf1 = Leaf.from_record(b'first record...', hash_func)
+leaf2 = Leaf.from_record(b'second record...', hash_func)
+leaf3 = Leaf.from_record(b'third record...', hash_func)
+leaf4 = Leaf.from_record(b'fourth record...', hash_func)
+node1 = Node.from_children(leaf1, leaf2, hash_func)
+node3 = Node.from_children(leaf3, leaf4, hash_func)
+root = Node.from_children(node1, node3, hash_func)
 
 
 # Childless leaves tests
@@ -55,14 +53,6 @@ def test_parentless_leaf_is_not_right_child(leaf):
 def test_parentless_leaf_no_ancestor_exception(leaf):
     assert not leaf.ancestor(degree=1)
 
-
-@pytest.mark.parametrize('leaf', pairs)
-def test_parentless_leaf___repr__(leaf):
-    assert leaf.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(leaf))),
-                                                   left='[None]',
-                                                   right='[None]',
-                                                   parent='[None]',
-                                                   checksum=leaf.digest.decode(leaf.encoding))
 
 def test_root_has_no_parent():
     assert root.parent is None
@@ -134,7 +124,7 @@ def test_degree_two_ancestor(node):
 
 
 def test_hash_recalculation():
-    new_leaf = Leaf.from_record(b'new record...', hash_func, encoding)
+    new_leaf = Leaf.from_record(b'new record...', hash_func)
     node3.set_right(new_leaf)
     node3.recalculate_hash(hash_func=hash_func)
     root.recalculate_hash(hash_func=hash_func)

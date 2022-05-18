@@ -10,13 +10,13 @@ encoding = h.encoding
 hash_func = h.hash
 
 # Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf1 = Leaf.from_record(b'first record...', hash_func, encoding)
-leaf2 = Leaf.from_record(b'second record...', hash_func, encoding)
-leaf3 = Leaf.from_record(b'third record...', hash_func, encoding)
-leaf4 = Leaf.from_record(b'fourth record...', hash_func, encoding)
-node1 = Node.from_children(leaf1, leaf2, hash_func, encoding)
-node3 = Node.from_children(leaf3, leaf4, hash_func, encoding)
-root = Node.from_children(node1, node3, hash_func, encoding)
+leaf1 = Leaf.from_record(b'first record...', hash_func)
+leaf2 = Leaf.from_record(b'second record...', hash_func)
+leaf3 = Leaf.from_record(b'third record...', hash_func)
+leaf4 = Leaf.from_record(b'fourth record...', hash_func)
+node1 = Node.from_children(leaf1, leaf2, hash_func)
+node3 = Node.from_children(leaf3, leaf4, hash_func)
+root = Node.from_children(node1, node3, hash_func)
 
 
 stringifications = [
@@ -128,42 +128,16 @@ serializations = [
 ]
 
 
-@pytest.mark.parametrize('leaf', (leaf1, leaf2, leaf3, leaf4))
-def test___repr__for_leafs_with_parent(leaf):
-    assert leaf.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(leaf))),
-                                                   left='[None]',
-                                                   right='[None]',
-                                                   parent=str(hex(id(leaf.parent))),
-                                                   checksum=leaf.get_checksum())
-
-
-@pytest.mark.parametrize('node', (node1, node3))
-def test___repr__for_nodes_with_parent(node):
-    assert node.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(node))),
-                                                   left=str(hex(id(node.left))),
-                                                   right=str(hex(id(node.right))),
-                                                   parent=str(hex(id(node.parent))),
-                                                   checksum=node.get_checksum())
-
-
-def test___repr__for_node_without_parent():
-    assert root.__repr__() == NODE_TEMPLATE.format(node=str(hex(id(root))),
-                                                   left=str(hex(id(root.left))),
-                                                   right=str(hex(id(root.right))),
-                                                   parent='[None]',
-                                                   checksum=root.get_checksum())
-
-
 @pytest.mark.parametrize('node, stringification', stringifications)
 def test___str__(node, stringification):
-    assert node.__str__() == stringification
+    assert node.__str__(encoding) == stringification
 
 
 @pytest.mark.parametrize('node, serialization', serializations)
 def test_node_serialization(node, serialization):
-    assert node.serialize() == serialization
+    assert node.serialize(encoding) == serialization
 
 
 @pytest.mark.parametrize('node, serialized', serializations)
 def test_node_toJSONtext(node, serialized):
-    assert node.toJSONtext() == json.dumps(serialized, indent=4, sort_keys=True)
+    assert node.toJSONtext(encoding) == json.dumps(serialized, indent=4, sort_keys=True)
