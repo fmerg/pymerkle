@@ -17,7 +17,7 @@ try:
     encoding="utf-8") as f:
     install_requires = [_.strip() for _ in f.readlines()]
 except FileNotFoundError:
-    install_requires = ["tqdm>=4.28.1",]
+    install_requires = []
 
 with open("README.md", 'r') as f:
     long_description = f.read()

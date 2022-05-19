@@ -94,7 +94,6 @@ The topology turns out to be identical with that of a binary *Sakura
 tree*, depicted in Section 5.4 of `this`_ paper.
 
 .. _GitHub: https://github.com/fmerg/pymerkle
-.. _tqdm: https://tqdm.github.io/
 .. _test_security.py: https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp

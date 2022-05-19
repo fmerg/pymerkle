@@ -5,9 +5,9 @@ Provides abstract interfaces and concrete implementations for Merkle-trees
 import json
 import os
 import mmap
+import sys
 import contextlib
 from abc import ABCMeta, abstractmethod
-from tqdm import tqdm
 
 from pymerkle.hashing import HashEngine
 from pymerkle.prover import MerkleProof
@@ -432,14 +432,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
             records.append(record)
 
-        # Line by line encryption
-        tqdm.write('')
-        encrypt = self.encrypt
-        for record in tqdm(records, desc='Encrypting file per line',
-                           total=len(records)):
-            encrypt(record)
+        nr_records = len(records)
+        for count, record in enumerate(records):
+            self.encrypt(record)
+            sys.stdout.write('%d/%d lines\r' % (count + 1, nr_records))
+            sys.stdout.flush()
 
-        tqdm.write('Encryption complete\n')
+        sys.stdout.write('\nEncryption complete\n')
 
     def serialize(self):
         """
@@ -502,13 +501,16 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         tree = cls(**obj)
         digests = map(lambda x: x.encode(tree.encoding), hashes)
 
-        tqdm.write('\nFile content has been loaded')
+        nr_hashes = len(hashes)
+        encoding = tree.encoding
         append = tree.append_leaf
-        for digest in tqdm(digests, desc='Retrieving tree...'):
-            leaf = Leaf(digest)
-            append(leaf)
-
-        tqdm.write('Tree has been retrieved')
+        sys.stdout.write('\nFile content has been loaded\n')
+        for count, checksum in enumerate(hashes):
+            digest = checksum.encode(encoding)
+            append(Leaf(digest))
+            sys.stdout.write('%d/%d leaves\r' % (count + 1, nr_hashes))
+            sys.stdout.flush()
+        sys.stdout.write('\nTree has been retrieved\n')
 
         return tree
 
