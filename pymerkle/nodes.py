@@ -5,8 +5,6 @@ Provides nodes for the Merkle-tree data structure.
 from abc import ABCMeta, abstractmethod
 import json
 
-from pymerkle.utils import NONE
-
 
 L_BRACKET_SHORT = '└─'
 L_BRACKET_LONG = '└──'

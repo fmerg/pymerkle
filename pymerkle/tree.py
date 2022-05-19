@@ -11,11 +11,9 @@ from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
 from pymerkle.prover import Proof
-from pymerkle.utils import log_2, decompose, NONE, generate_uuid
+from pymerkle.utils import log_2, decompose, generate_uuid
 from pymerkle.nodes import Node, Leaf
 
-
-NONE_BAR = '\n └─[None]'
 
 TREE_TEMPLATE = """
     uuid      : {uuid}
@@ -362,7 +360,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         hash_type = self.hash_type.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
-        root_hash = self.root_hash.decode(self.encoding) if self else NONE
+        root_hash = self.root_hash.decode(self.encoding) if self else '[None]'
 
         kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
               'security': security, 'root_hash': root_hash,
@@ -382,7 +380,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         .. note:: Left children appear above the right ones.
         """
         if not self:
-            return NONE_BAR
+            return '\n └─[None]\n'
 
         return self.root.__str__(encoding=self.encoding, indent=indent)
 
@@ -440,11 +438,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         nr_records = len(records)
         for count, record in enumerate(records):
+
             self.encrypt(record)
+
             sys.stdout.write('%d/%d lines\r' % (count + 1, nr_records))
             sys.stdout.flush()
-
-        sys.stdout.write('\nEncryption complete\n')
 
     def serialize(self):
         """
@@ -508,15 +506,14 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         digests = map(lambda x: x.encode(tree.encoding), hashes)
 
         nr_hashes = len(hashes)
-        encoding = tree.encoding
-        append = tree.append_leaf
-        sys.stdout.write('\nFile content has been loaded\n')
+        sys.stdout.write('\nLoaded file content\n')
         for count, checksum in enumerate(hashes):
-            digest = checksum.encode(encoding)
-            append(Leaf(digest))
+
+            digest = checksum.encode(tree.encoding)
+            tree.append_leaf(Leaf(digest))
+
             sys.stdout.write('%d/%d leaves\r' % (count + 1, nr_hashes))
             sys.stdout.flush()
-        sys.stdout.write('\nTree has been retrieved\n')
 
         return tree
 

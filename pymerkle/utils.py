@@ -6,9 +6,6 @@ from math import log, log10
 import uuid
 
 
-NONE = '[None]'
-
-
 def generate_uuid():
     """
     :returns: UUID1 universal identifier
