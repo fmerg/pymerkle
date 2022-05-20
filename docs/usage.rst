@@ -2,6 +2,6 @@
     :maxdepth: 0
     :titlesonly:
 
-    tree
-    proof
-    modules
+    Merkle tree <tree>
+    Merkle proof <proof>
+    API Reference <modules>

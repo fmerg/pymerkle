@@ -197,7 +197,7 @@ verifiable proof object proceeds as follows:
 
 .. code-block:: python
 
-  from pymerkle import Proofo
+  from pymerkle import Proof
 
   proof = Proof.deserialize(serialized)
   assert proof.verify()
