@@ -79,22 +79,6 @@ class Proof:
     :type offset: int
     :param path: path of hashes
     :type path: list of (+1/-1, bytes)
-
-
-    .. note:: Merkle-proofs are intended to be the output of proof generation
-        mechanisms and not be manually constructed. Retrieval via
-        deserialization might though have practical importance, so that given
-        a proof *p* the following constructions are possible:
-
-        >>> from pymerkle import Proof
-        >>>
-        >>> q = Proof.from_dict(p.serialize())
-        >>> r = Proof.fromJSONText(p.toJSONText())
-
-        or, more uniformly,
-
-        >>> q = Proof.deserialize(p.serialize())
-        >>> r = Proof.deserialize(p.toJSONText())
     """
 
     def __init__(self, provider, hash_type, encoding, security, offset, path,
@@ -250,7 +234,7 @@ class Proof:
 
         :rtype: str
         """
-        return json.dumps(self.serialize(), sort_keys=True, indent=indent)
+        return json.dumps(self.serialize(), sort_keys=False, indent=indent)
 
     @classmethod
     def fromJSONText(cls, text):
@@ -267,6 +251,21 @@ class Proof:
             of a Merkle-proof
         :type: dict or str
         :rtype: Proof
+
+        .. note:: Merkle-proofs are intended to be the output of proof generation
+            mechanisms and not be manually constructed. Retrieval via
+            deserialization might though have practical importance, so that given
+            a proof ``p`` the following constructions are possible:
+
+            >>> from pymerkle import Proof
+            >>>
+            >>> q = Proof.from_dict(p.serialize())
+            >>> r = Proof.fromJSONText(p.toJSONText())
+
+            or, more uniformly,
+
+            >>> q = Proof.deserialize(p.serialize())
+            >>> r = Proof.deserialize(p.toJSONText())
         """
         if isinstance(serialized, dict):
             return cls.from_dict(serialized)

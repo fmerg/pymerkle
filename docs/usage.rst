@@ -1,7 +1,7 @@
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 0
     :titlesonly:
 
-   tree
-   proof
-   decoupling
+    tree
+    proof
+    modules

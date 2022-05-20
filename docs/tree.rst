@@ -1,4 +1,4 @@
-Merkle-tree
+Merkle tree
 +++++++++++
 .. code-block:: python
 
@@ -20,10 +20,6 @@ The above construction is equivalent to
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 
 
-where the provided kwargs specify the homonymous attributes at construction.
-Configuration of a Merkle-tree amounts to configuring its core hashing
-functionality via these attributes.
-
 The ``hash_type`` attribute refers to the underlying hash algorithm
 (imported from `hashlib`_) and ``encoding`` determines the encoding before
 hashing. For example,
@@ -32,24 +28,20 @@ hashing. For example,
 
     tree = MerkleTree(hash_type='sha512', encoding='utf-32')
 
-creates a SHA512/UTF-32 Merkle-tree in security mode. If the provided *hash_type* or
-*encoding* parameter is not among the supported ones, then ``UnsupportedParameter``
+creates a SHA512/UTF-32 Merkle-tree in security mode. If the provided hash type or
+encoding parameter is not among the supported ones, then ``UnsupportedParameter``
 is raised and the construction is aborted.
 
 .. _hashlib: https://docs.python.org/3.6/library/hashlib.html
 
-The ``security`` attribute refers to the tree's ability of defending against
+The ``security`` parameter refers to the tree's ability of defending against
 second-preimage attacks. If in default mode (enabled), the tree hashing
 function will prepend ``0x00`` or ``0x01`` before hashing single or double
 arguments arguments respectively. The actual prefices will be the images of these
 hexadecimals under the tree's configured encoding type.
 
-.. note:: One can disable security mode at construction, say, for testing
-      purposes, as follows:
-
-      .. code-block:: python
-
-          tree = MerkleTree(..., security=False)
+.. note:: One can disable security mode at construction (say, for testing
+      purposes) by choosing ``security=False``.
 
 
 Attributes
@@ -181,10 +173,7 @@ records:
     0
     >>>
     >>> tree.encrypt_file_per_line('tests/logdata/large_APACHE_log')
-
-    Encrypting file per line: 100%|████████████████████████████████| 1546/1546 [00:00<00:00, 50762.84it/s]
-    Encryption complete
-
+    ...
     >>> tree.size
     3091
     >>>
@@ -218,7 +207,7 @@ fixed configuration and and current state:
     >>>
 
 
-Printing the trye displays it in a terminal friendly way, where nodes are
+Printing the tree displays it in a terminal friendly way, where nodes are
 represented by theyr hash value and left children are printed above the right
 ones.
 
@@ -321,7 +310,7 @@ Backup
 
 This creates a file containing a JSON dictionary with the minimum required info
 for retrieving the tree, where ``hashes`` maps to the hash valued stored by the
-leaf nodes in respective order at the moment od export:
+leaf nodes in respective order at the moment of export:
 
 .. code-block:: bash
 

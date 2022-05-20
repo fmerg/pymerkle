@@ -411,7 +411,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Per line encryption of the provided file into the Merkle-tree.
 
         For each line of the provided file, successively create a leaf storing
-        its digest and append ii to the tree by restructuring it and
+        its digest and append it to the tree by restructuring it and
         realculating appropriate interior hashes.
 
         :param filepath: Relative path of the file to encrypt with respect to
@@ -441,7 +441,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
             self.encrypt(record)
 
-            sys.stdout.write('%d/%d lines\r' % (count + 1, nr_records))
+            sys.stdout.write('%d/%d lines   \r' % (count + 1, nr_records))
             sys.stdout.flush()
 
     def serialize(self):
@@ -638,7 +638,7 @@ class MerkleTree(BaseMerkleTree):
         """
         Insert the provided leaf to the tree by restructuring it appropriately.
 
-        .. note:: This includes creation of exactly one new internal nodes and
+        .. note:: This includes creation of exactly one new internal node and
             recalculation of hash values for some existing ones.
 
         :param leaf: leaf node to append
@@ -737,8 +737,8 @@ class MerkleTree(BaseMerkleTree):
 
     def detect_offset(self, digest):
         """
-        Detects the position of the leftmost leaf node storing the digest
-        counting from zero.
+        Detects the position of the leftmost leaf node storing the provided
+        hash value counting from zero.
 
         :type digest: bytes
         :returns: position of corresponding leaf counting from zero

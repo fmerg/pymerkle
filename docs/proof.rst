@@ -1,312 +1,203 @@
+Merkle proof
+++++++++++++
 
-Proofs
-++++++
+By *Merkle-proof* is meant a path of hashes contained in a Merkle-tree and a
+rule for combining them into a single hash value, expected to coincide with the
+root-hash at the moment of path generation; the root-hash is included as
+commitment on behalf of the tree against some challenge posed by an interested party.
+What is actually proven in case of verification (that is, when the path of hashes
+leads to the commitment) depends on the original challenge. Interested parties may
+act as auditors, when willing to verify that a certain piece of data has been
+encrypted into the tree, or monitors, when their concern is to verify that
+the current state of the tree is a valid subsequent state of a previous one. In
+the first case, we have an *audit proof* for verifying data integrity; in the
+second case, the proof gives good reasons to believe that the history of the
+tree has not been forged or tampered (since two different states of it were
+found to be consistent) and is referred to as *proof of consistency*.
 
-A Merkle-tree is capable of generating *Merkle-proofs* (*audit* and
-*consistency proofs*) in accordance with parameters provided by an auditor
-resp. monitor. Any such proof essentially consists of a path of
-hashes (a finite sequence of checksums and a rule for combining them into a
-single hash), leading to the acclaimed current root-hash of the tree.
-Requesting and generating Merkle-proofs certifies that both involved parties
-have knowledge of some part of the tree's history or current state,
-disclosing a minimum of encrypted records and without actual need of holding
-a database of the originals. This makes Merkle-proofs well suited for protocols
-involving verification of existence and integrity of encrypted data
-in a mutual fashion.
+.. note:: The ability of Merkle-tree to prove data integrity and state
+      consistency is due to its binary structure combined with the standard
+      properties of hash functions.
 
-In Merkle-proof protocols the role of *commitment* belongs to the
-root-hash of the tree at the moment of proof generation, which can anytime be
-retrieved as follows:
+Audit proof
+===========
 
+An auditor wants to verify if some data has been encrypted into the tree, i.e.,
+if its digest under the tree's hashing machinery has been stored in some of its
+leaf nodes. If ``challenge`` stands for the digest under audit, the tree
+responds with a Merkle-proof ``proof`` as follows:
 
 .. code-block:: python
 
-    commitment = tree.root_hash
+   proof = tree.generate_audit_proof(challenge)
 
-which returns ``None`` for the empty case.
+Note that in order to construct the challenge from the original data, the
+auditor must access or replicate the tree's hashing machinery (since the
+latter depends on the tree's initial configuration):
 
-Generation
+.. code-block:: python
+
+  from pymerkle.hashing import HashEngine
+
+  challenge = HashEngine(**tree.get_config()).hash(b'data')
+
+
+Consistency proof
+=================
+
+A monitor requests and saves the tree's state at some point of history:
+
+.. code-block:: python
+
+  state = tree.root_hash
+
+Note that the root-hash encodes the tree's state as it is uniquely determined
+by its binary structure and the hash values stored by its leaf nodes.
+At any susequent moment, after further data have been encrypted into the tree,
+the monitor wants to verify that the the tree's current state is a possible
+evolvement of the saved one, meaning that no records have been back-dated and
+reencrypted, no encrypted data have been tampered, and the tree has never been
+branched or forked. To do so, the monitor submits the saved state as
+a challenge, to which the tree responds with a Merkle-proof ``proof`` as
+follows:
+
+.. code-block:: python
+
+   proof = tree.generate_consistency_proof(challenge=state)
+
+Inspection
 ==========
 
-Audit-proof
------------
+.. note:: Given a Merkle-proof as above, it is impossible to distinguish if it
+      is the result of an audit or consistency proof request.
 
-Consistency-proof
------------------
-
-Verification
-============
-
-Serialization
-=============
-
-Generation
-==========
-
-The produced ``proof`` is an instance of the ``Proof`` class. It consists of a
-path of hashes and the required parameters for verification to proceed from the
-client's side. Invoking it from the Python interpreter, it looks like
+Invoking a proof from the Python interpreter looks like this:
 
 .. code-block:: python
 
-    >>> proof
+  >>> proof
 
-        ----------------------------------- PROOF ------------------------------------
+      ----------------------------------- PROOF ------------------------------------
 
-        uuid        : 897220b8-f8dd-11e9-9e85-701ce71deb6a
+      uuid        : e4c8ce22-d827-11ec-ad25-3887d51f42f3
 
-        timestamp   : 1572196598 (Sun Oct 27 19:16:38 2019)
-        provider    : 77b623a6-f8dd-11e9-9e85-701ce71deb6a
+      timestamp   : 1653042639 (Fri May 20 13:30:39 2022)
+      provider    : 804fccc0-d827-11ec-ad25-3887d51f42f3
 
-        hash-type   : SHA256
-        encoding    : UTF-8
-        security    : ACTIVATED
-
-        offset : 4
-        path  :
-
-           [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
-           [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
-           [2]   +1   0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298
-           [3]   -1   41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c
-           [4]   +1   770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45
-           [5]   +1   c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6
-           [6]   -1   e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1
-           [7]   -1   cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe
-           [8]   +1   9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7
-           [9]   -1   dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896
-          [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
-
-        commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
-
-        -------------------------------- END OF PROOF --------------------------------
-
-    >>>
-
-.. note:: Once generated, it is impossible to discern whether a `Proof` object
-    is the result of an audit or a consistency proof request.
-
-The inscribed fields are self-explanatory. Among them, *provider* refers to the Merkle-tree's
-uuid whereas *hash-type*, *encoding* and *security* encapsulate the tree's fixed
-configuration. They are necessary for the client to configure their hashing engine
-appropriately in order to verify the proof and become available as follows:
-
-.. code-block:: python
-
-    >>> proof.get_verification_params()
-    {'hash_type': 'sha256',
-     'encoding': 'utf_8',
-     'security': True}
-
-*Commitment* is the Merkle-tree's acclaimed root-hash at the exact moment of proof generation
-(that is, *before* any other records are possibly encrypted into the tree).
-The Merkle-proof is valid *iff* the advertized path of hashes leads to the inscribed
-commitment (see *Verification modes* below).
-
-There are cases where the advertized path of hashes is empty or, equivalently, the inscribed
-*offset* has the non sensical value -1:
-
-.. code-block:: python
-
-    >>> proof
-
-        ----------------------------------- PROOF ------------------------------------
-
-        uuid        : 92710b04-f8e0-11e9-9e85-701ce71deb6a
-
-        timestamp   : 1572197902 (Sun Oct 27 19:38:22 2019)
-        provider    : 77b623a6-f8dd-11e9-9e85-701ce71deb6a
-
-        hash-type   : SHA256
-        encoding    : UTF-8
-        security    : ACTIVATED
-
-        offset : -1
-        path  :
+      hash-type   : SHA256
+      encoding    : UTF-8
+      security    : ACTIVATED
 
 
-        commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
+         [0]   +1   9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20
+         [1]   +1   597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8
+         [2]   -1   d070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d
+         [3]   +1   121c21e6abaf6c3aa828acd9d6c21e159122bdb73ae272e9ade77b08e480ba5e
+         [4]   +1   c7d78e34ed272db334e3ade19adf8605a120f537cf44be4599656fdb8ca50227
+         [5]   +1   d7832739e52e06af704bd30452fe406e8ba6f9b7b40aa734eaefad938f8b290b
+         [6]   -1   a199ff87d6a80a88647a685080a0f39c6b96ad620b37d40257511489866b91b6
 
-        -------------------------------- END OF PROOF --------------------------------
+      offset      : 1
 
-    >>>
+      commitment  : f763e156155685bab2703004532d7efcdb17c264da5418332c75bb5f4eb1a964
 
-.. note:: In this case, the Merkle-proof is predestined to be found *invalid*. Particular
-        meaning and interpreation of this failure depends on protocol restrictions and
-        type of challenge. In case of an audit proof for example, it could indicate that
-        some data have not been properly encrypted by the server or that the client does
-        not have proper knowledge of any encrypted data or both.
+      -------------------------------- END OF PROOF --------------------------------
 
+  >>>
+
+Its main body consists of the path of hashes, where signs indicate
+parenthetization for hashing and offset is the starting position. Note that the proof
+also contains the tree's parameters, so that the hashing machinery can be correctly
+cofigured during the verification procedure from the verifier's side.
 
 Verification
 ============
 
 .. code-block:: python
 
-    >>> proof.verify()
-    >>> True
-    >>>
-    >>> proof
+  >>> proof.verify()
+  True
+  >>>
 
-        ----------------------------------- PROOF ------------------------------------
+If the proof fails to verify, then ``InvalidProof`` is raised:
 
-        uuid        : ee2bba54-fa6e-11e9-bde2-701ce71deb6a
+.. code-block:: python
 
-        timestamp   : 1572368996 (Tue Oct 29 19:09:56 2019)
-        provider    : eb701a62-fa6e-11e9-bde2-701ce71deb6a
-
-        hash-type   : SHA256
-        encoding    : UTF-8
-        security    : ACTIVATED
-
-        offset : 5
-        path  :
-
-           [0]   +1   3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8
-           [1]   +1   4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992
-           [2]   +1   35f75fd1cfef0437bc7a4cae7387998f909fab1dfe6ced53d449c16090d8aa52
-           [3]   -1   73c027eac67a7b43af1a13427b2ad455451e4edfcaced8c2350b5d34adaa8020
-           [4]   +1   cbd441af056bf79c65a2154bc04ac2e0e40d7a2c0e77b80c27125f47d3d7cba3
-           [5]   +1   4e467bd5f3fc6767f12f4ffb918359da84f2a4de9ca44074488b8acf1e10262e
-           [6]   -1   db7f4ee8be8025dbffee11b434f179b3b0d0f3a1d7693a441f19653a65662ad3
-           [7]   -1   f235a9eb55315c9a197d069db9c75a01d99da934c5f80f9f175307fb6ac4d8fe
-           [8]   +1   e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8
-           [9]   -1   6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2
-          [10]   -1   2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8
-
-        commitment  : 11ff3293f70c0e158e0f58ef5ea4d497a9a3a5a913e0478a9ba89f3bc673300a
-
-        -------------------------------- END OF PROOF --------------------------------
-
-    >>>
-
-Like in any of the available verification mechanism, the `HashEngine.multi_hash`_ method is
-implicitly applied over the path of advertised hashes in order to recover a single hash.
-The proof is found to be valid *iff* this single hash coincides with the provided commitment.
-
-.. _HashEngine.multi_hash: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine.multi_hash
-
-Verification of a Merkle-proof presupposes correct configuration of an underlying
-hashing engine. This happens automatically by just feeding the proof to any of the
-available verification mechanisms, since the required verification parameters
-(*hash-type*, *encoding*, *security* mode) are included in the
-proof's header.
-
-.. _HashEngine: https://pymerkle.readthedocs.io/en/latest/pymerkle.hashing.html#pymerkle.hashing.HashEngine
+  >>> proof.verify()
+  Traceback (most recent call last):
+    ...
+      raise InvalidProof
+  pymerkle.prover.InvalidProof
+  >>>
 
 Serialization
 =============
 
-.. code-block:: python
-
-    >>> serialized_proof = proof.serialize()
-    >>> serialized_proof
-    {'header': {'uuid': '11a20142-f8e3-11e9-9e85-701ce71deb6a',
-      'timestamp': 1572198974,
-      'created_at': 'Sun Oct 27 19:56:14 2019',
-      'provider': '77b623a6-f8dd-11e9-9e85-701ce71deb6a',
-      'hash_type': 'sha256',
-      'encoding': 'utf_8',
-      'security': True,
-      'commitment': 'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'},
-      'body': {'offset': 4,
-      'path': [[1,
-        'f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207'],
-       [1, 'f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b'],
-       [1, '0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298'],
-       [-1, '41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c'],
-       [1, '770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45'],
-       [1, 'c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6'],
-       [-1, 'e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1'],
-       [-1, 'cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe'],
-       [1, '9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7'],
-       [-1, 'dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896'],
-       [-1, 'd1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878']]}}
-
-    >>>
-
-
-If JSON text is preferred instead of a Python dictionary, one can alternatively do:
+For, say, network transmission purposes, a Merkle-proof might need to be
+serialized. Given a ``proof``, this is done with
 
 .. code-block:: python
 
-    >>> proof_text = proof.toJSONText()
-    >>> print(proof_text)
-    {
-        "header": {
-            "commitment": "ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0",
-            "created_at": "Sun Oct 27 19:56:14 2019",
-            "encoding": "utf_8",
-            "hash_type": "sha256",
-            "provider": "77b623a6-f8dd-11e9-9e85-701ce71deb6a",
-            "security": true,
-            "timestamp": 1572198974,
-            "uuid": "11a20142-f8e3-11e9-9e85-701ce71deb6a"
-        }
-        "body": {
-            "offset": 4,
-            "path": [
-                [
-                    1,
-                    "f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207"
-                ],
-                [
-                    1,
-                    "f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b"
-                ],
+  serialized = proof.serialize()
 
-                ...
+which yields s JSON dictionary similar to the following one:
 
-                [
-                    -1,
-                    "d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878"
-                ]
-            ]
-        }
-    }
+.. code-block:: json
 
-    >>>
+  {
+      "header": {
+          "uuid": "c5788c06-d82c-11ec-8f3d-3887d51f42f3",
+          "timestamp": 1653044734,
+          "created_at": "Fri May 20 14:05:34 2022",
+          "provider": "65118520-d82c-11ec-8f3d-3887d51f42f3",
+          "hash_type": "sha256",
+          "encoding": "utf_8",
+          "security": true,
+      },
+      "body": {
+          "commitment": "79996015b06c93e0da6429442ba2afacb80778ee2a325416580a685ab42c7196",
+          "offset": 2,
+          "path": [
+              [
+                  1,
+                  "22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417"
+              ],
+              [
+                  -1,
+                  "087d4051288d13d982803562c9b33b9ff845fb61ad0ed017453e13cc655ba56b"
+              ],
+              [
+                  1,
+                  "19a9faccd14a30eb457688f2c7436444cf309bb68171052e02b5cb82bdff72c5"
+              ],
+              [
+                  -1,
+                  "e81aa69432e361716d6e8e42a0d5e7bf53704c911270d996e16541bb43d26fde"
+              ],
+              [
+                  1,
+                  "63dcd6799a11f501354971613df48875ce93572e5cb8437360b655ee05e16136"
+              ],
+              [
+                  1,
+                  "78accafa3440f1cec8681b3448042abcd9ece90c94986f1dd5cc82d97edcf0ce"
+              ],
+              [
+                  -1,
+                  "60099b8d162f54389aa73133ee1bb0d84bf7c0bc8f0b40da53c7ca1fc65d338c"
+              ]
+          ],
+      }
+  }
 
-Deserialization proceeds as follows:
+Note that body contains the path of hashes and the included commitment, while
+the header contains the parameters which are required for configuring the
+hashing machinery during verification. Deserialization for retrieving the
+verifiable proof object proceeds as follows:
 
 .. code-block:: python
 
-    >>> deserialized = Proof.deserialize(serialized_proof)
-    >>> deserialized
+  from pymerkle import Proofo
 
-        ----------------------------------- PROOF ------------------------------------
-
-        uuid        : 897220b8-f8dd-11e9-9e85-701ce71deb6a
-
-        timestamp   : 1572196598 (Sun Oct 27 19:16:38 2019)
-        provider    : 77b623a6-f8dd-11e9-9e85-701ce71deb6a
-
-        hash-type   : SHA256
-        encoding    : UTF-8
-        security    : ACTIVATED
-
-        offset : 4
-        path  :
-
-           [0]   +1   f4f03b7a24e147d418063b4bf46cb26830128033706f8ed062503c7be9b32207
-           [1]   +1   f73c75c5b8c061589903b892d366e32272e0915bb9a55528173f46f59f18819b
-           [2]   +1   0236486b4a79d4072151b0f873a84470f9b699246824cea4b41f861670f9b298
-           [3]   -1   41a4362341b66d09babd8d446ff3b409233afb0384a4b852a483da3ab8dcaf4c
-           [4]   +1   770d9762ab112b4b0d4adabd756c57e3fd5fc73b46c5694648a6b949d3482e45
-           [5]   +1   c60111d752059e7042c5b4dc2de3dbf5462fb0f4102bf58381b78a671ca4e3d6
-           [6]   -1   e1cf3cf7e6245ea3001e717699e29e167d961e1c2b4e98affc8105acf74db7c1
-           [7]   -1   cdf58a543b5a0c018455517672ac323dba40461b9df5e1e05b9a76a87d2d5ffe
-           [8]   +1   9b792adfe21274a1cdd3ebdcc5209e66676e72dbaca18c226d38f9e4ea9dabb7
-           [9]   -1   dc4613426d4293a2786dc3da4c9f5ab94541a78561fd4af9fa8476c7c4940896
-          [10]   -1   d1135d516fc6147b90e5d6255aa0b8482613dd29a252ab12e5344d14e98c7878
-
-        commitment  : ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0
-
-        -------------------------------- END OF PROOF --------------------------------
-
-    >>>
-
-The provided serialized object may here be a Python dictionary or JSON text indifferently.
-
-Decoupling commitments from proofs
-==================================
+  proof = Proof.deserialize(serialized)
+  assert proof.verify()

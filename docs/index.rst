@@ -102,9 +102,9 @@ Examples
 ********
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 0
 
-   usage
+    usage
 
 Indices and tables
 ******************
