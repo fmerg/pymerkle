@@ -205,11 +205,11 @@ class MerkleProof:
                 'hash_type': hash_type,
                 'encoding': encoding,
                 'security': security,
-                'commitment': commitment,
             },
             'body': {
                 'offset': offset,
                 'path': path,
+                'commitment': commitment,
             }
         }
 
@@ -223,15 +223,15 @@ class MerkleProof:
 
         header = proof['header']
         kw.update(header)
-        commitment = header.get('commitment', None)
-        if commitment:
-            kw['commitment'] = commitment.encode()
 
         body = proof['body']
         kw['offset'] = body['offset']
         encoding = header['encoding']
         kw['path'] = [(pair[0], pair[1].encode(encoding)) for pair in
                 body['path']]
+        commitment = body.get('commitment', None)
+        if commitment:
+            kw['commitment'] = commitment.encode()
 
         return cls(**kw)
 

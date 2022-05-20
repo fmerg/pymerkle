@@ -157,7 +157,6 @@ serializations = [
                 'hash_type': 'sha_256',
                 'encoding': 'utf_8',
                 'security': True,
-                'commitment': None,
             },
             'body': {
                 'offset': 5,
@@ -173,7 +172,8 @@ serializations = [
                     [+1, 'e003d116f27c877f6de213cf4d03cce17b94aece7b2ec2f2b19367abf914bcc8'],
                     [-1, '6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2'],
                     [-1, '2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8']
-                ]
+                ],
+                'commitment': None,
             }
         }
     ),
@@ -188,11 +188,11 @@ serializations = [
                 'hash_type': 'sha_256',
                 'encoding': 'utf_8',
                 'security': True,
-                'commitment': None,
             },
             'body': {
                 'offset': -1,
-                'path': []
+                'path': [],
+                'commitment': None,
             }
         }
     )
