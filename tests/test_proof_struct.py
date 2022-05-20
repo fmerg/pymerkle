@@ -6,7 +6,7 @@ import pytest
 import json
 
 from pymerkle import MerkleTree
-from pymerkle.prover import MerkleProof, PROOF_TEMPLATE, stringify_path
+from pymerkle.prover import Proof, PROOF_TEMPLATE, stringify_path
 
 
 def test_stringify_empty_path():
@@ -85,7 +85,7 @@ path = [
     (-1, b'6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2'),
     (-1, b'2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8')]
 
-proof_11 = MerkleProof(
+proof_11 = Proof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -94,7 +94,7 @@ proof_11 = MerkleProof(
     path=path
 )
 
-proof_21 = MerkleProof(
+proof_21 = Proof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -102,7 +102,7 @@ proof_21 = MerkleProof(
     offset=-1,
     path=[])
 
-proof_12 = MerkleProof(
+proof_12 = Proof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -111,7 +111,7 @@ proof_12 = MerkleProof(
     path=path
 )
 
-proof_22 = MerkleProof(
+proof_22 = Proof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -120,7 +120,7 @@ proof_22 = MerkleProof(
     path=[]
 )
 
-proof_31 = MerkleProof(
+proof_31 = Proof(
     provider=provider,
     hash_type='sha_256',
     encoding='utf_8',
@@ -132,16 +132,16 @@ proof_31 = MerkleProof(
 
 
 @pytest.mark.parametrize('proof', (proof_11, proof_31))
-def test_MerkleProof_deserialization_from_dict(proof):
+def test_Proof_deserialization_from_dict(proof):
     json_proof = proof.serialize()
-    deserialized = MerkleProof.deserialize(json_proof)
+    deserialized = Proof.deserialize(json_proof)
     assert proof.__dict__ == deserialized.__dict__
 
 
 @pytest.mark.parametrize('proof', (proof_11, proof_31))
-def test_MerkleProof_deserialization_from_text(proof):
-    json_proof = proof.toJSONtext()
-    deserialized = MerkleProof.deserialize(json_proof)
+def test_Proof_deserialization_from_text(proof):
+    json_proof = proof.toJSONText()
+    deserialized = Proof.deserialize(json_proof)
     assert proof.__dict__ == deserialized.__dict__
 
 
@@ -204,10 +204,10 @@ def test_serialization(proof, _serialization):
     assert proof.serialize() == _serialization
 
 
-proof_13 = MerkleProof.from_json(proof_11.toJSONtext())
-proof_23 = MerkleProof.from_json(proof_21.toJSONtext())
-proof_14 = MerkleProof.from_dict(json.loads(proof_11.toJSONtext()))
-proof_24 = MerkleProof.from_dict(json.loads(proof_21.toJSONtext()))
+proof_13 = Proof.fromJSONText(proof_11.toJSONText())
+proof_23 = Proof.fromJSONText(proof_21.toJSONText())
+proof_14 = Proof.from_dict(json.loads(proof_11.toJSONText()))
+proof_24 = Proof.from_dict(json.loads(proof_21.toJSONText()))
 
 @pytest.mark.parametrize('proof, generation',
                          ((proof_11, True), (proof_12, True), (proof_13, True), (proof_14, True),

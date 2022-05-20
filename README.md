@@ -1,6 +1,6 @@
 # pymerkle
 
-**Cryptographic library for Merkle-proofs**
+**Merkle-tree cryptography in Python**
 
 [![Build Status](https://travis-ci.com/fmerg/pymerkle.svg?branch=master)](https://travis-ci.com/github/fmerg/pymerkle)
 [![codecov](https://codecov.io/gh/fmerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/fmerg/pymerkle)
@@ -8,14 +8,9 @@
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 ![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)
 
-Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
-
-**DISCLAIMER**: This is currently a prototype. See [Security](#security) below for details.
-
-Pymerkle provides a Merkle-tree object capable of generating audit and
-consistency proofs along with the corresponding verification mechanism. It supports
-most combinations of hash functions and encoding schemas with defense against
-second-preimage attack enabled.
+Pymerkle provides a tree object capable of generating Merkle-proofs. It
+supports most combinations of hash functions and encoding types with defense
+against second-preimage attack enabled.
 
 ## Install
 
@@ -31,35 +26,29 @@ from pymerkle import MerkleTree
 
 tree = MerkleTree()
 
-
 # Populate tree with some records
-
 for i in range(7):
     tree.encrypt('%d-th record' % i)
 
 
 # Prove and verify encryption of 2nd record
-
 challenge = b'45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
 proof = tree.generate_audit_proof(challenge)
-assert proof.verify()
+proof.verify()
 
 
 # Save current tree state
-
 challenge = tree.root_hash
 
 
 # Append further leaves
-
 for i in range(7, 10):
     tree.encrypt('%d-th record' % i)
 
 
 # Prove and verify saved previous state
-
 proof = tree.generate_consistency_proof(challenge)
-assert proof.verify()
+proof.verify()
 ```
 
 ### Demo
@@ -91,7 +80,7 @@ to see how to perform second-preimage attack against the present implementation.
 Contrary to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
 specification for Merkle-trees, lonely leaves are not duplicated while the tree is growing.
 Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
-(see _Tree structure_ below). As a consequence, the present implementation should be
+As a consequence, the present implementation should be
 invulnerable to the DOS attack reported as
 [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459) (see also
 [here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)

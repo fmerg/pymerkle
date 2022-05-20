@@ -1,12 +1,11 @@
 """
-Provides the Merkle-proof object
+Provides the Merkle-proof object.
 """
 
 import os
 import json
 from time import time, ctime
 
-from pymerkle.exceptions import NoPathException, InvalidProof
 from pymerkle.hashing import HashEngine
 from pymerkle.utils import log10, generate_uuid
 
@@ -59,7 +58,14 @@ def stringify_path(path, encoding):
     return ''.join(pairs)
 
 
-class MerkleProof:
+class InvalidProof(Exception):
+    """
+    Raised when a Merkle-proof is found to be invalid.
+    """
+    pass
+
+
+class Proof:
     """
     :param provider: uuid of the provider tree
     :type provider: str
@@ -73,22 +79,6 @@ class MerkleProof:
     :type offset: int
     :param path: path of hashes
     :type path: list of (+1/-1, bytes)
-
-
-    .. note:: Merkle-proofs are intended to be the output of proof generation
-        mechanisms and not be manually constructed. Construction via
-        deserialization might though have practical importance, so that given
-        a proof *p* the following constructions are possible:
-
-        >>> from pymerkle import MerkleProof
-        >>>
-        >>> q = MerkleProof.from_dict(p.serialize())
-        >>> r = MerkleProof.from_json(p.toJSONtext())
-
-        or, more uniformly,
-
-        >>> q = MerkleProof.deserialize(p.serialize())
-        >>> r = MerkleProof.deserialize(p.toJSONtext())
     """
 
     def __init__(self, provider, hash_type, encoding, security, offset, path,
@@ -115,7 +105,7 @@ class MerkleProof:
 
     def compute_checksum(self):
         """
-        Computes the hash value resulting from the included path of hashes.
+        Computes the hash value resulting from the proof's path of hashes.
 
         :rtype: bytes
         """
@@ -131,10 +121,12 @@ class MerkleProof:
         Verifies that the hash value resulting from the included path of hashes
         coincides with the target.
 
+        :raises InvalidProof: if the proof fails to verify.
+
         :param target: [optional] target hash to compare against. Defaults to
             the commitment included in the proof.
         :type target: bytes
-        :returns: the verification result
+        :returns: the verification result (*True*) in case of success.
         :rtype: bool
         """
         target = self.commitment if target is None else target
@@ -216,7 +208,7 @@ class MerkleProof:
     @classmethod
     def from_dict(cls, proof):
         """
-        :param proof: serialized Merkle-proof as JSON dict
+        :param proof: serialized proof as JSON dict.
         :type proof: dict
         """
         kw = {}
@@ -235,22 +227,19 @@ class MerkleProof:
 
         return cls(**kw)
 
-    def toJSONtext(self, indent=4):
+    def toJSONText(self, indent=4):
         """
         Returns a JSON text with the proof's characteristics as key-value
         pairs.
 
-        .. note:: This is the minimum required information for recostruction
-            the tree from its serialization.
-
         :rtype: str
         """
-        return json.dumps(self.serialize(), sort_keys=True, indent=indent)
+        return json.dumps(self.serialize(), sort_keys=False, indent=indent)
 
     @classmethod
-    def from_json(cls, text):
+    def fromJSONText(cls, text):
         """
-        :param text: serialized Merkle-proof as JSON text
+        :param text: serialized proof as JSON text.
         :type text: str
         """
         return cls.from_dict(json.loads(text))
@@ -261,9 +250,24 @@ class MerkleProof:
         :params serialized: JSON dict or text, assumed to be the serialization
             of a Merkle-proof
         :type: dict or str
-        :rtype: MerkleProof
+        :rtype: Proof
+
+        .. note:: Merkle-proofs are intended to be the output of proof generation
+            mechanisms and not be manually constructed. Retrieval via
+            deserialization might though have practical importance, so that given
+            a proof ``p`` the following constructions are possible:
+
+            >>> from pymerkle import Proof
+            >>>
+            >>> q = Proof.from_dict(p.serialize())
+            >>> r = Proof.fromJSONText(p.toJSONText())
+
+            or, more uniformly,
+
+            >>> q = Proof.deserialize(p.serialize())
+            >>> r = Proof.deserialize(p.toJSONText())
         """
         if isinstance(serialized, dict):
             return cls.from_dict(serialized)
         elif isinstance(serialized, str):
-            return cls.from_json(serialized)
+            return cls.fromJSONText(serialized)

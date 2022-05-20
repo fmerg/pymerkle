@@ -1,11 +1,9 @@
 """
-Provides node classes for the Merkle-tree data structure.
+Provides nodes for the Merkle-tree data structure.
 """
 
 from abc import ABCMeta, abstractmethod
 import json
-
-from pymerkle.utils import NONE
 
 
 L_BRACKET_SHORT = '└─'
@@ -25,9 +23,9 @@ NODE_TEMPLATE = """
 
 class Node:
     """
-    Merkle-tree node.
+    Merkle-tree generic node.
 
-    :param digest: the digest to be stored by the node.
+    :param digest: the hash value to be stored by the node.
     :type digest: bytes
     :param parent: [optional] parent node. Defaults to *None*.
     :type parent: Node
@@ -35,8 +33,8 @@ class Node:
     :type left: Node
     :param right: [optional] right child. Defaults to *None*.
     :type right: Node
-    :returns: Node storing the digest of the concatenation of the
-        provided nodes' digests.
+    :returns: Node storing the digest of the concatenation of the provided
+        nodes' digests.
     :rtype: Node
     """
 
@@ -55,30 +53,81 @@ class Node:
 
     @property
     def digest(self):
+        """
+        The digest currently stored by the node.
+
+        :rtype: bytes
+        """
         return self.__digest
 
     @property
     def left(self):
+        """
+        The left child of the node.
+
+        .. note:: Rerturns *None* if the node has no left child.
+
+        :rtype: Node
+        """
         return self.__left
 
     @property
     def right(self):
+        """
+        The right child of the node.
+
+        .. note:: Rerturns *None* if the node has no right child.
+
+        :rtype: Node
+        """
         return self.__right
 
     @property
     def parent(self):
+        """
+        The parent of the node.
+
+        .. note:: Rerturns *None* if the node has no parent.
+        .. attention:: A prentless node is the root of the containing tree.
+
+        :rtype: Node
+        """
         return self.__parent
 
-    def set_left(self, left):
-        self.__left = left
+    def set_left(self, node):
+        """
+        Updates the left child of the present node.
 
-    def set_right(self, right):
-        self.__right = right
+        :param left: the new left child
+        :type left: Node
+        """
+        self.__left = node
 
-    def set_parent(self, parent):
-        self.__parent = parent
+    def set_right(self, node):
+        """
+        Updates the right child of the present node.
+
+        :param right: the new right child
+        :type right: Node
+        """
+        self.__right = node
+
+    def set_parent(self, node):
+        """
+        Updates the parent of the present node.
+
+        :param parent: the new parent
+        :type parent: Node
+        """
+        self.__parent = node
 
     def is_left_child(self):
+        """
+        Returns *True* if this is the left child of some other node within the
+        containing tree.
+
+        :rtype: bool
+        """
         parent = self.__parent
         if not parent:
             return False
@@ -86,6 +135,12 @@ class Node:
         return self == parent.left
 
     def is_right_child(self):
+        """
+        Returns *True* if this is the right child of some other node within the
+        containing tree.
+
+        :rtype: bool
+        """
         parent = self.__parent
         if not parent:
             return False
@@ -93,12 +148,21 @@ class Node:
         return self == parent.right
 
     def is_leaf(self):
+        """
+        Returns *True* if this is a leaf node in the containing tree.
+
+        .. note:: This is equivalent to being an instance of the *Leaf* class.
+
+        :rtype: bool
+        """
         return isinstance(self, Leaf)
 
     def get_checksum(self, encoding):
         """
-        Returns the hex string representing the digest stored by the present
-        node.
+        Returns the hex string representing hash value stored by the node.
+
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
 
         :rtype: str
         """
@@ -113,6 +177,8 @@ class Node:
         :type left: Node
         :param right: right child
         :type right: Node
+        :param hash_func: hash function to be used for digest computation
+        :type hash_func: function
         :returns: a node storing the digest of the concatenation of the
             provided nodes' digests.
         :rtype: Node
@@ -127,12 +193,12 @@ class Node:
     def ancestor(self, degree):
         """
         Detects and returns the node that is *degree* steps upwards within
-        the containing Merkle-tree.
+        the containing tree.
 
         .. note:: Returns *None* if the requested degree exceeds possibilities.
 
-        .. note:: Ancestor of degree 0 is the node itself, ancestor
-                of degree 1 is the node's parent, etc.
+        .. note:: Ancestor of degree 0 is the node itself, ancestor of degree
+            1 is the node's parent, etc.
 
         :param degree: depth of ancenstry
         :type degree: int
@@ -143,7 +209,7 @@ class Node:
             return self
 
         if not self.__parent:
-            return None
+            return
 
         return self.__parent.ancestor(degree - 1)
 
@@ -153,32 +219,32 @@ class Node:
         digests of its children.
 
         :param hash_func: hash function to be used for recalculation
-        :type hash_func: method
+        :type hash_func: function
         """
         self.__digest = hash_func(self.left.digest, self.right.digest)
 
     def __str__(self, encoding, level=0, indent=3, ignored=None):
         """
         Designed so that printing the node amounts to printing the subtree
-        having the node as root (similar to what is printed as console when
+        having that node as root (similar to what is printed at console when
         running the ``tree`` command of Unix based platforms).
 
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
         :param level: [optional] Defaults to 0. Must be left equal to the
-                default value when called externally by the user. Increased by
-                1 whenever the function is recursively called, in order to keep
-                track of depth while printing.
+            default value when called externally by the user. Increased by
+            1 whenever the function is recursively called in order to keep
+            track of depth while printing.
         :type level: int
-        :param indent: [optional] Defaults to 3. The horizontal depth at
-                    which each level of the tree will be indented with
-                    respect to the previous one. Increase to achieve
-                    better visibility of the tree's structure.
+        :param indent: [optional] Defaults to 3. The horizontal depth at which
+            each level of the tree will be indented with respect to the
+            previous one.
         :type indent: int
-        :param ignored: [optional] Defaults to the empty list. Must be left
-                    equal to the *default* value when called externally by the
-                    user. Augmented appropriately whenever the function is
-                    recursively invoked, in order to keep track of the
-                    positions where vertical bars should be omitted.
-        :type ignored: list of int
+        :param ignored: [optional] Defaults to empty. Must be left equal to the
+            *default* value when called externally by the user. Augmented
+            appropriately whenever the function is recursively invoked in order
+            to keep track of where vertical bars should be omitted.
+        :type ignored: list
         :rtype: str
 
         .. note:: Left children appear above the right ones.
@@ -208,8 +274,9 @@ class Node:
         out += f'{checksum}\n'
 
         if not self.is_leaf():
-            out += self.left.__str__(encoding, level + 1, indent, ignored)
-            out += self.right.__str__(encoding, level + 1, indent, ignored)
+            args = (encoding, level + 1, indent, ignored)
+            out += self.left.__str__(*args)
+            out += self.right.__str__(*args)
 
         return out
 
@@ -217,10 +284,12 @@ class Node:
         """
         Returns a JSON dictionary with the node's characteristics as key-value pairs.
 
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
         :rtype: dict
 
-        .. note:: The *parent* attribute is ommited from node serialization
-            in order for circular reference error to be avoided.
+        .. note:: The *parent* attribute is ommited from node serialization in
+            order for circular reference error to be avoided.
         """
         out = {'hash': self.get_checksum(encoding)}
 
@@ -236,7 +305,12 @@ class Node:
         """
         Returns a JSON text with the node's characteristics as key-value pairs.
 
+        :param encoding: encoding type of the containing tree.
+        :type encoding: str
         :rtype: str
+
+        .. note:: The *parent* attribute is ommited from node serialization in
+            order for circular reference error to be avoided.
         """
         return json.dumps(self.serialize(encoding), sort_keys=True, indent=indent)
 
@@ -246,10 +320,8 @@ class Leaf(Node):
     Merkle-tree leaf node.
 
     :param digest: the digest to be stored by the leaf.
-    :type digest: bytes or str
-    :param encoding: encoding type to be used when decoding the
-            digest stored by the leaf.
-    :type encoding: str
+    :type digest: bytes
+    :rtype: Leaf
     """
 
     def __init__(self, digest):
@@ -257,4 +329,15 @@ class Leaf(Node):
 
     @classmethod
     def from_record(cls, record, hash_func):
+        """
+        Creates a leaf storing the digest of the provided record under the
+        provided hash function.
+
+        :param record: byte string to encrypt
+        :type record: bytes
+        :param hash_func: hash function to use
+        :type hash_func: function
+        :returns: the created leaf
+        :rtype: Leaf
+        """
         return cls(hash_func(record))

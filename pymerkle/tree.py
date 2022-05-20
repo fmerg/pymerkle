@@ -1,5 +1,5 @@
 """
-Provides abstract interfaces and concrete implementations for Merkle-trees
+Provides abstract interfaces and concrete implementations of Merkle-trees.
 """
 
 import json
@@ -9,13 +9,11 @@ import sys
 import contextlib
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.hashing import HashEngine
-from pymerkle.prover import MerkleProof
-from pymerkle.utils import log_2, decompose, NONE, generate_uuid
+from pymerkle.hashing import HashEngine, UnsupportedParameter
+from pymerkle.prover import Proof
+from pymerkle.utils import log_2, decompose, generate_uuid
 from pymerkle.nodes import Node, Leaf
-from pymerkle.exceptions import NoPathException
 
-NONE_BAR = '\n └─[None]'
 
 TREE_TEMPLATE = """
     uuid      : {uuid}
@@ -32,9 +30,16 @@ TREE_TEMPLATE = """
 """
 
 
+class NoPathException(Exception):
+    """
+    Raised when no path of hashes exists for the provided parameters.
+    """
+    pass
+
+
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
-    Interface and abstract functionality for Merkle-trees.
+    Interface and abstract functionality of Merkle-trees.
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
@@ -48,8 +53,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def get_config(self):
         """
-        Returns the configuration of the Merkle-tree, containing the parameters
-        ``hash_type``, ``encoding`` and ``security``.
+        Returns the tree's configuration, consisting of ``hash_type``,
+        ``encoding`` and ``security``.
 
         :rtype: dict
         """
@@ -59,7 +64,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     def encrypt(self, record):
         """
         Creates a new leaf node with the digest of the provided record and
-        appends it to the Merkle-tree by restructuring it and recalculating the
+        appends it to the tree by restructuring it and recalculating the
         appropriate interior hashes.
 
         :param record: Record to encrypt.
@@ -139,13 +144,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
         :returns: proof object consisting of the above components
-        :rtype: MerkleProof
+        :rtype: Proof
         """
         params = self.get_config()
         params.update({'provider': self.uuid})
 
         commitment = self.root_hash if self else None
-        proof = MerkleProof(path=path, offset=offset, commitment=commitment,
+        proof = Proof(path=path, offset=offset, commitment=commitment,
                             **params)
         return proof
 
@@ -171,9 +176,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: hash value to be proven
         :type challenge: bytes
-        :rtype: MerkleProof
+        :rtype: Proof
         """
-        offset = -1
         path = []
         offset = self.detect_offset(challenge)
         try:
@@ -199,7 +203,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: acclaimed root-hash of some previous state of the tree.
         :type challenge: bytes
-        :rtype: MerkleProof
+        :rtype: Proof
 
         """
         offset = -1
@@ -212,6 +216,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                     sublength)
             except NoPathException:
                 continue
+
             if challenge == self.multi_hash(left_path, len(left_path) - 1):
                 offset = _offset
                 path = _path
@@ -221,7 +226,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     @abstractmethod
-    def includes(self, subhash):
+    def has_previous_state(self, checksum):
         """
         Define here how the tree should validate whether the provided hash
         value is the root-hash of some previous state.
@@ -294,7 +299,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not self:
             return False
 
-        return self.includes(other.root_hash)
+        return self.has_previous_state(other.root_hash)
 
     def __le__(self, other):
         """
@@ -330,7 +335,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         elif not self or self.root_hash == other.root_hash:
             return False
 
-        return self.includes(other.root_hash)
+        return self.has_previous_state(other.root_hash)
 
     def __lt__(self, other):
         """
@@ -355,7 +360,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         hash_type = self.hash_type.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
-        root_hash = self.root_hash.decode(self.encoding) if self else NONE
+        root_hash = self.root_hash.decode(self.encoding) if self else '[None]'
 
         kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
               'security': security, 'root_hash': root_hash,
@@ -375,7 +380,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         .. note:: Left children appear above the right ones.
         """
         if not self:
-            return NONE_BAR
+            return '\n └─[None]\n'
 
         return self.root.__str__(encoding=self.encoding, indent=indent)
 
@@ -406,7 +411,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Per line encryption of the provided file into the Merkle-tree.
 
         For each line of the provided file, successively create a leaf storing
-        its digest and append ii to the tree by restructuring it and
+        its digest and append it to the tree by restructuring it and
         realculating appropriate interior hashes.
 
         :param filepath: Relative path of the file to encrypt with respect to
@@ -422,7 +427,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         # Extract lines
         records = []
-        # No need to check anything, just load all lines
         while True:
 
             # TODO: Should we strip newline from content?
@@ -434,18 +438,18 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         nr_records = len(records)
         for count, record in enumerate(records):
-            self.encrypt(record)
-            sys.stdout.write('%d/%d lines\r' % (count + 1, nr_records))
-            sys.stdout.flush()
 
-        sys.stdout.write('\nEncryption complete\n')
+            self.encrypt(record)
+
+            sys.stdout.write('%d/%d lines   \r' % (count + 1, nr_records))
+            sys.stdout.flush()
 
     def serialize(self):
         """
         Returns a JSON dictionary with the Merkle-tree's characteristics along
         with the hash values stored by its node leaves.
 
-        .. note:: This is the minimum required information for recostruction
+        .. note:: This is the minimum required information for recostructing
             the tree from its serialization.
 
         :rtype: dict
@@ -455,12 +459,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return {**self.get_config(), 'hashes': hashes}
 
-    def toJSONtext(self, indent=4):
+    def toJSONText(self, indent=4):
         """
         Returns a JSON text with the Merkle-tree's characteristics along
         with the hash values stored by its node leaves.
 
-        .. note:: This is the minimum required information for recostruction
+        .. note:: This is the minimum required information for reconstructing
             the tree from its serialization.
 
         :rtype: str
@@ -502,15 +506,14 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         digests = map(lambda x: x.encode(tree.encoding), hashes)
 
         nr_hashes = len(hashes)
-        encoding = tree.encoding
-        append = tree.append_leaf
-        sys.stdout.write('\nFile content has been loaded\n')
+        sys.stdout.write('\nLoaded file content\n')
         for count, checksum in enumerate(hashes):
-            digest = checksum.encode(encoding)
-            append(Leaf(digest))
+
+            digest = checksum.encode(tree.encoding)
+            tree.append_leaf(Leaf(digest))
+
             sys.stdout.write('%d/%d leaves\r' % (count + 1, nr_hashes))
             sys.stdout.flush()
-        sys.stdout.write('\nTree has been retrieved\n')
 
         return tree
 
@@ -537,7 +540,11 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(hash_type, encoding, security)
 
     def __bool__(self):
+        """
+        Returns *False* if the tree is empty (that is, contains no nodes).
 
+        :rtype: bool
+        """
         return bool(self.leaves)
 
     @property
@@ -554,11 +561,10 @@ class MerkleTree(BaseMerkleTree):
         """
         Current number of nodes.
 
-        .. note:: Following the tree's growing strategy (cf. the
-            *append_leaf()*) method, appending a new leaf leads to the creation
-            of two new nodes. If *s(n)* denotes the total number of nodes with
-            respect to the number *n* of leaves, this is equivalent to the
-            recursive relation
+        .. note:: Following the tree's growing strategy (cf. *append_leaf()*),
+            appending a new leaf leads to the creation of two new nodes. If
+            *s(n)* denotes the total number of nodes with respect to the number
+            *n* of leaves, this is equivalent to the recursive relation
 
                     ``s(n + 1) = s(n) + 2, n > 1,    s(1) = 1, s(0) = 0``
 
@@ -614,7 +620,7 @@ class MerkleTree(BaseMerkleTree):
         .. note:: Returns *None* if the tree is empty.
         """
         if not self.__root:
-            return None
+            return
 
         return self.__root.digest
 
@@ -632,7 +638,7 @@ class MerkleTree(BaseMerkleTree):
         """
         Insert the provided leaf to the tree by restructuring it appropriately.
 
-        .. note:: This includes creation of possibly new internal nodes and
+        .. note:: This includes creation of exactly one new internal node and
             recalculation of hash values for some existing ones.
 
         :param leaf: leaf node to append
@@ -640,8 +646,6 @@ class MerkleTree(BaseMerkleTree):
         """
         if self:
             subroot = self.get_last_subroot()
-
-            # Assimilate new leaf
             self.leaves.append(leaf)
 
             if not subroot.parent:
@@ -680,12 +684,12 @@ class MerkleTree(BaseMerkleTree):
         :rtype: Leaf
         """
         if offset < 0:
-            return None
+            return
 
         try:
             leaf = self.leaves[offset]
         except IndexError:
-            return None
+            return
 
         return leaf
 
@@ -733,8 +737,8 @@ class MerkleTree(BaseMerkleTree):
 
     def detect_offset(self, digest):
         """
-        Detects the position of the leftmost leaf node storing the digest
-        counting from zero.
+        Detects the position of the leftmost leaf node storing the provided
+        hash value counting from zero.
 
         :type digest: bytes
         :returns: position of corresponding leaf counting from zero
@@ -746,9 +750,10 @@ class MerkleTree(BaseMerkleTree):
         :rtype: int
         """
         offset = -1
-        curr = 0
-        leaves = (leaf for leaf in self.leaves)
+
         # TODO: Make this loop a binary search
+        leaves = (leaf for leaf in self.leaves)
+        curr = 0
         while True:
 
             try:
@@ -792,7 +797,7 @@ class MerkleTree(BaseMerkleTree):
         subroots = lefts + rights
 
         if not rights or not lefts:
-            subroots = [(-1, _[1]) for _ in subroots]
+            subroots = [(-1, r[1]) for r in subroots]
             offset = len(subroots) - 1
         else:
             offset = len(lefts) - 1
@@ -850,20 +855,19 @@ class MerkleTree(BaseMerkleTree):
         :returns: root of the detected subtree
         :rtype: Leaf or Node
         """
-        try:
-            subroot = self.leaves[offset]
-        except IndexError:
-            return None
+        subroot = self.get_leaf(offset)
+        if not subroot:
+            return
 
         i = 0
         while i < height:
             curr = subroot.parent
 
             if not curr:
-                return None
+                return
 
             if curr.left is not subroot:
-                return None
+                return
 
             subroot = curr
             i += 1
@@ -873,7 +877,7 @@ class MerkleTree(BaseMerkleTree):
         i = 0
         while i < height:
             if curr.is_leaf():
-                return None
+                return
 
             curr = curr.right
             i += 1
@@ -887,28 +891,28 @@ class MerkleTree(BaseMerkleTree):
         sum up to the provided number.
 
         .. note:: Detected nodes are prepended with a sign (+1 or -1) carrying
-        information for generation of consistency proofs.
+            information for generation of consistency proofs.
 
         .. note:: Returns *None* if the provided number does not fulfill the
             prescribed conditions.
 
         :param sublength: non negative integer smaller than or equal to the
-        tree's current length, such that corresponding sequence of subroots
-        exists.
+            tree's current length, such that corresponding sequence of subroots
+            exists.
         :returns: Signed roots of the detected subtrees.
         :rtype: list of signed nodes
         """
         if sublength < 0:
-            return None
+            return
 
         principals = []
-        powers = decompose(sublength)
+        heights = decompose(sublength)
         offset = 0
-        for power in powers:
-            subroot = self.get_subroot(offset, power)
+        for height in heights:
+            subroot = self.get_subroot(offset, height)
 
             if not subroot:
-                return None
+                return
 
             parent = subroot.parent
 
@@ -918,7 +922,7 @@ class MerkleTree(BaseMerkleTree):
                 sign = +1 if parent.is_left_child() else -1
 
             principals.append((sign, subroot))
-            offset += 2 ** power
+            offset += 2 ** height
 
         if principals:
             # Modify last sign
@@ -926,13 +930,13 @@ class MerkleTree(BaseMerkleTree):
 
         return principals
 
-    def includes(self, subhash):
+    def has_previous_state(self, checksum):
         """
         Verifies that the provided parameter corresponds to a valid previous
         state of the Merkle-tree.
 
-        :param subhash: acclaimed root-hash of some previous state of the tree.
-        :type subhash: bytes
+        :param checksum: acclaimed root-hash of some previous state of the tree.
+        :type checksum: bytes
         :rtype: bool
         """
         result = False
@@ -944,7 +948,7 @@ class MerkleTree(BaseMerkleTree):
             path = [(-1, r[1].digest) for r in subroots]
 
             offset = len(path) - 1
-            if subhash == multi_hash(path, offset):
+            if checksum == multi_hash(path, offset):
                 result = True
                 break
 

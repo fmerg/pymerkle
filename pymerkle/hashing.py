@@ -1,10 +1,9 @@
 """
-Provides the underlying hashing engine for Merkle-trees and proof verification.
+Provides the underlying hashing machinery for encryption and proof
+verification.
 """
 
 import hashlib
-from pymerkle.exceptions import (UnsupportedHashType, UnsupportedEncoding,
-                                 EmptyPathException)
 
 
 SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
@@ -27,7 +26,21 @@ SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125'
 
 SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
                         'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', ]
-"""List of supported encding types"""
+"""List of supported encoding types"""
+
+
+class UnsupportedParameter(Exception):
+    """
+    Raised when a hashing engine with unsupported paramter is requested.
+    """
+    pass
+
+
+class EmptyPathException(Exception):
+    """
+    Raised when an empty path of hashes is fed to a hashing engine.
+    """
+    pass
 
 
 class HashEngine:
@@ -36,32 +49,29 @@ class HashEngine:
     verification.
 
     :param hash_type: [optional] Specifies the hash algorithm used by the
-            engine. Defaults to *sha256*.
+        engine. Defaults to *sha256*.
     :type hash_type: str
     :param encoding: [optional] Specifies the encoding algorithm used by the
-            engine before hashing. Defaults to *utf_8*.
+        engine before hashing. Defaults to *utf_8*.
     :type encoding: str
     :param security: [optional] Specifies whether defense against
-            second-preimage attack will be enabled. Defaults to *True*.
+        second-preimage attack will be enabled. Defaults to *True*.
     :type security: bool
 
-    :raises UnsupportedHashType: if the provided hash-type is not contained in
-                                 ``SUPPORTED_HASH_TYPES``.
-    :raises UnsupportedEncoding: if the provided encoding is not contained in
-                                 ``SUPPORTED_ENCODINGS``.
+    :raises UnsupportedParameter: if the provided hash-type or encoding is not
+        included in ``SUPPORTED_HASH_TYPES`` or ``SUPPORTED_ENCODINGS``
+        respectively.
     """
 
     def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
 
         _hash_type = hash_type.lower().replace('-', '_')
         if _hash_type not in SUPPORTED_HASH_TYPES:
-            raise UnsupportedHashType('Hash type %s is not supported'
-                                      % _hash_type)
+            raise UnsupportedParameter(f'{hash_type} is not supported')
 
         _encoding = encoding.lower().replace('-', '_')
         if _encoding not in SUPPORTED_ENCODINGS:
-            raise UnsupportedEncoding('Encoding type %s is not supported'
-                                      % _encoding)
+            raise UnsupportedParameter(f'{encoding} is not supported')
 
         self.hash_type = _hash_type
         self.algorithm = getattr(hashlib, self.hash_type)
@@ -77,12 +87,19 @@ class HashEngine:
 
     def concatenate(self, left, right=None):
         """
-        :param left: left member
+        Computes the concatenation of the provided byte strings.
+
+        If in security mode (as is default), the provided sequences are
+        prepended with ``0x01`` under the engine's encoding type. If the
+        secondf argument is omitted, then the provided one is prepended with
+        ``0x01``.
+
+        :param left: left sequence
         :type left: bytes
-        :param right: [optional] right member
+        :param right: [optional] right sequence
         :type right: bytes
-        :returns: the concatenation of the provided arguments as determined by
-            the encoding type and security mode of the present engine.
+        :returns: Concatenation of the provided sequences as determined by the
+           encoding and security mode of the present engine.
         :rtype: bytes
         """
         if right is None:
@@ -97,17 +114,20 @@ class HashEngine:
 
     def hash(self, left, right=None):
         """
-        Computes the digest of the provided arguments' concatenation. If only
-        one argument is passed in, then the disgest of this single argument
-        is computed.
+        Computes the digest of the concatenation of the probided byte strings
+        using the engine's configured hash algorithm. If *right* is omitted,
+        then the digest of *left* (prepended with ``0x00``) is computed.
 
-        :param left: left member of the pair to be hashed
-        :type left: str or bytes
-        :param right: [optional] right member of the pair to be hashed
+        .. note:: The exact nature of the concatenation is determined by the
+            encoding type and security mode of the engine (cf. the
+            *concatenate()* method).
+
+        :param left: left sequence
+        :type left: bytes
+        :param right: [optional] right sequence
         :type right: bytes
 
-        :returns: Digest of the entity occuring after concatenation of
-                provided arguments
+        :returns: Digest of the conatenation of the provided byte strings.
         :rtype: bytes
         """
         bytestring = self.concatenate(left, right)
@@ -118,9 +138,10 @@ class HashEngine:
 
     def multi_hash(self, path, offset):
         """
-        Repeatedly applies the *hash()* method over the provided iterable of
-        signed hashes, where signs indicate parenthetization and *offset* is
-        the starting position. Schematically speaking,
+        Computes the checksum which occurs after repetedly applying *hash()*
+        over the provided *path* of hashes, were signs indicate
+        parenthetization in terms of pairing and *offset* is the starting
+        position counting from zero. Schematically speaking,
 
         ``multi_hash([(1, a), (1, b), (-1, c), (-1, d)], 1)``
 
@@ -128,23 +149,24 @@ class HashEngine:
 
         ``hash(hash(a, hash(b, c)), d)``.
 
-        .. note:: If the provided iterable contains only one element, then this
-            single hash is returned (without sign), that is,
+        .. warning:: Make sure that the combination of signs corresponds to
+            a valid parenthetization.
 
-                 ``multi_hash(((+/-1, a)), 0)``
-
-            equals ``a`` (no hashing over single elements)
-
-        .. warning:: When using this method, make sure that the combination of
-                signs corresponds indeed to a valid parenthetization.
-
-        :param path: sequence of signed hashes
+        :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
-        :param offset: starting position for hashing
+        :param offset: starting position of hashing
         :type offset: int
         :rtype: bytes
 
-        :raises EmptyPathException: if the provided sequence was empty
+        :raises EmptyPathException: if the provided path of hashes is empty.
+
+        .. note:: If the provided path of hashes contains only one element,
+            then this single hash is returned without sign; schematically
+            speaking,
+
+                 ``multi_hash(((+/-1, a)), 0) = a``
+
+            (no hashing of single elements).
         """
         path = list(path)
 

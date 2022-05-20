@@ -72,19 +72,19 @@ serializations = [
 ]
 
 
-@pytest.mark.parametrize('tree, serialization', serializations)
-def test_serialization(tree, serialization):
-    assert tree.serialize() == serialization
+@pytest.mark.parametrize('tree, serialized', serializations)
+def test_serialization(tree, serialized):
+    assert tree.serialize() == serialized
 
 @pytest.mark.parametrize('tree, serialized', serializations)
-def test_tree_toJSONtext(tree, serialized):
-    assert tree.toJSONtext() == json.dumps(serialized, indent=4, sort_keys=True)
+def test_tree_toJSONText(tree, serialized):
+    assert tree.toJSONText() == json.dumps(serialized, indent=4, sort_keys=True)
 
 
 stringifications = [
     (
         empty_tree,
-        '\n └─[None]'
+        '\n └─[None]\n'
     ),
     (
         one_leaf_tree,
@@ -101,6 +101,6 @@ stringifications = [
 ]
 
 
-@pytest.mark.parametrize('tree, stringification', stringifications)
-def test___str__(tree, stringification):
-    assert tree.__str__() == stringification
+@pytest.mark.parametrize('tree, stringified', stringifications)
+def test___str__(tree, stringified):
+    assert tree.__str__() == stringified
