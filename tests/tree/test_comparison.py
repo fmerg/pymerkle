@@ -7,8 +7,8 @@ import os
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import SUPPORTED_HASH_TYPES
-from tests.conftest import SUPPORTED_ENCODINGS
 
+from tests.conftest import option, resolve_encodings
 
 # Files to encrypt
 child_dir = os.path.dirname(os.path.dirname(__file__))
@@ -18,7 +18,7 @@ RED_HAT_LINUX_log = os.path.join(child_dir, 'logdata/RED_HAT_LINUX_log')
 trees_and_subtrees = []
 for security in (True, False):
     for hash_type in SUPPORTED_HASH_TYPES:
-        for encoding in SUPPORTED_ENCODINGS:
+        for encoding in resolve_encodings(option):
             config = {'hash_type': hash_type, 'encoding': encoding,
                       'security': security}
             tree = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e',

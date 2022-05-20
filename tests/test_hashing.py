@@ -6,8 +6,8 @@ import hashlib
 
 from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES, \
     EmptyPathException, UnsupportedParameter
-from tests.conftest import SUPPORTED_ENCODINGS
 
+from tests.conftest import option, resolve_encodings
 
 message = 'oculusnonviditnecaurisaudivit'
 
@@ -17,7 +17,7 @@ engines__single_args = []
 
 for security in (True, False):
     for hash_type in SUPPORTED_HASH_TYPES:
-        for encoding in SUPPORTED_ENCODINGS:
+        for encoding in resolve_encodings(option):
             config = {'hash_type': hash_type, 'encoding': encoding,
                       'security': security}
             engine = HashEngine(**config)

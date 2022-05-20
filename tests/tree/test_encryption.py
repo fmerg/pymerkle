@@ -3,13 +3,14 @@ import os
 import json
 from pymerkle import MerkleTree
 from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
-from tests.conftest import SUPPORTED_ENCODINGS
+
+from tests.conftest import option, resolve_encodings
 
 
 trees_engines = []
 for security in (True, False):
     for hash_type in SUPPORTED_HASH_TYPES:
-        for encoding in SUPPORTED_ENCODINGS:
+        for encoding in resolve_encodings(option):
             config = {'hash_type': hash_type, 'encoding': encoding,
                       'security': security}
 

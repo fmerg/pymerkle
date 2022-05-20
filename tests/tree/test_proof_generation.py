@@ -6,7 +6,8 @@ import pytest
 
 from pymerkle import MerkleTree
 from pymerkle.hashing import SUPPORTED_HASH_TYPES
-from tests.conftest import SUPPORTED_ENCODINGS
+
+from tests.conftest import option, resolve_encodings
 
 
 # Trees setup
@@ -16,7 +17,7 @@ trees = []
 for security in (True, False):
     for length in range(0, MAX_LENGTH + 1):
         for hash_type in SUPPORTED_HASH_TYPES:
-            for encoding in SUPPORTED_ENCODINGS:
+            for encoding in resolve_encodings(option):
                 config = {'hash_type': hash_type, 'encoding': encoding,
                           'security': security}
                 tree = MerkleTree.init_from_records(

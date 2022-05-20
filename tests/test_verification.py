@@ -9,17 +9,17 @@ import json
 from pymerkle.hashing import SUPPORTED_HASH_TYPES
 from pymerkle.prover import InvalidProof
 from pymerkle import MerkleTree
-from tests.conftest import SUPPORTED_ENCODINGS
+
+from tests.conftest import option, resolve_encodings
 
 
 # Merkle-proof verification
 
-def test_verify_proof_with_commitment():
+def test_verify_proof_with_target():
     tree = MerkleTree.init_from_records(
         *[f'{i}-th record' for i in range(666)])
     proof = tree.generate_audit_proof(tree.hash('100-th record'))
-    commitment = proof.commitment
-    assert proof.verify() is proof.verify(target=commitment)
+    assert proof.verify() is proof.verify(target=proof.commitment)
 
 
 # Trees setup
@@ -31,7 +31,7 @@ trees = []
 for security in (True, False):
     for length in range(1, MAX_LENGTH + 1):
         for hash_type in SUPPORTED_HASH_TYPES:
-            for encoding in SUPPORTED_ENCODINGS:
+            for encoding in resolve_encodings(option):
                 config = {'hash_type': hash_type, 'encoding': encoding,
                           'security': security}
                 tree = MerkleTree.init_from_records(
