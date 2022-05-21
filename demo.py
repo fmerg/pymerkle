@@ -10,32 +10,26 @@ if __name__ == '__main__':
 
 
     # Populate tree with some records
+    for record in [b'foo', b'bar', b'baz', b'qux', b'quux']:
+        tree.encrypt(record)
 
-    for i in range(7):
-        tree.encrypt('%d-th record' % i)
     print(repr(tree))
 
-
-    # Prove and verify encryption of 2nd record
-
-    challenge = b'45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
+    # Prove and verify encryption of `bar`
+    challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
     proof = tree.generate_audit_proof(challenge)
     print(proof)
     assert proof.verify()
 
 
     # Save current tree state
-
-    challenge = tree.root_hash
-
+    state = tree.root_hash
 
     # Append further leaves
+    for record in [b'corge', b'grault', b'garlpy']:
+        tree.encrypt(record)
 
-    for i in range(7, 10):
-        tree.encrypt('%d-th record' % i)
-
-
-    # Prove and verify saved previous state
-    proof = tree.generate_consistency_proof(challenge)
+    # Prove and verify saved state
+    proof = tree.generate_consistency_proof(challenge=state)
     print(proof)
     assert proof.verify()
