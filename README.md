@@ -20,7 +20,7 @@ pip3 install pymerkle
 
 ## Usage
 
-```python3
+```python
 from pymerkle import MerkleTree
 
 
