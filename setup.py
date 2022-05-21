@@ -14,13 +14,13 @@ current_dir = os.path.abspath(os.path.dirname(__file__))
 
 try:
   with io.open(os.path.join(current_dir, "requirements.txt"),
-    encoding="utf-8") as __file:
-    install_requires = [_.strip() for _ in __file.readlines()]
+    encoding="utf-8") as f:
+    install_requires = [_.strip() for _ in f.readlines()]
 except FileNotFoundError:
-    install_requires = ["tqdm>=4.28.1",]
+    install_requires = []
 
-with open("README.md", 'r') as __file:
-    long_description = __file.read()
+with open("README.md", 'r') as f:
+    long_description = f.read()
 
 def main():
     setup(

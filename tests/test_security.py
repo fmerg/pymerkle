@@ -1,6 +1,6 @@
 """
 Performs 2nd-preimage attack against Merkle-trees of all possible combinations of
-hash-type, encoding-type and raw-bytes mode, for *both* possible security modes
+hash and encoding types, for *both* possible security modes.
 
 Attack should succeed *only* when the tree's security mode is deactivated, that
 is, *iff* the ``.security`` attribute has been set to ``False`` at construction
@@ -26,48 +26,36 @@ Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.hashing import HASH_TYPES
-from tests.conftest import ENCODINGS
+from pymerkle.hashing import SUPPORTED_HASH_TYPES
+
+from tests.conftest import option, resolve_encodings
+
 
 trees = []
-for raw_bytes in (True, False):
-    for security in (True, False):
-        for hash_type in HASH_TYPES:
-            for encoding in ENCODINGS:
-                trees.append(
-                    MerkleTree('a', 'b', 'c', 'd',            # original records
-                               hash_type=hash_type,
-                               encoding=encoding,
-                               raw_bytes=raw_bytes,
-                               security=security
-                               )
-                )
+for security in (True, False):
+    for hash_type in SUPPORTED_HASH_TYPES:
+        for encoding in resolve_encodings(option):
+            config = {'hash_type': hash_type, 'encoding': encoding,
+                      'security': security}
+            tree = MerkleTree.init_from_records('a', 'b', 'c', 'd',
+                                                config=config)
+            trees.append(tree)
 
 
-@pytest.mark.parametrize("original_tree", trees)
-def test_defense_against_second_preimage_attack(original_tree):
+@pytest.mark.parametrize('original', trees)
+def test_defense_against_second_preimage_attack(original):
 
     # Construct forged record
-    leaves = original_tree.leaves
-    encoding = original_tree.encoding
-    if original_tree.raw_bytes:
-        F = leaves[2].digest
-        G = leaves[3].digest
-    else:
-        F = leaves[2].digest.decode(encoding)
-        G = leaves[3].digest.decode(encoding)
-    forged_record = F + G
+    F = original.leaves[2].digest
+    G = original.leaves[3].digest
+    forged = F + G
 
     # Attacker's tree
-    attacker_tree = MerkleTree('a', 'b', forged_record,         # forged records
-                               hash_type=original_tree.hash_type,
-                               encoding=original_tree.encoding,
-                               raw_bytes=original_tree.raw_bytes,
-                               security=original_tree.security
-                               )
+    attacker = MerkleTree.init_from_records('a', 'b', forged,
+                                            config=original.get_config())
 
     # Check if the attacker has replicated the original root-hash
-    if original_tree.security:
-        assert original_tree.rootHash != attacker_tree.rootHash
+    if original.security:
+        assert original.root_hash != attacker.root_hash
     else:
-        assert original_tree.rootHash == attacker_tree.rootHash
+        assert original.root_hash == attacker.root_hash

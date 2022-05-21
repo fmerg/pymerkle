@@ -3,34 +3,27 @@ import os
 import json
 import glob
 
-from pymerkle.core import MerkleTree
-from pymerkle.exceptions import WrongJSONFormat
+from pymerkle import MerkleTree
 
-
-exports_dir = os.path.join(os.path.dirname(__file__), 'exports')
 
 # Clean exports dir before running tests
-for f in glob.glob(os.path.join(exports_dir, '*.json')):
+exports_dir = os.path.join(os.path.dirname(__file__), 'exports')
+for f in glob.glob(os.path.join(exports_dir, '*')):
     os.remove(f)
-
-# Make tree and export
-tree = MerkleTree(*['%d-th record' % i for i in range(12)])
-export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
-tree.export(filepath=export_path)
-
-# Load tree from export file
-with open(export_path, 'rb') as f:
-    exported_version = json.load(f)
 
 
 def test_export():
-    assert exported_version == {
-        "header": {
-            "encoding": "utf_8",
-            "hash_type": "sha256",
-            "raw_bytes": True,
-            "security": True
-        },
+    tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
+    export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
+    tree.export(filepath=export_path)
+
+    with open(export_path, 'rb') as f:
+        exported = json.load(f)
+
+    assert exported == {
+        "encoding": "utf_8",
+        "hash_type": "sha256",
+        "security": True,
         "hashes": [
             "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
             "3dbbc4898d7e909de7fc7bb1c0af36feba78abc802102556e4ea52c28ccb517f",
@@ -48,17 +41,9 @@ def test_export():
     }
 
 
-def test_loadFromFile():
-    assert tree.serialize() == MerkleTree.loadFromFile(export_path).serialize()
+def test_fromJSONFile():
+    tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
+    export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
+    tree.export(filepath=export_path)
 
-
-def test_WrongJSONFormat_with_loadFromFile():
-    parent_dir = os.path.dirname(os.path.dirname(__file__))
-    with pytest.raises(WrongJSONFormat):
-        MerkleTree.loadFromFile(
-            os.path.join(
-                parent_dir,
-                'json_files',
-                'sample.json'
-            )
-        )
+    assert tree.serialize() == MerkleTree.fromJSONFile(export_path).serialize()

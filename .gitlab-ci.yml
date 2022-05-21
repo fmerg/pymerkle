@@ -1,0 +1,28 @@
+stages:
+  - test
+  - deploy
+
+test lib:
+  image: "python:3.10-bullseye"
+  stage: test
+  interruptible: true
+  before_script:
+    - apt-get update
+    - python --version
+    - pip3 install -r requirements-dev.txt
+  script:
+    - ./test.sh
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+
+pages:
+  image: "python:3.10-bullseye"
+  stage: deploy
+  script:
+    - pip3 install -r requirements-doc.txt
+    - ./build-docs.sh
+    - mv docs/target/build/html/ public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - feature-refactor

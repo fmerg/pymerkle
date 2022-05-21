@@ -1,6 +1,6 @@
 # pymerkle
 
-**Cryptographic library for Merkle-proofs**
+**Merkle-tree cryptography**
 
 [![Build Status](https://travis-ci.com/fmerg/pymerkle.svg?branch=master)](https://travis-ci.com/github/fmerg/pymerkle)
 [![codecov](https://codecov.io/gh/fmerg/pymerkle/branch/master/graph/badge.svg)](https://codecov.io/gh/fmerg/pymerkle)
@@ -8,13 +8,8 @@
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 ![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)
 
-Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
-
-**DISCLAIMER**: This is currently a prototype. See [Security](#security) below for details.
-
-Pymerkle provides a binary balanced Merkle-tree capable of generating audit and
-consistency proofs along with the corresponding verifier. It supports almost
-all combinations of hash functions and encoding schemas, with defense against
+This library provides a Merkle-tree implementation in Python. It supports most
+combinations of hash functions and encoding types with defense against
 second-preimage attack enabled.
 
 ## Install
@@ -25,32 +20,36 @@ pip3 install pymerkle
 
 ## Usage
 
-```python3
-from pymerkle import MerkleTree, validateProof
+```python
+from pymerkle import MerkleTree
 
 tree = MerkleTree()
 
-for i in range(7):
-    tree.encryptRecord('%d-th record' % i)
+# Populate tree with some records
+for record in [b'foo', b'bar', b'baz', b'qux', b'quux']:
+    tree.encrypt(record)
 
-challenge = {
-    'checksum': '45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
-}
+# Prove and verify encryption of `bar`
+challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
+proof = tree.generate_audit_proof(challenge)
+proof.verify()
 
-proof = tree.merkleProof(challenge)
-assert validateProof(proof)
-```
+# Save current tree state
+state = tree.get_root_hash()
 
-### Demo
+# Append further leaves
+for record in [b'corge', b'grault', b'garlpy']:
+    tree.encrypt(record)
 
-```bash
-python3 demo.py
+# Prove and verify saved state
+proof = tree.generate_consistency_proof(challenge=state)
+proof.verify()
 ```
 
 ## Security
 
-Pymerkle is a prototype requiring security review, so use at your own risk for the moment.
-However, some steps have been made to this direction:
+This is currently a prototype requiring security review, so use at your own risk
+for the moment. However, some steps have been made to this direction:
 
 ### Defense against second-preimage attack
 
@@ -58,7 +57,7 @@ This consists in the following standard technique:
 
 - Upon computing the hash of a leaf, prepend its record with `0x00`.
 - Upon computing the hash of an interior node, prepend the hashes of its
-  children with `0x01`.
+  parents with `0x01`.
 
 Refer to
 [`test_security.py`](https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py)
@@ -67,33 +66,25 @@ to see how to perform second-preimage attack against the present implementation.
 
 ### Defense against CVE-2012-2459 DOS
 
-In contrast to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
-specification for Merkle-trees, lonely leaves are not duplicated in order for
-the tree to remain binary. Instead, creating bifurcation nodes at the
-rightmost branch allows the tree to remain both binary and balanced upon any update
-(see _Tree structure_ below). As a consequence, the present implementation
-should be invulnerable to the DOS attack reported as
+Contrary to the [bitcoin](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
+specification for Merkle-trees, lonely leaves are not duplicated while the tree is growing.
+Instead, when appending new leaves, a bifurcation node is created at the rightmost branch
+As a consequence, the present implementation should be
+invulnerable to the DOS attack reported as
 [CVE-2012-2459](https://nvd.nist.gov/vuln/detail/CVE-2012-2459) (see also
 [here](https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp)
 for explanation).
 
 ## Tree structure
 
-The tree remains always binary balanced, with all interior nodes having exacrly
-two children. In particular, upon appending a block of new leaves, instead of
-promoting a lonely leaf to the next level or duplicating it, a bifurcation node
-is created so that trees with the same number of leaves have identical structure
-independently of their growing strategy. This is further important for
-
-- efficient generation of consistency proofs (based on additive decompositions in
-  decreasing powers of 2).
-- efficient recalculation of the root-hash after appending a new leaf, since only
-  the hashes at the tree's right-most branch need be recalculated.
-- storage, since the height as well as total number of nodes with respect
-  to the tree's length is constrained to the minimum.
-
-The topology turns out to be identical with that of a binary _Sekura tree_,
-depicted in Section 5.4 of [this](https://keccak.team/files/Sakura.pdf) paper.
+When appending a new leaf node, instead of promoting lonely leaves to the
+next level or duplicating them, an internal bifurcation node is being created.
+This is important for efficient recalculation of the root hash (since only the
+hash values at the tree's rightmost branch need be recalculated) and efficient
+generation of consistency paths (based on additive decompositions in decreasing
+powers of 2). The topology turns out to be identical
+with that of a binary _Sakura tree_, depicted in Section 5.4 of
+[this](https://keccak.team/files/Sakura.pdf) paper.
 
 ## Development
 
@@ -108,9 +99,8 @@ pip3 install -r requirements-dev.txt
 ```
 
 to run tests against the limited set of encoding schemas UTF-8, UTF-16 and
-UTF-32 (108 combinations in total). To run tests against all possible hash
-types, encoding schemas, raw-bytes modes and security modes (3240 combinations
-in total), run
+UTF-32. To run tests against all possible hash types, encoding schemas
+and security modes, run
 
 ```commandline
 ./test.sh --extended

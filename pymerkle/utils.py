@@ -1,26 +1,34 @@
-"""Provides standalone utilities invoked across the *pymerkle* library
+"""
+Utilities
 """
 
 from math import log, log10
+import uuid
 
 
-NONE = '[None]'
+def generate_uuid():
+    """
+    :returns: UUID1 universal identifier
+    :rtype: str
+    """
+    return str(uuid.uuid1())
 
 
 def log_2(num):
-    """Computes and returns the base 2 logarithm of the provided number
-    (i.e., the greatest power of 2 equal to or smaller than *num*)
+    """
+    Computes the base 2 logarithm of the provided value (i.e., the greatest
+    power of 2 equal to or smaller than *num*).
 
-    .. note:: Given any *balanced* binary tree, whose number of leaves
-        equals the provided argument, this function returns the tree's
-        height (i.e., the depth of its left-most branch)
+    .. note:: Given a left-balanced binary tree whose number of leaves equals
+        the provided value, this function returns the tree's height (i.e.,
+        the depth of its leftmost branch).
 
-    :param num: the number whose logarithm is to be computed
+    .. note:: By convention, this function returns 0 for the zero argument.
+
+    :param num: the integer whose logarithm is to compute
     :type num: int
-    :returns: the computed logarithm
+    :returns: base 2 logarithm of the provided integer
     :rtype: int
-
-    .. note:: By convention, it returns 0 for the zero argument
 
     :raises ValueError: for arguments smaller than zero
     """
@@ -28,13 +36,17 @@ def log_2(num):
 
 
 def decompose(num):
-    """Additive decomposition in decreasing powers of 2
+    """
+    Additive decomposition in decreasing powers of 2.
 
     Given a positive integer uniquely decomposed as
 
     ``2 ^ p_m + ... + 2 ^ p_1, p_m > ... > p_1 >= 0``
 
-    then the tuple *(p_m, ..., p_1)* is returned
+    then the sequence ``(p_m, ..., p_1)`` is returned.
+
+    .. note:: Returns the nonsensical empty list for arguments equal to or
+        smaller than zero.
 
     :Example:
 
@@ -42,46 +54,16 @@ def decompose(num):
     True
     >>>
     >>> decompose(45)
-    (5, 3, 2, 0)
+    [5, 3, 2, 0]
 
-    :param num: the number to be decomposed
+    :param num: the integer to decompose
     :type num: int
     :returns: powers of 2 in decreasing order
-    :rtype: tuple of integers
-
-    .. note:: Returns the nonsensical empty tuple for
-        arguments equal to or smaller than zero
+    :rtype: list
     """
     powers = []
-    append = powers.append
     while num > 0:
         power = log_2(num)
-        append(power)
+        powers += [power]
         num -= 2 ** power
-    return tuple(powers)
-
-
-def stringify_path(signed_hashes, encoding):
-    """Returns a stringification of the provided sequence of signed hashes
-
-    .. note:: Printed hashes occure after decoding the given ones in
-        accordance under the provided encoding type
-
-    :param signed_hashes: sequence of signed hashes
-    :type signed_hashes: tuple of (+1/-1, bytes) or (+1/-1, str)
-    :param encoding: encoding type to be used for decoding
-    :type encoding: str
-    :rtype: str
-    """
-    def order_of_magnitude(num): return int(log10(num)) if num != 0 else 0
-    def get_with_sign(num): return f'{"+" if num >= 0 else ""}{num}'
-    stringified_pairs = []
-    append = stringified_pairs.append
-    for i in range(len(signed_hashes)):
-        pair = signed_hashes[i]
-        append('\n%s[{i}]%s{sign}%s{hash}'
-               .format(i=i, sign=get_with_sign(pair[0]),
-                       hash=pair[1].decode(encoding=encoding)
-                       if not isinstance(pair[1], str) else pair[1])
-               % ((7 - order_of_magnitude(i)) * ' ', 3 * ' ', 3 * ' '))
-    return ''.join(stringified_pairs)
+    return powers

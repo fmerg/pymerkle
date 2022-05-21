@@ -1,26 +1,35 @@
 """pymerkle demo"""
 
-from pymerkle import MerkleTree, validateProof
+from pymerkle import MerkleTree
 
 
 if __name__ == '__main__':
 
-    tree = MerkleTree(hash_type='sha256', encoding='utf-8', raw_bytes=True,
-            security=True)
 
-    for i in range(7):
-        tree.encryptRecord('%d-th record' % i)
+    tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
+
+
+    # Populate tree with some records
+    for record in [b'foo', b'bar', b'baz', b'qux', b'quux']:
+        tree.encrypt(record)
 
     print(repr(tree))
 
-    challenge = {
-        'checksum': '45c44059cf0f5a447933f57d851a6024ac78b44a41603738f563bcbf83f35d20'
-    }
-
-    proof = tree.merkleProof(challenge)
+    # Prove and verify encryption of `bar`
+    challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
+    proof = tree.generate_audit_proof(challenge)
     print(proof)
+    assert proof.verify()
 
-    assert validateProof(proof)
 
-    receipt = validateProof(proof, get_receipt=True)
-    print(receipt)
+    # Save current tree state
+    state = tree.get_root_hash()
+
+    # Append further leaves
+    for record in [b'corge', b'grault', b'garlpy']:
+        tree.encrypt(record)
+
+    # Prove and verify saved state
+    proof = tree.generate_consistency_proof(challenge=state)
+    print(proof)
+    assert proof.verify()
