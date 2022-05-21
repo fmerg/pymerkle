@@ -1,13 +1,13 @@
-Merkle proof
-++++++++++++
+Merkle proofs
++++++++++++++
 
 By *Merkle-proof* is meant a path of hashes contained in a Merkle-tree and a
 rule for combining them into a single hash value, expected to coincide with the
 root-hash at the moment of path generation; the root-hash is included as
 commitment on behalf of the tree against some challenge posed by an interested party.
-What is actually proven in case of verification (that is, when the path of hashes
-leads to the commitment) depends on the original challenge. Interested parties may
-act as auditors, when willing to verify that a certain piece of data has been
+What is actually proven in case of successful verification (that is, when the path of
+hashes leads to the commitment) depends on the original challenge. Interested parties
+may act as auditors, when willing to verify that a certain piece of data has been
 encrypted into the tree, or monitors, when their concern is to verify that
 the current state of the tree is a valid subsequent state of a previous one. In
 the first case, we have an *audit proof* for verifying data integrity; in the

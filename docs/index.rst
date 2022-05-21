@@ -12,13 +12,13 @@ pymerkle
    :target: https://pypi.org/project/pymerkle/
 .. |Python >= 3.6| image:: https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg
 
-**********************************
-Merkle-tree cryptography in Python
-**********************************
+************************
+Merkle-tree cryptography
+************************
 
-Pymerkle provides a tree object capable of generating Merkle-proofs. It
-supports most combinations of hash functions and encoding types with defense
-against second-preimage attack enabled.
+This library provides a Merkle-tree implementation in Python. It supports most
+combinations of hash functions and encoding types with defense against
+second-preimage attack enabled.
 
 Installation
 ************
@@ -47,8 +47,8 @@ Usage
 Security
 ********
 
-Pymerkle is a prototype requiring security review, so use at your own risk for the moment.
-However, some steps have been made to this direction:
+This is currently a prototype requiring security review, so use at your own risk
+for the moment. However, some steps have been made to this direction:
 
 Defense against second-preimage attack
 ======================================
@@ -74,16 +74,13 @@ the present implementation should be invulnerable to the DOS attack reported as
 Tree structure
 **************
 
-When appending a block of new leaves, instead of promoting a lonely leaf to the
-next level or duplicating it, a bifurcation node is created so that trees with
-the same number of leaves have identical structure independently of their
-growing strategy. This is important for efficient generation of consistency proofs
-(based on additive decompositions in decreasing powers of 2) and efficient
-recalculation of the root-hash (since only the hashes at the tree's rightmost
-branch need be recalculated upon any appending new leaves).
-
-The topology turns out to be identical with that of a binary *Sakura
-tree*, depicted in Section 5.4 of `this`_ paper.
+When appending a new leaf node, instead of promoting lonely leaves to the
+next level or duplicating them, an internal bifurcation node is being created.
+This is important for efficient recalculation of the root hash (since only the
+hash values at the tree's rightmost branch need be recalculated) and efficient
+generation of consistency paths (based on additive decompositions in decreasing
+powers of 2). The topology turns out to be identical
+with that of a binary *Sakura tree*, depicted in Section 5.4 of `this`_ paper.
 
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
@@ -95,7 +92,7 @@ tree*, depicted in Section 5.4 of `this`_ paper.
     :maxdepth: 0
     :hidden:
 
-    usage
+    menu
 
 Indices and tables
 ******************

@@ -3,5 +3,5 @@
     :titlesonly:
 
     Merkle tree <tree>
-    Merkle proof <proof>
-    API Reference <modules>
+    Merkle proofs <proof>
+    Reference <modules>

@@ -1,5 +1,6 @@
 Merkle tree
 +++++++++++
+
 .. code-block:: python
 
     from pymerkle import MerkleTree
@@ -20,9 +21,8 @@ The above construction is equivalent to
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 
 
-The ``hash_type`` attribute refers to the underlying hash algorithm
-(imported from `hashlib`_) and ``encoding`` determines the encoding before
-hashing. For example,
+The ``hash_type`` attribute refers to the underlying hash algorithm and
+``encoding`` determines the encoding before hashing. For example,
 
 .. code-block:: python
 
@@ -31,8 +31,6 @@ hashing. For example,
 creates a SHA512/UTF-32 Merkle-tree in security mode. If the provided hash type or
 encoding parameter is not among the supported ones, then ``UnsupportedParameter``
 is raised and the construction is aborted.
-
-.. _hashlib: https://docs.python.org/3.6/library/hashlib.html
 
 The ``security`` parameter refers to the tree's ability of defending against
 second-preimage attacks. If in default mode (enabled), the tree hashing
@@ -44,88 +42,27 @@ hexadecimals under the tree's configured encoding type.
       purposes) by choosing ``security=False``.
 
 
-Attributes
-----------
-
-:hash_type:
-        (*str*) - hash algorithm
-
-:encoding:
-        (*str*) - encoding type
-
-:security:
-        (*bool*) - defense against second-preimage attack
-
-:uuid:
-        (*str*) - time based unique identifier
-
-Properties
-----------
-
-:length:
-       (*int*) - current number of leaves
-
-:height:
-        (*int*) - current tree height
-
-:size:
-       (*int*) - current number of nodes
-
-
 Invoking a Merkle-tree from the Python interpreter displays the above
 characteristics:
 
 .. code-block:: python
 
-        >>> tree = MerkleTree()
-        >>> tree
-
-            uuid      : ba378618-ef80-11e9-9254-701ce71deb6a
-
-            hash-type : SHA256
-            encoding  : UTF-8
-            security  : ACTIVATED
-
-            root-hash : [None]
-
-            length    : 0
-            size      : 0
-            height    : 0
-
-        >>>
-
-Initial records
----------------
-
-One can provide an arbitrary number of records to be encrypted at construction
-as follows:
-
-.. code-block:: python
-
-    >>> config = {'hash_type': 'sha256', 'encoding': 'utf-8', 'security': True}
-    >>>
-    >>> records = [b'first_record', b'second_record', b'third_record']
-    >>>
-    >>> tree = MerkleTree.init_from_records(*records, config=config)
+    >>> tree = MerkleTree()
     >>> tree
 
-        uuid      : 75ecc98a-e609-11e9-9e4a-701ce71deb6a
+        uuid      : ba378618-ef80-11e9-9254-701ce71deb6a
 
         hash-type : SHA256
         encoding  : UTF-8
         security  : ACTIVATED
 
-        root-hash : 6de7a5e8adf158b0182508be9731e4a97a06b2d6b7fde0ee97029c89b4918432
+        root-hash : [None]
 
-        length    : 3
-        size      : 5
-        height    : 2
+        length    : 0
+        size      : 0
+        height    : 0
 
     >>>
-
-If no config is provided, then a default SHA256/UTF-8 tree in security mode
-is constructed.
-
 
 Encryption
 ==========
@@ -232,87 +169,18 @@ ones.
     >>>
 
 
-Comparison
-==========
-
-The tree's root-hash encodes its current state, in the sense that it is
-uniquely determined by the current tree structure and the hash values stored by
-its leaf nodes. Consecquently, the history of a tree may be conceived of as the
-sequence of its successive root-hashes while growing. Merkle-trees are
-intrinsically capable of checking whether a hash value is the acclaimed
-root-hash of a previous state (which is in parallel with their ability to
-provide consistency proofs of their growing history). This establishes a natural
-comparison relation among trees which, for the present implementation, can be
-further enhanced by the fact that the tree structure is uniquely determined by
-the number of leaf nodes.
-
-
-Previous state
---------------
-
-Let *state* denote current state of the tree at some point of history.
-
-.. code-block:: python
-
-        >>> state = tree.root_hash
-        >>> state
-        b'ec4d97d0da9747c2df6d673edaf9c8180863221a6b4a8569c1ce58c21eb14cc0'
-        >>>
-
-At any subsequent moment (i.e., after encrypting arbitrary records into the
-tree):
-
-.. code-block:: python
-
-        >>> tree.has_previous_state(state)
-        True
-        >>>
-        >>> tree.has_previous_state(b'something forged')
-        False
-        >>>
-
-
-Tree operators
---------------
-
-One can directly verify whether a tree is a valid previous state of another by
-means of the `<=` operator. In particular, the statement
-
-.. code-block:: python
-
-        tree_1 <= tree_2
-
-is equivalent to ``tree_2.has_previous_state(tree_1.root_hash)``. To verify
-whether ``treeP1`` is a strictly previous state of ``tree_2``, try
-
-.. code-block:: python
-
-        tree_1 < tree_2
-
-which will be *True* only iff ``tree_1 <= tree_2`` and the trees' root-hashes
-do not coincide. Since, for the present implementation, treees with the same
-number of leaf nodes have identical structure, equality of trees amounts to
-identification of their current root-hashes, i.e.,
-
-.. code-block:: python
-
-        tree_1 == tree_2
-
-is equivalent to ``tree_1.root_hash = tree_2.root_hash``.
-
-
 Backup
 ======
 
 .. code-block:: python
 
-   tree.export('relative_path/backup.json')
+    tree.export('relative_path/backup.json')
 
 This creates a file containing a JSON dictionary with the minimum required info
 for retrieving the tree, where ``hashes`` maps to the hash valued stored by the
 leaf nodes in respective order at the moment of export:
 
-.. code-block:: bash
+.. code-block:: json
 
   {
       "encoding": "utf_8",
