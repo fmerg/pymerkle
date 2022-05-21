@@ -8,6 +8,8 @@
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 ![Python >= 3.6](https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg)
 
+Documentation found at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
+
 This library provides a Merkle-tree implementation in Python. It supports most
 combinations of hash functions and encoding types with defense against
 second-preimage attack enabled.

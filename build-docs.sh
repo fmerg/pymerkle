@@ -16,7 +16,7 @@ usage() { echo -n "$usage_string" 1>&2; }
 # TODO: Derive the following default values from package meta
 PROJECT="pymerkle"
 SOURCE_CODE="pymerkle"
-RELEASE="2.0.2"
+VERSION="3.0.0"
 AUTHOR="fmerg"
 
 LANG="en"
@@ -57,7 +57,7 @@ RTD_THEME="sphinx_rtd_theme"  # Read-the-docs theme
 rm -rf "$TARGET"
 sphinx-quickstart "$TARGET" \
     --project "$PROJECT" \
-    --release "$RELEASE" \
+    --release "$VERSION" \
     --author "$AUTHOR" \
     --language "$LANG" \
     --ext-autodoc \
