@@ -134,6 +134,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the hash value stored by the tree's current root node.
         """
 
+    @abstractmethod
+    def get_root_hash(self):
+        """
+        Should return the hash value stored by the tree's current root node.
+        """
+
     def create_proof(self, offset, path):
         """
         Creates a proof object from the provided path of hashes including the
@@ -623,6 +629,15 @@ class MerkleTree(BaseMerkleTree):
             return
 
         return self.__root.digest
+
+    def get_root_hash(self):
+        """
+        :returns: Current root-hash of the Merkle-tree
+        :rtype: bytes
+
+        .. note:: Returns *None* if the tree is empty.
+        """
+        return self.root_hash
 
     def get_last_subroot(self):
         """

@@ -35,7 +35,7 @@ proof = tree.generate_audit_proof(challenge)
 proof.verify()
 
 # Save current tree state
-state = tree.root_hash
+state = tree.get_root_hash()
 
 # Append further leaves
 for record in [b'corge', b'grault', b'garlpy']:
