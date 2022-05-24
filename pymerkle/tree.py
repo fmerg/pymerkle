@@ -184,12 +184,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type challenge: bytes
         :rtype: Proof
         """
-        path = []
         offset = self.detect_offset(challenge)
         try:
             offset, path = self.generate_audit_path(offset)
         except NoPathException:
-            pass
+            path = []
 
         proof = self.create_proof(offset, path)
         return proof

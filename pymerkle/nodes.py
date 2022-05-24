@@ -324,8 +324,18 @@ class Leaf(Node):
     :rtype: Leaf
     """
 
-    def __init__(self, digest):
+    __slots__ = ('__next',)
+
+    def __init__(self, digest, leaf=None):
+        self.__next = leaf
         super().__init__(digest)
+
+    @property
+    def next(self):
+        return self.__next
+
+    def set_next(self, leaf):
+        self.__next = leaf
 
     @classmethod
     def from_record(cls, record, hash_func):
@@ -340,4 +350,4 @@ class Leaf(Node):
         :returns: the created leaf
         :rtype: Leaf
         """
-        return cls(hash_func(record))
+        return cls(hash_func(record), leaf=None)
