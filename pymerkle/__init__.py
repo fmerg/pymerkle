@@ -1,5 +1,5 @@
 """
-Cryptographic library for Merkle-proofs
+Merkle-tree cryptography
 """
 
 from .tree import MerkleTree
