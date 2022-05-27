@@ -65,12 +65,12 @@ for tree in trees:
 @pytest.mark.parametrize('tree, proof', false_audit_proofs)
 def test_false_audit_verify_proof(tree, proof):
     with pytest.raises(InvalidProof):
-        proof.verify(target=tree.root_hash)
+        proof.verify(target=tree.get_root_hash())
 
 
 @pytest.mark.parametrize('tree, proof', valid_audit_proofs)
 def test_true_audit_verify_proof(tree, proof):
-    assert proof.verify(target=tree.root_hash)
+    assert proof.verify(target=tree.get_root_hash())
 
 
 # Consistency proof verification
@@ -104,7 +104,7 @@ for (tree, subtree) in trees_and_subtrees:
     valid_consistency_proofs.append(
         (
             tree,
-            tree.generate_consistency_proof(subtree.root_hash)
+            tree.generate_consistency_proof(subtree.get_root_hash())
         )
     )
 
@@ -112,9 +112,9 @@ for (tree, subtree) in trees_and_subtrees:
 @pytest.mark.parametrize('tree, proof', false_consistency_proofs)
 def test_false_consistency_verify_proof(tree, proof):
     with pytest.raises(InvalidProof):
-        proof.verify(target=tree.root_hash)
+        proof.verify(target=tree.get_root_hash())
 
 
 @pytest.mark.parametrize('tree, proof', valid_consistency_proofs)
 def test_true_consistency_verify_proof(tree, proof):
-    assert proof.verify(target=tree.root_hash)
+    assert proof.verify(target=tree.get_root_hash())

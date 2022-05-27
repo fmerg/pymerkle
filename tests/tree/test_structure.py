@@ -18,17 +18,17 @@ t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
 
 
 def test_0_leaves():
-    assert not tree.root_hash
+    assert not tree.get_root_hash()
 
 
 def test_1_leaves():
     tree.encrypt(t_1)
-    assert tree.root_hash == hash(t_1)
+    assert tree.get_root_hash() == hash(t_1)
 
 
 def test_2_leaves():
     tree.encrypt(t_2)
-    assert tree.root_hash == hash(
+    assert tree.get_root_hash() == hash(
         hash(t_1),
         hash(t_2)
     )
@@ -36,7 +36,7 @@ def test_2_leaves():
 
 def test_3_leaves():
     tree.encrypt(t_3)
-    assert tree.root_hash == hash(
+    assert tree.get_root_hash() == hash(
         hash(
             hash(t_1),
             hash(t_2)
@@ -47,7 +47,7 @@ def test_3_leaves():
 
 def test_4_leaves():
     tree.encrypt(t_4)
-    assert tree.root_hash == hash(
+    assert tree.get_root_hash() == hash(
         hash(
             hash(t_1),
             hash(t_2)
@@ -61,7 +61,7 @@ def test_4_leaves():
 
 def test_5_leaves():
     tree.encrypt(t_5)
-    assert tree.root_hash == hash(
+    assert tree.get_root_hash() == hash(
         hash(
             hash(
                 hash(t_1),
@@ -79,7 +79,7 @@ def test_5_leaves():
 def test_7_leaves():
     tree.encrypt(t_6)
     tree.encrypt(t_7)
-    assert tree.root_hash == hash(
+    assert tree.get_root_hash() == hash(
         hash(
             hash(
                 hash(t_1),
@@ -105,7 +105,7 @@ def test_11_leaves():
     tree.encrypt(t_9)
     tree.encrypt(t_10)
     tree.encrypt(t_11)
-    assert tree.root_hash == hash(
+    assert tree.get_root_hash() == hash(
         hash(
             hash(
                 hash(

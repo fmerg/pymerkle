@@ -127,13 +127,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the current root of the tree.
         """
 
-    @property
-    @abstractmethod
-    def root_hash(self):
-        """
-        Should return the hash value stored by the tree's current root node.
-        """
-
     @abstractmethod
     def get_root_hash(self):
         """
@@ -189,7 +182,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         params = self.get_config()
         params.update({'provider': self.uuid})
 
-        commitment = self.root_hash if self else None
+        commitment = self.get_root_hash()
         proof = Proof(path=path, offset=offset, commitment=commitment,
                       **params)
         return proof
@@ -272,7 +265,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not self:
             return True
 
-        return self.root_hash == other.root_hash
+        return self.get_root_hash() == other.get_root_hash()
 
     def __ne__(self, other):
         """
@@ -293,7 +286,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not self:
             return True
 
-        return self.root_hash != other.root_hash
+        return self.get_root_hash() != other.get_root_hash()
 
     def __ge__(self, other):
         """
@@ -314,7 +307,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not self:
             return False
 
-        return self.has_previous_state(other.root_hash)
+        return self.has_previous_state(other.get_root_hash())
 
     def __le__(self, other):
         """
@@ -347,10 +340,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if not other:
             return self.__bool__()
 
-        elif not self or self.root_hash == other.root_hash:
+        elif not self or self.get_root_hash() == other.get_root_hash():
             return False
 
-        return self.has_previous_state(other.root_hash)
+        return self.has_previous_state(other.get_root_hash())
 
     def __lt__(self, other):
         """
@@ -375,7 +368,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         hash_type = self.hash_type.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
-        root_hash = self.root_hash.decode(self.encoding) if self else '[None]'
+        root_hash = self.get_root_hash().decode(self.encoding) if self else '[None]'
 
         kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
               'security': security, 'root_hash': root_hash,
@@ -628,8 +621,7 @@ class MerkleTree(BaseMerkleTree):
 
         return self.__root
 
-    @property
-    def root_hash(self):
+    def get_root_hash(self):
         """
         :returns: Current root-hash of the tree
         :rtype: bytes
@@ -640,15 +632,6 @@ class MerkleTree(BaseMerkleTree):
             return
 
         return self.__root.digest
-
-    def get_root_hash(self):
-        """
-        :returns: Current root-hash of the tree
-        :rtype: bytes
-
-        .. note:: Returns *None* if the tree is empty.
-        """
-        return self.root_hash
 
     def get_leaves(self):
         """

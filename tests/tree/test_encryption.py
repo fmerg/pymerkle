@@ -61,4 +61,4 @@ def test_encrypt_file_per_line(tree):
             records.append(line)
     clone = MerkleTree.init_from_records(*records,
                                          config=tree.get_config())
-    assert tree.root_hash == clone.root_hash
+    assert tree.get_root_hash() == clone.get_root_hash()

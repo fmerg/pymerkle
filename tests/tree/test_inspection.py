@@ -24,7 +24,7 @@ def test___repr__default_non_empty_tree():
                                                    hash_type='SHA256',
                                                    encoding='UTF-8',
                                                    security='ACTIVATED',
-                                                   root_hash=tree.root_hash.decode(
+                                                   root_hash=tree.get_root_hash().decode(
                                                        tree.encoding),
                                                    length=3,
                                                    size=5,

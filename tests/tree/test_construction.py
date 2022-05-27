@@ -24,14 +24,14 @@ def test_root_empty_tree_exception():
 
 
 def test_root_hash_for_empty_tree():
-    assert not MerkleTree().root_hash
+    assert not MerkleTree().get_root_hash()
 
 
 def test_root_hash_of_non_empty_MerkleTree():
     t = MerkleTree.init_from_records('first record')
     s = MerkleTree.init_from_records('first record', 'second record')
-    assert t.root_hash == t.hash('first record') and \
-        s.root_hash == s.hash(s.hash('first record'), s.hash('second record'))
+    assert t.get_root_hash() == t.hash('first record') and \
+        s.get_root_hash() == s.hash(s.hash('first record'), s.hash('second record'))
 
 
 def test_dimensions_of_empty_tree():

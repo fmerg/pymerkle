@@ -107,7 +107,7 @@ for (tree, subtree) in trees_and_subtrees:
     tree_challenge.append(
         (
             tree,
-            subtree.root_hash,
+            subtree.get_root_hash(),
         )
     )
 

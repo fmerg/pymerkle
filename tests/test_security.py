@@ -56,6 +56,6 @@ def test_defense_against_second_preimage_attack(original):
 
     # Check if the attacker has replicated the original root-hash
     if original.security:
-        assert original.root_hash != attacker.root_hash
+        assert original.get_root_hash() != attacker.get_root_hash()
     else:
-        assert original.root_hash == attacker.root_hash
+        assert original.get_root_hash() == attacker.get_root_hash()

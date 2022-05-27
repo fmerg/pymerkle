@@ -23,7 +23,7 @@ for security in (True, False):
                       'security': security}
             tree = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e',
                                                 config=config)
-            state = tree.root_hash
+            state = tree.get_root_hash()
             for record in ('f', 'g', 'h', 'k'):
                 tree.encrypt(record)
             trees_and_subtrees.append((tree, state))
@@ -39,7 +39,7 @@ def test_has_previous_state_edge_success_case():
     tree = MerkleTree()
     tree.encrypt_file_per_line(short_APACHE_log)
     tree.encrypt_file_per_line(RED_HAT_LINUX_log)
-    assert tree.has_previous_state(tree.root_hash)
+    assert tree.has_previous_state(tree.get_root_hash())
 
 
 # Failure cases with standard Merkle-tree
@@ -230,11 +230,11 @@ for power in range(1, 10):
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_has_previous_state_with_sublength_equal_to_power_of_2(tree, later_state):
-    assert later_state.has_previous_state(tree.root_hash)
+    assert later_state.has_previous_state(tree.get_root_hash())
 
 
 @pytest.mark.parametrize('tree, later_state', trees__later_states)
 def test_consistency_proof_verification_with_sublength_equal_to_power_of_2(
         tree, later_state):
-    proof = later_state.generate_consistency_proof(tree.root_hash)
-    assert proof.verify(later_state.root_hash)
+    proof = later_state.generate_consistency_proof(tree.get_root_hash())
+    assert proof.verify(later_state.get_root_hash())
