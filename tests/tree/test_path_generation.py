@@ -9,8 +9,6 @@ import json
 from pymerkle.tree import MerkleTree, NoPathException
 
 
-# Audit path
-
 tree_0 = MerkleTree.init_from_records()
 tree_1 = MerkleTree.init_from_records('a')
 tree_2 = MerkleTree.init_from_records('a', 'b')
@@ -18,26 +16,8 @@ tree_3 = MerkleTree.init_from_records('a', 'b', 'c')
 tree_4 = MerkleTree.init_from_records('a', 'b', 'c', 'd')
 tree_5 = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
 
-no_path_exceptions = [
-    (tree_0, +0),
-    (tree_1, -1),
-    (tree_1, +1),
-    (tree_2, -1),
-    (tree_2, +2),
-    (tree_3, -1),
-    (tree_3, +3),
-    (tree_4, -1),
-    (tree_4, +4),
-    (tree_5, -1),
-    (tree_5, +5)
-]
 
-
-@pytest.mark.parametrize('tree, offset', no_path_exceptions)
-def test_audit_NoPathException(tree, offset):
-    with pytest.raises(NoPathException):
-        tree.generate_audit_path(offset)
-
+# Audit path
 
 audit_paths = [
     (
@@ -209,7 +189,8 @@ audit_paths = [
 
 @pytest.mark.parametrize('tree, offset, path', audit_paths)
 def test_generate_audit_path(tree, offset, path):
-    assert tree.generate_audit_path(offset) == path
+    leaf = tree.get_leaf(offset)
+    assert tree.generate_audit_path(leaf) == path
 
 
 # Consistency path
@@ -373,29 +354,6 @@ minimal_complements = [
                          minimal_complements)
 def test_minimal_complement(tree, subroots, _minimal_complement):
     assert tree.minimal_complement(subroots) == _minimal_complement
-
-
-no_path_exceptions = [
-    (tree_0, -1),
-    (tree_0, +0),
-    (tree_0, +1),
-    (tree_1, -1),
-    (tree_1, +2),
-    (tree_2, -1),
-    (tree_2, +3),
-    (tree_3, -1),
-    (tree_3, +4),
-    (tree_4, -1),
-    (tree_4, +5),
-    (tree_5, -1),
-    (tree_5, +6)
-]
-
-
-@pytest.mark.parametrize('tree, sublength', no_path_exceptions)
-def test_consistency_NoPathException(tree, sublength):
-    with pytest.raises(NoPathException):
-        tree.generate_consistency_path(sublength)
 
 
 consistency_paths = [

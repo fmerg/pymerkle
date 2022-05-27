@@ -168,16 +168,17 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     @abstractmethod
-    def detect_offset(self, digest):
+    def find_leaf(self, digest):
         """
-        Define here how to locate the leaf node storing the provided hash
+        Define here how to detect the leaf node storing the provided hash
         value.
         """
 
     @abstractmethod
-    def generate_audit_path(self, offset):
+    def generate_audit_path(self, leaf):
         """
-        Define here how to construct path of hashes for audit-proofs.
+        Define here how to construct path of hashes for audit-proofs based on
+        the provided leaf node.
         """
 
     def generate_audit_proof(self, challenge):
@@ -191,11 +192,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type challenge: bytes
         :rtype: Proof
         """
-        offset = self.detect_offset(challenge)
-        try:
-            offset, path = self.generate_audit_path(offset)
-        except NoPathException:
-            path = []
+        offset = -1
+        path = []
+
+        leaf = self.find_leaf(digest=challenge)
+        if leaf:
+            offset, path = self.generate_audit_path(leaf)
 
         proof = self.create_proof(offset, path)
         return proof
@@ -221,7 +223,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         offset = -1
         path = []
 
-        # TODO: Make this loop a binary search
+        # TODO:
         for sublength in range(1, self.length + 1):
             try:
                 _offset, left_path, _path = self.generate_consistency_path(
@@ -754,26 +756,18 @@ class MerkleTree(BaseMerkleTree):
             self._append_leaf(leaf)
             self.__root = leaf
 
-    def generate_audit_path(self, offset):
+    def generate_audit_path(self, leaf):
         """
-        Computes the audit-path corresponding to the provided leaf index.
+        Computes the audit-path based on the provided leaf node.
 
-        :param offset: leaf position (zero based) where audit-path computation
-            should be based upon.
-        :type offset: int
-        :returns: sequence of signed hashes along with starting position for
-            subsequent proof verification. The sign -1 or +1 indicates pairing
-            with the left resp. right neighbour when hashing.
+        :param leaf: leaf node where audit-path computation should be based
+            upon.
+        :type leaf: int
+        :returns: path of signed hashes along with offset for hashing. The sign
+            -1 or + 1 indicates pairing with left resp. right neighbour when
+            hashing.
         :rtype: (int, list of (+1/-1, bytes))
-
-        :raises NoPathException: if the provided offset exceed's the tree's
-            current length or is negative.
         """
-        leaf = self.get_leaf(offset)
-
-        if not leaf:
-            raise NoPathException
-
         sign = -1 if leaf.is_right_child() else +1
         path = [(sign, leaf.digest)]
 
@@ -796,39 +790,27 @@ class MerkleTree(BaseMerkleTree):
 
         return offset, path
 
-    def detect_offset(self, digest):
+    def find_leaf(self, digest):
         """
-        Detects the position of the leftmost leaf node storing the provided
-        hash value counting from zero.
+        Detects the leftmost leaf node storing the provided hash value counting
 
+        .. note:: Returns *None* if no such leaf node exists.
+
+        :param digest: hash value to detect
         :type digest: bytes
-        :returns: position of corresponding leaf counting from zero
-        :rtype: int
-
-        .. note:: Returns -1 if no such leaf node exists.
-
-        :type digest: bytes
-        :rtype: int
+        :returns: leaf node storing the provided hash value
+        :rtype: Leaf
         """
-        offset = -1
-
-        # TODO:
         leaves = self.get_leaves()
-        curr = 0
-        while True:
 
+        while True:
             try:
                 leaf = next(leaves)
             except StopIteration:
                 break
 
             if digest == leaf.digest:
-                offset = curr
-                break
-
-            curr += 1
-
-        return offset
+                return leaf
 
     def generate_consistency_path(self, sublength):
         """
@@ -838,17 +820,14 @@ class MerkleTree(BaseMerkleTree):
         :param sublength: non-negative integer equal to or smaller than the
             current length of the tree.
         :type sublength: int
-        :returns: sequence of signed hashes along with starting position for
-            subsequent proof verification. The sign -1 or +1 indicates pairing
-            with the left resp. right neighbour when hashing.
+        :returns: path of signed hashes along with offset for hashing. The sign
+            -1 or + 1 indicates pairing with left resp. right neighbour when
+            hashing.
         :rtype: (int, list of (+1/-1, bytes))
 
-        :raises NoPathException: if the provided *sublength* is non-positive
-            or does not correspond to any sequence of subroots.
+        :raises NoPathException: if the provided parameter des not correspond
+            to any sequence of subroots.
         """
-        if sublength < 0 or self.length == 0:
-            raise NoPathException
-
         lefts = self.get_principal_subroots(sublength)
 
         if lefts is None:
@@ -914,7 +893,7 @@ class MerkleTree(BaseMerkleTree):
         :param height: height of candidate subtree to be detected
         :type height: int
         :returns: root of the detected subtree
-        :rtype: Leaf or Node
+        :rtype: Node
         """
         subroot = self.get_leaf(offset)
         if not subroot:
