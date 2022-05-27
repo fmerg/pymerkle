@@ -321,6 +321,8 @@ class Leaf(Node):
 
     :param digest: the digest to be stored by the leaf.
     :type digest: bytes
+    :param leaf: [optional] leaf leaf node. Defaults to *None*.
+    :type leaf: Leaf
     :rtype: Leaf
     """
 
@@ -347,6 +349,8 @@ class Leaf(Node):
         :type record: bytes
         :param hash_func: hash function to use
         :type hash_func: function
+        :param next: [optional] next leaf node. Defaults to *None*.
+        :type next: Leaf
         :returns: the created leaf
         :rtype: Leaf
         """

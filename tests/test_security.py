@@ -46,8 +46,8 @@ for security in (True, False):
 def test_defense_against_second_preimage_attack(original):
 
     # Construct forged record
-    F = original.leaves[2].digest
-    G = original.leaves[3].digest
+    F = original.get_leaf(2).digest
+    G = original.get_leaf(3).digest
     forged = F + G
 
     # Attacker's tree
