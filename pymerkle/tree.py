@@ -74,12 +74,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         self.add_leaf(leaf)
 
-    @abstractmethod
-    def add_leaf(self):
-        """
-        Define here the tree's growing strategy.
-        """
-
     @classmethod
     def init_from_records(cls, *records, config=None):
         """
@@ -98,6 +92,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             tree.encrypt(record)
 
         return tree
+
+    @abstractmethod
+    def __bool__(self):
+        """
+        This should return *False* iff the tree is empty.
+        """
 
     @property
     @abstractmethod
@@ -147,6 +147,33 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         nodes.
         """
 
+    @abstractmethod
+    def find_leaf(self, digest):
+        """
+        Define here how to detect the leaf node storing the provided hash
+        value.
+        """
+
+    @abstractmethod
+    def add_leaf(self):
+        """
+        Define here the tree's growing strategy.
+        """
+
+    @abstractmethod
+    def generate_audit_path(self, leaf):
+        """
+        Define here how to construct path of hashes for audit-proofs based on
+        the provided leaf node.
+        """
+
+    @abstractmethod
+    def generate_consistency_path(self, sublength):
+        """
+        Define here how to construct path of hashes for consistency-proofs
+        based on the provided length.
+        """
+
     def create_proof(self, offset, path):
         """
         Creates a proof object from the provided path of hashes including the
@@ -164,22 +191,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         commitment = self.root_hash if self else None
         proof = Proof(path=path, offset=offset, commitment=commitment,
-                            **params)
+                      **params)
         return proof
-
-    @abstractmethod
-    def find_leaf(self, digest):
-        """
-        Define here how to detect the leaf node storing the provided hash
-        value.
-        """
-
-    @abstractmethod
-    def generate_audit_path(self, leaf):
-        """
-        Define here how to construct path of hashes for audit-proofs based on
-        the provided leaf node.
-        """
 
     def generate_audit_proof(self, challenge):
         """
@@ -201,12 +214,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         proof = self.create_proof(offset, path)
         return proof
-
-    @abstractmethod
-    def generate_consistency_path(self, sublength):
-        """
-        Define here how to construct path of hashes for consistency-proofs.
-        """
 
     def generate_consistency_proof(self, challenge):
         """
@@ -244,12 +251,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Define here how the tree should validate whether the provided hash
         value is the root-hash of some previous state.
-        """
-
-    @abstractmethod
-    def __bool__(self):
-        """
-        This should return *False* iff the tree is empty.
         """
 
     def __eq__(self, other):
@@ -709,15 +710,6 @@ class MerkleTree(BaseMerkleTree):
 
         self.__nr_leaves += 1
 
-    def get_last_subroot(self):
-        """
-        Returns the root of the *full* binary subtree with maximum possible
-        length containing the rightmost leaf
-        """
-        last_power = decompose(self.__nr_leaves)[-1]
-
-        return self.get_tail().ancestor(degree=last_power)
-
     def add_leaf(self, leaf):
         """
         Insert the provided leaf to the tree by restructuring it appropriately.
@@ -923,6 +915,15 @@ class MerkleTree(BaseMerkleTree):
             i += 1
 
         return subroot
+
+    def get_last_subroot(self):
+        """
+        Returns the root of the *full* binary subtree with maximum possible
+        length containing the rightmost leaf
+        """
+        last_power = decompose(self.__nr_leaves)[-1]
+
+        return self.get_tail().ancestor(degree=last_power)
 
     def get_principal_subroots(self, sublength):
         """
