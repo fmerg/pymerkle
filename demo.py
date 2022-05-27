@@ -30,5 +30,3 @@ if __name__ == '__main__':
     proof = tree.generate_consistency_proof(challenge=state)
     print(proof)
     assert proof.verify()
-
-    import pdb; pdb.set_trace()

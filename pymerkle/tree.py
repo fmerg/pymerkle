@@ -72,10 +72,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         leaf = Leaf.from_record(record, self.hash)
 
-        self.append_leaf(leaf)
+        self.add_leaf(leaf)
 
     @abstractmethod
-    def append_leaf(self):
+    def add_leaf(self):
         """
         Define here the tree's growing strategy.
         """
@@ -522,7 +522,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         for count, checksum in enumerate(hashes):
 
             digest = checksum.encode(tree.encoding)
-            tree.append_leaf(Leaf(digest))
+            tree.add_leaf(Leaf(digest))
 
             sys.stdout.write('%d/%d leaves\r' % (count + 1, nr_hashes))
             sys.stdout.flush()
@@ -575,7 +575,7 @@ class MerkleTree(BaseMerkleTree):
         """
         Current number of nodes.
 
-        .. note:: Following the tree's growing strategy (cf. *append_leaf()*),
+        .. note:: Following the tree's growing strategy (cf. *add_leaf()*),
             appending a new leaf leads to the creation of two new nodes. If
             *s(n)* denotes the total number of nodes with respect to the number
             *n* of leaves, this is equivalent to the recursive relation
@@ -690,7 +690,7 @@ class MerkleTree(BaseMerkleTree):
         """
         return self.__tail
 
-    def add_leaf(self, leaf):
+    def _append_leaf(self, leaf):
         """
         Appends the provided leaf to the collection of the tree's leaf nodes.
 
@@ -716,7 +716,7 @@ class MerkleTree(BaseMerkleTree):
 
         return self.get_tail().ancestor(degree=last_power)
 
-    def append_leaf(self, leaf):
+    def add_leaf(self, leaf):
         """
         Insert the provided leaf to the tree by restructuring it appropriately.
 
@@ -728,7 +728,7 @@ class MerkleTree(BaseMerkleTree):
         """
         if self:
             subroot = self.get_last_subroot()
-            self.add_leaf(leaf)
+            self._append_leaf(leaf)
 
             if not subroot.parent:
 
@@ -751,7 +751,7 @@ class MerkleTree(BaseMerkleTree):
                     curr.recalculate_hash(hash_func=self.hash)
                     curr = curr.parent
         else:
-            self.add_leaf(leaf)
+            self._append_leaf(leaf)
             self.__root = leaf
 
     def generate_audit_path(self, offset):
