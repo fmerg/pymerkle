@@ -56,7 +56,7 @@ characteristics:
         encoding  : UTF-8
         security  : ACTIVATED
 
-        root-hash : [None]
+        root      : [None]
 
         length    : 0
         size      : 0
@@ -135,7 +135,7 @@ fixed configuration and and current state:
         encoding  : UTF-8
         security  : ACTIVATED
 
-        root-hash : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
+        root      : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
 
         size      : 13
         length    : 7

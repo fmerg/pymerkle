@@ -12,7 +12,7 @@ def test___repr__non_default_empty_tree():
                                                    hash_type='SHA512',
                                                    encoding='UTF-32',
                                                    security='DEACTIVATED',
-                                                   root_hash='[None]',
+                                                   root='[None]',
                                                    length=0,
                                                    size=0,
                                                    height=0)
@@ -24,7 +24,7 @@ def test___repr__default_non_empty_tree():
                                                    hash_type='SHA256',
                                                    encoding='UTF-8',
                                                    security='ACTIVATED',
-                                                   root_hash=tree.get_root_hash().decode(
+                                                   root=tree.get_root_hash().decode(
                                                        tree.encoding),
                                                    length=3,
                                                    size=5,

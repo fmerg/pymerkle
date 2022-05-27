@@ -22,7 +22,7 @@ TREE_TEMPLATE = """
     encoding  : {encoding}
     security  : {security}
 
-    root-hash : {root_hash}
+    root      : {root}
 
     length    : {length}
     size      : {size}
@@ -371,7 +371,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         root_hash = self.get_root_hash().decode(self.encoding) if self else '[None]'
 
         kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
-              'security': security, 'root_hash': root_hash,
+              'security': security, 'root': root_hash,
               'length': self.length, 'size': self.size,
               'height': self.height}
 
