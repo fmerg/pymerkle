@@ -5,9 +5,7 @@ from pymerkle import MerkleTree
 
 if __name__ == '__main__':
 
-
     tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
-
 
     # Populate tree with some records
     for record in [b'foo', b'bar', b'baz', b'qux', b'quux']:
@@ -20,7 +18,6 @@ if __name__ == '__main__':
     proof = tree.generate_audit_proof(challenge)
     print(proof)
     assert proof.verify()
-
 
     # Save current tree state
     state = tree.get_root_hash()

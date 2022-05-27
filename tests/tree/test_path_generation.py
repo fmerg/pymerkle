@@ -9,39 +9,19 @@ import json
 from pymerkle.tree import MerkleTree, NoPathException
 
 
+tree_0 = MerkleTree.init_from_records()
+tree_1 = MerkleTree.init_from_records('a')
+tree_2 = MerkleTree.init_from_records('a', 'b')
+tree_3 = MerkleTree.init_from_records('a', 'b', 'c')
+tree_4 = MerkleTree.init_from_records('a', 'b', 'c', 'd')
+tree_5 = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
+
+
 # Audit path
-
-_0_leaves_tree = MerkleTree.init_from_records()
-_1_leaves_tree = MerkleTree.init_from_records('a')
-_2_leaves_tree = MerkleTree.init_from_records('a', 'b')
-_3_leaves_tree = MerkleTree.init_from_records('a', 'b', 'c')
-_4_leaves_tree = MerkleTree.init_from_records('a', 'b', 'c', 'd')
-_5_leaves_tree = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
-
-no_path_exceptions = [
-    (_0_leaves_tree, +0),
-    (_1_leaves_tree, -1),
-    (_1_leaves_tree, +1),
-    (_2_leaves_tree, -1),
-    (_2_leaves_tree, +2),
-    (_3_leaves_tree, -1),
-    (_3_leaves_tree, +3),
-    (_4_leaves_tree, -1),
-    (_4_leaves_tree, +4),
-    (_5_leaves_tree, -1),
-    (_5_leaves_tree, +5)
-]
-
-
-@pytest.mark.parametrize('tree, offset', no_path_exceptions)
-def test_audit_NoPathException(tree, offset):
-    with pytest.raises(NoPathException):
-        tree.generate_audit_path(offset)
-
 
 audit_paths = [
     (
-        _1_leaves_tree, 0,
+        tree_1, 0,
         (
             0,
             [
@@ -51,7 +31,7 @@ audit_paths = [
         )
     ),
     (
-        _2_leaves_tree, 0,
+        tree_2, 0,
         (
             0,
             [
@@ -61,7 +41,7 @@ audit_paths = [
         )
     ),
     (
-        _2_leaves_tree, 1,
+        tree_2, 1,
         (
             1,
             [
@@ -71,7 +51,7 @@ audit_paths = [
         )
     ),
     (
-        _3_leaves_tree, 0,
+        tree_3, 0,
         (
             0,
             [
@@ -82,7 +62,7 @@ audit_paths = [
         )
     ),
     (
-        _3_leaves_tree, 1,
+        tree_3, 1,
         (
             1,
             [
@@ -93,7 +73,7 @@ audit_paths = [
         )
     ),
     (
-        _3_leaves_tree, 2,
+        tree_3, 2,
         (
             1,
             [
@@ -103,7 +83,7 @@ audit_paths = [
         )
     ),
     (
-        _4_leaves_tree, 0,
+        tree_4, 0,
         (
             0,
             [
@@ -114,7 +94,7 @@ audit_paths = [
         )
     ),
     (
-        _4_leaves_tree, 1,
+        tree_4, 1,
         (
             1,
             [
@@ -125,7 +105,7 @@ audit_paths = [
         )
     ),
     (
-        _4_leaves_tree, 2,
+        tree_4, 2,
         (
             1,
             [
@@ -136,7 +116,7 @@ audit_paths = [
         )
     ),
     (
-        _4_leaves_tree, 3,
+        tree_4, 3,
         (
             2,
             [
@@ -147,7 +127,7 @@ audit_paths = [
         )
     ),
     (
-        _5_leaves_tree, 0,
+        tree_5, 0,
         (
             0,
             [
@@ -159,7 +139,7 @@ audit_paths = [
         )
     ),
     (
-        _5_leaves_tree, 1,
+        tree_5, 1,
         (
             1,
             [
@@ -171,7 +151,7 @@ audit_paths = [
         )
     ),
     (
-        _5_leaves_tree, 2,
+        tree_5, 2,
         (
             1,
             [
@@ -183,7 +163,7 @@ audit_paths = [
         )
     ),
     (
-        _5_leaves_tree, 3,
+        tree_5, 3,
         (
             2,
             [
@@ -195,7 +175,7 @@ audit_paths = [
         )
     ),
     (
-        _5_leaves_tree, 4,
+        tree_5, 4,
         (
             1,
             [
@@ -209,33 +189,34 @@ audit_paths = [
 
 @pytest.mark.parametrize('tree, offset, path', audit_paths)
 def test_generate_audit_path(tree, offset, path):
-    assert tree.generate_audit_path(offset) == path
+    leaf = tree.get_leaf(offset)
+    assert tree.generate_audit_path(leaf) == path
 
 
 # Consistency path
 
 no_subroot_cases = [
-    (_0_leaves_tree, 0, 0),
-    (_1_leaves_tree, 1, 1),
-    (_2_leaves_tree, 2, 1),
-    (_2_leaves_tree, 0, 2),
-    (_2_leaves_tree, 1, 1),
-    (_3_leaves_tree, 3, 2),
-    (_3_leaves_tree, 0, 3),
-    (_3_leaves_tree, 1, 1),
-    (_3_leaves_tree, 2, 1),
-    (_4_leaves_tree, 4, 3),
-    (_4_leaves_tree, 0, 3),
-    (_4_leaves_tree, 1, 1),
-    (_4_leaves_tree, 2, 2),
-    (_4_leaves_tree, 3, 1),
-    (_5_leaves_tree, 5, 3),
-    (_5_leaves_tree, 0, 3),
-    (_5_leaves_tree, 0, 4),
-    (_5_leaves_tree, 1, 1),
-    (_5_leaves_tree, 2, 2),
-    (_5_leaves_tree, 3, 1),
-    (_5_leaves_tree, 4, 1),
+    (tree_0, 0, 0),
+    (tree_1, 1, 1),
+    (tree_2, 2, 1),
+    (tree_2, 0, 2),
+    (tree_2, 1, 1),
+    (tree_3, 3, 2),
+    (tree_3, 0, 3),
+    (tree_3, 1, 1),
+    (tree_3, 2, 1),
+    (tree_4, 4, 3),
+    (tree_4, 0, 3),
+    (tree_4, 1, 1),
+    (tree_4, 2, 2),
+    (tree_4, 3, 1),
+    (tree_5, 5, 3),
+    (tree_5, 0, 3),
+    (tree_5, 0, 4),
+    (tree_5, 1, 1),
+    (tree_5, 2, 2),
+    (tree_5, 3, 1),
+    (tree_5, 4, 1),
 ]
 
 
@@ -245,29 +226,29 @@ def test_none_subroot(tree, offset, height):
 
 
 subroots = [
-    (_1_leaves_tree, 0, 0, _1_leaves_tree.leaves[0]),
-    (_2_leaves_tree, 0, 0, _2_leaves_tree.leaves[0]),
-    (_2_leaves_tree, 0, 1, _2_leaves_tree.root),
-    (_2_leaves_tree, 1, 0, _2_leaves_tree.leaves[1]),
-    (_3_leaves_tree, 0, 0, _3_leaves_tree.leaves[0]),
-    (_3_leaves_tree, 0, 1, _3_leaves_tree.leaves[0].parent),
-    (_3_leaves_tree, 1, 0, _3_leaves_tree.leaves[1]),
-    (_3_leaves_tree, 2, 0, _3_leaves_tree.leaves[2]),
-    (_4_leaves_tree, 0, 0, _4_leaves_tree.leaves[0]),
-    (_4_leaves_tree, 0, 1, _4_leaves_tree.leaves[0].parent),
-    (_4_leaves_tree, 0, 2, _4_leaves_tree.root),
-    (_4_leaves_tree, 1, 0, _4_leaves_tree.leaves[1]),
-    (_4_leaves_tree, 2, 0, _4_leaves_tree.leaves[2]),
-    (_4_leaves_tree, 2, 1, _4_leaves_tree.leaves[2].parent),
-    (_4_leaves_tree, 3, 0, _4_leaves_tree.leaves[3]),
-    (_5_leaves_tree, 0, 0, _5_leaves_tree.leaves[0]),
-    (_5_leaves_tree, 0, 1, _5_leaves_tree.leaves[0].parent),
-    (_5_leaves_tree, 0, 2, _5_leaves_tree.leaves[0].parent.parent),
-    (_5_leaves_tree, 1, 0, _5_leaves_tree.leaves[1]),
-    (_5_leaves_tree, 2, 0, _5_leaves_tree.leaves[2]),
-    (_5_leaves_tree, 2, 1, _5_leaves_tree.leaves[2].parent),
-    (_5_leaves_tree, 3, 0, _5_leaves_tree.leaves[3]),
-    (_5_leaves_tree, 4, 0, _5_leaves_tree.leaves[4]),
+    (tree_1, 0, 0, tree_1.get_leaf(0)),
+    (tree_2, 0, 0, tree_2.get_leaf(0)),
+    (tree_2, 0, 1, tree_2.root),
+    (tree_2, 1, 0, tree_2.get_leaf(1)),
+    (tree_3, 0, 0, tree_3.get_leaf(0)),
+    (tree_3, 0, 1, tree_3.get_leaf(0).parent),
+    (tree_3, 1, 0, tree_3.get_leaf(1)),
+    (tree_3, 2, 0, tree_3.get_leaf(2)),
+    (tree_4, 0, 0, tree_4.get_leaf(0)),
+    (tree_4, 0, 1, tree_4.get_leaf(0).parent),
+    (tree_4, 0, 2, tree_4.root),
+    (tree_4, 1, 0, tree_4.get_leaf(1)),
+    (tree_4, 2, 0, tree_4.get_leaf(2)),
+    (tree_4, 2, 1, tree_4.get_leaf(2).parent),
+    (tree_4, 3, 0, tree_4.get_leaf(3)),
+    (tree_5, 0, 0, tree_5.get_leaf(0)),
+    (tree_5, 0, 1, tree_5.get_leaf(0).parent),
+    (tree_5, 0, 2, tree_5.get_leaf(0).parent.parent),
+    (tree_5, 1, 0, tree_5.get_leaf(1)),
+    (tree_5, 2, 0, tree_5.get_leaf(2)),
+    (tree_5, 2, 1, tree_5.get_leaf(2).parent),
+    (tree_5, 3, 0, tree_5.get_leaf(3)),
+    (tree_5, 4, 0, tree_5.get_leaf(4)),
 ]
 
 
@@ -277,16 +258,16 @@ def test_get_subroot(tree, offset, height, subroot):
 
 
 no_principal_subroots_cases = [
-    (_1_leaves_tree, -1),
-    (_1_leaves_tree, +2),
-    (_2_leaves_tree, -1),
-    (_2_leaves_tree, +3),
-    (_3_leaves_tree, -1),
-    (_3_leaves_tree, +4),
-    (_4_leaves_tree, -1),
-    (_4_leaves_tree, +5),
-    (_5_leaves_tree, -1),
-    (_5_leaves_tree, +6),
+    (tree_1, -1),
+    (tree_1, +2),
+    (tree_2, -1),
+    (tree_2, +3),
+    (tree_3, -1),
+    (tree_3, +4),
+    (tree_4, -1),
+    (tree_4, +5),
+    (tree_5, -1),
+    (tree_5, +6),
 ]
 
 
@@ -296,31 +277,31 @@ def test_no_principal_subroots(tree, sublength):
 
 
 principal_subroots = [
-    (_0_leaves_tree, 0, []),
-    (_1_leaves_tree, 0, []),
-    (_1_leaves_tree, 1, [(+1, _1_leaves_tree.root)]),
-    (_2_leaves_tree, 0, []),
-    (_2_leaves_tree, 1, [(+1, _2_leaves_tree.leaves[0])]),
-    (_2_leaves_tree, 2, [(+1, _2_leaves_tree.root)]),
-    (_3_leaves_tree, 0, []),
-    (_3_leaves_tree, 1, [(+1, _3_leaves_tree.leaves[0])]),
-    (_3_leaves_tree, 2, [(+1, _3_leaves_tree.leaves[0].parent)]),
-    (_3_leaves_tree, 3, [
-     (+1, _3_leaves_tree.leaves[0].parent), (+1, _3_leaves_tree.leaves[2])]),
-    (_4_leaves_tree, 0, []),
-    (_4_leaves_tree, 1, [(+1, _4_leaves_tree.leaves[0])]),
-    (_4_leaves_tree, 2, [(+1, _4_leaves_tree.leaves[0].parent)]),
-    (_4_leaves_tree, 3, [
-     (+1, _4_leaves_tree.leaves[0].parent), (+1, _4_leaves_tree.leaves[2])]),
-    (_4_leaves_tree, 4, [(+1, _4_leaves_tree.root)]),
-    (_5_leaves_tree, 0, []),
-    (_5_leaves_tree, 1, [(+1, _5_leaves_tree.leaves[0])]),
-    (_5_leaves_tree, 2, [(+1, _5_leaves_tree.leaves[0].parent)]),
-    (_5_leaves_tree, 3, [
-     (+1, _5_leaves_tree.leaves[0].parent), (+1, _5_leaves_tree.leaves[2])]),
-    (_5_leaves_tree, 4, [(+1, _5_leaves_tree.leaves[0].parent.parent)]),
-    (_5_leaves_tree, 5, [
-     (+1, _5_leaves_tree.leaves[0].parent.parent), (+1, _5_leaves_tree.leaves[-1])]),
+    (tree_0, 0, []),
+    (tree_1, 0, []),
+    (tree_1, 1, [(+1, tree_1.root)]),
+    (tree_2, 0, []),
+    (tree_2, 1, [(+1, tree_2.get_leaf(0))]),
+    (tree_2, 2, [(+1, tree_2.root)]),
+    (tree_3, 0, []),
+    (tree_3, 1, [(+1, tree_3.get_leaf(0))]),
+    (tree_3, 2, [(+1, tree_3.get_leaf(0).parent)]),
+    (tree_3, 3, [
+     (+1, tree_3.get_leaf(0).parent), (+1, tree_3.get_leaf(2))]),
+    (tree_4, 0, []),
+    (tree_4, 1, [(+1, tree_4.get_leaf(0))]),
+    (tree_4, 2, [(+1, tree_4.get_leaf(0).parent)]),
+    (tree_4, 3, [
+     (+1, tree_4.get_leaf(0).parent), (+1, tree_4.get_leaf(2))]),
+    (tree_4, 4, [(+1, tree_4.root)]),
+    (tree_5, 0, []),
+    (tree_5, 1, [(+1, tree_5.get_leaf(0))]),
+    (tree_5, 2, [(+1, tree_5.get_leaf(0).parent)]),
+    (tree_5, 3, [
+     (+1, tree_5.get_leaf(0).parent), (+1, tree_5.get_leaf(2))]),
+    (tree_5, 4, [(+1, tree_5.get_leaf(0).parent.parent)]),
+    (tree_5, 5, [
+     (+1, tree_5.get_leaf(0).parent.parent), (+1, tree_5.get_leaf(4))]),
 ]
 
 
@@ -331,41 +312,41 @@ def test_principalSubroots(tree, sublength, principal_subroots):
 
 
 minimal_complements = [
-    (_0_leaves_tree, [], []),
-    (_1_leaves_tree, [], [(+1, _1_leaves_tree.leaves[0])]),
-    (_1_leaves_tree, [(+1, _1_leaves_tree.root)], []),
-    (_2_leaves_tree, [], [(+1, _2_leaves_tree.root)]),
-    (_2_leaves_tree, [(+1, _2_leaves_tree.leaves[0])],
-     [(+1, _2_leaves_tree.leaves[1])]),
-    (_2_leaves_tree, [(+1, _2_leaves_tree.root)], []),
-    (_3_leaves_tree, [], [(+1, _3_leaves_tree.leaves[0].parent),
-     (+1, _3_leaves_tree.leaves[2])]),
-    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0])],
-     [(+1, _3_leaves_tree.leaves[1]), (+1, _3_leaves_tree.leaves[2])]),
-    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].parent)],
-     [(+1, _3_leaves_tree.leaves[2])]),
-    (_3_leaves_tree, [(+1, _3_leaves_tree.leaves[0].parent),
-     (+1, _3_leaves_tree.leaves[2])], []),
-    (_4_leaves_tree, [], [(+1, _4_leaves_tree.root)]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0])],
-     [(+1, _4_leaves_tree.leaves[1]), (+1, _4_leaves_tree.leaves[2].parent)]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].parent)],
-     [(+1, _4_leaves_tree.leaves[2].parent)]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.leaves[0].parent), (+1,
-     _4_leaves_tree.leaves[2])], [(-1, _4_leaves_tree.leaves[3])]),
-    (_4_leaves_tree, [(+1, _4_leaves_tree.root)], []),
-    (_5_leaves_tree, [], [(+1, _5_leaves_tree.leaves[0].parent.parent),
-     (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0])], [(+1, _5_leaves_tree.leaves[1]),
-     (+1, _5_leaves_tree.leaves[2].parent), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].parent)],
-     [(+1, _5_leaves_tree.leaves[2].parent), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].parent), (+1, _5_leaves_tree.leaves[2])],
-     [(-1, _5_leaves_tree.leaves[3]), (+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].parent.parent)],
-     [(+1, _5_leaves_tree.leaves[4])]),
-    (_5_leaves_tree, [(+1, _5_leaves_tree.leaves[0].parent.parent),
-     (+1, _5_leaves_tree.leaves[4])], []),
+    (tree_0, [], []),
+    (tree_1, [], [(+1, tree_1.get_leaf(0))]),
+    (tree_1, [(+1, tree_1.root)], []),
+    (tree_2, [], [(+1, tree_2.root)]),
+    (tree_2, [(+1, tree_2.get_leaf(0))],
+     [(+1, tree_2.get_leaf(1))]),
+    (tree_2, [(+1, tree_2.root)], []),
+    (tree_3, [], [(+1, tree_3.get_leaf(0).parent),
+     (+1, tree_3.get_leaf(2))]),
+    (tree_3, [(+1, tree_3.get_leaf(0))],
+     [(+1, tree_3.get_leaf(1)), (+1, tree_3.get_leaf(2))]),
+    (tree_3, [(+1, tree_3.get_leaf(0).parent)],
+     [(+1, tree_3.get_leaf(2))]),
+    (tree_3, [(+1, tree_3.get_leaf(0).parent),
+     (+1, tree_3.get_leaf(2))], []),
+    (tree_4, [], [(+1, tree_4.root)]),
+    (tree_4, [(+1, tree_4.get_leaf(0))],
+     [(+1, tree_4.get_leaf(1)), (+1, tree_4.get_leaf(2).parent)]),
+    (tree_4, [(+1, tree_4.get_leaf(0).parent)],
+     [(+1, tree_4.get_leaf(2).parent)]),
+    (tree_4, [(+1, tree_4.get_leaf(0).parent), (+1,
+     tree_4.get_leaf(2))], [(-1, tree_4.get_leaf(3))]),
+    (tree_4, [(+1, tree_4.root)], []),
+    (tree_5, [], [(+1, tree_5.get_leaf(0).parent.parent),
+     (+1, tree_5.get_leaf(4))]),
+    (tree_5, [(+1, tree_5.get_leaf(0))], [(+1, tree_5.get_leaf(1)),
+     (+1, tree_5.get_leaf(2).parent), (+1, tree_5.get_leaf(4))]),
+    (tree_5, [(+1, tree_5.get_leaf(0).parent)],
+     [(+1, tree_5.get_leaf(2).parent), (+1, tree_5.get_leaf(4))]),
+    (tree_5, [(+1, tree_5.get_leaf(0).parent), (+1, tree_5.get_leaf(2))],
+     [(-1, tree_5.get_leaf(3)), (+1, tree_5.get_leaf(4))]),
+    (tree_5, [(+1, tree_5.get_leaf(0).parent.parent)],
+     [(+1, tree_5.get_leaf(4))]),
+    (tree_5, [(+1, tree_5.get_leaf(0).parent.parent),
+     (+1, tree_5.get_leaf(4))], []),
 ]
 
 
@@ -375,32 +356,9 @@ def test_minimal_complement(tree, subroots, _minimal_complement):
     assert tree.minimal_complement(subroots) == _minimal_complement
 
 
-no_path_exceptions = [
-    (_0_leaves_tree, -1),
-    (_0_leaves_tree, +0),
-    (_0_leaves_tree, +1),
-    (_1_leaves_tree, -1),
-    (_1_leaves_tree, +2),
-    (_2_leaves_tree, -1),
-    (_2_leaves_tree, +3),
-    (_3_leaves_tree, -1),
-    (_3_leaves_tree, +4),
-    (_4_leaves_tree, -1),
-    (_4_leaves_tree, +5),
-    (_5_leaves_tree, -1),
-    (_5_leaves_tree, +6)
-]
-
-
-@pytest.mark.parametrize('tree, sublength', no_path_exceptions)
-def test_consistency_NoPathException(tree, sublength):
-    with pytest.raises(NoPathException):
-        tree.generate_consistency_path(sublength)
-
-
 consistency_paths = [
     (
-        _1_leaves_tree,
+        tree_1,
         0,
         (
             +0,
@@ -411,7 +369,7 @@ consistency_paths = [
         )
     ),
     (
-        _1_leaves_tree,
+        tree_1,
         1,
         (
             +0,
@@ -424,7 +382,7 @@ consistency_paths = [
         )
     ),
     (
-        _2_leaves_tree,
+        tree_2,
         0,
         (
             +0,
@@ -435,7 +393,7 @@ consistency_paths = [
         )
     ),
     (
-        _2_leaves_tree,
+        tree_2,
         1,
         (
             +0,
@@ -449,7 +407,7 @@ consistency_paths = [
         )
     ),
     (
-        _2_leaves_tree,
+        tree_2,
         2,
         (
             +0,
@@ -462,7 +420,7 @@ consistency_paths = [
         )
     ),
     (
-        _3_leaves_tree,
+        tree_3,
         0,
         (
             +1,
@@ -474,7 +432,7 @@ consistency_paths = [
         )
     ),
     (
-        _3_leaves_tree,
+        tree_3,
         1,
         (
             +0,
@@ -489,7 +447,7 @@ consistency_paths = [
         )
     ),
     (
-        _3_leaves_tree,
+        tree_3,
         2,
         (
             +0,
@@ -503,7 +461,7 @@ consistency_paths = [
         )
     ),
     (
-        _3_leaves_tree,
+        tree_3,
         3,
         (
             +1,
@@ -518,7 +476,7 @@ consistency_paths = [
         )
     ),
     (
-        _4_leaves_tree,
+        tree_4,
         0,
         (
             +0,
@@ -529,7 +487,7 @@ consistency_paths = [
         )
     ),
     (
-        _4_leaves_tree,
+        tree_4,
         1,
         (
             +0,
@@ -544,7 +502,7 @@ consistency_paths = [
         )
     ),
     (
-        _4_leaves_tree,
+        tree_4,
         2,
         (
             +0,
@@ -558,7 +516,7 @@ consistency_paths = [
         )
     ),
     (
-        _4_leaves_tree,
+        tree_4,
         3,
         (
             +1,
@@ -574,7 +532,7 @@ consistency_paths = [
         )
     ),
     (
-        _4_leaves_tree,
+        tree_4,
         4,
         (
             +0,
@@ -587,7 +545,7 @@ consistency_paths = [
         )
     ),
     (
-        _5_leaves_tree,
+        tree_5,
         0,
         (
             +1,
@@ -599,7 +557,7 @@ consistency_paths = [
         )
     ),
     (
-        _5_leaves_tree,
+        tree_5,
         1,
         (
             +0,
@@ -615,7 +573,7 @@ consistency_paths = [
         )
     ),
     (
-        _5_leaves_tree,
+        tree_5,
         2,
         (
             +0,
@@ -630,7 +588,7 @@ consistency_paths = [
         )
     ),
     (
-        _5_leaves_tree,
+        tree_5,
         3,
         (
             +1,
@@ -647,7 +605,7 @@ consistency_paths = [
         )
     ),
     (
-        _5_leaves_tree,
+        tree_5,
         4,
         (
             +0,
@@ -661,7 +619,7 @@ consistency_paths = [
         )
     ),
     (
-        _5_leaves_tree,
+        tree_5,
         5,
         (
             +1,
