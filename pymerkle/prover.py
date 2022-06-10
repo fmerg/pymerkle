@@ -18,7 +18,7 @@ PROOF_TEMPLATE = """
     timestamp   : {timestamp} ({created_at})
     provider    : {provider}
 
-    hash-type   : {hash_type}
+    hash-type   : {algorithm}
     encoding    : {encoding}
     security    : {security}
 
@@ -69,8 +69,8 @@ class Proof:
     """
     :param provider: uuid of the provider tree
     :type provider: str
-    :param hash_type: hash-type of the provider tree
-    :type hash_type: str
+    :param algorithm: hash-type of the provider tree
+    :type algorithm: str
     :param encoding: encoding type of the provider tree
     :type encoding: str
     :param security: security mode of the provider tree
@@ -81,13 +81,13 @@ class Proof:
     :type path: list of (+1/-1, bytes)
     """
 
-    def __init__(self, provider, hash_type, encoding, security, offset, path,
+    def __init__(self, provider, algorithm, encoding, security, offset, path,
                  uuid=None, timestamp=None, created_at=None, commitment=None):
         self.uuid = uuid or generate_uuid()
         self.timestamp = timestamp or int(time())
         self.created_at = created_at or ctime()
         self.provider = provider
-        self.hash_type = hash_type
+        self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
         self.commitment = commitment
@@ -100,7 +100,7 @@ class Proof:
 
         :rtype: dict
         """
-        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+        return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
     def compute_checksum(self):
@@ -110,7 +110,7 @@ class Proof:
         :rtype: bytes
         """
         engine = HashEngine(**self.get_verification_params())
-        checksum = engine.multi_hash(self.path, self.offset)
+        checksum = engine.hash_path(self.path, self.offset)
 
         return checksum
 
@@ -148,7 +148,7 @@ class Proof:
         timestamp = self.timestamp
         created_at = self.created_at
         provider = self.provider
-        hash_type = self.hash_type.upper().replace('_', '')
+        algorithm = self.algorithm.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         commitment = self.commitment.decode(self.encoding) if self.commitment \
@@ -157,7 +157,7 @@ class Proof:
         path = stringify_path(self.path, self.encoding)
 
         kw = {'uuid': uuid, 'timestamp': timestamp, 'created_at': created_at,
-              'provider': provider, 'hash_type': hash_type,
+              'provider': provider, 'algorithm': algorithm,
               'encoding': encoding, 'security': security,
               'commitment': commitment, 'offset': offset,
               'path': path}
@@ -175,7 +175,7 @@ class Proof:
         created_at = self.created_at
         timestamp = self.timestamp
         provider = self.provider
-        hash_type = self.hash_type
+        algorithm = self.algorithm
         encoding = self.encoding
         security = self.security
         commitment = self.commitment.decode(self.encoding) if self.commitment \
@@ -194,7 +194,7 @@ class Proof:
                 'timestamp': timestamp,
                 'created_at': created_at,
                 'provider': provider,
-                'hash_type': hash_type,
+                'algorithm': algorithm,
                 'encoding': encoding,
                 'security': security,
             },

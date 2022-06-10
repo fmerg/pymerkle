@@ -150,7 +150,7 @@ which yields s JSON dictionary similar to the following one:
           "timestamp": 1653044734,
           "created_at": "Fri May 20 14:05:34 2022",
           "provider": "65118520-d82c-11ec-8f3d-3887d51f42f3",
-          "hash_type": "sha256",
+          "algorithm": "sha256",
           "encoding": "utf_8",
           "security": true,
       },

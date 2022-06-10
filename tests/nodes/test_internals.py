@@ -4,22 +4,24 @@ from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 
 
-hash_func = HashEngine().hash
+e = HashEngine()
+hash_record = e.hash_record
+hash_pair = e.hash_pair
 
 pairs = (
-    Leaf.from_record(b'some record...', hash_func),
+    Leaf.from_record(b'some record...', hash_record),
     Leaf.from_record('5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
-                     hash_func)
+                     hash_record)
 )
 
 # Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf1 = Leaf.from_record(b'first record...', hash_func)
-leaf2 = Leaf.from_record(b'second record...', hash_func)
-leaf3 = Leaf.from_record(b'third record...', hash_func)
-leaf4 = Leaf.from_record(b'fourth record...', hash_func)
-node1 = Node.from_children(leaf1, leaf2, hash_func)
-node3 = Node.from_children(leaf3, leaf4, hash_func)
-root = Node.from_children(node1, node3, hash_func)
+leaf1 = Leaf.from_record(b'first record...', hash_record)
+leaf2 = Leaf.from_record(b'second record...', hash_record)
+leaf3 = Leaf.from_record(b'third record...', hash_record)
+leaf4 = Leaf.from_record(b'fourth record...', hash_record)
+node1 = Node.from_children(leaf1, leaf2, hash_pair)
+node3 = Node.from_children(leaf3, leaf4, hash_pair)
+root = Node.from_children(node1, node3, hash_pair)
 
 
 # Childless leaves tests
@@ -124,9 +126,9 @@ def test_degree_two_ancestor(node):
 
 
 def test_hash_recalculation():
-    new_leaf = Leaf.from_record(b'new record...', hash_func)
+    new_leaf = Leaf.from_record(b'new record...', hash_record)
     node3.set_right(new_leaf)
-    node3.recalculate_hash(hash_func=hash_func)
-    root.recalculate_hash(hash_func=hash_func)
-    assert node3.digest == hash_func(leaf3.digest, new_leaf.digest) \
-        and root.digest == hash_func(node1.digest, node3.digest)
+    node3.recalculate_hash(hashfunc=hash_pair)
+    root.recalculate_hash(hashfunc=hash_pair)
+    assert node3.digest == hash_pair(leaf3.digest, new_leaf.digest) \
+        and root.digest == hash_pair(node1.digest, node3.digest)

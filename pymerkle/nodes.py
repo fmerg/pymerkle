@@ -169,7 +169,7 @@ class Node:
         return self.digest.decode(encoding)
 
     @classmethod
-    def from_children(cls, left, right, hash_func):
+    def from_children(cls, left, right, hashfunc):
         """
         Construction of node from a given pair of nodes.
 
@@ -177,8 +177,8 @@ class Node:
         :type left: Node
         :param right: right child
         :type right: Node
-        :param hash_func: hash function to be used for digest computation
-        :type hash_func: function
+        :param hashfunc: hash function to be used for digest computation
+        :type hashfunc: function
         :returns: a node storing the digest of the concatenation of the
             provided nodes' digests.
         :rtype: Node
@@ -186,7 +186,7 @@ class Node:
         .. note:: No parent is specified during construction. Relation must be
             set afterwards.
         """
-        digest = hash_func(left.__digest, right.__digest)
+        digest = hashfunc(left.__digest, right.__digest)
 
         return cls(digest, left=left, right=right, parent=None)
 
@@ -213,15 +213,15 @@ class Node:
 
         return self.__parent.ancestor(degree - 1)
 
-    def recalculate_hash(self, hash_func):
+    def recalculate_hash(self, hashfunc):
         """
         Recalculates the node's digest under account of the possibly new
         digests of its children.
 
-        :param hash_func: hash function to be used for recalculation
-        :type hash_func: function
+        :param hashfunc: hash function to be used for recalculation
+        :type hashfunc: function
         """
-        self.__digest = hash_func(self.left.digest, self.right.digest)
+        self.__digest = hashfunc(self.left.digest, self.right.digest)
 
     def __str__(self, encoding, level=0, indent=3, ignored=None):
         """
@@ -340,18 +340,18 @@ class Leaf(Node):
         self.__next = leaf
 
     @classmethod
-    def from_record(cls, record, hash_func):
+    def from_record(cls, data, hashfunc):
         """
         Creates a leaf storing the digest of the provided record under the
         provided hash function.
 
-        :param record: byte string to encrypt
-        :type record: bytes
-        :param hash_func: hash function to use
-        :type hash_func: function
+        :param data: bytestring to encrypt
+        :type data: bytes
+        :param hashfunc: hash function to use
+        :type hashfunc: function
         :param next: [optional] next leaf node. Defaults to *None*.
         :type next: Leaf
         :returns: the created leaf
         :rtype: Leaf
         """
-        return cls(hash_func(record), leaf=None)
+        return cls(hashfunc(data), leaf=None)

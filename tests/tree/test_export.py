@@ -22,7 +22,7 @@ def test_export():
 
     assert exported == {
         "encoding": "utf_8",
-        "hash_type": "sha256",
+        "algorithm": "sha256",
         "security": True,
         "hashes": [
             "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",

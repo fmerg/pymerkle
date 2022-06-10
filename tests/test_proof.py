@@ -87,7 +87,7 @@ path = [
 
 proof_11 = Proof(
     provider=provider,
-    hash_type='sha_256',
+    algorithm='sha_256',
     encoding='utf_8',
     security=True,
     offset=5,
@@ -96,7 +96,7 @@ proof_11 = Proof(
 
 proof_21 = Proof(
     provider=provider,
-    hash_type='sha_256',
+    algorithm='sha_256',
     encoding='utf_8',
     security=True,
     offset=-1,
@@ -104,7 +104,7 @@ proof_21 = Proof(
 
 proof_12 = Proof(
     provider=provider,
-    hash_type='sha_256',
+    algorithm='sha_256',
     encoding='utf_8',
     security=True,
     offset=5,
@@ -113,7 +113,7 @@ proof_12 = Proof(
 
 proof_22 = Proof(
     provider=provider,
-    hash_type='sha_256',
+    algorithm='sha_256',
     encoding='utf_8',
     security=True,
     offset=-1,
@@ -122,7 +122,7 @@ proof_22 = Proof(
 
 proof_31 = Proof(
     provider=provider,
-    hash_type='sha_256',
+    algorithm='sha_256',
     encoding='utf_8',
     security=True,
     commitment=b'd079da3aee8025dbffee11b434f1abd52e97caa1d7693a441f196093abc64993',
@@ -154,7 +154,7 @@ serializations = [
                 'timestamp': proof_11.timestamp,
                 'created_at': proof_11.created_at,
                 'provider': provider,
-                'hash_type': 'sha_256',
+                'algorithm': 'sha_256',
                 'encoding': 'utf_8',
                 'security': True,
             },
@@ -185,7 +185,7 @@ serializations = [
                 'timestamp': proof_21.timestamp,
                 'created_at': proof_21.created_at,
                 'provider': provider,
-                'hash_type': 'sha_256',
+                'algorithm': 'sha_256',
                 'encoding': 'utf_8',
                 'security': True,
             },
@@ -217,7 +217,7 @@ def test___repr__(proof, generation):
                                                      timestamp=proof.timestamp,
                                                      created_at=proof.created_at,
                                                      provider=provider,
-                                                     hash_type='SHA256',
+                                                     algorithm='SHA256',
                                                      encoding='UTF-8',
                                                      security='ACTIVATED',
                                                      offset=5 if generation else -1,

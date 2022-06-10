@@ -2,16 +2,16 @@ import pytest
 import os
 import json
 from pymerkle import MerkleTree
-from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES
+from pymerkle.hashing import HashEngine, SUPPORTED_ALGORITHMS
 
 from tests.conftest import option, resolve_encodings
 
 
 trees_engines = []
 for security in (True, False):
-    for hash_type in SUPPORTED_HASH_TYPES:
+    for algorithm in SUPPORTED_ALGORITHMS:
         for encoding in resolve_encodings(option):
-            config = {'hash_type': hash_type, 'encoding': encoding,
+            config = {'algorithm': algorithm, 'encoding': encoding,
                       'security': security}
 
             trees_engines.append(
@@ -38,7 +38,7 @@ files = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.parametrize('tree, engine, record', records)
 def test_encrypt(tree, engine, record):
     tree.encrypt(record)
-    assert tree.get_tail().digest == engine.hash(record)
+    assert tree.get_tail().digest == engine.hash_record(record)
 
 
 @pytest.mark.parametrize('tree, engine', trees_engines)
@@ -47,7 +47,7 @@ def test_encrypt_file_content(tree, engine):
     tree.encrypt_file_content(logfile)
     with open(logfile, 'rb') as f:
         content = f.read()
-    assert tree.get_tail().digest == engine.hash(content)
+    assert tree.get_tail().digest == engine.hash_record(content)
 
 
 @pytest.mark.parametrize('tree', [tree for tree, _ in trees_engines])

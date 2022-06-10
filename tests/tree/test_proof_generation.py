@@ -5,7 +5,7 @@ Tests proof generation methods
 import pytest
 
 from pymerkle import MerkleTree
-from pymerkle.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_ALGORITHMS
 
 from tests.conftest import option, resolve_encodings
 
@@ -16,9 +16,9 @@ MAX_LENGTH = 4
 trees = []
 for security in (True, False):
     for length in range(0, MAX_LENGTH + 1):
-        for hash_type in SUPPORTED_HASH_TYPES:
+        for algorithm in SUPPORTED_ALGORITHMS:
             for encoding in resolve_encodings(option):
-                config = {'hash_type': hash_type, 'encoding': encoding,
+                config = {'algorithm': algorithm, 'encoding': encoding,
                           'security': security}
                 tree = MerkleTree.init_from_records(
                     *['%d-th record' % _ for _ in range(length)],
@@ -42,7 +42,7 @@ for tree in trees:
         tree_challenge.append(
             (
                 tree,
-                tree.hash('%d-th record' % i)
+                tree.hash_record('%d-th record' % i)
             )
         )
 
@@ -56,7 +56,7 @@ def test_empty_generate_audit_proof(tree, challenge):
         'timestamp': proof.timestamp,
         'created_at': proof.created_at,
         'provider': tree.uuid,
-        'hash_type': tree.hash_type,
+        'algorithm': tree.algorithm,
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
@@ -74,7 +74,7 @@ def test_non_empty_generate_audit_proof(tree, challenge):
         'timestamp': proof.timestamp,
         'created_at': proof.created_at,
         'provider': tree.uuid,
-        'hash_type': tree.hash_type,
+        'algorithm': tree.algorithm,
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
@@ -121,7 +121,7 @@ def test_non_empty_generate_consistency_proof(tree, challenge):
         'timestamp': proof.timestamp,
         'created_at': proof.created_at,
         'provider': tree.uuid,
-        'hash_type': tree.hash_type,
+        'algorithm': tree.algorithm,
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
@@ -139,7 +139,7 @@ def test_empty_generate_consistency_proof_with_wrong_challenge(tree, challenge):
         'timestamp': proof.timestamp,
         'created_at': proof.created_at,
         'provider': tree.uuid,
-        'hash_type': tree.hash_type,
+        'algorithm': tree.algorithm,
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,
@@ -157,7 +157,7 @@ def test_empty_generate_consistency_proof_with_wrong_challenge(tree, challenge):
         'timestamp': proof.timestamp,
         'created_at': proof.created_at,
         'provider': tree.uuid,
-        'hash_type': tree.hash_type,
+        'algorithm': tree.algorithm,
         'encoding': tree.encoding,
         'security': tree.security,
         'commitment': proof.commitment,

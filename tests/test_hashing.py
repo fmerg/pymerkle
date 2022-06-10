@@ -4,45 +4,46 @@
 import pytest
 import hashlib
 
-from pymerkle.hashing import HashEngine, SUPPORTED_HASH_TYPES, \
+from pymerkle.hashing import HashEngine, SUPPORTED_ALGORITHMS, \
     EmptyPathException, UnsupportedParameter
 
 from tests.conftest import option, resolve_encodings
 
-message = 'oculusnonviditnecaurisaudivit'
 
+record = 'oculusnonviditnecaurisaudivit'
 engines = []
-engines__hash_types__encodings__securities = []
-engines__single_args = []
+engines_types_encodings_securities = []
+engines_singleargs = []
 
 for security in (True, False):
-    for hash_type in SUPPORTED_HASH_TYPES:
+    for algorithm in SUPPORTED_ALGORITHMS:
         for encoding in resolve_encodings(option):
-            config = {'hash_type': hash_type, 'encoding': encoding,
+
+            config = {'algorithm': algorithm, 'encoding': encoding,
                       'security': security}
             engine = HashEngine(**config)
 
             engines.append(engine)
-            engines__hash_types__encodings__securities.extend(
+            engines_types_encodings_securities.extend(
                 [
                     (
                         engine,
-                        hash_type,
+                        algorithm,
                         encoding,
                         security
                     )
                 ]
             )
 
-            engines__single_args.extend(
+            engines_singleargs.extend(
                 [
                     (
                         engine,
-                        message
+                        record,
                     ),
                     (
                         engine,
-                        bytes(message, encoding)
+                        record.encode(engine.encoding),
                     )
                 ]
             )
@@ -50,518 +51,534 @@ for security in (True, False):
 
 # hash
 
-@pytest.mark.parametrize("engine, hash_type, encoding, security",
-                         engines__hash_types__encodings__securities)
-def test_single_string_hash(engine, hash_type, encoding, security):
+@pytest.mark.parametrize("engine, algorithm, encoding, security",
+                         engines_types_encodings_securities)
+def test_single_string_hash(engine, algorithm, encoding, security):
+    prefx00 = '\x00'.encode(encoding)
+    data = record.encode(encoding)
+
     if security:
-        assert engine.hash(message) == bytes(
-            getattr(hashlib, hash_type)(
-                ('\x00').encode(encoding) +
-                (message).encode(encoding)
+        assert engine.hash_record(record) == bytes(
+            getattr(hashlib, algorithm)(
+                prefx00 +
+                data
             ).hexdigest(),
             encoding
         )
     else:
-        assert engine.hash(message) == bytes(
-            getattr(hashlib, hash_type)(bytes(message, encoding)).hexdigest(),
+        assert engine.hash_record(record) == bytes(
+            getattr(hashlib, algorithm)(data).hexdigest(),
             encoding
         )
 
 
-@pytest.mark.parametrize("engine, hash_type, encoding, security",
-                         engines__hash_types__encodings__securities)
-def test_single_bytes_hash(engine, hash_type, encoding, security):
+@pytest.mark.parametrize("engine, algorithm, encoding, security",
+                         engines_types_encodings_securities)
+def test_single_bytes_hash(engine, algorithm, encoding, security):
+    prefx00 = '\x00'.encode(encoding)
+    data = record.encode(encoding)
+
     if security:
-        assert engine.hash(bytes(message, encoding)) == bytes(
-            getattr(hashlib, hash_type)(
+        assert engine.hash_record(data) == bytes(
+            getattr(hashlib, algorithm)(
                 bytes('\x00', encoding) +
-                bytes(message, encoding)
+                data
             ).hexdigest(),
             encoding
         )
     else:
-        assert engine.hash(bytes(message, encoding)) == bytes(
-            getattr(hashlib, hash_type)(bytes(message, encoding)).hexdigest(),
+        assert engine.hash_record(data) == bytes(
+            getattr(hashlib, algorithm)(data).hexdigest(),
             encoding
         )
 
 
-@pytest.mark.parametrize("engine, hash_type, encoding, security",
-                         engines__hash_types__encodings__securities)
-def test_double_bytes_hash(engine, hash_type, encoding, security):
+@pytest.mark.parametrize("engine, algorithm, encoding, security",
+                         engines_types_encodings_securities)
+def test_double_bytes_hash(engine, algorithm, encoding, security):
+    prefx00 = '\x00'.encode(encoding)
+    prefx01 = '\x01'.encode(encoding)
+    data = record.encode(encoding)
+
     if security:
-        assert engine.hash(
-            bytes(message, encoding),
-            bytes(message, encoding)) == bytes(
-            getattr(hashlib, hash_type)(
-                bytes('\x01', encoding) +
-                bytes(message, encoding) +
-                bytes('\x01', encoding) +
-                bytes(message, encoding)
+        assert engine.hash_pair(
+            data,
+            data) == bytes(
+            getattr(hashlib, algorithm)(
+                prefx01 +
+                data +
+                prefx01 +
+                data
             ).hexdigest(),
             encoding
         )
     else:
-        assert engine.hash(
-            bytes(message, encoding),
-            bytes(message, encoding)) == bytes(
-                getattr(hashlib, hash_type)(
-                    bytes(message, encoding) +
-                    bytes(message, encoding)
+        assert engine.hash_pair(
+            data,
+            data) == bytes(
+                getattr(hashlib, algorithm)(
+                    data +
+                    data
                 ).hexdigest(),
                 encoding
         )
 
 
-# multi_hash
+# hash_path
 
 @pytest.mark.parametrize('engine', engines)
-def test_0_elems_multi_hash(engine):
+def test_0_elems_hash_path(engine):
     with pytest.raises(EmptyPathException):
-        assert engine.multi_hash((), 'anything')
+        assert engine.hash_path((), 'anything')
 
 
-@pytest.mark.parametrize('engine, single_arg', engines__single_args)
-def test_1_elems_multi_hash(engine, single_arg):
-    assert engine.multi_hash(
-        ((+1, engine.hash(single_arg)),), 0
-    ) == engine.hash(single_arg)
+@pytest.mark.parametrize('engine, record', engines_singleargs)
+def test_1_elems_hash_path(engine, record):
+    assert engine.hash_path(
+        ((+1, engine.hash_record(record)),), 0
+    ) == engine.hash_record(record)
 
 
 @pytest.mark.parametrize('engine', engines)
-def test_2_elems_multi_hash(engine):
-    hash = engine.hash
-    multi_hash = engine.multi_hash
-    encoding = engine.encoding
+def test_2_elems_hash_path(engine):
+    hashf = engine.hash_pair
+    hash_path = engine.hash_path
+    data = record.encode(engine.encoding)
+
     if engine.security:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             0
-        ) == multi_hash(
+        ) == hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(bytes(message, encoding), bytes(message, encoding))
+        ) == hashf(data, data)
     else:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             0
-        ) == multi_hash(
+        ) == hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(bytes(message, encoding), bytes(message, encoding))
+        ) == hashf(data, data)
 
 
 @pytest.mark.parametrize('engine', engines)
-def test_3_elems_multi_hash_case_1(engine):
-    hash = engine.hash
-    multi_hash = engine.multi_hash
-    encoding = engine.encoding
+def test_3_elems_hash_path_case_1(engine):
+    hashf = engine.hash_pair
+    hash_path = engine.hash_path
+    data = record.encode(engine.encoding)
+
     if engine.security:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 )
             ),
             0
-        ) == multi_hash(
+        ) == hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(
-            hash(
-                bytes(message, encoding),
-                bytes(message, encoding)
+        ) == hashf(
+            hashf(
+                data,
+                data
             ),
-            bytes(message, encoding)
+            data
         )
     else:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 )
             ),
             0
 
-        ) == multi_hash(
+        ) == hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(
-            hash(
-                bytes(message, encoding),
-                bytes(message, encoding)),
-            bytes(message, encoding)
+        ) == hashf(
+            hashf(
+                data,
+                data),
+            data
         )
 
 
 @pytest.mark.parametrize('engine', engines)
-def test_3_elems_multi_hash_case_2(engine):
-    hash = engine.hash
-    multi_hash = engine.multi_hash
-    encoding = engine.encoding
+def test_3_elems_hash_path_case_2(engine):
+    hashf = engine.hash_pair
+    hash_path = engine.hash_path
+    data = record.encode(engine.encoding)
+
     if engine.security:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             2
-        ) == multi_hash(
+        ) == hash_path(
             (
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(
-            bytes(message, encoding),
-            hash(
-                bytes(message, encoding),
-                bytes(message, encoding)
+        ) == hashf(
+            data,
+            hashf(
+                data,
+                data
             )
         )
     else:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             2
-        ) == multi_hash(
+        ) == hash_path(
             (
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(
-            bytes(message, encoding),
-            hash(
-                bytes(message, encoding),
-                bytes(message, encoding)
+        ) == hashf(
+            data,
+            hashf(
+                data,
+                data
             )
         )
 
 
 @pytest.mark.parametrize('engine', engines)
-def test_4_elems_multi_hash_edge_case_1(engine):
-    hash = engine.hash
-    multi_hash = engine.multi_hash
-    encoding = engine.encoding
+def test_4_elems_hash_path_edge_case_1(engine):
+    hashf = engine.hash_pair
+    hash_path = engine.hash_path
+    data = record.encode(engine.encoding)
+
     if engine.security:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 )
             ),
             0
-        ) == hash(
-            hash(
-                hash(
-                    bytes(message, encoding),
-                    bytes(message, encoding)
+        ) == hashf(
+            hashf(
+                hashf(
+                    data,
+                    data
                 ),
-                bytes(message, encoding)
+                data
             ),
-            bytes(message, encoding)
+            data
         )
     else:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 )
             ),
             0
-        ) == hash(
-            hash(
-                hash(
-                    bytes(message, encoding),
-                    bytes(message, encoding)
+        ) == hashf(
+            hashf(
+                hashf(
+                    data,
+                    data
                 ),
-                bytes(message, encoding)
+                data
             ),
-            bytes(message, encoding)
+            data
         )
 
 
 @pytest.mark.parametrize('engine', engines)
-def test_4_elems_multi_hash_edge_case_2(engine):
-    hash = engine.hash
-    multi_hash = engine.multi_hash
-    encoding = engine.encoding
+def test_4_elems_hash_path_edge_case_2(engine):
+    hashf = engine.hash_pair
+    hash_path = engine.hash_path
+    data = record.encode(engine.encoding)
+
     if engine.security:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             3
-        ) == hash(
-            bytes(message, encoding),
-            hash(
-                bytes(message, encoding),
-                hash(
-                    bytes(message, encoding),
-                    bytes(message, encoding)
+        ) == hashf(
+            data,
+            hashf(
+                data,
+                hashf(
+                    data,
+                    data
                 )
             )
         )
     else:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     'whatever',
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             3
-        ) == hash(
-            bytes(message, encoding),
-            hash(
-                bytes(message, encoding),
-                hash(
-                    bytes(message, encoding),
-                    bytes(message, encoding)
+        ) == hashf(
+            data,
+            hashf(
+                data,
+                hashf(
+                    data,
+                    data
                 )
             )
         )
 
 
 @pytest.mark.parametrize('engine', engines)
-def test_4_elems_multi_hash(engine):
-    hash = engine.hash
-    multi_hash = engine.multi_hash
-    encoding = engine.encoding
+def test_4_elems_hash_path(engine):
+    hashf = engine.hash_pair
+    hash_path = engine.hash_path
+    data = record.encode(engine.encoding)
+
     if engine.security:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(
-            hash(
-                bytes(message, encoding),
-                hash(
-                    bytes(message, encoding),
-                    bytes(message, encoding))
+        ) == hashf(
+            hashf(
+                data,
+                hashf(
+                    data,
+                    data)
             ),
-            bytes(message, encoding)
+            data
         )
     else:
-        assert multi_hash(
+        assert hash_path(
             (
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     +1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 ),
                 (
                     -1,
-                    bytes(message, encoding)
+                    data
                 )
             ),
             1
-        ) == hash(
-            hash(
-                bytes(message, encoding),
-                hash(
-                    bytes(message, encoding),
-                    bytes(message, encoding)
+        ) == hashf(
+            hashf(
+                data,
+                hashf(
+                    data,
+                    data
                 )
             ),
-            bytes(message, encoding)
+            data
         )

@@ -6,7 +6,7 @@ import pytest
 import os
 
 from pymerkle import MerkleTree
-from pymerkle.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_ALGORITHMS
 
 from tests.conftest import option, resolve_encodings
 
@@ -17,9 +17,9 @@ RED_HAT_LINUX_log = os.path.join(child_dir, 'logdata/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
 for security in (True, False):
-    for hash_type in SUPPORTED_HASH_TYPES:
+    for algorithm in SUPPORTED_ALGORITHMS:
         for encoding in resolve_encodings(option):
-            config = {'hash_type': hash_type, 'encoding': encoding,
+            config = {'algorithm': algorithm, 'encoding': encoding,
                       'security': security}
             tree = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e',
                                                 config=config)

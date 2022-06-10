@@ -5,9 +5,9 @@ import json
 from pymerkle.tree import MerkleTree, UnsupportedParameter
 
 
-def test_unsupported_hash_type():
+def test_unsupported_algorithm():
     with pytest.raises(UnsupportedParameter):
-        MerkleTree(hash_type='anything unsupported...')
+        MerkleTree(algorithm='anything unsupported...')
 
 
 def test_unsupported_encoding():
@@ -16,7 +16,7 @@ def test_unsupported_encoding():
 
 
 def test_MerkleTree_bool_implementation():
-    assert not MerkleTree() and MerkleTree.init_from_records('some record')
+    assert not MerkleTree() and MerkleTree.init_from_records('something')
 
 
 def test_root_empty_tree_exception():
@@ -28,10 +28,11 @@ def test_root_hash_for_empty_tree():
 
 
 def test_root_hash_of_non_empty_MerkleTree():
-    t = MerkleTree.init_from_records('first record')
-    s = MerkleTree.init_from_records('first record', 'second record')
-    assert t.get_root_hash() == t.hash('first record') and \
-        s.get_root_hash() == s.hash(s.hash('first record'), s.hash('second record'))
+    t = MerkleTree.init_from_records('a')
+    s = MerkleTree.init_from_records('a', 'b')
+    assert t.get_root_hash() == t.hash_record('a') and \
+        s.get_root_hash() == s.hash_pair(s.hash_record('a'),
+                s.hash_record('b'))
 
 
 def test_dimensions_of_empty_tree():
@@ -40,5 +41,5 @@ def test_dimensions_of_empty_tree():
 
 
 def test_dimensions_of_tree_with_three_leaves():
-    tree = MerkleTree.init_from_records('first', 'second', 'third')
+    tree = MerkleTree.init_from_records('a', 'b', 'c')
     assert (tree.length, tree.size, tree.height) == (3, 5, 2)

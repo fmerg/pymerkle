@@ -18,7 +18,7 @@ from pymerkle.nodes import Node, Leaf
 TREE_TEMPLATE = """
     uuid      : {uuid}
 
-    hash-type : {hash_type}
+    hash-type : {algorithm}
     encoding  : {encoding}
     security  : {security}
 
@@ -42,8 +42,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     Interface and abstract functionality of Merkle-trees.
     """
 
-    def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
-        self.hash_type = hash_type
+    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
+        self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
 
@@ -53,42 +53,42 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def get_config(self):
         """
-        Returns the tree's configuration, consisting of ``hash_type``,
+        Returns the tree's configuration, consisting of ``algorithm``,
         ``encoding`` and ``security``.
 
         :rtype: dict
         """
-        return {'hash_type': self.hash_type, 'encoding': self.encoding,
+        return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
-    def encrypt(self, record):
+    def encrypt(self, data):
         """
         Creates a new leaf node with the digest of the provided record and
         appends it to the tree by restructuring it and recalculating the
         appropriate interior hashes.
 
-        :param record: Record to encrypt.
-        :type record: str or bytes
+        :param data: record to encrypt.
+        :type data: str or bytes
         """
-        leaf = Leaf.from_record(record, self.hash)
+        leaf = Leaf.from_record(data, self.hash_record)
 
         self.add_leaf(leaf)
 
     @classmethod
-    def init_from_records(cls, *records, config=None):
+    def init_from_records(cls, *data, config=None):
         """
         Create tree from initial records.
 
-        :param records: Initial records to encrypt into the tree.
-        :type records: iterable of bytes or str
+        :param data: Initial data to encrypt into the tree.
+        :type data: iterable of bytes or str
         :param config: Configuration of tree. Must contain a subset of keys
-            ``hash_type``, ``encoding`` and ``security``.
+            ``algorithm``, ``encoding`` and ``security``.
         :type config: dict
         """
         config = {} if not config else config
         tree = cls(**config)
 
-        for record in records:
+        for record in data:
             tree.encrypt(record)
 
         return tree
@@ -231,7 +231,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             except NoPathException:
                 continue
 
-            if challenge == self.multi_hash(left_path, len(left_path) - 1):
+            if challenge == self.hash_path(left_path, len(left_path) - 1):
                 offset = _offset
                 path = _path
                 break
@@ -365,12 +365,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         .. warning:: Contrary to convention, the output of this method is not
             insertable into the *eval()* builtin Python function.
         """
-        hash_type = self.hash_type.upper().replace('_', '')
+        algorithm = self.algorithm.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         root_hash = self.get_root_hash().decode(self.encoding) if self else '[None]'
 
-        kw = {'uuid': self.uuid, 'hash_type': hash_type, 'encoding': encoding,
+        kw = {'uuid': self.uuid, 'algorithm': algorithm, 'encoding': encoding,
               'security': security, 'root': root_hash,
               'length': self.length, 'size': self.size,
               'height': self.height}
@@ -438,16 +438,16 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         while True:
 
             # TODO: Should we strip newline from content?
-            record = buff.readline()
-            if not record:
+            data = buff.readline()
+            if not data:
                 break
 
-            records.append(record)
+            records.append(data)
 
         nr_records = len(records)
-        for count, record in enumerate(records):
+        for count, data in enumerate(records):
 
-            self.encrypt(record)
+            self.encrypt(data)
 
             sys.stdout.write('%d/%d lines   \r' % (count + 1, nr_records))
             sys.stdout.flush()
@@ -530,9 +530,9 @@ class MerkleTree(BaseMerkleTree):
     """
     Concrete Merkle-tree implementation.
 
-    :param hash_type: [optional] Specifies the tree's hashing algorithm.
+    :param algorithm: [optional] Specifies the tree's hashing algorithm.
         Defaults to *sha256*.
-    :type hash_type: str
+    :type algorithm: str
     :param encoding: [optional] Specifies the tree's encoding type. Defaults to
         *utf_8*.
     :type encoding: str
@@ -541,13 +541,13 @@ class MerkleTree(BaseMerkleTree):
     :type security: bool
     """
 
-    def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
+    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
         self.__root = None
         self.__head = None
         self.__tail = None
         self.__nr_leaves = 0
 
-        super().__init__(hash_type, encoding, security)
+        super().__init__(algorithm, encoding, security)
 
     def __bool__(self):
         """
@@ -710,13 +710,12 @@ class MerkleTree(BaseMerkleTree):
             if not subroot.parent:
 
                 # Increase height by one
-                self.__root = Node.from_children(subroot, leaf, self.hash)
-
+                self.__root = Node.from_children(subroot, leaf, self.hash_pair)
             else:
                 parent = subroot.parent
 
                 # Create bifurcation node
-                new_node = Node.from_children(subroot, leaf, self.hash)
+                new_node = Node.from_children(subroot, leaf, self.hash_pair)
 
                 # Interject bifurcation node
                 parent.set_right(new_node)
@@ -725,7 +724,7 @@ class MerkleTree(BaseMerkleTree):
                 # Recalculate hashes only at the rightmost branch of the tree
                 curr = parent
                 while curr:
-                    curr.recalculate_hash(hash_func=self.hash)
+                    curr.recalculate_hash(hashfunc=self.hash_pair)
                     curr = curr.parent
         else:
             self._append_leaf(leaf)
@@ -965,14 +964,14 @@ class MerkleTree(BaseMerkleTree):
         """
         result = False
 
-        multi_hash = self.multi_hash
+        hash_path = self.hash_path
         for sublength in range(1, self.length + 1):
 
             subroots = self.get_principal_subroots(sublength)
             path = [(-1, r[1].digest) for r in subroots]
 
             offset = len(path) - 1
-            if checksum == multi_hash(path, offset):
+            if checksum == hash_path(path, offset):
                 result = True
                 break
 

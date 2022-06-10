@@ -5,11 +5,11 @@ from pymerkle import MerkleTree
 
 if __name__ == '__main__':
 
-    tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
+    tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
 
     # Populate tree with some records
-    for record in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-        tree.encrypt(record)
+    for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
+        tree.encrypt(data)
 
     print(repr(tree))
 
@@ -23,8 +23,8 @@ if __name__ == '__main__':
     state = tree.get_root_hash()
 
     # Append further leaves
-    for record in [b'corge', b'grault', b'garlpy']:
-        tree.encrypt(record)
+    for data in [b'corge', b'grault', b'garlpy']:
+        tree.encrypt(data)
 
     # Prove and verify saved state
     proof = tree.generate_consistency_proof(challenge=state)

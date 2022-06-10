@@ -21,17 +21,15 @@ SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125'
                        'mac_latin2', 'mac_roman', 'mac_turkish', 'ptcp154', 'shift_jis',
                        'shift_jis_2004', 'shift_jisx0213', 'tis_620', 'utf_16', 'utf_16_be',
                        'utf_16_le', 'utf_32', 'utf_32_be', 'utf_32_le', 'utf_7', 'utf_8', ]
-"""List of supported hash types"""
 
 
-SUPPORTED_HASH_TYPES = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
+SUPPORTED_ALGORITHMS = ['md5', 'sha224', 'sha256', 'sha384', 'sha512',
                         'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512', ]
-"""List of supported encoding types"""
 
 
 class UnsupportedParameter(Exception):
     """
-    Raised when a hashing engine with unsupported paramter is requested.
+    Raised when a hashing engine with unsupported parameters is requested.
     """
     pass
 
@@ -48,9 +46,9 @@ class HashEngine:
     Encapsulates the hashing functionality of Merkle-trees and proof
     verification.
 
-    :param hash_type: [optional] Specifies the hash algorithm used by the
+    :param algorithm: [optional] Specifies the hash algorithm used by the
         engine. Defaults to *sha256*.
-    :type hash_type: str
+    :type algorithm: str
     :param encoding: [optional] Specifies the encoding algorithm used by the
         engine before hashing. Defaults to *utf_8*.
     :type encoding: str
@@ -59,91 +57,88 @@ class HashEngine:
     :type security: bool
 
     :raises UnsupportedParameter: if the provided hash-type or encoding is not
-        included in ``SUPPORTED_HASH_TYPES`` or ``SUPPORTED_ENCODINGS``
+        included in ``SUPPORTED_ALGORITHMS`` or ``SUPPORTED_ENCODINGS``
         respectively.
     """
 
-    def __init__(self, hash_type='sha256', encoding='utf-8', security=True):
+    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
 
-        _hash_type = hash_type.lower().replace('-', '_')
-        if _hash_type not in SUPPORTED_HASH_TYPES:
-            raise UnsupportedParameter(f'{hash_type} is not supported')
+        for (attr, provided, supported) in (
+                ('algorithm', algorithm, SUPPORTED_ALGORITHMS),
+                ('encoding', encoding, SUPPORTED_ENCODINGS)):
 
-        _encoding = encoding.lower().replace('-', '_')
-        if _encoding not in SUPPORTED_ENCODINGS:
-            raise UnsupportedParameter(f'{encoding} is not supported')
+            _provided = provided.lower().replace('-', '_')
 
-        self.hash_type = _hash_type
-        self.algorithm = getattr(hashlib, self.hash_type)
-        self.encoding = _encoding
+            if _provided not in supported:
+                raise UnsupportedParameter(f'{provided} is not supported')
+
+            setattr(self, attr, _provided)
+
         self.security = security
 
-        if self.security:
-            self.prefix_0 = '\x00'.encode(self.encoding)
-            self.prefix_1 = '\x01'.encode(self.encoding)
+        if security:
+            self.prefx00 = '\x00'.encode(encoding)
+            self.prefx01 = '\x01'.encode(encoding)
         else:
-            self.prefix_0 = bytes()
-            self.prefix_1 = bytes()
+            self.prefx00 = bytes()
+            self.prefx01 = bytes()
 
-    def concatenate(self, left, right=None):
+    def _hash(self, buff):
         """
-        Computes the concatenation of the provided byte strings.
+        Returns the hexdigest of the provided data under the engine's
+        configured hash algorithm.
 
-        If in security mode (as is default), the provided sequences are
-        prepended with ``0x01`` under the engine's encoding type. If the
-        secondf argument is omitted, then the provided one is prepended with
-        ``0x01``.
+        :param buff: data to hash
+        :type buff: bytes
+        :rtype: bytes
+        """
+        hasher = getattr(hashlib, self.algorithm)()
+        update = hasher.update
+
+        offset = 0
+        chunksize = 1024
+        chunk = buff[offset: chunksize]
+        while chunk:
+            update(chunk)
+            offset += chunksize
+            chunk = buff[offset: offset + chunksize]
+
+        return hasher.hexdigest().encode(self.encoding)
+
+    def hash_record(self, data):
+        """
+        Computes the digest of the provided record under the engine's configured
+        hash algorithm, after first appending the ``\\x00`` security prefix.
+        """
+        buff = self.prefx00 + (data if isinstance(data, bytes) else
+                               data.encode(self.encoding))
+
+        return self._hash(buff)
+
+    def hash_pair(self, left, right):
+        """
+        Concatenates the provided bytestrings after first appending the
+        ``\\x01`` security prefix and computes the digest under the engine's
+        configured hash algorithm.
 
         :param left: left sequence
         :type left: bytes
-        :param right: [optional] right sequence
+        :param right: right sequence
         :type right: bytes
-        :returns: Concatenation of the provided sequences as determined by the
-           encoding and security mode of the present engine.
         :rtype: bytes
         """
-        if right is None:
+        buff = self.prefx01 + left + self.prefx01 + right
 
-            if isinstance(left, bytes):
-                return self.prefix_0 + left
+        return self._hash(buff)
 
-            return self.prefix_0 + left.encode(self.encoding)
-
-        return self.prefix_1 + left + self.prefix_1 + right
-
-
-    def hash(self, left, right=None):
+    def hash_path(self, path, offset):
         """
-        Computes the digest of the concatenation of the probided byte strings
-        using the engine's configured hash algorithm. If *right* is omitted,
-        then the digest of *left* (prepended with ``0x00``) is computed.
+        Computes the digest occuring after repeatedly applying *hash_pair()*
+        over the provided path of hashes, where signs indicate parenthetization
+        in terms of pairing and *offset* is the starting position counting from
+        zero. Schematically speaking,
 
-        .. note:: The exact nature of the concatenation is determined by the
-            encoding type and security mode of the engine (cf. the
-            *concatenate()* method).
-
-        :param left: left sequence
-        :type left: bytes
-        :param right: [optional] right sequence
-        :type right: bytes
-
-        :returns: Digest of the conatenation of the provided byte strings.
-        :rtype: bytes
-        """
-        bytestring = self.concatenate(left, right)
-        checksum = self.algorithm(bytestring).hexdigest()
-        digest = checksum.encode(self.encoding)
-
-        return digest
-
-    def multi_hash(self, path, offset):
-        """
-        Computes the checksum which occurs after repetedly applying *hash()*
-        over the provided *path* of hashes, were signs indicate
-        parenthetization in terms of pairing and *offset* is the starting
-        position counting from zero. Schematically speaking,
-
-        ``multi_hash([(1, a), (1, b), (-1, c), (-1, d)], 1)``
+        ``hash_path([(1, a), (1, b), (-1, c), (-1, d)], 1)``
 
         is equivalent to
 
@@ -159,14 +154,6 @@ class HashEngine:
         :rtype: bytes
 
         :raises EmptyPathException: if the provided path of hashes is empty.
-
-        .. note:: If the provided path of hashes contains only one element,
-            then this single hash is returned without sign; schematically
-            speaking,
-
-                 ``multi_hash(((+/-1, a)), 0) = a``
-
-            (no hashing of single elements).
         """
         path = list(path)
 
@@ -180,19 +167,16 @@ class HashEngine:
 
             if path[i][0] == +1:
                 # Pair with the right neighbour
-
                 if i == 0:
                     sign = +1
                 else:
                     sign = path[i + 1][0]
-                digest = self.hash(path[i][1], path[i + 1][1])
+                digest = self.hash_pair(path[i][1], path[i + 1][1])
                 move = +1
-
             else:
                 # Pair with left neighbour
-
                 sign = path[i - 1][0]
-                digest = self.hash(path[i - 1][1], path[i][1])
+                digest = self.hash_pair(path[i - 1][1], path[i][1])
                 move = -1
 
             path[i] = (sign, digest)

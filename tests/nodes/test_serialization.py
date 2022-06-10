@@ -5,18 +5,19 @@ from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 
 
-h = HashEngine()
-encoding = h.encoding
-hash_func = h.hash
+e = HashEngine()
+encoding = e.encoding
+hash_record = e.hash_record
+hash_pair = e.hash_pair
 
 # Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf1 = Leaf.from_record(b'first record...', hash_func)
-leaf2 = Leaf.from_record(b'second record...', hash_func)
-leaf3 = Leaf.from_record(b'third record...', hash_func)
-leaf4 = Leaf.from_record(b'fourth record...', hash_func)
-node1 = Node.from_children(leaf1, leaf2, hash_func)
-node3 = Node.from_children(leaf3, leaf4, hash_func)
-root = Node.from_children(node1, node3, hash_func)
+leaf1 = Leaf.from_record(b'first record...', hash_record)
+leaf2 = Leaf.from_record(b'second record...', hash_record)
+leaf3 = Leaf.from_record(b'third record...', hash_record)
+leaf4 = Leaf.from_record(b'fourth record...', hash_record)
+node1 = Node.from_children(leaf1, leaf2, hash_pair)
+node3 = Node.from_children(leaf3, leaf4, hash_pair)
+root = Node.from_children(node1, node3, hash_pair)
 
 
 stringifications = [

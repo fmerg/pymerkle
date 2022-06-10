@@ -7,9 +7,9 @@ from pymerkle.tree import TREE_TEMPLATE
 
 
 def test___repr__non_default_empty_tree():
-    tree = MerkleTree(hash_type='sha512', encoding='UTF-32', security=False)
+    tree = MerkleTree(algorithm='sha512', encoding='UTF-32', security=False)
     assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
-                                                   hash_type='SHA512',
+                                                   algorithm='SHA512',
                                                    encoding='UTF-32',
                                                    security='DEACTIVATED',
                                                    root='[None]',
@@ -21,7 +21,7 @@ def test___repr__non_default_empty_tree():
 def test___repr__default_non_empty_tree():
     tree = MerkleTree.init_from_records(b'first', b'second', b'third')
     assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
-                                                   hash_type='SHA256',
+                                                   algorithm='SHA256',
                                                    encoding='UTF-8',
                                                    security='ACTIVATED',
                                                    root=tree.get_root_hash().decode(
@@ -40,7 +40,7 @@ serializations = [
         empty_tree,
         {
             "encoding": "utf_8",
-            "hash_type": "sha256",
+            "algorithm": "sha256",
             "security": True,
             "hashes": [],
         }
@@ -49,7 +49,7 @@ serializations = [
         one_leaf_tree,
         {
             "encoding": "utf_8",
-            "hash_type": "sha256",
+            "algorithm": "sha256",
             "security": True,
             "hashes": [
                 "a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d"
@@ -60,7 +60,7 @@ serializations = [
         three_leaves_tree,
         {
             "encoding": "utf_8",
-            "hash_type": "sha256",
+            "algorithm": "sha256",
             "security": True,
             "hashes": [
                 "a1af030231ca2fd20ecf30c5294baf8f69321d09bb16ac53885ccd17a385280d",

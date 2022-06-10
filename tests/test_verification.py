@@ -6,7 +6,7 @@ import pytest
 import os
 import json
 
-from pymerkle.hashing import SUPPORTED_HASH_TYPES
+from pymerkle.hashing import SUPPORTED_ALGORITHMS
 from pymerkle.prover import InvalidProof
 from pymerkle import MerkleTree
 
@@ -18,7 +18,7 @@ from tests.conftest import option, resolve_encodings
 def test_verify_proof_with_target():
     tree = MerkleTree.init_from_records(
         *[f'{i}-th record' for i in range(666)])
-    proof = tree.generate_audit_proof(tree.hash('100-th record'))
+    proof = tree.generate_audit_proof(tree.hash_record('100-th record'))
     assert proof.verify() is proof.verify(target=proof.commitment)
 
 
@@ -30,9 +30,9 @@ MAX_LENGTH = 4
 trees = []
 for security in (True, False):
     for length in range(1, MAX_LENGTH + 1):
-        for hash_type in SUPPORTED_HASH_TYPES:
+        for algorithm in SUPPORTED_ALGORITHMS:
             for encoding in resolve_encodings(option):
-                config = {'hash_type': hash_type, 'encoding': encoding,
+                config = {'algorithm': algorithm, 'encoding': encoding,
                           'security': security}
                 tree = MerkleTree.init_from_records(
                     *['%d-th record' % i for i in range(length)],
@@ -57,7 +57,7 @@ for tree in trees:
         valid_audit_proofs.append(
             (
                 tree,
-                tree.generate_audit_proof(tree.hash('%d-th record' % index))
+                tree.generate_audit_proof(tree.hash_record('%d-th record' % index))
             )
         )
 

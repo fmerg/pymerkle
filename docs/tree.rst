@@ -18,15 +18,15 @@ The above construction is equivalent to
 
 .. code-block:: python
 
-    tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
+    tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
 
 
-The ``hash_type`` attribute refers to the underlying hash algorithm and
+The ``algorithm`` attribute refers to the underlying hash algorithm and
 ``encoding`` determines the encoding before hashing. For example,
 
 .. code-block:: python
 
-    tree = MerkleTree(hash_type='sha512', encoding='utf-32')
+    tree = MerkleTree(algorithm='sha512', encoding='utf-32')
 
 creates a SHA512/UTF-32 Merkle-tree in security mode. If the provided hash type or
 encoding parameter is not among the supported ones, then ``UnsupportedParameter``
@@ -184,7 +184,7 @@ leaf nodes in respective order at the moment of export:
 
   {
       "encoding": "utf_8",
-      "hash_type": "sha256",
+      "algorithm": "sha256",
       "security": true
       "hashes": [
           "a08665f5138f40a07987234ec9821e5be05ecbf5d7792cd4155c4222618029b6",
