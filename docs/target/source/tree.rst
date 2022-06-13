@@ -83,37 +83,15 @@ Single record encryption
     tree.encrypt(b'bytestring')
 
 
-Bulk file encryption
---------------------
+File encryption
+---------------
 
-Encrypting the content of a file means to append a new leaf storing the hash
-value of that content (i.e., encrypting the file's content as a single record):
+Encrypting a file means to append a new leaf storing the hash value of its
+content (i.e., encrypting the file's content as a single record):
 
 .. code-block:: python
 
     tree.encrypt_file_content('relative_path/to/sample_file')
-
-.. note:: The provided path must be relative with respect to the current
-      working directory.
-
-
-Per line file encryption
-------------------------
-
-Encrypting per line a file means to encrypt successively its lines as single
-records:
-
-.. code-block:: python
-
-    >>> tree = MerkleTree()
-    >>> tree.size
-    0
-    >>>
-    >>> tree.encrypt_file_per_line('tests/logdata/large_APACHE_log')
-    ...
-    >>> tree.size
-    3091
-    >>>
 
 .. note:: The provided path must be relative with respect to the current
       working directory.

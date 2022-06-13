@@ -37,8 +37,7 @@ def test_has_previous_state_failure_for_zero_leaves_case():
 
 def test_has_previous_state_edge_success_case():
     tree = MerkleTree()
-    tree.encrypt_file_per_line(short_APACHE_log)
-    tree.encrypt_file_per_line(RED_HAT_LINUX_log)
+    tree.encrypt('a')
     assert tree.has_previous_state(tree.get_root_hash())
 
 

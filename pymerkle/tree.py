@@ -414,44 +414,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                 content = buff.read()
                 self.encrypt(content)
 
-    def encrypt_file_per_line(self, filepath):
-        """
-        Per line encryption of the provided file into the tree.
-
-        For each line of the provided file, successively create a leaf storing
-        its digest and append it to the tree by restructuring it and
-        realculating appropriate interior hashes.
-
-        :param filepath: Relative path of the file to encrypt with respect to
-            the current working directory.
-        :type filepath: str
-        """
-        with open(os.path.abspath(filepath), mode='rb') as f:
-            buff = mmap.mmap(
-                f.fileno(),
-                0,
-                access=mmap.ACCESS_READ
-            )
-
-        # Extract lines
-        records = []
-        while True:
-
-            # TODO: Should we strip newline from content?
-            data = buff.readline()
-            if not data:
-                break
-
-            records.append(data)
-
-        nr_records = len(records)
-        for count, data in enumerate(records):
-
-            self.encrypt(data)
-
-            sys.stdout.write('%d/%d lines   \r' % (count + 1, nr_records))
-            sys.stdout.flush()
-
     def serialize(self):
         """
         Returns a JSON dictionary with the tree's characteristics along with
