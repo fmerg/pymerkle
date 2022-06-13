@@ -70,7 +70,7 @@ Defense against second-preimage attack consists in the following standard techni
 * Upon computing the hash of a leaf, prepend its record with 0x00.
 
 * Upon computing the hash of an interior node, prepend the hashes of its
-  parents with 0x01.
+  children with 0x01.
 
 Defense against CVE-2012-2459 DOS
 =================================

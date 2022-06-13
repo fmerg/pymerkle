@@ -59,7 +59,7 @@ This consists in the following standard technique:
 
 - Upon computing the hash of a leaf, prepend its data with `0x00`.
 - Upon computing the hash of an interior node, prepend the hashes of its
-  parents with `0x01`.
+  children with `0x01`.
 
 Refer to
 [`test_security.py`](https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py)
