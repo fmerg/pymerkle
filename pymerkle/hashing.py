@@ -134,6 +134,8 @@ class HashEngine:
         :type filepath: str
         :rtype: bytes
         """
+        data = self.prefx00
+
         with open(os.path.abspath(filepath), mode='rb') as f:
             with contextlib.closing(
                 mmap.mmap(
@@ -142,9 +144,9 @@ class HashEngine:
                     access=mmap.ACCESS_READ
                 )
             ) as buff:
-                data = buff.read()
+                data += buff.read()
 
-                return self.hash_record(data)
+                return self._hash(data)
 
     def hash_pair(self, left, right):
         """
