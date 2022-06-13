@@ -74,6 +74,28 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         self.add_leaf(leaf)
 
+    def encrypt_file(self, filepath):
+        """
+        Creates a new leaf node with the digest of the file's content and
+        appends it to the tree by restructuring it and recalculating the
+        appropriate interior hashes.
+
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
+        :type filepath: str
+        """
+        with open(os.path.abspath(filepath), mode='rb') as f:
+            with contextlib.closing(
+                mmap.mmap(
+                    f.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
+            ) as buff:
+                content = buff.read()
+                leaf = Leaf.from_record(content, self.hash_record)
+                self.add_leaf(leaf)
+
     @classmethod
     def init_from_records(cls, *data, config=None):
         """
@@ -391,28 +413,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             return '\n └─[None]\n'
 
         return self.root.__str__(encoding=self.encoding, indent=indent)
-
-    def encrypt_file(self, filepath):
-        """
-        Creates a new leaf node with the digest of the file's content and
-        appends it to the tree by restructuring it and recalculating the
-        appropriate interior hashes.
-
-        :param filepath: Relative path of the file to encrypt with respect to
-            the current working directory.
-        :type filepath: str
-        """
-        with open(os.path.abspath(filepath), mode='rb') as f:
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-                # TODO: Should we remove newlines from content?
-                content = buff.read()
-                self.encrypt(content)
 
     def serialize(self):
         """
