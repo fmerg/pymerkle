@@ -122,7 +122,6 @@ class HashEngine:
 
         return self._hash(buff)
 
-
     def hash_file(self, filepath):
         """
         Computes the digest of the provided file's content under the engine's
@@ -134,8 +133,10 @@ class HashEngine:
         :type filepath: str
         :rtype: bytes
         """
-        data = self.prefx00
-
+        hasher = getattr(hashlib, self.algorithm)()
+        chunksize = 1024
+        update = hasher.update
+        update(self.prefx00)
         with open(os.path.abspath(filepath), mode='rb') as f:
             with contextlib.closing(
                 mmap.mmap(
@@ -144,9 +145,14 @@ class HashEngine:
                     access=mmap.ACCESS_READ
                 )
             ) as buff:
-                data += buff.read()
+                while True:
+                    data = buff.read(chunksize)
+                    if not data:
+                        break
 
-                return self._hash(data)
+                    update(data)
+
+        return hasher.hexdigest().encode(self.encoding)
 
     def hash_pair(self, left, right):
         """
