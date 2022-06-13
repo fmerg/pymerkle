@@ -4,9 +4,7 @@ Provides abstract interfaces and concrete implementations of Merkle-trees.
 
 import json
 import os
-import mmap
 import sys
-import contextlib
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
@@ -84,17 +82,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             the current working directory.
         :type filepath: str
         """
-        with open(os.path.abspath(filepath), mode='rb') as f:
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-                content = buff.read()
-                leaf = Leaf.from_record(content, self.hash_record)
-                self.add_leaf(leaf)
+        leaf = Leaf.from_file(filepath, self.hash_record)
+
+        self.add_leaf(leaf)
 
     @classmethod
     def init_from_records(cls, *data, config=None):

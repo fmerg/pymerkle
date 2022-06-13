@@ -3,7 +3,10 @@ Provides nodes for the Merkle-tree data structure.
 """
 
 from abc import ABCMeta, abstractmethod
+import contextlib
 import json
+import mmap
+import os
 
 
 L_BRACKET_SHORT = '└─'
@@ -349,9 +352,33 @@ class Leaf(Node):
         :type data: bytes
         :param hashfunc: hash function to use
         :type hashfunc: function
-        :param next: [optional] next leaf node. Defaults to *None*.
-        :type next: Leaf
         :returns: the created leaf
         :rtype: Leaf
         """
         return cls(hashfunc(data), leaf=None)
+
+    @classmethod
+    def from_file(cls, filepath, hashfunc):
+        """
+        Creates a leaf storing the digest of the provided file's content under
+        the provided hash function.
+
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
+        :type filepath: str
+        :param hashfunc: hash function to use
+        :type hashfunc: function
+        :returns: the created leaf
+        :rtype: Leaf
+        """
+        with open(os.path.abspath(filepath), mode='rb') as f:
+            with contextlib.closing(
+                mmap.mmap(
+                    f.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
+            ) as buff:
+                data = buff.read()
+
+                return cls(hashfunc(data), leaf=None)
