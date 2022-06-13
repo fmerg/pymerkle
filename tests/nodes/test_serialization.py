@@ -5,46 +5,44 @@ from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
 from pymerkle.hashing import HashEngine
 
 
-e = HashEngine()
-encoding = e.encoding
-hash_record = e.hash_record
-hash_pair = e.hash_pair
+engine = HashEngine()
+encoding = engine.encoding
 
-# Full binary structure (parent-child relations): 4 leaves, 7 nodes in total
-leaf1 = Leaf.from_record(b'first record...', hash_record)
-leaf2 = Leaf.from_record(b'second record...', hash_record)
-leaf3 = Leaf.from_record(b'third record...', hash_record)
-leaf4 = Leaf.from_record(b'fourth record...', hash_record)
-node1 = Node.from_children(leaf1, leaf2, hash_pair)
-node3 = Node.from_children(leaf3, leaf4, hash_pair)
-root = Node.from_children(node1, node3, hash_pair)
+# Full binary structure: 4 leaves, 7 nodes in total
+l1 = Leaf.from_record(b'first record...', engine)
+l2 = Leaf.from_record(b'second record...', engine)
+l3 = Leaf.from_record(b'third record...', engine)
+l4 = Leaf.from_record(b'fourth record...', engine)
+n1 = Node.from_children(l1, l2, engine)
+n3 = Node.from_children(l3, l4, engine)
+root = Node.from_children(n1, n3, engine)
 
 
 stringifications = [
     (
-        leaf1,
+        l1,
         '\n ├──9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7\n'
     ),
     (
-        leaf2,
+        l2,
         '\n └──9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa\n'
     ),
     (
-        leaf3,
+        l3,
         '\n ├──ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f\n'
     ),
     (
-        leaf4,
+        l4,
         '\n └──8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69\n'
     ),
     (
-        node1,
+        n1,
         '\n ├──cd607f7f417c7f796bc863647558eb068d7f6400683978e32137c688ce128321\n\
      ├──9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7\n\
      └──9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa\n'
     ),
     (
-        node3,
+        n3,
         '\n └──3c4dfc97969d64c2434ed613b1ad931af2dfac935407bf1b7ab2af4b07680b57\n\
      ├──ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f\n\
      └──8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69\n'
@@ -63,23 +61,23 @@ stringifications = [
 
 serializations = [
     (
-        leaf1,
+        l1,
         {'hash':'9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7'}
     ),
     (
-        leaf2,
+        l2,
         {'hash': '9ece01d833058a6603279663a23f08bfbf5f8ba2c4a00dc3581df5d0f599bdaa'}
     ),
     (
-        leaf3,
+        l3,
         {'hash': 'ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f'}
     ),
     (
-        leaf4,
+        l4,
         {'hash': '8d8740a5789e9371418549348e4467d62d995bd2f2b9339ef19fcc8467526b69'}
     ),
     (
-        node1,
+        n1,
         {
             'left': {
                 'hash': '9d6f467ca4962b97397eb9d228ff65a769b378083c7a7cacb50e6817de99bda7'
@@ -91,7 +89,7 @@ serializations = [
         }
     ),
     (
-        node3,
+        n3,
         {
             'left': {
                 'hash': 'ff151d008c290d85c5e4bb53ee099ef975f093e36a8a3363f574bf256c44233f'

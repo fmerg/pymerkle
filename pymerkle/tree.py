@@ -68,7 +68,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param data: record to encrypt.
         :type data: str or bytes
         """
-        leaf = Leaf.from_record(data, self.hash_record)
+        leaf = Leaf.from_record(data, self)
 
         self.add_leaf(leaf)
 
@@ -82,7 +82,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             the current working directory.
         :type filepath: str
         """
-        leaf = Leaf.from_file(filepath, self.hash_record)
+        leaf = Leaf.from_file(filepath, self)
 
         self.add_leaf(leaf)
 
@@ -662,12 +662,12 @@ class MerkleTree(BaseMerkleTree):
             if not subroot.parent:
 
                 # Increase height by one
-                self.__root = Node.from_children(subroot, leaf, self.hash_pair)
+                self.__root = Node.from_children(subroot, leaf, self)
             else:
                 parent = subroot.parent
 
                 # Create bifurcation node
-                new_node = Node.from_children(subroot, leaf, self.hash_pair)
+                new_node = Node.from_children(subroot, leaf, self)
 
                 # Interject bifurcation node
                 parent.set_right(new_node)
@@ -676,7 +676,7 @@ class MerkleTree(BaseMerkleTree):
                 # Recalculate hashes only at the rightmost branch of the tree
                 curr = parent
                 while curr:
-                    curr.recalculate_hash(hashfunc=self.hash_pair)
+                    curr.recalculate_hash(self)
                     curr = curr.parent
         else:
             self._append_leaf(leaf)
