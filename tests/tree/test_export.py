@@ -4,6 +4,7 @@ import json
 import glob
 
 from pymerkle import MerkleTree
+from pymerkle.utils import generate_uuid
 
 
 # Clean exports dir before running tests
@@ -14,7 +15,7 @@ for f in glob.glob(os.path.join(exports_dir, '*')):
 
 def test_export():
     tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
-    export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
+    export_path = os.path.join(exports_dir, '%s.json' % generate_uuid())
     tree.export(filepath=export_path)
 
     with open(export_path, 'rb') as f:
@@ -43,7 +44,7 @@ def test_export():
 
 def test_fromJSONFile():
     tree = MerkleTree.init_from_records(*['%d-th record' % i for i in range(12)])
-    export_path = os.path.join(exports_dir, '%s.json' % tree.uuid)
+    export_path = os.path.join(exports_dir, '%s.json' % generate_uuid())
     tree.export(filepath=export_path)
 
     assert tree.serialize() == MerkleTree.fromJSONFile(export_path).serialize()

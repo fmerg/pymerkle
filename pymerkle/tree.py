@@ -9,13 +9,11 @@ from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
 from pymerkle.prover import Proof
-from pymerkle.utils import log_2, decompose, generate_uuid
+from pymerkle.utils import log_2, decompose
 from pymerkle.nodes import Node, Leaf
 
 
 TREE_TEMPLATE = """
-    uuid      : {uuid}
-
     hash-type : {algorithm}
     encoding  : {encoding}
     security  : {security}
@@ -44,8 +42,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
-
-        self.uuid = generate_uuid()
 
         HashEngine.__init__(self, **self.get_config())
 
@@ -380,9 +376,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         root_hash = self.get_root_hash().decode(self.encoding) if self else '[None]'
 
-        kw = {'uuid': self.uuid, 'algorithm': algorithm, 'encoding': encoding,
-              'security': security, 'root': root_hash,
-              'length': self.length, 'size': self.size,
+        kw = {'algorithm': algorithm, 'encoding': encoding, 'security': security,
+              'root': root_hash, 'length': self.length, 'size': self.size,
               'height': self.height}
 
         return TREE_TEMPLATE.format(**kw)

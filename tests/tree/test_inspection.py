@@ -8,8 +8,7 @@ from pymerkle.tree import TREE_TEMPLATE
 
 def test___repr__non_default_empty_tree():
     tree = MerkleTree(algorithm='sha512', encoding='UTF-32', security=False)
-    assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
-                                                   algorithm='SHA512',
+    assert tree.__repr__() == TREE_TEMPLATE.format(algorithm='SHA512',
                                                    encoding='UTF-32',
                                                    security='DEACTIVATED',
                                                    root='[None]',
@@ -20,8 +19,7 @@ def test___repr__non_default_empty_tree():
 
 def test___repr__default_non_empty_tree():
     tree = MerkleTree.init_from_records(b'first', b'second', b'third')
-    assert tree.__repr__() == TREE_TEMPLATE.format(uuid=tree.uuid,
-                                                   algorithm='SHA256',
+    assert tree.__repr__() == TREE_TEMPLATE.format(algorithm='SHA256',
                                                    encoding='UTF-8',
                                                    security='ACTIVATED',
                                                    root=tree.get_root_hash().decode(

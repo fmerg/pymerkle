@@ -50,8 +50,6 @@ characteristics:
     >>> tree = MerkleTree()
     >>> tree
 
-        uuid      : ba378618-ef80-11e9-9254-701ce71deb6a
-
         hash-type : SHA256
         encoding  : UTF-8
         security  : ACTIVATED
@@ -106,8 +104,6 @@ fixed configuration and and current state:
 .. code-block:: python
 
     >>> tree
-
-        uuid      : 010ff520-32a8-11e9-8e47-70c94e89b637
 
         hash-type : SHA256
         encoding  : UTF-8
