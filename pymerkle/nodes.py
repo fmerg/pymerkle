@@ -169,7 +169,7 @@ class Node:
         return self.digest.decode(encoding)
 
     @classmethod
-    def from_children(cls, left, right, hashfunc):
+    def from_children(cls, left, right, engine):
         """
         Construction of node from a given pair of nodes.
 
@@ -177,8 +177,8 @@ class Node:
         :type left: Node
         :param right: right child
         :type right: Node
-        :param hashfunc: hash function to be used for digest computation
-        :type hashfunc: function
+        :param engine: hash-engine to be used for digest computation
+        :type engine: HashEngine
         :returns: a node storing the digest of the concatenation of the
             provided nodes' digests.
         :rtype: Node
@@ -186,7 +186,7 @@ class Node:
         .. note:: No parent is specified during construction. Relation must be
             set afterwards.
         """
-        digest = hashfunc(left.__digest, right.__digest)
+        digest = engine.hash_pair(left.__digest, right.__digest)
 
         return cls(digest, left=left, right=right, parent=None)
 
@@ -213,15 +213,15 @@ class Node:
 
         return self.__parent.ancestor(degree - 1)
 
-    def recalculate_hash(self, hashfunc):
+    def recalculate_hash(self, engine):
         """
         Recalculates the node's digest under account of the possibly new
         digests of its children.
 
-        :param hashfunc: hash function to be used for recalculation
-        :type hashfunc: function
+        :param engine: hash-engine to be used for digest computation
+        :type engine: HashEngine
         """
-        self.__digest = hashfunc(self.left.digest, self.right.digest)
+        self.__digest = engine.hash_pair(self.left.digest, self.right.digest)
 
     def __str__(self, encoding, level=0, indent=3, ignored=None):
         """
@@ -340,18 +340,32 @@ class Leaf(Node):
         self.__next = leaf
 
     @classmethod
-    def from_record(cls, data, hashfunc):
+    def from_data(cls, data, engine):
         """
         Creates a leaf storing the digest of the provided record under the
-        provided hash function.
+        provided hash engine.
 
         :param data: bytestring to encrypt
         :type data: bytes
-        :param hashfunc: hash function to use
-        :type hashfunc: function
-        :param next: [optional] next leaf node. Defaults to *None*.
-        :type next: Leaf
+        :param engine: hash-engine to be used for digest computation
+        :type engine: HashEngine
         :returns: the created leaf
         :rtype: Leaf
         """
-        return cls(hashfunc(data), leaf=None)
+        return cls(engine.hash_data(data), leaf=None)
+
+    @classmethod
+    def from_file(cls, filepath, engine):
+        """
+        Creates a leaf storing the digest of the provided file's content under
+        the provided hash function.
+
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
+        :type filepath: str
+        :param engine: hash-engine to be used for digest computation
+        :type engine: HashEngine
+        :returns: the created leaf
+        :rtype: Leaf
+        """
+        return cls(engine.hash_file(filepath), leaf=None)

@@ -38,27 +38,13 @@ files = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.parametrize('tree, engine, record', records)
 def test_encrypt(tree, engine, record):
     tree.encrypt(record)
-    assert tree.get_tail().digest == engine.hash_record(record)
+    assert tree.get_tail().digest == engine.hash_data(record)
 
 
 @pytest.mark.parametrize('tree, engine', trees_engines)
-def test_encrypt_file_content(tree, engine):
+def test_encrypt_file(tree, engine):
     logfile = os.path.join(files, 'logdata/large_APACHE_log')
-    tree.encrypt_file_content(logfile)
+    tree.encrypt_file(logfile)
     with open(logfile, 'rb') as f:
         content = f.read()
-    assert tree.get_tail().digest == engine.hash_record(content)
-
-
-@pytest.mark.parametrize('tree', [tree for tree, _ in trees_engines])
-def test_encrypt_file_per_line(tree):
-    tree = MerkleTree(**tree.get_config())
-    logfile = os.path.join(files, 'logdata/short_APACHE_log')
-    tree.encrypt_file_per_line(logfile)
-    records = []
-    with open(logfile, 'rb') as f:
-        for line in f:
-            records.append(line)
-    clone = MerkleTree.init_from_records(*records,
-                                         config=tree.get_config())
-    assert tree.get_root_hash() == clone.get_root_hash()
+    assert tree.get_tail().digest == engine.hash_data(content)

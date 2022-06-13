@@ -42,7 +42,7 @@ for tree in trees:
         tree_challenge.append(
             (
                 tree,
-                tree.hash_record('%d-th record' % i)
+                tree.hash_data('%d-th record' % i)
             )
         )
 

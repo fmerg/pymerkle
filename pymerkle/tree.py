@@ -4,9 +4,7 @@ Provides abstract interfaces and concrete implementations of Merkle-trees.
 
 import json
 import os
-import mmap
 import sys
-import contextlib
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
@@ -70,7 +68,21 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param data: record to encrypt.
         :type data: str or bytes
         """
-        leaf = Leaf.from_record(data, self.hash_record)
+        leaf = Leaf.from_data(data, self)
+
+        self.add_leaf(leaf)
+
+    def encrypt_file(self, filepath):
+        """
+        Creates a new leaf node with the digest of the file's content and
+        appends it to the tree by restructuring it and recalculating the
+        appropriate interior hashes.
+
+        :param filepath: Relative path of the file to encrypt with respect to
+            the current working directory.
+        :type filepath: str
+        """
+        leaf = Leaf.from_file(filepath, self)
 
         self.add_leaf(leaf)
 
@@ -392,66 +404,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return self.root.__str__(encoding=self.encoding, indent=indent)
 
-    def encrypt_file_content(self, filepath):
-        """
-        Creates a new leaf node with the digest of the file's content and
-        appends it to the tree by restructuring it and recalculating the
-        appropriate interior hashes.
-
-        :param filepath: Relative path of the file to encrypt with respect to
-            the current working directory.
-        :type filepath: str
-        """
-        with open(os.path.abspath(filepath), mode='rb') as f:
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-                # TODO: Should we remove newlines from content?
-                content = buff.read()
-                self.encrypt(content)
-
-    def encrypt_file_per_line(self, filepath):
-        """
-        Per line encryption of the provided file into the tree.
-
-        For each line of the provided file, successively create a leaf storing
-        its digest and append it to the tree by restructuring it and
-        realculating appropriate interior hashes.
-
-        :param filepath: Relative path of the file to encrypt with respect to
-            the current working directory.
-        :type filepath: str
-        """
-        with open(os.path.abspath(filepath), mode='rb') as f:
-            buff = mmap.mmap(
-                f.fileno(),
-                0,
-                access=mmap.ACCESS_READ
-            )
-
-        # Extract lines
-        records = []
-        while True:
-
-            # TODO: Should we strip newline from content?
-            data = buff.readline()
-            if not data:
-                break
-
-            records.append(data)
-
-        nr_records = len(records)
-        for count, data in enumerate(records):
-
-            self.encrypt(data)
-
-            sys.stdout.write('%d/%d lines   \r' % (count + 1, nr_records))
-            sys.stdout.flush()
-
     def serialize(self):
         """
         Returns a JSON dictionary with the tree's characteristics along with
@@ -710,12 +662,12 @@ class MerkleTree(BaseMerkleTree):
             if not subroot.parent:
 
                 # Increase height by one
-                self.__root = Node.from_children(subroot, leaf, self.hash_pair)
+                self.__root = Node.from_children(subroot, leaf, self)
             else:
                 parent = subroot.parent
 
                 # Create bifurcation node
-                new_node = Node.from_children(subroot, leaf, self.hash_pair)
+                new_node = Node.from_children(subroot, leaf, self)
 
                 # Interject bifurcation node
                 parent.set_right(new_node)
@@ -724,7 +676,7 @@ class MerkleTree(BaseMerkleTree):
                 # Recalculate hashes only at the rightmost branch of the tree
                 curr = parent
                 while curr:
-                    curr.recalculate_hash(hashfunc=self.hash_pair)
+                    curr.recalculate_hash(self)
                     curr = curr.parent
         else:
             self._append_leaf(leaf)

@@ -18,7 +18,7 @@ from tests.conftest import option, resolve_encodings
 def test_verify_proof_with_target():
     tree = MerkleTree.init_from_records(
         *[f'{i}-th record' for i in range(666)])
-    proof = tree.generate_audit_proof(tree.hash_record('100-th record'))
+    proof = tree.generate_audit_proof(tree.hash_data('100-th record'))
     assert proof.verify() is proof.verify(target=proof.commitment)
 
 
@@ -57,7 +57,7 @@ for tree in trees:
         valid_audit_proofs.append(
             (
                 tree,
-                tree.generate_audit_proof(tree.hash_record('%d-th record' % index))
+                tree.generate_audit_proof(tree.hash_data('%d-th record' % index))
             )
         )
 

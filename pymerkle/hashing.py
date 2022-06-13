@@ -3,7 +3,10 @@ Provides the underlying hashing machinery for encryption and proof
 verification.
 """
 
+import contextlib
 import hashlib
+import mmap
+import os
 
 
 SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
@@ -83,18 +86,24 @@ class HashEngine:
             self.prefx00 = bytes()
             self.prefx01 = bytes()
 
-    def _hash(self, buff):
-        """
-        Returns the hexdigest of the provided data under the engine's
-        configured hash algorithm.
+    def _load_hasher(self):
 
-        :param buff: data to hash
-        :type buff: bytes
+        return getattr(hashlib, self.algorithm)()
+
+    def hash_data(self, data):
+        """
+        Computes the digest of the provided data under the engine's configured
+        hash algorithm, after first appending the ``\\x00`` security prefix.
+
+        :param data: data to hash
+        :type data: bytes
         :rtype: bytes
         """
-        hasher = getattr(hashlib, self.algorithm)()
-        update = hasher.update
+        buff = self.prefx00 + (data if isinstance(data, bytes) else
+                               data.encode(self.encoding))
 
+        hasher = self._load_hasher()
+        update = hasher.update
         offset = 0
         chunksize = 1024
         chunk = buff[offset: chunksize]
@@ -105,15 +114,40 @@ class HashEngine:
 
         return hasher.hexdigest().encode(self.encoding)
 
-    def hash_record(self, data):
+    def hash_file(self, filepath):
         """
-        Computes the digest of the provided record under the engine's configured
-        hash algorithm, after first appending the ``\\x00`` security prefix.
-        """
-        buff = self.prefx00 + (data if isinstance(data, bytes) else
-                               data.encode(self.encoding))
+        Computes the digest of the provided file's content under the engine's
+        confiured hash algorithm, after first appending the ``\\x00`` security
+        prefix.
 
-        return self._hash(buff)
+        :param filepath: relative path of the file to hash with respect to the
+            current working directory
+        :type filepath: str
+        :rtype: bytes
+        """
+        hasher = self._load_hasher()
+        chunksize = 1024
+        update = hasher.update
+        update(self.prefx00)
+        with open(os.path.abspath(filepath), mode='rb') as f:
+
+            with contextlib.closing(
+                mmap.mmap(
+                    f.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
+            ) as buff:
+
+                read = buff.read
+                while True:
+                    data = read(chunksize)
+                    if not data:
+                        break
+
+                    update(data)
+
+        return hasher.hexdigest().encode(self.encoding)
 
     def hash_pair(self, left, right):
         """
@@ -129,7 +163,10 @@ class HashEngine:
         """
         buff = self.prefx01 + left + self.prefx01 + right
 
-        return self._hash(buff)
+        hasher = self._load_hasher()
+        hasher.update(buff)
+
+        return hasher.hexdigest().encode(self.encoding)
 
     def hash_path(self, path, offset):
         """

@@ -30,9 +30,9 @@ def test_root_hash_for_empty_tree():
 def test_root_hash_of_non_empty_MerkleTree():
     t = MerkleTree.init_from_records('a')
     s = MerkleTree.init_from_records('a', 'b')
-    assert t.get_root_hash() == t.hash_record('a') and \
-        s.get_root_hash() == s.hash_pair(s.hash_record('a'),
-                s.hash_record('b'))
+    assert t.get_root_hash() == t.hash_data('a') and \
+        s.get_root_hash() == s.hash_pair(s.hash_data('a'),
+                s.hash_data('b'))
 
 
 def test_dimensions_of_empty_tree():
