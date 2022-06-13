@@ -91,7 +91,7 @@ content (i.e., encrypting the file's content as a single record):
 
 .. code-block:: python
 
-    tree.encrypt_file_content('relative_path/to/sample_file')
+    tree.encrypt_file('relative_path/to/sample_file')
 
 .. note:: The provided path must be relative with respect to the current
       working directory.

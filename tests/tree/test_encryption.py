@@ -42,9 +42,9 @@ def test_encrypt(tree, engine, record):
 
 
 @pytest.mark.parametrize('tree, engine', trees_engines)
-def test_encrypt_file_content(tree, engine):
+def test_encrypt_file(tree, engine):
     logfile = os.path.join(files, 'logdata/large_APACHE_log')
-    tree.encrypt_file_content(logfile)
+    tree.encrypt_file(logfile)
     with open(logfile, 'rb') as f:
         content = f.read()
     assert tree.get_tail().digest == engine.hash_record(content)

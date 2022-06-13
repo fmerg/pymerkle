@@ -392,7 +392,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return self.root.__str__(encoding=self.encoding, indent=indent)
 
-    def encrypt_file_content(self, filepath):
+    def encrypt_file(self, filepath):
         """
         Creates a new leaf node with the digest of the file's content and
         appends it to the tree by restructuring it and recalculating the
