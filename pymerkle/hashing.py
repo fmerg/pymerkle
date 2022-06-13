@@ -87,11 +87,12 @@ class HashEngine:
             self.prefx01 = bytes()
 
     def _load_hasher(self):
+
         return getattr(hashlib, self.algorithm)()
 
-    def hash_record(self, data):
+    def hash_data(self, data):
         """
-        Computes the digest of the provided record under the engine's configured
+        Computes the digest of the provided data under the engine's configured
         hash algorithm, after first appending the ``\\x00`` security prefix.
 
         :param data: data to hash

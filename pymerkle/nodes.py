@@ -340,7 +340,7 @@ class Leaf(Node):
         self.__next = leaf
 
     @classmethod
-    def from_record(cls, data, engine):
+    def from_data(cls, data, engine):
         """
         Creates a leaf storing the digest of the provided record under the
         provided hash engine.
@@ -352,7 +352,7 @@ class Leaf(Node):
         :returns: the created leaf
         :rtype: Leaf
         """
-        return cls(engine.hash_record(data), leaf=None)
+        return cls(engine.hash_data(data), leaf=None)
 
     @classmethod
     def from_file(cls, filepath, engine):

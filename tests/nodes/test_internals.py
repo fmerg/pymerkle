@@ -7,16 +7,16 @@ from pymerkle.hashing import HashEngine
 engine = HashEngine()
 
 pairs = (
-    Leaf.from_record(b'some record...', engine),
-    Leaf.from_record('5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
+    Leaf.from_data(b'some record...', engine),
+    Leaf.from_data('5f4e54b52702884b03c21efc76b7433607fa3b35343b9fd322521c9c1ed633b4',
                      engine)
 )
 
 # Full binary structure: 4 leaves, 7 nodes in total
-l1 = Leaf.from_record(b'a', engine)
-l2 = Leaf.from_record(b'b', engine)
-l3 = Leaf.from_record(b'c', engine)
-l4 = Leaf.from_record(b'd', engine)
+l1 = Leaf.from_data(b'a', engine)
+l2 = Leaf.from_data(b'b', engine)
+l3 = Leaf.from_data(b'c', engine)
+l4 = Leaf.from_data(b'd', engine)
 n1 = Node.from_children(l1, l2, engine)
 n3 = Node.from_children(l3, l4, engine)
 root = Node.from_children(n1, n3, engine)
@@ -132,7 +132,7 @@ def test_degree_two_ancestor(node):
 
 
 def test_hash_recalculation():
-    new_leaf = Leaf.from_record(b'new record...', engine)
+    new_leaf = Leaf.from_data(b'new record...', engine)
     n3.set_right(new_leaf)
     n3.recalculate_hash(engine)
     root.recalculate_hash(engine)

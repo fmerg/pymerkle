@@ -68,7 +68,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param data: record to encrypt.
         :type data: str or bytes
         """
-        leaf = Leaf.from_record(data, self)
+        leaf = Leaf.from_data(data, self)
 
         self.add_leaf(leaf)
 
