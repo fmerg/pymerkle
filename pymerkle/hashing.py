@@ -3,7 +3,10 @@ Provides the underlying hashing machinery for encryption and proof
 verification.
 """
 
+import contextlib
 import hashlib
+import mmap
+import os
 
 
 SUPPORTED_ENCODINGS = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp1026', 'cp1125',
@@ -114,6 +117,23 @@ class HashEngine:
                                data.encode(self.encoding))
 
         return self._hash(buff)
+
+
+    def hash_file(self, filepath):
+        """
+        TODO
+        """
+        with open(os.path.abspath(filepath), mode='rb') as f:
+            with contextlib.closing(
+                mmap.mmap(
+                    f.fileno(),
+                    0,
+                    access=mmap.ACCESS_READ
+                )
+            ) as buff:
+                data = buff.read()
+
+                return self.hash_record(data)
 
     def hash_pair(self, left, right):
         """

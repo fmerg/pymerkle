@@ -3,10 +3,7 @@ Provides nodes for the Merkle-tree data structure.
 """
 
 from abc import ABCMeta, abstractmethod
-import contextlib
 import json
-import mmap
-import os
 
 
 L_BRACKET_SHORT = '└─'
@@ -371,14 +368,4 @@ class Leaf(Node):
         :returns: the created leaf
         :rtype: Leaf
         """
-        with open(os.path.abspath(filepath), mode='rb') as f:
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-                data = buff.read()
-
-                return cls(engine.hash_record(data), leaf=None)
+        return cls(engine.hash_file(filepath), leaf=None)

@@ -13,10 +13,10 @@ pairs = (
 )
 
 # Full binary structure: 4 leaves, 7 nodes in total
-l1 = Leaf.from_record(b'first record...', engine)
-l2 = Leaf.from_record(b'second record...', engine)
-l3 = Leaf.from_record(b'third record...', engine)
-l4 = Leaf.from_record(b'fourth record...', engine)
+l1 = Leaf.from_record(b'a', engine)
+l2 = Leaf.from_record(b'b', engine)
+l3 = Leaf.from_record(b'c', engine)
+l4 = Leaf.from_record(b'd', engine)
 n1 = Node.from_children(l1, l2, engine)
 n3 = Node.from_children(l3, l4, engine)
 root = Node.from_children(n1, n3, engine)
