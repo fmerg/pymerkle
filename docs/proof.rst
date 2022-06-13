@@ -82,7 +82,6 @@ Invoking a proof from the Python interpreter looks like this:
       uuid        : e4c8ce22-d827-11ec-ad25-3887d51f42f3
 
       timestamp   : 1653042639 (Fri May 20 13:30:39 2022)
-      provider    : 804fccc0-d827-11ec-ad25-3887d51f42f3
 
       hash-type   : SHA256
       encoding    : UTF-8
@@ -149,7 +148,6 @@ which yields s JSON dictionary similar to the following one:
           "uuid": "c5788c06-d82c-11ec-8f3d-3887d51f42f3",
           "timestamp": 1653044734,
           "created_at": "Fri May 20 14:05:34 2022",
-          "provider": "65118520-d82c-11ec-8f3d-3887d51f42f3",
           "algorithm": "sha256",
           "encoding": "utf_8",
           "security": true,

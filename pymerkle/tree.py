@@ -153,7 +153,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def find_leaf(self, digest):
+    def find_leaf(self, value):
         """
         Define here how to detect the leaf node storing the provided hash
         value.
@@ -192,8 +192,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :rtype: Proof
         """
         params = self.get_config()
-        params.update({'provider': self.uuid})
-
         commitment = self.get_root_hash()
         proof = Proof(path=path, offset=offset, commitment=commitment,
                       **params)
@@ -213,7 +211,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         offset = -1
         path = []
 
-        leaf = self.find_leaf(digest=challenge)
+        leaf = self.find_leaf(value=challenge)
         if leaf:
             offset, path = self.generate_audit_path(leaf)
 
@@ -463,14 +461,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         hashes = obj.pop('hashes')
         tree = cls(**obj)
-        digests = map(lambda x: x.encode(tree.encoding), hashes)
 
         nr_hashes = len(hashes)
         sys.stdout.write('\nLoaded file content\n')
         for count, checksum in enumerate(hashes):
 
-            digest = checksum.encode(tree.encoding)
-            tree.add_leaf(Leaf(digest))
+            value = checksum.encode(tree.encoding)
+            tree.add_leaf(Leaf(value=value))
 
             sys.stdout.write('%d/%d leaves\r' % (count + 1, nr_hashes))
             sys.stdout.flush()
@@ -583,7 +580,7 @@ class MerkleTree(BaseMerkleTree):
         if not self.__root:
             return
 
-        return self.__root.digest
+        return self.__root.value
 
     def get_leaves(self):
         """
@@ -695,7 +692,7 @@ class MerkleTree(BaseMerkleTree):
         :rtype: (int, list of (+1/-1, bytes))
         """
         sign = -1 if leaf.is_right_child() else +1
-        path = [(sign, leaf.digest)]
+        path = [(sign, leaf.value)]
 
         curr = leaf
         offset = 0
@@ -703,27 +700,27 @@ class MerkleTree(BaseMerkleTree):
             parent = curr.parent
 
             if curr.is_left_child():
-                digest = parent.right.digest
+                value = parent.right.value
                 sign = +1 if parent.is_left_child() else -1
-                path.append((sign, digest))
+                path.append((sign, value))
             else:
-                digest = parent.left.digest
+                value = parent.left.value
                 sign = -1 if parent.is_right_child() else +1
-                path.insert(0, (sign, digest))
+                path.insert(0, (sign, value))
                 offset += 1
 
             curr = parent
 
         return offset, path
 
-    def find_leaf(self, digest):
+    def find_leaf(self, value):
         """
         Detects the leftmost leaf node storing the provided hash value counting
 
         .. note:: Returns *None* if no such leaf node exists.
 
-        :param digest: hash value to detect
-        :type digest: bytes
+        :param value: hash value to detect
+        :type value: bytes
         :returns: leaf node storing the provided hash value
         :rtype: Leaf
         """
@@ -735,7 +732,7 @@ class MerkleTree(BaseMerkleTree):
             except StopIteration:
                 break
 
-            if digest == leaf.digest:
+            if value == leaf.value:
                 return leaf
 
     def generate_consistency_path(self, sublength):
@@ -768,8 +765,8 @@ class MerkleTree(BaseMerkleTree):
         else:
             offset = len(lefts) - 1
 
-        left_path = [(-1, r[1].digest) for r in lefts]
-        path = [(r[0], r[1].digest) for r in subroots]
+        left_path = [(-1, r[1].value) for r in lefts]
+        path = [(r[0], r[1].value) for r in subroots]
 
         return offset, left_path, path
 
@@ -920,7 +917,7 @@ class MerkleTree(BaseMerkleTree):
         for sublength in range(1, self.length + 1):
 
             subroots = self.get_principal_subroots(sublength)
-            path = [(-1, r[1].digest) for r in subroots]
+            path = [(-1, r[1].value) for r in subroots]
 
             offset = len(path) - 1
             if checksum == hash_path(path, offset):

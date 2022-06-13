@@ -138,6 +138,6 @@ def test_hash_recalculation():
     root.recalculate_hash(engine)
 
     assert all((
-        n3.digest == engine.hash_pair(l3.digest, new_leaf.digest),
-        root.digest == engine.hash_pair(n1.digest, n3.digest),
+        n3.value == engine.hash_pair(l3.value, new_leaf.value),
+        root.value == engine.hash_pair(n1.value, n3.value),
     ))

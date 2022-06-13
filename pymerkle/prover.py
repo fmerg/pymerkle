@@ -16,7 +16,6 @@ PROOF_TEMPLATE = """
     uuid        : {uuid}
 
     timestamp   : {timestamp} ({created_at})
-    provider    : {provider}
 
     hash-type   : {algorithm}
     encoding    : {encoding}
@@ -51,7 +50,7 @@ def stringify_path(path, encoding):
     :rtype: str
     """
     pairs = []
-    pair_template = '\n{left}[{index}]{middle}{sign}{right}{digest}'
+    pair_template = '\n{left}[{index}]{middle}{sign}{right}{value}'
     for index, curr in enumerate(path):
         pairs.append(
             pair_template.format(left=(7 - _order_of_magnitude(index)) * ' ',
@@ -59,7 +58,7 @@ def stringify_path(path, encoding):
                                  middle=3 * ' ',
                                  sign=_get_signed(curr[0]),
                                  right=3 * ' ',
-                                 digest=curr[1].decode(encoding) if not isinstance(curr[1], str)
+                                 value=curr[1].decode(encoding) if not isinstance(curr[1], str)
                                  else curr[1]))
     return ''.join(pairs)
 
@@ -73,8 +72,6 @@ class InvalidProof(Exception):
 
 class Proof:
     """
-    :param provider: uuid of the provider tree
-    :type provider: str
     :param algorithm: hash-type of the provider tree
     :type algorithm: str
     :param encoding: encoding type of the provider tree
@@ -87,12 +84,11 @@ class Proof:
     :type path: list of (+1/-1, bytes)
     """
 
-    def __init__(self, provider, algorithm, encoding, security, offset, path,
-                 uuid=None, timestamp=None, created_at=None, commitment=None):
+    def __init__(self, algorithm, encoding, security, offset, path, uuid=None,
+                 timestamp=None, created_at=None, commitment=None):
         self.uuid = uuid or generate_uuid()
         self.timestamp = timestamp or int(time())
         self.created_at = created_at or ctime()
-        self.provider = provider
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
@@ -153,7 +149,6 @@ class Proof:
         uuid = self.uuid
         timestamp = self.timestamp
         created_at = self.created_at
-        provider = self.provider
         algorithm = self.algorithm.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
@@ -163,10 +158,8 @@ class Proof:
         path = stringify_path(self.path, self.encoding)
 
         kw = {'uuid': uuid, 'timestamp': timestamp, 'created_at': created_at,
-              'provider': provider, 'algorithm': algorithm,
-              'encoding': encoding, 'security': security,
-              'commitment': commitment, 'offset': offset,
-              'path': path}
+              'algorithm': algorithm, 'encoding': encoding, 'security': security,
+              'commitment': commitment, 'offset': offset, 'path': path}
 
         return PROOF_TEMPLATE.format(**kw)
 
@@ -180,7 +173,6 @@ class Proof:
         uuid = self.uuid
         created_at = self.created_at
         timestamp = self.timestamp
-        provider = self.provider
         algorithm = self.algorithm
         encoding = self.encoding
         security = self.security
@@ -189,9 +181,9 @@ class Proof:
         offset = self.offset
 
         path = []
-        for (sign, digest) in self.path:
-            checksum = digest if isinstance(digest, str) else \
-                    digest.decode(self.encoding)
+        for (sign, value) in self.path:
+            checksum = value if isinstance(value, str) else \
+                    value.decode(self.encoding)
             path.append([sign, checksum])
 
         return {
@@ -199,7 +191,6 @@ class Proof:
                 'uuid': uuid,
                 'timestamp': timestamp,
                 'created_at': created_at,
-                'provider': provider,
                 'algorithm': algorithm,
                 'encoding': encoding,
                 'security': security,

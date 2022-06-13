@@ -38,7 +38,7 @@ files = os.path.dirname(os.path.dirname(__file__))
 @pytest.mark.parametrize('tree, engine, record', records)
 def test_encrypt(tree, engine, record):
     tree.encrypt(record)
-    assert tree.get_tail().digest == engine.hash_data(record)
+    assert tree.get_tail().value == engine.hash_data(record)
 
 
 @pytest.mark.parametrize('tree, engine', trees_engines)
@@ -47,4 +47,4 @@ def test_encrypt_file(tree, engine):
     tree.encrypt_file(logfile)
     with open(logfile, 'rb') as f:
         content = f.read()
-    assert tree.get_tail().digest == engine.hash_data(content)
+    assert tree.get_tail().value == engine.hash_data(content)

@@ -25,8 +25,8 @@ class Node:
     """
     Merkle-tree generic node.
 
-    :param digest: the hash value to be stored by the node.
-    :type digest: bytes
+    :param value: the hash value to be stored by the node.
+    :type value: bytes
     :param parent: [optional] parent node. Defaults to *None*.
     :type parent: Node
     :param left: [optional] parent node. Defaults to *None*.
@@ -38,10 +38,10 @@ class Node:
     :rtype: Node
     """
 
-    __slots__ = ('__digest', '__parent', '__left', '__right')
+    __slots__ = ('__value', '__parent', '__left', '__right')
 
-    def __init__(self, digest, parent=None, left=None, right=None):
-        self.__digest = digest
+    def __init__(self, value, parent=None, left=None, right=None):
+        self.__value = value
         self.__parent = parent
         self.__left = left
         self.__right = right
@@ -52,13 +52,13 @@ class Node:
             right.__parent = self
 
     @property
-    def digest(self):
+    def value(self):
         """
         The digest currently stored by the node.
 
         :rtype: bytes
         """
-        return self.__digest
+        return self.__value
 
     @property
     def left(self):
@@ -166,7 +166,7 @@ class Node:
 
         :rtype: str
         """
-        return self.digest.decode(encoding)
+        return self.value.decode(encoding)
 
     @classmethod
     def from_children(cls, left, right, engine):
@@ -186,9 +186,9 @@ class Node:
         .. note:: No parent is specified during construction. Relation must be
             set afterwards.
         """
-        digest = engine.hash_pair(left.__digest, right.__digest)
+        digest = engine.hash_pair(left.__value, right.__value)
 
-        return cls(digest, left=left, right=right, parent=None)
+        return cls(value=digest, left=left, right=right, parent=None)
 
     def ancestor(self, degree):
         """
@@ -215,13 +215,13 @@ class Node:
 
     def recalculate_hash(self, engine):
         """
-        Recalculates the node's digest under account of the possibly new
-        digests of its children.
+        Recalculates the node's value under account of the possibly new
+        values of its children.
 
         :param engine: hash-engine to be used for digest computation
         :type engine: HashEngine
         """
-        self.__digest = engine.hash_pair(self.left.digest, self.right.digest)
+        self.__value = engine.hash_pair(self.left.value, self.right.value)
 
     def __str__(self, encoding, level=0, indent=3, ignored=None):
         """
@@ -319,8 +319,8 @@ class Leaf(Node):
     """
     Merkle-tree leaf node.
 
-    :param digest: the digest to be stored by the leaf.
-    :type digest: bytes
+    :param value: the digest to be stored by the leaf.
+    :type value: bytes
     :param leaf: [optional] leaf leaf node. Defaults to *None*.
     :type leaf: Leaf
     :rtype: Leaf
@@ -328,9 +328,9 @@ class Leaf(Node):
 
     __slots__ = ('__next',)
 
-    def __init__(self, digest, leaf=None):
+    def __init__(self, value, leaf=None):
         self.__next = leaf
-        super().__init__(digest)
+        super().__init__(value)
 
     @property
     def next(self):

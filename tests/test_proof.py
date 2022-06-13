@@ -71,7 +71,6 @@ def test_stringify_string_path():
       [10]   -1   2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8'
 
 
-provider = '1a0894bc-9755-11e9-a651-70c94e89b637'
 path = [
     (+1, b'3f824b56e7de850906e053efa4e9ed2762a15b9171824241c77b20e0eb44e3b8'),
     (+1, b'4d8ced510cab21d23a5fd527dd122d7a3c12df33bc90a937c0a6b91fb6ea0992'),
@@ -86,7 +85,6 @@ path = [
     (-1, b'2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8')]
 
 proof_11 = Proof(
-    provider=provider,
     algorithm='sha_256',
     encoding='utf_8',
     security=True,
@@ -95,7 +93,6 @@ proof_11 = Proof(
 )
 
 proof_21 = Proof(
-    provider=provider,
     algorithm='sha_256',
     encoding='utf_8',
     security=True,
@@ -103,7 +100,6 @@ proof_21 = Proof(
     path=[])
 
 proof_12 = Proof(
-    provider=provider,
     algorithm='sha_256',
     encoding='utf_8',
     security=True,
@@ -112,7 +108,6 @@ proof_12 = Proof(
 )
 
 proof_22 = Proof(
-    provider=provider,
     algorithm='sha_256',
     encoding='utf_8',
     security=True,
@@ -121,7 +116,6 @@ proof_22 = Proof(
 )
 
 proof_31 = Proof(
-    provider=provider,
     algorithm='sha_256',
     encoding='utf_8',
     security=True,
@@ -153,7 +147,6 @@ serializations = [
                 'uuid': proof_11.uuid,
                 'timestamp': proof_11.timestamp,
                 'created_at': proof_11.created_at,
-                'provider': provider,
                 'algorithm': 'sha_256',
                 'encoding': 'utf_8',
                 'security': True,
@@ -184,7 +177,6 @@ serializations = [
                 'uuid': proof_21.uuid,
                 'timestamp': proof_21.timestamp,
                 'created_at': proof_21.created_at,
-                'provider': provider,
                 'algorithm': 'sha_256',
                 'encoding': 'utf_8',
                 'security': True,
@@ -216,7 +208,6 @@ def test___repr__(proof, generation):
     assert proof.__repr__() == PROOF_TEMPLATE.format(uuid=proof.uuid,
                                                      timestamp=proof.timestamp,
                                                      created_at=proof.created_at,
-                                                     provider=provider,
                                                      algorithm='SHA256',
                                                      encoding='UTF-8',
                                                      security='ACTIVATED',

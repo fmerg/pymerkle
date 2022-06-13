@@ -203,14 +203,17 @@ class HashEngine:
         while len(path) > 1:
 
             if path[i][0] == +1:
+
                 # Pair with the right neighbour
-                if i == 0:
-                    sign = +1
-                else:
+                if i != 0:
                     sign = path[i + 1][0]
+                else:
+                    sign = +1
+
                 digest = self.hash_pair(path[i][1], path[i + 1][1])
                 move = +1
             else:
+
                 # Pair with left neighbour
                 sign = path[i - 1][0]
                 digest = self.hash_pair(path[i - 1][1], path[i][1])
