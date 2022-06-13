@@ -86,27 +86,8 @@ class HashEngine:
             self.prefx00 = bytes()
             self.prefx01 = bytes()
 
-    def _hash(self, buff):
-        """
-        Returns the hexdigest of the provided data under the engine's
-        configured hash algorithm.
-
-        :param buff: data to hash
-        :type buff: bytes
-        :rtype: bytes
-        """
-        hasher = getattr(hashlib, self.algorithm)()
-        update = hasher.update
-
-        offset = 0
-        chunksize = 1024
-        chunk = buff[offset: chunksize]
-        while chunk:
-            update(chunk)
-            offset += chunksize
-            chunk = buff[offset: offset + chunksize]
-
-        return hasher.hexdigest().encode(self.encoding)
+    def _load_hasher(self):
+        return getattr(hashlib, self.algorithm)()
 
     def hash_record(self, data):
         """
@@ -120,7 +101,17 @@ class HashEngine:
         buff = self.prefx00 + (data if isinstance(data, bytes) else
                                data.encode(self.encoding))
 
-        return self._hash(buff)
+        hasher = self._load_hasher()
+        update = hasher.update
+        offset = 0
+        chunksize = 1024
+        chunk = buff[offset: chunksize]
+        while chunk:
+            update(chunk)
+            offset += chunksize
+            chunk = buff[offset: offset + chunksize]
+
+        return hasher.hexdigest().encode(self.encoding)
 
     def hash_file(self, filepath):
         """
@@ -133,11 +124,12 @@ class HashEngine:
         :type filepath: str
         :rtype: bytes
         """
-        hasher = getattr(hashlib, self.algorithm)()
+        hasher = self._load_hasher()
         chunksize = 1024
         update = hasher.update
         update(self.prefx00)
         with open(os.path.abspath(filepath), mode='rb') as f:
+
             with contextlib.closing(
                 mmap.mmap(
                     f.fileno(),
@@ -145,8 +137,10 @@ class HashEngine:
                     access=mmap.ACCESS_READ
                 )
             ) as buff:
+
+                read = buff.read
                 while True:
-                    data = buff.read(chunksize)
+                    data = read(chunksize)
                     if not data:
                         break
 
@@ -168,7 +162,10 @@ class HashEngine:
         """
         buff = self.prefx01 + left + self.prefx01 + right
 
-        return self._hash(buff)
+        hasher = self._load_hasher()
+        hasher.update(buff)
+
+        return hasher.hexdigest().encode(self.encoding)
 
     def hash_path(self, path, offset):
         """
