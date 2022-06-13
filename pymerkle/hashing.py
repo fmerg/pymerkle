@@ -112,6 +112,10 @@ class HashEngine:
         """
         Computes the digest of the provided record under the engine's configured
         hash algorithm, after first appending the ``\\x00`` security prefix.
+
+        :param data: data to hash
+        :type data: bytes
+        :rtype: bytes
         """
         buff = self.prefx00 + (data if isinstance(data, bytes) else
                                data.encode(self.encoding))
@@ -121,7 +125,14 @@ class HashEngine:
 
     def hash_file(self, filepath):
         """
-        TODO
+        Computes the digest of the provided file's content under the engine's
+        confiured hash algorithm, after first appending the ``\\x00`` security
+        prefix.
+
+        :param filepath: relative path of the file to hash with respect to the
+            current working directory
+        :type filepath: str
+        :rtype: bytes
         """
         with open(os.path.abspath(filepath), mode='rb') as f:
             with contextlib.closing(
