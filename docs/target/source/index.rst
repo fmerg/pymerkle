@@ -33,6 +33,7 @@ Usage
 .. code-block:: python
 
   from pymerkle import MerkleTree
+  from pymerkle.hashing import HashEngine
 
   tree = MerkleTree()
 
@@ -41,7 +42,7 @@ Usage
       tree.encrypt(data)
 
   # Prove and verify encryption of `bar`
-  challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
+  challenge = HashEngine(**tree.get_config()).hash(b'bar')
   proof = tree.generate_audit_proof(challenge)
   proof.verify()
 
