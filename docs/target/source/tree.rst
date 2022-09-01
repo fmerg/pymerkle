@@ -18,7 +18,7 @@ The above construction is equivalent to
 
 .. code-block:: python
 
-    tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
+    tree = MerkleTree(hash_type='sha256', encoding='utf-8', security=True)
 
 
 The ``algorithm`` attribute refers to the underlying hash algorithm and
