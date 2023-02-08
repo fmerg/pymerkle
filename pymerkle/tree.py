@@ -38,8 +38,8 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     Interface and abstract functionality of Merkle-trees.
     """
 
-    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        self.algorithm = algorithm
+    def __init__(self, hash_func, encoding='utf-8', security=True):
+        self.hash_func = hash_func
         self.encoding = encoding
         self.security = security
 
@@ -52,7 +52,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :rtype: dict
         """
-        return {'algorithm': self.algorithm, 'encoding': self.encoding,
+        return {'hash_func': self.hash_func, 'encoding': self.encoding,
                 'security': self.security}
 
     def encrypt(self, data):
@@ -371,12 +371,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         .. warning:: Contrary to convention, the output of this method is not
             insertable into the *eval()* builtin Python function.
         """
-        algorithm = self.algorithm.upper().replace('_', '')
+        hash_func = self.hash_func.__name__.upper().replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         root_hash = self.get_root_hash().decode(self.encoding) if self else '[None]'
 
-        kw = {'algorithm': algorithm, 'encoding': encoding, 'security': security,
+        kw = {'hash_func': hash_func, 'encoding': encoding, 'security': security,
               'root': root_hash, 'length': self.length, 'size': self.size,
               'height': self.height}
 

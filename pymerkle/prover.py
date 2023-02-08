@@ -84,12 +84,12 @@ class Proof:
     :type path: list of (+1/-1, bytes)
     """
 
-    def __init__(self, algorithm, encoding, security, offset, path, uuid=None,
+    def __init__(self, hash_func, encoding, security, offset, path, uuid=None,
                  timestamp=None, created_at=None, commitment=None):
         self.uuid = uuid or generate_uuid()
         self.timestamp = timestamp or int(time())
         self.created_at = created_at or ctime()
-        self.algorithm = algorithm
+        self.hash_func = hash_func
         self.encoding = encoding
         self.security = security
         self.commitment = commitment
@@ -102,7 +102,7 @@ class Proof:
 
         :rtype: dict
         """
-        return {'algorithm': self.algorithm, 'encoding': self.encoding,
+        return {'hash_func': self.hash_func, 'encoding': self.encoding,
                 'security': self.security}
 
     def compute_checksum(self):
@@ -149,7 +149,7 @@ class Proof:
         uuid = self.uuid
         timestamp = self.timestamp
         created_at = self.created_at
-        algorithm = self.algorithm.upper().replace('_', '')
+        algorithm = self.hash_func.__name__.replace('_', '')
         encoding = self.encoding.upper().replace('_', '-')
         security = 'ACTIVATED' if self.security else 'DEACTIVATED'
         commitment = self.commitment.decode(self.encoding) if self.commitment \
@@ -173,7 +173,7 @@ class Proof:
         uuid = self.uuid
         created_at = self.created_at
         timestamp = self.timestamp
-        algorithm = self.algorithm
+        hash_func = self.hash_func
         encoding = self.encoding
         security = self.security
         commitment = self.commitment.decode(self.encoding) if self.commitment \
@@ -191,7 +191,7 @@ class Proof:
                 'uuid': uuid,
                 'timestamp': timestamp,
                 'created_at': created_at,
-                'algorithm': algorithm,
+                'hash_func': hash_func,
                 'encoding': encoding,
                 'security': security,
             },

@@ -64,10 +64,10 @@ class HashEngine:
         respectively.
     """
 
-    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
+    def __init__(self, hash_func, encoding='utf-8', security=True):
 
         for (attr, provided, supported) in (
-                ('algorithm', algorithm, SUPPORTED_ALGORITHMS),
+                #('algorithm', algorithm, SUPPORTED_ALGORITHMS),
                 ('encoding', encoding, SUPPORTED_ENCODINGS)):
 
             _provided = provided.lower().replace('-', '_')
@@ -78,6 +78,7 @@ class HashEngine:
             setattr(self, attr, _provided)
 
         self.security = security
+        self.hash_func = hash_func
 
         if security:
             self.prefx00 = '\x00'.encode(encoding)
@@ -85,10 +86,6 @@ class HashEngine:
         else:
             self.prefx00 = bytes()
             self.prefx01 = bytes()
-
-    def _load_hasher(self):
-
-        return getattr(hashlib, self.algorithm)()
 
     def hash_data(self, data):
         """
@@ -99,55 +96,7 @@ class HashEngine:
         :type data: bytes
         :rtype: bytes
         """
-        buff = self.prefx00 + (data if isinstance(data, bytes) else
-                               data.encode(self.encoding))
-
-        hasher = self._load_hasher()
-        update = hasher.update
-        offset = 0
-        chunksize = 1024
-        chunk = buff[offset: chunksize]
-        while chunk:
-            update(chunk)
-            offset += chunksize
-            chunk = buff[offset: offset + chunksize]
-
-        return hasher.hexdigest().encode(self.encoding)
-
-    def hash_file(self, filepath):
-        """
-        Computes the digest of the provided file's content under the engine's
-        confiured hash algorithm, after first appending the ``\\x00`` security
-        prefix.
-
-        :param filepath: relative path of the file to hash with respect to the
-            current working directory
-        :type filepath: str
-        :rtype: bytes
-        """
-        hasher = self._load_hasher()
-        chunksize = 1024
-        update = hasher.update
-        update(self.prefx00)
-        with open(os.path.abspath(filepath), mode='rb') as f:
-
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-
-                read = buff.read
-                while True:
-                    data = read(chunksize)
-                    if not data:
-                        break
-
-                    update(data)
-
-        return hasher.hexdigest().encode(self.encoding)
+        return self.hash_func(data)
 
     def hash_pair(self, left, right):
         """
@@ -163,10 +112,7 @@ class HashEngine:
         """
         buff = self.prefx01 + left + self.prefx01 + right
 
-        hasher = self._load_hasher()
-        hasher.update(buff)
-
-        return hasher.hexdigest().encode(self.encoding)
+        return self.hash_func(buff)
 
     def hash_path(self, path, offset):
         """
