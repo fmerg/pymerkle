@@ -116,7 +116,7 @@ class Proof:
 
         return checksum
 
-    def verify(self, target=None):
+    def verify(self, target=None, challenge=None):
         """
         Merkle-proof verification.
 
@@ -138,6 +138,13 @@ class Proof:
 
         if target != self.compute_checksum():
             raise InvalidProof
+
+        if challenge:
+            left_path = [(-1, r[1]) for r in self.path[:self.offset + 1]]
+            engine = HashEngine(**self.get_verification_params())
+            awaited = engine.hash_path(left_path, self.offset)
+            if challenge != awaited:
+                raise InvalidProof
 
         return True
 

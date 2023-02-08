@@ -88,25 +88,36 @@ for (tree, subtree) in trees_and_subtrees:
     false_consistency_proofs.append(
         (
             tree,
+            subtree,
             tree.generate_consistency_proof(
-                b'anything except for the right hash value')
+                b'anything except for the right hash value'
+            )
         )
     )
 
     valid_consistency_proofs.append(
         (
             tree,
-            tree.generate_consistency_proof(subtree.get_root_hash())
+            subtree,
+            tree.generate_consistency_proof(
+                subtree.get_root_hash()
+            )
         )
     )
 
 
-@pytest.mark.parametrize('tree, proof', false_consistency_proofs)
-def test_false_consistency_verify_proof(tree, proof):
+@pytest.mark.parametrize('tree, subtree, proof', false_consistency_proofs)
+def test_false_consistency_verify_proof(tree, subtree, proof):
     with pytest.raises(InvalidProof):
-        proof.verify(target=tree.get_root_hash())
+        proof.verify(
+            target=tree.get_root_hash(),
+            challenge=subtree.get_root_hash(),
+        )
 
 
-@pytest.mark.parametrize('tree, proof', valid_consistency_proofs)
-def test_true_consistency_verify_proof(tree, proof):
-    assert proof.verify(target=tree.get_root_hash())
+@pytest.mark.parametrize('tree, subtree, proof', valid_consistency_proofs)
+def test_true_consistency_verify_proof(tree, subtree, proof):
+    assert proof.verify(
+        target=tree.get_root_hash(),
+        challenge=subtree.get_root_hash()
+    )
