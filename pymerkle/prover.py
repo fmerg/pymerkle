@@ -108,13 +108,22 @@ class MerkleProof(metaclass=ABCMeta):
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
+    def load_hash_engine(self):
+        """
+        Load hashing machinery according to the included verification
+        parameters.
+
+        :rtype: HashEngine
+        """
+        return HashEngine(**self.get_verification_params())
+
     def compute_checksum(self):
         """
         Computes the hash value resulting from the proof's path of hashes.
 
         :rtype: bytes
         """
-        engine = HashEngine(**self.get_verification_params())
+        engine = self.load_hash_engine()
         checksum = engine.hash_path(self.path, self.offset)
 
         return checksum
@@ -241,7 +250,7 @@ class MerkleProof(metaclass=ABCMeta):
 
 class AuditProof(MerkleProof):
 
-    def verify(self, target=None, challenge=None):
+    def verify(self, target=None):
         """
         Audit-proof verification.
 
@@ -294,7 +303,7 @@ class ConsistencyProof(MerkleProof):
 
         if challenge:
             left_path = [(-1, r[1]) for r in self.path[:self.offset + 1]]
-            engine = HashEngine(**self.get_verification_params())
+            engine = self.load_hash_engine()
             awaited = engine.hash_path(left_path, self.offset)
             if challenge != awaited:
                 raise InvalidProof
