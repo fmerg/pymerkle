@@ -29,4 +29,4 @@ if __name__ == '__main__':
     # Prove and verify saved state
     proof = tree.generate_consistency_proof(challenge=state)
     print(proof)
-    assert proof.verify(challenge=state)
+    assert proof.verify(state)

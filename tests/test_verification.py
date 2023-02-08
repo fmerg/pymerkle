@@ -85,39 +85,34 @@ false_consistency_proofs = []
 valid_consistency_proofs = []
 
 for (tree, subtree) in trees_and_subtrees:
+    previous = subtree.get_root_hash()
+    current = tree.get_root_hash()
+
     false_consistency_proofs.append(
         (
-            tree,
-            subtree,
+            previous,
+            current,
             tree.generate_consistency_proof(
-                b'anything except for the right hash value'
+                challenge=b'anything except for the correct hash value'
             )
         )
     )
 
     valid_consistency_proofs.append(
         (
-            tree,
-            subtree,
-            tree.generate_consistency_proof(
-                subtree.get_root_hash()
-            )
+            previous,
+            current,
+            tree.generate_consistency_proof(challenge=previous)
         )
     )
 
 
-@pytest.mark.parametrize('tree, subtree, proof', false_consistency_proofs)
-def test_false_consistency_verify_proof(tree, subtree, proof):
+@pytest.mark.parametrize('previous, current, proof', false_consistency_proofs)
+def test_false_consistency_verify_proof(previous, current, proof):
     with pytest.raises(InvalidProof):
-        proof.verify(
-            target=tree.get_root_hash(),
-            challenge=subtree.get_root_hash(),
-        )
+        proof.verify(previous, current)
 
 
-@pytest.mark.parametrize('tree, subtree, proof', valid_consistency_proofs)
-def test_true_consistency_verify_proof(tree, subtree, proof):
-    assert proof.verify(
-        target=tree.get_root_hash(),
-        challenge=subtree.get_root_hash()
-    )
+@pytest.mark.parametrize('previous, current, proof', valid_consistency_proofs)
+def test_true_consistency_verify_proof(previous, current, proof):
+    assert proof.verify(previous, current)

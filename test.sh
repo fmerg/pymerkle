@@ -22,7 +22,7 @@ do
             args+=($arg)
             shift
             ;;
-        -h|--help)
+        th|--help)
             usage
             exit 0
             ;;

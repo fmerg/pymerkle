@@ -128,6 +128,26 @@ class MerkleProof(metaclass=ABCMeta):
 
         return checksum
 
+    def verify_commitment(self, target=None):
+        """
+        :raises InvalidProof: if the proof fails to verify the commitment
+
+        :param target: [optional] target hash to compare against. Defaults to
+            the commitment included in the proof.
+        :type target: bytes
+        :returns: the verification result (*True*) in case of success
+        :rtype: bool
+        """
+        target = self.commitment if target is None else target
+
+        if self.offset == -1 and self.path == []:
+            raise InvalidProof
+
+        if target != self.compute_checksum():
+            raise InvalidProof
+
+        return True
+
     @abstractmethod
     def verify(self, *args, **kwargs):
         """
@@ -265,47 +285,41 @@ class AuditProof(MerkleProof):
         :returns: the verification result (*True*) in case of success.
         :rtype: bool
         """
-        target = self.commitment if target is None else target
-
-        if self.offset == -1 and self.path == []:
-            raise InvalidProof
-
-        if target != self.compute_checksum():
-            raise InvalidProof
+        self.verify_commitment(target)
 
         return True
 
 
 class ConsistencyProof(MerkleProof):
 
-    def verify(self, target=None, challenge=None):
+    def retrieve_challenge(self):
+        engine = self.load_hash_engine()
+        offset = self.offset
+        return engine.hash_path(
+            [(-1, _[1]) for _ in self.path[:offset + 1]],
+            offset
+        )
+
+    def verify(self, previous, current=None):
         """
-        Consistencty-proof verification.
+        Consistency-proof verification.
 
         Verifies that the hash value resulting from the included path of hashes
         coincides with the target.
 
         :raises InvalidProof: if the proof fails to verify.
 
-        :param target: [optional] target hash to compare against. Defaults to
-            the commitment included in the proof.
-        :type target: bytes
-        :returns: the verification result (*True*) in case of success.
+        :param previous: assumed previous root-hash of the tree
+        :type previous: bytes
+        :param current: [optional] assumed root-hash at the moment of proof
+            generation. Defaults to the commitment included in the proof.
+        :type current: bytes
+        :returns: the verification result (*True*) in case of success
         :rtype: bool
         """
-        target = self.commitment if target is None else target
+        self.verify_commitment(current)
 
-        if self.offset == -1 and self.path == []:
+        if self.retrieve_challenge() != previous:
             raise InvalidProof
-
-        if target != self.compute_checksum():
-            raise InvalidProof
-
-        if challenge:
-            left_path = [(-1, r[1]) for r in self.path[:self.offset + 1]]
-            engine = self.load_hash_engine()
-            awaited = engine.hash_path(left_path, self.offset)
-            if challenge != awaited:
-                raise InvalidProof
 
         return True

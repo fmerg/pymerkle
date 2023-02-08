@@ -54,7 +54,7 @@ Usage
 
   # Prove and verify saved state
   proof = tree.generate_consistency_proof(challenge=state)
-  proof.verify()
+  proof.verify(state)
 
 Security
 ********

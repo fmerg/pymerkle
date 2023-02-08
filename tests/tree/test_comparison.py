@@ -230,4 +230,4 @@ def test_has_previous_state_with_sublength_equal_to_power_of_2(tree, later_state
 def test_consistency_proof_verification_with_sublength_equal_to_power_of_2(
         tree, later_state):
     proof = later_state.generate_consistency_proof(tree.get_root_hash())
-    assert proof.verify(later_state.get_root_hash())
+    assert proof.verify(tree.get_root_hash(), later_state.get_root_hash())

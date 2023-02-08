@@ -773,7 +773,7 @@ class MerkleTree(BaseMerkleTree):
     def minimal_complement(self, subroots):
         """
         Complements from the right the provided sequence of subroots, so that
-        a full consistenct path can subsequently be generated.
+        a full consistent path can subsequently be generated.
 
         :param subroots: respective sequence of roots of complete full binary
             subtrees from the left
