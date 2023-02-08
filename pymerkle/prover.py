@@ -1,10 +1,11 @@
 """
-Provides the Merkle-proof object.
+Provides the Merkle-proof objects.
 """
 
 import os
 import json
 from time import time, ctime
+from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine
 from pymerkle.utils import log10, generate_uuid
@@ -70,8 +71,10 @@ class InvalidProof(Exception):
     pass
 
 
-class Proof:
+class MerkleProof(metaclass=ABCMeta):
     """
+    Interface and abstract functionality for Merkle-proofs.
+
     :param algorithm: hash-type of the provider tree
     :type algorithm: str
     :param encoding: encoding type of the provider tree
@@ -116,37 +119,11 @@ class Proof:
 
         return checksum
 
-    def verify(self, target=None, challenge=None):
+    @abstractmethod
+    def verify(self, *args, **kwargs):
         """
-        Merkle-proof verification.
-
-        Verifies that the hash value resulting from the included path of hashes
-        coincides with the target.
-
-        :raises InvalidProof: if the proof fails to verify.
-
-        :param target: [optional] target hash to compare against. Defaults to
-            the commitment included in the proof.
-        :type target: bytes
-        :returns: the verification result (*True*) in case of success.
-        :rtype: bool
+        Should specify how to verify the proof.
         """
-        target = self.commitment if target is None else target
-
-        if self.offset == -1 and self.path == []:
-            raise InvalidProof
-
-        if target != self.compute_checksum():
-            raise InvalidProof
-
-        if challenge:
-            left_path = [(-1, r[1]) for r in self.path[:self.offset + 1]]
-            engine = HashEngine(**self.get_verification_params())
-            awaited = engine.hash_path(left_path, self.offset)
-            if challenge != awaited:
-                raise InvalidProof
-
-        return True
 
     def __repr__(self):
         """
@@ -254,24 +231,72 @@ class Proof:
         :params serialized: JSON dict or text, assumed to be the serialization
             of a Merkle-proof
         :type: dict or str
-        :rtype: Proof
-
-        .. note:: Merkle-proofs are intended to be the output of proof generation
-            mechanisms and not be manually constructed. Retrieval via
-            deserialization might though have practical importance, so that given
-            a proof ``p`` the following constructions are possible:
-
-            >>> from pymerkle import Proof
-            >>>
-            >>> q = Proof.from_dict(p.serialize())
-            >>> r = Proof.fromJSONText(p.toJSONText())
-
-            or, more uniformly,
-
-            >>> q = Proof.deserialize(p.serialize())
-            >>> r = Proof.deserialize(p.toJSONText())
+        :rtype: MerkleProof
         """
         if isinstance(serialized, dict):
             return cls.from_dict(serialized)
         elif isinstance(serialized, str):
             return cls.fromJSONText(serialized)
+
+
+class AuditProof(MerkleProof):
+
+    def verify(self, target=None, challenge=None):
+        """
+        Audit-proof verification.
+
+        Verifies that the hash value resulting from the included path of hashes
+        coincides with the target.
+
+        :raises InvalidProof: if the proof fails to verify.
+
+        :param target: [optional] target hash to compare against. Defaults to
+            the commitment included in the proof.
+        :type target: bytes
+        :returns: the verification result (*True*) in case of success.
+        :rtype: bool
+        """
+        target = self.commitment if target is None else target
+
+        if self.offset == -1 and self.path == []:
+            raise InvalidProof
+
+        if target != self.compute_checksum():
+            raise InvalidProof
+
+        return True
+
+
+class ConsistencyProof(MerkleProof):
+
+    def verify(self, target=None, challenge=None):
+        """
+        Consistencty-proof verification.
+
+        Verifies that the hash value resulting from the included path of hashes
+        coincides with the target.
+
+        :raises InvalidProof: if the proof fails to verify.
+
+        :param target: [optional] target hash to compare against. Defaults to
+            the commitment included in the proof.
+        :type target: bytes
+        :returns: the verification result (*True*) in case of success.
+        :rtype: bool
+        """
+        target = self.commitment if target is None else target
+
+        if self.offset == -1 and self.path == []:
+            raise InvalidProof
+
+        if target != self.compute_checksum():
+            raise InvalidProof
+
+        if challenge:
+            left_path = [(-1, r[1]) for r in self.path[:self.offset + 1]]
+            engine = HashEngine(**self.get_verification_params())
+            awaited = engine.hash_path(left_path, self.offset)
+            if challenge != awaited:
+                raise InvalidProof
+
+        return True

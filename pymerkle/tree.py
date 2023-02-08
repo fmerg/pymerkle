@@ -8,7 +8,7 @@ import sys
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
-from pymerkle.prover import Proof
+from pymerkle.prover import AuditProof, ConsistencyProof
 from pymerkle.utils import log_2, decompose
 from pymerkle.nodes import Node, Leaf
 
@@ -175,23 +175,28 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         based on the provided length.
         """
 
-    def create_proof(self, offset, path):
+    def build_proof(self, proof_cls, offset, path):
         """
         Creates a proof object from the provided path of hashes including the
         configuration of the present tree as verification parameters.
 
+        :param proof_cls: Should be either ``AuditProof`` or
+            ``ConsistencyProof``
         :param offset: starting position of the verification procedure
         :type offset: int
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
         :returns: proof object consisting of the above components
-        :rtype: Proof
+        :rtype: MerkleProof
         """
-        params = self.get_config()
         commitment = self.get_root_hash()
-        proof = Proof(path=path, offset=offset, commitment=commitment,
-                      **params)
-        return proof
+        params = self.get_config()
+        return proof_cls(
+            path=path,
+            offset=offset,
+            commitment=commitment,
+            **params
+        )
 
     def generate_audit_proof(self, challenge):
         """
@@ -202,7 +207,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: hash value to be proven
         :type challenge: bytes
-        :rtype: Proof
+        :rtype: AuditProof
         """
         offset = -1
         path = []
@@ -211,7 +216,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if leaf:
             offset, path = self.generate_audit_path(leaf)
 
-        proof = self.create_proof(offset, path)
+        proof = self.build_proof(AuditProof, offset, path)
         return proof
 
     def generate_consistency_proof(self, challenge):
@@ -223,7 +228,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: acclaimed root-hash of some previous state of the tree.
         :type challenge: bytes
-        :rtype: Proof
+        :rtype: ConsistencyProof
 
         """
         offset = -1
@@ -242,7 +247,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                 path = _path
                 break
 
-        proof = self.create_proof(offset, path)
+        proof = self.build_proof(ConsistencyProof, offset, path)
         return proof
 
     @abstractmethod

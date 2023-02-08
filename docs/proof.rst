@@ -195,7 +195,7 @@ verifiable proof object proceeds as follows:
 
 .. code-block:: python
 
-  from pymerkle import Proof
+  from pymerkle import AuditProof
 
-  proof = Proof.deserialize(serialized)
+  proof = AuditProof.deserialize(serialized)
   assert proof.verify()

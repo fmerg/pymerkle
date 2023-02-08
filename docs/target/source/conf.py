@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'pymerkle'
-copyright = '2022, fmerg'
+copyright = '2023, fmerg'
 author = 'fmerg'
 
 # The full version, including alpha/beta/rc tags
