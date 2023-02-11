@@ -3,27 +3,20 @@ Tests proof generation methods
 """
 
 import pytest
-
 from pymerkle import MerkleTree
-from pymerkle.hashing import SUPPORTED_ALGORITHMS
-
-from tests.conftest import option, resolve_encodings
+from tests.conftest import option, all_configs
 
 
 # Trees setup
 
-MAX_LENGTH = 4
+max_length = 4
 trees = []
-for security in (True, False):
-    for length in range(0, MAX_LENGTH + 1):
-        for algorithm in SUPPORTED_ALGORITHMS:
-            for encoding in resolve_encodings(option):
-                config = {'algorithm': algorithm, 'encoding': encoding,
-                          'security': security}
-                tree = MerkleTree.init_from_records(
-                    *['%d-th record' % _ for _ in range(length)],
-                    config=config)
-                trees.append(tree)
+for config in all_configs(option):
+    for length in range(0, max_length + 1):
+        tree = MerkleTree.init_from_records(
+            *['%d-th record' % _ for _ in range(length)],
+            config=config)
+        trees.append(tree)
 
 
 tree__wrong_challenge = []

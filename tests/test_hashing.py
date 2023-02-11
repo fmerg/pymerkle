@@ -3,57 +3,25 @@
 
 import pytest
 import hashlib
-
 from pymerkle.hashing import HashEngine, SUPPORTED_ALGORITHMS, \
     EmptyPathException, UnsupportedParameter
-
-from tests.conftest import option, resolve_encodings
+from tests.conftest import option, all_configs
 
 
 record = 'oculusnonviditnecaurisaudivit'
 engines = []
-engines_types_encodings_securities = []
-engines_singleargs = []
-
-for security in (True, False):
-    for algorithm in SUPPORTED_ALGORITHMS:
-        for encoding in resolve_encodings(option):
-
-            config = {'algorithm': algorithm, 'encoding': encoding,
-                      'security': security}
-            engine = HashEngine(**config)
-
-            engines.append(engine)
-            engines_types_encodings_securities.extend(
-                [
-                    (
-                        engine,
-                        algorithm,
-                        encoding,
-                        security
-                    )
-                ]
-            )
-
-            engines_singleargs.extend(
-                [
-                    (
-                        engine,
-                        record,
-                    ),
-                    (
-                        engine,
-                        record.encode(engine.encoding),
-                    )
-                ]
-            )
 
 
-# hash
+for config in all_configs(option):
+    engines += [HashEngine(**config)]
 
-@pytest.mark.parametrize("engine, algorithm, encoding, security",
-                         engines_types_encodings_securities)
-def test_single_string_hash(engine, algorithm, encoding, security):
+
+@pytest.mark.parametrize('engine', engines)
+def test_single_string_hash(engine):
+    security = engine.security
+    algorithm = engine.algorithm
+    encoding = engine.encoding
+
     prefx00 = '\x00'.encode(encoding)
     data = record.encode(encoding)
 
@@ -72,9 +40,12 @@ def test_single_string_hash(engine, algorithm, encoding, security):
         )
 
 
-@pytest.mark.parametrize("engine, algorithm, encoding, security",
-                         engines_types_encodings_securities)
-def test_single_bytes_hash(engine, algorithm, encoding, security):
+@pytest.mark.parametrize('engine', engines)
+def test_single_bytes_hash(engine):
+    security = engine.security
+    algorithm = engine.algorithm
+    encoding = engine.encoding
+
     prefx00 = '\x00'.encode(encoding)
     data = record.encode(encoding)
 
@@ -93,9 +64,12 @@ def test_single_bytes_hash(engine, algorithm, encoding, security):
         )
 
 
-@pytest.mark.parametrize("engine, algorithm, encoding, security",
-                         engines_types_encodings_securities)
-def test_double_bytes_hash(engine, algorithm, encoding, security):
+@pytest.mark.parametrize('engine', engines)
+def test_double_bytes_hash(engine):
+    security = engine.security
+    algorithm = engine.algorithm
+    encoding = engine.encoding
+
     prefx00 = '\x00'.encode(encoding)
     prefx01 = '\x01'.encode(encoding)
     data = record.encode(encoding)
@@ -124,18 +98,16 @@ def test_double_bytes_hash(engine, algorithm, encoding, security):
         )
 
 
-# hash_path
-
 @pytest.mark.parametrize('engine', engines)
 def test_0_elems_hash_path(engine):
     with pytest.raises(EmptyPathException):
         assert engine.hash_path((), 'anything')
 
 
-@pytest.mark.parametrize('engine, record', engines_singleargs)
-def test_1_elems_hash_path(engine, record):
+@pytest.mark.parametrize('engine', engines)
+def test_1_elems_hash_path(engine):
     assert engine.hash_path(
-        ((+1, engine.hash_data(record)),), 0
+        [(+1, engine.hash_data(record))], 0
     ) == engine.hash_data(record)
 
 

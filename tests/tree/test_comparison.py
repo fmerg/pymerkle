@@ -2,13 +2,10 @@
 Tests for inclusion-test and the comparison operators based upon it
 """
 
-import pytest
 import os
-
+import pytest
 from pymerkle import MerkleTree
-from pymerkle.hashing import SUPPORTED_ALGORITHMS
-
-from tests.conftest import option, resolve_encodings
+from tests.conftest import option, all_configs
 
 # Files to encrypt
 child_dir = os.path.dirname(os.path.dirname(__file__))
@@ -16,17 +13,14 @@ short_APACHE_log = os.path.join(child_dir, 'logdata/short_APACHE_log')
 RED_HAT_LINUX_log = os.path.join(child_dir, 'logdata/RED_HAT_LINUX_log')
 
 trees_and_subtrees = []
-for security in (True, False):
-    for algorithm in SUPPORTED_ALGORITHMS:
-        for encoding in resolve_encodings(option):
-            config = {'algorithm': algorithm, 'encoding': encoding,
-                      'security': security}
-            tree = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e',
-                                                config=config)
-            state = tree.get_root_hash()
-            for record in ('f', 'g', 'h', 'k'):
-                tree.encrypt(record)
-            trees_and_subtrees.append((tree, state))
+for config in all_configs(option):
+    tree = MerkleTree.init_from_records(
+        'a', 'b', 'c', 'd', 'e', config=config
+    )
+    state = tree.get_root_hash()
+    for record in ('f', 'g', 'h', 'k'):
+        tree.encrypt(record)
+    trees_and_subtrees.append((tree, state))
 
 
 # Success edge case with standard Merkle-Tree

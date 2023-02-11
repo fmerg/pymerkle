@@ -2,24 +2,18 @@ import pytest
 import os
 import json
 from pymerkle import MerkleTree
-from pymerkle.hashing import HashEngine, SUPPORTED_ALGORITHMS
-
-from tests.conftest import option, resolve_encodings
+from pymerkle.hashing import HashEngine
+from tests.conftest import option, all_configs
 
 
 trees_engines = []
-for security in (True, False):
-    for algorithm in SUPPORTED_ALGORITHMS:
-        for encoding in resolve_encodings(option):
-            config = {'algorithm': algorithm, 'encoding': encoding,
-                      'security': security}
-
-            trees_engines.append(
-                (
-                    MerkleTree(**config),
-                    HashEngine(**config),
-                )
-            )
+for config in all_configs(option):
+    trees_engines.append(
+        (
+            MerkleTree(**config),
+            HashEngine(**config),
+        )
+    )
 
 
 records = []
