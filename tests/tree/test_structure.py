@@ -1,10 +1,4 @@
-"""
-Utilizes hash comparison in order to verify that the the encrypt() method
-restructures the Merkle-tree as excepcted
-"""
-
 import pytest
-
 from pymerkle import MerkleTree
 from pymerkle.hashing import HashEngine
 
@@ -12,7 +6,6 @@ from pymerkle.hashing import HashEngine
 tree = MerkleTree()
 hash_data = tree.hash_data
 hash_pair = tree.hash_pair
-
 t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
     'ingi', 'rum', 'imus', 'noc', 'te', 'et', 'con', 'su', 'mi', 'mur', 'igni'
 

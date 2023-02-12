@@ -1,11 +1,4 @@
-"""
-Tests utilities for Merkle-proof generation
-"""
-
 import pytest
-import os
-import json
-
 from pymerkle.tree import MerkleTree, NoPathException
 
 
@@ -16,8 +9,6 @@ tree_3 = MerkleTree.init_from_records('a', 'b', 'c')
 tree_4 = MerkleTree.init_from_records('a', 'b', 'c', 'd')
 tree_5 = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
 
-
-# Audit path
 
 audit_paths = [
     (
@@ -192,8 +183,6 @@ def test_generate_audit_path(tree, offset, path):
     leaf = tree.get_leaf(offset)
     assert tree.generate_audit_path(leaf) == path
 
-
-# Consistency path
 
 no_subroot_cases = [
     (tree_0, 0, 0),

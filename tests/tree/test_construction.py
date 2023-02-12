@@ -1,45 +1,63 @@
 import pytest
-import os
-import json
-
 from pymerkle.tree import MerkleTree, UnsupportedParameter
+from tests.conftest import option, all_configs
 
 
-def test_unsupported_algorithm():
+def test_construction_error():
     with pytest.raises(UnsupportedParameter):
-        MerkleTree(algorithm='anything unsupported...')
+        MerkleTree(algorithm='anything_unsupported')
 
-
-def test_unsupported_encoding():
     with pytest.raises(UnsupportedParameter):
-        MerkleTree(encoding='anything unsupported...')
+        MerkleTree(encoding='anything_unsupported')
 
 
-def test_MerkleTree_bool_implementation():
-    assert not MerkleTree() and MerkleTree.init_from_records('something')
+def test_bool():
+    tree = MerkleTree()
+    assert not tree
+    assert not tree.get_root_hash()
+
+    tree = MerkleTree.init_from_records('a')
+    assert tree
+    assert tree.get_root_hash()
 
 
-def test_root_empty_tree_exception():
-    assert not MerkleTree().root
-
-
-def test_root_hash_for_empty_tree():
-    assert not MerkleTree().get_root_hash()
-
-
-def test_root_hash_of_non_empty_MerkleTree():
-    t = MerkleTree.init_from_records('a')
-    s = MerkleTree.init_from_records('a', 'b')
-    assert t.get_root_hash() == t.hash_data('a') and \
-        s.get_root_hash() == s.hash_pair(s.hash_data('a'),
-                s.hash_data('b'))
-
-
-def test_dimensions_of_empty_tree():
+def test_dimensions():
     tree = MerkleTree()
     assert (tree.length, tree.size, tree.height) == (0, 0, 0)
 
-
-def test_dimensions_of_tree_with_three_leaves():
     tree = MerkleTree.init_from_records('a', 'b', 'c')
     assert (tree.length, tree.size, tree.height) == (3, 5, 2)
+
+
+@pytest.mark.parametrize('config', all_configs(option))
+def test_previous_state_edge_cases(config):
+    tree = MerkleTree(**config)
+    assert not tree.has_previous_state(b'anything')
+
+    tree.encrypt('a')
+    state = tree.get_root_hash()
+    assert tree.has_previous_state(state)
+
+
+@pytest.mark.parametrize('config', all_configs(option))
+def test_previous_state_success(config):
+    tree = MerkleTree.init_from_records(
+        'a', 'b', 'c', 'd', 'e', config=config
+    )
+
+    state = tree.get_root_hash()
+    for record in ('f', 'g', 'h', 'k'):
+        tree.encrypt(record)
+        assert tree.has_previous_state(state)
+
+
+@pytest.mark.parametrize('config', all_configs(option))
+def test_previous_state_failure(config):
+    tree = MerkleTree.init_from_records(
+        'a', 'b', 'c', 'd', 'e', config=config
+    )
+
+    state = b'non_existent_state'
+    for record in ('f', 'g', 'h', 'k'):
+        tree.encrypt(record)
+        assert not tree.has_previous_state(state)
