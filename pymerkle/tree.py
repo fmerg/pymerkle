@@ -68,20 +68,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         self.add_leaf(leaf)
 
-    def encrypt_file(self, filepath):
-        """
-        Creates a new leaf node with the digest of the file's content and
-        appends it to the tree by restructuring it and recalculating the
-        appropriate interior hashes.
-
-        :param filepath: Relative path of the file to encrypt with respect to
-            the current working directory.
-        :type filepath: str
-        """
-        leaf = Leaf.from_file(filepath, self)
-
-        self.add_leaf(leaf)
-
     @classmethod
     def init_from_records(cls, *data, config=None):
         """

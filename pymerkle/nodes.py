@@ -353,19 +353,3 @@ class Leaf(Node):
         :rtype: Leaf
         """
         return cls(engine.hash_data(data), leaf=None)
-
-    @classmethod
-    def from_file(cls, filepath, engine):
-        """
-        Creates a leaf storing the digest of the provided file's content under
-        the provided hash function.
-
-        :param filepath: Relative path of the file to encrypt with respect to
-            the current working directory.
-        :type filepath: str
-        :param engine: hash-engine to be used for digest computation
-        :type engine: HashEngine
-        :returns: the created leaf
-        :rtype: Leaf
-        """
-        return cls(engine.hash_file(filepath), leaf=None)

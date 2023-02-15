@@ -114,41 +114,6 @@ class HashEngine:
 
         return hasher.hexdigest().encode(self.encoding)
 
-    def hash_file(self, filepath):
-        """
-        Computes the digest of the provided file's content under the engine's
-        confiured hash algorithm, after first appending the ``\\x00`` security
-        prefix.
-
-        :param filepath: relative path of the file to hash with respect to the
-            current working directory
-        :type filepath: str
-        :rtype: bytes
-        """
-        hasher = self._load_hasher()
-        chunksize = 1024
-        update = hasher.update
-        update(self.prefx00)
-        with open(os.path.abspath(filepath), mode='rb') as f:
-
-            with contextlib.closing(
-                mmap.mmap(
-                    f.fileno(),
-                    0,
-                    access=mmap.ACCESS_READ
-                )
-            ) as buff:
-
-                read = buff.read
-                while True:
-                    data = read(chunksize)
-                    if not data:
-                        break
-
-                    update(data)
-
-        return hasher.hexdigest().encode(self.encoding)
-
     def hash_pair(self, left, right):
         """
         Concatenates the provided bytestrings after first appending the
