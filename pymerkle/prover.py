@@ -188,7 +188,7 @@ class Proof:
             path += [[sign, checksum]]
 
         return {
-            'header': {
+            'metadata': {
                 'uuid': uuid,
                 'timestamp': timestamp,
                 'created_at': created_at,
@@ -211,12 +211,12 @@ class Proof:
         """
         kw = {}
 
-        header = proof['header']
-        kw.update(header)
+        metadata = proof['metadata']
+        kw.update(metadata)
 
         body = proof['body']
         kw['offset'] = body['offset']
-        encoding = header['encoding']
+        encoding = metadata['encoding']
         kw['path'] = [(pair[0], pair[1].encode(encoding)) for pair in
                 body['path']]
         commitment = body.get('commitment', None)

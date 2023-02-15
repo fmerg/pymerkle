@@ -144,7 +144,7 @@ which yields s JSON dictionary similar to the following one:
 .. code-block:: json
 
   {
-      "header": {
+      "metadata": {
           "uuid": "c5788c06-d82c-11ec-8f3d-3887d51f42f3",
           "timestamp": 1653044734,
           "created_at": "Fri May 20 14:05:34 2022",
@@ -188,10 +188,10 @@ which yields s JSON dictionary similar to the following one:
       }
   }
 
-Note that body contains the path of hashes and the included commitment, while
-the header contains the parameters which are required for configuring the
-hashing machinery during verification. Deserialization for retrieving the
-verifiable proof object proceeds as follows:
+The body contains the path of hashes along with the incuded commitment, while
+metadata carries the inforation required for configuring the verification
+hashing machinery. Deserialization for retrieving the verifiable proof
+object proceeds as follows:
 
 .. code-block:: python
 

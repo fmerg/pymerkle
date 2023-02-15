@@ -143,7 +143,7 @@ serializations = [
     (
         proof_11,
         {
-            'header': {
+            'metadata': {
                 'uuid': proof_11.uuid,
                 'timestamp': proof_11.timestamp,
                 'created_at': proof_11.created_at,
@@ -173,7 +173,7 @@ serializations = [
     (
         proof_21,
         {
-            'header': {
+            'metadata': {
                 'uuid': proof_21.uuid,
                 'timestamp': proof_21.timestamp,
                 'created_at': proof_21.created_at,
