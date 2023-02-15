@@ -280,40 +280,6 @@ class Node:
 
         return out
 
-    def serialize(self, encoding):
-        """
-        Returns a JSON dictionary with the node's characteristics as key-value pairs.
-
-        :param encoding: encoding type of the containing tree.
-        :type encoding: str
-        :rtype: dict
-
-        .. note:: The *parent* attribute is ommited from node serialization in
-            order for circular reference error to be avoided.
-        """
-        out = {'hash': self.get_checksum(encoding)}
-
-        if self.left:
-            out.update({'left': self.left.serialize(encoding)})
-
-        if self.right:
-            out.update({'right': self.right.serialize(encoding)})
-
-        return out
-
-    def toJSONtext(self, encoding, indent=4):
-        """
-        Returns a JSON text with the node's characteristics as key-value pairs.
-
-        :param encoding: encoding type of the containing tree.
-        :type encoding: str
-        :rtype: str
-
-        .. note:: The *parent* attribute is ommited from node serialization in
-            order for circular reference error to be avoided.
-        """
-        return json.dumps(self.serialize(encoding), sort_keys=True, indent=indent)
-
 
 class Leaf(Node):
     """
