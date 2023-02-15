@@ -15,7 +15,7 @@ for config in all_configs(option):
 @pytest.mark.parametrize('tree', trees)
 def test_empty_consistency_proof(tree):
     challenge = b'anything that is not previous state'
-    proof = tree.generate_consistency_proof(challenge)
+    proof = tree.prove_consistency(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,
@@ -37,7 +37,7 @@ def test_non_empty_consistency_proof(tree):
         subtree = MerkleTree.init_from_records(*records, config=config)
 
         challenge = subtree.get_root_hash()
-        proof = tree.generate_consistency_proof(challenge)
+        proof = tree.prove_consistency(challenge)
 
         assert proof.__dict__ == {
             'uuid': proof.uuid,

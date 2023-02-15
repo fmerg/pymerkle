@@ -53,7 +53,7 @@ Usage
       tree.encrypt(data)
 
   # Prove and verify saved state
-  proof = tree.generate_consistency_proof(challenge=state)
+  proof = tree.prove_consistency(challenge=state)
   proof.verify()
 
 Security

@@ -88,7 +88,7 @@ for (tree, subtree) in trees_and_subtrees:
     false_consistency_proofs.append(
         (
             tree,
-            tree.generate_consistency_proof(
+            tree.prove_consistency(
                 b'anything except for the right hash value')
         )
     )
@@ -96,7 +96,7 @@ for (tree, subtree) in trees_and_subtrees:
     valid_consistency_proofs.append(
         (
             tree,
-            tree.generate_consistency_proof(subtree.get_root_hash())
+            tree.prove_consistency(subtree.get_root_hash())
         )
     )
 

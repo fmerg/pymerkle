@@ -214,7 +214,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.create_proof(offset, path)
         return proof
 
-    def generate_consistency_proof(self, challenge):
+    def prove_consistency(self, challenge):
         """
         Computes consistency-proof for the provided hash value.
 

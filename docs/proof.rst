@@ -63,7 +63,7 @@ follows:
 
 .. code-block:: python
 
-   proof = tree.generate_consistency_proof(challenge=state)
+   proof = tree.prove_consistency(challenge=state)
 
 Inspection
 ==========
