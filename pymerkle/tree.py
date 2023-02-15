@@ -162,7 +162,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def generate_audit_path(self, leaf):
+    def generate_inclusion_path(self, leaf):
         """
         Define here how to construct path of hashes for audit-proofs based on
         the provided leaf node.
@@ -193,7 +193,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                       **params)
         return proof
 
-    def generate_audit_proof(self, challenge):
+    def prove_inclusion(self, challenge):
         """
         Computes audit-proof for the provided hash value.
 
@@ -209,7 +209,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         leaf = self.find_leaf(value=challenge)
         if leaf:
-            offset, path = self.generate_audit_path(leaf)
+            offset, path = self.generate_inclusion_path(leaf)
 
         proof = self.create_proof(offset, path)
         return proof
@@ -530,7 +530,7 @@ class MerkleTree(BaseMerkleTree):
             self._append_leaf(leaf)
             self.__root = leaf
 
-    def generate_audit_path(self, leaf):
+    def generate_inclusion_path(self, leaf):
         """
         Computes the audit-path based on the provided leaf node.
 

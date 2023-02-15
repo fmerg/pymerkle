@@ -33,7 +33,7 @@ for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
 
 # Prove and verify encryption of `bar`
 challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
-proof = tree.generate_audit_proof(challenge)
+proof = tree.prove_inclusion(challenge)
 proof.verify()
 
 # Save current tree state

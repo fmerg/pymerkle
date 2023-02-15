@@ -29,7 +29,7 @@ responds with a Merkle-proof ``proof`` as follows:
 
 .. code-block:: python
 
-   proof = tree.generate_audit_proof(challenge)
+   proof = tree.prove_inclusion(challenge)
 
 Note that in order to construct the challenge from the original data, the
 auditor must access or replicate the tree's hashing machinery (since the

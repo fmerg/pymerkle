@@ -14,7 +14,7 @@ for config in all_configs(option):
 @pytest.mark.parametrize('tree', trees)
 def test_empty_audit_proof(tree):
     challenge = b'anything unrecorded'
-    proof = tree.generate_audit_proof(challenge)
+    proof = tree.prove_inclusion(challenge)
 
     assert proof.__dict__ == {
         'uuid': proof.uuid,
@@ -34,7 +34,7 @@ def test_non_empty_audit_proof(tree):
     challenges = []
     for i in range(tree.length):
         challenge = tree.hash_data('%d' % i)
-        proof = tree.generate_audit_proof(challenge)
+        proof = tree.prove_inclusion(challenge)
 
         assert proof.__dict__ == {
             'uuid': proof.uuid,

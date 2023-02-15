@@ -179,6 +179,6 @@ audit_paths = [
 
 
 @pytest.mark.parametrize('tree, offset, path', audit_paths)
-def test_generate_audit_path(tree, offset, path):
+def test_generate_inclusion_path(tree, offset, path):
     leaf = tree.get_leaf(offset)
-    assert tree.generate_audit_path(leaf) == path
+    assert tree.generate_inclusion_path(leaf) == path
