@@ -43,7 +43,7 @@ def main():
        install_requires=install_requires,
        zip_safe=False,
        keywords=[
-           "merkle", "proof", "audit", "consistency",
+           "merkle", "proof", "inclusion", "consistency",
        ],
        classifiers=[
            "Development Status :: 4 - Beta",

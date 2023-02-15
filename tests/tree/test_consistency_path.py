@@ -2,12 +2,12 @@ import pytest
 from pymerkle.tree import MerkleTree, NoPathException
 
 
-tree_0 = MerkleTree.init_from_records()
-tree_1 = MerkleTree.init_from_records('a')
-tree_2 = MerkleTree.init_from_records('a', 'b')
-tree_3 = MerkleTree.init_from_records('a', 'b', 'c')
-tree_4 = MerkleTree.init_from_records('a', 'b', 'c', 'd')
-tree_5 = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
+tree_0 = MerkleTree.init_from_entries()
+tree_1 = MerkleTree.init_from_entries('a')
+tree_2 = MerkleTree.init_from_entries('a', 'b')
+tree_3 = MerkleTree.init_from_entries('a', 'b', 'c')
+tree_4 = MerkleTree.init_from_entries('a', 'b', 'c', 'd')
+tree_5 = MerkleTree.init_from_entries('a', 'b', 'c', 'd', 'e')
 
 no_subroot_cases = [
     (tree_0, 0, 0),

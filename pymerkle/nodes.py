@@ -342,14 +342,13 @@ class Leaf(Node):
     @classmethod
     def from_data(cls, data, engine):
         """
-        Creates a leaf storing the digest of the provided record under the
+        Creates a leaf storing the digest of the provided entry under the
         provided hash engine.
 
-        :param data: bytestring to encrypt
+        :param data: entry to be hashed
         :type data: bytes
-        :param engine: hash-engine to be used for digest computation
+        :param engine: engine to be used for hash computation
         :type engine: HashEngine
-        :returns: the created leaf
         :rtype: Leaf
         """
-        return cls(engine.hash_data(data), leaf=None)
+        return cls(engine.hash_entry(data), leaf=None)

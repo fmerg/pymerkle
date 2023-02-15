@@ -36,11 +36,11 @@ Usage
 
   tree = MerkleTree()
 
-  # Populate tree with some records
+  # Populate tree with some entries
   for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-      tree.encrypt(data)
+      tree.append_entry(data)
 
-  # Prove and verify encryption of `bar`
+  # Prove and verify inclusion of `bar`
   challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
   proof = tree.prove_inclusion(challenge)
   proof.verify()
@@ -50,7 +50,7 @@ Usage
 
   # Append further leaves
   for data in [b'corge', b'grault', b'garlpy']:
-      tree.encrypt(data)
+      tree.append_entry(data)
 
   # Prove and verify saved state
   proof = tree.prove_consistency(challenge=state)
@@ -67,7 +67,7 @@ Defense against second-preimage attack
 
 Defense against second-preimage attack consists in the following standard technique:
 
-* Upon computing the hash of a leaf, prepend its record with 0x00.
+* Upon computing the hash of a leaf, prepend its entry with 0x00.
 
 * Upon computing the hash of an interior node, prepend the hashes of its
   children with 0x01.

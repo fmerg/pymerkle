@@ -7,13 +7,13 @@ if __name__ == '__main__':
 
     tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
 
-    # Populate tree with some records
+    # Populate tree with some entries
     for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-        tree.encrypt(data)
+        tree.append_entry(data)
 
     print(repr(tree))
 
-    # Prove and verify encryption of `bar`
+    # Prove and verify inclusion of `bar`
     challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
     proof = tree.prove_inclusion(challenge)
     print(proof)
@@ -22,9 +22,9 @@ if __name__ == '__main__':
     # Save current tree state
     state = tree.get_root_hash()
 
-    # Append further leaves
+    # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
-        tree.encrypt(data)
+        tree.append_entry(data)
 
     # Prove and verify saved state
     proof = tree.prove_consistency(challenge=state)

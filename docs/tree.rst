@@ -62,23 +62,17 @@ characteristics:
 
     >>>
 
-Encryption
-==========
+Append entry
+============
 
-Encrypting a record into the Merkle-tree means to append a new leaf storing the
-hash value of that record, restructure the tree accordingly and recalculate some
-interior hashes, which culminates in the recalculation of the root-hash
-represeting the tree's updated state. The final structure is uniquely
-determined by the growing strategy of the tree, as specified by its internal
-mechanics.
-
-Single record encryption
-------------------------
+Appending an entry to the Merkle-tree means to append a new leaft storing the
+hash of that entry, restructirung the tree appropriatly and recalculating some
+interior hashes, which culminates in the root hash update.
 
 .. code-block:: python
 
-    tree.encrypt('string value')
-    tree.encrypt(b'bytestring')
+    tree.append_entry('string value')
+    tree.append_entry(b'bytestring')
 
 
 Inspection

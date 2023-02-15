@@ -26,7 +26,7 @@ def test_single_string_hash(engine):
     data = record.encode(encoding)
 
     if security:
-        assert engine.hash_data(record) == bytes(
+        assert engine.hash_entry(record) == bytes(
             getattr(hashlib, algorithm)(
                 prefx00 +
                 data
@@ -34,7 +34,7 @@ def test_single_string_hash(engine):
             encoding
         )
     else:
-        assert engine.hash_data(record) == bytes(
+        assert engine.hash_entry(record) == bytes(
             getattr(hashlib, algorithm)(data).hexdigest(),
             encoding
         )
@@ -50,7 +50,7 @@ def test_single_bytes_hash(engine):
     data = record.encode(encoding)
 
     if security:
-        assert engine.hash_data(data) == bytes(
+        assert engine.hash_entry(data) == bytes(
             getattr(hashlib, algorithm)(
                 bytes('\x00', encoding) +
                 data
@@ -58,7 +58,7 @@ def test_single_bytes_hash(engine):
             encoding
         )
     else:
-        assert engine.hash_data(data) == bytes(
+        assert engine.hash_entry(data) == bytes(
             getattr(hashlib, algorithm)(data).hexdigest(),
             encoding
         )
@@ -107,8 +107,8 @@ def test_0_elems_hash_path(engine):
 @pytest.mark.parametrize('engine', engines)
 def test_1_elems_hash_path(engine):
     assert engine.hash_path(
-        [(+1, engine.hash_data(record))], 0
-    ) == engine.hash_data(record)
+        [(+1, engine.hash_entry(record))], 0
+    ) == engine.hash_entry(record)
 
 
 @pytest.mark.parametrize('engine', engines)

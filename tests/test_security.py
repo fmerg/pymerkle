@@ -14,9 +14,9 @@ Attack Schema
                    /   \                       /   \
                  B       C = h(FG)           B      C    ------> [injected leaf]
                 / \     / \                 / \     |
-digests:       D   E   F   G               D   E   (FG)  <------ [forged record]
+digests:       D   E   F   G               D   E   (FG)  <------ [forged entry]
                |   |   |   |               |   |
-records:       d   e   f   g               d   e
+entries:       d   e   f   g               d   e
 
 
 Concatenate the digests stored by the 3-rd and 4-th leaves and append the result
@@ -30,7 +30,7 @@ from tests.conftest import option, all_configs
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_defense_against_second_preimage_attack(config):
-    original = MerkleTree.init_from_records(
+    original = MerkleTree.init_from_entries(
         'a', 'b', 'c', 'd', config=config
     )
 
@@ -38,7 +38,7 @@ def test_defense_against_second_preimage_attack(config):
     G = original.get_leaf(3).value
     forged = F + G
 
-    attacker = MerkleTree.init_from_records(
+    attacker = MerkleTree.init_from_entries(
         'a', 'b', forged, config=original.get_config()
     )
 

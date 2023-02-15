@@ -55,25 +55,24 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
-    def encrypt(self, data):
+    def append_entry(self, data):
         """
-        Creates a new leaf node with the digest of the provided record and
-        appends it to the tree by restructuring it and recalculating the
-        appropriate interior hashes.
+        Creates a new leaf node with the digest of the provided data and
+        appends it to the tree by restructuring it appropriately.
 
-        :param data: record to encrypt.
+        :param data: data to append
         :type data: str or bytes
         """
-        leaf = Leaf.from_data(data, self)
+        new_leaf = Leaf.from_data(data, self)
 
-        self.add_leaf(leaf)
+        self.append_leaf(new_leaf)
 
     @classmethod
-    def init_from_records(cls, *data, config=None):
+    def init_from_entries(cls, *entries, config=None):
         """
-        Create tree from initial records.
+        Create tree from initial data
 
-        :param data: Initial data to encrypt into the tree.
+        :param data: initial data to append
         :type data: iterable of bytes or str
         :param config: Configuration of tree. Must contain a subset of keys
             ``algorithm``, ``encoding`` and ``security``.
@@ -82,8 +81,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         config = {} if not config else config
         tree = cls(**config)
 
-        for record in data:
-            tree.encrypt(record)
+        append_entry = tree.append_entry
+        for data in entries:
+            append_entry(data)
 
         return tree
 
@@ -142,7 +142,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def add_leaf(self):
+    def append_leaf(self):
         """
         Define here the tree's growing strategy.
         """
@@ -181,10 +181,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def prove_inclusion(self, challenge):
         """
-        Computes audit-proof for the provided hash value.
+        Computes inclusion proof for the provided hash value.
 
         .. note:: The output is intended to prove that the provided hash value
-            is the digest of a record that has indeed been appended to the tree.
+            is the digest of an entry that has indeed been appended to the tree.
 
         :param challenge: hash value to be proven
         :type challenge: bytes
@@ -357,10 +357,9 @@ class MerkleTree(BaseMerkleTree):
         """
         Current number of nodes.
 
-        .. note:: Following the tree's growing strategy (cf. *add_leaf()*),
-            appending a new leaf leads to the creation of two new nodes. If
-            *s(n)* denotes the total number of nodes with respect to the number
-            *n* of leaves, this is equivalent to the recursive relation
+        .. note:: Appending a new leaf leads to the creation of two new nodes.
+            If *s(n)* denodes the total number of nodes with respect to the
+            number *n* of leaves, this is equivalenn to the recursive relation
 
                     ``s(n + 1) = s(n) + 2, n > 1,    s(1) = 1, s(0) = 0``
 
@@ -462,12 +461,14 @@ class MerkleTree(BaseMerkleTree):
         """
         return self.__tail
 
-    def _append_leaf(self, leaf):
+    def append_tail(self, leaf):
         """
-        Appends the provided leaf to the collection of the tree's leaf nodes.
+        Appends the provided leaf as tail to the linked list of leaves.
 
-        :param leaf: new leaf node
+        :param leaf: leaf to append as tail
         :type leaf: Leaf
+        :returns: the leaf itself
+        :rtype: Leaf
         """
         if self.__tail:
             self.__tail.set_next(leaf)
@@ -479,42 +480,35 @@ class MerkleTree(BaseMerkleTree):
 
         self.__nr_leaves += 1
 
-    def add_leaf(self, leaf):
+        return leaf
+
+    def append_leaf(self, leaf):
         """
-        Insert the provided leaf to the tree by restructuring it appropriately.
+        Append the provided leaf to the tree by restructuring it appropriately.
 
-        .. note:: This includes creation of exactly one new internal node and
-            recalculation of hash values for some existing ones.
-
-        :param leaf: new leaf node
+        :param leaf: leaf to append
         :type leaf: Leaf
         """
-        if self:
-            subroot = self.get_last_subroot()
-            self._append_leaf(leaf)
+        if not self:
+            self.__root = self.append_tail(leaf)
+            return
 
-            if not subroot.parent:
+        subroot = self.get_last_subroot()
+        self.append_tail(leaf)
 
-                # Increase height by one
-                self.__root = Node.from_children(subroot, leaf, self)
-            else:
-                parent = subroot.parent
+        if not subroot.parent:
+            self.__root = Node.from_children(subroot, leaf, self)
+            return
 
-                # Create bifurcation node
-                new_node = Node.from_children(subroot, leaf, self)
-
-                # Interject bifurcation node
-                parent.set_right(new_node)
-                new_node.set_parent(parent)
-
-                # Recalculate hashes only at the rightmost branch of the tree
-                curr = parent
-                while curr:
-                    curr.recalculate_hash(self)
-                    curr = curr.parent
-        else:
-            self._append_leaf(leaf)
-            self.__root = leaf
+        # Bifurcation
+        parent = subroot.parent
+        new_node = Node.from_children(subroot, leaf, self)
+        parent.set_right(new_node)
+        new_node.set_parent(parent)
+        curr = parent
+        while curr:
+            curr.recalculate_hash(self)
+            curr = curr.parent
 
     def generate_inclusion_path(self, leaf):
         """

@@ -6,14 +6,14 @@ max_length = 4
 trees = []
 for config in all_configs(option):
     for length in range(0, max_length + 1):
-        records = ['%d' % _ for _ in range(length)]
-        tree = MerkleTree.init_from_records(*records, config=config)
+        entries = ['%d' % _ for _ in range(length)]
+        tree = MerkleTree.init_from_entries(*entries, config=config)
         trees.append(tree)
 
 
 @pytest.mark.parametrize('tree', trees)
-def test_empty_audit_proof(tree):
-    challenge = b'anything unrecorded'
+def test_empty_inclusion_proof(tree):
+    challenge = b'anything that has not been appended'
     proof = tree.prove_inclusion(challenge)
 
     assert proof.__dict__ == {
@@ -30,10 +30,10 @@ def test_empty_audit_proof(tree):
 
 
 @pytest.mark.parametrize('tree', trees)
-def test_non_empty_audit_proof(tree):
+def test_non_empty_inclusion_proof(tree):
     challenges = []
     for i in range(tree.length):
-        challenge = tree.hash_data('%d' % i)
+        challenge = tree.hash_entry('%d' % i)
         proof = tree.prove_inclusion(challenge)
 
         assert proof.__dict__ == {

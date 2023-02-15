@@ -1,6 +1,5 @@
 """
-Provides the underlying hashing machinery for encryption and proof
-verification.
+Provides hashing machinery for data insertion and proof verification.
 """
 
 import contextlib
@@ -90,7 +89,7 @@ class HashEngine:
 
         return getattr(hashlib, self.algorithm)()
 
-    def hash_data(self, data):
+    def hash_entry(self, data):
         """
         Computes the digest of the provided data under the engine's configured
         hash algorithm, after first appending the ``\\x00`` security prefix.

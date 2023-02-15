@@ -8,21 +8,21 @@ commitment on behalf of the tree against some challenge posed by an interested p
 What is actually proven in case of successful verification (that is, when the path of
 hashes leads to the commitment) depends on the original challenge. Interested parties
 may act as auditors, when willing to verify that a certain piece of data has been
-encrypted into the tree, or monitors, when their concern is to verify that
+appended to the tree, or monitors, when their concern is to verify that
 the current state of the tree is a valid subsequent state of a previous one. In
-the first case, we have an *audit proof* for verifying data integrity; in the
+the first case, we have an *inclusion proof* for verifying data integrity; in the
 second case, the proof gives good reasons to believe that the history of the
 tree has not been forged or tampered (since two different states of it were
-found to be consistent) and is referred to as *proof of consistency*.
+found to be consistent) and is referred to as *consistency proof*.
 
 .. note:: The ability of Merkle-tree to prove data integrity and state
       consistency is due to its binary structure combined with the standard
       properties of hash functions.
 
-Audit proof
-===========
+Inclusion proof
+===============
 
-An auditor wants to verify if some data has been encrypted into the tree, i.e.,
+An auditor wants to verify if some data has been appended to the tree, i.e.,
 if its digest under the tree's hashing machinery has been stored in some of its
 leaf nodes. If ``challenge`` stands for the digest under audit, the tree
 responds with a Merkle-proof ``proof`` as follows:
@@ -53,10 +53,10 @@ A monitor requests and saves the tree's state at some point of history:
 
 Note that the root-hash encodes the tree's state as it is uniquely determined
 by its binary structure and the hash values stored by its leaf nodes.
-At any susequent moment, after further data have been encrypted into the tree,
+At any susequent moment, after further data have been appended to the tree,
 the monitor wants to verify that the the tree's current state is a possible
-evolvement of the saved one, meaning that no records have been back-dated and
-reencrypted, no encrypted data have been tampered, and the tree has never been
+evolvement of the saved one, meaning that no entries have been back-dated and
+reappended, no appended data have been tampered, and the tree has never been
 branched or forked. To do so, the monitor submits the saved state as
 a challenge, to which the tree responds with a Merkle-proof ``proof`` as
 follows:
@@ -69,7 +69,7 @@ Inspection
 ==========
 
 .. note:: Given a Merkle-proof as above, it is impossible to distinguish if it
-      is the result of an audit or consistency proof request.
+      is the result of an inclusion or consistency proof request.
 
 Invoking a proof from the Python interpreter looks like this:
 

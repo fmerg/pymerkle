@@ -2,15 +2,15 @@ import pytest
 from pymerkle.tree import MerkleTree, NoPathException
 
 
-tree_0 = MerkleTree.init_from_records()
-tree_1 = MerkleTree.init_from_records('a')
-tree_2 = MerkleTree.init_from_records('a', 'b')
-tree_3 = MerkleTree.init_from_records('a', 'b', 'c')
-tree_4 = MerkleTree.init_from_records('a', 'b', 'c', 'd')
-tree_5 = MerkleTree.init_from_records('a', 'b', 'c', 'd', 'e')
+tree_0 = MerkleTree.init_from_entries()
+tree_1 = MerkleTree.init_from_entries('a')
+tree_2 = MerkleTree.init_from_entries('a', 'b')
+tree_3 = MerkleTree.init_from_entries('a', 'b', 'c')
+tree_4 = MerkleTree.init_from_entries('a', 'b', 'c', 'd')
+tree_5 = MerkleTree.init_from_entries('a', 'b', 'c', 'd', 'e')
 
 
-audit_paths = [
+inclusion_paths = [
     (
         tree_1, 0,
         (
@@ -178,7 +178,7 @@ audit_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, offset, path', audit_paths)
+@pytest.mark.parametrize('tree, offset, path', inclusion_paths)
 def test_generate_inclusion_path(tree, offset, path):
     leaf = tree.get_leaf(offset)
     assert tree.generate_inclusion_path(leaf) == path
