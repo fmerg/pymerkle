@@ -14,7 +14,7 @@ def generate_uuid():
     return str(uuid.uuid1())
 
 
-def log_2(num):
+def log2(num):
     """
     Computes the base 2 logarithm of the provided value (i.e., the greatest
     power of 2 equal to or smaller than *num*).
@@ -63,7 +63,7 @@ def decompose(num):
     """
     powers = []
     while num > 0:
-        power = log_2(num)
+        power = log2(num)
         powers += [power]
         num -= 2 ** power
     return powers

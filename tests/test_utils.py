@@ -27,18 +27,18 @@ for p in list(range(0, 11)):    # 0 <= p <= 10
             logs.append(p)
 
 
-def test_log_2_exception():
+def test_log2_exception():
     with pytest.raises(ValueError):
-        utils.log_2(-1)
+        utils.log2(-1)
 
 
-def test_log_2_zero_convention():
-    assert utils.log_2(0) == 0
+def test_log2_zero_convention():
+    assert utils.log2(0) == 0
 
 
 @pytest.mark.parametrize('num, expected', zip(nums, logs))
-def test_log_2(num, expected):
-    assert utils.log_2(num) == expected
+def test_log2(num, expected):
+    assert utils.log2(num) == expected
 
 
 def test_decompose_zero_convention():

@@ -31,11 +31,11 @@ PROOF_TEMPLATE = """
 """
 
 
-def _order_of_magnitude(num):
+def order_of_magnitude(num):
     return int(log10(num)) if num != 0 else 0
 
 
-def _get_signed(num):
+def get_with_sign(num):
     return f'{"+" if num >= 0 else ""}{num}'
 
 
@@ -52,14 +52,15 @@ def stringify_path(path, encoding):
     pairs = []
     pair_template = '\n{left}[{index}]{middle}{sign}{right}{value}'
     for index, curr in enumerate(path):
-        pairs.append(
-            pair_template.format(left=(7 - _order_of_magnitude(index)) * ' ',
-                                 index=index,
-                                 middle=3 * ' ',
-                                 sign=_get_signed(curr[0]),
-                                 right=3 * ' ',
-                                 value=curr[1].decode(encoding) if not isinstance(curr[1], str)
-                                 else curr[1]))
+        pair = pair_template.format(
+            left=(7 - order_of_magnitude(index)) * ' ',
+            index=index,
+            middle=3 * ' ',
+            sign=get_with_sign(curr[0]),
+            right=3 * ' ',
+            value=curr[1].decode(encoding) if not isinstance(curr[1], str) else curr[1]
+        )
+        pairs += [pair]
     return ''.join(pairs)
 
 
@@ -184,7 +185,7 @@ class Proof:
         for (sign, value) in self.path:
             checksum = value if isinstance(value, str) else \
                     value.decode(self.encoding)
-            path.append([sign, checksum])
+            path += [[sign, checksum]]
 
         return {
             'header': {

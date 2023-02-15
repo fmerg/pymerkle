@@ -268,7 +268,7 @@ class Node:
             out += f' {T_BRACKET}'
         if self.is_right_child():
             out += f' {L_BRACKET_LONG}'
-            ignored.append(level)
+            ignored += [level]
 
         checksum = self.get_checksum(encoding)
         out += f'{checksum}\n'

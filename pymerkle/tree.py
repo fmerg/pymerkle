@@ -9,7 +9,7 @@ from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
 from pymerkle.prover import Proof
-from pymerkle.utils import log_2, decompose
+from pymerkle.utils import log2, decompose
 from pymerkle.nodes import Node, Leaf
 
 
@@ -164,7 +164,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Define here how to construct path of hashes for audit-proofs based on
+        Define here how to construct path of hashes for inclusion proofs based on
         the provided leaf node.
         """
 
@@ -403,10 +403,10 @@ class MerkleTree(BaseMerkleTree):
         if nr_leaves == 0:
             return 0
 
-        if nr_leaves != 2 ** log_2(nr_leaves):
-            return log_2(nr_leaves + 1)
+        if nr_leaves != 2 ** log2(nr_leaves):
+            return log2(nr_leaves + 1)
 
-        return log_2(nr_leaves)
+        return log2(nr_leaves)
 
     @property
     def root(self):
@@ -480,7 +480,7 @@ class MerkleTree(BaseMerkleTree):
         """
         Appends the provided leaf to the collection of the tree's leaf nodes.
 
-        :param leaf: leaf node to append
+        :param leaf: new leaf node
         :type leaf: Leaf
         """
         if self.__tail:
@@ -500,7 +500,7 @@ class MerkleTree(BaseMerkleTree):
         .. note:: This includes creation of exactly one new internal node and
             recalculation of hash values for some existing ones.
 
-        :param leaf: leaf node to append
+        :param leaf: new leaf node
         :type leaf: Leaf
         """
         if self:
@@ -532,9 +532,9 @@ class MerkleTree(BaseMerkleTree):
 
     def generate_inclusion_path(self, leaf):
         """
-        Computes the audit-path based on the provided leaf node.
+        Computes the inclusion-path based on the provided leaf node.
 
-        :param leaf: leaf node where audit-path computation should be based
+        :param leaf: leaf node where inclusion-path computation should be based
             upon.
         :type leaf: int
         :returns: path of signed hashes along with offset for hashing. The sign
@@ -553,11 +553,11 @@ class MerkleTree(BaseMerkleTree):
             if curr.is_left_child():
                 value = parent.right.value
                 sign = +1 if parent.is_left_child() else -1
-                path.append((sign, value))
+                path += [(sign, value)]
             else:
                 value = parent.left.value
                 sign = -1 if parent.is_right_child() else +1
-                path.insert(0, (sign, value))
+                path = [(sign, value)] + path
                 offset += 1
 
             curr = parent
@@ -644,12 +644,12 @@ class MerkleTree(BaseMerkleTree):
             if subroot.is_left_child():
                 sign = -1 if subroot.parent.is_right_child() else + 1
                 node = subroot.parent.right
-                complement.append((sign, node))
+                complement += [(sign, node)]
                 subroots = subroots[:-1]
             else:
                 subroots = subroots[:-2]
 
-            subroots.append((+1, subroot.parent))
+            subroots += [(+1, subroot.parent)]
 
         return complement
 
@@ -744,11 +744,10 @@ class MerkleTree(BaseMerkleTree):
             else:
                 sign = +1 if parent.is_left_child() else -1
 
-            principals.append((sign, subroot))
+            principals += [(sign, subroot)]
             offset += 2 ** height
 
         if principals:
-            # Modify last sign
             principals[-1] = (+1, principals[-1][1])
 
         return principals
@@ -762,8 +761,6 @@ class MerkleTree(BaseMerkleTree):
         :type checksum: bytes
         :rtype: bool
         """
-        result = False
-
         hash_path = self.hash_path
         for sublength in range(1, self.length + 1):
 
@@ -772,7 +769,6 @@ class MerkleTree(BaseMerkleTree):
 
             offset = len(path) - 1
             if checksum == hash_path(path, offset):
-                result = True
-                break
+                return True
 
-        return result
+        return False
