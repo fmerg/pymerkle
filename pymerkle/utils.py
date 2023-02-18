@@ -3,15 +3,6 @@ Utilities
 """
 
 from math import log, log10
-import uuid
-
-
-def generate_uuid():
-    """
-    :returns: UUID1 universal identifier
-    :rtype: str
-    """
-    return str(uuid.uuid1())
 
 
 def log2(num):

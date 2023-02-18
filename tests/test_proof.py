@@ -144,7 +144,6 @@ serializations = [
         proof_11,
         {
             'metadata': {
-                'uuid': proof_11.uuid,
                 'timestamp': proof_11.timestamp,
                 'created_at': proof_11.created_at,
                 'algorithm': 'sha_256',
@@ -174,7 +173,6 @@ serializations = [
         proof_21,
         {
             'metadata': {
-                'uuid': proof_21.uuid,
                 'timestamp': proof_21.timestamp,
                 'created_at': proof_21.created_at,
                 'algorithm': 'sha_256',
@@ -205,8 +203,7 @@ proof_24 = Proof.from_dict(json.loads(proof_21.toJSONText()))
                          ((proof_11, True), (proof_12, True), (proof_13, True), (proof_14, True),
                           (proof_21, False), (proof_22, False), (proof_23, False), (proof_24, False)))
 def test___repr__(proof, generation):
-    assert proof.__repr__() == PROOF_TEMPLATE.format(uuid=proof.uuid,
-                                                     timestamp=proof.timestamp,
+    assert proof.__repr__() == PROOF_TEMPLATE.format(timestamp=proof.timestamp,
                                                      created_at=proof.created_at,
                                                      algorithm='SHA256',
                                                      encoding='UTF-8',

@@ -7,13 +7,11 @@ import json
 from time import time, ctime
 
 from pymerkle.hashing import HashEngine
-from pymerkle.utils import log10, generate_uuid
+from pymerkle.utils import log10
 
 
 PROOF_TEMPLATE = """
     ----------------------------------- PROOF ------------------------------------
-
-    uuid        : {uuid}
 
     timestamp   : {timestamp} ({created_at})
 
@@ -85,9 +83,8 @@ class Proof:
     :type path: list of (+1/-1, bytes)
     """
 
-    def __init__(self, algorithm, encoding, security, offset, path, uuid=None,
+    def __init__(self, algorithm, encoding, security, offset, path,
                  timestamp=None, created_at=None, commitment=None):
-        self.uuid = uuid or generate_uuid()
         self.timestamp = timestamp or int(time())
         self.created_at = created_at or ctime()
         self.algorithm = algorithm
@@ -147,7 +144,6 @@ class Proof:
         .. warning:: Contrary to convention, the output of this method is not
             insertable into the *eval()* builtin Python function.
         """
-        uuid = self.uuid
         timestamp = self.timestamp
         created_at = self.created_at
         algorithm = self.algorithm.upper().replace('_', '')
@@ -158,7 +154,7 @@ class Proof:
         offset = self.offset
         path = stringify_path(self.path, self.encoding)
 
-        kw = {'uuid': uuid, 'timestamp': timestamp, 'created_at': created_at,
+        kw = {'timestamp': timestamp, 'created_at': created_at,
               'algorithm': algorithm, 'encoding': encoding, 'security': security,
               'commitment': commitment, 'offset': offset, 'path': path}
 
@@ -171,7 +167,6 @@ class Proof:
 
         :rtype: dict
         """
-        uuid = self.uuid
         created_at = self.created_at
         timestamp = self.timestamp
         algorithm = self.algorithm
@@ -189,7 +184,6 @@ class Proof:
 
         return {
             'metadata': {
-                'uuid': uuid,
                 'timestamp': timestamp,
                 'created_at': created_at,
                 'algorithm': algorithm,

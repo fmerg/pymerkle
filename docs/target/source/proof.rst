@@ -79,8 +79,6 @@ Invoking a proof from the Python interpreter looks like this:
 
       ----------------------------------- PROOF ------------------------------------
 
-      uuid        : e4c8ce22-d827-11ec-ad25-3887d51f42f3
-
       timestamp   : 1653042639 (Fri May 20 13:30:39 2022)
 
       algorithm   : SHA256
@@ -145,7 +143,6 @@ which yields s JSON dictionary similar to the following one:
 
   {
       "metadata": {
-          "uuid": "c5788c06-d82c-11ec-8f3d-3887d51f42f3",
           "timestamp": 1653044734,
           "created_at": "Fri May 20 14:05:34 2022",
           "algorithm": "sha256",
