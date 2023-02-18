@@ -17,9 +17,7 @@ TREE_TEMPLATE = """
     hash-type : {algorithm}
     encoding  : {encoding}
     security  : {security}
-
     root      : {root}
-
     length    : {length}
     size      : {size}
     height    : {height}
@@ -29,6 +27,13 @@ TREE_TEMPLATE = """
 class NoPathException(Exception):
     """
     Raised when no path of hashes exists for the provided parameters.
+    """
+    pass
+
+
+class InvalidChallenge(Exception):
+    """
+    Raised when not Merkle-path exists for the provided parameters.
     """
     pass
 
@@ -161,7 +166,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         based on the provided length.
         """
 
-    def create_proof(self, offset, path):
+    def build_proof(self, offset, path):
         """
         Creates a proof object from the provided path of hashes including the
         configuration of the present tree as verification parameters.
@@ -181,36 +186,34 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def prove_inclusion(self, challenge):
         """
-        Computes inclusion proof for the provided hash value.
-
-        .. note:: The output is intended to prove that the provided hash value
-            is the digest of an entry that has indeed been appended to the tree.
+        Returns inclusion proof for the provided hash value
 
         :param challenge: hash value to be proven
         :type challenge: bytes
         :rtype: Proof
+        :raises InvalidChallenge: if the provided hash value is not appended
         """
-        offset = -1
-        path = []
-
         leaf = self.find_leaf(value=challenge)
-        if leaf:
-            offset, path = self.generate_inclusion_path(leaf)
+        if not leaf:
+            raise InvalidChallenge("Provided hash is not included")
 
-        proof = self.create_proof(offset, path)
+        offset, path = self.generate_inclusion_path(leaf)
+        proof = self.build_proof(offset, path)
+
         return proof
 
     def prove_consistency(self, challenge):
         """
-        Computes consistency-proof for the provided hash value.
+        Returns consistency proof for the provided hash value
 
         .. note:: The output is intended to prove that the provided hash value
-            is the acclaimed root-hash of some previous state of the tree.
+            is the acclaimed root-hash of some previous state of the tree
 
-        :param challenge: acclaimed root-hash of some previous state of the tree.
+        :param challenge: acclaimed root-hash of some previous state of the tree
         :type challenge: bytes
         :rtype: Proof
-
+        :raises InvalidChallenge: if the provided hash value is not a previous
+            state
         """
         offset = -1
         path = []
@@ -228,7 +231,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                 path = _path
                 break
 
-        proof = self.create_proof(offset, path)
+        if offset == -1:
+            raise InvalidChallenge("Provided hash is not previous state")
+
+        proof = self.build_proof(offset, path)
         return proof
 
     @abstractmethod

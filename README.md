@@ -61,9 +61,8 @@ This consists in the following standard technique:
 - Upon computing the hash of an interior node, prepend the hashes of its
   children with `0x01`.
 
-Refer to
-[`test_security.py`](https://github.com/fmerg/pymerkle/blob/master/tests/test_security.py)
-to see how to perform second-preimage attack against the present implementation.
+Refer [here](./tests/test_defence.py) to see how to perform second preimage
+attack against the present implementation.
 
 
 ### Defense against CVE-2012-2459 DOS
