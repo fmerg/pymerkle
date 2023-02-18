@@ -83,7 +83,7 @@ Invoking a proof from the Python interpreter looks like this:
 
       timestamp   : 1653042639 (Fri May 20 13:30:39 2022)
 
-      hash-type   : SHA256
+      algorithm   : SHA256
       encoding    : UTF-8
       security    : ACTIVATED
 

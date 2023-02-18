@@ -14,7 +14,7 @@ from pymerkle.nodes import Node, Leaf
 
 
 TREE_TEMPLATE = """
-    hash-type : {algorithm}
+    algorithm : {algorithm}
     encoding  : {encoding}
     security  : {security}
     root      : {root}

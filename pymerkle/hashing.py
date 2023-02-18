@@ -58,7 +58,7 @@ class HashEngine:
         second-preimage attack will be enabled. Defaults to *True*.
     :type security: bool
 
-    :raises UnsupportedParameter: if the provided hash-type or encoding is not
+    :raises UnsupportedParameter: if the provided algorithm or encoding is not
         included in ``SUPPORTED_ALGORITHMS`` or ``SUPPORTED_ENCODINGS``
         respectively.
     """

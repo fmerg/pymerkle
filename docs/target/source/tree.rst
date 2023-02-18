@@ -50,7 +50,7 @@ characteristics:
     >>> tree = MerkleTree()
     >>> tree
 
-        hash-type : SHA256
+        algorithm : SHA256
         encoding  : UTF-8
         security  : ACTIVATED
 
@@ -85,7 +85,7 @@ fixed configuration and and current state:
 
     >>> tree
 
-        hash-type : SHA256
+        algorithm : SHA256
         encoding  : UTF-8
         security  : ACTIVATED
 

@@ -17,7 +17,7 @@ PROOF_TEMPLATE = """
 
     timestamp   : {timestamp} ({created_at})
 
-    hash-type   : {algorithm}
+    algorithm   : {algorithm}
     encoding    : {encoding}
     security    : {security}
 
@@ -73,7 +73,7 @@ class InvalidProof(Exception):
 
 class Proof:
     """
-    :param algorithm: hash-type of the provider tree
+    :param algorithm: hash type of the provider tree
     :type algorithm: str
     :param encoding: encoding type of the provider tree
     :type encoding: str
