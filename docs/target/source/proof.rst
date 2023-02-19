@@ -124,7 +124,7 @@ If the proof fails to verify, then ``InvalidProof`` is raised:
   Traceback (most recent call last):
     ...
       raise InvalidProof
-  pymerkle.prover.InvalidProof
+  pymerkle.proof.InvalidProof
   >>>
 
 Serialization

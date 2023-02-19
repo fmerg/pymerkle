@@ -25,10 +25,10 @@ pymerkle.nodes module
    :undoc-members:
    :show-inheritance:
 
-pymerkle.prover module
-----------------------
+pymerkle.proof module
+---------------------
 
-.. automodule:: pymerkle.prover
+.. automodule:: pymerkle.proof
    :members:
    :undoc-members:
    :show-inheritance:

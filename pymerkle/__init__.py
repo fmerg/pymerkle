@@ -3,7 +3,7 @@ Merkle-tree cryptography
 """
 
 from .tree import MerkleTree, InvalidChallenge
-from .prover import MerkleProof, InvalidProof
+from .proof import MerkleProof, InvalidProof
 
 
 __version__ = '3.0.0'

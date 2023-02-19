@@ -8,7 +8,7 @@ import sys
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
-from pymerkle.prover import MerkleProof
+from pymerkle.proof import MerkleProof
 from pymerkle.utils import log2, decompose
 from pymerkle.nodes import Node, Leaf
 

@@ -173,9 +173,6 @@ class MerkleProof:
 
     def serialize(self):
         """
-        Returns a JSON dictionary with the proof's characteristics as key-value
-        pairs.
-
         :rtype: dict
         """
         created_at = self.created_at
@@ -209,10 +206,9 @@ class MerkleProof:
         }
 
     @classmethod
-    def from_dict(cls, proof):
+    def deserialize(cls, proof):
         """
-        :param proof: serialized proof as JSON dict.
-        :type proof: dict
+        :rtype: MerkleProof
         """
         kw = {}
 
@@ -229,33 +225,3 @@ class MerkleProof:
             kw['commitment'] = commitment.encode()
 
         return cls(**kw)
-
-    def toJSONText(self, indent=4):
-        """
-        Returns a JSON text with the proof's characteristics as key-value
-        pairs.
-
-        :rtype: str
-        """
-        return json.dumps(self.serialize(), sort_keys=False, indent=indent)
-
-    @classmethod
-    def fromJSONText(cls, text):
-        """
-        :param text: serialized proof as JSON text.
-        :type text: str
-        """
-        return cls.from_dict(json.loads(text))
-
-    @classmethod
-    def deserialize(cls, serialized):
-        """
-        :params serialized: JSON dict or text, assumed to be the serialization
-            of a Merkle-proof
-        :type: dict or str
-        :rtype: MerkleProof
-        """
-        if isinstance(serialized, dict):
-            return cls.from_dict(serialized)
-        elif isinstance(serialized, str):
-            return cls.fromJSONText(serialized)

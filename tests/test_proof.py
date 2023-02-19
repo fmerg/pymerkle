@@ -1,5 +1,5 @@
 import pytest
-from pymerkle.prover import MerkleProof
+from pymerkle.proof import MerkleProof
 
 
 path = [
@@ -55,8 +55,3 @@ def test_serialization():
     }
 
     assert proof == MerkleProof.deserialize(serialized)
-
-
-def test_jsonification():
-    jsonified = proof.toJSONText()
-    assert proof == MerkleProof.fromJSONText(jsonified)
