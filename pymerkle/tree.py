@@ -8,7 +8,7 @@ import sys
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.hashing import HashEngine, UnsupportedParameter
-from pymerkle.prover import Proof
+from pymerkle.prover import MerkleProof
 from pymerkle.utils import log2, decompose
 from pymerkle.nodes import Node, Leaf
 
@@ -176,12 +176,14 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
         :returns: proof object consisting of the above components
-        :rtype: Proof
+        :rtype: MerkleProof
         """
         params = self.get_config()
         commitment = self.get_root_hash()
-        proof = Proof(path=path, offset=offset, commitment=commitment,
-                      **params)
+        proof = MerkleProof(
+            path=path, offset=offset, commitment=commitment, **params
+        )
+
         return proof
 
     def prove_inclusion(self, challenge):
@@ -190,7 +192,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: hash value to be proven
         :type challenge: bytes
-        :rtype: Proof
+        :rtype: MerkleProof
         :raises InvalidChallenge: if the provided hash value is not appended
         """
         leaf = self.find_leaf(value=challenge)
@@ -211,7 +213,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param challenge: acclaimed root-hash of some previous state of the tree
         :type challenge: bytes
-        :rtype: Proof
+        :rtype: MerkleProof
         :raises InvalidChallenge: if the provided hash value is not a previous
             state
         """

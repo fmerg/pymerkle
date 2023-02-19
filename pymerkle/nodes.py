@@ -157,7 +157,7 @@ class Node:
         """
         return isinstance(self, Leaf)
 
-    def get_checksum(self, encoding):
+    def get_hash(self, encoding):
         """
         Returns the hex string representing hash value stored by the node.
 
@@ -270,7 +270,7 @@ class Node:
             out += f' {L_BRACKET_LONG}'
             ignored += [level]
 
-        checksum = self.get_checksum(encoding)
+        checksum = self.get_hash(encoding)
         out += f'{checksum}\n'
 
         if not self.is_leaf():

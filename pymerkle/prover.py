@@ -69,7 +69,7 @@ class InvalidProof(Exception):
     pass
 
 
-class Proof:
+class MerkleProof:
     """
     :param algorithm: hash type of the provider tree
     :type algorithm: str
@@ -94,6 +94,20 @@ class Proof:
         self.offset = offset
         self.path = path
 
+    def __eq__(self, other):
+        return all((
+            isinstance(other, __class__),
+            self.timestamp == other.timestamp,
+            self.created_at == other.created_at,
+            self.algorithm == other.algorithm,
+            self.encoding == other.encoding,
+            self.security == other.security,
+            self.commitment == other.commitment,
+            self.offset == other.offset,
+            self.path == other.path,
+        ))
+
+
     def get_verification_params(self):
         """
         Parameters required for configuring the verification hashing machinery.
@@ -103,16 +117,16 @@ class Proof:
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
-    def compute_checksum(self):
+    def resolve(self):
         """
         Computes the hash value resulting from the proof's path of hashes.
 
         :rtype: bytes
         """
         engine = HashEngine(**self.get_verification_params())
-        checksum = engine.hash_path(self.path, self.offset)
+        result = engine.hash_path(self.path, self.offset)
 
-        return checksum
+        return result
 
     def verify(self, target=None):
         """
@@ -131,10 +145,7 @@ class Proof:
         """
         target = self.commitment if target is None else target
 
-        if self.offset == -1 and self.path == []:
-            raise InvalidProof
-
-        if target != self.compute_checksum():
+        if target != self.resolve():
             raise InvalidProof
 
         return True
@@ -242,22 +253,7 @@ class Proof:
         :params serialized: JSON dict or text, assumed to be the serialization
             of a Merkle-proof
         :type: dict or str
-        :rtype: Proof
-
-        .. note:: Merkle-proofs are intended to be the output of proof generation
-            mechanisms and not be manually constructed. Retrieval via
-            deserialization might though have practical importance, so that given
-            a proof ``p`` the following constructions are possible:
-
-            >>> from pymerkle import Proof
-            >>>
-            >>> q = Proof.from_dict(p.serialize())
-            >>> r = Proof.fromJSONText(p.toJSONText())
-
-            or, more uniformly,
-
-            >>> q = Proof.deserialize(p.serialize())
-            >>> r = Proof.deserialize(p.toJSONText())
+        :rtype: MerkleProof
         """
         if isinstance(serialized, dict):
             return cls.from_dict(serialized)

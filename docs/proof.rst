@@ -192,7 +192,7 @@ object proceeds as follows:
 
 .. code-block:: python
 
-  from pymerkle import Proof
+  from pymerkle import Merkleroof
 
-  proof = Proof.deserialize(serialized)
+  proof = MerkleProof.deserialize(serialized)
   assert proof.verify()
