@@ -1,5 +1,6 @@
 import pytest
-from pymerkle.tree import MerkleTree, UnsupportedParameter, TREE_TEMPLATE
+from pymerkle.tree import MerkleTree
+from pymerkle.tree.base import UnsupportedParameter, TREE_TEMPLATE
 from tests.conftest import option, all_configs
 
 

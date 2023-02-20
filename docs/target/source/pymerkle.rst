@@ -6,8 +6,24 @@ pymerkle package
    :undoc-members:
    :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pymerkle.tree
+
 Submodules
 ----------
+
+pymerkle.constants module
+-------------------------
+
+.. automodule:: pymerkle.constants
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 pymerkle.hashing module
 -----------------------
@@ -29,14 +45,6 @@ pymerkle.proof module
 ---------------------
 
 .. automodule:: pymerkle.proof
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pymerkle.tree module
---------------------
-
-.. automodule:: pymerkle.tree
    :members:
    :undoc-members:
    :show-inheritance:

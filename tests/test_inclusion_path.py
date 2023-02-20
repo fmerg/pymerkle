@@ -1,5 +1,5 @@
 import pytest
-from pymerkle.tree import MerkleTree, NoPathException
+from pymerkle.tree import MerkleTree
 
 
 tree_0 = MerkleTree.init_from_entries()
