@@ -1,6 +1,6 @@
 import pytest
 from pymerkle.tree import MerkleTree
-from pymerkle.tree.base import UnsupportedParameter
+from pymerkle.hashing import UnsupportedParameter
 from tests.conftest import option, all_configs
 
 

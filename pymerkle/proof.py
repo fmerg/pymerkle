@@ -18,11 +18,11 @@ class InvalidProof(Exception):
 
 class MerkleProof:
     """
-    :param algorithm: hash type of the provider tree
+    :param algorithm: hash algorithm
     :type algorithm: str
-    :param encoding: encoding type of the provider tree
+    :param encoding: encoding type
     :type encoding: str
-    :param security: security mode of the provider tree
+    :param security: defence against 2-nd preimage attack
     :type security: bool
     :param offset: starting position of hashing during verification
     :type offset: int

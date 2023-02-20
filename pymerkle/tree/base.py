@@ -4,9 +4,8 @@ Abstract interface for Merkle-trees
 
 from abc import ABCMeta, abstractmethod
 
-from pymerkle.hashing import HashEngine, UnsupportedParameter
+from pymerkle.hashing import HashEngine
 from pymerkle.proof import MerkleProof
-from pymerkle.nodes import Node, Leaf
 
 
 class InvalidChallenge(Exception):
@@ -45,16 +44,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
+    @abstractmethod
     def append_entry(self, data):
         """
-        Append new leaf storing the hash of the provided data
-
-        :param data: data to append
-        :type data: str or bytes
+        Define here the tree's growing strategy
         """
-        new_leaf = Leaf.from_data(data, self)
-
-        self.append_leaf(new_leaf)
 
     @classmethod
     def init_from_entries(cls, *entries, config=None):
@@ -127,12 +121,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Define here how to detect the leaf node storing the provided hash
         value.
-        """
-
-    @abstractmethod
-    def append_leaf(self):
-        """
-        Define here the tree's growing strategy
         """
 
     @abstractmethod
