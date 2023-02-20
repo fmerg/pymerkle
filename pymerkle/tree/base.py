@@ -29,7 +29,15 @@ class InvalidChallenge(Exception):
 
 class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
-    Interface and abstract functionality of Merkle-trees.
+    Merkle-tree interface
+
+    :param algorithm: [optional] hashing algorithm (default: sha256)
+    :type algorithm: str
+    :param encoding: [optional] encoding type (default: utf-8)
+    :type encoding: str
+    :param security: [optional] defence against 2nd-preimage attack (default:
+        true)
+    :type security: bool
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
@@ -41,8 +49,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def get_config(self):
         """
-        Returns the tree's configuration, consisting of ``algorithm``,
-        ``encoding`` and ``security``.
+        Return tree configuration
 
         :rtype: dict
         """
@@ -51,8 +58,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def append_entry(self, data):
         """
-        Creates a new leaf node with the digest of the provided data and
-        appends it to the tree by restructuring it appropriately.
+        Append new leaf storing the hash of the provided data
 
         :param data: data to append
         :type data: str or bytes
@@ -68,8 +74,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         :param data: initial data to append
         :type data: iterable of bytes or str
-        :param config: Configuration of tree. Must contain a subset of keys
-            ``algorithm``, ``encoding`` and ``security``.
+        :param config: tree configuration
         :type config: dict
         """
         config = {} if not config else config
@@ -84,14 +89,14 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def __bool__(self):
         """
-        This should return *False* iff the tree is empty.
+        Should return *False* iff the tree is empty
         """
 
     @property
     @abstractmethod
     def length(self):
         """
-        Should return the current number of leaf nodes.
+        Should return the current number of leaf nodes
         """
 
     @property
@@ -112,13 +117,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def root(self):
         """
-        Should return the current root of the tree.
+        Should return the current root of the tree
         """
 
     @abstractmethod
     def get_root_hash(self):
         """
-        Should return the hash value stored by the tree's current root node.
+        Should return the hash value stored by the tree's current root node
         """
 
     @abstractmethod
@@ -138,27 +143,24 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def append_leaf(self):
         """
-        Define here the tree's growing strategy.
+        Define here the tree's growing strategy
         """
 
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Define here how to construct path of hashes for inclusion proofs based on
-        the provided leaf node.
+        Define here how to construct inclusion paths for the provided data
         """
 
     @abstractmethod
     def generate_consistency_path(self, sublength):
         """
-        Define here how to construct path of hashes for consistency-proofs
-        based on the provided length.
+        Define here how to construct consistency paths for the provided state
         """
 
     def build_proof(self, offset, path):
         """
-        Creates a proof object from the provided path of hashes including the
-        configuration of the present tree as verification parameters.
+        Create a Merkle-proof from the provided path of hashes
 
         :param offset: starting position of the verification procedure
         :type offset: int
@@ -177,7 +179,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def prove_inclusion(self, challenge):
         """
-        Returns inclusion proof for the provided hash value
+        Return inclusion Merkle-proof for the provided hash value
 
         :param challenge: hash value to be proven
         :type challenge: bytes
@@ -195,7 +197,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def prove_consistency(self, challenge):
         """
-        Returns consistency proof for the provided hash value
+        Return consistency Merkle-proof for the provided state
 
         .. note:: The output is intended to prove that the provided hash value
             is the acclaimed root-hash of some previous state of the tree
@@ -229,16 +231,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def __eq__(self, other):
         """
-        Implements the ``==`` operator
-
         :param other: tree to compare with
         :type other: MerkleTree
-
-        :raises TypeError: if compared with an object that
-            is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise TypeError
+            raise TypeError("Provided object is not a Merkle-tree")
 
         if not other:
             return not self
@@ -250,16 +247,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def __ne__(self, other):
         """
-        Implements the ``!=`` operator
-
         :param other: tree to compare with
         :type other: MerkleTree
-
-        :raises TypeError: if compared with an object that
-            is not instance of the *MerkleTree* class
         """
         if not isinstance(other, self.__class__):
-            raise TypeError
+            raise TypeError("Provided object is not a Merkle-tree")
 
         if not other:
             return self.__bool__()

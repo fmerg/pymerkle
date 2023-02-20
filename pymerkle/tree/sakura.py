@@ -9,17 +9,7 @@ from pymerkle.tree.base import BaseMerkleTree, InvalidChallenge
 
 class MerkleTree(BaseMerkleTree):
     """
-    Concrete Merkle-tree implementation.
-
-    :param algorithm: [optional] Specifies the tree's hashing algorithm.
-        Defaults to *sha256*.
-    :type algorithm: str
-    :param encoding: [optional] Specifies the tree's encoding type. Defaults to
-        *utf_8*.
-    :type encoding: str
-    :param security: [optional Specifies if defense against second-preimage
-        attack will be enabled. Defaults to *True*.
-    :type security: bool
+    Sakura Merkle-tree
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
@@ -32,16 +22,14 @@ class MerkleTree(BaseMerkleTree):
 
     def __bool__(self):
         """
-        Returns *False* if the tree is empty.
-
-        :rtype: bool
+        Returns *False* if the tree is empty
         """
         return self.__nr_leaves != 0
 
     @property
     def length(self):
         """
-        Current number of leaf nodes.
+        Current number of leaf nodes
 
         :rtype: int
         """
@@ -50,7 +38,7 @@ class MerkleTree(BaseMerkleTree):
     @property
     def size(self):
         """
-        Current number of nodes.
+        Current number of nodes
 
         .. note:: Appending a new leaf leads to the creation of two new nodes.
             If *s(n)* denodes the total number of nodes with respect to the
@@ -72,9 +60,9 @@ class MerkleTree(BaseMerkleTree):
     @property
     def height(self):
         """
-        Current height of tree.
+        Current height of tree
 
-        .. note:: This coincides with the length of the tree's leftmost branch.
+        .. note:: This coincides with the length of the tree's leftmost branch
 
         :rtype: int
         """
@@ -91,7 +79,7 @@ class MerkleTree(BaseMerkleTree):
     @property
     def root(self):
         """
-        Current root of the tree.
+        Current root of the tree
 
         :returns: The tree's current root-node.
         :rtype: Node
