@@ -78,26 +78,6 @@ interior hashes, which culminates in the root hash update.
 Inspection
 ==========
 
-Invoking a Merkle-tree inside the Python interpreter displays info about its
-fixed configuration and and current state:
-
-.. code-block:: python
-
-    >>> tree
-
-        algorithm : SHA256
-        encoding  : UTF-8
-        security  : ACTIVATED
-
-        root      : 79c4528426ab5916ab3084ceda07ab60441b9ee9f6702cc353f2e13171ae96d7
-
-        size      : 13
-        length    : 7
-        height    : 3
-
-    >>>
-
-
 Printing the tree displays it in a terminal friendly way, where nodes are
 represented by theyr hash value and left children are printed above the right
 ones.

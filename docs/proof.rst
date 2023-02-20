@@ -19,8 +19,8 @@ found to be consistent) and is referred to as *consistency proof*.
       consistency is due to its binary structure combined with the standard
       properties of hash functions.
 
-Inclusion proof
-===============
+Inclusion
+=========
 
 An auditor wants to verify if some data has been appended to the tree, i.e.,
 if its digest under the tree's hashing machinery has been stored in some of its
@@ -42,8 +42,8 @@ latter depends on the tree's initial configuration):
   challenge = HashEngine(**tree.get_config()).hash(b'data')
 
 
-Consistency proof
-=================
+Consistency
+===========
 
 A monitor requests and saves the tree's state at some point of history:
 
@@ -64,48 +64,6 @@ follows:
 .. code-block:: python
 
    proof = tree.prove_consistency(challenge=state)
-
-Inspection
-==========
-
-.. note:: Given a Merkle-proof as above, it is impossible to distinguish if it
-      is the result of an inclusion or consistency proof request.
-
-Invoking a proof from the Python interpreter looks like this:
-
-.. code-block:: python
-
-  >>> proof
-
-      ----------------------------------- PROOF ------------------------------------
-
-      timestamp   : 1653042639 (Fri May 20 13:30:39 2022)
-
-      algorithm   : SHA256
-      encoding    : UTF-8
-      security    : ACTIVATED
-
-
-         [0]   +1   9d53c5e93a2a48ed466424beba7933f8009aa0c758a8b4833b62ee6bebcfdf20
-         [1]   +1   597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8
-         [2]   -1   d070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d
-         [3]   +1   121c21e6abaf6c3aa828acd9d6c21e159122bdb73ae272e9ade77b08e480ba5e
-         [4]   +1   c7d78e34ed272db334e3ade19adf8605a120f537cf44be4599656fdb8ca50227
-         [5]   +1   d7832739e52e06af704bd30452fe406e8ba6f9b7b40aa734eaefad938f8b290b
-         [6]   -1   a199ff87d6a80a88647a685080a0f39c6b96ad620b37d40257511489866b91b6
-
-      offset      : 1
-
-      commitment  : f763e156155685bab2703004532d7efcdb17c264da5418332c75bb5f4eb1a964
-
-      -------------------------------- END OF PROOF --------------------------------
-
-  >>>
-
-Its main body consists of the path of hashes, where signs indicate
-parenthetization for hashing and offset is the starting position. Note that the proof
-also contains the tree's parameters, so that the hashing machinery can be correctly
-cofigured during the verification procedure from the verifier's side.
 
 Verification
 ============
