@@ -4,6 +4,7 @@ pymerkle demo
 
 import sys
 from math import log10
+from datetime import datetime
 from pymerkle import MerkleTree, MerkleProof
 
 
@@ -79,11 +80,14 @@ def display(obj):
     if isinstance(obj, MerkleProof):
         serialized = obj.serialize()
         metadata = serialized['metadata']
+        timestamp = metadata['timestamp']
         encoding = metadata.pop('encoding').replace('_', '-')
         offset = serialized['body']['offset']
         path = serialized['body']['path']
         kw = {
             **metadata,
+            'created_at': datetime.utcfromtimestamp(timestamp).strftime(
+                '%Y-%m-%d %H:%M:%S'),
             'encoding': encoding.replace('_', '-'),
             'offset': offset,
             'path': strpath(obj.path, obj.encoding),

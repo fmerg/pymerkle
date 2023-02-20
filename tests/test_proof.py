@@ -30,7 +30,6 @@ def test_serialization():
     assert serialized == {
         'metadata': {
             'timestamp': proof.timestamp,
-            'created_at': proof.created_at,
             'algorithm': 'sha_256',
             'encoding': 'utf_8',
             'security': True,

@@ -4,7 +4,7 @@ Provides the Merkle-proof object.
 
 import os
 import json
-from time import time, ctime
+from time import time
 
 from pymerkle.hashing import HashEngine
 
@@ -31,9 +31,8 @@ class MerkleProof:
     """
 
     def __init__(self, algorithm, encoding, security, offset, path,
-                 timestamp=None, created_at=None, commitment=None):
+                 timestamp=None, commitment=None):
         self.timestamp = timestamp or int(time())
-        self.created_at = created_at or ctime()
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
@@ -45,7 +44,6 @@ class MerkleProof:
         return all((
             isinstance(other, __class__),
             self.timestamp == other.timestamp,
-            self.created_at == other.created_at,
             self.algorithm == other.algorithm,
             self.encoding == other.encoding,
             self.security == other.security,
@@ -101,7 +99,6 @@ class MerkleProof:
         """
         :rtype: dict
         """
-        created_at = self.created_at
         timestamp = self.timestamp
         algorithm = self.algorithm
         encoding = self.encoding
@@ -119,7 +116,6 @@ class MerkleProof:
         return {
             'metadata': {
                 'timestamp': timestamp,
-                'created_at': created_at,
                 'algorithm': algorithm,
                 'encoding': encoding,
                 'security': security,
