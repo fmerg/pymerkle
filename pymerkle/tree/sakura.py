@@ -435,3 +435,18 @@ class MerkleTree(BaseMerkleTree):
                 return True
 
         return False
+
+    def __str__(self, indent=3):
+        """
+        Return a string which displays the tree structure when printed. Display
+        is similar to what is printed at console when running the ``tree``
+        command of POSIX platforms.
+
+        :rtype: str
+
+        .. note:: Left children appear above the right ones.
+        """
+        if not self:
+            return '\n └─[None]\n'
+
+        return self.root.__str__(encoding=self.encoding, indent=indent)

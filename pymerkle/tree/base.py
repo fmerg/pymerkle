@@ -276,18 +276,3 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
               'height': self.height}
 
         return TREE_TEMPLATE.format(**kw)
-
-    def __str__(self, indent=3):
-        """
-        Designed so that printing the tree has an output similar to what is
-        printed at console when running the ``tree`` command of Unix based
-        platforms.
-
-        :rtype: str
-
-        .. note:: Left children appear above the right ones.
-        """
-        if not self:
-            return '\n └─[None]\n'
-
-        return self.root.__str__(encoding=self.encoding, indent=indent)
