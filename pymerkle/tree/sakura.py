@@ -4,7 +4,7 @@ Merkle-tree implementation following Sakura
 
 from pymerkle.utils import log2, decompose
 from pymerkle.nodes import Node, Leaf
-from pymerkle.tree.base import BaseMerkleTree, InvalidChallenge, NoPathException
+from pymerkle.tree.base import BaseMerkleTree, InvalidChallenge
 
 
 class MerkleTree(BaseMerkleTree):
@@ -274,13 +274,13 @@ class MerkleTree(BaseMerkleTree):
             hashing.
         :rtype: (int, list of (+1/-1, bytes))
 
-        :raises NoPathException: if the provided parameter des not correspond
-            to any sequence of subroots.
+        :raises InvalidChallenge: if the provided parameter des not correspond
+            to any sequence of subroots
         """
         lefts = self.get_principal_subroots(sublength)
 
         if lefts is None:
-            raise NoPathException
+            raise InvalidChallenge
 
         rights = self.minimal_complement(lefts)
         subroots = lefts + rights

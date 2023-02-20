@@ -20,16 +20,9 @@ TREE_TEMPLATE = """
 """
 
 
-class NoPathException(Exception):
-    """
-    Raised when no path of hashes exists for the provided parameters.
-    """
-    pass
-
-
 class InvalidChallenge(Exception):
     """
-    Raised when not Merkle-path exists for the provided parameters.
+    Raised when no Merkle-proof exists for the provided challenge
     """
     pass
 
@@ -213,24 +206,16 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :raises InvalidChallenge: if the provided hash value is not a previous
             state
         """
-        offset = -1
-        path = []
-
-        # TODO:
+        flag = False    # TODO
         for sublength in range(1, self.length + 1):
-            try:
-                _offset, left_path, _path = self.generate_consistency_path(
-                    sublength)
-            except NoPathException:
-                continue
+            offset, left_path, path = self.generate_consistency_path(sublength)
 
             if challenge == self.hash_path(left_path, len(left_path) - 1):
-                offset = _offset
-                path = _path
+                flag = True
                 break
 
-        if offset == -1:
-            raise InvalidChallenge("Provided hash is not previous state")
+        if not flag:
+            raise InvalidChallenge
 
         proof = self.build_proof(offset, path)
         return proof
