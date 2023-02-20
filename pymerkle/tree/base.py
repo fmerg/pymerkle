@@ -37,8 +37,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     def get_config(self):
         """
-        Return tree configuration
-
         :rtype: dict
         """
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
@@ -124,15 +122,10 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def generate_inclusion_path(self, leaf):
+    def has_previous_state(self, checksum):
         """
-        Define here how to construct inclusion paths for the provided data
-        """
-
-    @abstractmethod
-    def generate_consistency_path(self, sublength):
-        """
-        Define here how to construct consistency paths for the provided state
+        Define here how the tree should validate whether the provided hash
+        value is the root-hash of some previous state.
         """
 
     def build_proof(self, offset, path):
@@ -154,6 +147,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return proof
 
+    @abstractmethod
+    def generate_inclusion_path(self, leaf):
+        """
+        Define here how to construct inclusion paths for the provided data
+        """
+
     def prove_inclusion(self, challenge):
         """
         Return inclusion Merkle-proof for the provided hash value
@@ -171,6 +170,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.build_proof(offset, path)
 
         return proof
+
+    @abstractmethod
+    def generate_consistency_path(self, sublength):
+        """
+        Define here how to construct consistency paths for the provided state
+        """
 
     def prove_consistency(self, challenge):
         """
@@ -198,42 +203,3 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         proof = self.build_proof(offset, path)
         return proof
-
-    @abstractmethod
-    def has_previous_state(self, checksum):
-        """
-        Define here how the tree should validate whether the provided hash
-        value is the root-hash of some previous state.
-        """
-
-    def __eq__(self, other):
-        """
-        :param other: tree to compare with
-        :type other: MerkleTree
-        """
-        if not isinstance(other, self.__class__):
-            raise TypeError("Provided object is not a Merkle-tree")
-
-        if not other:
-            return not self
-
-        if not self:
-            return True
-
-        return self.get_root_hash() == other.get_root_hash()
-
-    def __ne__(self, other):
-        """
-        :param other: tree to compare with
-        :type other: MerkleTree
-        """
-        if not isinstance(other, self.__class__):
-            raise TypeError("Provided object is not a Merkle-tree")
-
-        if not other:
-            return self.__bool__()
-
-        if not self:
-            return True
-
-        return self.get_root_hash() != other.get_root_hash()
