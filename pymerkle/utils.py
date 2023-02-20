@@ -1,8 +1,4 @@
-"""
-Utilities
-"""
-
-from math import log, log10
+from math import log
 
 
 def log2(num):

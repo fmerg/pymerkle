@@ -9,17 +9,6 @@ from pymerkle.proof import MerkleProof
 from pymerkle.nodes import Node, Leaf
 
 
-TREE_TEMPLATE = """
-    algorithm : {algorithm}
-    encoding  : {encoding}
-    security  : {security}
-    root      : {root}
-    length    : {length}
-    size      : {size}
-    height    : {height}
-"""
-
-
 class InvalidChallenge(Exception):
     """
     Raised when no Merkle-proof exists for the provided challenge
@@ -260,19 +249,3 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
             return True
 
         return self.get_root_hash() != other.get_root_hash()
-
-    def __repr__(self):
-        """
-        .. warning:: Contrary to convention, the output of this method is not
-            insertable into the *eval()* builtin Python function.
-        """
-        algorithm = self.algorithm.upper().replace('_', '')
-        encoding = self.encoding.upper().replace('_', '-')
-        security = 'ACTIVATED' if self.security else 'DEACTIVATED'
-        root_hash = self.get_root_hash().decode(self.encoding) if self else '[None]'
-
-        kw = {'algorithm': algorithm, 'encoding': encoding, 'security': security,
-              'root': root_hash, 'length': self.length, 'size': self.size,
-              'height': self.height}
-
-        return TREE_TEMPLATE.format(**kw)

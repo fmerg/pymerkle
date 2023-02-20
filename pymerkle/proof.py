@@ -7,59 +7,6 @@ import json
 from time import time, ctime
 
 from pymerkle.hashing import HashEngine
-from pymerkle.utils import log10
-
-
-PROOF_TEMPLATE = """
-    ----------------------------------- PROOF ------------------------------------
-
-    timestamp   : {timestamp} ({created_at})
-
-    algorithm   : {algorithm}
-    encoding    : {encoding}
-    security    : {security}
-
-    {path}
-
-    offset      : {offset}
-
-    commitment  : {commitment}
-
-    -------------------------------- END OF PROOF --------------------------------
-"""
-
-
-def order_of_magnitude(num):
-    return int(log10(num)) if num != 0 else 0
-
-
-def get_with_sign(num):
-    return f'{"+" if num >= 0 else ""}{num}'
-
-
-def stringify_path(path, encoding):
-    """
-    Returns a string composed of the provided path of hashes.
-
-    :param path: sequence of signed hashes
-    :type path: list of (+1/-1, bytes) or (+1/-1, str)
-    :param encoding: encoding type to be used for decoding
-    :type encoding: str
-    :rtype: str
-    """
-    pairs = []
-    pair_template = '\n{left}[{index}]{middle}{sign}{right}{value}'
-    for index, curr in enumerate(path):
-        pair = pair_template.format(
-            left=(7 - order_of_magnitude(index)) * ' ',
-            index=index,
-            middle=3 * ' ',
-            sign=get_with_sign(curr[0]),
-            right=3 * ' ',
-            value=curr[1].decode(encoding) if not isinstance(curr[1], str) else curr[1]
-        )
-        pairs += [pair]
-    return ''.join(pairs)
 
 
 class InvalidProof(Exception):
@@ -149,27 +96,6 @@ class MerkleProof:
             raise InvalidProof
 
         return True
-
-    def __repr__(self):
-        """
-        .. warning:: Contrary to convention, the output of this method is not
-            insertable into the *eval()* builtin Python function.
-        """
-        timestamp = self.timestamp
-        created_at = self.created_at
-        algorithm = self.algorithm.upper().replace('_', '')
-        encoding = self.encoding.upper().replace('_', '-')
-        security = 'ACTIVATED' if self.security else 'DEACTIVATED'
-        commitment = self.commitment.decode(self.encoding) if self.commitment \
-                else None
-        offset = self.offset
-        path = stringify_path(self.path, self.encoding)
-
-        kw = {'timestamp': timestamp, 'created_at': created_at,
-              'algorithm': algorithm, 'encoding': encoding, 'security': security,
-              'commitment': commitment, 'offset': offset, 'path': path}
-
-        return PROOF_TEMPLATE.format(**kw)
 
     def serialize(self):
         """

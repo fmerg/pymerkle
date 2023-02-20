@@ -1,6 +1,6 @@
 import pytest
 
-from pymerkle.nodes import Node, Leaf, NODE_TEMPLATE
+from pymerkle.nodes import Node, Leaf
 from pymerkle.hashing import HashEngine
 
 

@@ -1,6 +1,6 @@
 import pytest
 from pymerkle.tree import MerkleTree
-from pymerkle.tree.base import UnsupportedParameter, TREE_TEMPLATE
+from pymerkle.tree.base import UnsupportedParameter
 from tests.conftest import option, all_configs
 
 
@@ -28,20 +28,6 @@ def test_construction_error():
 
     with pytest.raises(UnsupportedParameter):
         MerkleTree(encoding='anything_unsupported')
-
-
-@pytest.mark.parametrize('config', all_configs(option))
-def test_repr(config):
-    tree = MerkleTree(**config)
-    assert tree.__repr__() == TREE_TEMPLATE.format(
-        algorithm=config['algorithm'].upper().replace('_', ''),
-        encoding=config['encoding'].upper().replace('_', '-'),
-        security='DEACTIVATED' if not config['security'] else 'ACTIVATED',
-        root='[None]',
-        length=0,
-        size=0,
-        height=0
-    )
 
 
 @pytest.mark.parametrize('tree, stringified', [

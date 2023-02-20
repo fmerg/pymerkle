@@ -444,7 +444,7 @@ class MerkleTree(BaseMerkleTree):
 
         :rtype: str
 
-        .. note:: Left children appear above the right ones.
+        .. note:: Left children appear above the right ones
         """
         if not self:
             return '\n └─[None]\n'
