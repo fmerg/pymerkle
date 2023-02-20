@@ -1,5 +1,5 @@
 import itertools
-from pymerkle.hashing import SUPPORTED_ALGORITHMS, SUPPORTED_ENCODINGS
+from pymerkle.constants import ALGORITHMS, ENCODINGS
 
 
 def pytest_addoption(parser):
@@ -9,14 +9,14 @@ def pytest_addoption(parser):
 
 def get_encodings(option):
     if option.extended:
-        return SUPPORTED_ENCODINGS
+        return ENCODINGS
 
     return ['utf-8', 'utf-16', 'utf-32']
 
 
 def all_configs(option):
     combinations = []
-    algorithms = SUPPORTED_ALGORITHMS
+    algorithms = ALGORITHMS
     encodings = get_encodings(option)
 
     for (security, algorithm, encoding) in itertools.product(

@@ -1,23 +1,17 @@
-"""
-"""
-
 import pytest
 import hashlib
-from pymerkle.hashing import HashEngine, SUPPORTED_ALGORITHMS, \
+from pymerkle.hashing import HashEngine, ALGORITHMS, \
     EmptyPathException, UnsupportedParameter
 from tests.conftest import option, all_configs
 
 
 record = 'oculusnonviditnecaurisaudivit'
-engines = []
 
 
-for config in all_configs(option):
-    engines += [HashEngine(**config)]
+@pytest.mark.parametrize('config', all_configs(option))
+def test_single_string_hash(config):
+    engine = HashEngine(**config)
 
-
-@pytest.mark.parametrize('engine', engines)
-def test_single_string_hash(engine):
     security = engine.security
     algorithm = engine.algorithm
     encoding = engine.encoding
@@ -40,8 +34,10 @@ def test_single_string_hash(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_single_bytes_hash(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_single_bytes_hash(config):
+    engine = HashEngine(**config)
+
     security = engine.security
     algorithm = engine.algorithm
     encoding = engine.encoding
@@ -64,8 +60,10 @@ def test_single_bytes_hash(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_double_bytes_hash(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_double_bytes_hash(config):
+    engine = HashEngine(**config)
+
     security = engine.security
     algorithm = engine.algorithm
     encoding = engine.encoding
@@ -98,21 +96,27 @@ def test_double_bytes_hash(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_0_elems_hash_path(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_0_elems_hash_path(config):
+    engine = HashEngine(**config)
+
     with pytest.raises(EmptyPathException):
         assert engine.hash_path((), 'anything')
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_1_elems_hash_path(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_1_elems_hash_path(config):
+    engine = HashEngine(**config)
+
     assert engine.hash_path(
         [(+1, engine.hash_entry(record))], 0
     ) == engine.hash_entry(record)
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_2_elems_hash_path(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_2_elems_hash_path(config):
+    engine = HashEngine(**config)
+
     hashf = engine.hash_pair
     hash_path = engine.hash_path
     data = record.encode(engine.encoding)
@@ -171,8 +175,10 @@ def test_2_elems_hash_path(engine):
         ) == hashf(data, data)
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_3_elems_hash_path_case_1(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_3_elems_hash_path_case_1(config):
+    engine = HashEngine(**config)
+
     hashf = engine.hash_pair
     hash_path = engine.hash_path
     data = record.encode(engine.encoding)
@@ -259,8 +265,10 @@ def test_3_elems_hash_path_case_1(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_3_elems_hash_path_case_2(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_3_elems_hash_path_case_2(config):
+    engine = HashEngine(**config)
+
     hashf = engine.hash_pair
     hash_path = engine.hash_path
     data = record.encode(engine.encoding)
@@ -347,8 +355,10 @@ def test_3_elems_hash_path_case_2(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_4_elems_hash_path_edge_case_1(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_4_elems_hash_path_edge_case_1(config):
+    engine = HashEngine(**config)
+
     hashf = engine.hash_pair
     hash_path = engine.hash_path
     data = record.encode(engine.encoding)
@@ -417,8 +427,10 @@ def test_4_elems_hash_path_edge_case_1(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_4_elems_hash_path_edge_case_2(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_4_elems_hash_path_edge_case_2(config):
+    engine = HashEngine(**config)
+
     hashf = engine.hash_pair
     hash_path = engine.hash_path
     data = record.encode(engine.encoding)
@@ -487,8 +499,10 @@ def test_4_elems_hash_path_edge_case_2(engine):
         )
 
 
-@pytest.mark.parametrize('engine', engines)
-def test_4_elems_hash_path(engine):
+@pytest.mark.parametrize('config', all_configs(option))
+def test_4_elems_hash_path(config):
+    engine = HashEngine(**config)
+
     hashf = engine.hash_pair
     hash_path = engine.hash_path
     data = record.encode(engine.encoding)
