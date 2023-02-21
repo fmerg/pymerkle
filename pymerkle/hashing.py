@@ -27,29 +27,35 @@ class HashEngine:
     :param encoding: [optional] encoding type (defaults to *utf-8*)
     :type encoding: str
     :param security: [optional] defence against 2nd-preimage attack (default:
-        true)
+        *True*)
     :type security: bool
-
-    :raises UnsupportedParameter: if the provided algorithm or encoding is not
-        supported.
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
+        algorith, encoding = self.validate_parameters(algorithm, encoding)
 
-        for (attr, provided, supported) in (
-                ('algorithm', algorithm, ALGORITHMS),
-                ('encoding', encoding, ENCODINGS)):
-
-            normalized = provided.lower().replace('-', '_')
-            if normalized not in supported:
-                raise UnsupportedParameter(f'{provided} is not supported')
-
-            setattr(self, attr, normalized)
-
+        self.algorithm = algorithm
+        self.encoding = encoding
         self.security = security
 
         self.prefx00 = '\x00'.encode(encoding) if security else bytes()
         self.prefx01 = '\x01'.encode(encoding) if security else bytes()
+
+    @staticmethod
+    def validate_parameters(algorithm, encoding):
+        validated = []
+        for (provided, supported) in (
+            (algorithm, ALGORITHMS),
+            (encoding, ENCODINGS)
+        ):
+            normalized = provided.lower().replace('-', '_')
+            if normalized not in supported:
+                raise UnsupportedParameter(f'{provided} is not supported')
+
+            validated += [normalized]
+
+        return validated
+
 
     def load_hasher(self):
 
