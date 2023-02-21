@@ -1,5 +1,5 @@
 """
-Provides hashing machinery for data insertion and proof verification.
+Hashing machinery for data insertion and proof verification
 """
 
 import hashlib
@@ -15,24 +15,19 @@ class UnsupportedParameter(Exception):
 
 class EmptyPathException(Exception):
     """
-    Raised when an empty path of hashes is fed to a hashing engine.
+    Raised when an empty path of hashes is fed to a hashing engine
     """
     pass
 
 
 class HashEngine:
     """
-    Encapsulates the hashing functionality of Merkle-trees and proof
-    verification.
-
-    :param algorithm: [optional] Specifies the hash algorithm used by the
-        engine. Defaults to *sha256*.
+    :param algorithm: [optional] hash algorithm (defaults to *sha256*)
     :type algorithm: str
-    :param encoding: [optional] Specifies the encoding algorithm used by the
-        engine before hashing. Defaults to *utf_8*.
+    :param encoding: [optional] encoding type (defaults to *utf-8*)
     :type encoding: str
-    :param security: [optional] Specifies whether defense against
-        second-preimage attack will be enabled. Defaults to *True*.
+    :param security: [optional] defence against 2nd-preimage attack (default:
+        true)
     :type security: bool
 
     :raises UnsupportedParameter: if the provided algorithm or encoding is not
@@ -45,12 +40,11 @@ class HashEngine:
                 ('algorithm', algorithm, ALGORITHMS),
                 ('encoding', encoding, ENCODINGS)):
 
-            _provided = provided.lower().replace('-', '_')
-
-            if _provided not in supported:
+            normalized = provided.lower().replace('-', '_')
+            if normalized not in supported:
                 raise UnsupportedParameter(f'{provided} is not supported')
 
-            setattr(self, attr, _provided)
+            setattr(self, attr, normalized)
 
         self.security = security
 
@@ -63,11 +57,11 @@ class HashEngine:
 
     def hash_entry(self, data):
         """
-        Computes the digest of the provided data under the engine's configured
-        hash algorithm, after first appending the ``\\x00`` security prefix.
+        Compute the hash of the provided data
 
-        :param data: data to hash
-        :type data: bytes
+        .. attention:: Preprends ``\\x00`` if security mode is enabled
+
+        :type data: bytes or str
         :rtype: bytes
         """
         buff = self.prefx00 + (data if isinstance(data, bytes) else
@@ -87,13 +81,11 @@ class HashEngine:
 
     def hash_pair(self, left, right):
         """
-        Concatenates the provided bytestrings after first appending the
-        ``\\x01`` security prefix and computes the digest under the engine's
-        configured hash algorithm.
+        Compute the hash of the concatenation of the provided arguments
 
-        :param left: left sequence
+        .. attention:: Preprends ``\\x01`` if security mode is enabled
+
         :type left: bytes
-        :param right: right sequence
         :type right: bytes
         :rtype: bytes
         """

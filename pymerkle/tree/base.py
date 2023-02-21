@@ -10,7 +10,7 @@ from pymerkle.proof import MerkleProof
 
 class InvalidChallenge(Exception):
     """
-    Raised when no Merkle-proof exists for the provided challenge
+    Raised when no Merkle-proof can be generated for the provided challenge
     """
     pass
 
@@ -33,39 +33,15 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         self.encoding = encoding
         self.security = security
 
-        HashEngine.__init__(self, **self.get_config())
+        HashEngine.__init__(self, algorithm, encoding, security)
 
     def get_config(self):
         """
-        :rtype: dict
+        :returns: a triple consisting of the hash algorithm, encoding type and
+            security mode
+        :rtype:
         """
-        return {'algorithm': self.algorithm, 'encoding': self.encoding,
-                'security': self.security}
-
-    @abstractmethod
-    def append_entry(self, data):
-        """
-        Define here the tree's growing strategy
-        """
-
-    @classmethod
-    def init_from_entries(cls, *entries, config=None):
-        """
-        Create tree from initial data
-
-        :param data: initial data to append
-        :type data: iterable of bytes or str
-        :param config: tree configuration
-        :type config: dict
-        """
-        config = {} if not config else config
-        tree = cls(**config)
-
-        append_entry = tree.append_entry
-        for data in entries:
-            append_entry(data)
-
-        return tree
+        return self.algorithm, self.encoding, self.security
 
     @abstractmethod
     def __bool__(self):
@@ -91,41 +67,44 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def height(self):
         """
-        Should return the current height of the tree.
-        """
-
-    @property
-    @abstractmethod
-    def root(self):
-        """
-        Should return the current root of the tree
+        Should return the current height
         """
 
     @abstractmethod
-    def get_root_hash(self):
+    def append_entry(self, data):
         """
-        Should return the hash value stored by the tree's current root node
+        Define here the growing strategy of the tree
         """
 
-    @abstractmethod
-    def get_leaves(self):
+    @classmethod
+    def init_from_entries(cls, *entries, algorithm='sha256', encoding='utf_8',
+            security=True):
         """
-        Should return a generator iterating lazily over the tree's current leaf
-        nodes.
+        Create tree from initial data
+
+        :param data: initial data to append
+        :type data: iterable of bytes or str
+        :param config: tree configuration
+        :type config: dict
+        """
+        tree = cls(algorithm, encoding, security)
+
+        append_entry = tree.append_entry
+        for data in entries:
+            append_entry(data)
+
+        return tree
+
+    @abstractmethod
+    def get_root(self):
+        """
+        Should return the current root hash
         """
 
     @abstractmethod
     def find_leaf(self, value):
         """
-        Define here how to detect the leaf node storing the provided hash
-        value.
-        """
-
-    @abstractmethod
-    def has_previous_state(self, checksum):
-        """
-        Define here how the tree should validate whether the provided hash
-        value is the root-hash of some previous state.
+        Should return the leaf storing the provided hash value
         """
 
     def build_proof(self, offset, path):
@@ -139,23 +118,21 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :returns: proof object consisting of the above components
         :rtype: MerkleProof
         """
-        params = self.get_config()
-        commitment = self.get_root_hash()
-        proof = MerkleProof(
-            path=path, offset=offset, commitment=commitment, **params
-        )
+        commitment = self.get_root()
+        proof = MerkleProof(self.algorithm, self.encoding, self.security,
+                offset, path, commitment=commitment)
 
         return proof
 
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Define here how to construct inclusion paths for the provided data
+        Should return the inclusion path for the provided challenge
         """
 
     def prove_inclusion(self, challenge):
         """
-        Return inclusion Merkle-proof for the provided hash value
+        Return inclusion Merkle-proof for the provided challenge
 
         :param challenge: hash value to be proven
         :type challenge: bytes
@@ -174,15 +151,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def generate_consistency_path(self, sublength):
         """
-        Define here how to construct consistency paths for the provided state
+        Should return the consistency path for the provided challenge
         """
 
     def prove_consistency(self, challenge):
         """
-        Return consistency Merkle-proof for the provided state
-
-        .. note:: The output is intended to prove that the provided hash value
-            is the acclaimed root-hash of some previous state of the tree
+        Return consistency Merkle-proof for the provided challenge
 
         :param challenge: acclaimed root-hash of some previous state of the tree
         :type challenge: bytes

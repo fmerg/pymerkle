@@ -31,7 +31,7 @@ from tests.conftest import option, all_configs
 @pytest.mark.parametrize('config', all_configs(option))
 def test_defense_against_second_preimage_attack(config):
     original = MerkleTree.init_from_entries(
-        'a', 'b', 'c', 'd', config=config
+        'a', 'b', 'c', 'd', **config
     )
 
     F = original.get_leaf(2).value
@@ -39,10 +39,10 @@ def test_defense_against_second_preimage_attack(config):
     forged = F + G
 
     attacker = MerkleTree.init_from_entries(
-        'a', 'b', forged, config=original.get_config()
+        'a', 'b', forged, **config
     )
 
     if original.security:
-        assert original.get_root_hash() != attacker.get_root_hash()
+        assert original.get_root() != attacker.get_root()
     else:
-        assert original.get_root_hash() == attacker.get_root_hash()
+        assert original.get_root() == attacker.get_root()

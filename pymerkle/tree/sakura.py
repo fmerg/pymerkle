@@ -88,7 +88,7 @@ class MerkleTree(BaseMerkleTree):
 
         return self.__root
 
-    def get_root_hash(self):
+    def get_root(self):
         """
         :returns: Current root-hash of the tree
         :rtype: bytes

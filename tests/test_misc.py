@@ -7,11 +7,11 @@ from tests.conftest import option, all_configs
 def test_bool():
     tree = MerkleTree()
     assert not tree
-    assert not tree.get_root_hash()
+    assert not tree.get_root()
 
     tree = MerkleTree.init_from_entries('a')
     assert tree
-    assert tree.get_root_hash()
+    assert tree.get_root()
 
 
 def test_dimensions():

@@ -46,7 +46,7 @@ Usage
   proof.verify()
 
   # Save current tree state
-  state = tree.get_root_hash()
+  state = tree.get_root()
 
   # Append further leaves
   for data in [b'corge', b'grault', b'garlpy']:

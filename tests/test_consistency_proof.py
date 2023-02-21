@@ -10,12 +10,12 @@ for config in all_configs(option):
     for length in range(1, maxlength + 1):
         entries = ['%d-th entry' % _ for _ in range(length)]
 
-        tree = MerkleTree.init_from_entries(*entries, config=config)
+        tree = MerkleTree.init_from_entries(*entries, **config)
         trees += [tree]
 
         for sublength in range(1, tree.length + 1):
             subtree = MerkleTree.init_from_entries(
-                *entries[:sublength], config=config
+                *entries[:sublength], **config
             )
             trees_and_subtrees += [(tree, subtree)]
 
@@ -28,7 +28,7 @@ def test_invalid_challenge(tree):
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_invalid_proof(tree, subtree):
-    challenge = subtree.get_root_hash()
+    challenge = subtree.get_root()
     proof = tree.prove_consistency(challenge)
     with pytest.raises(InvalidProof):
         proof.verify(target=b'something random')
@@ -36,7 +36,7 @@ def test_invalid_proof(tree, subtree):
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_success(tree, subtree):
-    challenge = subtree.get_root_hash()
+    challenge = subtree.get_root()
     proof = tree.prove_consistency(challenge)
-    valid = proof.verify(target=tree.get_root_hash())
+    valid = proof.verify(target=tree.get_root())
     assert valid

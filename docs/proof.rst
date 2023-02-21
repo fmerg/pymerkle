@@ -49,7 +49,7 @@ A monitor requests and saves the tree's state at some point of history:
 
 .. code-block:: python
 
-  state = tree.get_root_hash()
+  state = tree.get_root()
 
 Note that the root-hash encodes the tree's state as it is uniquely determined
 by its binary structure and the hash values stored by its leaf nodes.

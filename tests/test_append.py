@@ -25,17 +25,17 @@ def test_previous_state_edge_cases(config):
     assert not tree.has_previous_state(b'anything')
 
     tree.append_entry('a')
-    state = tree.get_root_hash()
+    state = tree.get_root()
     assert tree.has_previous_state(state)
 
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_previous_state_success(config):
     tree = MerkleTree.init_from_entries(
-        'a', 'b', 'c', 'd', 'e', config=config
+        'a', 'b', 'c', 'd', 'e', **config
     )
 
-    state = tree.get_root_hash()
+    state = tree.get_root()
     for data in ('f', 'g', 'h', 'k'):
         tree.append_entry(data)
         assert tree.has_previous_state(state)
@@ -44,7 +44,7 @@ def test_previous_state_success(config):
 @pytest.mark.parametrize('config', all_configs(option))
 def test_previous_state_failure(config):
     tree = MerkleTree.init_from_entries(
-        'a', 'b', 'c', 'd', 'e', config=config
+        'a', 'b', 'c', 'd', 'e', **config
     )
 
     state = b'non_existent_state'

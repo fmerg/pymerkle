@@ -70,7 +70,7 @@ def display(obj):
             'algorithm': tree.algorithm,
             'encoding': tree.encoding.replace('_', '-'),
             'security': tree.security,
-            'root': tree.get_root_hash().decode(),
+            'root': tree.get_root().decode(),
             'length': tree.length,
             'size': tree.size,
             'height': tree.height,
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     assert proof.verify()
 
     # Save current tree state
-    state = tree.get_root_hash()
+    state = tree.get_root()
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:

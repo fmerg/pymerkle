@@ -10,7 +10,7 @@ for config in all_configs(option):
     for length in range(1, maxlength + 1):
         entries = ['%d-entry' % _ for _ in range(length)]
 
-        tree = MerkleTree.init_from_entries(*entries, config=config)
+        tree = MerkleTree.init_from_entries(*entries, **config)
         trees += [tree]
 
         for data in entries:
@@ -36,5 +36,5 @@ def test_invalid_proof(tree, challenge):
 def test_success(tree, challenge):
     proof = tree.prove_inclusion(challenge)
 
-    valid = proof.verify(target=tree.get_root_hash())
+    valid = proof.verify(target=tree.get_root())
     assert valid
