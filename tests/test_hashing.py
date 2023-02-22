@@ -1,7 +1,7 @@
 import pytest
 import hashlib
-from pymerkle.hashing import HashEngine, ALGORITHMS, \
-    EmptyPathException, UnsupportedParameter
+from pymerkle.hashing import HashEngine, UnsupportedParameter
+from pymerkle.constants import ALGORITHMS
 from tests.conftest import option, all_configs
 
 
@@ -100,8 +100,7 @@ def test_double_bytes_hash(config):
 def test_0_elems_hash_path(config):
     engine = HashEngine(**config)
 
-    with pytest.raises(EmptyPathException):
-        assert engine.hash_path((), 'anything')
+    assert engine.hash_path([], 0) == None
 
 
 @pytest.mark.parametrize('config', all_configs(option))

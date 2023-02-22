@@ -13,13 +13,6 @@ class UnsupportedParameter(Exception):
     pass
 
 
-class EmptyPathException(Exception):
-    """
-    Raised when an empty path of hashes is fed to a hashing engine
-    """
-    pass
-
-
 class HashEngine:
     """
     :param algorithm: [optional] hash algorithm (defaults to *sha256*)
@@ -104,55 +97,51 @@ class HashEngine:
 
     def hash_path(self, path, offset):
         """
-        Computes the digest occuring after repeatedly applying *hash_pair()*
-        over the provided path of hashes, where signs indicate parenthetization
-        in terms of pairing and *offset* is the starting position counting from
-        zero. Schematically speaking,
+        Compute the hash occuring after repeatedly pairing over the provided
+        path of hashes starting from the provided position.
 
-        ``hash_path([(1, a), (1, b), (-1, c), (-1, d)], 1)``
+        Signs indicate parenthetization for pairing. Schematically speaking,
+
+        ``hash_path([(+1, a), (+1, b), (-1, c), (-1, d)], 1)``
 
         is equivalent to
 
-        ``hash(hash(a, hash(b, c)), d)``.
+        ``hash(hash(a, hash(b, c)), d)``
 
-        .. warning:: Make sure that the combination of signs corresponds to
-            a valid parenthetization.
+        .. attention:: Make sure that the combination of signs corresponds to
+            a valid parenthetization
 
         :param path: path of hashes
         :type path: iterable of (+1/-1, bytes)
-        :param offset: starting position of hashing
+        :param offset: starting position counting from zero
         :type offset: int
         :rtype: bytes
 
-        :raises EmptyPathException: if the provided path of hashes is empty.
+        .. note:: Returns *None* in case of empty path
         """
         path = list(path)
 
         if not path:
-            raise EmptyPathException
+            return None
+
         elif len(path) == 1:
             return path[0][1]
 
         i = offset
         while len(path) > 1:
-
             if path[i][0] == +1:
-                # Pair with the right neighbour
                 if i != 0:
                     sign = path[i + 1][0]
                 else:
                     sign = +1
-
-                digest = self.hash_pair(path[i][1], path[i + 1][1])
+                value = self.hash_pair(path[i][1], path[i + 1][1])
                 move = +1
             else:
-                # Pair with left neighbour
                 sign = path[i - 1][0]
-                digest = self.hash_pair(path[i - 1][1], path[i][1])
+                value = self.hash_pair(path[i - 1][1], path[i][1])
                 move = -1
 
-            path[i] = (sign, digest)
-
+            path[i] = (sign, value)
             del path[i + move]
             if move < 0:
                 i -= 1
