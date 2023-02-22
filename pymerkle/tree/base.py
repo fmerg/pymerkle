@@ -166,9 +166,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         flag = False    # TODO
         for sublength in range(1, self.length + 1):
-            offset, left_path, path = self.generate_consistency_path(sublength)
+            offset, lefts, path = self.generate_consistency_path(sublength)
 
-            if challenge == self.hash_path(left_path, len(left_path) - 1):
+            if challenge == self.hash_path(lefts, len(lefts) - 1):
                 flag = True
                 break
 

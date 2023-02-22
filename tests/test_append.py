@@ -12,11 +12,11 @@ def test_append_entry(config):
 
     data = 'data'
     tree.append_entry(data)
-    assert tree.get_tail().value == tree.hash_entry(data)
+    assert tree.tail.value == tree.hash_entry(data)
 
     data = 'data'.encode(tree.encoding)
     tree.append_entry(data)
-    assert tree.get_tail().value == tree.hash_entry(data)
+    assert tree.tail.value == tree.hash_entry(data)
 
 
 @pytest.mark.parametrize('config', all_configs(option))

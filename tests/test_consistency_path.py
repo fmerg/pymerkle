@@ -101,24 +101,7 @@ principal_subroots = [
 ]
 
 
-@pytest.mark.parametrize('tree, offset, height', no_subroot_cases)
-def test_none_subroot(tree, offset, height):
-    assert not tree.get_subroot(offset, height)
-
-@pytest.mark.parametrize('tree, offset, height, subroot', subroots)
-def test_get_subroot(tree, offset, height, subroot):
-    assert tree.get_subroot(offset, height) is subroot
-
-@pytest.mark.parametrize('tree, sublength', no_principal_subroots_cases)
-def test_no_principal_subroots(tree, sublength):
-    assert tree.get_principal_subroots(sublength) is None
-
-@pytest.mark.parametrize('tree, sublength, subroots', principal_subroots)
-def test_principal_subroots(tree, sublength, subroots):
-    assert tree.get_principal_subroots(sublength) == subroots
-
-
-minimal_complements = [
+complements = [
     (tree_0, [], []),
     (tree_1, [], [(+1, tree_1.get_leaf(0))]),
     (tree_1, [(+1, tree_1.root)], []),
@@ -157,12 +140,7 @@ minimal_complements = [
 ]
 
 
-@pytest.mark.parametrize('tree, subroots, complement', minimal_complements)
-def test_minimal_complement(tree, subroots, complement):
-    assert tree.minimal_complement(subroots) == complement
-
-
-consistency_paths = [
+paths = [
     (
         tree_1,
         0,
@@ -442,6 +420,26 @@ consistency_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, sublength, path', consistency_paths)
+@pytest.mark.parametrize('tree, offset, height', no_subroot_cases)
+def test_none_subroot(tree, offset, height):
+    assert not tree.get_subroot(offset, height)
+
+@pytest.mark.parametrize('tree, offset, height, subroot', subroots)
+def test_get_subroot(tree, offset, height, subroot):
+    assert tree.get_subroot(offset, height) is subroot
+
+@pytest.mark.parametrize('tree, sublength', no_principal_subroots_cases)
+def test_no_principal_subroots(tree, sublength):
+    assert tree.get_principal_subroots(sublength) is None
+
+@pytest.mark.parametrize('tree, sublength, subroots', principal_subroots)
+def test_principal_subroots(tree, sublength, subroots):
+    assert tree.get_principal_subroots(sublength) == subroots
+
+@pytest.mark.parametrize('tree, subroots, complement', complements)
+def test_minimal_complement(tree, subroots, complement):
+    assert tree.get_minimal_complement(subroots) == complement
+
+@pytest.mark.parametrize('tree, sublength, path', paths)
 def test_generate_consistency_path(tree, sublength, path):
     assert tree.generate_consistency_path(sublength) == path
