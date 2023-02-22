@@ -51,8 +51,28 @@ class HashEngine:
         return validated
 
 
-    def load_hasher(self):
-        return getattr(hashlib, self.algorithm)()
+    def consume(self, buffer):
+        """
+        Returns the hash digest of the provided input
+
+        :param buffer:
+        :type buffer: bytes
+        :rtype: bytes
+        """
+        hasher = getattr(hashlib, self.algorithm)()
+
+        update = hasher.update
+        chunksize = 1024
+        offset = 0
+        chunk = buffer[offset: chunksize]
+        while chunk:
+            update(chunk)
+            offset += chunksize
+            chunk = buffer[offset: offset + chunksize]
+
+        checksum = hasher.hexdigest()
+
+        return checksum.encode(self.encoding)
 
 
     def hash_entry(self, data):
@@ -64,24 +84,13 @@ class HashEngine:
         :type data: bytes or str
         :rtype: bytes
         """
-        hasher = self.load_hasher()
-
         if not isinstance(data, bytes):
             data = data.encode(self.encoding)
+
         buffer = self.prefx00 + data
+        digest = self.consume(buffer)
 
-        update = hasher.update
-        offset = 0
-        chunksize = 1024
-        chunk = buffer[offset: chunksize]
-        while chunk:
-            update(chunk)
-            offset += chunksize
-            chunk = buffer[offset: offset + chunksize]
-
-        checksum = hasher.hexdigest()
-
-        return checksum.encode(self.encoding)
+        return digest
 
 
     def hash_pair(self, left, right):
@@ -97,13 +106,10 @@ class HashEngine:
         :type right: bytes
         :rtype: bytes
         """
-        hasher = self.load_hasher()
-
         buffer = self.prefx01 + left + self.prefx01 + right
-        hasher.update(buffer)
-        checksum = hasher.hexdigest()
+        digest = self.consume(buffer)
 
-        return checksum.encode(self.encoding)
+        return digest
 
 
     def hash_path(self, path, offset):
