@@ -6,6 +6,7 @@ import sys
 from math import log10
 from datetime import datetime
 from pymerkle import MerkleTree, MerkleProof
+from pymerkle.proof import verify_inclusion, InvalidProof
 
 
 def expand(node, encoding, indent, trim=None, level=0, ignored=None):
@@ -123,11 +124,11 @@ if __name__ == '__main__':
     sys.stdout.write(structure(tree))
 
     # Prove and verify inclusion of `bar`
-    challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
-    proof = tree.prove_inclusion(challenge)
+    proof = tree.prove_inclusion(b'bar')
     sys.stdout.write(display(proof))
 
-    assert proof.verify()
+    target = tree.get_root()
+    verify_inclusion(proof, b'bar', target)
 
     # Save current tree state
     state = tree.get_root()

@@ -26,7 +26,19 @@ def verify_inclusion(proof, data, target):
     :type target: str or bytes
     :raises InvalidProof: if the proof is invalid
     """
-    pass
+    engine = HashEngine(**proof.get_metadata())
+
+    offset = proof.offset
+    path = proof.path
+
+    if isinstance(target, str):
+        target = target.encode(proof.encoding)
+
+    if path[offset][1] != engine.hash_entry(data):
+        raise InvalidProof("Path not based on entry")
+
+    if target != engine.hash_path(path, offset):
+        raise InvalidProof("Path failed to resolve")
 
 
 def verify_consistency(proof, state, target):

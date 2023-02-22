@@ -1,11 +1,12 @@
 import pytest
 from pymerkle import MerkleTree, InvalidChallenge, InvalidProof
+from pymerkle.proof import verify_inclusion
 from tests.conftest import option, all_configs
 
 
 maxlength = 4
 trees = []
-trees_and_challenges = []
+trees_and_entries = []
 for config in all_configs(option):
     for length in range(1, maxlength + 1):
         entries = ['%d-entry' % _ for _ in range(length)]
@@ -14,27 +15,35 @@ for config in all_configs(option):
         trees += [tree]
 
         for data in entries:
-            challenge = tree.hash_entry(data)
-            trees_and_challenges += [(tree, challenge)]
+            trees_and_entries += [(tree, data)]
 
 
 @pytest.mark.parametrize('tree', trees)
 def test_invalid_challenge(tree):
     with pytest.raises(InvalidChallenge):
-        tree.prove_inclusion(b'something random')
+        tree.prove_inclusion(b'random')
 
 
-@pytest.mark.parametrize('tree, challenge', trees_and_challenges)
-def test_invalid_proof(tree, challenge):
-    proof = tree.prove_inclusion(challenge)
+@pytest.mark.parametrize('tree, data', trees_and_entries)
+def test_invalid_base(tree, data):
+    proof = tree.prove_inclusion(data)
+    target = tree.get_root()
 
     with pytest.raises(InvalidProof):
-        proof.verify(target=b'something random')
+        verify_inclusion(proof, b'random', target)
 
 
-@pytest.mark.parametrize('tree, challenge', trees_and_challenges)
-def test_success(tree, challenge):
-    proof = tree.prove_inclusion(challenge)
+@pytest.mark.parametrize('tree, data', trees_and_entries)
+def test_invalid_target(tree, data):
+    proof = tree.prove_inclusion(data)
 
-    valid = proof.verify(target=tree.get_root())
-    assert valid
+    with pytest.raises(InvalidProof):
+        verify_inclusion(proof, data, b'random')
+
+
+@pytest.mark.parametrize('tree, data', trees_and_entries)
+def test_success(tree, data):
+    proof = tree.prove_inclusion(data)
+    target = tree.get_root()
+
+    verify_inclusion(proof, data, target)
