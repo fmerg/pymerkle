@@ -8,7 +8,7 @@ from pymerkle.constants import ENCODINGS, ALGORITHMS
 
 class UnsupportedParameter(Exception):
     """
-    Raised when a hashing engine with unsupported parameters is requested.
+    Raised when a hashing engine with unsupported parameters is requested
     """
     pass
 
@@ -34,6 +34,7 @@ class HashEngine:
         self.prefx00 = '\x00'.encode(encoding) if security else bytes()
         self.prefx01 = '\x01'.encode(encoding) if security else bytes()
 
+
     @staticmethod
     def validate_parameters(algorithm, encoding):
         validated = []
@@ -43,7 +44,7 @@ class HashEngine:
         ):
             normalized = provided.lower().replace('-', '_')
             if normalized not in supported:
-                raise UnsupportedParameter(f'{provided} is not supported')
+                raise UnsupportedParameter('%s is not supported' % provided)
 
             validated += [normalized]
 
@@ -51,49 +52,59 @@ class HashEngine:
 
 
     def load_hasher(self):
-
         return getattr(hashlib, self.algorithm)()
+
 
     def hash_entry(self, data):
         """
         Compute the hash of the provided data
 
-        .. attention:: Preprends ``\\x00`` if security mode is enabled
+        .. attention:: Prepends ``\\x00`` if security mode is enabled
 
         :type data: bytes or str
         :rtype: bytes
         """
-        buff = self.prefx00 + (data if isinstance(data, bytes) else
-                               data.encode(self.encoding))
-
         hasher = self.load_hasher()
+
+        if not isinstance(data, bytes):
+            data = data.encode(self.encoding)
+        buffer = self.prefx00 + data
+
         update = hasher.update
         offset = 0
         chunksize = 1024
-        chunk = buff[offset: chunksize]
+        chunk = buffer[offset: chunksize]
         while chunk:
             update(chunk)
             offset += chunksize
-            chunk = buff[offset: offset + chunksize]
+            chunk = buffer[offset: offset + chunksize]
 
-        return hasher.hexdigest().encode(self.encoding)
+        checksum = hasher.hexdigest()
+
+        return checksum.encode(self.encoding)
+
 
     def hash_pair(self, left, right):
         """
-        Compute the hash of the concatenation of the provided arguments
+        Compute the hash of the concatenation of the provided values
 
-        .. attention:: Preprends ``\\x01`` if security mode is enabled
+        .. note:: Prepends ``\\x01`` to each argument if security mode is
+            enabled
 
+        :param left: first value
         :type left: bytes
+        :param right: second value
         :type right: bytes
         :rtype: bytes
         """
-        buff = self.prefx01 + left + self.prefx01 + right
-
         hasher = self.load_hasher()
-        hasher.update(buff)
 
-        return hasher.hexdigest().encode(self.encoding)
+        buffer = self.prefx01 + left + self.prefx01 + right
+        hasher.update(buffer)
+        checksum = hasher.hexdigest()
+
+        return checksum.encode(self.encoding)
+
 
     def hash_path(self, path, offset):
         """
@@ -128,17 +139,18 @@ class HashEngine:
             return path[0][1]
 
         i = offset
+        hash_pair = self.hash_pair
         while len(path) > 1:
             if path[i][0] == +1:
                 if i != 0:
                     sign = path[i + 1][0]
                 else:
                     sign = +1
-                value = self.hash_pair(path[i][1], path[i + 1][1])
+                value = hash_pair(path[i][1], path[i + 1][1])
                 move = +1
             else:
                 sign = path[i - 1][0]
-                value = self.hash_pair(path[i - 1][1], path[i][1])
+                value = hash_pair(path[i - 1][1], path[i][1])
                 move = -1
 
             path[i] = (sign, value)
