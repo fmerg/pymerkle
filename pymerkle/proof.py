@@ -1,5 +1,5 @@
 """
-Provides the Merkle-proof object.
+Merkle-proof machinery
 """
 
 import os
@@ -11,7 +11,7 @@ from pymerkle.hashing import HashEngine
 
 class InvalidProof(Exception):
     """
-    Raised when a Merkle-proof is found to be invalid.
+    Raised when a Merkle-proof is found to be invalid
     """
     pass
 
@@ -32,30 +32,18 @@ class MerkleProof:
 
     def __init__(self, algorithm, encoding, security, offset, path,
                  timestamp=None, commitment=None):
-        self.timestamp = timestamp or int(time())
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
+        self.timestamp = timestamp or int(time())
         self.commitment = commitment
         self.offset = offset
         self.path = path
 
-    def __eq__(self, other):
-        return all((
-            isinstance(other, __class__),
-            self.timestamp == other.timestamp,
-            self.algorithm == other.algorithm,
-            self.encoding == other.encoding,
-            self.security == other.security,
-            self.commitment == other.commitment,
-            self.offset == other.offset,
-            self.path == other.path,
-        ))
-
-
-    def get_verification_params(self):
+    def get_metadata(self):
         """
-        Parameters required for configuring the verification hashing machinery.
+        .. note:: These are parameters required for configuring the hashing
+            machinery during proof verification
 
         :rtype: dict
         """
@@ -68,7 +56,7 @@ class MerkleProof:
 
         :rtype: bytes
         """
-        engine = HashEngine(**self.get_verification_params())
+        engine = HashEngine(**self.get_metadata())
         result = engine.hash_path(self.path, self.offset)
 
         return result
@@ -103,15 +91,11 @@ class MerkleProof:
         algorithm = self.algorithm
         encoding = self.encoding
         security = self.security
-        commitment = self.commitment.decode(self.encoding) if self.commitment \
-                else None
         offset = self.offset
-
-        path = []
-        for (sign, value) in self.path:
-            checksum = value if isinstance(value, str) else \
-                    value.decode(self.encoding)
-            path += [[sign, checksum]]
+        path = [[sign, value.decode(self.encoding)] for (sign, value) in
+                self.path]
+        commitment = self.commitment.decode(encoding) if self.commitment \
+            else None
 
         return {
             'metadata': {
@@ -132,18 +116,17 @@ class MerkleProof:
         """
         :rtype: MerkleProof
         """
-        kw = {}
-
         metadata = proof['metadata']
-        kw.update(metadata)
-
         body = proof['body']
-        kw['offset'] = body['offset']
         encoding = metadata['encoding']
-        kw['path'] = [(pair[0], pair[1].encode(encoding)) for pair in
+        path = [(sign, value.encode(encoding)) for [sign, value] in
                 body['path']]
+        offset = body['offset']
+
+        kw = {**metadata, 'path': path, 'offset': offset}
+
         commitment = body.get('commitment', None)
         if commitment:
-            kw['commitment'] = commitment.encode()
+            kw['commitment'] = commitment.encode(encoding)
 
         return cls(**kw)

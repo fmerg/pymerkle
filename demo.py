@@ -8,64 +8,6 @@ from datetime import datetime
 from pymerkle import MerkleTree, MerkleProof
 
 
-PROOF_TEMPLATE = """
-    algorithm   : {algorithm}
-    encoding    : {encoding}
-    security    : {security}
-    timestamp   : {timestamp} ({created_at})
-    offset      : {offset}
-    commitment  : {commitment}
-
-    {path}
-
-"""
-
-
-def order_of_magnitude(num):
-    return int(log10(num)) if num != 0 else 0
-
-
-def get_signed(num):
-    return f'{"+" if num >= 0 else ""}{num}'
-
-
-def strpath(path, encoding):
-    template = '\n{left}[{index}]{middle}{sign}{right}{value}'
-
-    pairs = []
-    for index, curr in enumerate(path):
-        kw = {
-            'left': (7 - order_of_magnitude(index)) * ' ',
-            'index': index,
-            'middle': 3 * ' ',
-            'sign': get_signed(curr[0]),
-            'right': 3 * ' ',
-            'value': curr[1]
-        }
-        pairs += [template.format(**kw)]
-
-    return ''.join(pairs)
-
-
-def template(proof):
-    serialized = proof.serialize()
-
-    metadata = serialized['metadata']
-    body = serialized['body']
-
-    encoding = metadata.pop('encoding')
-    kw = {
-        **metadata,
-        'encoding': encoding.replace('_', '-'),
-        'created_at': datetime.utcfromtimestamp(metadata['timestamp']).strftime(
-            '%Y-%m-%d %H:%M:%S'),
-        'offset': body['offset'],
-        'path': strpath(body['path'], encoding),
-        'commitment': body['commitment'],
-    }
-    return PROOF_TEMPLATE.format(**kw)
-
-
 def expand(node, encoding, indent, trim=None, level=0, ignored=None):
     ignored = ignored or []
 
@@ -114,6 +56,62 @@ def dimensions(tree):
         tree.length, tree.size, tree.height)
 
 
+def order_of_magnitude(num):
+    return int(log10(num)) if num != 0 else 0
+
+
+def get_signed(num):
+    return f'{"+" if num >= 0 else ""}{num}'
+
+
+def strpath(path, encoding):
+    template = '\n{left}[{index}]{middle}{sign}{right}{value}'
+
+    pairs = []
+    for index, curr in enumerate(path):
+        kw = {
+            'left': (7 - order_of_magnitude(index)) * ' ',
+            'index': index,
+            'middle': 3 * ' ',
+            'sign': get_signed(curr[0]),
+            'right': 3 * ' ',
+            'value': curr[1]
+        }
+        pairs += [template.format(**kw)]
+
+    return ''.join(pairs)
+
+
+def display(proof):
+    template = """
+    algorithm   : {algorithm}
+    encoding    : {encoding}
+    security    : {security}
+    timestamp   : {timestamp} ({created_at})
+    offset      : {offset}
+    commitment  : {commitment}
+
+    {path}\n\n"""
+
+    serialized = proof.serialize()
+
+    metadata = serialized['metadata']
+    body = serialized['body']
+
+    encoding = metadata.pop('encoding')
+    kw = {
+        **metadata,
+        'encoding': encoding.replace('_', '-'),
+        'created_at': datetime.utcfromtimestamp(metadata['timestamp']).strftime(
+            '%Y-%m-%d %H:%M:%S'),
+        'offset': body['offset'],
+        'path': strpath(body['path'], encoding),
+        'commitment': body['commitment'],
+    }
+
+    return template.format(**kw)
+
+
 if __name__ == '__main__':
     tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
 
@@ -127,7 +125,7 @@ if __name__ == '__main__':
     # Prove and verify inclusion of `bar`
     challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
     proof = tree.prove_inclusion(challenge)
-    sys.stdout.write(template(proof))
+    sys.stdout.write(display(proof))
 
     assert proof.verify()
 
@@ -143,6 +141,6 @@ if __name__ == '__main__':
 
     # Prove and verify saved state
     proof = tree.prove_consistency(challenge=state)
-    sys.stdout.write(template(proof))
+    sys.stdout.write(display(proof))
 
     assert proof.verify()
