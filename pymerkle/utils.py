@@ -1,56 +1,48 @@
-from math import log
-
-
-def log2(num):
+def log2(n):
     """
-    Computes the base 2 logarithm of the provided value (i.e., the greatest
-    power of 2 equal to or smaller than *num*).
+    Logarithm with base 2
 
-    .. note:: Given a left-balanced binary tree whose number of leaves equals
-        the provided value, this function returns the tree's height (i.e.,
-        the depth of its leftmost branch).
-
-    .. note:: By convention, this function returns 0 for the zero argument.
-
-    :param num: the integer whose logarithm is to compute
-    :type num: int
-    :returns: base 2 logarithm of the provided integer
+    :param n: non negative integer
+    :type n: int
     :rtype: int
-
-    :raises ValueError: for arguments smaller than zero
     """
-    return int(log(num, 2)) if num != 0 else 0
+    k = 0
+    while n >> 1:
+        k += 1
+        n >>= 1
+
+    return k
 
 
-def decompose(num):
+def decompose(n):
     """
-    Additive decomposition in decreasing powers of 2.
-
-    Given a positive integer uniquely decomposed as
-
-    ``2 ^ p_m + ... + 2 ^ p_1, p_m > ... > p_1 >= 0``
-
-    then the sequence ``(p_m, ..., p_1)`` is returned.
-
-    .. note:: Returns the nonsensical empty list for arguments equal to or
-        smaller than zero.
+    Returns the exponents corresponding to the binary decomposition of the
+    provided integer in increasing order
 
     :Example:
 
-    >>> 45 == 2 ** 5 + 2 ** 3 + 2 ** 2 + 1
+    >>> 45 == 2 ** 0 + 2 ** 2 + 2 ** 3 + 2 ** 5
     True
     >>>
     >>> decompose(45)
-    [5, 3, 2, 0]
+    [0, 2, 3, 5]
 
-    :param num: the integer to decompose
-    :type num: int
-    :returns: powers of 2 in decreasing order
-    :rtype: list
+    :param n: non negative integer
+    :type n: int
+    :rtype: list[int]
     """
-    powers = []
-    while num > 0:
-        power = log2(num)
-        powers += [power]
-        num -= 2 ** power
-    return powers
+    out = []
+
+    i = 1
+    while i <= n:
+        if i & n:
+            p = -1
+            j = i
+            while j:
+                j >>= 1
+                p += 1
+            out += [p]
+
+        i <<= 1
+
+    return out

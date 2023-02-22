@@ -443,9 +443,9 @@ class MerkleTree(BaseMerkleTree):
         Returns the root of the *full* binary subtree with maximum possible
         length containing the rightmost leaf
         """
-        last_power = decompose(self.nr_leaves)[-1]
+        degree = decompose(self.nr_leaves)[0]
 
-        return self.tail.get_ancestor(degree=last_power)
+        return self.tail.get_ancestor(degree)
 
     def get_principal_subroots(self, sublength):
         """
@@ -469,9 +469,8 @@ class MerkleTree(BaseMerkleTree):
             return
 
         principals = []
-        heights = decompose(sublength)
         offset = 0
-        for height in heights:
+        for height in reversed(decompose(sublength)):
             subroot = self.get_subroot(offset, height)
 
             if not subroot:
