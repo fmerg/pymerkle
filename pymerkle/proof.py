@@ -69,12 +69,11 @@ class MerkleProof:
     """
 
     def __init__(self, algorithm, encoding, security, offset, path,
-                 timestamp=None, commitment=None):
+                 timestamp=None):
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
         self.timestamp = timestamp or int(time())
-        self.commitment = commitment
         self.offset = offset
         self.path = path
 
@@ -99,7 +98,7 @@ class MerkleProof:
 
         return result
 
-    def verify(self, target=None):
+    def verify(self, target):
         """
         Merkle-proof verification.
 
@@ -108,14 +107,11 @@ class MerkleProof:
 
         :raises InvalidProof: if the proof fails to verify.
 
-        :param target: [optional] target hash to compare against. Defaults to
-            the commitment included in the proof.
+        :param target: target hash to compare against
         :type target: bytes
         :returns: the verification result (*True*) in case of success.
         :rtype: bool
         """
-        target = self.commitment if target is None else target
-
         if target != self.resolve():
             raise InvalidProof
 
@@ -132,8 +128,6 @@ class MerkleProof:
         offset = self.offset
         path = [[sign, value.decode(self.encoding)] for (sign, value) in
                 self.path]
-        commitment = self.commitment.decode(encoding) if self.commitment \
-            else None
 
         return {
             'metadata': {
@@ -145,7 +139,6 @@ class MerkleProof:
             'body': {
                 'offset': offset,
                 'path': path,
-                'commitment': commitment,
             }
         }
 
@@ -161,10 +154,4 @@ class MerkleProof:
                 body['path']]
         offset = body['offset']
 
-        kw = {**metadata, 'path': path, 'offset': offset}
-
-        commitment = body.get('commitment', None)
-        if commitment:
-            kw['commitment'] = commitment.encode(encoding)
-
-        return cls(**kw)
+        return cls(**metadata, path=path, offset=offset)

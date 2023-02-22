@@ -90,8 +90,6 @@ def display(proof):
     security    : {security}
     timestamp   : {timestamp} ({created_at})
     offset      : {offset}
-    commitment  : {commitment}
-
     {path}\n\n"""
 
     serialized = proof.serialize()
@@ -107,7 +105,6 @@ def display(proof):
             '%Y-%m-%d %H:%M:%S'),
         'offset': body['offset'],
         'path': strpath(body['path'], encoding),
-        'commitment': body['commitment'],
     }
 
     return template.format(**kw)
@@ -144,4 +141,5 @@ if __name__ == '__main__':
     proof = tree.prove_consistency(challenge=state)
     sys.stdout.write(display(proof))
 
-    assert proof.verify()
+    target = tree.get_root()
+    assert proof.verify(target)

@@ -108,7 +108,6 @@ which yields s JSON dictionary similar to the following one:
           "security": true,
       },
       "body": {
-          "commitment": "79996015b06c93e0da6429442ba2afacb80778ee2a325416580a685ab42c7196",
           "offset": 2,
           "path": [
               [
@@ -143,10 +142,9 @@ which yields s JSON dictionary similar to the following one:
       }
   }
 
-The body contains the path of hashes along with the incuded commitment, while
-metadata carries the inforation required for configuring the verification
-hashing machinery. Deserialization for retrieving the verifiable proof
-object proceeds as follows:
+The body contains the path of hashes, while metadata carries the information
+required for configuring the verification hashing machinery. Deserialization
+for retrieving the verifiable proof object proceeds as follows:
 
 .. code-block:: python
 

@@ -49,7 +49,6 @@ def test_serialization():
                 [-1, '6a59026cd21a32aaee21fe6522778b398464c6ea742ccd52285aa727c367d8f2'],
                 [-1, '2dca521da60bf0628caa3491065e32afc9da712feb38ff3886d1c8dda31193f8']
             ],
-            'commitment': None,
         }
     }
 
@@ -61,6 +60,5 @@ def test_deserialization():
     assert deserialized.algorithm == proof.algorithm
     assert deserialized.encoding == proof.encoding
     assert deserialized.security == proof.security
-    assert deserialized.commitment == proof.commitment
     assert deserialized.offset == proof.offset
     assert deserialized.path == proof.path

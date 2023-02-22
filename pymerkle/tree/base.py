@@ -118,32 +118,30 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :returns: proof object consisting of the above components
         :rtype: MerkleProof
         """
-        commitment = self.get_root()
-        proof = MerkleProof(self.algorithm, self.encoding, self.security,
-                offset, path, commitment=commitment)
+        return MerkleProof(self.algorithm, self.encoding, self.security,
+                offset, path)
 
         return proof
 
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Should return the inclusion path for the provided challenge
+        Should return the inclusion path based on the provided leaf
         """
 
-    # def prove_inclusion(self, challenge):
     def prove_inclusion(self, data):
         """
-        Return inclusion Merkle-proof for the provided challenge
+        Prove inclusion of the provided entry
 
-        :param challenge: hash value to be proven
-        :type challenge: bytes
+        :param data:
+        :type data: bytes
         :rtype: MerkleProof
-        :raises InvalidChallenge: if the provided hash value is not appended
+        :raises InvalidChallenge: if the provided entry is not included
         """
         value = self.hash_entry(data)
         leaf = self.find_leaf(value=value)
         if not leaf:
-            raise InvalidChallenge("Provided hash is not included")
+            raise InvalidChallenge("Provided entry is not included")
 
         offset, path = self.generate_inclusion_path(leaf)
         proof = self.build_proof(offset, path)
