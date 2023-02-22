@@ -16,6 +16,32 @@ class InvalidProof(Exception):
     pass
 
 
+def verify_inclusion(proof, data, target):
+    """
+    :param proof: proof of inclusion
+    :type proof: MerkleProof
+    :param data: entry to verify
+    :type data: str or bytes
+    :param target: state during proof generation
+    :type target: str or bytes
+    :raises InvalidProof: if the proof is invalid
+    """
+    pass
+
+
+def verify_consistency(proof, state, target):
+    """
+    :param proof: proof of consistency
+    :type proof: MerkleProof
+    :param state: past state to verify
+    :type state: str or bytes
+    :param target: state during proof generation
+    :type target: str or bytes
+    :raises InvalidProof: if the proof is invalid
+    """
+    pass
+
+
 class MerkleProof:
     """
     :param algorithm: hash algorithm
