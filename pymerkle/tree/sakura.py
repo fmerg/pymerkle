@@ -19,6 +19,8 @@ class Node:
     :rtype: Node
     """
 
+    __slots__ = ('value', 'left', 'right', 'parent')
+
     def __init__(self, value, left=None, right=None):
         self.value = value
 
@@ -43,20 +45,6 @@ class Node:
         :rtype: bool
         """
         return not self.left and not self.right
-
-    def set_left(self, node):
-        """
-        :type left: Node
-        """
-        self.left = node
-        node.parent = self
-
-    def set_right(self, node):
-        """
-        :type right: Node
-        """
-        self.right = node
-        node.parent = self
 
     def is_left_child(self):
         """
@@ -99,19 +87,18 @@ class Leaf(Node):
     """
     Merkle-tree leaf
 
-    :param value: digest to be stored by the leaf
+    :param value: hash to be stored by the leaf
     :type value: bytes
     :param leaf: [optional] next leaf node (defaults to *None*)
     :type leaf: Leaf
     """
 
+    __slots__ = ('next',)
+
     def __init__(self, value, next_leaf=None):
         self.next = next_leaf
 
         super().__init__(value)
-
-    def set_next(self, leaf):
-        self.next = leaf
 
 
 class MerkleTree(BaseMerkleTree):
@@ -122,8 +109,8 @@ class MerkleTree(BaseMerkleTree):
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
         self.head = None
         self.tail = None
-        self.nr_leaves = 0
         self.root_node = None
+        self.nr_leaves = 0
 
         super().__init__(algorithm, encoding, security)
 
@@ -255,7 +242,7 @@ class MerkleTree(BaseMerkleTree):
         :rtype: Leaf
         """
         if self.tail:
-            self.tail.set_next(leaf)
+            self.tail.next = leaf
 
         self.tail = leaf
 
@@ -287,8 +274,8 @@ class MerkleTree(BaseMerkleTree):
             return
 
         curr = subroot.parent
-        new_node = Node(value, left=subroot, right=new_leaf)
-        curr.set_right(new_node)
+        curr.right = Node(value, left=subroot, right=new_leaf)
+        curr.right.parent = curr
         while curr:
             curr.value = self.hash_pair(curr.left.value, curr.right.value)
             curr = curr.parent
@@ -329,13 +316,14 @@ class MerkleTree(BaseMerkleTree):
 
     def find_leaf(self, value):
         """
-        Detects the leftmost leaf node storing the provided hash value counting
+        Detects the leftmost leaf node storing the provided hash counting from
+        zero
 
         .. note:: Returns *None* if no such leaf node exists.
 
-        :param value: hash value to detect
+        :param value: hash to detect
         :type value: bytes
-        :returns: leaf node storing the provided hash value
+        :returns: leaf node storing the provided hash
         :rtype: Leaf
         """
         leaves = self.get_leaves()
@@ -406,8 +394,7 @@ class MerkleTree(BaseMerkleTree):
 
             if subroot.is_left_child():
                 sign = -1 if subroot.parent.is_right_child() else + 1
-                node = subroot.parent.right
-                complement += [(sign, node)]
+                complement += [(sign, subroot.parent.right)]
                 subroots = subroots[:-1]
             else:
                 subroots = subroots[:-2]
@@ -518,7 +505,7 @@ class MerkleTree(BaseMerkleTree):
         """
         Check if the provided parameter is the root hash of some previous state
 
-        :param state: acclaimed root-hash of some previous state of the tree.
+        :param state: acclaimed root hash of some previous state of the tree.
         :type state: bytes
         :rtype: bool
         """

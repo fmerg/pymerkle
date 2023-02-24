@@ -3,7 +3,7 @@ Merkle proofs
 
 By *Merkle-proof* is meant a path of hashes contained in a Merkle-tree and a
 rule for combining them into a single hash value, expected to coincide with the
-root-hash at the moment of path generation; the root-hash is included as
+root hash at the moment of path generation; the root hash is included as
 commitment on behalf of the tree against some challenge posed by an interested party.
 What is actually proven in case of successful verification (that is, when the path of
 hashes leads to the commitment) depends on the original challenge. Interested parties
@@ -51,7 +51,7 @@ A monitor requests and saves the tree's state at some point of history:
 
   state = tree.get_root()
 
-Note that the root-hash encodes the tree's state as it is uniquely determined
+Note that the root hash encodes the tree's state as it is uniquely determined
 by its binary structure and the hash values stored by its leaf nodes.
 At any susequent moment, after further data have been appended to the tree,
 the monitor wants to verify that the the tree's current state is a possible
