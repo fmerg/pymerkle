@@ -194,14 +194,27 @@ class MerkleTree(BaseMerkleTree):
 
         return log2(nr_leaves)
 
-    def get_leaves(self):
+    def leaf(self, offset):
         """
-        :returns: generator of current leaf nodes
+        Leaf at provided position counting from zero
+
+        .. note:: Returns *None* if the provided position either negative or
+            exceeds the current number of leaf nodes
+
+        :param offset: position of leaf
+        :type offset: int
+        :rtype: Leaf
         """
+        if offset < 0 or offset >= self.length:
+            raise IndexError
+
         curr = self.head
-        while curr:
-            yield curr
+        j = 0
+        while j < offset and curr:
             curr = curr.next
+            j += 1
+
+        return curr.value
 
     def get_leaf(self, offset):
         """
@@ -215,7 +228,7 @@ class MerkleTree(BaseMerkleTree):
         :rtype: Leaf
         """
         if offset < 0:
-            return
+            return None
 
         curr = self.head
         j = 0
@@ -224,6 +237,15 @@ class MerkleTree(BaseMerkleTree):
             j += 1
 
         return curr
+
+    def get_leaves(self):
+        """
+        :returns: generator of current leaf nodes
+        """
+        curr = self.head
+        while curr:
+            yield curr
+            curr = curr.next
 
     def update_tail(self, leaf):
         """

@@ -78,6 +78,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
+    def leaf(self, offset):
+        """
+        Should return the hash stored by the leaf located at the provided
+        position counting from zero
+        """
+
+    @abstractmethod
     def append_entry(self, data):
         """
         Define here the growing strategy of the tree
