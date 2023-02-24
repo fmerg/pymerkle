@@ -38,6 +38,7 @@ class HashEngine:
     @staticmethod
     def validate_parameters(algorithm, encoding):
         validated = []
+
         for (provided, supported) in (
             (algorithm, ALGORITHMS),
             (encoding, ENCODINGS)
@@ -79,7 +80,7 @@ class HashEngine:
         """
         Compute the hash of the provided data
 
-        .. attention:: Prepends ``\\x00`` if security mode is enabled
+        .. note:: Prepends ``\\x00`` if security mode is enabled
 
         :type data: bytes or str
         :rtype: bytes

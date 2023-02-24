@@ -120,12 +120,13 @@ class MerkleTree(BaseMerkleTree):
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        self.root = None
         self.head = None
         self.tail = None
         self.nr_leaves = 0
+        self.root_node = None
 
         super().__init__(algorithm, encoding, security)
+
 
     def __bool__(self):
         """
@@ -133,6 +134,18 @@ class MerkleTree(BaseMerkleTree):
         :rtype: bool
         """
         return self.nr_leaves != 0
+
+
+    @property
+    def root(self):
+        """
+        :returns: current root hash
+        :rtype: bytes
+        """
+        if not self.root_node:
+            return
+
+        return self.root_node.value
 
     @property
     def length(self):
@@ -180,18 +193,6 @@ class MerkleTree(BaseMerkleTree):
             return log2(nr_leaves + 1)
 
         return log2(nr_leaves)
-
-    def get_root(self):
-        """
-        :returns: current root hash
-        :rtype: bytes
-
-        .. note:: Returns *None* if the tree is empty
-        """
-        if not self.root:
-            return
-
-        return self.root.value
 
     def get_leaves(self):
         """
@@ -252,7 +253,7 @@ class MerkleTree(BaseMerkleTree):
         new_leaf = Leaf(self.hash_entry(data))
 
         if not self:
-            self.root = self.update_tail(new_leaf)
+            self.root_node = self.update_tail(new_leaf)
             return
 
         subroot = self.get_last_subroot()
@@ -260,7 +261,7 @@ class MerkleTree(BaseMerkleTree):
 
         value = self.hash_pair(subroot.value, new_leaf.value)
         if subroot.is_root():
-            self.root = Node(value, left=subroot, right=new_leaf)
+            self.root_node = Node(value, left=subroot, right=new_leaf)
             return
 
         curr = subroot.parent
@@ -339,25 +340,25 @@ class MerkleTree(BaseMerkleTree):
             hashing.
         :rtype: (int, list of (+1/-1, bytes))
 
-        :raises InvalidChallenge: if the provided parameter des not correspond
+        :raises InvalidChallenge: if the provided parameter does not correspond
             to any sequence of subroots
         """
         lefts = self.get_principal_subroots(sublength)
 
         if lefts is None:
-            raise InvalidChallenge
+            raise InvalidChallenge("TODO")
 
         rights = self.get_minimal_complement(lefts)
         subroots = lefts + rights
 
         if not rights or not lefts:
-            subroots = [(-1, r[1]) for r in subroots]
+            subroots = [(-1, node) for (_, node) in subroots]
             offset = len(subroots) - 1
         else:
             offset = len(lefts) - 1
 
-        lefts = [(-1, r[1].value) for r in lefts]
-        path = [(r[0], r[1].value) for r in subroots]
+        lefts = [(-1, node.value) for (_, node) in lefts]
+        path = [(sign, node.value) for (sign, node) in subroots]
 
         return offset, lefts, path
 
@@ -398,7 +399,7 @@ class MerkleTree(BaseMerkleTree):
         Detects the root of the unique full binary subtree with leftmost
         leaf located at position *offset* and height equal to *height*.
 
-        .. note:: Returns *None* if not subtree exists for the provided
+        .. note:: Returns *None* if no subtree exists for the provided
             parameters.
 
         :param offset: position of leaf where detection should start from
@@ -491,23 +492,19 @@ class MerkleTree(BaseMerkleTree):
 
         return principals
 
-    def has_previous_state(self, checksum):
+    def has_previous_state(self, state):
         """
-        Verifies that the provided parameter corresponds to a valid previous
-        state of the tree.
+        Check if the provided parameter is the root hash of some previous state
 
-        :param checksum: acclaimed root-hash of some previous state of the tree.
-        :type checksum: bytes
+        :param state: acclaimed root-hash of some previous state of the tree.
+        :type state: bytes
         :rtype: bool
         """
-        hash_path = self.hash_path
         for sublength in range(1, self.length + 1):
-
             subroots = self.get_principal_subroots(sublength)
-            path = [(-1, r[1].value) for r in subroots]
+            path = [(-1, node.value) for (_, node) in subroots]
 
-            offset = len(path) - 1
-            if checksum == hash_path(path, offset):
+            if state == self.hash_path(path, len(path) - 1):
                 return True
 
         return False

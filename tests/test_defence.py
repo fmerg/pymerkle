@@ -42,7 +42,4 @@ def test_defense_against_second_preimage_attack(config):
         'a', 'b', forged, **config
     )
 
-    if original.security:
-        assert original.get_root() != attacker.get_root()
-    else:
-        assert original.get_root() == attacker.get_root()
+    assert original.security ^ (attacker.root == original.root)

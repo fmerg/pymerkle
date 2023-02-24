@@ -6,126 +6,133 @@ from pymerkle.hashing import HashEngine
 tree = MerkleTree()
 hash_entry = tree.hash_entry
 hash_pair = tree.hash_pair
-t_1, t_2, t_3, t_4, t_5, t_6, t_7, t_8, t_9, t_10, t_11 = \
+t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11 = \
     'ingi', 'rum', 'imus', 'noc', 'te', 'et', 'con', 'su', 'mi', 'mur', 'igni'
 
 
 def test_0_leaves():
-    assert not tree.get_root()
+    assert not tree.root
 
 
-def test_1_leaves():
-    tree.append_entry(t_1)
-    assert tree.get_root() == hash_entry(t_1)
+def test1_leaves():
+    tree.append_entry(t1)
+
+    assert tree.root == hash_entry(t1)
 
 
-def test_2_leaves():
-    tree.append_entry(t_2)
-    assert tree.get_root() == hash_pair(
-        hash_entry(t_1),
-        hash_entry(t_2)
+def test2_leaves():
+    tree.append_entry(t2)
+
+    assert tree.root == hash_pair(
+        hash_entry(t1),
+        hash_entry(t2)
     )
 
 
-def test_3_leaves():
-    tree.append_entry(t_3)
-    assert tree.get_root() == hash_pair(
+def test3_leaves():
+    tree.append_entry(t3)
+
+    assert tree.root == hash_pair(
         hash_pair(
-            hash_entry(t_1),
-            hash_entry(t_2)
+            hash_entry(t1),
+            hash_entry(t2)
         ),
-        hash_entry(t_3)
+        hash_entry(t3)
     )
 
 
-def test_4_leaves():
-    tree.append_entry(t_4)
-    assert tree.get_root() == hash_pair(
+def test4_leaves():
+    tree.append_entry(t4)
+
+    assert tree.root == hash_pair(
         hash_pair(
-            hash_entry(t_1),
-            hash_entry(t_2)
+            hash_entry(t1),
+            hash_entry(t2)
         ),
         hash_pair(
-            hash_entry(t_3),
-            hash_entry(t_4)
+            hash_entry(t3),
+            hash_entry(t4)
         )
     )
 
 
-def test_5_leaves():
-    tree.append_entry(t_5)
-    assert tree.get_root() == hash_pair(
+def test5_leaves():
+    tree.append_entry(t5)
+
+    assert tree.root == hash_pair(
         hash_pair(
             hash_pair(
-                hash_entry(t_1),
-                hash_entry(t_2)
+                hash_entry(t1),
+                hash_entry(t2)
             ),
             hash_pair(
-                hash_entry(t_3),
-                hash_entry(t_4)
+                hash_entry(t3),
+                hash_entry(t4)
             )
         ),
-        hash_entry(t_5)
+        hash_entry(t5)
     )
 
 
-def test_7_leaves():
-    tree.append_entry(t_6)
-    tree.append_entry(t_7)
-    assert tree.get_root() == hash_pair(
+def test7_leaves():
+    tree.append_entry(t6)
+    tree.append_entry(t7)
+
+    assert tree.root == hash_pair(
         hash_pair(
             hash_pair(
-                hash_entry(t_1),
-                hash_entry(t_2)
+                hash_entry(t1),
+                hash_entry(t2)
             ),
             hash_pair(
-                hash_entry(t_3),
-                hash_entry(t_4)
+                hash_entry(t3),
+                hash_entry(t4)
             )
         ),
         hash_pair(
             hash_pair(
-                hash_entry(t_5),
-                hash_entry(t_6)
+                hash_entry(t5),
+                hash_entry(t6)
             ),
-            hash_entry(t_7)
+            hash_entry(t7)
         )
     )
 
 
-def test_11_leaves():
-    tree.append_entry(t_8)
-    tree.append_entry(t_9)
-    tree.append_entry(t_10)
-    tree.append_entry(t_11)
-    assert tree.get_root() == hash_pair(
+def test11_leaves():
+    tree.append_entry(t8)
+    tree.append_entry(t9)
+    tree.append_entry(t10)
+    tree.append_entry(t11)
+
+    assert tree.root == hash_pair(
         hash_pair(
             hash_pair(
                 hash_pair(
-                    hash_entry(t_1),
-                    hash_entry(t_2)
+                    hash_entry(t1),
+                    hash_entry(t2)
                 ),
                 hash_pair(
-                    hash_entry(t_3),
-                    hash_entry(t_4)
+                    hash_entry(t3),
+                    hash_entry(t4)
                 )
             ),
             hash_pair(
                 hash_pair(
-                    hash_entry(t_5),
-                    hash_entry(t_6)
+                    hash_entry(t5),
+                    hash_entry(t6)
                 ),
                 hash_pair(
-                    hash_entry(t_7),
-                    hash_entry(t_8)
+                    hash_entry(t7),
+                    hash_entry(t8)
                 )
             )
         ),
         hash_pair(
             hash_pair(
-                hash_entry(t_9),
-                hash_entry(t_10)
+                hash_entry(t9),
+                hash_entry(t10)
             ),
-            hash_entry(t_11)
+            hash_entry(t11)
         )
     )

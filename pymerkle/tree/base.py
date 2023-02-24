@@ -10,7 +10,7 @@ from pymerkle.proof import MerkleProof
 
 class InvalidChallenge(Exception):
     """
-    Raised when no Merkle-proof can be generated for the provided challenge
+    Raised when no Merkle-proof exists for the provided challenge
     """
     pass
 
@@ -47,6 +47,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     def __bool__(self):
         """
         Should return *False* iff the tree is empty
+        """
+
+    @property
+    @abstractmethod
+    def root(self):
+        """
+        Should return the current root hash
         """
 
     @property
@@ -95,11 +102,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return tree
 
-    @abstractmethod
-    def get_root(self):
-        """
-        Should return the current root hash
-        """
 
     @abstractmethod
     def find_leaf(self, value):
@@ -126,7 +128,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Should return the inclusion path based on the provided leaf
+        Should return the inclusion path based on the provided leaf node
         """
 
     def prove_inclusion(self, data):
@@ -134,18 +136,18 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Prove inclusion of the provided entry
 
         :param data:
-        :type data: bytes
+        :type data: str or bytes
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided entry is not included
         """
-        value = self.hash_entry(data)
-        leaf = self.find_leaf(value=value)
+        # TODO
+        leaf = self.find_leaf(value=self.hash_entry(data))
         if not leaf:
             raise InvalidChallenge("Provided entry is not included")
 
         offset, path = self.generate_inclusion_path(leaf)
-        proof = self.build_proof(offset, path)
 
+        proof = self.build_proof(offset, path)
         return proof
 
     @abstractmethod
@@ -154,26 +156,26 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the consistency path for the provided challenge
         """
 
-    def prove_consistency(self, challenge):
+    def prove_consistency(self, sublength, state):
         """
-        Return consistency Merkle-proof for the provided challenge
+        Prove consistency with the provided state
 
-        :param challenge: acclaimed root-hash of some previous state of the tree
-        :type challenge: bytes
+        :param sublength:
+        :type sublength: int
+        :param state:
+        :type state: str or bytes
         :rtype: MerkleProof
-        :raises InvalidChallenge: if the provided hash value is not a previous
-            state
+        :raises InvalidChallenge: if the provided parameters do not define
+            a previous state
         """
-        flag = False    # TODO
-        for sublength in range(1, self.length + 1):
-            offset, lefts, path = self.generate_consistency_path(sublength)
+        if isinstance(state, str):
+            state = state.encode(self.encoding)
 
-            if challenge == self.hash_path(lefts, len(lefts) - 1):
-                flag = True
-                break
+        # TODO
+        offset, lefts, path = self.generate_consistency_path(sublength)
 
-        if not flag:
-            raise InvalidChallenge
+        if state != self.hash_path(lefts, len(lefts) - 1):
+            raise InvalidChallenge("Provided state was never root")
 
         proof = self.build_proof(offset, path)
         return proof

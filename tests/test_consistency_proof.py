@@ -1,5 +1,6 @@
 import pytest
 from pymerkle import MerkleTree, InvalidChallenge, InvalidProof
+from pymerkle.proof import verify_consistency
 from tests.conftest import option, all_configs
 
 
@@ -20,23 +21,33 @@ for config in all_configs(option):
             trees_and_subtrees += [(tree, subtree)]
 
 
-@pytest.mark.parametrize('tree', trees)
-def test_invalid_challenge(tree):
+@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
+def test_invalid_challenge(tree, subtree):
     with pytest.raises(InvalidChallenge):
-        tree.prove_consistency(b'something random')
+        tree.prove_consistency(subtree.length + 1, subtree.root)
+
+    with pytest.raises(InvalidChallenge):
+        tree.prove_consistency(subtree.length, b'random')
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
-def test_invalid_proof(tree, subtree):
-    challenge = subtree.get_root()
-    proof = tree.prove_consistency(challenge)
+def test_invalid_state(tree, subtree):
+    proof = tree.prove_consistency(subtree.length, subtree.root)
+
     with pytest.raises(InvalidProof):
-        proof.verify(target=b'something random')
+        verify_consistency(proof, b'random', tree.root)
+
+
+@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
+def test_invalid_target(tree, subtree):
+    proof = tree.prove_consistency(subtree.length, subtree.root)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(proof, subtree.root, b'random')
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_success(tree, subtree):
-    challenge = subtree.get_root()
-    proof = tree.prove_consistency(challenge)
-    valid = proof.verify(target=tree.get_root())
-    assert valid
+    proof = tree.prove_consistency(subtree.length, subtree.root)
+
+    verify_consistency(proof, subtree.root, tree.root)

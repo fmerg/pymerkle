@@ -6,12 +6,10 @@ from tests.conftest import option, all_configs
 
 def test_bool():
     tree = MerkleTree()
-    assert not tree
-    assert not tree.get_root()
+    assert not tree and not tree.root
 
     tree = MerkleTree.init_from_entries('a')
-    assert tree
-    assert tree.get_root()
+    assert tree and tree.root
 
 
 def test_dimensions():

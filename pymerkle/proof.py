@@ -28,16 +28,15 @@ def verify_inclusion(proof, data, target):
     """
     engine = HashEngine(**proof.get_metadata())
 
-    offset = proof.offset
-    path = proof.path
-
     if isinstance(target, str):
         target = target.encode(proof.encoding)
 
-    if path[offset][1] != engine.hash_entry(data):
-        raise InvalidProof("Path not based on entry")
+    offset = proof.offset
 
-    if target != engine.hash_path(path, offset):
+    if proof.path[offset][1] != engine.hash_entry(data):
+        raise InvalidProof("Path not based on provided entry")
+
+    if target != engine.hash_path(proof.path, offset):
         raise InvalidProof("Path failed to resolve")
 
 
@@ -45,13 +44,28 @@ def verify_consistency(proof, state, target):
     """
     :param proof: proof of consistency
     :type proof: MerkleProof
-    :param state: past state to verify
+    :param state:
     :type state: str or bytes
-    :param target: state during proof generation
+    :param target: root during proof generation
     :type target: str or bytes
     :raises InvalidProof: if the proof is invalid
     """
-    pass
+    engine = HashEngine(**proof.get_metadata())
+
+    if isinstance(state, str):
+        state = state.encode(proof.encoding)
+
+    if isinstance(target, str):
+        target = target.encode(proof.encoding)
+
+    offset = proof.offset
+
+    lefts = [(-1, value) for (_, value) in proof.path[:offset + 1]]
+    if state != engine.hash_path(lefts, offset):
+        raise InvalidProof("Path not based on provided state")
+
+    if target != engine.hash_path(proof.path, offset):
+        raise InvalidProof("Path failed to resolve")
 
 
 class MerkleProof:
@@ -77,6 +91,7 @@ class MerkleProof:
         self.offset = offset
         self.path = path
 
+
     def get_metadata(self):
         """
         .. note:: These are parameters required for configuring the hashing
@@ -87,35 +102,6 @@ class MerkleProof:
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
-    def resolve(self):
-        """
-        Computes the hash value resulting from the proof's path of hashes.
-
-        :rtype: bytes
-        """
-        engine = HashEngine(**self.get_metadata())
-        result = engine.hash_path(self.path, self.offset)
-
-        return result
-
-    def verify(self, target):
-        """
-        Merkle-proof verification.
-
-        Verifies that the hash value resulting from the included path of hashes
-        coincides with the target.
-
-        :raises InvalidProof: if the proof fails to verify.
-
-        :param target: target hash to compare against
-        :type target: bytes
-        :returns: the verification result (*True*) in case of success.
-        :rtype: bool
-        """
-        if target != self.resolve():
-            raise InvalidProof
-
-        return True
 
     def serialize(self):
         """
@@ -141,6 +127,7 @@ class MerkleProof:
                 'path': path,
             }
         }
+
 
     @classmethod
     def deserialize(cls, proof):

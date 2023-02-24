@@ -6,7 +6,7 @@ import sys
 from math import log10
 from datetime import datetime
 from pymerkle import MerkleTree, MerkleProof
-from pymerkle.proof import verify_inclusion, InvalidProof
+from pymerkle.proof import verify_inclusion, verify_consistency, InvalidProof
 
 
 def expand(node, encoding, indent, trim=None, level=0, ignored=None):
@@ -49,7 +49,7 @@ def structure(tree, indent=2, trim=8):
     if not tree:
         return '\n └─[None]\n'
 
-    return expand(tree.root, tree.encoding, indent, trim) + '\n'
+    return expand(tree.root_node, tree.encoding, indent, trim) + '\n'
 
 
 def dimensions(tree):
@@ -124,11 +124,11 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(b'bar')
     sys.stdout.write(display(proof))
 
-    target = tree.get_root()
-    verify_inclusion(proof, b'bar', target)
+    verify_inclusion(proof, b'bar', tree.root)
 
     # Save current tree state
-    state = tree.get_root()
+    state = tree.root
+    sublength = tree.length
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
@@ -138,8 +138,7 @@ if __name__ == '__main__':
     sys.stdout.write(structure(tree))
 
     # Prove and verify saved state
-    proof = tree.prove_consistency(challenge=state)
+    proof = tree.prove_consistency(sublength, state)
     sys.stdout.write(display(proof))
 
-    target = tree.get_root()
-    assert proof.verify(target)
+    verify_consistency(proof, state, tree.root)
