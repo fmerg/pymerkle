@@ -1,6 +1,7 @@
 import pytest
-from pymerkle import MerkleTree, InvalidChallenge, InvalidProof
-from pymerkle.proof import verify_inclusion
+from pymerkle import MerkleTree
+from pymerkle.tree import InvalidChallenge
+from pymerkle.proof import verify_inclusion, InvalidProof
 from tests.conftest import option, all_configs
 
 

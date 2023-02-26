@@ -28,20 +28,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     :type security: bool
     """
 
-    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        self.algorithm = algorithm
-        self.encoding = encoding
-        self.security = security
-
-        HashEngine.__init__(self, algorithm, encoding, security)
-
-    def get_config(self):
+    def get_metadata(self):
         """
-        :returns: a triple consisting of the hash algorithm, encoding type and
-            security mode
-        :rtype:
+        :rtype: dict
         """
-        return self.algorithm, self.encoding, self.security
+        return {'algorithm': self.algorithm, 'encoding': self.encoding,
+                'security': self.security}
 
     @abstractmethod
     def __bool__(self):
@@ -147,8 +139,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided entry is not included
         """
-        # TODO
-        leaf = self.find_leaf(value=self.hash_entry(data))
+        checksum = self.hash_entry(data)
+        leaf = self.find_leaf(checksum)
+
         if not leaf:
             raise InvalidChallenge("Provided entry is not included")
 
@@ -178,10 +171,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if isinstance(state, str):
             state = state.encode(self.encoding)
 
-        # TODO
-        offset, lefts, path = self.generate_consistency_path(sublength)
+        offset, principals, path = self.generate_consistency_path(sublength)
 
-        if state != self.hash_path(lefts, len(lefts) - 1):
+        if state != self.hash_path(principals, len(principals) - 1):
             raise InvalidChallenge("Provided state was never root")
 
         proof = self.build_proof(offset, path)
