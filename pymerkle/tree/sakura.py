@@ -74,13 +74,12 @@ class Node:
         :type degree: int
         :rtype: Node
         """
-        if degree == 0:
-            return self
+        curr = self
+        while degree > 0:
+            curr = curr.parent
+            degree -= 1
 
-        if not self.parent:
-            return
-
-        return self.parent.get_ancestor(degree - 1)
+        return curr
 
 
 class Leaf(Node):
@@ -272,11 +271,6 @@ class MerkleTree(BaseMerkleTree):
     def generate_inclusion_path(self, leaf):
         """
         Compute the inclusion-path based on the provided leaf node
-
-        :param leaf: leaf node where inclusion-path computation should be based
-            upon.
-        :type leaf: int
-        :returns: path of signed hashes along with offset for hashing. The sign
             -1 or + 1 indicates pairing with left resp. right neighbour when
             hashing.
         :rtype: (int, list of (+1/-1, bytes))
@@ -358,7 +352,7 @@ class MerkleTree(BaseMerkleTree):
     def get_consistency_complement(self, path):
         """
         Complements from the right the provided sequence of subroots, so that
-        a full consistenct path can subsequently be generated.
+        a full consistency path can subsequently be generated.
 
         :param subroots: respective sequence of roots of complete full binary
             subtrees from the left
@@ -387,6 +381,8 @@ class MerkleTree(BaseMerkleTree):
             path += [(+1, parent)]
 
         return complement
+
+        (_, curr) = path[0]
 
     def get_perfect_node(self, offset, height):
         """
