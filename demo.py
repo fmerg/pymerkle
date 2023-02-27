@@ -95,7 +95,8 @@ def display(proof):
     serialized = proof.serialize()
 
     metadata = serialized['metadata']
-    body = serialized['body']
+    path = serialized['path']
+    offset = serialized['offset']
 
     encoding = metadata.pop('encoding')
     kw = {
@@ -103,8 +104,8 @@ def display(proof):
         'encoding': encoding.replace('_', '-'),
         'created_at': datetime.utcfromtimestamp(metadata['timestamp']).strftime(
             '%Y-%m-%d %H:%M:%S'),
-        'offset': body['offset'],
-        'path': strpath(body['path'], encoding),
+        'offset': offset,
+        'path': strpath(path, encoding),
     }
 
     return template.format(**kw)

@@ -36,7 +36,7 @@ def verify_inclusion(proof, data, target):
     if proof.path[offset][1] != engine.hash_entry(data):
         raise InvalidProof("Path not based on provided entry")
 
-    if target != engine.hash_path(proof.path, offset):
+    if target != engine.hash_path(offset, proof.path):
         raise InvalidProof("Path failed to resolve")
 
 
@@ -60,11 +60,11 @@ def verify_consistency(proof, state, target):
 
     offset = proof.offset
 
-    lefts = [(-1, value) for (_, value) in proof.path[:offset + 1]]
-    if state != engine.hash_path(lefts, offset):
+    principals = [(-1, value) for (_, value) in proof.path[:offset + 1]]
+    if state != engine.hash_path(offset, principals):
         raise InvalidProof("Path not based on provided state")
 
-    if target != engine.hash_path(proof.path, offset):
+    if target != engine.hash_path(offset, proof.path):
         raise InvalidProof("Path failed to resolve")
 
 
@@ -122,10 +122,8 @@ class MerkleProof:
                 'encoding': encoding,
                 'security': security,
             },
-            'body': {
-                'offset': offset,
-                'path': path,
-            }
+            'offset': offset,
+            'path': path,
         }
 
 
@@ -135,10 +133,9 @@ class MerkleProof:
         :rtype: MerkleProof
         """
         metadata = proof['metadata']
-        body = proof['body']
         encoding = metadata['encoding']
         path = [(sign, value.encode(encoding)) for [sign, value] in
-                body['path']]
-        offset = body['offset']
+                proof['path']]
+        offset = proof['offset']
 
         return cls(**metadata, path=path, offset=offset)

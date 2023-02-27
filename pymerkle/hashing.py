@@ -113,7 +113,7 @@ class HashEngine:
         return digest
 
 
-    def hash_path(self, path, offset):
+    def hash_path(self, offset, path):
         """
         Compute the hash occuring after repeatedly pairing over the provided
         path of hashes starting from the provided position.
@@ -129,10 +129,10 @@ class HashEngine:
         .. attention:: Make sure that the combination of signs corresponds to
             a valid parenthetization
 
-        :param path: path of hashes
-        :type path: iterable of (+1/-1, bytes)
         :param offset: starting position counting from zero
         :type offset: int
+        :param path: path of hashes
+        :type path: iterable of (+1/-1, bytes)
         :rtype: bytes
 
         .. note:: Returns *None* in case of empty path

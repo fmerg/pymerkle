@@ -173,7 +173,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         offset, principals, path = self.generate_consistency_path(sublength)
 
-        if state != self.hash_path(principals, len(principals) - 1):
+        if state != self.hash_path(len(principals) - 1, principals):
             raise InvalidChallenge("Provided state was never root")
 
         proof = self.build_proof(offset, path)

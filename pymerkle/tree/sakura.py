@@ -500,7 +500,7 @@ class MerkleTree(BaseMerkleTree):
             principals = self.get_principals(sublength)
             path = [(-1, node.value) for node in principals]
 
-            if state == self.hash_path(path, len(path) - 1):
+            if state == self.hash_path(len(path) - 1, path):
                 return True
 
         return False
