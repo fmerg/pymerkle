@@ -430,7 +430,7 @@ def test_perfect_node(tree, offset, height, node):
 
 @pytest.mark.parametrize('tree, sublength', no_principal_nodes)
 def test_no_principal_nodes(tree, sublength):
-    assert tree.get_signed_principals(sublength) is None
+    assert tree.get_signed_principals(sublength) == []
 
 @pytest.mark.parametrize('tree, sublength, nodes', principal_nodes)
 def test_principal_nodes(tree, sublength, nodes):

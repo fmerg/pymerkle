@@ -322,18 +322,10 @@ class MerkleTree(BaseMerkleTree):
         :param sublength: non-negative integer equal to or smaller than the
             current length of the tree.
         :type sublength: int
-        :returns: path of signed hashes along with offset for hashing. The sign
-            -1 or + 1 indicates pairing with left resp. right neighbour when
-            hashing.
-        :rtype: (int, list of (+1/-1, bytes))
-
-        :raises InvalidChallenge: if the provided parameter does not correspond
-            to any sequence of subroots
+        :returns: path of hashes
+        :rtype: (int, list[(+1/-1, bytes)])
         """
         principals = self.get_signed_principals(sublength)
-
-        if principals is None:
-            raise InvalidChallenge("TODO")
 
         complement = self.get_consistency_complement(principals)
 
@@ -440,8 +432,15 @@ class MerkleTree(BaseMerkleTree):
         return self.tail.get_ancestor(degree)
 
     def get_principals(self, sublength):
+        """
+        Returns the principal nodes corresponding to the provided length.
+
+        :param sublength:
+        :type sublength: int
+        :rtype: list[Node]
+        """
         if sublength < 0 or sublength > self.length:
-            return
+            return []
 
         principals = []
         offset = 0
@@ -449,7 +448,7 @@ class MerkleTree(BaseMerkleTree):
             node = self.get_perfect_node(offset, height)
 
             if not node:
-                return
+                return []
 
             principals += [node]
             offset += 2 ** height
@@ -467,9 +466,6 @@ class MerkleTree(BaseMerkleTree):
         :rtype:
         """
         principals = self.get_principals(sublength)
-
-        if principals is None:
-            return
 
         signed = []
         for node in principals:
