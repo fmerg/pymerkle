@@ -15,12 +15,11 @@ class UnsupportedParameter(Exception):
 
 class HashEngine:
     """
-    :param algorithm: [optional] hash algorithm (defaults to *sha256*)
+    :param algorithm: [optional] hash algorith
     :type algorithm: str
-    :param encoding: [optional] encoding type (defaults to *utf-8*)
+    :param encoding: [optional] encoding scheme
     :type encoding: str
-    :param security: [optional] defence against 2nd-preimage attack (default:
-        *True*)
+    :param security: [optional] defense against 2nd-preimage attack
     :type security: bool
     """
 

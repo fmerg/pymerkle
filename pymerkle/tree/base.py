@@ -1,5 +1,5 @@
 """
-Abstract interface for Merkle-trees
+Abstract merkle-tree interface
 """
 
 from abc import ABCMeta, abstractmethod
@@ -10,7 +10,7 @@ from pymerkle.proof import MerkleProof
 
 class InvalidChallenge(Exception):
     """
-    Raised when no Merkle-proof exists for the provided challenge
+    Raised when no merkle-proof exists for the provided challenge
     """
     pass
 
@@ -19,12 +19,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
     Merkle-tree interface
 
-    :param algorithm: [optional] hashing algorithm (default: sha256)
+    :param algorithm: [optional] hashing algorithm
     :type algorithm: str
-    :param encoding: [optional] encoding type (default: utf-8)
+    :param encoding: [optional] encoding scheme
     :type encoding: str
-    :param security: [optional] defence against 2nd-preimage attack (default:
-        true)
+    :param security: [optional] defense against 2nd-preimage attack
     :type security: bool
     """
 
@@ -79,7 +78,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def append_entry(self, data):
         """
-        Define here the growing strategy of the tree
+        Should define the growing strategy
         """
 
     @classmethod
@@ -88,10 +87,14 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         Create tree from initial data
 
-        :param data: initial data to append
-        :type data: iterable of bytes or str
-        :param config: tree configuration
-        :type config: dict
+        :param entries: initial data to append
+        :type entries: iterable of bytes or str
+        :param algorithm: [optional] hashing algorithm
+        :type algorithm: str
+        :param encoding: [optional] encoding scheme
+        :type encoding: str
+        :param security: [optional] defense against 2nd-preimage attack
+        :type security: bool
         """
         tree = cls(algorithm, encoding, security)
 
@@ -105,12 +108,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def find_leaf(self, value):
         """
-        Should return the leaf storing the provided hash value
+        Should return the leaf storing the provided hash
         """
 
     def build_proof(self, offset, path):
         """
-        Create a Merkle-proof from the provided path of hashes
+        Create a merkle-proof from the provided path
 
         :param offset: starting position of the verification procedure
         :type offset: int
@@ -153,16 +156,16 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def generate_consistency_path(self, sublength):
         """
-        Should return the consistency path for the provided challenge
+        Should return the consistency path based on the provided length
         """
 
     def prove_consistency(self, sublength, state):
         """
-        Prove consistency with the provided state
+        Prove consistency against the provided state
 
-        :param sublength:
+        :param sublength: acclaimed length of requested state
         :type sublength: int
-        :param state:
+        :param state: acclaimed root hash of requested state
         :type state: str or bytes
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters do not define

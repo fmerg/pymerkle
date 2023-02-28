@@ -1,154 +1,216 @@
-Merkle proofs
-+++++++++++++
+Merkle-proof
+++++++++++++
 
-By *Merkle-proof* is meant a path of hashes contained in a Merkle-tree and a
-rule for combining them into a single hash value, expected to coincide with the
-root hash at the moment of path generation; the root hash is included as
-commitment on behalf of the tree against some challenge posed by an interested party.
-What is actually proven in case of successful verification (that is, when the path of
-hashes leads to the commitment) depends on the original challenge. Interested parties
-may act as auditors, when willing to verify that a certain piece of data has been
-appended to the tree, or monitors, when their concern is to verify that
-the current state of the tree is a valid subsequent state of a previous one. In
-the first case, we have an *inclusion proof* for verifying data integrity; in the
-second case, the proof gives good reasons to believe that the history of the
-tree has not been forged or tampered (since two different states of it were
-found to be consistent) and is referred to as *consistency proof*.
+.. note:: In what follows, all byte objects passed as arguments could
+   alternatively be strings with the exact same results.
 
-.. note:: The ability of Merkle-tree to prove data integrity and state
-      consistency is due to its binary structure combined with the standard
-      properties of hash functions.
 
-Inclusion
-=========
+Proving inclusion
+=================
 
-An auditor wants to verify if some data has been appended to the tree, i.e.,
-if its digest under the tree's hashing machinery has been stored in some of its
-leaf nodes. If ``challenge`` stands for the digest under audit, the tree
-responds with a Merkle-proof ``proof`` as follows:
+Assuming ``"foo"`` has been appended to the tree, generate a proof of inclusion
+as follows:
 
 .. code-block:: python
 
-   proof = tree.prove_inclusion(challenge)
-
-Note that in order to construct the challenge from the original data, the
-auditor must access or replicate the tree's hashing machinery (since the
-latter depends on the tree's initial configuration):
-
-.. code-block:: python
-
-  from pymerkle.hashing import HashEngine
-
-  challenge = HashEngine(**tree.get_config()).hash(b'data')
+   proof = tree.prove_inclusion(b'foo');
 
 
-Consistency
-===========
-
-A monitor requests and saves the tree's state at some point of history:
+Having saved the tree state at the moment of proof generation as
 
 .. code-block:: python
 
-  state = tree.get_root()
+   target = tree.root
 
-Note that the root hash encodes the tree's state as it is uniquely determined
-by its binary structure and the hash values stored by its leaf nodes.
-At any susequent moment, after further data have been appended to the tree,
-the monitor wants to verify that the the tree's current state is a possible
-evolvement of the saved one, meaning that no entries have been back-dated and
-reappended, no appended data have been tampered, and the tree has never been
-branched or forked. To do so, the monitor submits the saved state as
-a challenge, to which the tree responds with a Merkle-proof ``proof`` as
-follows:
+
+we can anytime verify the proof as follows:
 
 .. code-block:: python
 
-   proof = tree.prove_consistency(challenge=state)
+  from pymerkle import verify_inclusion
 
-Verification
-============
+  verify_inclusion(proof, b'foo', target)
 
-.. code-block:: python
 
-  >>> proof.verify()
-  True
-  >>>
-
-If the proof fails to verify, then ``InvalidProof`` is raised:
+Trying to verify against anything except for the root hash at the moment of
+proof generation (or, equivalently, if the included path of hashes were forged
+or tampered) would raise an ``InvalidProof`` error:
 
 .. code-block:: python
 
-  >>> proof.verify()
-  Traceback (most recent call last):
-    ...
-      raise InvalidProof
-  pymerkle.proof.InvalidProof
-  >>>
+  >>> verify_inclusion(proof, b'foo', b'random')
+       ...
+
+  pymerkle.proof.InvalidProof: Path failed to resolve
+
+
+The second argument is the entry whose inclusion was originally proven. The
+verification function checks that the included path of hashes begins with the
+hash of that entry; if not, the proof is simiarly invalidated:
+
+.. code-block:: python
+
+  >>> verify_inclusion(proof, b'bar', target)
+       ...
+
+  pymerkle.proof.InvalidProof: Path not based on provided entry
+
+
+
+Proving consistency
+===================
+
+Save the state of the tree at some moment as follows
+
+.. code-block:: python
+
+  sublength = tree.length
+  state = tree.root
+
+
+and append further entries:
+
+.. code-block:: python
+
+  tree.append_entry(b'foo')
+  tree.append_entry(b'bar')
+  ...
+
+
+Generate a proof of consistency with the previous state as follows:
+
+.. code-block:: python
+
+  proof = tree.prove_consistency(sublength, state)
+
+
+Having saved the tree state at the moment of proof generation as
+
+.. code-block:: python
+
+  target = tree.root
+
+
+we can anytime verify the proof as follows:
+
+.. code-block:: python
+
+  from pymerkle import verify_consistency
+
+  verify_consistency(proof, state, target)
+
+
+Trying to verify against any acclaimed previous state except for the proper one
+woulg raise an ``InvalidProof`` error:
+
+.. code-block:: python
+
+  >>> verify_consistency(proof, b'random', target)
+        ...
+
+  pymerkle.proof.InvalidProof: Path not based on provided state
+
+
+Similarly, trying to verify against any acclaimed target except for the root
+hash at the moment of proof generation (or, equivalently, if the included
+path of hashes were tampered or forged) would cause the proof to invalidate:
+
+.. code-block:: python
+
+  >>> verify_consistency(proof, state, b'random')
+        ...
+
+  pymerkle.proof.InvalidProof: Path not based on provided state
+
+
+Invalid challenges
+==================
+
+Not always can a merkle-proof be generated for the provided parameters. In
+particular, no inclusion proof exists for data that have not been appended and
+no consistency proof exists for a hash that has never been root. These cases are
+uniformly handled through the ``InvalidChallenge`` error.
+
+Trying to prove inclusion for non-appended data raises the following error:
+
+.. code-block:: python
+
+  >>> tree.prove_inclusion(b'bar')
+        ...
+
+  pymerkle.tree.base.InvalidChallenge: Provided entry is not included
+
+
+Similarly, trying to prove consistency for a pair of length and root hash that
+dooes not correspond to a valid previous state raises the following error:
+
+.. code-block:: python
+
+  >>> tree.prove_consistency(666, b'random')
+        ...
+
+  pymerkle.tree.base.InvalidChallenge: Provided state was never root
+
 
 Serialization
 =============
 
-For, say, network transmission purposes, a Merkle-proof might need to be
-serialized. Given a ``proof``, this is done with
+For, e.g., network transmission purposes, a merkle-proof might need to be
+serialized. This is done as follows,
+
 
 .. code-block:: python
 
   serialized = proof.serialize()
 
-which yields s JSON dictionary similar to the following one:
+
+which yields a json structure similar to this one:
+
 
 .. code-block:: json
 
   {
-      "metadata": {
-          "timestamp": 1653044734,
-          "created_at": "Fri May 20 14:05:34 2022",
-          "algorithm": "sha256",
-          "encoding": "utf_8",
-          "security": true,
-      },
-      "body": {
-          "offset": 2,
-          "path": [
-              [
-                  1,
-                  "22cd5d8196d54a698f51aff1e7dab7fb46d7473561ffa518e14ab36b0853a417"
-              ],
-              [
-                  -1,
-                  "087d4051288d13d982803562c9b33b9ff845fb61ad0ed017453e13cc655ba56b"
-              ],
-              [
-                  1,
-                  "19a9faccd14a30eb457688f2c7436444cf309bb68171052e02b5cb82bdff72c5"
-              ],
-              [
-                  -1,
-                  "e81aa69432e361716d6e8e42a0d5e7bf53704c911270d996e16541bb43d26fde"
-              ],
-              [
-                  1,
-                  "63dcd6799a11f501354971613df48875ce93572e5cb8437360b655ee05e16136"
-              ],
-              [
-                  1,
-                  "78accafa3440f1cec8681b3448042abcd9ece90c94986f1dd5cc82d97edcf0ce"
-              ],
-              [
-                  -1,
-                  "60099b8d162f54389aa73133ee1bb0d84bf7c0bc8f0b40da53c7ca1fc65d338c"
-              ]
-          ],
-      }
+     "metadata": {
+        "timestamp": 1677599356,
+        "algorithm": "sha256",
+        "encoding": "utf_8",
+        "security": true
+     },
+     "offset": 1,
+     "path": [
+        [
+           1,
+           "2ffbb884be03a969d0deb7cb561cd0672abd04aeb55ea28c98c3a45dc350097a"
+        ],
+        [
+           1,
+           "12d652d8fee2cd9e87997e7195b81cb6fb1af78f32ce1d3aee5334a12971cdd3"
+        ],
+        [
+           1,
+           "ad8ecffe07ec546396c9ef9d63d1a06c05cead1bd1d5b39f36e2875a79d4cf37"
+        ],
+        [
+           1,
+           "37cf50d692948bde02772fe304cacec66ee105c770a80b6f0a00260d02966763"
+        ],
+        [
+           -1,
+           "99f8299aa6929ad0f9e5424a76002c4d8f1b08b64c79eee586b7af7e7e7ccbd9"
+        ],
+        [
+           -1,
+           "c4422bfcea3674b5dc267c7f2e32102239e0bd5b4dc7c9f66c7d6dc8a0a4bcf1"
+        ]
+     ]
   }
 
-The body contains the path of hashes, while metadata carries the information
-required for configuring the verification hashing machinery. Deserialization
-for retrieving the verifiable proof object proceeds as follows:
+The main body contains the path of hashes, while the metadata section contains
+the information needed to configure the verification hashing machinery.
+Deserialization for retrieving the verifiable proof object proceeds as follows:
 
 .. code-block:: python
 
   from pymerkle import Merkleroof
 
   proof = MerkleProof.deserialize(serialized)
-  assert proof.verify()

@@ -11,13 +11,16 @@ from pymerkle.hashing import HashEngine
 
 class InvalidProof(Exception):
     """
-    Raised when a Merkle-proof is found to be invalid
+    Raised when a merkle-proof is found to be invalid
     """
     pass
 
 
 def verify_inclusion(proof, data, target):
     """
+    Verifies the provided merkle-proof of inclusion for the given data against
+    the provided root hash.
+
     :param proof: proof of inclusion
     :type proof: MerkleProof
     :param data: entry to verify
@@ -42,6 +45,9 @@ def verify_inclusion(proof, data, target):
 
 def verify_consistency(proof, state, target):
     """
+    Verifies the provided merkle-proof of consistency for the given state
+    against the provided root hash.
+
     :param proof: proof of consistency
     :type proof: MerkleProof
     :param state:
@@ -72,14 +78,14 @@ class MerkleProof:
     """
     :param algorithm: hash algorithm
     :type algorithm: str
-    :param encoding: encoding type
+    :param encoding: encoding scheme
     :type encoding: str
-    :param security: defence against 2-nd preimage attack
+    :param security: defense against 2-nd preimage attack
     :type security: bool
-    :param offset: starting position of hashing during verification
+    :param offset: starting position for hashing during verification
     :type offset: int
     :param path: path of hashes
-    :type path: list of (+1/-1, bytes)
+    :type path: list[(+1/-1, bytes)]
     """
 
     def __init__(self, algorithm, encoding, security, offset, path,

@@ -1,5 +1,5 @@
 """
-Merkle-tree cryptography
+merkle-tree cryptography
 """
 
 from .tree import MerkleTree

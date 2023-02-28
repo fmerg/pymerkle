@@ -3,9 +3,9 @@
 usage_string="usage: ./$(basename "$0") [pytest_options] [--extended]
 
 Options
-  --extended  If provided, tests run against all combinations of hash type,
-              encoding type and security mode; otherwise only against the
-              encodings UTF-8, UTF-16 and UTF-32.
+  --extended  If provided, tests run against all combinations of hash
+              algorithms and encoding schemes; otherwise run only against
+              encodings UTF-8, UTF-16 and UTF-32
   -h, --help  Display help message and exit
 "
 

@@ -16,7 +16,7 @@ Attack Schema
                 / \     / \                 / \     |
 hashes:        D   B   C   D               A   B   (CD)  <------ [forged entry]
                |   |   |   |               |   |
-entries:       a   b   c   d               a   b
+entries:       A   b   c   d               a   b
 
 
 Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result

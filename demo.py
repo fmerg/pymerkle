@@ -5,8 +5,7 @@ pymerkle demo
 import sys
 from math import log10
 from datetime import datetime
-import pymerkle
-from pymerkle import MerkleTree
+from pymerkle import MerkleTree, verify_inclusion, verify_consistency
 
 
 def expand(node, encoding, indent, trim=None, level=0, ignored=None):
@@ -125,11 +124,11 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(b'bar')
     sys.stdout.write(display(proof))
 
-    pymerkle.verify_inclusion(proof, b'bar', tree.root)
+    verify_inclusion(proof, b'bar', tree.root)
 
     # Save current tree state
-    state = tree.root
     sublength = tree.length
+    state = tree.root
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
@@ -142,4 +141,4 @@ if __name__ == '__main__':
     proof = tree.prove_consistency(sublength, state)
     sys.stdout.write(display(proof))
 
-    pymerkle.verify_consistency(proof, state, tree.root)
+    verify_consistency(proof, state, tree.root)
