@@ -157,12 +157,12 @@ class MerkleTree(BaseMerkleTree):
         :rtype: int
         """
         # Appending a new leaf node leads to the creation of two new nodes. If
-        # s(n) denotes the toatl number of node with respect to the number n of
+        # s(n) denotes the total number of nodes with respect to the number n of
         # leaves, this is equivalent to the recursive relation
         #
         # s(n + 1) = s(n) + 2, n > 1,   s(1) = 1, s(0) = 0,
         #
-        # which in closed for yields
+        # which in closed form yields
         #
         # s(n) = 2 * n - 1, n > 0,  s(0) = 0
 
@@ -196,8 +196,8 @@ class MerkleTree(BaseMerkleTree):
         Returns the hash stored by the leaf node located at the provided
         position
 
-        .. raises IndexError:: if the provided position is not in the current
-            leaf index range.
+        .. raises ValueError:: if the provided position is not in the current
+            leaf range.
 
         :param offset: position of leaf counting from zero
         :type offset: int
@@ -206,7 +206,7 @@ class MerkleTree(BaseMerkleTree):
         """
         leaf = self.get_leaf(offset)
         if not leaf:
-            raise IndexError("%d not in leaf index range" % offset)
+            raise ValueError("%d not in leaf range" % offset)
 
         return leaf.value
 
@@ -266,7 +266,7 @@ class MerkleTree(BaseMerkleTree):
             self.root_node = self.update_tail(new_leaf)
             return
 
-        node = self.get_last_perfect_node()
+        node = self.get_last_maximal_perfect()
         self.update_tail(new_leaf)
 
         new_value = self.hash_pair(node.value, new_leaf.value)
@@ -436,7 +436,7 @@ class MerkleTree(BaseMerkleTree):
         return node
 
 
-    def get_last_perfect_node(self):
+    def get_last_maximal_perfect(self):
         """
         Detect the root of the perfect subtree of maximum possible length
         containing the currently last leaf
