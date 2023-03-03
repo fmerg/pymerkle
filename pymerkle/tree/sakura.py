@@ -258,13 +258,16 @@ class MerkleTree(BaseMerkleTree):
         """
         Append new leaf storing the hash of the provided data
 
+        :param data:
         :type data: str or bytes
+        :returns: hash stored by new leaf
+        :rtype: bytes
         """
         new_leaf = Leaf(self.hash_entry(data))
 
         if not self:
             self.root_node = self.update_tail(new_leaf)
-            return
+            return self.root_node.value
 
         node = self.get_last_maximal_perfect()
         self.update_tail(new_leaf)
@@ -273,7 +276,7 @@ class MerkleTree(BaseMerkleTree):
 
         if node.is_root():
             self.root_node = Node(new_value, left=node, right=new_leaf)
-            return
+            return new_leaf.value
 
         curr = node.parent
         curr.right = Node(new_value, left=node, right=new_leaf)
@@ -281,6 +284,8 @@ class MerkleTree(BaseMerkleTree):
         while curr:
             curr.value = self.hash_pair(curr.left.value, curr.right.value)
             curr = curr.parent
+
+        return new_leaf.value
 
 
     def generate_inclusion_path(self, leaf):

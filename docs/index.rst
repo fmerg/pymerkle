@@ -56,14 +56,16 @@ Usage
   proof = tree.prove_consistency(sublength, state)
   verify_consistency(proof, state, tree.root)
 
+
 Security
 ********
 
 This is currently a prototype requiring security review. However, some steps have been
 made to this direction:
 
+
 Defense against second-preimage attack
-======================================
+--------------------------------------
 
 Defense against second-preimage attack consists in the following standard technique:
 
@@ -72,14 +74,16 @@ Defense against second-preimage attack consists in the following standard techni
 * Upon computing the hash of an interior node, prepend the hashes of its
   children with 0x01
 
+
 Defense against CVE-2012-2459 DOS
-=================================
+---------------------------------
 
 Contrary to the `bitcoin`_ specification for Merkle-trees, lonely leaves are not
 duplicated while the tree is growing. Instead, when appending new leaves, a bifurcation
 node is created at the rightmost branch. As a consequence,
 the present implementation should be invulnerable to the DOS attack reported as
 `CVE-2012-2459`_ (see also `here`_ for explanation).
+
 
 Tree structure
 **************

@@ -101,7 +101,7 @@ we can anytime verify the proof as follows:
 
 
 Trying to verify against any acclaimed previous state except for the proper one
-woulg raise an ``InvalidProof`` error:
+would raise an ``InvalidProof`` error:
 
 .. code-block:: python
 
@@ -113,7 +113,8 @@ woulg raise an ``InvalidProof`` error:
 
 Similarly, trying to verify against any acclaimed target except for the root
 hash at the moment of proof generation (or, equivalently, if the included
-path of hashes were tampered or forged) would cause the proof to invalidate:
+path of hashes were tampered or forged) would similarly cause the proof to
+invalidate:
 
 .. code-block:: python
 
@@ -142,7 +143,7 @@ Trying to prove inclusion for non-appended data raises the following error:
 
 
 Similarly, trying to prove consistency for a pair of length and root hash that
-dooes not correspond to a valid previous state raises the following error:
+do not define a valid previous state raises the following error:
 
 .. code-block:: python
 

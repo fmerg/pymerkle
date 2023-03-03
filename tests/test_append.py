@@ -10,12 +10,19 @@ from tests.conftest import option, all_configs
 def test_append_entry(config):
     tree = MerkleTree(**config)
 
-    data = 'data'
-    tree.append_entry(data)
+    data = 'a'
+    checksum = tree.append_entry(data)
+    assert tree.tail.value == checksum
     assert tree.tail.value == tree.hash_entry(data)
 
-    data = 'data'.encode(tree.encoding)
-    tree.append_entry(data)
+    data = 'b'.encode(tree.encoding)
+    checksum = tree.append_entry(data)
+    assert tree.tail.value == checksum
+    assert tree.tail.value == tree.hash_entry(data)
+
+    data = 'c'.encode(tree.encoding)
+    checksum = tree.append_entry(data)
+    assert tree.tail.value == checksum
     assert tree.tail.value == tree.hash_entry(data)
 
 
