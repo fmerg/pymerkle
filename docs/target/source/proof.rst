@@ -29,7 +29,7 @@ we can anytime verify the proof as follows:
 
   from pymerkle import verify_inclusion
 
-  verify_inclusion(proof, b'foo', target)
+  verify_inclusion(b'foo', target, proof)
 
 
 Trying to verify against anything except for the root hash at the moment of
@@ -38,7 +38,7 @@ or tampered) would raise an ``InvalidProof`` error:
 
 .. code-block:: python
 
-  >>> verify_inclusion(proof, b'foo', b'random')
+  >>> verify_inclusion(b'foo', b'random', proof)
        ...
 
   pymerkle.proof.InvalidProof: Path failed to resolve
@@ -50,7 +50,7 @@ hash of that entry; if not, the proof is simiarly invalidated:
 
 .. code-block:: python
 
-  >>> verify_inclusion(proof, b'bar', target)
+  >>> verify_inclusion(b'bar', target, proof)
        ...
 
   pymerkle.proof.InvalidProof: Path not based on provided entry
@@ -97,7 +97,7 @@ we can anytime verify the proof as follows:
 
   from pymerkle import verify_consistency
 
-  verify_consistency(proof, state, target)
+  verify_consistency(state, target, proof)
 
 
 Trying to verify against any acclaimed previous state except for the proper one
@@ -105,7 +105,7 @@ would raise an ``InvalidProof`` error:
 
 .. code-block:: python
 
-  >>> verify_consistency(proof, b'random', target)
+  >>> verify_consistency(b'random', target, proof)
         ...
 
   pymerkle.proof.InvalidProof: Path not based on provided state
@@ -118,7 +118,7 @@ invalidate:
 
 .. code-block:: python
 
-  >>> verify_consistency(proof, state, b'random')
+  >>> verify_consistency(state, b'random', proof)
         ...
 
   pymerkle.proof.InvalidProof: Path not based on provided state

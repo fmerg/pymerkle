@@ -33,7 +33,7 @@ for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
 
 # Prove and verify inclusion of `bar`
 proof = tree.prove_inclusion(b'bar')
-verify_inclusion(proof, b'bar', tree.root)
+verify_inclusion(b'bar', tree.root, proof)
 
 # Save current state
 sublength = tree.length
@@ -45,7 +45,7 @@ for data in [b'corge', b'grault', b'garlpy']:
 
 # Prove and verify previous state
 proof = tree.prove_consistency(sublength, state)
-verify_consistency(proof, state, tree.root)
+verify_consistency(state, tree.root, proof)
 ```
 
 ## Security

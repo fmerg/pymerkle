@@ -30,7 +30,7 @@ def test_invalid_base(tree, data):
     proof = tree.prove_inclusion(data)
 
     with pytest.raises(InvalidProof):
-        verify_inclusion(proof, b'random', tree.root)
+        verify_inclusion(b'random', tree.root, proof)
 
 
 @pytest.mark.parametrize('tree, data', trees_and_entries)
@@ -38,11 +38,11 @@ def test_invalid_target(tree, data):
     proof = tree.prove_inclusion(data)
 
     with pytest.raises(InvalidProof):
-        verify_inclusion(proof, data, b'random')
+        verify_inclusion(data, b'random', proof)
 
 
 @pytest.mark.parametrize('tree, data', trees_and_entries)
 def test_success(tree, data):
     proof = tree.prove_inclusion(data)
 
-    verify_inclusion(proof, data, tree.root)
+    verify_inclusion(data, tree.root, proof)

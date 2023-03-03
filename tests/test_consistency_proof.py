@@ -36,7 +36,7 @@ def test_invalid_state(tree, subtree):
     proof = tree.prove_consistency(subtree.length, subtree.root)
 
     with pytest.raises(InvalidProof):
-        verify_consistency(proof, b'random', tree.root)
+        verify_consistency(b'random', tree.root, proof)
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
@@ -44,11 +44,11 @@ def test_invalid_target(tree, subtree):
     proof = tree.prove_consistency(subtree.length, subtree.root)
 
     with pytest.raises(InvalidProof):
-        verify_consistency(proof, subtree.root, b'random')
+        verify_consistency(subtree.root, b'random', proof)
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_success(tree, subtree):
     proof = tree.prove_consistency(subtree.length, subtree.root)
 
-    verify_consistency(proof, subtree.root, tree.root)
+    verify_consistency(subtree.root, tree.root, proof)

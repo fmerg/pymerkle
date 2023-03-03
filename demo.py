@@ -124,7 +124,7 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(b'bar')
     sys.stdout.write(display(proof))
 
-    verify_inclusion(proof, b'bar', tree.root)
+    verify_inclusion(b'bar', tree.root, proof)
 
     # Save current tree state
     sublength = tree.length
@@ -141,4 +141,4 @@ if __name__ == '__main__':
     proof = tree.prove_consistency(sublength, state)
     sys.stdout.write(display(proof))
 
-    verify_consistency(proof, state, tree.root)
+    verify_consistency(state, tree.root, proof)

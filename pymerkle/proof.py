@@ -16,17 +16,17 @@ class InvalidProof(Exception):
     pass
 
 
-def verify_inclusion(proof, data, target):
+def verify_inclusion(data, target, proof):
     """
     Verifies the provided merkle-proof of inclusion for the given data against
     the provided root hash.
 
-    :param proof: proof of inclusion
-    :type proof: MerkleProof
     :param data: entry to verify
     :type data: str or bytes
     :param target: state during proof generation
     :type target: str or bytes
+    :param proof: proof of inclusion
+    :type proof: MerkleProof
     :raises InvalidProof: if the proof is invalid
     """
     engine = HashEngine(**proof.get_metadata())
@@ -43,18 +43,18 @@ def verify_inclusion(proof, data, target):
         raise InvalidProof("Path failed to resolve")
 
 
-def verify_consistency(proof, state, target):
+def verify_consistency(state, target, proof):
     """
     Verifies the provided merkle-proof of consistency for the given state
     against the provided root hash.
 
-    :param proof: proof of consistency
-    :type proof: MerkleProof
     :param state:
     :type state: str or bytes
     :param target: root during proof generation
     :type target: str or bytes
     :raises InvalidProof: if the proof is invalid
+    :param proof: proof of consistency
+    :type proof: MerkleProof
     """
     engine = HashEngine(**proof.get_metadata())
 
