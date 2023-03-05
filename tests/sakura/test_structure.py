@@ -1,6 +1,5 @@
 import pytest
 from pymerkle import MerkleTree
-from pymerkle.hashing import HashEngine
 
 
 tree = MerkleTree()

@@ -342,10 +342,9 @@ class MerkleTree(BaseMerkleTree):
         :param sublength: number of leaves corresponding to the requested
             previous state
         :type sublength: int
-        :rtype: (int, list[(+1/-1, bytes)])
+        :rtype: (int, list[(-1, bytes)], list[(+1/-1, bytes)])
         """
         principals = self.get_signed_principals(sublength)
-
         complement = self.get_consistency_complement(principals)
 
         if not principals or not complement:
@@ -367,7 +366,7 @@ class MerkleTree(BaseMerkleTree):
         consistency path can be generated.
 
         :param path: sequence of principal nodes
-        :type path: list[Node]
+        :type path: list[(+1/-1, Node)]
         :rtype: list[(+1/-1, Node)]
         """
         if not path:
@@ -392,8 +391,6 @@ class MerkleTree(BaseMerkleTree):
             path += [(+1, parent)]
 
         return complement
-
-        (_, curr) = path[0]
 
 
     def get_perfect_node(self, offset, height):

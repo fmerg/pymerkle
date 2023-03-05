@@ -51,7 +51,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def length(self):
         """
-        Should return the current number of leaf nodes
+        Should return the current number of leafs
         """
 
     @property
@@ -78,7 +78,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def append_entry(self, data):
         """
-        Should define the growing strategy
+        Should append and return the hash of the provided data
         """
 
     @classmethod
@@ -130,7 +130,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Should return the inclusion path based on the provided leaf node
+        Should return the inclusion path based on the provided leaf
         """
 
     def prove_inclusion(self, data):
