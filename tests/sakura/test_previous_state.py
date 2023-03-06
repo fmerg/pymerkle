@@ -7,26 +7,6 @@ from tests.conftest import option, all_configs
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_append_entry(config):
-    tree = MerkleTree(**config)
-
-    data = 'a'
-    checksum = tree.append_entry(data)
-    assert tree.tail.value == checksum
-    assert tree.tail.value == tree.hash_entry(data)
-
-    data = 'b'.encode(tree.encoding)
-    checksum = tree.append_entry(data)
-    assert tree.tail.value == checksum
-    assert tree.tail.value == tree.hash_entry(data)
-
-    data = 'c'.encode(tree.encoding)
-    checksum = tree.append_entry(data)
-    assert tree.tail.value == checksum
-    assert tree.tail.value == tree.hash_entry(data)
-
-
-@pytest.mark.parametrize('config', all_configs(option))
 def test_previous_state_edge_cases(config):
     tree = MerkleTree(**config)
     assert not tree.has_previous_state(b'random')
@@ -41,10 +21,10 @@ def test_previous_state_success(config):
         'a', 'b', 'c', 'd', 'e', **config
     )
 
-    state = tree.root
+    subroot = tree.root
     for data in ('f', 'g', 'h', 'k'):
         tree.append_entry(data)
-        assert tree.has_previous_state(state)
+        assert tree.has_previous_state(subroot)
 
 
 @pytest.mark.parametrize('config', all_configs(option))

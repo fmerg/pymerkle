@@ -65,7 +65,7 @@ Save the state of the tree at some moment as follows
 .. code-block:: python
 
   sublength = tree.length
-  state = tree.root
+  subroot = tree.root
 
 
 and append further entries:
@@ -81,7 +81,7 @@ Generate a proof of consistency with the previous state as follows:
 
 .. code-block:: python
 
-  proof = tree.prove_consistency(sublength, state)
+  proof = tree.prove_consistency(sublength, subroot)
 
 
 Having saved the tree state at the moment of proof generation as
@@ -97,7 +97,7 @@ we can anytime verify the proof as follows:
 
   from pymerkle import verify_consistency
 
-  verify_consistency(state, target, proof)
+  verify_consistency(subroot, target, proof)
 
 
 Trying to verify against any acclaimed previous state except for the proper one
@@ -118,7 +118,7 @@ invalidate:
 
 .. code-block:: python
 
-  >>> verify_consistency(state, b'random', proof)
+  >>> verify_consistency(subroot, b'random', proof)
         ...
 
   pymerkle.proof.InvalidProof: Path not based on provided state

@@ -37,15 +37,15 @@ verify_inclusion(b'bar', tree.root, proof)
 
 # Save current state
 sublength = tree.length
-state = tree.root
+subroot = tree.root
 
 # Append further entries
 for data in [b'corge', b'grault', b'garlpy']:
     tree.append_entry(data)
 
 # Prove and verify previous state
-proof = tree.prove_consistency(sublength, state)
-verify_consistency(state, tree.root, proof)
+proof = tree.prove_consistency(sublength, subroot)
+verify_consistency(subroot, tree.root, proof)
 ```
 
 ## Security

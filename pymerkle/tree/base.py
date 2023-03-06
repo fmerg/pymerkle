@@ -51,7 +51,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def length(self):
         """
-        Should return the current number of leaf nodes
+        Should return the current number of leafs
         """
 
     @property
@@ -78,7 +78,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def append_entry(self, data):
         """
-        Should define the growing strategy
+        Should append and return the hash of the provided data
         """
 
     @classmethod
@@ -130,7 +130,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     @abstractmethod
     def generate_inclusion_path(self, leaf):
         """
-        Should return the inclusion path based on the provided leaf node
+        Should return the inclusion path based on the provided leaf
         """
 
     def prove_inclusion(self, data):
@@ -159,25 +159,25 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the consistency path based on the provided length
         """
 
-    def prove_consistency(self, sublength, state):
+    def prove_consistency(self, sublength, subroot):
         """
         Prove consistency against the provided state
 
         :param sublength: acclaimed length of requested state
         :type sublength: int
-        :param state: acclaimed root hash of requested state
-        :type state: str or bytes
+        :param subroot: acclaimed root hash of requested state
+        :type subroot: str or bytes
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters do not define
             a previous state
         """
-        if isinstance(state, str):
-            state = state.encode(self.encoding)
+        if isinstance(subroot, str):
+            subroot = subroot.encode(self.encoding)
 
         offset, principals, path = self.generate_consistency_path(sublength)
 
-        if state != self.hash_path(len(principals) - 1, principals):
-            raise InvalidChallenge("Provided state was never root")
+        if subroot != self.hash_path(len(principals) - 1, principals):
+            raise InvalidChallenge("Provided subroot was never root")
 
         proof = self.build_proof(offset, path)
         return proof

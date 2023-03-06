@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
     # Save current tree state
     sublength = tree.length
-    state = tree.root
+    subroot = tree.root
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
@@ -137,8 +137,8 @@ if __name__ == '__main__':
     sys.stdout.write(dimensions(tree))
     sys.stdout.write(structure(tree))
 
-    # Prove and verify saved state
-    proof = tree.prove_consistency(sublength, state)
+    # Prove and verify previous state
+    proof = tree.prove_consistency(sublength, subroot)
     sys.stdout.write(display(proof))
 
-    verify_consistency(state, tree.root, proof)
+    verify_consistency(subroot, tree.root, proof)
