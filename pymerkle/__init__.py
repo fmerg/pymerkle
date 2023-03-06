@@ -1,14 +1,16 @@
 """
-Cryptographic library for Merkle-proofs
+merkle-tree cryptography
 """
 
 from .tree import MerkleTree
-from .prover import Proof
+from .proof import MerkleProof, verify_inclusion, verify_consistency
 
 
 __version__ = '3.0.0'
 
 __all__ = (
     'MerkleTree',
-    'Proof',
+    'MerkleProof',
+    'verify_inclusion',
+    'verify_consistency',
 )

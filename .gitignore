@@ -23,9 +23,3 @@ dist/
 
 # Benchmarks
 *.benchmarks/
-
-# Docs (do not commit auto-generated files)
-docs/target/
-docs/source/
-docs/Makefile
-docs/make.bat

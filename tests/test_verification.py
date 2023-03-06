@@ -1,120 +1,87 @@
-"""
-Tests verification of Merkle-proofs
-"""
-
 import pytest
-import os
-import json
-
-from pymerkle.hashing import SUPPORTED_HASH_TYPES
-from pymerkle.prover import InvalidProof
 from pymerkle import MerkleTree
-
-from tests.conftest import option, resolve_encodings
-
-
-# Merkle-proof verification
-
-def test_verify_proof_with_target():
-    tree = MerkleTree.init_from_records(
-        *[f'{i}-th record' for i in range(666)])
-    proof = tree.generate_audit_proof(tree.hash('100-th record'))
-    assert proof.verify() is proof.verify(target=proof.commitment)
+from pymerkle.tree import InvalidChallenge
+from pymerkle.proof import verify_inclusion, verify_consistency, InvalidProof
+from tests.conftest import option, all_configs
 
 
-# Trees setup
-
-
-MAX_LENGTH = 4
-
+maxlength = 4
 trees = []
-for security in (True, False):
-    for length in range(1, MAX_LENGTH + 1):
-        for hash_type in SUPPORTED_HASH_TYPES:
-            for encoding in resolve_encodings(option):
-                config = {'hash_type': hash_type, 'encoding': encoding,
-                          'security': security}
-                tree = MerkleTree.init_from_records(
-                    *['%d-th record' % i for i in range(length)],
-                    config=config)
-                trees.append(tree)
-
-
-# Audit proof verification
-
-false_audit_proofs = []
-valid_audit_proofs = []
-
-for tree in trees:
-    false_audit_proofs.append(
-        (
-            tree,
-            tree.generate_audit_proof(b'anything that has not been recorded')
-        )
-    )
-
-    for index in range(0, tree.length):
-        valid_audit_proofs.append(
-            (
-                tree,
-                tree.generate_audit_proof(tree.hash('%d-th record' % index))
-            )
-        )
-
-
-@pytest.mark.parametrize("tree, proof", false_audit_proofs)
-def test_false_audit_verify_proof(tree, proof):
-    with pytest.raises(InvalidProof):
-        proof.verify(target=tree.root_hash)
-
-
-@pytest.mark.parametrize("tree, proof", valid_audit_proofs)
-def test_true_audit_verify_proof(tree, proof):
-    assert proof.verify(target=tree.root_hash)
-
-
-# Consistency proof verification
-
+trees_and_entries = []
 trees_and_subtrees = []
+for config in all_configs(option):
+    for length in range(1, maxlength + 1):
+        entries = ['%d-th entry' % _ for _ in range(length)]
 
-for tree in trees:
-    for sublength in range(1, tree.length + 1):
+        tree = MerkleTree.init_from_entries(*entries, **config)
+        trees += [tree]
 
-        trees_and_subtrees.append(
-            (
-                tree,
-                MerkleTree.init_from_records(
-                    *['%d-th record' % _ for _ in range(sublength)],
-                    config=tree.get_config())
+        for data in entries:
+            trees_and_entries += [(tree, data)]
+
+        for sublength in range(1, tree.length + 1):
+            subtree = MerkleTree.init_from_entries(
+                *entries[:sublength], **config
             )
-        )
-
-false_consistency_proofs = []
-valid_consistency_proofs = []
-
-for (tree, subtree) in trees_and_subtrees:
-    false_consistency_proofs.append(
-        (
-            tree,
-            tree.generate_consistency_proof(
-                b'anything except for the right hash value')
-        )
-    )
-
-    valid_consistency_proofs.append(
-        (
-            tree,
-            tree.generate_consistency_proof(subtree.root_hash)
-        )
-    )
+            trees_and_subtrees += [(tree, subtree)]
 
 
-@pytest.mark.parametrize("tree, proof", false_consistency_proofs)
-def test_false_consistency_verify_proof(tree, proof):
+@pytest.mark.parametrize('tree', trees)
+def test_inclusion_invalid_challenge(tree):
+    with pytest.raises(InvalidChallenge):
+        tree.prove_inclusion(b'random')
+
+
+@pytest.mark.parametrize('tree, data', trees_and_entries)
+def test_inclusion_invalid_base(tree, data):
+    proof = tree.prove_inclusion(data)
+
     with pytest.raises(InvalidProof):
-        proof.verify(target=tree.root_hash)
+        verify_inclusion(b'random', tree.root, proof)
 
 
-@pytest.mark.parametrize("tree, proof", valid_consistency_proofs)
-def test_true_consistency_verify_proof(tree, proof):
-    assert proof.verify(target=tree.root_hash)
+@pytest.mark.parametrize('tree, data', trees_and_entries)
+def test_inclusion_invalid_target(tree, data):
+    proof = tree.prove_inclusion(data)
+
+    with pytest.raises(InvalidProof):
+        verify_inclusion(data, b'random', proof)
+
+
+@pytest.mark.parametrize('tree, data', trees_and_entries)
+def test_inclusion_success(tree, data):
+    proof = tree.prove_inclusion(data)
+
+    verify_inclusion(data, tree.root, proof)
+
+
+@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
+def test_consistency_invalid_challenge(tree, subtree):
+    with pytest.raises(InvalidChallenge):
+        tree.prove_consistency(subtree.length + 1, subtree.root)
+
+    with pytest.raises(InvalidChallenge):
+        tree.prove_consistency(subtree.length, b'random')
+
+
+@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
+def test_consistency_invalid_state(tree, subtree):
+    proof = tree.prove_consistency(subtree.length, subtree.root)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(b'random', tree.root, proof)
+
+
+@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
+def test_consistency_invalid_target(tree, subtree):
+    proof = tree.prove_consistency(subtree.length, subtree.root)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(subtree.root, b'random', proof)
+
+
+@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
+def test_consistency_success(tree, subtree):
+    proof = tree.prove_consistency(subtree.length, subtree.root)
+
+    verify_consistency(subtree.root, tree.root, proof)
