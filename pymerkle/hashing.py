@@ -15,12 +15,11 @@ class UnsupportedParameter(Exception):
 
 class HashEngine:
     """
-    :param algorithm: [optional] hash algorithm (defaults to *sha256*)
+    :param algorithm: [optional] hash algorith
     :type algorithm: str
-    :param encoding: [optional] encoding type (defaults to *utf-8*)
+    :param encoding: [optional] encoding scheme
     :type encoding: str
-    :param security: [optional] defence against 2nd-preimage attack (default:
-        *True*)
+    :param security: [optional] defense against 2nd-preimage attack
     :type security: bool
     """
 
@@ -38,6 +37,7 @@ class HashEngine:
     @staticmethod
     def validate_parameters(algorithm, encoding):
         validated = []
+
         for (provided, supported) in (
             (algorithm, ALGORITHMS),
             (encoding, ENCODINGS)
@@ -79,7 +79,7 @@ class HashEngine:
         """
         Compute the hash of the provided data
 
-        .. attention:: Prepends ``\\x00`` if security mode is enabled
+        .. note:: Prepends ``\\x00`` if security mode is enabled
 
         :type data: bytes or str
         :rtype: bytes
@@ -112,7 +112,7 @@ class HashEngine:
         return digest
 
 
-    def hash_path(self, path, offset):
+    def hash_path(self, offset, path):
         """
         Compute the hash occuring after repeatedly pairing over the provided
         path of hashes starting from the provided position.
@@ -128,10 +128,10 @@ class HashEngine:
         .. attention:: Make sure that the combination of signs corresponds to
             a valid parenthetization
 
-        :param path: path of hashes
-        :type path: iterable of (+1/-1, bytes)
         :param offset: starting position counting from zero
         :type offset: int
+        :param path: path of hashes
+        :type path: iterable of (+1/-1, bytes)
         :rtype: bytes
 
         .. note:: Returns *None* in case of empty path

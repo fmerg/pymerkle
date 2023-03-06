@@ -2,6 +2,6 @@
     :maxdepth: 0
     :titlesonly:
 
-    Merkle tree <tree>
-    Merkle proofs <proof>
+    Merkle-tree <tree>
+    Merkle-proof <proof>
     Reference <modules>

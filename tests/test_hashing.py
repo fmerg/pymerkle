@@ -100,7 +100,7 @@ def test_double_bytes_hash(config):
 def test_0_elems_hash_path(config):
     engine = HashEngine(**config)
 
-    assert engine.hash_path([], 0) == None
+    assert engine.hash_path(0, []) == None
 
 
 @pytest.mark.parametrize('config', all_configs(option))
@@ -108,7 +108,7 @@ def test_1_elems_hash_path(config):
     engine = HashEngine(**config)
 
     assert engine.hash_path(
-        [(+1, engine.hash_entry(record))], 0
+        0, [(+1, engine.hash_entry(record))]
     ) == engine.hash_entry(record)
 
 
@@ -122,6 +122,7 @@ def test_2_elems_hash_path(config):
 
     if engine.security:
         assert hash_path(
+            0,
             (
                 (
                     +1,
@@ -132,8 +133,8 @@ def test_2_elems_hash_path(config):
                     data
                 )
             ),
-            0
         ) == hash_path(
+            1,
             (
                 (
                     +1,
@@ -144,10 +145,10 @@ def test_2_elems_hash_path(config):
                     data
                 )
             ),
-            1
         ) == hashf(data, data)
     else:
         assert hash_path(
+            0,
             (
                 (
                     +1,
@@ -157,9 +158,9 @@ def test_2_elems_hash_path(config):
                     -1,
                     data
                 )
-            ),
-            0
+            )
         ) == hash_path(
+            1,
             (
                 (
                     +1,
@@ -169,8 +170,7 @@ def test_2_elems_hash_path(config):
                     -1,
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(data, data)
 
 
@@ -184,6 +184,7 @@ def test_3_elems_hash_path_case_1(config):
 
     if engine.security:
         assert hash_path(
+            0,
             (
                 (
                     +1,
@@ -194,12 +195,12 @@ def test_3_elems_hash_path_case_1(config):
                     data
                 ),
                 (
-                    'whatever',
+                    'random',
                     data
                 )
-            ),
-            0
+            )
         ) == hash_path(
+            1,
             (
                 (
                     +1,
@@ -210,11 +211,10 @@ def test_3_elems_hash_path_case_1(config):
                     data
                 ),
                 (
-                    'whatever',
+                    'random',
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(
             hashf(
                 data,
@@ -224,6 +224,7 @@ def test_3_elems_hash_path_case_1(config):
         )
     else:
         assert hash_path(
+            0,
             (
                 (
                     +1,
@@ -234,13 +235,12 @@ def test_3_elems_hash_path_case_1(config):
                     data
                 ),
                 (
-                    'whatever',
+                    'random',
                     data
                 )
-            ),
-            0
-
+            )
         ) == hash_path(
+            1,
             (
                 (
                     +1,
@@ -251,11 +251,10 @@ def test_3_elems_hash_path_case_1(config):
                     data
                 ),
                 (
-                    'whatever',
+                    'random',
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(
             hashf(
                 data,
@@ -274,9 +273,10 @@ def test_3_elems_hash_path_case_2(config):
 
     if engine.security:
         assert hash_path(
+            2,
             (
                 (
-                    'whatever',
+                    'random',
                     data
                 ),
                 (
@@ -287,12 +287,12 @@ def test_3_elems_hash_path_case_2(config):
                     -1,
                     data
                 )
-            ),
-            2
+            )
         ) == hash_path(
+            1,
             (
                 (
-                    'whatever',
+                    'random',
                     data
                 ),
                 (
@@ -303,8 +303,7 @@ def test_3_elems_hash_path_case_2(config):
                     -1,
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(
             data,
             hashf(
@@ -314,9 +313,10 @@ def test_3_elems_hash_path_case_2(config):
         )
     else:
         assert hash_path(
+            2,
             (
                 (
-                    'whatever',
+                    'random',
                     data
                 ),
                 (
@@ -327,12 +327,12 @@ def test_3_elems_hash_path_case_2(config):
                     -1,
                     data
                 )
-            ),
-            2
+            )
         ) == hash_path(
+            1,
             (
                 (
-                    'whatever',
+                    'random',
                     data
                 ),
                 (
@@ -343,8 +343,7 @@ def test_3_elems_hash_path_case_2(config):
                     -1,
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(
             data,
             hashf(
@@ -364,6 +363,7 @@ def test_4_elems_hash_path_edge_case_1(config):
 
     if engine.security:
         assert hash_path(
+            0,
             (
                 (
                     +1,
@@ -378,11 +378,10 @@ def test_4_elems_hash_path_edge_case_1(config):
                     data
                 ),
                 (
-                    'whatever',
+                    'random',
                     data
                 )
-            ),
-            0
+            )
         ) == hashf(
             hashf(
                 hashf(
@@ -395,6 +394,7 @@ def test_4_elems_hash_path_edge_case_1(config):
         )
     else:
         assert hash_path(
+            0,
             (
                 (
                     +1,
@@ -409,11 +409,10 @@ def test_4_elems_hash_path_edge_case_1(config):
                     data
                 ),
                 (
-                    'whatever',
+                    'random',
                     data
                 )
-            ),
-            0
+            )
         ) == hashf(
             hashf(
                 hashf(
@@ -436,9 +435,10 @@ def test_4_elems_hash_path_edge_case_2(config):
 
     if engine.security:
         assert hash_path(
+            3,
             (
                 (
-                    'whatever',
+                    'random',
                     data
                 ),
                 (
@@ -453,8 +453,7 @@ def test_4_elems_hash_path_edge_case_2(config):
                     -1,
                     data
                 )
-            ),
-            3
+            )
         ) == hashf(
             data,
             hashf(
@@ -467,9 +466,10 @@ def test_4_elems_hash_path_edge_case_2(config):
         )
     else:
         assert hash_path(
+            3,
             (
                 (
-                    'whatever',
+                    'random',
                     data
                 ),
                 (
@@ -484,8 +484,7 @@ def test_4_elems_hash_path_edge_case_2(config):
                     -1,
                     data
                 )
-            ),
-            3
+            )
         ) == hashf(
             data,
             hashf(
@@ -508,6 +507,7 @@ def test_4_elems_hash_path(config):
 
     if engine.security:
         assert hash_path(
+            1,
             (
                 (
                     +1,
@@ -525,8 +525,7 @@ def test_4_elems_hash_path(config):
                     -1,
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(
             hashf(
                 data,
@@ -538,6 +537,7 @@ def test_4_elems_hash_path(config):
         )
     else:
         assert hash_path(
+            1,
             (
                 (
                     +1,
@@ -555,8 +555,7 @@ def test_4_elems_hash_path(config):
                     -1,
                     data
                 )
-            ),
-            1
+            )
         ) == hashf(
             hashf(
                 data,

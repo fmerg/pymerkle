@@ -5,7 +5,7 @@ pymerkle demo
 import sys
 from math import log10
 from datetime import datetime
-from pymerkle import MerkleTree, MerkleProof
+from pymerkle import MerkleTree, verify_inclusion, verify_consistency
 
 
 def expand(node, encoding, indent, trim=None, level=0, ignored=None):
@@ -48,7 +48,7 @@ def structure(tree, indent=2, trim=8):
     if not tree:
         return '\n └─[None]\n'
 
-    return expand(tree.root, tree.encoding, indent, trim) + '\n'
+    return expand(tree.root_node, tree.encoding, indent, trim) + '\n'
 
 
 def dimensions(tree):
@@ -89,14 +89,13 @@ def display(proof):
     security    : {security}
     timestamp   : {timestamp} ({created_at})
     offset      : {offset}
-    commitment  : {commitment}
-
     {path}\n\n"""
 
     serialized = proof.serialize()
 
     metadata = serialized['metadata']
-    body = serialized['body']
+    path = serialized['path']
+    offset = serialized['offset']
 
     encoding = metadata.pop('encoding')
     kw = {
@@ -104,9 +103,8 @@ def display(proof):
         'encoding': encoding.replace('_', '-'),
         'created_at': datetime.utcfromtimestamp(metadata['timestamp']).strftime(
             '%Y-%m-%d %H:%M:%S'),
-        'offset': body['offset'],
-        'path': strpath(body['path'], encoding),
-        'commitment': body['commitment'],
+        'offset': offset,
+        'path': strpath(path, encoding),
     }
 
     return template.format(**kw)
@@ -123,14 +121,14 @@ if __name__ == '__main__':
     sys.stdout.write(structure(tree))
 
     # Prove and verify inclusion of `bar`
-    challenge = b'485904129bdda5d1b5fbc6bc4a82959ecfb9042db44dc08fe87e360b0a3f2501'
-    proof = tree.prove_inclusion(challenge)
+    proof = tree.prove_inclusion(b'bar')
     sys.stdout.write(display(proof))
 
-    assert proof.verify()
+    verify_inclusion(b'bar', tree.root, proof)
 
     # Save current tree state
-    state = tree.get_root()
+    sublength = tree.length
+    subroot = tree.root
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
@@ -139,8 +137,8 @@ if __name__ == '__main__':
     sys.stdout.write(dimensions(tree))
     sys.stdout.write(structure(tree))
 
-    # Prove and verify saved state
-    proof = tree.prove_consistency(challenge=state)
+    # Prove and verify previous state
+    proof = tree.prove_consistency(sublength, subroot)
     sys.stdout.write(display(proof))
 
-    assert proof.verify()
+    verify_consistency(subroot, tree.root, proof)

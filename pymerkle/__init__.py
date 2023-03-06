@@ -1,16 +1,16 @@
 """
-Merkle-tree cryptography
+merkle-tree cryptography
 """
 
-from .tree import MerkleTree, InvalidChallenge
-from .proof import MerkleProof, InvalidProof
+from .tree import MerkleTree
+from .proof import MerkleProof, verify_inclusion, verify_consistency
 
 
 __version__ = '3.0.0'
 
 __all__ = (
     'MerkleTree',
-    'Merkleroof',
-    'InvalidChallenge',
-    'InvalidProof',
+    'MerkleProof',
+    'verify_inclusion',
+    'verify_consistency',
 )

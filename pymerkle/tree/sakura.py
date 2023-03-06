@@ -12,12 +12,15 @@ class Node:
 
     :param value: the hash to be stored by the node
     :type value: bytes
-    :param left: [optional] left child (defaults to *None*)
+    :param left: [optional] left child
     :type left: Node
-    :param right: [optional] right child (defaults to *None)
+    :param right: [optional] right child
     :type right: Node
     :rtype: Node
     """
+
+    __slots__ = ('value', 'left', 'right', 'parent')
+
 
     def __init__(self, value, left=None, right=None):
         self.value = value
@@ -32,11 +35,13 @@ class Node:
 
         self.parent = None
 
+
     def is_root(self):
         """
         :rtype: bool
         """
         return not self.parent
+
 
     def is_leaf(self):
         """
@@ -44,19 +49,6 @@ class Node:
         """
         return not self.left and not self.right
 
-    def set_left(self, node):
-        """
-        :type left: Node
-        """
-        self.left = node
-        node.parent = self
-
-    def set_right(self, node):
-        """
-        :type right: Node
-        """
-        self.right = node
-        node.parent = self
 
     def is_left_child(self):
         """
@@ -68,6 +60,7 @@ class Node:
 
         return self == parent.left
 
+
     def is_right_child(self):
         """
         :rtype: bool
@@ -78,6 +71,7 @@ class Node:
 
         return self == parent.right
 
+
     def get_ancestor(self, degree):
         """
         .. note:: Ancestor of degree 0 is the node itself, ancestor of degree
@@ -86,46 +80,46 @@ class Node:
         :type degree: int
         :rtype: Node
         """
-        if degree == 0:
-            return self
+        curr = self
+        while degree > 0:
+            curr = curr.parent
+            degree -= 1
 
-        if not self.parent:
-            return
-
-        return self.parent.get_ancestor(degree - 1)
+        return curr
 
 
 class Leaf(Node):
     """
     Merkle-tree leaf
 
-    :param value: digest to be stored by the leaf
+    :param value: hash to be stored by the leaf
     :type value: bytes
     :param leaf: [optional] next leaf node (defaults to *None*)
     :type leaf: Leaf
     """
+
+    __slots__ = ('next',)
+
 
     def __init__(self, value, next_leaf=None):
         self.next = next_leaf
 
         super().__init__(value)
 
-    def set_next(self, leaf):
-        self.next = leaf
-
 
 class MerkleTree(BaseMerkleTree):
     """
-    Merkle-tree
+    Sakura merkle-tree
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        self.root = None
         self.head = None
         self.tail = None
+        self.root_node = None
         self.nr_leaves = 0
 
         super().__init__(algorithm, encoding, security)
+
 
     def __bool__(self):
         """
@@ -133,6 +127,19 @@ class MerkleTree(BaseMerkleTree):
         :rtype: bool
         """
         return self.nr_leaves != 0
+
+
+    @property
+    def root(self):
+        """
+        :returns: current root hash
+        :rtype: bytes
+        """
+        if not self.root_node:
+            return
+
+        return self.root_node.value
+
 
     @property
     def length(self):
@@ -142,26 +149,28 @@ class MerkleTree(BaseMerkleTree):
         """
         return self.nr_leaves
 
+
     @property
     def size(self):
         """
         :returns: current number of nodes
         :rtype: int
-
-        .. note:: Appending a new leaf leads to the creation of two new nodes.
-            If *s(n)* denotes the total number of nodes with respect to the
-            number *n* of leaves, this is equivalenn to the recursive relation
-
-                    ``s(n + 1) = s(n) + 2, n > 1,    s(1) = 1, s(0) = 0``
-
-            which in closed form yields
-
-                    ``s(n) = 2 * n - 1, n > 0,   s(0) = 0``
         """
+        # Appending a new leaf node leads to the creation of two new nodes. If
+        # s(n) denotes the total number of nodes with respect to the number n of
+        # leaves, this is equivalent to the recursive relation
+        #
+        # s(n + 1) = s(n) + 2, n > 1,   s(1) = 1, s(0) = 0,
+        #
+        # which in closed form yields
+        #
+        # s(n) = 2 * n - 1, n > 0,  s(0) = 0
+
         if not self:
             return 0
 
         return 2 * self.nr_leaves - 1
+
 
     @property
     def height(self):
@@ -181,40 +190,40 @@ class MerkleTree(BaseMerkleTree):
 
         return log2(nr_leaves)
 
-    def get_root(self):
+
+    def leaf(self, offset):
         """
-        :returns: current root hash
+        Returns the hash stored by the leaf node located at the provided
+        position
+
+        .. raises ValueError:: if the provided position is not in the current
+            leaf range.
+
+        :param offset: position of leaf counting from zero
+        :type offset: int
+        :returns: the hash stored by the specified leaf node
         :rtype: bytes
-
-        .. note:: Returns *None* if the tree is empty
         """
-        if not self.root:
-            return
+        leaf = self.get_leaf(offset)
+        if not leaf:
+            raise ValueError("%d not in leaf range" % offset)
 
-        return self.root.value
+        return leaf.value
 
-    def get_leaves(self):
-        """
-        :returns: generator of current leaf nodes
-        """
-        curr = self.head
-        while curr:
-            yield curr
-            curr = curr.next
 
     def get_leaf(self, offset):
         """
-        Leaf at provided position counting from zero
+        Return the leaf node located at the provided position
 
-        .. note:: Returns *None* if the provided position either negative or
-            exceeds the current number of leaf nodes
+        .. note:: Returns *None* if the provided position is not in the current
+            leaf index range.
 
-        :param offset: position of leaf
+        :param offset: position of leaf counting from zero
         :type offset: int
         :rtype: Leaf
         """
-        if offset < 0:
-            return
+        if offset < 0 or offset >= self.length:
+            return None
 
         curr = self.head
         j = 0
@@ -224,15 +233,16 @@ class MerkleTree(BaseMerkleTree):
 
         return curr
 
+
     def update_tail(self, leaf):
         """
-        Append the provided leaf as tail to the list of leaves
+        Appends the provided leaf to the current leaf nodes
 
         :type leaf: Leaf
         :rtype: Leaf
         """
         if self.tail:
-            self.tail.set_next(leaf)
+            self.tail.next = leaf
 
         self.tail = leaf
 
@@ -243,44 +253,46 @@ class MerkleTree(BaseMerkleTree):
 
         return leaf
 
+
     def append_entry(self, data):
         """
         Append new leaf storing the hash of the provided data
 
+        :param data:
         :type data: str or bytes
+        :returns: hash stored by new leaf
+        :rtype: bytes
         """
         new_leaf = Leaf(self.hash_entry(data))
 
         if not self:
-            self.root = self.update_tail(new_leaf)
-            return
+            self.root_node = self.update_tail(new_leaf)
+            return self.root_node.value
 
-        subroot = self.get_last_subroot()
+        node = self.get_last_maximal_perfect()
         self.update_tail(new_leaf)
 
-        value = self.hash_pair(subroot.value, new_leaf.value)
-        if subroot.is_root():
-            self.root = Node(value, left=subroot, right=new_leaf)
-            return
+        new_value = self.hash_pair(node.value, new_leaf.value)
 
-        curr = subroot.parent
-        new_node = Node(value, left=subroot, right=new_leaf)
-        curr.set_right(new_node)
+        if node.is_root():
+            self.root_node = Node(new_value, left=node, right=new_leaf)
+            return new_leaf.value
+
+        curr = node.parent
+        curr.right = Node(new_value, left=node, right=new_leaf)
+        curr.right.parent = curr
         while curr:
             curr.value = self.hash_pair(curr.left.value, curr.right.value)
             curr = curr.parent
 
+        return new_leaf.value
+
+
     def generate_inclusion_path(self, leaf):
         """
-        Compute the inclusion-path based on the provided leaf node
+        Compute the inclusion path based on the provided leaf node.
 
-        :param leaf: leaf node where inclusion-path computation should be based
-            upon.
-        :type leaf: int
-        :returns: path of signed hashes along with offset for hashing. The sign
-            -1 or + 1 indicates pairing with left resp. right neighbour when
-            hashing.
-        :rtype: (int, list of (+1/-1, bytes))
+        :rtype: (int, list[(+1/-1, bytes)])
         """
         sign = -1 if leaf.is_right_child() else +1
         path = [(sign, leaf.value)]
@@ -304,130 +316,117 @@ class MerkleTree(BaseMerkleTree):
 
         return offset, path
 
-    def find_leaf(self, value):
+
+    def find_leaf(self, checksum):
         """
-        Detects the leftmost leaf node storing the provided hash value counting
+        Detect the leftmost leaf node storing the provided hash
 
-        .. note:: Returns *None* if no such leaf node exists.
+        .. note:: Returns *None* if no such leaf node exists
 
-        :param value: hash value to detect
+        :param value: hash to detect
         :type value: bytes
-        :returns: leaf node storing the provided hash value
         :rtype: Leaf
         """
-        leaves = self.get_leaves()
+        curr = self.head
+        while curr:
+            if curr.value == checksum:
+                return curr
 
-        while True:
-            try:
-                leaf = next(leaves)
-            except StopIteration:
-                break
+            curr = curr.next
 
-            if value == leaf.value:
-                return leaf
 
     def generate_consistency_path(self, sublength):
         """
-        Computes the consistency-path for the previous state that corresponds
-        to the provided number of lefmost leaves.
+        Computes the consistency path based on the provided length.
 
-        :param sublength: non-negative integer equal to or smaller than the
-            current length of the tree.
+        :param sublength: number of leaves corresponding to the requested
+            previous state
         :type sublength: int
-        :returns: path of signed hashes along with offset for hashing. The sign
-            -1 or + 1 indicates pairing with left resp. right neighbour when
-            hashing.
-        :rtype: (int, list of (+1/-1, bytes))
-
-        :raises InvalidChallenge: if the provided parameter des not correspond
-            to any sequence of subroots
+        :rtype: (int, list[(-1, bytes)], list[(+1/-1, bytes)])
         """
-        lefts = self.get_principal_subroots(sublength)
+        principals = self.get_signed_principals(sublength)
+        complement = self.get_consistency_complement(principals)
 
-        if lefts is None:
-            raise InvalidChallenge
-
-        rights = self.get_minimal_complement(lefts)
-        subroots = lefts + rights
-
-        if not rights or not lefts:
-            subroots = [(-1, r[1]) for r in subroots]
-            offset = len(subroots) - 1
+        if not principals or not complement:
+            path = [(-1, node) for (_, node) in principals + complement]
+            offset = len(path) - 1
         else:
-            offset = len(lefts) - 1
+            path = principals + complement
+            offset = len(principals) - 1
 
-        lefts = [(-1, r[1].value) for r in lefts]
-        path = [(r[0], r[1].value) for r in subroots]
+        principals = [(-1, node.value) for (_, node) in principals]
+        path = [(sign, node.value) for (sign, node) in path]
 
-        return offset, lefts, path
+        return offset, principals, path
 
-    def get_minimal_complement(self, subroots):
+
+    def get_consistency_complement(self, path):
         """
-        Complements from the right the provided sequence of subroots, so that
-        a full consistenct path can subsequently be generated.
+        Complements the provided sequence of principal nodes so that a full
+        consistency path can be generated.
 
-        :param subroots: respective sequence of roots of complete full binary
-            subtrees from the left
-        :type subroots: list of Node
-        :rtype: list of (+1/-1, bytes)
+        :param path: sequence of principal nodes
+        :type path: list[(+1/-1, Node)]
+        :rtype: list[(+1/-1, Node)]
         """
-        if not subroots:
-            return self.get_principal_subroots(self.length)
+        if not path:
+            return self.get_signed_principals(self.length)
 
         complement = []
         while True:
-            subroot = subroots[-1][1]
+            (_, curr) = path[-1]
 
-            if not subroot.parent:
+            if not curr.parent:
                 break
 
-            if subroot.is_left_child():
-                sign = -1 if subroot.parent.is_right_child() else + 1
-                node = subroot.parent.right
-                complement += [(sign, node)]
-                subroots = subroots[:-1]
-            else:
-                subroots = subroots[:-2]
+            parent = curr.parent
 
-            subroots += [(+1, subroot.parent)]
+            if curr.is_left_child():
+                sign = -1 if parent.is_right_child() else + 1
+                complement += [(sign, parent.right)]
+                path = path[:-1]
+            else:
+                path = path[:-2]
+
+            path += [(+1, parent)]
 
         return complement
 
-    def get_subroot(self, offset, height):
-        """
-        Detects the root of the unique full binary subtree with leftmost
-        leaf located at position *offset* and height equal to *height*.
 
-        .. note:: Returns *None* if not subtree exists for the provided
+    def get_perfect_node(self, offset, height):
+        """
+        Detect the root of the perfect subtree of the provided height whose
+        leftmost leaf node is located at the provided position
+
+        .. note:: Returns *None* if no binary subtree exists for the provided
             parameters.
 
-        :param offset: position of leaf where detection should start from
-            counting from zero
+        :param offset: position of leftmost leaf node coutning from zero
         :type offset: int
-        :param height: height of candidate subtree to be detected
+        :param height: height of requested subtree
         :type height: int
-        :returns: root of the detected subtree
         :rtype: Node
         """
-        subroot = self.get_leaf(offset)
-        if not subroot:
+        node = self.get_leaf(offset)
+
+        if not node:
             return
 
         i = 0
         while i < height:
-            curr = subroot.parent
+            curr = node.parent
 
             if not curr:
                 return
 
-            if curr.left is not subroot:
+            if curr.left is not node:
                 return
 
-            subroot = curr
+            node = curr
             i += 1
 
-        # Verify existence of *full* binary subtree
-        curr = subroot
+        # Verify existence of perfect subtree rooted at the detected node
+        curr = node
         i = 0
         while i < height:
             if curr.is_leaf():
@@ -436,78 +435,88 @@ class MerkleTree(BaseMerkleTree):
             curr = curr.right
             i += 1
 
-        return subroot
+        return node
 
-    def get_last_subroot(self):
+
+    def get_last_maximal_perfect(self):
         """
-        Returns the root of the *full* binary subtree with maximum possible
-        length containing the rightmost leaf
+        Detect the root of the perfect subtree of maximum possible length
+        containing the currently last leaf
+
+        :rtype: Node
         """
         degree = decompose(self.nr_leaves)[0]
 
         return self.tail.get_ancestor(degree)
 
-    def get_principal_subroots(self, sublength):
+
+    def get_principals(self, sublength):
         """
-        Returns in respective order the roots of the successive, leftmost, full
-        binary subtrees of maximum (and thus decreasing) length, whosel lengths
-        sum up to the provided number.
+        Returns the principal nodes corresponding to the provided length.
 
-        .. note:: Detected nodes are prepended with a sign (+1 or -1) carrying
-            information for generation of consistency proofs.
-
-        .. note:: Returns *None* if the provided number does not fulfill the
-            prescribed conditions.
-
-        :param sublength: non negative integer smaller than or equal to the
-            tree's current length, such that corresponding sequence of subroots
-            exists.
-        :returns: Signed roots of the detected subtrees.
-        :rtype: list of signed nodes
+        :param sublength:
+        :type sublength: int
+        :rtype: list[Node]
         """
-        if sublength < 0:
-            return
+        if sublength < 0 or sublength > self.length:
+            return []
 
         principals = []
         offset = 0
         for height in reversed(decompose(sublength)):
-            subroot = self.get_subroot(offset, height)
+            node = self.get_perfect_node(offset, height)
 
-            if not subroot:
-                return
+            if not node:
+                return []
 
-            parent = subroot.parent
-
-            if not parent or not parent.parent:
-                sign = +1 if subroot.is_left_child() else -1
-            else:
-                sign = +1 if parent.is_left_child() else -1
-
-            principals += [(sign, subroot)]
+            principals += [node]
             offset += 2 ** height
-
-        if principals:
-            principals[-1] = (+1, principals[-1][1])
 
         return principals
 
-    def has_previous_state(self, checksum):
-        """
-        Verifies that the provided parameter corresponds to a valid previous
-        state of the tree.
 
-        :param checksum: acclaimed root-hash of some previous state of the tree.
-        :type checksum: bytes
+    def get_signed_principals(self, sublength):
+        """
+        Detect the roots of the successive perfect subtrees whose leaf index
+        ranges sum up to the provided number.
+
+        :param sublength:
+        :type sublength: int
+        :rtype: list[(+1/-1, Node)]
+        """
+        principals = self.get_principals(sublength)
+
+        signed = []
+        for node in principals:
+            parent = node.parent
+
+            if not parent or not parent.parent:
+                sign = +1 if node.is_left_child() else -1
+            else:
+                sign = +1 if parent.is_left_child() else -1
+
+            signed += [(sign, node)]
+
+        if signed:
+            (_, node) = signed[-1]
+            signed[-1] = (+1, node)
+
+        return signed
+
+
+    def has_previous_state(self, subroot):
+        """
+        Check if the provided parameter is the root hash of some previous state
+
+        :param subroot: acclaimed root hash of some previous state
+        :type subroot: bytes
         :rtype: bool
         """
-        hash_path = self.hash_path
         for sublength in range(1, self.length + 1):
+            principals = self.get_principals(sublength)
+            path = [(-1, node.value) for node in principals]
 
-            subroots = self.get_principal_subroots(sublength)
-            path = [(-1, r[1].value) for r in subroots]
-
-            offset = len(path) - 1
-            if checksum == hash_path(path, offset):
+            if subroot == self.hash_path(len(path) - 1, path):
                 return True
 
         return False
