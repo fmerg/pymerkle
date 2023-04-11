@@ -153,6 +153,24 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.build_proof(offset, path)
         return proof
 
+    def prove_inclusion_at(self, offset):
+        """
+        Prove inclusion of the entry at the provided position
+
+        :param offset: position of the entry to prove inclusion of
+        :type offset: int
+        :rtype: MerkleProof
+        :raises InvalidChallenge: if the provided position is out of bounds
+        """
+        if offset >= self.length:
+            raise InvalidChallenge("Provided offset is out of bounds")
+
+        leaf = self.leaf(offset)
+        offset, path = self.generate_inclusion_path(leaf)
+
+        proof = self.build_proof(offset, path)
+        return proof
+    
     @abstractmethod
     def generate_consistency_path(self, sublength):
         """
