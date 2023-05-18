@@ -78,7 +78,7 @@ Current number of leaves:
 
 .. code-block:: python
 
-    >>> tree.length
+    >>> tree.get_size()
     8
 
 
@@ -118,7 +118,7 @@ Let ``tree`` be a merkle-tree with seven leaves:
 
 .. code-block:: python
 
-  >>> tree.length
+  >>> tree.get_size()
   7
   >>> tree.leaf(6)
   b'797427cf8368051fe7b8e3e9d5ade9c5bc9d0cf96f4f3fad2a1e1d7848368188'
@@ -142,7 +142,7 @@ Tree state has changed as expeted:
   b'fe5377cafafaece72b01e7d0e5c2b2841c6079dc64e4501f3442f07d1abb4922'
   >>> tree.leaf(7)
   b'0d3aed023148ffd2a259fbd0cdc7fb3cf975658760d3775b82af6f90aacc2dfc'
-  >>> tree.length
+  >>> tree.get_size()
   8
 
 

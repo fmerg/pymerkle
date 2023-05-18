@@ -428,18 +428,18 @@ def test_no_perfect_node(tree, offset, height):
 def test_perfect_node(tree, offset, height, node):
     assert tree.get_perfect_node(offset, height) is node
 
-@pytest.mark.parametrize('tree, sublength', no_principal_nodes)
-def test_no_principal_nodes(tree, sublength):
-    assert tree.get_signed_principals(sublength) == []
+@pytest.mark.parametrize('tree, subsize', no_principal_nodes)
+def test_no_principal_nodes(tree, subsize):
+    assert tree.get_signed_principals(subsize) == []
 
-@pytest.mark.parametrize('tree, sublength, nodes', principal_nodes)
-def test_principal_nodes(tree, sublength, nodes):
-    assert tree.get_signed_principals(sublength) == nodes
+@pytest.mark.parametrize('tree, subsize, nodes', principal_nodes)
+def test_principal_nodes(tree, subsize, nodes):
+    assert tree.get_signed_principals(subsize) == nodes
 
 @pytest.mark.parametrize('tree, principals, complement', complements)
 def test_consisteny_complement(tree, principals, complement):
     assert tree.get_consistency_complement(principals) == complement
 
-@pytest.mark.parametrize('tree, sublength, path', paths)
-def test_generate_consistency_path(tree, sublength, path):
-    assert tree.generate_consistency_path(sublength) == path
+@pytest.mark.parametrize('tree, subsize, path', paths)
+def test_generate_consistency_path(tree, subsize, path):
+    assert tree.generate_consistency_path(subsize) == path

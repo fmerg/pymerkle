@@ -8,19 +8,19 @@ def test_append():
     tree = MerkleTree()
 
     assert not tree and not tree.root
-    assert (tree.length, tree.height) == (0, 0)
+    assert (tree.get_size(), tree.height) == (0, 0)
 
     checksum = tree.append_entry('a')
     assert checksum == tree.hash_entry('a')
-    assert (tree.length, tree.height) == (1, 0)
+    assert (tree.get_size(), tree.height) == (1, 0)
 
     checksum = tree.append_entry('b')
     assert checksum == tree.hash_entry('b')
-    assert (tree.length, tree.height) == (2, 1)
+    assert (tree.get_size(), tree.height) == (2, 1)
 
     checksum = tree.append_entry('c')
     assert checksum == tree.hash_entry('c')
-    assert (tree.length, tree.height) == (3, 2)
+    assert (tree.get_size(), tree.height) == (3, 2)
 
     assert tree and tree.root
 

@@ -47,11 +47,12 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return the current root hash
         """
 
-    @property
     @abstractmethod
-    def length(self):
+    def get_size(self):
         """
-        Should return the current number of leafs
+        Should return the current number of leaves
+
+        :rtype: int
         """
 
     @property
@@ -147,17 +148,17 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     @abstractmethod
-    def generate_consistency_path(self, sublength):
+    def generate_consistency_path(self, subsize):
         """
-        Should return the consistency path based on the provided length
+        Should return the consistency path based on the provided size
         """
 
-    def prove_consistency(self, sublength, subroot):
+    def prove_consistency(self, subsize, subroot):
         """
         Prove consistency against the provided state
 
-        :param sublength: acclaimed length of requested state
-        :type sublength: int
+        :param subsize: acclaimed size of requested state
+        :type subsize: int
         :param subroot: acclaimed root hash of requested state
         :type subroot: str or bytes
         :rtype: MerkleProof
@@ -167,7 +168,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if isinstance(subroot, str):
             subroot = subroot.encode(self.encoding)
 
-        offset, principals, path = self.generate_consistency_path(sublength)
+        offset, principals, path = self.generate_consistency_path(subsize)
 
         if subroot != self.hash_path(len(principals) - 1, principals):
             raise InvalidChallenge("Provided subroot was never root")

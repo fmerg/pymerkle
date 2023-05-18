@@ -5,13 +5,13 @@ from pymerkle.proof import verify_inclusion, verify_consistency, InvalidProof
 from tests.conftest import option, all_configs
 
 
-maxlength = 4
+maxsize = 4
 trees = []
 trees_and_entries = []
 trees_and_subtrees = []
 for config in all_configs(option):
-    for length in range(1, maxlength + 1):
-        entries = ['%d-th entry' % _ for _ in range(length)]
+    for size in range(1, maxsize + 1):
+        entries = ['%d-th entry' % _ for _ in range(size)]
 
         tree = MerkleTree.init_from_entries(*entries, **config)
         trees += [tree]
@@ -19,9 +19,9 @@ for config in all_configs(option):
         for data in entries:
             trees_and_entries += [(tree, data)]
 
-        for sublength in range(1, tree.length + 1):
+        for subsize in range(1, tree.get_size() + 1):
             subtree = MerkleTree.init_from_entries(
-                *entries[:sublength], **config
+                *entries[:subsize], **config
             )
             trees_and_subtrees += [(tree, subtree)]
 
@@ -58,15 +58,15 @@ def test_inclusion_success(tree, data):
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_invalid_challenge(tree, subtree):
     with pytest.raises(InvalidChallenge):
-        tree.prove_consistency(subtree.length + 1, subtree.root)
+        tree.prove_consistency(subtree.get_size() + 1, subtree.root)
 
     with pytest.raises(InvalidChallenge):
-        tree.prove_consistency(subtree.length, b'random')
+        tree.prove_consistency(subtree.get_size(), b'random')
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_invalid_state(tree, subtree):
-    proof = tree.prove_consistency(subtree.length, subtree.root)
+    proof = tree.prove_consistency(subtree.get_size(), subtree.root)
 
     with pytest.raises(InvalidProof):
         verify_consistency(b'random', tree.root, proof)
@@ -74,7 +74,7 @@ def test_consistency_invalid_state(tree, subtree):
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_invalid_target(tree, subtree):
-    proof = tree.prove_consistency(subtree.length, subtree.root)
+    proof = tree.prove_consistency(subtree.get_size(), subtree.root)
 
     with pytest.raises(InvalidProof):
         verify_consistency(subtree.root, b'random', proof)
@@ -82,6 +82,6 @@ def test_consistency_invalid_target(tree, subtree):
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_success(tree, subtree):
-    proof = tree.prove_consistency(subtree.length, subtree.root)
+    proof = tree.prove_consistency(subtree.get_size(), subtree.root)
 
     verify_consistency(subtree.root, tree.root, proof)

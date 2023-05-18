@@ -36,7 +36,7 @@ proof = tree.prove_inclusion(b'bar')
 verify_inclusion(b'bar', tree.root, proof)
 
 # Save current state
-sublength = tree.length
+subsize = tree.get_size()
 subroot = tree.root
 
 # Append further entries
@@ -44,7 +44,7 @@ for data in [b'corge', b'grault', b'garlpy']:
     tree.append_entry(data)
 
 # Prove and verify previous state
-proof = tree.prove_consistency(sublength, subroot)
+proof = tree.prove_consistency(subsize, subroot)
 verify_consistency(subroot, tree.root, proof)
 ```
 

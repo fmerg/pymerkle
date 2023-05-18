@@ -64,7 +64,7 @@ Save the state of the tree at some moment as follows
 
 .. code-block:: python
 
-  sublength = tree.length
+  subsize = tree.get_size()
   subroot = tree.root
 
 
@@ -81,7 +81,7 @@ Generate a proof of consistency with the previous state as follows:
 
 .. code-block:: python
 
-  proof = tree.prove_consistency(sublength, subroot)
+  proof = tree.prove_consistency(subsize, subroot)
 
 
 Having saved the tree state at the moment of proof generation as
@@ -142,7 +142,7 @@ Trying to prove inclusion for non-appended data raises the following error:
   pymerkle.tree.base.InvalidChallenge: Provided entry is not included
 
 
-Similarly, trying to prove consistency for a pair of length and root hash that
+Similarly, trying to prove consistency for a pair of size and root hash that
 do not define a valid previous state raises the following error:
 
 .. code-block:: python
