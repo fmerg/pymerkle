@@ -56,13 +56,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def size(self):
-        """
-        Should return the current number of nodes
-        """
-
-    @property
-    @abstractmethod
     def height(self):
         """
         Should return the current height

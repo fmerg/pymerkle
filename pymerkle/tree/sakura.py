@@ -151,28 +151,6 @@ class MerkleTree(BaseMerkleTree):
 
 
     @property
-    def size(self):
-        """
-        :returns: current number of nodes
-        :rtype: int
-        """
-        # Appending a new leaf node leads to the creation of two new nodes. If
-        # s(n) denotes the total number of nodes with respect to the number n of
-        # leaves, this is equivalent to the recursive relation
-        #
-        # s(n + 1) = s(n) + 2, n > 1,   s(1) = 1, s(0) = 0,
-        #
-        # which in closed form yields
-        #
-        # s(n) = 2 * n - 1, n > 0,  s(0) = 0
-
-        if not self:
-            return 0
-
-        return 2 * self.nr_leaves - 1
-
-
-    @property
     def height(self):
         """
         :returns: current height

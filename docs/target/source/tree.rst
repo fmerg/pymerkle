@@ -82,14 +82,6 @@ Current number of leaves:
     8
 
 
-Current number of nodes:
-
-.. code-block:: python
-
-    >>> tree.size
-    15
-
-
 Current height of tree:
 
 .. code-block:: python

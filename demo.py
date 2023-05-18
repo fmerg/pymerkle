@@ -52,8 +52,7 @@ def structure(tree, indent=2, trim=8):
 
 
 def dimensions(tree):
-    return '\n leaves: %s, nodes: %d, height: %d' % (
-        tree.length, tree.size, tree.height)
+    return '\n leaves: %s, height: %d' % (tree.length, tree.height)
 
 
 def order_of_magnitude(num):
@@ -96,7 +95,7 @@ def display(proof):
     path = serialized['path']
     offset = serialized['offset']
 
-    encoding = metadata.pop('encoding').replave('_', '')
+    encoding = metadata.pop('encoding').replace('_', '')
     offset = offset
     path = strpath(path, encoding)
 
