@@ -58,13 +58,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :rtype: int
         """
 
-    @property
-    @abstractmethod
-    def height(self):
-        """
-        Should return the current height
-        """
-
     @abstractmethod
     def leaf(self, offset):
         """

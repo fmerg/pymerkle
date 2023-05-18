@@ -149,25 +149,6 @@ class MerkleTree(BaseMerkleTree):
         return self.nr_leaves
 
 
-    @property
-    def height(self):
-        """
-        :returns: current height
-        :rtype: int
-
-            .. note:: This coincides with the size of the leftmost branch
-        """
-        nr_leaves = self.nr_leaves
-
-        if nr_leaves == 0:
-            return 0
-
-        if nr_leaves != 2 ** log2(nr_leaves):
-            return log2(nr_leaves + 1)
-
-        return log2(nr_leaves)
-
-
     def leaf(self, offset):
         """
         Returns the hash stored by the leaf node located at the provided
@@ -447,7 +428,7 @@ class MerkleTree(BaseMerkleTree):
                 return []
 
             principals += [node]
-            offset += 2 ** height
+            offset += 1 << height
 
         return principals
 

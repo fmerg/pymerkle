@@ -52,7 +52,7 @@ def structure(tree, indent=2, trim=8):
 
 
 def dimensions(tree):
-    return '\n leaves: %s, height: %d' % (tree.get_size(), tree.height)
+    return '\n leaves: %s' % tree.get_size()
 
 
 def order_of_magnitude(num):
