@@ -35,12 +35,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
                 'security': self.security}
 
     @abstractmethod
-    def __bool__(self):
-        """
-        Should return *False* iff the tree is empty
-        """
-
-    @abstractmethod
     def get_state(self, size=None):
         """
         Should return the root-hash of the tree specified by the provided size

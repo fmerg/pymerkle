@@ -94,17 +94,10 @@ class Leaf(Node):
 
     :param value: hash to be stored by the leaf
     :type value: bytes
-    :param leaf: [optional] next leaf node (defaults to *None*)
-    :type leaf: Leaf
     """
 
-    __slots__ = ('next',)
-
-
-    def __init__(self, value, next_leaf=None):
-        self.next = next_leaf
-
-        super().__init__(value)
+    def __init__(self, value):
+        super().__init__(value, None, None)
 
 
 class MerkleTree(BaseMerkleTree):
@@ -113,10 +106,8 @@ class MerkleTree(BaseMerkleTree):
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        self.head = None
-        self.tail = None
-        self.root_node = None
-        self.nr_leaves = 0
+        self.root = None
+        self.leaves = []
 
         super().__init__(algorithm, encoding, security)
 
@@ -126,7 +117,7 @@ class MerkleTree(BaseMerkleTree):
         :returns: true iff the tree is not empty
         :rtype: bool
         """
-        return self.nr_leaves != 0
+        return not len(self.leaves) == 0
 
 
     def get_state(self):
@@ -134,10 +125,10 @@ class MerkleTree(BaseMerkleTree):
         :returns: current root hash
         :rtype: bytes
         """
-        if not self.root_node:
+        if not self.root:
             return
 
-        return self.root_node.value
+        return self.root.value
 
 
     def get_size(self):
@@ -146,7 +137,7 @@ class MerkleTree(BaseMerkleTree):
 
         :rtype: int
         """
-        return self.nr_leaves
+        return len(self.leaves)
 
 
     def get_leaf(self, indexn):
@@ -161,14 +152,14 @@ class MerkleTree(BaseMerkleTree):
         :returns: the hash stored by the specified leaf node
         :rtype: bytes
         """
-        leaf = self.leaf_node(indexn)
+        leaf = self.leaf(indexn)
         if not leaf:
             raise ValueError("%d not in leaf range" % indexn)
 
         return leaf.value
 
 
-    def leaf_node(self, offset):
+    def leaf(self, offset):
         """
         Return the leaf node located at the provided position
 
@@ -182,33 +173,10 @@ class MerkleTree(BaseMerkleTree):
         if offset < 0 or offset >= self.get_size():
             return None
 
-        curr = self.head
-        j = 0
-        while j < offset and curr:
-            curr = curr.next
-            j += 1
+        if not self.leaves:
+            return None
 
-        return curr
-
-
-    def update_tail(self, leaf):
-        """
-        Appends the provided leaf to the current leaf nodes
-
-        :type leaf: Leaf
-        :rtype: Leaf
-        """
-        if self.tail:
-            self.tail.next = leaf
-
-        self.tail = leaf
-
-        if not self.head:
-            self.head = leaf
-
-        self.nr_leaves += 1
-
-        return leaf
+        return self.leaves[offset]
 
 
     def append_entry(self, data):
@@ -222,17 +190,18 @@ class MerkleTree(BaseMerkleTree):
         """
         new_leaf = Leaf(self.hash_entry(data))
 
-        if not self:
-            self.root_node = self.update_tail(new_leaf)
-            return self.root_node.value
+        if not self.leaves:
+            self.root = new_leaf
+            self.leaves += [new_leaf]
+            return self.root.value
 
         node = self.get_last_maximal_perfect()
-        self.update_tail(new_leaf)
+        self.leaves += [new_leaf]
 
         new_value = self.hash_pair(node.value, new_leaf.value)
 
         if node.is_root():
-            self.root_node = Node(new_value, left=node, right=new_leaf)
+            self.root = Node(new_value, left=node, right=new_leaf)
             return new_leaf.value
 
         curr = node.parent
@@ -284,12 +253,7 @@ class MerkleTree(BaseMerkleTree):
         :type value: bytes
         :rtype: Leaf
         """
-        curr = self.head
-        while curr:
-            if curr.value == checksum:
-                return curr
-
-            curr = curr.next
+        return next((l for l in self.leaves if l.value == checksum), None)
 
 
     def generate_consistency_path(self, subsize):
@@ -364,7 +328,7 @@ class MerkleTree(BaseMerkleTree):
         :type height: int
         :rtype: Node
         """
-        node = self.leaf_node(offset)
+        node = self.leaf(offset)
 
         if not node:
             return
@@ -402,9 +366,9 @@ class MerkleTree(BaseMerkleTree):
 
         :rtype: Node
         """
-        degree = decompose(self.nr_leaves)[0]
+        degree = decompose(len(self.leaves))[0]
 
-        return self.tail.get_ancestor(degree)
+        return self.leaves[-1].get_ancestor(degree)
 
 
     def get_principals(self, subsize):

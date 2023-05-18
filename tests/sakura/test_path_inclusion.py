@@ -180,5 +180,5 @@ inclusion_paths = [
 
 @pytest.mark.parametrize('tree, offset, path', inclusion_paths)
 def test_generate_inclusion_path(tree, offset, path):
-    leaf = tree.leaf_node(offset)
+    leaf = tree.leaf(offset)
     assert tree.generate_inclusion_path(leaf) == path

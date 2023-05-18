@@ -48,7 +48,7 @@ def structure(tree, indent=2, trim=8):
     if not tree:
         return '\n └─[None]\n'
 
-    return expand(tree.root_node, tree.encoding, indent, trim) + '\n'
+    return expand(tree.root, tree.encoding, indent, trim) + '\n'
 
 
 def dimensions(tree):
