@@ -38,7 +38,7 @@ Usage
 
   # Populate tree with some entries
   for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-      tree.append_entry(data)
+      tree.append_leaf(data)
 
   # Prove and verify inclusion of `bar`
   proof = tree.prove_inclusion(b'bar')
@@ -51,7 +51,7 @@ Usage
 
   # Append further entries
   for data in [b'corge', b'grault', b'garlpy']:
-      tree.append_entry(data)
+      tree.append_leaf(data)
 
   # Prove and verify previous state
   proof = tree.prove_consistency(subsize, subroot)

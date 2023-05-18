@@ -122,7 +122,7 @@ Appending an entry returns the hash stored by the new leaf:
 
 .. code-block:: python
 
-  >>> tree.append_entry(b'data')
+  >>> tree.append_leaf(b'data')
   b'0d3aed023148ffd2a259fbd0cdc7fb3cf975658760d3775b82af6f90aacc2dfc'
 
 

@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     # Populate tree with some entries
     for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-        tree.append_entry(data)
+        tree.append_leaf(data)
 
     sys.stdout.write(dimensions(tree))
     sys.stdout.write(structure(tree))
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
-        tree.append_entry(data)
+        tree.append_leaf(data)
 
     sys.stdout.write(dimensions(tree))
     sys.stdout.write(structure(tree))

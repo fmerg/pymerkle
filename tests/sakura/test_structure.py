@@ -14,13 +14,13 @@ def test_0_leaves():
 
 
 def test1_leaves():
-    tree.append_entry(t1)
+    tree.append_leaf(t1)
 
     assert tree.get_state() == hash_entry(t1)
 
 
 def test2_leaves():
-    tree.append_entry(t2)
+    tree.append_leaf(t2)
 
     assert tree.get_state() == hash_pair(
         hash_entry(t1),
@@ -29,7 +29,7 @@ def test2_leaves():
 
 
 def test3_leaves():
-    tree.append_entry(t3)
+    tree.append_leaf(t3)
 
     assert tree.get_state() == hash_pair(
         hash_pair(
@@ -41,7 +41,7 @@ def test3_leaves():
 
 
 def test4_leaves():
-    tree.append_entry(t4)
+    tree.append_leaf(t4)
 
     assert tree.get_state() == hash_pair(
         hash_pair(
@@ -56,7 +56,7 @@ def test4_leaves():
 
 
 def test5_leaves():
-    tree.append_entry(t5)
+    tree.append_leaf(t5)
 
     assert tree.get_state() == hash_pair(
         hash_pair(
@@ -74,8 +74,8 @@ def test5_leaves():
 
 
 def test7_leaves():
-    tree.append_entry(t6)
-    tree.append_entry(t7)
+    tree.append_leaf(t6)
+    tree.append_leaf(t7)
 
     assert tree.get_state() == hash_pair(
         hash_pair(
@@ -99,10 +99,10 @@ def test7_leaves():
 
 
 def test11_leaves():
-    tree.append_entry(t8)
-    tree.append_entry(t9)
-    tree.append_entry(t10)
-    tree.append_entry(t11)
+    tree.append_leaf(t8)
+    tree.append_leaf(t9)
+    tree.append_leaf(t10)
+    tree.append_leaf(t11)
 
     assert tree.get_state() == hash_pair(
         hash_pair(

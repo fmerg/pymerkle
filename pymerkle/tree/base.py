@@ -28,20 +28,20 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def get_state(self, size=None):
-        """
-        Should return the root-hash of the tree specified by the provided size
-
-        :param size: [optional] number of leaves. Defaults to current tree size
-        :type size: int
-        :rtype: bytes
-        """
-
-    @abstractmethod
     def get_size(self):
         """
         Should return the current number of leaves
 
+        :rtype: int
+        """
+
+    @abstractmethod
+    def append_leaf(self, data):
+        """
+        Should append and return the hash of the provided data
+
+        :param data: the data whose hash is to be appended
+        :type data: bytes or str
         :rtype: int
         """
 
@@ -56,9 +56,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def append_entry(self, data):
+    def get_state(self, size=None):
         """
-        Should append and return the hash of the provided data
+        Should return the root-hash of the tree specified by the provided size
+
+        :param size: [optional] number of leaves. Defaults to current tree size
+        :type size: int
+        :rtype: bytes
         """
 
     @classmethod
@@ -78,9 +82,9 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
         tree = cls(algorithm, encoding, security)
 
-        append_entry = tree.append_entry
+        append_leaf = tree.append_leaf
         for data in entries:
-            append_entry(data)
+            append_leaf(data)
 
         return tree
 

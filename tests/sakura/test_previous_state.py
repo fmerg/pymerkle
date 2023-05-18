@@ -11,7 +11,7 @@ def test_previous_state_edge_cases(config):
     tree = MerkleTree(**config)
     assert not tree.has_previous_state(b'random')
 
-    tree.append_entry('a')
+    tree.append_leaf('a')
     assert tree.has_previous_state(tree.get_state())
 
 
@@ -23,7 +23,7 @@ def test_previous_state_success(config):
 
     substate = tree.get_state()
     for data in ('f', 'g', 'h', 'k'):
-        tree.append_entry(data)
+        tree.append_leaf(data)
         assert tree.has_previous_state(substate)
 
 
@@ -34,5 +34,5 @@ def test_previous_state_failure(config):
     )
 
     for data in ('f', 'g', 'h', 'k'):
-        tree.append_entry(data)
+        tree.append_leaf(data)
         assert not tree.has_previous_state(b'random')

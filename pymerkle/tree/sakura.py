@@ -179,7 +179,7 @@ class MerkleTree(BaseMerkleTree):
         return self.leaves[offset]
 
 
-    def append_entry(self, data):
+    def append_leaf(self, data):
         """
         Append new leaf storing the hash of the provided data
 
