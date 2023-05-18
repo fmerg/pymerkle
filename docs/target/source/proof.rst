@@ -172,7 +172,6 @@ which yields a json structure similar to this one:
 
   {
      "metadata": {
-        "timestamp": 1677599356,
         "algorithm": "sha256",
         "encoding": "utf_8",
         "security": true

@@ -88,12 +88,10 @@ class MerkleProof:
     :type path: list[(+1/-1, bytes)]
     """
 
-    def __init__(self, algorithm, encoding, security, offset, path,
-                 timestamp=None):
+    def __init__(self, algorithm, encoding, security, offset, path):
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
-        self.timestamp = timestamp or int(time())
         self.offset = offset
         self.path = path
 
@@ -113,7 +111,6 @@ class MerkleProof:
         """
         :rtype: dict
         """
-        timestamp = self.timestamp
         algorithm = self.algorithm
         encoding = self.encoding
         security = self.security
@@ -123,7 +120,6 @@ class MerkleProof:
 
         return {
             'metadata': {
-                'timestamp': timestamp,
                 'algorithm': algorithm,
                 'encoding': encoding,
                 'security': security,

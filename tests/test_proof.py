@@ -24,7 +24,6 @@ def test_serialization():
 
     assert proof.serialize() == {
         'metadata': {
-            'timestamp': proof.timestamp,
             'algorithm': 'sha_256',
             'encoding': 'utf_8',
             'security': True,
@@ -37,7 +36,6 @@ def test_serialization():
 def test_deserialization():
     deserialized = MerkleProof.deserialize(proof.serialize())
 
-    assert deserialized.timestamp == proof.timestamp
     assert deserialized.algorithm == proof.algorithm
     assert deserialized.encoding == proof.encoding
     assert deserialized.security == proof.security

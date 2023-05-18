@@ -87,7 +87,6 @@ def display(proof):
     algorithm   : {algorithm}
     encoding    : {encoding}
     security    : {security}
-    timestamp   : {timestamp} ({created_at})
     offset      : {offset}
     {path}\n\n"""
 
@@ -97,16 +96,11 @@ def display(proof):
     path = serialized['path']
     offset = serialized['offset']
 
-    encoding = metadata.pop('encoding')
-    kw = {
-        **metadata,
-        'encoding': encoding.replace('_', '-'),
-        'created_at': datetime.utcfromtimestamp(metadata['timestamp']).strftime(
-            '%Y-%m-%d %H:%M:%S'),
-        'offset': offset,
-        'path': strpath(path, encoding),
-    }
+    encoding = metadata.pop('encoding').replave('_', '')
+    offset = offset
+    path = strpath(path, encoding)
 
+    kw = {**metadata, 'encoding': encoding, 'offset': offset, 'path': path}
     return template.format(**kw)
 
 
