@@ -38,4 +38,4 @@ def test_defense_against_second_preimage_attack(config):
     attacker = MerkleTree.init_from_entries('a', 'b', forged,
         **config)
 
-    assert tree.security ^ (attacker.root == tree.root)
+    assert tree.security ^ (attacker.get_state() == tree.get_state())

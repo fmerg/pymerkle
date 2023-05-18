@@ -20,7 +20,7 @@ Having saved the tree state at the moment of proof generation as
 
 .. code-block:: python
 
-   target = tree.root
+   target = tree.get_state()
 
 
 we can anytime verify the proof as follows:
@@ -65,7 +65,7 @@ Save the state of the tree at some moment as follows
 .. code-block:: python
 
   subsize = tree.get_size()
-  subroot = tree.root
+  subroot = tree.get_state()
 
 
 and append further entries:
@@ -88,7 +88,7 @@ Having saved the tree state at the moment of proof generation as
 
 .. code-block:: python
 
-  target = tree.root
+  target = tree.get_state()
 
 
 we can anytime verify the proof as follows:

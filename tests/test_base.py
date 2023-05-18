@@ -7,7 +7,7 @@ from tests.conftest import option, all_configs
 def test_append():
     tree = MerkleTree()
 
-    assert not tree and not tree.root
+    assert not tree and not tree.get_state()
     assert (tree.get_size(), tree.height) == (0, 0)
 
     checksum = tree.append_entry('a')
@@ -22,7 +22,7 @@ def test_append():
     assert checksum == tree.hash_entry('c')
     assert (tree.get_size(), tree.height) == (3, 2)
 
-    assert tree and tree.root
+    assert tree and tree.get_state()
 
 
 @pytest.mark.parametrize('config', all_configs(option))

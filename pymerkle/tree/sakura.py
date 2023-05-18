@@ -129,8 +129,7 @@ class MerkleTree(BaseMerkleTree):
         return self.nr_leaves != 0
 
 
-    @property
-    def root(self):
+    def get_state(self):
         """
         :returns: current root hash
         :rtype: bytes

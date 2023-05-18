@@ -40,11 +40,14 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         Should return *False* iff the tree is empty
         """
 
-    @property
     @abstractmethod
-    def root(self):
+    def get_state(self, size=None):
         """
-        Should return the current root hash
+        Should return the root-hash of the tree specified by the provided size
+
+        :param size: [optional] number of leaves. Defaults to current tree size
+        :type size: int
+        :rtype: bytes
         """
 
     @abstractmethod

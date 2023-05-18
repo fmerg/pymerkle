@@ -90,11 +90,11 @@ Current height of tree:
     3
 
 
-Current root hash:
+Current root-hash:
 
 .. code-block:: python
 
-    >>> tree.root
+    >>> tree.get_state()
     b'732b529e34b435300a6e6ffc6f58c1e1942770325a17a32ff8ef5ad747ae6283'
 
 
@@ -111,7 +111,7 @@ Appending data
 
 Appending an entry to the tree means to append a new leaft storing the hash of
 that entry. This procedure causes the tree to restructure itself and
-recalculate some interior hashes, culminating in the root hash update.
+recalculate some interior hashes, culminating in the root-hash update.
 
 
 Let ``tree`` be a merkle-tree with seven leaves:
@@ -122,7 +122,7 @@ Let ``tree`` be a merkle-tree with seven leaves:
   7
   >>> tree.leaf(6)
   b'797427cf8368051fe7b8e3e9d5ade9c5bc9d0cf96f4f3fad2a1e1d7848368188'
-  >>> tree.root
+  >>> tree.get_state()
   b'1b81867968eab8ce5e5a6b1a8164c24afe856262fdbfb087ab751cc1ee668d54'
 
 
@@ -138,7 +138,7 @@ Tree state has changed as expeted:
 
 .. code-block:: python
 
-  >>> tree.root
+  >>> tree.get_state()
   b'fe5377cafafaece72b01e7d0e5c2b2841c6079dc64e4501f3442f07d1abb4922'
   >>> tree.leaf(7)
   b'0d3aed023148ffd2a259fbd0cdc7fb3cf975658760d3775b82af6f90aacc2dfc'

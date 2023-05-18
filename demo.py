@@ -117,11 +117,12 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(b'bar')
     sys.stdout.write(display(proof))
 
-    verify_inclusion(b'bar', tree.root, proof)
+    target = tree.get_state()
+    verify_inclusion(b'bar', target, proof)
 
     # Save current tree state
     subsize = tree.get_size()
-    subroot = tree.root
+    subroot = tree.get_state()
 
     # Append further entries
     for data in [b'corge', b'grault', b'garlpy']:
@@ -132,6 +133,7 @@ if __name__ == '__main__':
 
     # Prove and verify previous state
     proof = tree.prove_consistency(subsize, subroot)
+    target = tree.get_state()
     sys.stdout.write(display(proof))
 
-    verify_consistency(subroot, tree.root, proof)
+    verify_consistency(subroot, target, proof)
