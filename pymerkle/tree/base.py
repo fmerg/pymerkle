@@ -27,13 +27,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
     :type security: bool
     """
 
-    def get_metadata(self):
-        """
-        :rtype: dict
-        """
-        return {'algorithm': self.algorithm, 'encoding': self.encoding,
-                'security': self.security}
-
     @abstractmethod
     def get_state(self, size=None):
         """

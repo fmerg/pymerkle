@@ -25,13 +25,6 @@ def test_append():
     assert tree and tree.get_state()
 
 
-@pytest.mark.parametrize('config', all_configs(option))
-def test_metadata(config):
-    assert MerkleTree(**config).get_metadata() == {key: value.replace('-', '_')
-            if isinstance(value, str) else value for (key, value) in
-            config.items()}
-
-
 def test_unsupported():
     with pytest.raises(UnsupportedParameter):
         MerkleTree(algorithm='anything_unsupported')
