@@ -59,10 +59,13 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def leaf(self, offset):
+    def get_leaf(self, offset):
         """
-        Should return the hash stored by the leaf located at the provided
-        position counting from zero
+        Shoulw return the leaf-hash located at the provided position
+
+        :param index: leaf position counting from 0 (TODO: counting from 1)
+        :type index: int
+        :rtype: bytes
         """
 
     @abstractmethod

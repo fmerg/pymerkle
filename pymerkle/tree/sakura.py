@@ -149,27 +149,26 @@ class MerkleTree(BaseMerkleTree):
         return self.nr_leaves
 
 
-    def leaf(self, offset):
+    def get_leaf(self, indexn):
         """
-        Returns the hash stored by the leaf node located at the provided
-        position
+        Returns the leaf-hash located at the provided position
 
         .. raises ValueError:: if the provided position is not in the current
             leaf range.
 
-        :param offset: position of leaf counting from zero
-        :type offset: int
+        :param indexn: position of leaf counting from zero (TODO: counting from 1)
+        :type indexn: int
         :returns: the hash stored by the specified leaf node
         :rtype: bytes
         """
-        leaf = self.get_leaf(offset)
+        leaf = self.leaf_node(indexn)
         if not leaf:
-            raise ValueError("%d not in leaf range" % offset)
+            raise ValueError("%d not in leaf range" % indexn)
 
         return leaf.value
 
 
-    def get_leaf(self, offset):
+    def leaf_node(self, offset):
         """
         Return the leaf node located at the provided position
 
@@ -365,7 +364,7 @@ class MerkleTree(BaseMerkleTree):
         :type height: int
         :rtype: Node
         """
-        node = self.get_leaf(offset)
+        node = self.leaf_node(offset)
 
         if not node:
             return
