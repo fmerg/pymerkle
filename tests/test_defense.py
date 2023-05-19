@@ -19,8 +19,8 @@ hashes:        D   B   C   D               A   B   (CD)  <------ [forged entry]
 entries:       A   b   c   d               a   b
 
 
-Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result
-3-rd leaf, leaving the rest leaves untouced.
+Concatenate the hashes stored by the third and fourth leaves and append the result
+as third leaf, leaving the rest leaves untouced
 """
 
 import pytest
@@ -33,7 +33,7 @@ def test_defense_against_second_preimage_attack(config):
     tree = MerkleTree.init_from_entries('a', 'b', 'c', 'd',
         **config)
 
-    forged = tree.get_leaf(2) + tree.get_leaf(3)
+    forged = tree.get_leaf(3) + tree.get_leaf(4)
 
     attacker = MerkleTree.init_from_entries('a', 'b', forged,
         **config)

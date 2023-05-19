@@ -7,7 +7,7 @@ from tests.conftest import option, all_configs
 
 maxsize = 4
 trees = []
-trees_and_entries = []
+trees_and_indexes = []
 trees_and_subtrees = []
 for config in all_configs(option):
     for size in range(1, maxsize + 1):
@@ -16,8 +16,8 @@ for config in all_configs(option):
         tree = MerkleTree.init_from_entries(*entries, **config)
         trees += [tree]
 
-        for data in entries:
-            trees_and_entries += [(tree, data)]
+        for (offset, _) in enumerate(entries):
+            trees_and_indexes += [(tree, offset + 1)]
 
         for subsize in range(1, tree.get_size() + 1):
             subtree = MerkleTree.init_from_entries(
@@ -28,31 +28,36 @@ for config in all_configs(option):
 
 @pytest.mark.parametrize('tree', trees)
 def test_inclusion_invalid_challenge(tree):
+    size = tree.get_size() + 1
+
     with pytest.raises(InvalidChallenge):
-        tree.prove_inclusion(b'random')
+        tree.prove_inclusion(size + 1)
+
+    with pytest.raises(InvalidChallenge):
+        tree.prove_inclusion(1, size + 1)
 
 
-@pytest.mark.parametrize('tree, data', trees_and_entries)
-def test_inclusion_invalid_base(tree, data):
-    proof = tree.prove_inclusion(data)
+@pytest.mark.parametrize('tree, index', trees_and_indexes)
+def test_inclusion_invalid_base(tree, index):
+    proof = tree.prove_inclusion(index)
 
     with pytest.raises(InvalidProof):
         verify_inclusion(b'random', tree.get_state(), proof)
 
 
-@pytest.mark.parametrize('tree, data', trees_and_entries)
-def test_inclusion_invalid_target(tree, data):
-    proof = tree.prove_inclusion(data)
-
+@pytest.mark.parametrize('tree, index', trees_and_indexes)
+def test_inclusion_invalid_target(tree, index):
+    proof = tree.prove_inclusion(index)
+    base = tree.get_leaf(index)
     with pytest.raises(InvalidProof):
-        verify_inclusion(data, b'random', proof)
+        verify_inclusion(base, b'random', proof)
 
 
-@pytest.mark.parametrize('tree, data', trees_and_entries)
-def test_inclusion_success(tree, data):
-    proof = tree.prove_inclusion(data)
-
-    verify_inclusion(data, tree.get_state(), proof)
+@pytest.mark.parametrize('tree, index', trees_and_indexes)
+def test_inclusion_success(tree, index):
+    proof = tree.prove_inclusion(index)
+    base = tree.get_leaf(index)
+    verify_inclusion(base, tree.get_state(), proof)
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)

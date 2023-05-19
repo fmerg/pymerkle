@@ -140,43 +140,41 @@ class MerkleTree(BaseMerkleTree):
         return len(self.leaves)
 
 
-    def get_leaf(self, indexn):
+    def get_leaf(self, index):
         """
         Returns the leaf-hash located at the provided position
 
         .. raises ValueError:: if the provided position is not in the current
             leaf range.
 
-        :param indexn: position of leaf counting from zero (TODO: counting from 1)
-        :type indexn: int
+        :param index: position of leaf counting from one
+        :type index: int
         :returns: the hash stored by the specified leaf node
         :rtype: bytes
         """
-        leaf = self.leaf(indexn)
+        leaf = self.leaf(index)
         if not leaf:
-            raise ValueError("%d not in leaf range" % indexn)
+            raise ValueError("%d not in leaf range" % index)
 
         return leaf.value
 
 
-    def leaf(self, offset):
+    def leaf(self, index):
         """
         Return the leaf node located at the provided position
 
-        .. note:: Returns *None* if the provided position is not in the current
-            leaf index range.
+        .. note:: Returns *None* if the provided position is out of bounds
 
-        :param offset: position of leaf counting from zero
-        :type offset: int
+        :param index: position of leaf counting from one
+        :type index: int
         :rtype: Leaf
         """
-        if offset < 0 or offset >= self.get_size():
+        try:
+            leaf = self.leaves[index - 1]
+        except IndexError:
             return None
 
-        if not self.leaves:
-            return None
-
-        return self.leaves[offset]
+        return leaf
 
 
     def append_leaf(self, data):
@@ -214,12 +212,14 @@ class MerkleTree(BaseMerkleTree):
         return new_leaf.value
 
 
-    def generate_inclusion_path(self, leaf):
+    def inclusion_path(self, start, offset, end, bit):
         """
         Compute the inclusion path based on the provided leaf node.
 
         :rtype: (int, list[(+1/-1, bytes)])
         """
+        leaf = self.leaves[offset]
+
         sign = -1 if leaf.is_right_child() else +1
         path = [(sign, leaf.value)]
 
@@ -241,19 +241,6 @@ class MerkleTree(BaseMerkleTree):
             curr = parent
 
         return offset, path
-
-
-    def find_leaf(self, checksum):
-        """
-        Detect the leftmost leaf node storing the provided hash
-
-        .. note:: Returns *None* if no such leaf node exists
-
-        :param value: hash to detect
-        :type value: bytes
-        :rtype: Leaf
-        """
-        return next((l for l in self.leaves if l.value == checksum), None)
 
 
     def generate_consistency_path(self, subsize):
@@ -328,7 +315,7 @@ class MerkleTree(BaseMerkleTree):
         :type height: int
         :rtype: Node
         """
-        node = self.leaf(offset)
+        node = self.leaf(offset + 1)
 
         if not node:
             return

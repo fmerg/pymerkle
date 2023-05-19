@@ -94,7 +94,7 @@ Hash stored by the sixth leaf:
 
 .. code-block:: python
 
-    >>> tree.get_leaf(5)
+    >>> tree.get_leaf(6)
     b'2a158d8afd48e3f88cb4195dfdb2a9e4817d95fa57fd34440d93f9aae5c4f82b'
 
 
@@ -112,7 +112,7 @@ Let ``tree`` be a merkle-tree with seven leaves:
 
   >>> tree.get_size()
   7
-  >>> tree.get_leaf(6)
+  >>> tree.get_leaf(7)
   b'797427cf8368051fe7b8e3e9d5ade9c5bc9d0cf96f4f3fad2a1e1d7848368188'
   >>> tree.get_state()
   b'1b81867968eab8ce5e5a6b1a8164c24afe856262fdbfb087ab751cc1ee668d54'
@@ -132,7 +132,7 @@ Tree state has changed as expeted:
 
   >>> tree.get_state()
   b'fe5377cafafaece72b01e7d0e5c2b2841c6079dc64e4501f3442f07d1abb4922'
-  >>> tree.get_leaf(7)
+  >>> tree.get_leaf(8)
   b'0d3aed023148ffd2a259fbd0cdc7fb3cf975658760d3775b82af6f90aacc2dfc'
   >>> tree.get_size()
   8

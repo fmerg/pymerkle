@@ -52,7 +52,7 @@ def structure(tree, indent=2, trim=8):
 
 
 def dimensions(tree):
-    return '\n leaves: %s' % tree.get_size()
+    return '\n nr leaves: %s' % tree.get_size()
 
 
 def order_of_magnitude(num):
@@ -114,11 +114,12 @@ if __name__ == '__main__':
     sys.stdout.write(structure(tree))
 
     # Prove and verify inclusion of `bar`
-    proof = tree.prove_inclusion(b'bar')
+    proof = tree.prove_inclusion(2)
     sys.stdout.write(display(proof))
 
     target = tree.get_state()
-    verify_inclusion(b'bar', target, proof)
+    base = tree.get_leaf(2)
+    verify_inclusion(base, target, proof)
 
     # Save current tree state
     subsize = tree.get_size()

@@ -16,13 +16,13 @@ class InvalidProof(Exception):
     pass
 
 
-def verify_inclusion(data, target, proof):
+def verify_inclusion(base, target, proof):
     """
     Verifies the provided merkle-proof of inclusion for the given data against
     the provided root hash.
 
-    :param data: entry to verify
-    :type data: str or bytes
+    :param base: entry to verify
+    :type base: str or bytes
     :param target: root hash during proof generation
     :type target: str or bytes
     :param proof: proof of inclusion
@@ -31,12 +31,15 @@ def verify_inclusion(data, target, proof):
     """
     engine = HashEngine(**proof.get_metadata())
 
+    if isinstance(base, str):
+        base = base.encode(proof.encoding)
+
     if isinstance(target, str):
         target = target.encode(proof.encoding)
 
     offset = proof.offset
 
-    if proof.path[offset][1] != engine.hash_entry(data):
+    if not proof.path[offset][1] == base:
         raise InvalidProof("Path not based on provided entry")
 
     if target != engine.hash_path(offset, proof.path):

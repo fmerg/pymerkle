@@ -10,7 +10,7 @@ tree_4 = MerkleTree.init_from_entries('a', 'b', 'c', 'd')
 tree_5 = MerkleTree.init_from_entries('a', 'b', 'c', 'd', 'e')
 
 
-inclusion_paths = [
+paths = [
     (
         tree_1, 0,
         (
@@ -178,7 +178,7 @@ inclusion_paths = [
 ]
 
 
-@pytest.mark.parametrize('tree, offset, path', inclusion_paths)
-def test_generate_inclusion_path(tree, offset, path):
-    leaf = tree.leaf(offset)
-    assert tree.generate_inclusion_path(leaf) == path
+@pytest.mark.parametrize('tree, offset, path', paths)
+def test_inclusion_path(tree, offset, path):
+    size = tree.get_size()
+    assert tree.inclusion_path(0, offset, size, 0) == path

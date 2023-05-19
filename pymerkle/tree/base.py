@@ -46,11 +46,11 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def get_leaf(self, offset):
+    def get_leaf(self, index):
         """
         Shoulw return the leaf-hash located at the provided position
 
-        :param index: leaf position counting from 0 (TODO: counting from 1)
+        :param index: leaf position counting from one
         :type index: int
         :rtype: bytes
         """
@@ -89,12 +89,6 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return tree
 
 
-    @abstractmethod
-    def find_leaf(self, value):
-        """
-        Should return the leaf storing the provided hash
-        """
-
     def build_proof(self, offset, path):
         """
         Create a merkle-proof from the provided path
@@ -112,27 +106,46 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return proof
 
     @abstractmethod
-    def generate_inclusion_path(self, leaf):
+    def inclusion_path(self, start, offset, end, bit):
         """
-        Should return the inclusion path based on the provided leaf
+        Should return the inclusion path based on the provided leaf-hash
+        against the given leaf range
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: base leaf index counring from zero
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[0/1], list[bytes])
         """
 
-    def prove_inclusion(self, data):
+    def prove_inclusion(self, index, size=None):
         """
-        Prove inclusion of the provided entry
+        Proves inclusion of the hash located at the provided index against the
+        subtree specified by the provided size
 
-        :param data:
-        :type data: str or bytes
+        :param index: leaf index counting from one
+        :type index: int
+        :param size: [optional] size of subtree to consider. Defaults to
+            current tree size
+        :type size: int
         :rtype: MerkleProof
-        :raises InvalidChallenge: if the provided entry is not included
+        :raises InvalidChallenge: if the provided parameters are invalid or
+            incompatible with each other
         """
-        checksum = self.hash_entry(data)
-        leaf = self.find_leaf(checksum)
+        if size is None:
+            size = self.get_size()
 
-        if not leaf:
-            raise InvalidChallenge("Provided entry is not included")
+        if size > self.get_size():
+            raise InvalidChallenge('Provided size is out of bounds')
 
-        offset, path = self.generate_inclusion_path(leaf)
+        if index <= 0 or index > size:
+            raise InvalidChallenge('Provided index is out of bounds')
+
+        offset, path = self.inclusion_path(0, index - 1, size, 0)
 
         proof = self.build_proof(offset, path)
         return proof
