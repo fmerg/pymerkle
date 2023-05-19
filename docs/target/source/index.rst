@@ -41,22 +41,24 @@ Usage
       tree.append_leaf(data)
 
   # Prove and verify inclusion of `bar`
-  proof = tree.prove_inclusion(b'bar')
+  proof = tree.prove_inclusion(2)
+
   target = tree.get_state()
-  verify_inclusion(b'bar', target, proof)
+  base = tree.get_leaf(2)
+  verify_inclusion(base, target, proof)
 
-  # Save current state
-  subsize = tree.get_size()
-  subroot = tree.get_state()
-
-  # Append further entries
+  # Save current state and append further entries
+  size1 = tree.get_size()
+  state1 = tree.get_state()
   for data in [b'corge', b'grault', b'garlpy']:
       tree.append_leaf(data)
 
   # Prove and verify previous state
-  proof = tree.prove_consistency(subsize, subroot)
-  target = tree.get_state()
-  verify_consistency(subroot, target, proof)
+  size2 = tree.get_size()
+  proof = tree.prove_consistency(size1, size2)
+
+  state2 = tree.get_state()
+  verify_consistency(state1, state2, proof)
 
 
 Security

@@ -105,6 +105,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
 
         return proof
 
+
     @abstractmethod
     def inclusion_path(self, start, offset, end, bit):
         """
@@ -150,31 +151,48 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         proof = self.build_proof(offset, path)
         return proof
 
+
     @abstractmethod
-    def generate_consistency_path(self, subsize):
+    def consistency_path(self, start, offset, end, bit):
         """
-        Should return the consistency path based on the provided size
+        Should return the consistency path for the state corresponding to the
+        provided offset against the specified leaf range
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: represents the state currently under consisteration
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[0/1], list[0/1], list[bytes])
         """
 
-    def prove_consistency(self, subsize, subroot):
+    def prove_consistency(self, size1, size2=None):
         """
-        Prove consistency against the provided state
+        Prove consistency betwee the states corresponding to the respective
+        sizes provided
 
-        :param subsize: acclaimed size of requested state
-        :type subsize: int
-        :param subroot: acclaimed root hash of requested state
-        :type subroot: str or bytes
+        :param size1: acclaimed size of prior state
+        :type size1: int
+        :param size2: [optional] acclaimed size of later state. Defaults to
+            current tree size
+        :type size2: int
         :rtype: MerkleProof
-        :raises InvalidChallenge: if the provided parameters do not define
-            a previous state
+        :raises InvalidChallenge: if the provided parameters are invalid or
+            incompatible with each other
         """
-        if isinstance(subroot, str):
-            subroot = subroot.encode(self.encoding)
+        if size2 is None:
+            size2 = self.get_size()
 
-        offset, principals, path = self.generate_consistency_path(subsize)
+        if size2 < 0 or size2 > self.get_size():
+            raise InvalidChallenge('Provided size2 is out of bounds')
 
-        if subroot != self.hash_path(len(principals) - 1, principals):
-            raise InvalidChallenge("Provided subroot was never root")
+        if size1 < 0 or size1 > size2:
+            raise InvalidChallenge('Provided size1 is out of bounds')
+
+        offset, principals, path = self.consistency_path(0, size1, size2, 0)
 
         proof = self.build_proof(offset, path)
         return proof

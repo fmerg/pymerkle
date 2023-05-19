@@ -214,9 +214,18 @@ class MerkleTree(BaseMerkleTree):
 
     def inclusion_path(self, start, offset, end, bit):
         """
-        Compute the inclusion path based on the provided leaf node.
+        Returns the inclusion path based on the provided leaf-hash against the
+        given leaf range
 
-        :rtype: (int, list[(+1/-1, bytes)])
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: base leaf index counring from zero
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[0/1], list[bytes])
         """
         leaf = self.leaves[offset]
 
@@ -243,16 +252,25 @@ class MerkleTree(BaseMerkleTree):
         return offset, path
 
 
-    def generate_consistency_path(self, subsize):
+    def consistency_path(self, start, offset, end, bit):
         """
-        Computes the consistency path based on the provided size
+        Returns the consistency path for the state corresponding to the
+        provided offset against the specified leaf range
 
-        :param subsize: number of leaves corresponding to the requested
-            previous state
-        :type subsize: int
-        :rtype: (int, list[(-1, bytes)], list[(+1/-1, bytes)])
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: represents the state currently under consisteration
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[0/1], list[0/1], list[bytes])
+
         """
-        principals = self.get_signed_principals(subsize)
+        # TODO
+        size1 = offset
+        principals = self.get_signed_principals(size1)
         complement = self.get_consistency_complement(principals)
 
         if not principals or not complement:

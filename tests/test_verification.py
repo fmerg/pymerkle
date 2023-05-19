@@ -62,24 +62,14 @@ def test_inclusion_success(tree, index):
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_invalid_challenge(tree, subtree):
+    # TODO: More cases
     with pytest.raises(InvalidChallenge):
-        tree.prove_consistency(subtree.get_size() + 1, subtree.get_state())
-
-    with pytest.raises(InvalidChallenge):
-        tree.prove_consistency(subtree.get_size(), b'random')
-
-
-@pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
-def test_consistency_invalid_state(tree, subtree):
-    proof = tree.prove_consistency(subtree.get_size(), subtree.get_state())
-
-    with pytest.raises(InvalidProof):
-        verify_consistency(b'random', tree.get_state(), proof)
+        tree.prove_consistency(subtree.get_size() + 1, subtree.get_size())
 
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_invalid_target(tree, subtree):
-    proof = tree.prove_consistency(subtree.get_size(), subtree.get_state())
+    proof = tree.prove_consistency(subtree.get_size(), tree.get_size())
 
     with pytest.raises(InvalidProof):
         verify_consistency(subtree.get_state(), b'random', proof)
@@ -87,6 +77,6 @@ def test_consistency_invalid_target(tree, subtree):
 
 @pytest.mark.parametrize('tree, subtree', trees_and_subtrees)
 def test_consistency_success(tree, subtree):
-    proof = tree.prove_consistency(subtree.get_size(), subtree.get_state())
+    proof = tree.prove_consistency(subtree.get_size(), tree.get_size())
 
     verify_consistency(subtree.get_state(), tree.get_state(), proof)

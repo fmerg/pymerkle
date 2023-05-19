@@ -1,19 +1,12 @@
 Merkle-proof
 ++++++++++++
 
-.. note:: In what follows, all byte objects passed as arguments could
-   alternatively be strings with the exact same results.
-
-
 Proving inclusion
 =================
 
-Assuming ``"foo"`` has been appended to the tree, generate a proof of inclusion
-as follows:
-
 .. code-block:: python
 
-   proof = tree.prove_inclusion(b'foo');
+   proof = tree.prove_inclusion(2);
 
 
 Having saved the tree state at the moment of proof generation as
@@ -29,28 +22,28 @@ we can anytime verify the proof as follows:
 
   from pymerkle import verify_inclusion
 
-  verify_inclusion(b'foo', target, proof)
+  base = tree.get_leaf(2)
+  verify_inclusion(base, target, proof)
 
 
-Trying to verify against anything except for the root hash at the moment of
+Trying to verify against anything except for the state at the moment of
 proof generation (or, equivalently, if the included path of hashes were forged
 or tampered) would raise an ``InvalidProof`` error:
 
 .. code-block:: python
 
-  >>> verify_inclusion(b'foo', b'random', proof)
+  >>> verify_inclusion(base, b'random', proof)
        ...
 
   pymerkle.proof.InvalidProof: Path failed to resolve
 
 
-The second argument is the entry whose inclusion was originally proven. The
-verification function checks that the included path of hashes begins with the
+The verification function checks that the included path of hashes begins with the
 hash of that entry; if not, the proof is simiarly invalidated:
 
 .. code-block:: python
 
-  >>> verify_inclusion(b'bar', target, proof)
+  >>> verify_inclusion(b'random', target, proof)
        ...
 
   pymerkle.proof.InvalidProof: Path not based on provided entry
@@ -64,8 +57,8 @@ Save the state of the tree at some moment as follows
 
 .. code-block:: python
 
-  subsize = tree.get_size()
-  subroot = tree.get_state()
+  size1 = tree.get_size()
+  state1 = tree.get_state()
 
 
 and append further entries:
@@ -77,27 +70,21 @@ and append further entries:
   ...
 
 
-Generate a proof of consistency with the previous state as follows:
+Generate a proof of consistency among states as follows:
 
 .. code-block:: python
 
-  proof = tree.prove_consistency(subsize, subroot)
+  size2 = tree.get_size()
+  proof = tree.prove_consistency(size1, size2)
 
 
-Having saved the tree state at the moment of proof generation as
-
-.. code-block:: python
-
-  target = tree.get_state()
-
-
-we can anytime verify the proof as follows:
+We can anytime verify the proof as follows:
 
 .. code-block:: python
 
   from pymerkle import verify_consistency
 
-  verify_consistency(subroot, target, proof)
+  verify_consistency(state1, state2, proof)
 
 
 Trying to verify against any acclaimed previous state except for the proper one
@@ -105,7 +92,7 @@ would raise an ``InvalidProof`` error:
 
 .. code-block:: python
 
-  >>> verify_consistency(b'random', target, proof)
+  >>> verify_consistency(b'random', state2, proof)
         ...
 
   pymerkle.proof.InvalidProof: Path not based on provided state
@@ -118,7 +105,7 @@ invalidate:
 
 .. code-block:: python
 
-  >>> verify_consistency(subroot, b'random', proof)
+  >>> verify_consistency(state2, b'random', proof)
         ...
 
   pymerkle.proof.InvalidProof: Path not based on provided state

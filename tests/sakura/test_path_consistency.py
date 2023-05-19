@@ -440,6 +440,7 @@ def test_principal_nodes(tree, subsize, nodes):
 def test_consisteny_complement(tree, principals, complement):
     assert tree.get_consistency_complement(principals) == complement
 
-@pytest.mark.parametrize('tree, subsize, path', paths)
-def test_generate_consistency_path(tree, subsize, path):
-    assert tree.generate_consistency_path(subsize) == path
+@pytest.mark.parametrize('tree, size1, path', paths)
+def test_consistency_path(tree, size1, path):
+    size2 = tree.get_size()
+    assert tree.consistency_path(0, size1, size2, 0) == path

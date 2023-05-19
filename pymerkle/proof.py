@@ -46,34 +46,34 @@ def verify_inclusion(base, target, proof):
         raise InvalidProof("Path failed to resolve")
 
 
-def verify_consistency(subroot, target, proof):
+def verify_consistency(state1, state2, proof):
     """
     Verifies the provided merkle-proof of consistency for the given state
     against the provided root hash.
 
-    :param subroot:
-    :type subroot: str or bytes
-    :param target: root during proof generation
-    :type target: str or bytes
+    :param state1:
+    :type state1: str or bytes
+    :param state2: root during proof generation
+    :type state2: str or bytes
     :raises InvalidProof: if the proof is invalid
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
     engine = HashEngine(**proof.get_metadata())
 
-    if isinstance(subroot, str):
-        subroot = subroot.encode(proof.encoding)
+    if isinstance(state1, str):
+        state1 = state1.encode(proof.encoding)
 
-    if isinstance(target, str):
-        target = target.encode(proof.encoding)
+    if isinstance(state2, str):
+        state2 = state2.encode(proof.encoding)
 
     offset = proof.offset
 
     principals = [(-1, value) for (_, value) in proof.path[:offset + 1]]
-    if subroot != engine.hash_path(offset, principals):
+    if state1 != engine.hash_path(offset, principals):
         raise InvalidProof("Path not based on provided state")
 
-    if target != engine.hash_path(offset, proof.path):
+    if state2 != engine.hash_path(offset, proof.path):
         raise InvalidProof("Path failed to resolve")
 
 
