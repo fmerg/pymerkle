@@ -428,21 +428,3 @@ class MerkleTree(BaseMerkleTree):
             signed[-1] = (+1, node)
 
         return signed
-
-
-    def has_previous_state(self, subroot):
-        """
-        Check if the provided parameter is the root hash of some previous state
-
-        :param subroot: acclaimed root hash of some previous state
-        :type subroot: bytes
-        :rtype: bool
-        """
-        for subsize in range(1, self.get_size() + 1):
-            principals = self.get_principals(subsize)
-            path = [(-1, node.value) for node in principals]
-
-            if subroot == self.hash_path(len(path) - 1, path):
-                return True
-
-        return False
