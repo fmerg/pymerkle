@@ -7,7 +7,7 @@ from tests.conftest import option, all_configs
 def test_append():
     tree = MerkleTree()
 
-    assert not tree and not tree.get_state()
+    assert tree.get_size() == 0 and not tree.get_state()
     assert tree.get_size() == 0
 
     checksum = tree.append_leaf('a')

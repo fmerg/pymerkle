@@ -112,14 +112,6 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(algorithm, encoding, security)
 
 
-    def __bool__(self):
-        """
-        :returns: true iff the tree is not empty
-        :rtype: bool
-        """
-        return not len(self.leaves) == 0
-
-
     def get_state(self):
         """
         :returns: current root hash
