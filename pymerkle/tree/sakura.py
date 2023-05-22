@@ -2,7 +2,7 @@
 Merkle-tree implementation following Sakura
 """
 
-from pymerkle.utils import log2, decompose
+from pymerkle.utils import decompose
 from pymerkle.tree.base import BaseMerkleTree, InvalidChallenge
 
 
@@ -219,96 +219,28 @@ class MerkleTree(BaseMerkleTree):
         :type bit: int
         :rtype: (list[0/1], list[bytes])
         """
-        leaf = self.leaves[offset]
+        base = self.leaves[offset]
+        bit = 1 if base.is_right_child() else 0
 
-        sign = -1 if leaf.is_right_child() else +1
-        path = [(sign, leaf.value)]
+        path = [base.value]
+        rule = [bit]
 
-        curr = leaf
-        offset = 0
+        curr = base
         while curr.parent:
             parent = curr.parent
 
             if curr.is_left_child():
                 value = parent.right.value
-                sign = +1 if parent.is_left_child() else -1
-                path += [(sign, value)]
+                bit = 0 if parent.is_left_child() else 1
             else:
                 value = parent.left.value
-                sign = -1 if parent.is_right_child() else +1
-                path = [(sign, value)] + path
-                offset += 1
+                bit = 1 if parent.is_right_child() else 0
 
+            rule += [bit]
+            path += [value]
             curr = parent
 
-        return offset, path
-
-
-    def consistency_path(self, start, offset, end, bit):
-        """
-        Returns the consistency path for the state corresponding to the
-        provided offset against the specified leaf range
-
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: represents the state currently under consisteration
-        :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
-        :param bit: indicates direction during recursive call
-        :type bit: int
-        :rtype: (list[0/1], list[0/1], list[bytes])
-
-        """
-        # TODO
-        size1 = offset
-        principals = self.get_signed_principals(size1)
-        complement = self.get_consistency_complement(principals)
-
-        if not principals or not complement:
-            path = [(-1, node) for (_, node) in principals + complement]
-            offset = len(path) - 1
-        else:
-            path = principals + complement
-            offset = len(principals) - 1
-
-        principals = [(-1, node.value) for (_, node) in principals]
-        path = [(sign, node.value) for (sign, node) in path]
-
-        return offset, principals, path
-
-
-    def get_consistency_complement(self, path):
-        """
-        Complements the provided sequence of principal nodes so that a full
-        consistency path can be generated.
-
-        :param path: sequence of principal nodes
-        :type path: list[(+1/-1, Node)]
-        :rtype: list[(+1/-1, Node)]
-        """
-        if not path:
-            return self.get_signed_principals(self.get_size())
-
-        complement = []
-        while True:
-            (_, curr) = path[-1]
-
-            if not curr.parent:
-                break
-
-            parent = curr.parent
-
-            if curr.is_left_child():
-                sign = -1 if parent.is_right_child() else + 1
-                complement += [(sign, parent.right)]
-                path = path[:-1]
-            else:
-                path = path[:-2]
-
-            path += [(+1, parent)]
-
-        return complement
+        return rule, path
 
 
     def get_perfect_node(self, offset, height):
@@ -390,33 +322,4 @@ class MerkleTree(BaseMerkleTree):
             principals += [node]
             offset += 1 << height
 
-        return principals
-
-
-    def get_signed_principals(self, subsize):
-        """
-        Detect the roots of the successive perfect subtrees whose leaf index
-        ranges sum up to the provided number.
-
-        :param subsize:
-        :type subsize: int
-        :rtype: list[(+1/-1, Node)]
-        """
-        principals = self.get_principals(subsize)
-
-        signed = []
-        for node in principals:
-            parent = node.parent
-
-            if not parent or not parent.parent:
-                sign = +1 if node.is_left_child() else -1
-            else:
-                sign = +1 if parent.is_left_child() else -1
-
-            signed += [(sign, node)]
-
-        if signed:
-            (_, node) = signed[-1]
-            signed[-1] = (+1, node)
-
-        return signed
+        return list(reversed(principals))

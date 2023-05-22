@@ -4,6 +4,7 @@ Abstract merkle-tree interface
 
 from abc import ABCMeta, abstractmethod
 
+from pymerkle.utils import log2, decompose
 from pymerkle.hashing import HashEngine
 from pymerkle.proof import MerkleProof
 
@@ -89,21 +90,31 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         return tree
 
 
-    def build_proof(self, offset, path):
+    def hash_range(self, start, end):
         """
-        Create a merkle-proof from the provided path
+        Computes the root-hash of the subtree specified by the provided leaf
+        range
 
-        :param offset: starting position of the verification procedure
-        :type offset: int
-        :param path: path of hashes
-        :type path: iterable of (+1/-1, bytes)
-        :returns: proof object consisting of the above components
-        :rtype: MerkleProof
+        :param start: first leaf index counting from 1
+        :type start: int
+        :param end: last leaf index counting from 1
+        :type end: int
+        :rtype: bytes
         """
-        return MerkleProof(self.algorithm, self.encoding, self.security,
-                offset, path)
+        if end == start:
+            return self.consume(b'')
 
-        return proof
+        if end == start + 1:
+            return self.get_leaf(end)
+
+        k = 1 << log2(end - start)
+        if k == end - start:
+            k >>= 1
+
+        left = self.hash_range(start, start + k)
+        rght = self.hash_range(start + k, end)
+
+        return self.hash_pair(left, rght)
 
 
     @abstractmethod
@@ -122,6 +133,23 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type bit: int
         :rtype: (list[0/1], list[bytes])
         """
+        if offset == start and start == end - 1:
+            value = self.get_leaf(offset + 1)
+            return [bit], [value]
+
+        k = 1 << log2(end - start)
+        if k == end - start:
+            k >>= 1
+
+        if offset < start + k:
+            rule, path = self.inclusion_path(start, offset, start + k, 0)
+            value = self.hash_range(start + k, end)
+        else:
+            rule, path = self.inclusion_path(start + k, offset, end, 1)
+            value = self.hash_range(start, start + k)
+
+        return rule + [bit], path + [value]
+
 
     def prove_inclusion(self, index, size=None):
         """
@@ -146,16 +174,15 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if index <= 0 or index > size:
             raise InvalidChallenge('Provided index is out of bounds')
 
-        offset, path = self.inclusion_path(0, index - 1, size, 0)
+        rule, path = self.inclusion_path(0, index - 1, size, 0)
 
-        proof = self.build_proof(offset, path)
-        return proof
+        return MerkleProof(self.algorithm, self.encoding, self.security, size,
+                rule, [], path)
 
 
-    @abstractmethod
     def consistency_path(self, start, offset, end, bit):
         """
-        Should return the consistency path for the state corresponding to the
+        Returns the consistency path for the state corresponding to the
         provided offset against the specified leaf range
 
         :param start: leftmost leaf index counting from zero
@@ -168,6 +195,30 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         :type bit: int
         :rtype: (list[0/1], list[0/1], list[bytes])
         """
+        if offset == end:
+            value = self.hash_range(start, start + end)
+            return [bit], [1], [value]
+
+        if offset == 0 and end == 1:
+            value = self.get_leaf(start + offset + 1)
+            return [bit], [0], [value]
+
+        k = 1 << log2(end)
+        if k == end:
+            k >>= 1
+        mask = 0
+
+        if offset < k:
+            rule, subset, path = self.consistency_path(start, offset, k, 0)
+            value = self.hash_range(start + k, start + end)
+        else:
+            rule, subset, path = self.consistency_path(start + k, offset - k,
+                    end - k, 1)
+            value = self.hash_range(start, start + k)
+            mask = int(k == 1 << log2(k))
+
+        return rule + [bit], subset + [mask], path + [value]
+
 
     def prove_consistency(self, size1, size2=None):
         """
@@ -192,7 +243,7 @@ class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
         if size1 < 0 or size1 > size2:
             raise InvalidChallenge('Provided size1 is out of bounds')
 
-        offset, principals, path = self.consistency_path(0, size1, size2, 0)
+        rule, subset, path = self.consistency_path(0, size1, size2, 0)
 
-        proof = self.build_proof(offset, path)
-        return proof
+        return MerkleProof(self.algorithm, self.encoding, self.security, size2,
+                rule, subset, path)

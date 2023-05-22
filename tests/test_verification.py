@@ -5,7 +5,7 @@ from pymerkle.proof import verify_inclusion, verify_consistency, InvalidProof
 from tests.conftest import option, all_configs
 
 
-maxsize = 4
+maxsize = 7
 trees = []
 trees_and_indexes = []
 trees_and_subtrees = []

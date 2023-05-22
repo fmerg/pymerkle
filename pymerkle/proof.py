@@ -16,119 +16,109 @@ class InvalidProof(Exception):
     pass
 
 
-def verify_inclusion(base, target, proof):
+def verify_inclusion(base, state, proof):
     """
-    Verifies the provided merkle-proof of inclusion for the given data against
-    the provided root hash.
+    Verifies the provided merkle-proof of inclusion for the given base entry
+    against the provided state
 
-    :param base: entry to verify
+    :param base: acclaimed hash to verify
     :type base: str or bytes
-    :param target: root hash during proof generation
-    :type target: str or bytes
+    :param state: acclaimed state during proof generation
+    :type state: str or bytes
     :param proof: proof of inclusion
     :type proof: MerkleProof
-    :raises InvalidProof: if the proof is invalid
+    :raises InvalidProof: if the proof is found invalid
     """
-    engine = HashEngine(**proof.get_metadata())
-
     if isinstance(base, str):
         base = base.encode(proof.encoding)
 
-    if isinstance(target, str):
-        target = target.encode(proof.encoding)
+    if isinstance(state, str):
+        state = state.encode(proof.encoding)
 
-    offset = proof.offset
+    if not proof.path[0] == base:
+        raise InvalidProof('Base hash does not match')
 
-    if not proof.path[offset][1] == base:
-        raise InvalidProof("Path not based on provided entry")
-
-    if target != engine.hash_path(offset, proof.path):
-        raise InvalidProof("Path failed to resolve")
+    if not proof.resolve() == state:
+        raise InvalidProof('State does not match')
 
 
-def verify_consistency(state1, state2, proof):
+def verify_consistency(prior, state, proof):
     """
     Verifies the provided merkle-proof of consistency for the given state
     against the provided root hash.
 
-    :param state1:
-    :type state1: str or bytes
-    :param state2: root during proof generation
-    :type state2: str or bytes
-    :raises InvalidProof: if the proof is invalid
+    :param prior: acclaimed prior state
+    :type prior: str or bytes
+    :param state: acclaimed state during proof generation
+    :type state: str or bytes
+    :raises InvalidProof: if the proof is found invalid
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
-    engine = HashEngine(**proof.get_metadata())
+    if isinstance(prior, str):
+        prior = prior.encode(proof.encoding)
 
-    if isinstance(state1, str):
-        state1 = state1.encode(proof.encoding)
+    if isinstance(state, str):
+        state = state.encode(proof.encoding)
 
-    if isinstance(state2, str):
-        state2 = state2.encode(proof.encoding)
+    if not proof.retrieve_prior_state() == prior:
+        raise InvalidProof('Prior state does not match')
 
-    offset = proof.offset
-
-    principals = [(-1, value) for (_, value) in proof.path[:offset + 1]]
-    if state1 != engine.hash_path(offset, principals):
-        raise InvalidProof("Path not based on provided state")
-
-    if state2 != engine.hash_path(offset, proof.path):
-        raise InvalidProof("Path failed to resolve")
+    if not proof.resolve() == state:
+        raise InvalidProof('Later state does not match')
 
 
 class MerkleProof:
-    """
-    :param algorithm: hash algorithm
-    :type algorithm: str
-    :param encoding: encoding scheme
-    :type encoding: str
-    :param security: defense against 2-nd preimage attack
-    :type security: bool
-    :param offset: starting position for hashing during verification
-    :type offset: int
-    :param path: path of hashes
-    :type path: list[(+1/-1, bytes)]
-    """
 
-    def __init__(self, algorithm, encoding, security, offset, path):
+    def __init__(self, algorithm, encoding, security, size, rule, subset,
+            path):
+        """
+        :param algorithm: hash algorithm
+        :type algorithm: str
+        :param encoding: encoding scheme
+        :type encoding: str
+        :param security: defense against 2-nd preimage attack
+        :type security: bool
+        :param size: nr leaves corresponding to requested current state
+        :typw size: int
+        :param rule: specifies parenthetization of hashes during current state
+            recovery
+        :type rule: list[int]
+        :param subset: indicates subset of hashes for prior state recovery
+        :type subset: list[int]
+        :param path: path of hashes
+        :type path: list[bytes]
+        """
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
-        self.offset = offset
+        self.size = size
+        self.rule = rule
+        self.subset = subset
         self.path = path
 
 
     def get_metadata(self):
         """
-        .. note:: These are parameters required for configuring the hashing
-            machinery during proof verification
-
         :rtype: dict
         """
         return {'algorithm': self.algorithm, 'encoding': self.encoding,
                 'security': self.security}
 
-
     def serialize(self):
         """
         :rtype: dict
         """
-        algorithm = self.algorithm
-        encoding = self.encoding
-        security = self.security
-        offset = self.offset
-        path = [[sign, value.decode(self.encoding)] for (sign, value) in
-                self.path]
-
         return {
             'metadata': {
-                'algorithm': algorithm,
-                'encoding': encoding,
-                'security': security,
+                'algorithm': self.algorithm,
+                'encoding': self.encoding,
+                'security': self.security,
             },
-            'offset': offset,
-            'path': path,
+            'size': self.size,
+            'rule': self.rule,
+            'subset': self.subset,
+            'path': [value.decode(self.encoding) for value in self.path]
         }
 
 
@@ -139,8 +129,63 @@ class MerkleProof:
         """
         metadata = proof['metadata']
         encoding = metadata['encoding']
-        path = [(sign, value.encode(encoding)) for [sign, value] in
-                proof['path']]
-        offset = proof['offset']
+        rule = proof['rule']
+        size = proof['size']
+        subset = proof['subset']
+        path = [value.encode(encoding) for value in proof['path']]
 
-        return cls(**metadata, path=path, offset=offset)
+        return cls(**metadata, size=size, rule=rule, subset=subset, path=path)
+
+
+    def retrieve_prior_state(self):
+        """
+        :rtype: bytes
+        """
+        subpath = [value for (mask, value) in zip(self.subset, self.path) if
+                mask]
+
+        MerkleHasher = HashEngine
+        h = MerkleHasher(**self.get_metadata())
+
+        if not subpath:
+            return h.consume(b'')
+
+        result = subpath[0]
+        index = 0
+        while index < len(subpath) - 1:
+            result = h.hash_pair(subpath[index + 1], result)
+            index += 1
+
+        print(result)
+        return result
+
+
+    def resolve(self):
+        """
+        :rtype: bytes
+        """
+        path = list(zip(self.rule, self.path))
+
+        MerkleHasher = HashEngine
+        h = MerkleHasher(**self.get_metadata())
+
+        if not path:
+            return h.consume(b'')
+
+        bit, result = path[0]
+        index = 0
+        while index < len(path) - 1:
+            next_bit, value = path[index + 1]
+
+            match bit:
+                case 0:
+                    result = h.hash_pair(result, value)
+                case 1:
+                    result = h.hash_pair(value, result)
+                case _:
+                    raise Exception('TODO')
+
+            bit = next_bit
+            index += 1
+
+        return result

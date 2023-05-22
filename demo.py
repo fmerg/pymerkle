@@ -59,22 +59,17 @@ def order_of_magnitude(num):
     return int(log10(num)) if num != 0 else 0
 
 
-def get_signed(num):
-    return f'{"+" if num >= 0 else ""}{num}'
-
-
-def strpath(path, encoding):
-    template = '\n{left}[{index}]{middle}{sign}{right}{value}'
-
+def strpath(rule, path, encoding):
+    template = '\n{left}[{index}]{middle}{bit}{right}{value}'
     pairs = []
-    for index, curr in enumerate(path):
+    for index, (bit, value) in enumerate(zip(rule, path)):
         kw = {
             'left': (7 - order_of_magnitude(index)) * ' ',
             'index': index,
             'middle': 3 * ' ',
-            'sign': get_signed(curr[0]),
+            'bit': bit,
             'right': 3 * ' ',
-            'value': curr[1]
+            'value': value,
         }
         pairs += [template.format(**kw)]
 
@@ -86,20 +81,24 @@ def display(proof):
     algorithm   : {algorithm}
     encoding    : {encoding}
     security    : {security}
-    offset      : {offset}
+    size        : {size}
+    rule        : {rule}
+    subset      : {subset}
     {path}\n\n"""
 
     serialized = proof.serialize()
 
     metadata = serialized['metadata']
+    size = serialized['size']
+    rule = serialized['rule']
+    subset = serialized['subset']
     path = serialized['path']
-    offset = serialized['offset']
 
     encoding = metadata.pop('encoding').replace('_', '')
-    offset = offset
-    path = strpath(path, encoding)
+    path = strpath(rule, path, encoding)
 
-    kw = {**metadata, 'encoding': encoding, 'offset': offset, 'path': path}
+    kw = {**metadata, 'encoding': encoding, 'size': size, 'rule': rule,
+          'subset': subset, 'path': path}
     return template.format(**kw)
 
 
