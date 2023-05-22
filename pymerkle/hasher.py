@@ -13,9 +13,9 @@ class UnsupportedParameter(Exception):
     pass
 
 
-class HashEngine:
+class MerkleHasher:
     """
-    :param algorithm: [optional] hash algorith
+    :param algorithm: [optional] hash algorithm
     :type algorithm: str
     :param encoding: [optional] encoding scheme
     :type encoding: str
@@ -24,7 +24,7 @@ class HashEngine:
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        algorith, encoding = self.validate_parameters(algorithm, encoding)
+        algorithm, encoding = self.validate_parameters(algorithm, encoding)
 
         self.algorithm = algorithm
         self.encoding = encoding
@@ -59,9 +59,9 @@ class HashEngine:
         :type buffer: bytes
         :rtype: bytes
         """
-        hasher = getattr(hashlib, self.algorithm)()
+        _hasher = getattr(hashlib, self.algorithm)()
 
-        update = hasher.update
+        update = _hasher.update
         chunksize = 1024
         offset = 0
         chunk = buffer[offset: chunksize]
@@ -70,7 +70,7 @@ class HashEngine:
             offset += chunksize
             chunk = buffer[offset: offset + chunksize]
 
-        checksum = hasher.hexdigest()
+        checksum = _hasher.hexdigest()
 
         return checksum.encode(self.encoding)
 

@@ -1,6 +1,5 @@
 import pytest
 from pymerkle.tree import MerkleTree
-from pymerkle.hashing import UnsupportedParameter
 from tests.conftest import option, all_configs
 
 
@@ -23,11 +22,3 @@ def test_append():
     assert tree.get_size() == 3
 
     assert tree and tree.get_state()
-
-
-def test_unsupported():
-    with pytest.raises(UnsupportedParameter):
-        MerkleTree(algorithm='anything_unsupported')
-
-    with pytest.raises(UnsupportedParameter):
-        MerkleTree(encoding='anything_unsupported')

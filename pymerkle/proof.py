@@ -6,7 +6,7 @@ import os
 import json
 from time import time
 
-from pymerkle.hashing import HashEngine
+from pymerkle.hasher import MerkleHasher
 
 
 class InvalidProof(Exception):
@@ -142,9 +142,8 @@ class MerkleProof:
         :rtype: bytes
         """
         subpath = [value for (mask, value) in zip(self.subset, self.path) if
-                mask]
+            mask]
 
-        MerkleHasher = HashEngine
         h = MerkleHasher(**self.get_metadata())
 
         if not subpath:
@@ -166,7 +165,6 @@ class MerkleProof:
         """
         path = list(zip(self.rule, self.path))
 
-        MerkleHasher = HashEngine
         h = MerkleHasher(**self.get_metadata())
 
         if not path:

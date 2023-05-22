@@ -25,10 +25,10 @@ pymerkle.constants module
    :undoc-members:
    :show-inheritance:
 
-pymerkle.hashing module
------------------------
+pymerkle.hasher module
+----------------------
 
-.. automodule:: pymerkle.hashing
+.. automodule:: pymerkle.hasher
    :members:
    :undoc-members:
    :show-inheritance:

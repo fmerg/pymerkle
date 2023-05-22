@@ -5,7 +5,7 @@ Abstract merkle-tree interface
 from abc import ABCMeta, abstractmethod
 
 from pymerkle.utils import log2, decompose
-from pymerkle.hashing import HashEngine
+from pymerkle.hasher import MerkleHasher
 from pymerkle.proof import MerkleProof
 
 
@@ -16,7 +16,7 @@ class InvalidChallenge(Exception):
     pass
 
 
-class BaseMerkleTree(HashEngine, metaclass=ABCMeta):
+class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
     Merkle-tree interface
 

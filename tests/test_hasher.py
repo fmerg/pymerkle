@@ -1,6 +1,6 @@
 import pytest
 import hashlib
-from pymerkle.hashing import HashEngine, UnsupportedParameter
+from pymerkle.hasher import MerkleHasher
 from pymerkle.constants import ALGORITHMS
 from tests.conftest import option, all_configs
 
@@ -10,17 +10,17 @@ record = 'oculusnonviditnecaurisaudivit'
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_single_string_hash(config):
-    engine = HashEngine(**config)
+    h = MerkleHasher(**config)
 
-    security = engine.security
-    algorithm = engine.algorithm
-    encoding = engine.encoding
+    security = h.security
+    algorithm = h.algorithm
+    encoding = h.encoding
 
     prefx00 = '\x00'.encode(encoding)
     data = record.encode(encoding)
 
     if security:
-        assert engine.hash_entry(record) == bytes(
+        assert h.hash_entry(record) == bytes(
             getattr(hashlib, algorithm)(
                 prefx00 +
                 data
@@ -28,7 +28,7 @@ def test_single_string_hash(config):
             encoding
         )
     else:
-        assert engine.hash_entry(record) == bytes(
+        assert h.hash_entry(record) == bytes(
             getattr(hashlib, algorithm)(data).hexdigest(),
             encoding
         )
@@ -36,17 +36,17 @@ def test_single_string_hash(config):
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_single_bytes_hash(config):
-    engine = HashEngine(**config)
+    h = MerkleHasher(**config)
 
-    security = engine.security
-    algorithm = engine.algorithm
-    encoding = engine.encoding
+    security = h.security
+    algorithm = h.algorithm
+    encoding = h.encoding
 
     prefx00 = '\x00'.encode(encoding)
     data = record.encode(encoding)
 
     if security:
-        assert engine.hash_entry(data) == bytes(
+        assert h.hash_entry(data) == bytes(
             getattr(hashlib, algorithm)(
                 bytes('\x00', encoding) +
                 data
@@ -54,7 +54,7 @@ def test_single_bytes_hash(config):
             encoding
         )
     else:
-        assert engine.hash_entry(data) == bytes(
+        assert h.hash_entry(data) == bytes(
             getattr(hashlib, algorithm)(data).hexdigest(),
             encoding
         )
@@ -62,18 +62,18 @@ def test_single_bytes_hash(config):
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_double_bytes_hash(config):
-    engine = HashEngine(**config)
+    h = MerkleHasher(**config)
 
-    security = engine.security
-    algorithm = engine.algorithm
-    encoding = engine.encoding
+    security = h.security
+    algorithm = h.algorithm
+    encoding = h.encoding
 
     prefx00 = '\x00'.encode(encoding)
     prefx01 = '\x01'.encode(encoding)
     data = record.encode(encoding)
 
     if security:
-        assert engine.hash_pair(
+        assert h.hash_pair(
             data,
             data) == bytes(
             getattr(hashlib, algorithm)(
@@ -85,7 +85,7 @@ def test_double_bytes_hash(config):
             encoding
         )
     else:
-        assert engine.hash_pair(
+        assert h.hash_pair(
             data,
             data) == bytes(
                 getattr(hashlib, algorithm)(
