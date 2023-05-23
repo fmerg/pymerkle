@@ -17,10 +17,10 @@ pymerkle.tree.base module
    :undoc-members:
    :show-inheritance:
 
-pymerkle.tree.sakura module
----------------------------
+pymerkle.tree.inmemory module
+-----------------------------
 
-.. automodule:: pymerkle.tree.sakura
+.. automodule:: pymerkle.tree.inmemory
    :members:
    :undoc-members:
    :show-inheritance:

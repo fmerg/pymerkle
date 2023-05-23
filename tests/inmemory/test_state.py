@@ -1,7 +1,10 @@
 import pytest
-from pymerkle import MerkleTree
-from pymerkle.tree import InvalidChallenge
-from pymerkle.proof import verify_inclusion, verify_consistency, InvalidProof
+from pymerkle import (
+    InmemoryTree as MerkleTree,
+    verify_inclusion,
+    verify_consistency,
+    InvalidProof,
+)
 from tests.conftest import option, all_configs
 
 

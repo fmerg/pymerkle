@@ -4,7 +4,11 @@ pymerkle demo
 
 import sys
 from math import log10
-from pymerkle import MerkleTree, verify_inclusion, verify_consistency
+from pymerkle import (
+    InmemoryTree as MerkleTree,
+    verify_inclusion,
+    verify_consistency
+)
 
 
 def order_of_magnitude(num):

@@ -1,7 +1,8 @@
-from .sakura import MerkleTree
-from .base import InvalidChallenge
+from .base import BaseMerkleTree, InvalidChallenge
+from .inmemory import InmemoryTree
 
 __all__ = (
-    'MerkleTree',
+    'InmemoryTree',
+    'BaseMerkleTree',
     'InvalidChallenge',
 )

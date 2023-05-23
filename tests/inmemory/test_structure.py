@@ -1,5 +1,5 @@
 import pytest
-from pymerkle import MerkleTree
+from pymerkle.tree import InmemoryTree as MerkleTree
 
 
 tree = MerkleTree()

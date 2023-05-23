@@ -6,16 +6,16 @@ Construction
 
 .. code-block:: python
 
-    from pymerkle import MerkleTree
+    from pymerkle import InmemoryTree
 
-    tree = MerkleTree()
+    tree = InmemoryTree()
 
 This creates an empty sha256/utf-8 merkle-tree capable of defending against
 second-preimage attacks. It is equivalent to
 
 .. code-block:: python
 
-    tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
+    tree = InmemoryTree(algorithm='sha256', encoding='utf-8', security=True)
 
 The *algorithm* option refers to the underlying hash algorithm, *encoding*
 specifies the encoding scheme applied before hashing and *security* determines
@@ -23,7 +23,7 @@ whether defense against second-preimage attack will be enabled. For example,
 
 .. code-block:: python
 
-    tree = MerkleTree(algorithm='sha512', encoding='utf-32', security=False)
+    tree = InmemoryTree(algorithm='sha512', encoding='utf-32', security=False)
 
 creates a sha512/utf-32 merkle-tree with defense against second-preimage attack
 disabled.
@@ -60,15 +60,6 @@ Prefix policy applied before hashing:
 
     >>> tree.security
     True
-
-
-Sometimes it is convenient to have the tree settings in dictionary form,
-e.g., for configuring the hashing machinery of a verifier:
-
-.. code-block:: python
-
-    >>> tree.get_metadata()
-    {'algorithm': 'sha256', 'encoding': 'utf_8', 'security': True}
 
 
 State

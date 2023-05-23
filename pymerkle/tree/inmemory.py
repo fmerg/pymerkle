@@ -149,9 +149,9 @@ class Leaf(Node):
         super().__init__(value, None, None)
 
 
-class MerkleTree(BaseMerkleTree):
+class InmemoryTree(BaseMerkleTree):
     """
-    Sakura merkle-tree
+    In-memory merkle-tree
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):

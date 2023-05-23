@@ -23,9 +23,9 @@ pip3 install pymerkle
 ## Usage
 
 ```python
-from pymerkle import MerkleTree, verify_inclusion, verify_consistency
+from pymerkle import InmemoryTree, verify_inclusion, verify_consistency
 
-tree = MerkleTree()
+tree = InmemoryTree()
 
 # Populate tree with some entries
 for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:

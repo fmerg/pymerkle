@@ -1,5 +1,5 @@
 import pytest
-from pymerkle.tree import MerkleTree
+from pymerkle.tree import InmemoryTree as MerkleTree
 from tests.conftest import option, all_configs
 
 
