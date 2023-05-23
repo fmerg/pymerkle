@@ -88,6 +88,55 @@ class Node:
         return curr
 
 
+    def expand(self, encoding, indent=2, trim=None, level=0, ignored=None):
+        """
+        :param encoding:
+        :type encoding: str
+        :param indent: [optional]
+        :type indent: str
+        :param trim: [optional]
+        :type trim: str
+        :param level: [optional]
+        :type level: str
+        :param ignored: [optional]
+        :type ignored: str
+        :rtype: str
+        """
+        ignored = ignored or []
+
+        if level == 0:
+            out = 2 * '\n' + ' └─' if not self.parent else ''
+        else:
+            out = (indent + 1) * ' '
+
+        col = 1
+        while col < level:
+            out += ' │' if col not in ignored else 2 * ' '
+            out += indent * ' '
+            col += 1
+
+        if self.is_left_child():
+            out += ' ├──'
+
+        if self.is_right_child():
+            out += ' └──'
+            ignored += [level]
+
+        checksum = self.value.decode(encoding)
+        out += (checksum[:trim] + '...') if trim else checksum
+        out += '\n'
+
+        if self.is_leaf():
+            return out
+
+        recursion = (encoding, indent, trim, level + 1, ignored[:])
+
+        out += self.left.expand(*recursion)
+        out += self.right.expand(*recursion)
+
+        return out
+
+
 class Leaf(Node):
     """
     Merkle-tree leaf
@@ -110,6 +159,17 @@ class MerkleTree(BaseMerkleTree):
         self.leaves = []
 
         super().__init__(algorithm, encoding, security)
+
+
+    def __str__(self, indent=2, trim=8):
+        """
+        :returns:
+        :rtype: str
+        """
+        if not self.root:
+            return '\n └─[None]\n'
+
+        return self.root.expand(self.encoding, indent, trim) + '\n'
 
 
     def get_state(self):

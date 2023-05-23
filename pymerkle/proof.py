@@ -155,7 +155,6 @@ class MerkleProof:
             result = h.hash_pair(subpath[index + 1], result)
             index += 1
 
-        print(result)
         return result
 
 
@@ -181,7 +180,7 @@ class MerkleProof:
                 case 1:
                     result = h.hash_pair(value, result)
                 case _:
-                    raise Exception('TODO')
+                    raise Exception('Invalid bit found')
 
             bit = next_bit
             index += 1

@@ -60,7 +60,6 @@ class MerkleHasher:
         :rtype: bytes
         """
         _hasher = getattr(hashlib, self.algorithm)()
-
         update = _hasher.update
         chunksize = 1024
         offset = 0
@@ -70,9 +69,7 @@ class MerkleHasher:
             offset += chunksize
             chunk = buffer[offset: offset + chunksize]
 
-        checksum = _hasher.hexdigest()
-
-        return checksum.encode(self.encoding)
+        return _hasher.hexdigest().encode(self.encoding)
 
 
     def hash_entry(self, data):
@@ -88,9 +85,8 @@ class MerkleHasher:
             data = data.encode(self.encoding)
 
         buffer = self.prefx00 + data
-        digest = self.consume(buffer)
 
-        return digest
+        return self.consume(buffer)
 
 
     def hash_pair(self, left, right):
@@ -107,6 +103,5 @@ class MerkleHasher:
         :rtype: bytes
         """
         buffer = self.prefx01 + left + self.prefx01 + right
-        digest = self.consume(buffer)
 
-        return digest
+        return self.consume(buffer)
