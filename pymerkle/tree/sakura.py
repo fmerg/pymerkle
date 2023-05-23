@@ -254,30 +254,33 @@ class MerkleTree(BaseMerkleTree):
         :returns: hash stored by new leaf
         :rtype: bytes
         """
-        new_leaf = Leaf(self.hash_entry(data))
+        tail = Leaf(self.hash_entry(data))
 
         if not self.leaves:
-            self.root = new_leaf
-            self.leaves += [new_leaf]
-            return self.root.value
+            self.leaves += [tail]
+            self.root = tail
+            return 1
 
-        node = self.get_last_maximal_perfect()
-        self.leaves += [new_leaf]
-
-        new_value = self.hash_pair(node.value, new_leaf.value)
+        node = self.last_maximal_perfect()
+        self.leaves += [tail]
+        value = self.hash_pair(node.value, tail.value)
 
         if node.is_root():
-            self.root = Node(new_value, left=node, right=new_leaf)
-            return new_leaf.value
+            self.root = Node(value, node, tail)
+            index = self.get_size()
+            return index
 
         curr = node.parent
-        curr.right = Node(new_value, left=node, right=new_leaf)
+        curr.right = Node(value, node, tail)
         curr.right.parent = curr
         while curr:
-            curr.value = self.hash_pair(curr.left.value, curr.right.value)
+            curr.value = self.hash_pair(
+                curr.left.value, curr.right.value
+            )
             curr = curr.parent
 
-        return new_leaf.value
+        index = self.get_size()
+        return index
 
 
     def inclusion_path(self, start, offset, end, bit):
@@ -364,7 +367,7 @@ class MerkleTree(BaseMerkleTree):
         return node
 
 
-    def get_last_maximal_perfect(self):
+    def last_maximal_perfect(self):
         """
         Detect the root of the perfect subtree of maximum possible size
         containing the currently last leaf

@@ -118,12 +118,12 @@ Let ``tree`` be a merkle-tree with seven leaves:
   b'1b81867968eab8ce5e5a6b1a8164c24afe856262fdbfb087ab751cc1ee668d54'
 
 
-Appending an entry returns the hash stored by the new leaf:
+Appending an entry returns the index of the newly stored leaf (counting from 1):
 
 .. code-block:: python
 
   >>> tree.append_leaf(b'data')
-  b'0d3aed023148ffd2a259fbd0cdc7fb3cf975658760d3775b82af6f90aacc2dfc'
+  8
 
 
 Tree state has changed as expeted:

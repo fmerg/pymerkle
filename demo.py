@@ -58,7 +58,7 @@ if __name__ == '__main__':
     for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
         tree.append_leaf(data)
 
-    sys.stdout.write('\n nr leaves: %s' % tree.get_size())
+    sys.stdout.write('\n nr leaves: %d' % tree.get_size())
     sys.stdout.write(str(tree))
 
     # Prove and verify inclusion of `bar`
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     for data in [b'corge', b'grault', b'garlpy']:
         tree.append_leaf(data)
 
-    sys.stdout.write('\n nr leaves: %s' % tree.get_size())
+    sys.stdout.write('\n nr leaves: %d' % tree.get_size())
     sys.stdout.write(str(tree))
 
     # Prove and verify previous state

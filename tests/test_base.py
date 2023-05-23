@@ -3,19 +3,15 @@ from pymerkle.tree import MerkleTree
 from tests.conftest import option, all_configs
 
 
-def test_append():
+def test_append_leaf():
     tree = MerkleTree()
 
     assert tree.get_size() == 0
 
-    checksum = tree.append_leaf('a')
-    assert checksum == tree.hash_entry('a')
-    assert tree.get_size() == 1
+    entries = ['a', 'b', 'c', 'd', 'e']
+    for (i, data) in enumerate(entries, start=1):
+        index = tree.append_leaf(data)
+        value = tree.get_leaf(index)
 
-    checksum = tree.append_leaf('b')
-    assert checksum == tree.hash_entry('b')
-    assert tree.get_size() == 2
-
-    checksum = tree.append_leaf('c')
-    assert checksum == tree.hash_entry('c')
-    assert tree.get_size() == 3
+        assert index == i
+        assert value == tree.hash_entry(data)

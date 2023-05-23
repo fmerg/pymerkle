@@ -8,7 +8,7 @@ from pymerkle.constants import ENCODINGS, ALGORITHMS
 
 class UnsupportedParameter(Exception):
     """
-    Raised when a mekle-hasher with unsupported parameters is requested
+    Raised when a Merkle-hasher with unsupported parameters is requested
     """
     pass
 
@@ -24,18 +24,21 @@ class MerkleHasher:
     """
 
     def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
-        algorithm, encoding = self.validate_parameters(algorithm, encoding)
+        algorithm, encoding = self.validate_params(algorithm, encoding)
 
         self.algorithm = algorithm
         self.encoding = encoding
         self.security = security
+        self.prefx00 = '\x00'.encode(encoding)
+        self.prefx01 = '\x01'.encode(encoding)
 
-        self.prefx00 = '\x00'.encode(encoding) if security else bytes()
-        self.prefx01 = '\x01'.encode(encoding) if security else bytes()
+        if not self.security:
+            self.prefx00 = bytes()
+            self.prefx01 = bytes()
 
 
     @staticmethod
-    def validate_parameters(algorithm, encoding):
+    def validate_params(algorithm, encoding):
         validated = []
 
         for (provided, supported) in (
@@ -60,6 +63,7 @@ class MerkleHasher:
         :rtype: bytes
         """
         _hasher = getattr(hashlib, self.algorithm)()
+
         update = _hasher.update
         chunksize = 1024
         offset = 0
