@@ -9,7 +9,7 @@ record = 'oculusnonviditnecaurisaudivit'
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_single_string_hash(config):
+def test_hash_entry_string(config):
     h = MerkleHasher(**config)
 
     security = h.security
@@ -35,7 +35,7 @@ def test_single_string_hash(config):
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_single_bytes_hash(config):
+def test_hash_entry_bytes(config):
     h = MerkleHasher(**config)
 
     security = h.security
@@ -61,7 +61,7 @@ def test_single_bytes_hash(config):
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_double_bytes_hash(config):
+def test_hash_pair(config):
     h = MerkleHasher(**config)
 
     security = h.security

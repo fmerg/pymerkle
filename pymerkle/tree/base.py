@@ -56,18 +56,19 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: bytes
         """
 
-    def get_state(self, size=None):
+    def get_state(self, subsize=None):
         """
         Computes the root-hash of the subtree specified by the provided size
 
-        :param size: [optional] number of leaves. Defaults to current tree size
-        :type size: int
+        :param subsize: [optional] number of leaves to consider. Defaults to
+            current tree size
+        :type subsize: int
         :rtype: bytes
         """
-        if size is None:
-            size = self.get_size()
+        if subsize is None:
+            subsize = self.get_size()
 
-        return self.hash_range(0, size)
+        return self.hash_range(0, subsize)
 
     @classmethod
     def init_from_entries(cls, *entries, algorithm='sha256', encoding='utf_8',
@@ -153,33 +154,33 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return rule + [bit], path + [value]
 
 
-    def prove_inclusion(self, index, size=None):
+    def prove_inclusion(self, index, subsize=None):
         """
         Proves inclusion of the hash located at the provided index against the
         subtree specified by the provided size
 
         :param index: leaf index counting from one
         :type index: int
-        :param size: [optional] size of subtree to consider. Defaults to
+        :param subsize: [optional] subsize of subtree to consider. Defaults to
             current tree size
-        :type size: int
+        :type subsize: int
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
-        if size is None:
-            size = self.get_size()
+        if subsize is None:
+            subsize = self.get_size()
 
-        if size > self.get_size():
+        if subsize > self.get_size():
             raise InvalidChallenge('Provided size is out of bounds')
 
-        if index <= 0 or index > size:
+        if index <= 0 or index > subsize:
             raise InvalidChallenge('Provided index is out of bounds')
 
-        rule, path = self.inclusion_path(0, index - 1, size, 0)
+        rule, path = self.inclusion_path(0, index - 1, subsize, 0)
 
-        return MerkleProof(self.algorithm, self.encoding, self.security, size,
-                rule, [], path)
+        return MerkleProof(self.algorithm, self.encoding, self.security,
+            subsize, rule, [], path)
 
 
     def consistency_path(self, start, offset, end, bit):

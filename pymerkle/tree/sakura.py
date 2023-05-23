@@ -172,24 +172,25 @@ class MerkleTree(BaseMerkleTree):
         return self.root.expand(self.encoding, indent, trim) + '\n'
 
 
-    def get_state(self, size=None):
+    def get_state(self, subsize=None):
         """
         Computes the root-hash of the subtree specified by the provided size
 
-        :param size: [optional] number of leaves. Defaults to current tree size
-        :type size: int
+        :param subsize: [optional] number of leaves to consider. Defaults to
+            current tree size
+        :type subsize: int
         :rtype: bytes
         """
-        if size is None:
-            size = self.get_size()
+        if subsize is None:
+            subsize = self.get_size()
 
-        if size == 0:
+        if subsize == 0:
             return self.consume(b'')
 
-        if size == self.get_size():
+        if subsize == self.get_size():
             return self.root.value
 
-        principals = self.get_principals(size)
+        principals = self.get_principals(subsize)
         result = principals[0].value
         i = 0
         while i < len(principals) - 1:
@@ -322,7 +323,7 @@ class MerkleTree(BaseMerkleTree):
         return rule, path
 
 
-    def get_perfect_node(self, offset, height):
+    def get_perfect_node(self, index, height):
         """
         Detect the root of the perfect subtree of the provided height whose
         leftmost leaf node is located at the provided position
@@ -330,13 +331,13 @@ class MerkleTree(BaseMerkleTree):
         .. note:: Returns *None* if no binary subtree exists for the provided
             parameters.
 
-        :param offset: position of leftmost leaf node coutning from zero
-        :type offset: int
+        :param index: position of leftmost leaf node coutning from one
+        :type index: int
         :param height: height of requested subtree
         :type height: int
         :rtype: Node
         """
-        node = self.leaf(offset + 1)
+        node = self.leaf(index)
 
         if not node:
             return
@@ -393,7 +394,7 @@ class MerkleTree(BaseMerkleTree):
         principals = []
         offset = 0
         for height in reversed(decompose(subsize)):
-            node = self.get_perfect_node(offset, height)
+            node = self.get_perfect_node(offset + 1, height)
 
             if not node:
                 return []
