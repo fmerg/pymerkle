@@ -36,6 +36,11 @@ perfect_nodes = [
 ]
 
 
+@pytest.mark.parametrize('tree, offset, height, node', perfect_nodes)
+def test_perfect_node(tree, offset, height, node):
+    assert tree.get_perfect_node(offset, height) is node
+
+
 paths = [
     (
         tree_1,
@@ -287,10 +292,6 @@ paths = [
     ),
 ]
 
-
-@pytest.mark.parametrize('tree, offset, height, node', perfect_nodes)
-def test_perfect_node(tree, offset, height, node):
-    assert tree.get_perfect_node(offset, height) is node
 
 @pytest.mark.parametrize('tree, size1, path', paths)
 def test_consistency_path(tree, size1, path):

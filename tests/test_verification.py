@@ -10,7 +10,7 @@ trees = []
 trees_and_indexes = []
 trees_and_subtrees = []
 for config in all_configs(option):
-    for size in range(1, maxsize + 1):
+    for size in range(0, maxsize + 1):
         entries = ['%d-th entry' % _ for _ in range(size)]
 
         tree = MerkleTree.init_from_entries(*entries, **config)
@@ -19,7 +19,7 @@ for config in all_configs(option):
         for (offset, _) in enumerate(entries):
             trees_and_indexes += [(tree, offset + 1)]
 
-        for subsize in range(1, tree.get_size() + 1):
+        for subsize in range(0, tree.get_size() + 1):
             subtree = MerkleTree.init_from_entries(
                 *entries[:subsize], **config
             )

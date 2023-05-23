@@ -172,15 +172,31 @@ class MerkleTree(BaseMerkleTree):
         return self.root.expand(self.encoding, indent, trim) + '\n'
 
 
-    def get_state(self):
+    def get_state(self, size=None):
         """
-        :returns: current root hash
+        Computes the root-hash of the subtree specified by the provided size
+
+        :param size: [optional] number of leaves. Defaults to current tree size
+        :type size: int
         :rtype: bytes
         """
-        if not self.root:
-            return
+        if size is None:
+            size = self.get_size()
 
-        return self.root.value
+        if size == 0:
+            return self.consume(b'')
+
+        if size == self.get_size():
+            return self.root.value
+
+        principals = self.get_principals(size)
+        result = principals[0].value
+        i = 0
+        while i < len(principals) - 1:
+            result = self.hash_pair(principals[i + 1].value, result)
+            i += 1
+
+        return result
 
 
     def get_size(self):

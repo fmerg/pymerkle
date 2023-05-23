@@ -49,22 +49,25 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def get_leaf(self, index):
         """
-        Shoulw return the leaf-hash located at the provided position
+        Should return the leaf-hash located at the provided position
 
         :param index: leaf position counting from one
         :type index: int
         :rtype: bytes
         """
 
-    @abstractmethod
     def get_state(self, size=None):
         """
-        Should return the root-hash of the tree specified by the provided size
+        Computes the root-hash of the subtree specified by the provided size
 
         :param size: [optional] number of leaves. Defaults to current tree size
         :type size: int
         :rtype: bytes
         """
+        if size is None:
+            size = self.get_size()
+
+        return self.hash_range(0, size)
 
     @classmethod
     def init_from_entries(cls, *entries, algorithm='sha256', encoding='utf_8',
@@ -117,7 +120,6 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self.hash_pair(left, rght)
 
 
-    @abstractmethod
     def inclusion_path(self, start, offset, end, bit):
         """
         Should return the inclusion path based on the provided leaf-hash

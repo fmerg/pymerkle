@@ -8,7 +8,7 @@ from pymerkle.constants import ENCODINGS, ALGORITHMS
 
 class UnsupportedParameter(Exception):
     """
-    Raised when a hashing engine with unsupported parameters is requested
+    Raised when a mekle-hasher with unsupported parameters is requested
     """
     pass
 

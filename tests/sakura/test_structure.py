@@ -10,7 +10,7 @@ t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11 = \
 
 
 def test_0_leaves():
-    assert not tree.get_state()
+    assert tree.get_state() == tree.consume(b'')
 
 
 def test1_leaves():
