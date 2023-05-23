@@ -97,8 +97,7 @@ class MerkleHasher:
         """
         Compute the hash of the concatenation of the provided values
 
-        .. note:: Prepends ``\\x01`` to each argument if security mode is
-            enabled
+        .. note:: Prepends ``\\x01`` if security mode is enabled
 
         :param left: first value
         :type left: bytes
@@ -106,6 +105,6 @@ class MerkleHasher:
         :type right: bytes
         :rtype: bytes
         """
-        buffer = self.prefx01 + left + self.prefx01 + right
+        buffer = self.prefx01 + left + right
 
         return self.consume(buffer)

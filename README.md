@@ -59,9 +59,8 @@ been made to this direction:
 
 This consists in the following standard technique:
 
-- Upon computing the hash of a leaf, prepend its data with `0x00`.
-- Upon computing the hash of an interior node, prepend the hashes of its
-  children with `0x01`.
+- Upon computing the hash of a leaf node, prepend `0x00` to payload
+- Upon computing the hash of an interior node, prepend `0x01` to payload
 
 Refer [here](./tests/test_defense.py) to see how to perform second preimage
 attack against the present implementation.

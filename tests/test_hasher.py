@@ -79,7 +79,6 @@ def test_hash_pair(config):
             getattr(hashlib, algorithm)(
                 prefx01 +
                 data +
-                prefx01 +
                 data
             ).hexdigest(),
             encoding
