@@ -1,10 +1,12 @@
 import pytest
-from pymerkle.tree import InmemoryTree as MerkleTree
+from tests.conftest import option, resolve_backend
 
-
+MerkleTree = resolve_backend(option)
 tree = MerkleTree()
+
 hash_entry = tree.hash_entry
 hash_pair = tree.hash_pair
+
 t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11 = \
     'ingi', 'rum', 'imus', 'noc', 'te', 'et', 'con', 'su', 'mi', 'mur', 'igni'
 

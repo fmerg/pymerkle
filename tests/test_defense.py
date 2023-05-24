@@ -24,8 +24,9 @@ as third leaf, leaving the rest leaves untouced
 """
 
 import pytest
-from pymerkle import InmemoryTree as MerkleTree
-from tests.conftest import all_configs, option
+from tests.conftest import all_configs, option, resolve_backend
+
+MerkleTree = resolve_backend(option)
 
 
 @pytest.mark.parametrize('config', all_configs(option))

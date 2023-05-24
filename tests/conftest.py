@@ -1,11 +1,13 @@
 import itertools
 import pytest
-from pymerkle import constants, InmemoryTree as MerkleTree
+from pymerkle import constants, InmemoryTree, SqliteTree
 
 
 def pytest_addoption(parser):
     parser.addoption('--extended', action='store_true', default=False,
                      help='Test against all supported encoding types')
+    parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
+                     help='Tree backend storage')
 
 option = None
 
@@ -28,10 +30,19 @@ def all_configs(option):
                'encoding': encoding}
 
 
+def resolve_backend(option):
+    if option.backend == 'sqlite':
+        return SqliteTree
+
+    return InmemoryTree
+
+
 def tree_and_index(maxsize=7, default_config=False):
     fixtures = []
     configs = all_configs(option) if not default_config else [{'algorithm':
         'sha256', 'encoding': 'utf-8', 'security': True}]
+
+    MerkleTree = resolve_backend(option)
 
     for config in configs:
         for size in range(0, maxsize + 1):

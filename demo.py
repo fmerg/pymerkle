@@ -3,12 +3,31 @@ pymerkle demo
 """
 
 import sys
+import argparse
 from math import log10
 from pymerkle import (
-    InmemoryTree as MerkleTree,
+    InmemoryTree,
+    SqliteTree,
     verify_inclusion,
     verify_consistency
 )
+
+
+PARSER_CONFIG = {
+    'prog': sys.argv[0],
+    'usage': 'python %s' % sys.argv[0],
+    'description': __doc__,
+    'epilog': '\n',
+    'formatter_class': argparse.ArgumentDefaultsHelpFormatter,
+}
+
+def parse_cli_args():
+    parser = argparse.ArgumentParser(**PARSER_CONFIG)
+
+    parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
+            default='inmemory', help='Tree storage backend')
+
+    return parser.parse_args()
 
 
 def order_of_magnitude(num):
@@ -56,6 +75,14 @@ def strproof(proof):
 
 
 if __name__ == '__main__':
+    args = parse_cli_args()
+
+    MerkleTree = {
+        'inmemory': InmemoryTree,
+        'sqlite': SqliteTree,
+    }[args.backend]
+
+
     tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
 
     # Populate tree with some entries

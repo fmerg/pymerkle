@@ -2,7 +2,7 @@
 merkle-tree cryptography
 """
 
-from pymerkle.tree import InmemoryTree
+from pymerkle.tree import InmemoryTree, SqliteTree
 from pymerkle.base import BaseMerkleTree, InvalidChallenge
 from pymerkle.proof import (
     MerkleProof,
@@ -16,6 +16,7 @@ __version__ = '4.0.0'
 
 __all__ = (
     'InmemoryTree',
+    'SqliteTree',
     'BaseMerkleTree',
     'InvalidProof',
     'MerkleProof',

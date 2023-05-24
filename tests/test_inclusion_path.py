@@ -1,5 +1,8 @@
 import pytest
-from pymerkle.tree import InmemoryTree as MerkleTree
+
+from tests.conftest import option, resolve_backend
+
+MerkleTree = resolve_backend(option)
 
 
 tree_0 = MerkleTree.init_from_entries()
@@ -23,7 +26,7 @@ paths = [
     (
         tree_2, 0,
         (
-            [0, 1],
+            [0, 0],
             [
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
@@ -43,7 +46,7 @@ paths = [
     (
         tree_3, 0,
         (
-            [0, 0, 1],
+            [0, 0, 0],
             [
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
@@ -54,7 +57,7 @@ paths = [
     (
         tree_3, 1,
         (
-            [1, 0, 1],
+            [1, 0, 0],
             [
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
@@ -75,7 +78,7 @@ paths = [
     (
         tree_4, 0,
         (
-            [0, 0, 1],
+            [0, 0, 0],
             [
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
@@ -86,7 +89,7 @@ paths = [
     (
         tree_4, 1,
         (
-            [1, 0, 1],
+            [1, 0, 0],
             [
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
@@ -119,7 +122,7 @@ paths = [
     (
         tree_5, 0,
         (
-            [0, 0, 0, 1],
+            [0, 0, 0, 0],
             [
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
@@ -131,7 +134,7 @@ paths = [
     (
         tree_5, 1,
         (
-            [1, 0, 0, 1],
+            [1, 0, 0, 0],
             [
                 b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
                 b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
@@ -143,7 +146,7 @@ paths = [
     (
         tree_5, 2,
         (
-            [0, 1, 0, 1],
+            [0, 1, 0, 0],
             [
                 b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
                 b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
@@ -155,7 +158,7 @@ paths = [
     (
         tree_5, 3,
         (
-            [1, 1, 0, 1],
+            [1, 1, 0, 0],
             [
                 b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
                 b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',

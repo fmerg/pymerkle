@@ -320,6 +320,10 @@ class InmemoryTree(BaseMerkleTree):
             path += [value]
             curr = parent
 
+        # Last bit is insignificant; fix it to zero just to be fully compatible
+        # with the output of the overriden method
+        rule[-1] = 0
+
         return rule, path
 
 

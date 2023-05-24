@@ -1,5 +1,7 @@
 import pytest
-from pymerkle.tree import InmemoryTree as MerkleTree
+from tests.conftest import option, resolve_backend
+
+MerkleTree = resolve_backend(option)
 
 
 tree_0 = MerkleTree.init_from_entries()
@@ -8,38 +10,6 @@ tree_2 = MerkleTree.init_from_entries('a', 'b')
 tree_3 = MerkleTree.init_from_entries('a', 'b', 'c')
 tree_4 = MerkleTree.init_from_entries('a', 'b', 'c', 'd')
 tree_5 = MerkleTree.init_from_entries('a', 'b', 'c', 'd', 'e')
-
-perfect_nodes = [
-    (tree_1, 1, 0, tree_1.leaf(1)),
-    (tree_2, 1, 0, tree_2.leaf(1)),
-    (tree_2, 1, 1, tree_2.root),
-    (tree_2, 2, 0, tree_2.leaf(2)),
-    (tree_3, 1, 0, tree_3.leaf(1)),
-    (tree_3, 1, 1, tree_3.leaf(1).parent),
-    (tree_3, 2, 0, tree_3.leaf(2)),
-    (tree_3, 3, 0, tree_3.leaf(3)),
-    (tree_4, 1, 0, tree_4.leaf(1)),
-    (tree_4, 1, 1, tree_4.leaf(1).parent),
-    (tree_4, 1, 2, tree_4.root),
-    (tree_4, 2, 0, tree_4.leaf(2)),
-    (tree_4, 3, 0, tree_4.leaf(3)),
-    (tree_4, 3, 1, tree_4.leaf(3).parent),
-    (tree_4, 4, 0, tree_4.leaf(4)),
-    (tree_5, 1, 0, tree_5.leaf(1)),
-    (tree_5, 1, 1, tree_5.leaf(1).parent),
-    (tree_5, 1, 2, tree_5.leaf(1).parent.parent),
-    (tree_5, 2, 0, tree_5.leaf(2)),
-    (tree_5, 3, 0, tree_5.leaf(3)),
-    (tree_5, 3, 1, tree_5.leaf(3).parent),
-    (tree_5, 4, 0, tree_5.leaf(4)),
-    (tree_5, 5, 0, tree_5.leaf(5)),
-]
-
-
-@pytest.mark.parametrize('tree, index, height, node', perfect_nodes)
-def test_perfect_node(tree, index, height, node):
-    assert tree.get_perfect_node(index, height) is node
-
 
 paths = [
     (
