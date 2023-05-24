@@ -39,10 +39,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def append_leaf(self, data):
         """
-        Should append and return the hash of the provided data
+        Should append the hash of the provided entry as leaf and return its
+        index
 
         :param data: the data whose hash is to be appended
         :type data: bytes or str
+        :returns: index of newly appended leaf counting from one
         :rtype: int
         """
 
@@ -99,9 +101,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         Computes the root-hash of the subtree specified by the provided leaf
         range
 
-        :param start: first leaf index counting from 1
+        :param start: first leaf index counting from zero
         :type start: int
-        :param end: last leaf index counting from 1
+        :param end: last leaf index counting from one
         :type end: int
         :rtype: bytes
         """

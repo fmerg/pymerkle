@@ -7,8 +7,11 @@ numbers = [0]
 logarithms = [0]
 collections = [[]]
 
-for logarithm in range(0, 8):           # 0 <= p <= 7
-    exponent_range = range(logarithm)   # [0, 1, ..., p - 1]
+# 0 <= p <= 7
+for logarithm in range(0, 8):
+
+   # [0, 1, ..., p - 1]
+    exponent_range = range(logarithm)
 
     for k in range(logarithm + 1):
         for _ in combinations(exponent_range, k):

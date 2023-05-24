@@ -2,22 +2,24 @@
 merkle-tree cryptography
 """
 
-from .tree import BaseMerkleTree, InmemoryTree, InvalidChallenge
-from .proof import (
+from pymerkle.tree import InmemoryTree
+from pymerkle.base import BaseMerkleTree, InvalidChallenge
+from pymerkle.proof import (
     MerkleProof,
     verify_inclusion,
     verify_consistency,
-    InvalidProof
+    InvalidProof,
 )
 
 
 __version__ = '4.0.0'
 
 __all__ = (
-    'BaseMerkleTree',
     'InmemoryTree',
+    'BaseMerkleTree',
+    'InvalidProof',
     'MerkleProof',
     'verify_inclusion',
     'verify_consistency',
-    'InvalidProof',
+    'InvalidChallenge',
 )

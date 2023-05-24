@@ -3,7 +3,7 @@ Merkle-tree implementation following Sakura
 """
 
 from pymerkle.utils import decompose
-from pymerkle.tree.base import BaseMerkleTree, InvalidChallenge
+from pymerkle.base import BaseMerkleTree
 
 
 class Node:
