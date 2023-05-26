@@ -15,15 +15,16 @@ class UnsupportedParameter(Exception):
 
 class MerkleHasher:
     """
-    :param algorithm: [optional] hash algorithm
+    :param algorithm: hash algorithm
     :type algorithm: str
-    :param encoding: [optional] encoding scheme
+    :param encoding: encoding scheme
     :type encoding: str
-    :param security: [optional] defense against 2nd-preimage attack
+    :param security: [optional] defense against 2nd-preimage attack. Defaults
+        to *True*
     :type security: bool
     """
 
-    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
+    def __init__(self, algorithm, encoding, security=True):
         algorithm, encoding = self.validate_params(algorithm, encoding)
 
         self.algorithm = algorithm
@@ -56,7 +57,7 @@ class MerkleHasher:
 
     def consume(self, buffer):
         """
-        Returns the hash digest of the provided input
+        Computes the raw hash of the provided input
 
         :param buffer:
         :type buffer: bytes
@@ -78,7 +79,7 @@ class MerkleHasher:
 
     def hash_entry(self, data):
         """
-        Compute the hash of the provided data
+        Computes the hash of the provided data
 
         .. note:: Prepends ``\\x00`` if security mode is enabled
 
@@ -95,7 +96,7 @@ class MerkleHasher:
 
     def hash_nodes(self, left, right):
         """
-        Compute the hash of the concatenation of the provided values
+        Computes the hash of the concatenation of the provided values
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
