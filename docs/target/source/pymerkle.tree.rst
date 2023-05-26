@@ -9,18 +9,18 @@ pymerkle.tree package
 Submodules
 ----------
 
-pymerkle.tree.base module
--------------------------
-
-.. automodule:: pymerkle.tree.base
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pymerkle.tree.inmemory module
 -----------------------------
 
 .. automodule:: pymerkle.tree.inmemory
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymerkle.tree.sqlite module
+---------------------------
+
+.. automodule:: pymerkle.tree.sqlite
    :members:
    :undoc-members:
    :show-inheritance:

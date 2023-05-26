@@ -1,5 +1,5 @@
 """
-Abstract merkle-tree interface
+Merkle-tree core functionality and interface specification
 """
 
 from abc import ABCMeta, abstractmethod
@@ -18,8 +18,6 @@ class InvalidChallenge(Exception):
 
 class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
-    Merkle-tree interface
-
     :param algorithm: [optional] hashing algorithm
     :type algorithm: str
     :param encoding: [optional] encoding scheme
@@ -39,10 +37,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def append_leaf(self, data):
         """
-        Should append the hash of the provided entry as leaf and return its
-        index
+        Should append a new leaf storing the provided entry and return its index
 
-        :param data: the data whose hash is to be appended
+        :param data: data to append
         :type data: bytes or str
         :returns: index of newly appended leaf counting from one
         :rtype: int
@@ -51,9 +48,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def get_leaf(self, index):
         """
-        Should return the leaf-hash located at the provided position
+        Should return the leaf hash located at the provided position
 
-        :param index: leaf position counting from one
+        :param index: leaf index counting from one
         :type index: int
         :rtype: bytes
         """

@@ -221,29 +221,12 @@ class InmemoryTree(BaseMerkleTree):
         :returns: the hash stored by the specified leaf node
         :rtype: bytes
         """
-        leaf = self.leaf(index)
-        if not leaf:
-            raise ValueError("%d not in leaf range" % index)
-
-        return leaf.value
-
-
-    def leaf(self, index):
-        """
-        Return the leaf node located at the provided position
-
-        .. note:: Returns *None* if the provided position is out of bounds
-
-        :param index: position of leaf counting from one
-        :type index: int
-        :rtype: Leaf
-        """
         try:
             leaf = self.leaves[index - 1]
         except IndexError:
-            return None
+            raise ValueError("%d not in leaf range" % index)
 
-        return leaf
+        return leaf.value
 
 
     def append_leaf(self, data):
@@ -341,7 +324,7 @@ class InmemoryTree(BaseMerkleTree):
         :type height: int
         :rtype: Node
         """
-        node = self.leaf(index)
+        node = self.leaves[index - 1]
 
         if not node:
             return
