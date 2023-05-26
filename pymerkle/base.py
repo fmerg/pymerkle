@@ -117,7 +117,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         left = self.hash_range(start, start + k)
         rght = self.hash_range(start + k, end)
 
-        return self.hash_pair(left, rght)
+        return self.hash_nodes(left, rght)
 
 
     def inclusion_path(self, start, offset, end, bit):

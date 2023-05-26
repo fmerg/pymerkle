@@ -93,7 +93,7 @@ class MerkleHasher:
         return self.consume(buffer)
 
 
-    def hash_pair(self, left, right):
+    def hash_nodes(self, left, right):
         """
         Compute the hash of the concatenation of the provided values
 

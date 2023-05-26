@@ -5,7 +5,7 @@ MerkleTree = resolve_backend(option)
 tree = MerkleTree()
 
 hash_entry = tree.hash_entry
-hash_pair = tree.hash_pair
+hash_nodes = tree.hash_nodes
 
 t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11 = \
     'ingi', 'rum', 'imus', 'noc', 'te', 'et', 'con', 'su', 'mi', 'mur', 'igni'
@@ -24,7 +24,7 @@ def test1_leaves():
 def test2_leaves():
     tree.append_leaf(t2)
 
-    assert tree.get_state() == hash_pair(
+    assert tree.get_state() == hash_nodes(
         hash_entry(t1),
         hash_entry(t2)
     )
@@ -33,8 +33,8 @@ def test2_leaves():
 def test3_leaves():
     tree.append_leaf(t3)
 
-    assert tree.get_state() == hash_pair(
-        hash_pair(
+    assert tree.get_state() == hash_nodes(
+        hash_nodes(
             hash_entry(t1),
             hash_entry(t2)
         ),
@@ -45,12 +45,12 @@ def test3_leaves():
 def test4_leaves():
     tree.append_leaf(t4)
 
-    assert tree.get_state() == hash_pair(
-        hash_pair(
+    assert tree.get_state() == hash_nodes(
+        hash_nodes(
             hash_entry(t1),
             hash_entry(t2)
         ),
-        hash_pair(
+        hash_nodes(
             hash_entry(t3),
             hash_entry(t4)
         )
@@ -60,13 +60,13 @@ def test4_leaves():
 def test5_leaves():
     tree.append_leaf(t5)
 
-    assert tree.get_state() == hash_pair(
-        hash_pair(
-            hash_pair(
+    assert tree.get_state() == hash_nodes(
+        hash_nodes(
+            hash_nodes(
                 hash_entry(t1),
                 hash_entry(t2)
             ),
-            hash_pair(
+            hash_nodes(
                 hash_entry(t3),
                 hash_entry(t4)
             )
@@ -79,19 +79,19 @@ def test7_leaves():
     tree.append_leaf(t6)
     tree.append_leaf(t7)
 
-    assert tree.get_state() == hash_pair(
-        hash_pair(
-            hash_pair(
+    assert tree.get_state() == hash_nodes(
+        hash_nodes(
+            hash_nodes(
                 hash_entry(t1),
                 hash_entry(t2)
             ),
-            hash_pair(
+            hash_nodes(
                 hash_entry(t3),
                 hash_entry(t4)
             )
         ),
-        hash_pair(
-            hash_pair(
+        hash_nodes(
+            hash_nodes(
                 hash_entry(t5),
                 hash_entry(t6)
             ),
@@ -106,31 +106,31 @@ def test11_leaves():
     tree.append_leaf(t10)
     tree.append_leaf(t11)
 
-    assert tree.get_state() == hash_pair(
-        hash_pair(
-            hash_pair(
-                hash_pair(
+    assert tree.get_state() == hash_nodes(
+        hash_nodes(
+            hash_nodes(
+                hash_nodes(
                     hash_entry(t1),
                     hash_entry(t2)
                 ),
-                hash_pair(
+                hash_nodes(
                     hash_entry(t3),
                     hash_entry(t4)
                 )
             ),
-            hash_pair(
-                hash_pair(
+            hash_nodes(
+                hash_nodes(
                     hash_entry(t5),
                     hash_entry(t6)
                 ),
-                hash_pair(
+                hash_nodes(
                     hash_entry(t7),
                     hash_entry(t8)
                 )
             )
         ),
-        hash_pair(
-            hash_pair(
+        hash_nodes(
+            hash_nodes(
                 hash_entry(t9),
                 hash_entry(t10)
             ),

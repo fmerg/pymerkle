@@ -61,7 +61,7 @@ def test_hash_entry_bytes(config):
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_hash_pair(config):
+def test_hash_nodes(config):
     h = MerkleHasher(**config)
 
     security = h.security
@@ -73,7 +73,7 @@ def test_hash_pair(config):
     data = record.encode(encoding)
 
     if security:
-        assert h.hash_pair(
+        assert h.hash_nodes(
             data,
             data) == bytes(
             getattr(hashlib, algorithm)(
@@ -84,7 +84,7 @@ def test_hash_pair(config):
             encoding
         )
     else:
-        assert h.hash_pair(
+        assert h.hash_nodes(
             data,
             data) == bytes(
                 getattr(hashlib, algorithm)(

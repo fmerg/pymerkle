@@ -194,7 +194,7 @@ class InmemoryTree(BaseMerkleTree):
         result = principals[0].value
         i = 0
         while i < len(principals) - 1:
-            result = self.hash_pair(principals[i + 1].value, result)
+            result = self.hash_nodes(principals[i + 1].value, result)
             i += 1
 
         return result
@@ -247,7 +247,7 @@ class InmemoryTree(BaseMerkleTree):
 
         node = self.last_maximal_perfect()
         self.leaves += [tail]
-        value = self.hash_pair(node.value, tail.value)
+        value = self.hash_nodes(node.value, tail.value)
 
         if node.is_root():
             self.root = Node(value, node, tail)
@@ -258,7 +258,7 @@ class InmemoryTree(BaseMerkleTree):
         curr.right = Node(value, node, tail)
         curr.right.parent = curr
         while curr:
-            curr.value = self.hash_pair(
+            curr.value = self.hash_nodes(
                 curr.left.value, curr.right.value
             )
             curr = curr.parent
