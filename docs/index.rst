@@ -17,8 +17,7 @@ Merkle-tree cryptography
 ************************
 
 This library provides a Merkle-tree implementation in Python. It supports
-multiple combinations of hash functions and encding schemas with defense against
-second-preimage attack enabled.
+multiple hash functions and resistance against second-preimage attack.
 
 Installation
 ************

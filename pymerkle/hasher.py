@@ -3,7 +3,7 @@ Hashing machinery for data insertion and proof verification
 """
 
 import hashlib
-from pymerkle.constants import ENCODINGS, ALGORITHMS
+from pymerkle import constants
 
 
 class UnsupportedParameter(Exception):
@@ -17,50 +17,28 @@ class MerkleHasher:
     """
     :param algorithm: hash algorithm
     :type algorithm: str
-    :param encoding: encoding scheme
-    :type encoding: str
     :param security: [optional] defense against 2nd-preimage attack. Defaults
         to *True*
     :type security: bool
     """
 
-    def __init__(self, algorithm, encoding, security=True):
-        algorithm, encoding = self.validate_params(algorithm, encoding)
+    def __init__(self, algorithm, security=True):
+        normalized = algorithm.lower().replace('-', '_')
+        if normalized not in constants.ALGORITHMS:
+            raise UnsupportedParameter('%s is not supported' % algorithm)
 
         self.algorithm = algorithm
-        self.encoding = encoding
         self.security = security
-        self.prefx00 = '\x00'.encode(encoding)
-        self.prefx01 = '\x01'.encode(encoding)
-
-        if not self.security:
-            self.prefx00 = bytes()
-            self.prefx01 = bytes()
+        self.prefx00 = b'\x00' if security else b''
+        self.prefx01 = b'\x01' if security else b''
 
 
-    @staticmethod
-    def validate_params(algorithm, encoding):
-        validated = []
-
-        for (provided, supported) in (
-            (algorithm, ALGORITHMS),
-            (encoding, ENCODINGS)
-        ):
-            normalized = provided.lower().replace('-', '_')
-            if normalized not in supported:
-                raise UnsupportedParameter('%s is not supported' % provided)
-
-            validated += [normalized]
-
-        return validated
-
-
-    def consume(self, buffer):
+    def consume(self, buff):
         """
         Computes the raw hash of the provided input
 
-        :param buffer:
-        :type buffer: bytes
+        :param buff:
+        :type buff: bytes
         :rtype: bytes
         """
         _hasher = getattr(hashlib, self.algorithm)()
@@ -68,13 +46,13 @@ class MerkleHasher:
         update = _hasher.update
         chunksize = 1024
         offset = 0
-        chunk = buffer[offset: chunksize]
+        chunk = buff[offset: chunksize]
         while chunk:
             update(chunk)
             offset += chunksize
-            chunk = buffer[offset: offset + chunksize]
+            chunk = buff[offset: offset + chunksize]
 
-        return _hasher.hexdigest().encode(self.encoding)
+        return _hasher.digest()
 
 
     def hash_entry(self, data):
@@ -83,15 +61,12 @@ class MerkleHasher:
 
         .. note:: Prepends ``\\x00`` if security mode is enabled
 
-        :type data: bytes or str
+        :type data: bytes
         :rtype: bytes
         """
-        if not isinstance(data, bytes):
-            data = data.encode(self.encoding)
+        buff = self.prefx00 + data
 
-        buffer = self.prefx00 + data
-
-        return self.consume(buffer)
+        return self.consume(buff)
 
 
     def hash_nodes(self, left, right):
@@ -106,6 +81,6 @@ class MerkleHasher:
         :type right: bytes
         :rtype: bytes
         """
-        buffer = self.prefx01 + left + right
+        buff = self.prefx01 + left + right
 
-        return self.consume(buffer)
+        return self.consume(buff)

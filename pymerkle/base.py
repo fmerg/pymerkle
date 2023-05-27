@@ -18,11 +18,9 @@ class InvalidChallenge(Exception):
 
 class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
-    :param algorithm: [optional] hashing algorithm
+    :param algorithm: hash algorithm
     :type algorithm: str
-    :param encoding: [optional] encoding scheme
-    :type encoding: str
-    :param security: [optional] defense against 2nd-preimage attack
+    :param security: [optional] resistance against 2nd-preimage attack
     :type security: bool
     """
 
@@ -40,7 +38,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         Should append a new leaf storing the provided entry and return its index
 
         :param data: data to append
-        :type data: bytes or str
+        :type data: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
@@ -70,21 +68,18 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self.hash_range(0, subsize)
 
     @classmethod
-    def init_from_entries(cls, *entries, algorithm='sha256', encoding='utf_8',
-            security=True):
+    def init_from_entries(cls, *entries, algorithm='sha256', security=True):
         """
         Create tree from initial data
 
         :param entries: initial data to append
-        :type entries: iterable of bytes or str
+        :type entries: iterable of bytes
         :param algorithm: [optional] hashing algorithm
         :type algorithm: str
-        :param encoding: [optional] encoding scheme
-        :type encoding: str
-        :param security: [optional] defense against 2nd-preimage attack
+        :param security: [optional] resistance against 2nd-preimage attack
         :type security: bool
         """
-        tree = cls(algorithm, encoding, security)
+        tree = cls(algorithm, security)
 
         append_leaf = tree.append_leaf
         for data in entries:
@@ -178,8 +173,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         rule, path = self.inclusion_path(0, index - 1, subsize, 0)
 
-        return MerkleProof(self.algorithm, self.encoding, self.security,
-            subsize, rule, [], path)
+        return MerkleProof(self.algorithm, self.security, subsize, rule, [],
+                path)
 
 
     def consistency_path(self, start, offset, end, bit):
@@ -247,5 +242,5 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         rule, subset, path = self.consistency_path(0, size1, size2, 0)
 
-        return MerkleProof(self.algorithm, self.encoding, self.security, size2,
-                rule, subset, path)
+        return MerkleProof(self.algorithm, self.security, size2, rule,
+                subset, path)

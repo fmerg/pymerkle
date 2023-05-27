@@ -1,6 +1,5 @@
 """
-Performs second preimage attack against Merkle-trees of all possible
-combinations of hash and encoding types, for both possible security modes.
+Performs second-preimage attack against for both possible security modes
 
 Attack should succeed only when the tree's security mode is deactivated, that
 is, iff the security attribute has been set to False at construction
@@ -30,13 +29,13 @@ MerkleTree = resolve_backend(option)
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_defense_against_second_preimage_attack(config):
-    tree = MerkleTree.init_from_entries('a', 'b', 'c', 'd',
+def test_second_preimage_attack(config):
+    tree = MerkleTree.init_from_entries(b'a', b'b', b'c', b'd',
         **config)
 
     forged = tree.get_leaf(3) + tree.get_leaf(4)
 
-    attacker = MerkleTree.init_from_entries('a', 'b', forged,
+    attacker = MerkleTree.init_from_entries(b'a', b'b', forged,
         **config)
 
     assert tree.security ^ (attacker.get_state() == tree.get_state())

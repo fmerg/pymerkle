@@ -22,19 +22,13 @@ def verify_inclusion(base, state, proof):
     against the provided state
 
     :param base: acclaimed hash to verify
-    :type base: str or bytes
+    :type base: bytes
     :param state: acclaimed state during proof generation
-    :type state: str or bytes
+    :type state: bytes
     :param proof: proof of inclusion
     :type proof: MerkleProof
     :raises InvalidProof: if the proof is found invalid
     """
-    if isinstance(base, str):
-        base = base.encode(proof.encoding)
-
-    if isinstance(state, str):
-        state = state.encode(proof.encoding)
-
     if not proof.path[0] == base:
         raise InvalidProof('Base hash does not match')
 
@@ -48,19 +42,13 @@ def verify_consistency(prior, state, proof):
     against the provided root hash.
 
     :param prior: acclaimed prior state
-    :type prior: str or bytes
+    :type prior: bytes
     :param state: acclaimed state during proof generation
-    :type state: str or bytes
+    :type state: bytes
     :raises InvalidProof: if the proof is found invalid
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
-    if isinstance(prior, str):
-        prior = prior.encode(proof.encoding)
-
-    if isinstance(state, str):
-        state = state.encode(proof.encoding)
-
     if not proof.retrieve_prior_state() == prior:
         raise InvalidProof('Prior state does not match')
 
@@ -70,13 +58,10 @@ def verify_consistency(prior, state, proof):
 
 class MerkleProof:
 
-    def __init__(self, algorithm, encoding, security, size, rule, subset,
-            path):
+    def __init__(self, algorithm, security, size, rule, subset, path):
         """
         :param algorithm: hash algorithm
         :type algorithm: str
-        :param encoding: encoding scheme
-        :type encoding: str
         :param security: defense against 2-nd preimage attack
         :type security: bool
         :param size: nr leaves corresponding to requested current state
@@ -90,7 +75,6 @@ class MerkleProof:
         :type path: list[bytes]
         """
         self.algorithm = algorithm
-        self.encoding = encoding
         self.security = security
         self.size = size
         self.rule = rule
@@ -102,8 +86,7 @@ class MerkleProof:
         """
         :rtype: dict
         """
-        return {'algorithm': self.algorithm, 'encoding': self.encoding,
-                'security': self.security}
+        return {'algorithm': self.algorithm, 'security': self.security}
 
     def serialize(self):
         """
@@ -112,13 +95,12 @@ class MerkleProof:
         return {
             'metadata': {
                 'algorithm': self.algorithm,
-                'encoding': self.encoding,
                 'security': self.security,
             },
             'size': self.size,
             'rule': self.rule,
             'subset': self.subset,
-            'path': [value.decode(self.encoding) for value in self.path]
+            'path': [value.hex() for value in self.path]
         }
 
 
@@ -128,11 +110,10 @@ class MerkleProof:
         :rtype: MerkleProof
         """
         metadata = proof['metadata']
-        encoding = metadata['encoding']
         rule = proof['rule']
         size = proof['size']
         subset = proof['subset']
-        path = [value.encode(encoding) for value in proof['path']]
+        path = [bytes.fromhex(value) for value in proof['path']]
 
         return cls(**metadata, size=size, rule=rule, subset=subset, path=path)
 

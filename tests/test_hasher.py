@@ -5,91 +5,31 @@ from pymerkle.constants import ALGORITHMS
 from tests.conftest import option, all_configs
 
 
-record = 'oculusnonviditnecaurisaudivit'
+data = b'oculusnonviditnecaurisaudivit'
+
+prefx00 = b'\x00'
+prefx01 = b'\x01'
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_hash_entry_string(config):
+def test_hash_entry(config):
     h = MerkleHasher(**config)
 
-    security = h.security
-    algorithm = h.algorithm
-    encoding = h.encoding
-
-    prefx00 = '\x00'.encode(encoding)
-    data = record.encode(encoding)
-
-    if security:
-        assert h.hash_entry(record) == bytes(
-            getattr(hashlib, algorithm)(
-                prefx00 +
-                data
-            ).hexdigest(),
-            encoding
-        )
+    if h.security:
+        assert h.hash_entry(data) == getattr(hashlib, h.algorithm)(
+            prefx00 + data).digest()
     else:
-        assert h.hash_entry(record) == bytes(
-            getattr(hashlib, algorithm)(data).hexdigest(),
-            encoding
-        )
-
-
-@pytest.mark.parametrize('config', all_configs(option))
-def test_hash_entry_bytes(config):
-    h = MerkleHasher(**config)
-
-    security = h.security
-    algorithm = h.algorithm
-    encoding = h.encoding
-
-    prefx00 = '\x00'.encode(encoding)
-    data = record.encode(encoding)
-
-    if security:
-        assert h.hash_entry(data) == bytes(
-            getattr(hashlib, algorithm)(
-                bytes('\x00', encoding) +
-                data
-            ).hexdigest(),
-            encoding
-        )
-    else:
-        assert h.hash_entry(data) == bytes(
-            getattr(hashlib, algorithm)(data).hexdigest(),
-            encoding
-        )
+        assert h.hash_entry(data) == getattr(hashlib, h.algorithm)(
+            data).digest()
 
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_hash_nodes(config):
     h = MerkleHasher(**config)
 
-    security = h.security
-    algorithm = h.algorithm
-    encoding = h.encoding
-
-    prefx00 = '\x00'.encode(encoding)
-    prefx01 = '\x01'.encode(encoding)
-    data = record.encode(encoding)
-
-    if security:
-        assert h.hash_nodes(
-            data,
-            data) == bytes(
-            getattr(hashlib, algorithm)(
-                prefx01 +
-                data +
-                data
-            ).hexdigest(),
-            encoding
-        )
+    if h.security:
+        assert h.hash_nodes(data, data) == getattr(hashlib, h.algorithm)(
+            prefx01 + data + data).digest()
     else:
-        assert h.hash_nodes(
-            data,
-            data) == bytes(
-                getattr(hashlib, algorithm)(
-                    data +
-                    data
-                ).hexdigest(),
-                encoding
-        )
+        assert h.hash_nodes(data, data) == getattr(hashlib, h.algorithm)(
+            data + data).digest()

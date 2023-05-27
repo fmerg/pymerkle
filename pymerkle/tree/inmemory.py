@@ -88,10 +88,8 @@ class Node:
         return curr
 
 
-    def expand(self, encoding, indent=2, trim=None, level=0, ignored=None):
+    def expand(self, indent=2, trim=None, level=0, ignored=None):
         """
-        :param encoding:
-        :type encoding: str
         :param indent: [optional]
         :type indent: str
         :param trim: [optional]
@@ -122,14 +120,14 @@ class Node:
             out += ' └──'
             ignored += [level]
 
-        checksum = self.value.decode(encoding)
+        checksum = self.value.hex()
         out += (checksum[:trim] + '...') if trim else checksum
         out += '\n'
 
         if self.is_leaf():
             return out
 
-        recursion = (encoding, indent, trim, level + 1, ignored[:])
+        recursion = (indent, trim, level + 1, ignored[:])
 
         out += self.left.expand(*recursion)
         out += self.right.expand(*recursion)
@@ -154,11 +152,11 @@ class InmemoryTree(BaseMerkleTree):
     In-memory merkle-tree
     """
 
-    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
+    def __init__(self, algorithm='sha256', security=True):
         self.root = None
         self.leaves = []
 
-        super().__init__(algorithm, encoding, security)
+        super().__init__(algorithm, security)
 
 
     def __str__(self, indent=2, trim=8):
@@ -169,7 +167,7 @@ class InmemoryTree(BaseMerkleTree):
         if not self.root:
             return '\n └─[None]\n'
 
-        return self.root.expand(self.encoding, indent, trim) + '\n'
+        return self.root.expand(indent, trim) + '\n'
 
 
     def get_state(self, subsize=None):
@@ -234,7 +232,7 @@ class InmemoryTree(BaseMerkleTree):
         Append new leaf storing the hash of the provided data
 
         :param data:
-        :type data: str or bytes
+        :type data: str
         :returns: hash stored by new leaf
         :rtype: bytes
         """

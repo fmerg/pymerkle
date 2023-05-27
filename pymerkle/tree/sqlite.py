@@ -7,17 +7,15 @@ class SqliteTree(BaseMerkleTree):
 
     :param algorithm: [optional] hashing algorithm. Defaults to sha256
     :type algorithm: str
-    :param encoding: [optional] encoding scheme. Defaults to utf-8
-    :type encoding: str
     :param security: [optional] resistance against 2nd-preimage attack.
         Defaults to true
     :type security: bool
     """
 
-    def __init__(self, algorithm='sha256', encoding='utf-8', security=True):
+    def __init__(self, algorithm='sha256', security=True):
         self.leaves = []
 
-        super().__init__(algorithm, encoding, security)
+        super().__init__(algorithm, security)
 
 
     def get_size(self):
@@ -35,7 +33,7 @@ class SqliteTree(BaseMerkleTree):
         its index counting from zero
 
         :param data:
-        :type data: str or bytes
+        :type data: bytes
         :rtype: bytes
         """
         value = self.hash_entry(data)

@@ -5,7 +5,7 @@ from pymerkle import constants, InmemoryTree, SqliteTree
 
 def pytest_addoption(parser):
     parser.addoption('--extended', action='store_true', default=False,
-                     help='Test against all supported encoding types')
+                     help='Test against all supported hash algorothms')
     parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
                      help='Tree backend storage')
 
@@ -17,17 +17,13 @@ def pytest_configure(config):
 
 
 def all_configs(option):
-    algorithms = constants.ALGORITHMS
-    encodings = constants.ENCODINGS if option.extended else \
-        ['utf-8', 'utf-16', 'utf-32']
+    algorithms = constants.ALGORITHMS if option.extended else ['sha256']
 
-    for (security, algorithm, encoding) in itertools.product(
+    for (security, algorithm) in itertools.product(
         (True, False),
         algorithms,
-        encodings,
     ):
-        yield {'security': security, 'algorithm': algorithm,
-               'encoding': encoding}
+        yield {'security': security, 'algorithm': algorithm}
 
 
 def resolve_backend(option):
@@ -40,13 +36,13 @@ def resolve_backend(option):
 def tree_and_index(maxsize=7, default_config=False):
     fixtures = []
     configs = all_configs(option) if not default_config else [{'algorithm':
-        'sha256', 'encoding': 'utf-8', 'security': True}]
+        'sha256', 'security': True}]
 
     MerkleTree = resolve_backend(option)
 
     for config in configs:
         for size in range(0, maxsize + 1):
-            entries = [f'{i}-th entry' for i in range(size)]
+            entries = [f'{i}-th entry'.encode() for i in range(size)]
             tree = MerkleTree.init_from_entries(*entries, **config)
 
             for index in range(1, size + 1):

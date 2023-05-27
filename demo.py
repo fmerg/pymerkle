@@ -34,7 +34,7 @@ def order_of_magnitude(num):
     return int(log10(num)) if num != 0 else 0
 
 
-def strpath(rule, path, encoding):
+def strpath(rule, path):
     s2 = 3 * ' '
     s3 = 3 * ' '
     template = '\n{s1}[{index}]{s2}{bit}{s3}{value}'
@@ -52,7 +52,6 @@ def strpath(rule, path, encoding):
 def strproof(proof):
     template = """
     algorithm   : {algorithm}
-    encoding    : {encoding}
     security    : {security}
     size        : {size}
     rule        : {rule}
@@ -66,11 +65,9 @@ def strproof(proof):
     subset = data['subset']
     path = data['path']
 
-    encoding = metadata.pop('encoding').replace('_', '')
-    path = strpath(rule, path, encoding)
+    path = strpath(rule, path)
 
-    kw = {**metadata, 'encoding': encoding, 'size': size, 'rule': rule,
-          'subset': subset, 'path': path}
+    kw = {**metadata, 'size': size, 'rule': rule, 'subset': subset, 'path': path}
     return template.format(**kw)
 
 
@@ -83,7 +80,7 @@ if __name__ == '__main__':
     }[args.backend]
 
 
-    tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
+    tree = MerkleTree(algorithm='sha256', security=True)
 
     # Populate tree with some entries
     for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:

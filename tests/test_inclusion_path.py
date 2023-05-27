@@ -1,25 +1,24 @@
 import pytest
-
 from tests.conftest import option, resolve_backend
 
 MerkleTree = resolve_backend(option)
 
+entries = [b'a', b'b', b'c', b'd', b'e']
 
-tree_0 = MerkleTree.init_from_entries()
-tree_1 = MerkleTree.init_from_entries('a')
-tree_2 = MerkleTree.init_from_entries('a', 'b')
-tree_3 = MerkleTree.init_from_entries('a', 'b', 'c')
-tree_4 = MerkleTree.init_from_entries('a', 'b', 'c', 'd')
-tree_5 = MerkleTree.init_from_entries('a', 'b', 'c', 'd', 'e')
+tree_1 = MerkleTree.init_from_entries(*entries[:1])
+tree_2 = MerkleTree.init_from_entries(*entries[:2])
+tree_3 = MerkleTree.init_from_entries(*entries[:3])
+tree_4 = MerkleTree.init_from_entries(*entries[:4])
+tree_5 = MerkleTree.init_from_entries(*entries[:5])
 
 
-paths = [
+fixtures = [
     (
         tree_1, 0,
         (
             [0],
             [
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c'
             ]
         )
     ),
@@ -28,8 +27,8 @@ paths = [
         (
             [0, 0],
             [
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
             ]
         )
     ),
@@ -38,8 +37,8 @@ paths = [
         (
             [1, 0],
             [
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
             ]
         )
     ),
@@ -48,9 +47,9 @@ paths = [
         (
             [0, 0, 0],
             [
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
             ]
         )
     ),
@@ -59,9 +58,9 @@ paths = [
         (
             [1, 0, 0],
             [
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
             ]
         )
     ),
@@ -70,8 +69,8 @@ paths = [
         (
             [1, 0],
             [
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
-                b'4c64254e6636add7f281ff49278beceb26378bd0021d1809974994e6e233ec35',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                'b137985ff484fb600db93107c77b0365c80d78f5b429ded0fd97361d077999eb',
             ]
         )
     ),
@@ -80,9 +79,9 @@ paths = [
         (
             [0, 0, 0],
             [
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'40e2511a6323177e537acb2e90886e0da1f84656fd6334b89f60d742a3967f09',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                'dbbd68c325614a73dacb4e7a87a2b7b4ae9724b489e5629ee83151fe8f0eafd7',
             ]
         )
     ),
@@ -91,9 +90,9 @@ paths = [
         (
             [1, 0, 0],
             [
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'40e2511a6323177e537acb2e90886e0da1f84656fd6334b89f60d742a3967f09',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                'dbbd68c325614a73dacb4e7a87a2b7b4ae9724b489e5629ee83151fe8f0eafd7',
             ]
         )
     ),
@@ -102,9 +101,9 @@ paths = [
         (
             [0, 1, 0],
             [
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
-                b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
-                b'4c64254e6636add7f281ff49278beceb26378bd0021d1809974994e6e233ec35',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
+                'b137985ff484fb600db93107c77b0365c80d78f5b429ded0fd97361d077999eb',
             ]
         )
     ),
@@ -113,9 +112,9 @@ paths = [
         (
             [1, 1, 0],
             [
-                b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
-                b'4c64254e6636add7f281ff49278beceb26378bd0021d1809974994e6e233ec35',
+                'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                'b137985ff484fb600db93107c77b0365c80d78f5b429ded0fd97361d077999eb',
             ]
         )
     ),
@@ -124,10 +123,10 @@ paths = [
         (
             [0, 0, 0, 0],
             [
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'40e2511a6323177e537acb2e90886e0da1f84656fd6334b89f60d742a3967f09',
-                b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                'dbbd68c325614a73dacb4e7a87a2b7b4ae9724b489e5629ee83151fe8f0eafd7',
+                '2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
             ]
         )
     ),
@@ -136,10 +135,10 @@ paths = [
         (
             [1, 0, 0, 0],
             [
-                b'57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
-                b'022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
-                b'40e2511a6323177e537acb2e90886e0da1f84656fd6334b89f60d742a3967f09',
-                b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
+                '57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31',
+                '022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c',
+                'dbbd68c325614a73dacb4e7a87a2b7b4ae9724b489e5629ee83151fe8f0eafd7',
+                '2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
             ]
         )
     ),
@@ -148,10 +147,10 @@ paths = [
         (
             [0, 1, 0, 0],
             [
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
-                b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
-                b'4c64254e6636add7f281ff49278beceb26378bd0021d1809974994e6e233ec35',
-                b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
+                'b137985ff484fb600db93107c77b0365c80d78f5b429ded0fd97361d077999eb',
+                '2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
             ]
         )
     ),
@@ -160,10 +159,10 @@ paths = [
         (
             [1, 1, 0, 0],
             [
-                b'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
-                b'597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
-                b'4c64254e6636add7f281ff49278beceb26378bd0021d1809974994e6e233ec35',
-                b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
+                'd070dc5b8da9aea7dc0f5ad4c29d89965200059c9a0ceca3abd5da2492dcb71d',
+                '597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8',
+                'b137985ff484fb600db93107c77b0365c80d78f5b429ded0fd97361d077999eb',
+                '2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
             ]
         )
     ),
@@ -172,15 +171,17 @@ paths = [
         (
             [1, 0],
             [
-                b'2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
-                b'9dc1674ae1ee61c90ba50b6261e8f9a47f7ea07d92612158edfe3c2a37c6d74c',
+                '2824a7ccda2caa720c85c9fba1e8b5b735eecfdb03878e4f8dfe6c3625030bc4',
+                '33376a3bd63e9993708a84ddfe6c28ae58b83505dd1fed711bd924ec5a6239f0',
             ]
         )
     ),
 ]
 
 
-@pytest.mark.parametrize('tree, offset, path', paths)
-def test_inclusion_path(tree, offset, path):
+@pytest.mark.parametrize('tree, offset, expected', fixtures)
+def test_inclusion_path(tree, offset, expected):
     size = tree.get_size()
-    assert tree.inclusion_path(0, offset, size, 0) == path
+    rule, path = tree.inclusion_path(0, offset, size, 0)
+    path = list(map(lambda _: _.hex(), path))
+    assert (rule, path) == expected

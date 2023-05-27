@@ -11,8 +11,7 @@
 Documentation found at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
 
 This library provides a Merkle-tree implementation in Python. It supports
-multiple combinations of hash functions and encding schemas with defense against
-second-preimage attack enabled.
+multiple hash functions and resistance against second-preimage attack.
 
 ## Install
 
@@ -89,15 +88,7 @@ pip3 install -r requirements-dev.txt
 ### Tests
 
 ```commandline
-./test.sh [pytest options]
-```
-
-to run tests against the limited set of encoding schemas UTF-8, UTF-16 and
-UTF-32. To run tests against all possible combinations of hash algorithms and
-encoding schemas, run
-
-```commandline
-./test.sh --extended
+./test.sh --help
 ```
 
 ## Documentation
