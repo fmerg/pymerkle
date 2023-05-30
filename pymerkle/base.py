@@ -25,7 +25,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def get_size(self):
+    def _get_size(self):
         """
         Should return the current number of leaves
 
@@ -33,17 +33,70 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def append_leaf(self, data):
+    def _store_blob(self, data):
         """
-        Should append a new leaf storing the provided entry and return its index
+        Should store the provided data in a new leaf and return its index
 
-        :param data: data to append
+        :param data: blob to append
         :type data: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
 
     @abstractmethod
+    def _get_blob(self, index):
+        """
+        Should return the blob stored at the leaf specified
+
+        :param index: leaf index counting from one
+        :type index: int
+        :rtype: bytes
+        """
+
+
+    def _get_leaf(self, index):
+        """
+        Returns the blob stored by the leaf located at the provided position
+
+        :param index: leaf index counting from one
+        :type index: int
+        :rtype: bytes
+        """
+        data = self._get_blob(index)
+
+        return self.hash_entry(data)
+
+
+    def _get_state(self, subsize=None):
+        """
+        Computes the root-hash of the subtree specified by the provided size
+
+        :param subsize: [optional] number of leaves to consider. Defaults to
+            current tree size
+        :type subsize: int
+        :rtype: bytes
+        """
+        if subsize is None:
+            subsize = self._get_size()
+
+        return self.hash_range(0, subsize)
+
+
+    def append(self, data):
+        """
+        Appends a new leaf storing the provided entry
+
+        :param data: data to append
+        :type data: bytes
+        :returns: index of newly appended leaf counting from one
+        :rtype: int
+        """
+        if not isinstance(data, bytes):
+            raise ValueError('Provided data is not binary')
+
+        return self._store_blob(data)
+
+
     def get_leaf(self, index):
         """
         Should return the leaf hash located at the provided position
@@ -52,6 +105,17 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type index: int
         :rtype: bytes
         """
+        return self._get_leaf(index).hex()
+
+
+    def get_size(self):
+        """
+        Returns the current number of leaves
+
+        :rtype: int
+        """
+        return self._get_size()
+
 
     def get_state(self, subsize=None):
         """
@@ -62,10 +126,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type subsize: int
         :rtype: bytes
         """
-        if subsize is None:
-            subsize = self.get_size()
+        return self._get_state(subsize).hex()
 
-        return self.hash_range(0, subsize)
 
     @classmethod
     def init_from_entries(cls, *entries, algorithm='sha256', security=True):
@@ -81,9 +143,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
         tree = cls(algorithm, security)
 
-        append_leaf = tree.append_leaf
+        append = tree.append
         for data in entries:
-            append_leaf(data)
+            append(data)
 
         return tree
 
@@ -103,7 +165,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             return self.consume(b'')
 
         if end == start + 1:
-            return self.get_leaf(end)
+            return self._get_leaf(end)
 
         k = 1 << log2(end - start)
         if k == end - start:
@@ -131,7 +193,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: (list[0/1], list[bytes])
         """
         if offset == start and start == end - 1:
-            value = self.get_leaf(offset + 1)
+            value = self._get_leaf(offset + 1)
             return [bit], [value]
 
         k = 1 << log2(end - start)
@@ -197,7 +259,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             return [bit], [1], [value]
 
         if offset == 0 and end == 1:
-            value = self.get_leaf(start + offset + 1)
+            value = self._get_leaf(start + offset + 1)
             return [bit], [0], [value]
 
         k = 1 << log2(end)

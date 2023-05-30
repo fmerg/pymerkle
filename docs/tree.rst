@@ -113,7 +113,7 @@ Appending an entry returns the index of the newly stored leaf (counting from 1):
 
 .. code-block:: python
 
-  >>> tree.append_leaf(b'data')
+  >>> tree.append(b'data')
   8
 
 

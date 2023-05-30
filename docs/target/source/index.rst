@@ -37,7 +37,7 @@ Usage
 
   # Populate tree with some entries
   for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-      tree.append_leaf(data)
+      tree.append(data)
 
   # Prove and verify inclusion of `bar`
   proof = tree.prove_inclusion(2)
@@ -50,7 +50,7 @@ Usage
   size1 = tree.get_size()
   state1 = tree.get_state()
   for data in [b'corge', b'grault', b'garlpy']:
-      tree.append_leaf(data)
+      tree.append(data)
 
   # Prove and verify previous state
   size2 = tree.get_size()

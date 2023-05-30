@@ -28,7 +28,7 @@ tree = InmemoryTree()
 
 # Populate tree with some entries
 for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-    tree.append_leaf(data)
+    tree.append(data)
 
 # Prove and verify inclusion of `bar`
 proof = tree.prove_inclusion(b'bar')
@@ -41,7 +41,7 @@ subroot = tree.get_state()
 
 # Append further entries
 for data in [b'corge', b'grault', b'garlpy']:
-    tree.append_leaf(data)
+    tree.append(data)
 
 # Prove and verify previous state
 proof = tree.prove_consistency(subsize, subroot)

@@ -139,11 +139,14 @@ class Leaf(Node):
     """
     Merkle-tree leaf
 
-    :param value: hash to be stored by the leaf
-    :type value: bytes
+    :param data: blob stored by the leaf
+    :type data: bytes
     """
 
-    def __init__(self, value):
+    def __init__(self, data, hasher):
+        self.data = data
+
+        value = hasher.hash_entry(self.data)
         super().__init__(value, None, None)
 
 
@@ -170,7 +173,45 @@ class InmemoryTree(BaseMerkleTree):
         return self.root.expand(indent, trim) + '\n'
 
 
-    def get_state(self, subsize=None):
+    def _get_size(self):
+        """
+        :returns: current number of leaves
+        :rtype: int
+        """
+        return len(self.leaves)
+
+
+    def _store_blob(self, data):
+        """
+        Stores the provided data in a new leaf and returns its index
+
+        :param data: blob to append
+        :type data: bytes
+        :returns: index of newly appended leaf counting from one
+        :rtype: int
+        """
+        tail = Leaf(data, hasher=self)
+
+        return self._append_leaf(tail)
+
+
+    def _get_blob(self, index):
+        """
+        Returns the blob stored at the leaf specified
+
+        :param index: leaf index counting from one
+        :type index: int
+        :rtype: bytes
+        """
+        try:
+            leaf = self.leaves[index - 1]
+        except IndexError:
+            raise ValueError("%d not in leaf range" % index)
+
+        return leaf.data
+
+
+    def _get_state(self, subsize=None):
         """
         Computes the root-hash of the subtree specified by the provided size
 
@@ -198,46 +239,15 @@ class InmemoryTree(BaseMerkleTree):
         return result
 
 
-    def get_size(self):
+    def _append_leaf(self, tail):
         """
-        :returns: Current number of leaves
+        Appends the provided leaf to the tree by restructuring it accordingly
 
+        :param tail: leaf to append
+        :type tail: Leaf
+        :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        return len(self.leaves)
-
-
-    def get_leaf(self, index):
-        """
-        Returns the leaf-hash located at the provided position
-
-        .. raises ValueError:: if the provided position is not in the current
-            leaf range.
-
-        :param index: position of leaf counting from one
-        :type index: int
-        :returns: the hash stored by the specified leaf node
-        :rtype: bytes
-        """
-        try:
-            leaf = self.leaves[index - 1]
-        except IndexError:
-            raise ValueError("%d not in leaf range" % index)
-
-        return leaf.value
-
-
-    def append_leaf(self, data):
-        """
-        Append new leaf storing the hash of the provided data
-
-        :param data:
-        :type data: str
-        :returns: hash stored by new leaf
-        :rtype: bytes
-        """
-        tail = Leaf(self.hash_entry(data))
-
         if not self.leaves:
             self.leaves += [tail]
             self.root = tail

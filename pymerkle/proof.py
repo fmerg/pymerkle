@@ -16,43 +16,43 @@ class InvalidProof(Exception):
     pass
 
 
-def verify_inclusion(base, state, proof):
+def verify_inclusion(base, target, proof):
     """
     Verifies the provided merkle-proof of inclusion for the given base entry
     against the provided state
 
     :param base: acclaimed hash to verify
-    :type base: bytes
-    :param state: acclaimed state during proof generation
-    :type state: bytes
+    :type base: str
+    :param target: acclaimed state during proof generation
+    :type target: str
     :param proof: proof of inclusion
     :type proof: MerkleProof
     :raises InvalidProof: if the proof is found invalid
     """
-    if not proof.path[0] == base:
+    if not proof.path[0] == bytes.fromhex(base):
         raise InvalidProof('Base hash does not match')
 
-    if not proof.resolve() == state:
+    if not proof.resolve() == bytes.fromhex(target):
         raise InvalidProof('State does not match')
 
 
-def verify_consistency(prior, state, proof):
+def verify_consistency(state1, state2, proof):
     """
     Verifies the provided merkle-proof of consistency for the given state
     against the provided root hash.
 
-    :param prior: acclaimed prior state
-    :type prior: bytes
-    :param state: acclaimed state during proof generation
-    :type state: bytes
+    :param state1: acclaimed prior state
+    :type state1: str
+    :param state2: acclaimed state during proof generation
+    :type state2: str
     :raises InvalidProof: if the proof is found invalid
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
-    if not proof.retrieve_prior_state() == prior:
+    if not proof.retrieve_prior_state() == bytes.fromhex(state1):
         raise InvalidProof('Prior state does not match')
 
-    if not proof.resolve() == state:
+    if not proof.resolve() == bytes.fromhex(state2):
         raise InvalidProof('Later state does not match')
 
 

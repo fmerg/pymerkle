@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     # Populate tree with some entries
     for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-        tree.append_leaf(data)
+        tree.append(data)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
     sys.stdout.write(str(tree))
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     size1 = tree.get_size()
     state1 = tree.get_state()
     for data in [b'corge', b'grault', b'garlpy']:
-        tree.append_leaf(data)
+        tree.append(data)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
     sys.stdout.write(str(tree))

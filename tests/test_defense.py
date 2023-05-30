@@ -33,7 +33,7 @@ def test_second_preimage_attack(config):
     tree = MerkleTree.init_from_entries(b'a', b'b', b'c', b'd',
         **config)
 
-    forged = tree.get_leaf(3) + tree.get_leaf(4)
+    forged = bytes.fromhex(tree.get_leaf(3) + tree.get_leaf(4))
 
     attacker = MerkleTree.init_from_entries(b'a', b'b', forged,
         **config)

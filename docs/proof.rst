@@ -65,8 +65,8 @@ and append further entries:
 
 .. code-block:: python
 
-  tree.append_leaf(b'foo')
-  tree.append_leaf(b'bar')
+  tree.append(b'foo')
+  tree.append(b'bar')
   ...
 
 

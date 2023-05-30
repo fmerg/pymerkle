@@ -18,34 +18,31 @@ class SqliteTree(BaseMerkleTree):
         super().__init__(algorithm, security)
 
 
-    def get_size(self):
+    def _get_size(self):
         """
-        Returns the current number of leaf nodes
-
+        :returns: current number of leaves
         :rtype: int
         """
         return len(self.leaves)
 
 
-    def append_leaf(self, data):
+    def _store_blob(self, data):
         """
-        Appends a new leaf node with the hash of the provided entry and returns
-        its index counting from zero
+        Stores the provided data in a new leaf and returns its index
 
-        :param data:
+        :param data: blob to append
         :type data: bytes
+        :returns: index of newly appended leaf counting from one
         :rtype: bytes
         """
-        value = self.hash_entry(data)
-        self.leaves += [value]
+        self.leaves += [data]
 
         return len(self.leaves)
 
 
-    def get_leaf(self, index):
+    def _get_blob(self, index):
         """
-        Returns the leaf hash located at the provided position counting from
-        zero
+        Returns the blob stored at the leaf specified
 
         :param index:
         :type index: int
