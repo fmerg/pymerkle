@@ -1,9 +1,10 @@
+import sqlite3 as orm
 from pymerkle.base import BaseMerkleTree
 
 
 class SqliteTree(BaseMerkleTree):
     """
-    Simplest Merkle-tree implementation using a list as storage
+    Merkle-tree implementation using sqlite as data storage
 
     :param algorithm: [optional] hashing algorithm. Defaults to sha256
     :type algorithm: str
@@ -13,7 +14,18 @@ class SqliteTree(BaseMerkleTree):
     """
 
     def __init__(self, algorithm='sha256', security=True):
-        self.leaves = []
+        dbfile = ':memory:'
+        con = orm.connect(dbfile)
+
+        self.con = con
+        self.cur = con.cursor()
+
+        query = f'''
+            CREATE TABLE IF NOT EXISTS leaf(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                entry BLOB
+            );'''
+        self.cur.execute(query)
 
         super().__init__(algorithm, security)
 
@@ -27,9 +39,15 @@ class SqliteTree(BaseMerkleTree):
         :returns: index of newly appended leaf counting from one
         :rtype: bytes
         """
-        self.leaves += [entry]
+        cur = self.cur
 
-        return len(self.leaves)
+        query = f'''
+            INSERT INTO leaf(entry) VALUES (?)
+        '''
+        cur.execute(query, (data,))
+        self.con.commit()
+
+        return cur.lastrowid
 
 
     def _get_blob(self, index):
@@ -40,7 +58,14 @@ class SqliteTree(BaseMerkleTree):
         :type index: int
         :rtype: bytes
         """
-        return self.leaves[index - 1]
+        cur = self.cur
+
+        query = f'''
+            SELECT entry FROM leaf WHERE id = ?
+        '''
+        cur.execute(query, (index,))
+
+        return cur.fetchone()[0]
 
 
     def _get_size(self):
@@ -48,4 +73,11 @@ class SqliteTree(BaseMerkleTree):
         :returns: current number of leaves
         :rtype: int
         """
-        return len(self.leaves)
+        cur = self.cur
+
+        query = f'''
+            SELECT COUNT(*) FROM leaf
+        '''
+        cur.execute(query)
+
+        return cur.fetchone()[0]
