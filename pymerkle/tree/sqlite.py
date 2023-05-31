@@ -26,7 +26,7 @@ class SqliteTree(BaseMerkleTree):
         return len(self.leaves)
 
 
-    def _store_blob(self, data):
+    def _append(self, data):
         """
         Stores the provided data in a new leaf and returns its index
 

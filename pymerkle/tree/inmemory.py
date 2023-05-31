@@ -181,7 +181,7 @@ class InmemoryTree(BaseMerkleTree):
         return len(self.leaves)
 
 
-    def _store_blob(self, data):
+    def _append(self, data):
         """
         Stores the provided data in a new leaf and returns its index
 
@@ -203,12 +203,10 @@ class InmemoryTree(BaseMerkleTree):
         :type index: int
         :rtype: bytes
         """
-        try:
-            leaf = self.leaves[index - 1]
-        except IndexError:
+        if index < 1 or index > len(self.leaves):
             raise ValueError("%d not in leaf range" % index)
 
-        return leaf.data
+        return self.leaves[index - 1].data
 
 
     def _get_state(self, subsize=None):
