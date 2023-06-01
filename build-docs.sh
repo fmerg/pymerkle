@@ -51,7 +51,8 @@ TARGET="docs/target"  # Will contain auto-generated files (unstaged)
 CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
 
 DEFAULT_THEME="alabaster"     # Default sphinx theme
-RTD_THEME="sphinx_rtd_theme"  # Read-the-docs theme
+# CUSTOM_THEME ="sphinx_rtd_theme"  # Read-the-docs theme
+CUSTOM_THEME="python_docs_theme"  # Python docs theme
 
 # Generate sphinx source
 rm -rf "$TARGET"
@@ -67,7 +68,7 @@ sphinx-quickstart "$TARGET" \
     --sep
 
 # Adjust sphinx configuration
-sed -ie "/html_theme/s/$DEFAULT_THEME/$RTD_THEME/" $CONFIG
+sed -ie "/html_theme/s/$DEFAULT_THEME/$CUSTOM_THEME/" $CONFIG
 echo >> $CONFIG
 echo "master_doc = 'index'" >> $CONFIG
 echo "pygments_style = 'sphinx'" >> $CONFIG

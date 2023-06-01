@@ -2,7 +2,7 @@
 pymerkle
 ########
 
-|Build-Status| |Coverage-Status| |PyPI-version| |Python >= 3.6|
+|Build-Status| |Coverage-Status| |PyPI-version| |Python >= 3.10|
 
 .. |Build-Status| image:: https://travis-ci.com/fmerg/pymerkle.svg?branch=master
    :target: https://travis-ci.com/fmerg/pymerkle
@@ -10,14 +10,15 @@ pymerkle
    :target: https://codecov.io/gh/fmerg/pymerkle
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
-.. |Python >= 3.6| image:: https://img.shields.io/badge/python-%3E%3D%203.6-blue.svg
+.. |Python >= 3.10| image:: https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg
 
-************************
-Merkle-tree cryptography
-************************
+**********************************
+Merkle-tree cryptography in python
+**********************************
 
-This library provides a Merkle-tree implementation in Python. It supports
-multiple hash functions and resistance against second-preimage attack.
+Storage agnostic Merkle-tree implementation, capable of generating
+inclusion and consistency proofs.
+
 
 Installation
 ************
@@ -26,70 +27,155 @@ Installation
 
   pip install pymerkle
 
-Usage
-*****
+
+Custom backend
+**************
+
+Core cryptographic functionality is encapsulated in the ``BaseMerkleTree``
+abstract class which admits pluggable storage backends. It is the developer's
+choice to define how to store data in concrete by implementing the interface
+specified by this class. For example:
+
 
 .. code-block:: python
 
-  from pymerkle import InmemoryTree, verify_inclusion, verify_consistency
+  from pymerkle import BaseMerkleTree
 
-  tree = InmemoryTree()
 
-  # Populate tree with some entries
-  for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-      tree.append(data)
+  class MerkleTree(BaseMerkleTree):
 
-  # Prove and verify inclusion of `bar`
-  proof = tree.prove_inclusion(2)
+    def __init__(self, algorithm='sha256', security=True):
+        self.leaves = []
 
-  target = tree.get_state()
-  base = tree.get_leaf(2)
+        super().__init__(algorithm, security)
+
+
+    def _append(self, data):
+        self.leaves += [data]
+
+        return len(self.leaves)
+
+
+    def _get_size(self):
+        return len(self.leaves)
+
+
+    def _get_blob(self, index):
+        return self.leaves[index - 1]
+
+
+This is the simplest possible non-persistent implementation utilizing a list.
+A more elaborate in-memory and a persistent sqlite implementation are provided
+out of the box for reference and testing.
+
+
+Basic API
+*********
+
+Let ``MerkleTree`` be any class implementing correctly the ``BaseMerkleTree``
+interface; e.g.,
+
+
+.. code-block:: python
+
+  from pymerkle import InmemoryTree as MerkleTree
+
+  tree = MerkleTree()
+
+
+Storing data into the tree should return the index of the newly appended leaf:
+
+.. code-block:: python
+
+  index = tree.append(b'foo')
+
+
+Use it to retrieve the corresponding leaf hash as follows:
+
+.. code-block:: python
+
+  checksum = tree.get_leaf(index)
+
+
+Inclusion proof
+---------------
+
+Prove inclusion of the 3-rd leaf hash in the size 5 subtree:
+
+.. code-block:: python
+
+  proof = tree.prove_inclusion(3, size=5)
+
+
+Verify the proof against the base hash and the subtree root:
+
+.. code-block:: python
+
+  from pymerkle import verify_inclusion
+
+  base = tree.get_leaf(3)
+  target = tree.get_state(5)
+
   verify_inclusion(base, target, proof)
 
-  # Save current state and append further entries
-  size1 = tree.get_size()
-  state1 = tree.get_state()
-  for data in [b'corge', b'grault', b'garlpy']:
-      tree.append(data)
 
-  # Prove and verify previous state
-  size2 = tree.get_size()
-  proof = tree.prove_consistency(size1, size2)
+Consistency proof
+-----------------
 
-  state2 = tree.get_state()
+Prove consistency between the subtrees of size 3 and 5:
+
+.. code-block:: python
+
+  proof = tree.prove_consistency(3, 5)
+
+
+Verify the proof against the respective root hashes:
+
+
+.. code-block:: python
+
+  from pymerkle import verify_consistency
+
+  state1 = tree.get_state(3)
+  state2 = tree.get_state(5)
+
   verify_consistency(state1, state2, proof)
 
 
 Security
 ********
 
-This is currently a prototype requiring security review. However, some steps have been
-made to this direction:
+**Disclaimer**: This is currently a prototype requiring security review.
 
 
-Defense against second-preimage attack
---------------------------------------
+Resistance against second-preimage attack
+-----------------------------------------
 
-Defense against second-preimage attack consists in the following standard technique:
+This consists in the following standard technique:
 
-* Upon computing the hash of a leaf node, prepend 0x00 to payload
-* Upon computing the hash of an interior node, prepend 0x01 to payload
-
-
-Defense against CVE-2012-2459 DOS
----------------------------------
-
-Contrary to the `bitcoin`_ specification for Merkle-trees, lonely leaves are not
-duplicated while the tree is growing. Instead, when appending new leaves, a bifurcation
-node is created at the rightmost branch. As a consequence,
-the present implementation should be invulnerable to the DOS attack reported as
-`CVE-2012-2459`_ (see also `here`_ for explanation).
+* Upon computing the hash of a leaf node, prepend 0x00 to the payload
+* Upon computing the hash of an interior node, prepend 0x01 to the payload
 
 
-Tree structure
-**************
+Resistance against CVE-2012-2459 DOS
+------------------------------------
 
-The topology turns out to be that of a binary `Sakura`_ tree.
+Contrary to the `bitcoin`_ spec, lonely leaves are not duplicated
+while the tree is growing; instead, a bifurcation node is created at the
+rightmost branch (see next section). As a consequence, the present implementation
+should be invulnerable to the `CVE-2012-2459`_ DOS attack
+(see also `here`_ for insight).
+
+
+Tree topology
+*************
+
+Interior nodes are in general not stored in memory and no concrete links are
+established between them. The tree structure is determined by the recursive
+function which computes intermediate states on the fly and is essentially the same as
+`RFC 9162`_ (Section 2).
+It turns out to be that of a binary
+`Sakura tree`_ (Section 5.4).
 
 .. toctree::
     :maxdepth: 0
@@ -105,7 +191,8 @@ Indices and tables
 * :ref:`search`
 
 
+.. _RFC 9162: https://datatracker.ietf.org/doc/html/rfc9162
 .. _bitcoin: https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees
 .. _here: https://github.com/bitcoin/bitcoin/blob/bccb4d29a8080bf1ecda1fc235415a11d903a680/src/consensus/merkle.cpp
 .. _CVE-2012-2459: https://nvd.nist.gov/vuln/detail/CVE-2012-2459
-.. _Sakura: https://keccak.team/files/Sakura.pdf
+.. _Sakura tree: https://keccak.team/files/Sakura.pdf

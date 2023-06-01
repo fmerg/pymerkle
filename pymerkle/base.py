@@ -25,21 +25,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def _get_size(self):
-        """
-        Should return the current number of entries (leaves)
-
-        :rtype: int
-        """
-
-    @abstractmethod
     def _append(self, data):
         """
-        Specify how the provided entry should be stored as leaf according to
-        storage policy
+        Should store the provided entry as determined by the application logic
+        and return its index counting from one
 
         :param data: entry to append
-        :type data: bytes
+        :type data: whatever expected according to application logic
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
@@ -47,13 +39,22 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def _get_blob(self, index):
         """
-        Specify the binary format of the entry located at the leaf specified
+        Should compute and return the binary representation of the entry
+        located at the leaf specified
 
         :param index: leaf index counting from one
         :type index: int
+        :returns: binary representation as specified by the application
         :rtype: bytes
         """
 
+    @abstractmethod
+    def _get_size(self):
+        """
+        Should return the current number of leaves (entries)
+
+        :rtype: int
+        """
 
     def _get_leaf(self, index):
         """
@@ -63,9 +64,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type index: int
         :rtype: bytes
         """
-        buff = self._get_blob(index)
+        blob = self._get_blob(index)
 
-        return self.hash_entry(buff)
+        return self.hash_entry(blob)
 
 
     def _get_state(self, subsize=None):
