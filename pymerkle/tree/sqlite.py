@@ -16,19 +16,26 @@ class SqliteTree(BaseMerkleTree):
     """
 
     def __init__(self, dbfile, algorithm='sha256', security=True):
-        con = orm.connect(dbfile)
+        self.con = orm.connect(dbfile)
+        self.cur = self.con.cursor()
 
-        self.con = con
-        self.cur = con.cursor()
-
-        query = f'''
-            CREATE TABLE IF NOT EXISTS leaf(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                entry BLOB
-            );'''
-        self.cur.execute(query)
+        with self.con:
+            query = f'''
+                CREATE TABLE IF NOT EXISTS leaf(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    entry BLOB
+                );'''
+            self.cur.execute(query)
 
         super().__init__(algorithm, security)
+
+
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *exc):
+        self.con.close()
 
 
     def _store_data(self, entry):
@@ -42,11 +49,11 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
-            INSERT INTO leaf(entry) VALUES (?)
-        '''
-        cur.execute(query, (data,))
-        self.con.commit()
+        with self.con:
+            query = f'''
+                INSERT INTO leaf(entry) VALUES (?)
+            '''
+            cur.execute(query, (data,))
 
         return cur.lastrowid
 
