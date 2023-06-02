@@ -6,11 +6,19 @@ import sys
 import argparse
 from math import log10
 from pymerkle import (
+    constants,
     InmemoryTree,
-    SqliteTree,
+    SqliteTree as _SqliteTree,
     verify_inclusion,
     verify_consistency
 )
+
+
+# Make init interface identical to that of InMemoryTree
+class SqliteTree(_SqliteTree):
+
+    def __init__(self, algorithm='sha256', security=True):
+        super().__init__(':memory:', algorithm, security)
 
 
 PARSER_CONFIG = {
@@ -26,6 +34,10 @@ def parse_cli_args():
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
             default='inmemory', help='Tree storage backend')
+    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+            default='sha256', help='Hashing algorithm')
+    parser.add_argument('--no-security', action='store_true',
+            default=False, help='Disable resistance against 2nd-preimage attack')
 
     return parser.parse_args()
 
@@ -79,7 +91,8 @@ if __name__ == '__main__':
     }[args.backend]
 
 
-    tree = MerkleTree(algorithm='sha256', security=True)
+    config = {'algorithm': args.algorithm, 'security': not args.no_security}
+    tree = MerkleTree(**config)
 
     # Populate tree with some entries
     for entry in [b'foo', b'bar', b'baz', b'qux', b'quux']:

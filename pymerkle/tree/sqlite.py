@@ -6,6 +6,8 @@ class SqliteTree(BaseMerkleTree):
     """
     Merkle-tree implementation using sqlite as data storage
 
+    :param dbfile: database filepath
+    :type dbfile: str
     :param algorithm: [optional] hashing algorithm. Defaults to sha256
     :type algorithm: str
     :param security: [optional] resistance against 2nd-preimage attack.
@@ -13,8 +15,7 @@ class SqliteTree(BaseMerkleTree):
     :type security: bool
     """
 
-    def __init__(self, algorithm='sha256', security=True):
-        dbfile = ':memory:'
+    def __init__(self, dbfile, algorithm='sha256', security=True):
         con = orm.connect(dbfile)
 
         self.con = con
