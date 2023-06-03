@@ -56,7 +56,7 @@ def verify_consistency(state1, state2, proof):
         raise InvalidProof('Later state does not match')
 
 
-class MerkleProof:
+class MerkleProof(MerkleHasher):
 
     def __init__(self, algorithm, security, size, rule, subset, path):
         """
@@ -80,6 +80,8 @@ class MerkleProof:
         self.rule = rule
         self.subset = subset
         self.path = path
+
+        MerkleHasher.__init__(self, **self.get_metadata())
 
 
     def get_metadata(self):
@@ -125,15 +127,13 @@ class MerkleProof:
         subpath = [value for (mask, value) in zip(self.subset, self.path) if
             mask]
 
-        h = MerkleHasher(**self.get_metadata())
-
         if not subpath:
             return h.consume(b'')
 
         result = subpath[0]
         index = 0
         while index < len(subpath) - 1:
-            result = h.hash_nodes(subpath[index + 1], result)
+            result = self.hash_nodes(subpath[index + 1], result)
             index += 1
 
         return result
@@ -145,8 +145,6 @@ class MerkleProof:
         """
         path = list(zip(self.rule, self.path))
 
-        h = MerkleHasher(**self.get_metadata())
-
         if not path:
             return h.consume(b'')
 
@@ -157,9 +155,9 @@ class MerkleProof:
 
             match bit:
                 case 0:
-                    result = h.hash_nodes(result, value)
+                    result = self.hash_nodes(result, value)
                 case 1:
-                    result = h.hash_nodes(value, result)
+                    result = self.hash_nodes(value, result)
                 case _:
                     raise Exception('Invalid bit found')
 
