@@ -22,7 +22,7 @@ class MerkleHasher:
     :type security: bool
     """
 
-    def __init__(self, algorithm, security=True):
+    def __init__(self, algorithm, security=True, **kw):
         normalized = algorithm.lower().replace('-', '_')
         if normalized not in constants.ALGORITHMS:
             raise UnsupportedParameter('%s is not supported' % algorithm)

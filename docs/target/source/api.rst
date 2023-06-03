@@ -178,9 +178,9 @@ yields a json structure similar to this one:
   {
     "metadata": {
         "algorithm": "sha256",
-        "security": true
+        "security": true,
+        "size": 5
     },
-    "size": 5,
     "rule": [
         0,
         1,

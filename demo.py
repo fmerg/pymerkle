@@ -60,14 +60,13 @@ def strproof(proof):
 
     data = proof.serialize()
     metadata = data['metadata']
-    size = data['size']
     rule = data['rule']
     subset = data['subset']
     path = data['path']
 
     path = strpath(rule, path)
 
-    kw = {**metadata, 'size': size, 'rule': rule, 'subset': subset, 'path': path}
+    kw = {**metadata, 'rule': rule, 'subset': subset, 'path': path}
     return template.format(**kw)
 
 

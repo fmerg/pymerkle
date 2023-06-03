@@ -88,7 +88,8 @@ class MerkleProof(MerkleHasher):
         """
         :rtype: dict
         """
-        return {'algorithm': self.algorithm, 'security': self.security}
+        return {'algorithm': self.algorithm, 'security': self.security,
+                'size': self.size}
 
     def serialize(self):
         """
@@ -98,8 +99,8 @@ class MerkleProof(MerkleHasher):
             'metadata': {
                 'algorithm': self.algorithm,
                 'security': self.security,
+                'size': self.size,
             },
-            'size': self.size,
             'rule': self.rule,
             'subset': self.subset,
             'path': [value.hex() for value in self.path]
@@ -113,11 +114,10 @@ class MerkleProof(MerkleHasher):
         """
         metadata = proof['metadata']
         rule = proof['rule']
-        size = proof['size']
         subset = proof['subset']
         path = [bytes.fromhex(value) for value in proof['path']]
 
-        return cls(**metadata, size=size, rule=rule, subset=subset, path=path)
+        return cls(**metadata, rule=rule, subset=subset, path=path)
 
 
     def retrieve_prior_state(self):
