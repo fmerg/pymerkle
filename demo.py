@@ -6,11 +6,19 @@ import sys
 import argparse
 from math import log10
 from pymerkle import (
+    constants,
     InmemoryTree,
-    SqliteTree,
+    SqliteTree as _SqliteTree,
     verify_inclusion,
     verify_consistency
 )
+
+
+# Make init interface identical to that of InMemoryTree
+class SqliteTree(_SqliteTree):
+
+    def __init__(self, algorithm='sha256', security=True):
+        super().__init__(':memory:', algorithm, security)
 
 
 PARSER_CONFIG = {
@@ -26,6 +34,10 @@ def parse_cli_args():
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
             default='inmemory', help='Tree storage backend')
+    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+            default='sha256', help='Hashing algorithm')
+    parser.add_argument('--no-security', action='store_true',
+            default=False, help='Disable resistance against 2nd-preimage attack')
 
     return parser.parse_args()
 
@@ -47,6 +59,15 @@ def strpath(rule, path):
         pairs += [template.format(**kw)]
 
     return ''.join(pairs)
+
+
+def strtree(tree):
+    if not isinstance(tree, InmemoryTree):
+        entries = [tree._get_blob(index) for index in range(1, tree.get_size()
+            + 1)]
+        tree = InmemoryTree.init_from_entries(*entries)
+
+    return str(tree)
 
 
 def strproof(proof):
@@ -73,20 +94,18 @@ def strproof(proof):
 if __name__ == '__main__':
     args = parse_cli_args()
 
-    MerkleTree = {
-        'inmemory': InmemoryTree,
-        'sqlite': SqliteTree,
-    }[args.backend]
+    MerkleTree = { 'inmemory': InmemoryTree, 'sqlite': SqliteTree }[
+        args.backend]
 
-
-    tree = MerkleTree(algorithm='sha256', security=True)
+    config = {'algorithm': args.algorithm, 'security': not args.no_security}
+    tree = MerkleTree(**config)
 
     # Populate tree with some entries
     for entry in [b'foo', b'bar', b'baz', b'qux', b'quux']:
         tree.append(entry)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
-    sys.stdout.write(str(tree))
+    sys.stdout.write(strtree(tree))
 
     # Prove and verify inclusion of `bar`
     proof = tree.prove_inclusion(2)
@@ -103,7 +122,7 @@ if __name__ == '__main__':
         tree.append(entry)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
-    sys.stdout.write(str(tree))
+    sys.stdout.write(strtree(tree))
 
     # Prove and verify previous state
     size2 = tree.get_size()

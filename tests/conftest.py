@@ -1,6 +1,13 @@
 import itertools
 import pytest
-from pymerkle import constants, InmemoryTree, SqliteTree
+from pymerkle import constants, InmemoryTree, SqliteTree as _SqliteTree
+
+
+# Make init interface identical to that of InMemoryTree
+class SqliteTree(_SqliteTree):
+
+    def __init__(self, algorithm='sha256', security=True):
+        super().__init__(':memory:', algorithm, security)
 
 
 def pytest_addoption(parser):

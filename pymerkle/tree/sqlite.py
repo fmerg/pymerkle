@@ -1,10 +1,13 @@
+import sqlite3
 from pymerkle.base import BaseMerkleTree
 
 
 class SqliteTree(BaseMerkleTree):
     """
-    Simplest Merkle-tree implementation using a list as storage
+    Merkle-tree implementation using sqlite as data storage
 
+    :param dbfile: database filepath
+    :type dbfile: str
     :param algorithm: [optional] hashing algorithm. Defaults to sha256
     :type algorithm: str
     :param security: [optional] resistance against 2nd-preimage attack.
@@ -12,10 +15,27 @@ class SqliteTree(BaseMerkleTree):
     :type security: bool
     """
 
-    def __init__(self, algorithm='sha256', security=True):
-        self.leaves = []
+    def __init__(self, dbfile, algorithm='sha256', security=True):
+        self.con = sqlite3.connect(dbfile)
+        self.cur = self.con.cursor()
+
+        with self.con:
+            query = f'''
+                CREATE TABLE IF NOT EXISTS leaf(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    entry BLOB
+                );'''
+            self.cur.execute(query)
 
         super().__init__(algorithm, security)
+
+
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *exc):
+        self.con.close()
 
 
     def _store_data(self, entry):
@@ -27,9 +47,18 @@ class SqliteTree(BaseMerkleTree):
         :returns: index of newly appended leaf counting from one
         :rtype: bytes
         """
-        self.leaves += [entry]
+        if not isinstance(entry, bytes):
+            raise ValueError('Provided data is not binary')
 
-        return len(self.leaves)
+        cur = self.cur
+
+        with self.con:
+            query = f'''
+                INSERT INTO leaf(entry) VALUES (?)
+            '''
+            cur.execute(query, (entry,))
+
+        return cur.lastrowid
 
 
     def _get_blob(self, index):
@@ -40,7 +69,14 @@ class SqliteTree(BaseMerkleTree):
         :type index: int
         :rtype: bytes
         """
-        return self.leaves[index - 1]
+        cur = self.cur
+
+        query = f'''
+            SELECT entry FROM leaf WHERE id = ?
+        '''
+        cur.execute(query, (index,))
+
+        return cur.fetchone()[0]
 
 
     def _get_size(self):
@@ -48,4 +84,11 @@ class SqliteTree(BaseMerkleTree):
         :returns: current number of leaves
         :rtype: int
         """
-        return len(self.leaves)
+        cur = self.cur
+
+        query = f'''
+            SELECT COUNT(*) FROM leaf
+        '''
+        cur.execute(query)
+
+        return cur.fetchone()[0]
