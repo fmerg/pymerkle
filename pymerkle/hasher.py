@@ -55,16 +55,16 @@ class MerkleHasher:
         return _hasher.digest()
 
 
-    def hash_entry(self, data):
+    def hash_leaf(self, blob):
         """
         Computes the hash of the provided data
 
         .. note:: Prepends ``\\x00`` if security mode is enabled
 
-        :type data: bytes
+        :type blob: bytes
         :rtype: bytes
         """
-        buff = self.prefx00 + data
+        buff = self.prefx00 + blob
 
         return self.consume(buff)
 

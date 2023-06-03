@@ -25,13 +25,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def _append(self, data):
+    def _store_data(self, entry):
         """
         Should store the provided entry as determined by the application logic
         and return its index counting from one
 
-        :param data: entry to append
-        :type data: whatever expected according to application logic
+        :param entry: data to append
+        :type entry: whatever expected according to application logic
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
@@ -66,7 +66,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
         blob = self._get_blob(index)
 
-        return self.hash_entry(blob)
+        return self.hash_leaf(blob)
 
 
     def _get_state(self, subsize=None):
@@ -84,19 +84,16 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self.hash_range(0, subsize)
 
 
-    def append(self, data):
+    def append(self, entry):
         """
         Appends a new leaf storing the provided entry
 
-        :param data: data to append
-        :type data: bytes
+        :param entry: data to append
+        :type entry: whatever expected according to application logic
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        if not isinstance(data, bytes):
-            raise ValueError('Provided data is not binary')
-
-        return self._append(data)
+        return self._store_data(entry)
 
 
     def get_leaf(self, index):
@@ -146,8 +143,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         tree = cls(algorithm, security)
 
         append = tree.append
-        for data in entries:
-            append(data)
+        for entry in entries:
+            append(entry)
 
         return tree
 

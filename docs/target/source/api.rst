@@ -111,7 +111,7 @@ Inclusion
 
 .. code-block:: python
 
-   >>> forged = tree.hash_entry(b'random').hex()
+   >>> forged = tree.hash_leaf(b'random').hex()
    >>>
    >>> verify_inclusion(forged, target, proof)
    Traceback (most recent call last):
@@ -121,7 +121,7 @@ Inclusion
 
 .. code-block:: python
 
-   >>> forged = tree.hash_entry(b'random').hex()
+   >>> forged = tree.hash_leaf(b'random').hex()
    >>>
    >>> verify_inclusion(base, forged, proof)
    Traceback (most recent call last):
@@ -147,7 +147,7 @@ Consistency
 
 .. code-block:: python
 
-   >>> forged = tree.hash_entry(b'random').hex()
+   >>> forged = tree.hash_leaf(b'random').hex()
    >>>
    >>> verify_consistency(forged, state2, proof)
    Traceback (most recent call last):

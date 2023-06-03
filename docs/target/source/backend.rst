@@ -30,7 +30,7 @@ abstract base class:
             super().__init__(algorithm, security)
 
 
-        def _append(self, data):
+        def _store_data(self, entry):
             # Store data by increasing index counting from one
             ...
 
@@ -45,7 +45,7 @@ abstract base class:
             ...
 
 
-Use ``._append`` to, say, insert data into a database (after possibly
+Use ``._store_data`` to, say, insert data into a database (after possibly
 validating that it conforms to the db schema) and ``._get_blob`` to customize its
 binary representation, so that it becomes amenable to hashing operations. Below
 the exact protocol which must be implemented (Note how the output of
@@ -61,13 +61,13 @@ the exact protocol which must be implemented (Note how the output of
 
 
       @abstractmethod
-      def _append(self, data):
+      def _store_data(self, entry):
           """
           Should store the provided entry as determined by the application logic
           and return its index counting from one
 
-          :param data: entry to append
-          :type data: whatever expected according to application logic
+          :param entry: data to append
+          :type entry: whatever expected according to application logic
           :returns: index of newly appended leaf counting from one
           :rtype: int
           """
@@ -102,15 +102,15 @@ the exact protocol which must be implemented (Note how the output of
           """
           blob = self._get_blob(index)
 
-          return self.hash_entry(blob)
+          return self.hash_leaf(blob)
 
       ...
 
 
 Various strategies are here possible. Note that ``._get_leaf`` (and
 consequently ``._get_blob``) will be called for a wide range of indices everytime
-a Merkle-proof is generated, while ``._append`` is only called once for each
-entry. This means, ``._append`` could be used to also precompute the binary
+a Merkle-proof is generated, while ``._store_data`` is only called once for each
+entry. This means, ``._store_data`` could be used to also precompute the binary
 representation and store it in order to reduce the bottleneck of repeatedly
 converting entries to bytes, in which case ``._get_blob`` would
 only serve to access the blob in storage:
@@ -129,7 +129,7 @@ only serve to access the blob in storage:
             super().__init__(algorithm, security)
 
 
-        def _append(self, data):
+        def _store_data(self, entry):
             ...
 
             blob = ... # Compute data blob
@@ -149,7 +149,7 @@ only serve to access the blob in storage:
 
 
 One could even completely bypass
-``._get_blob`` for ever by precomputing inside ``._append`` the leaf-hash and
+``._get_blob`` for ever by precomputing inside ``._store_data`` the leaf-hash and
 store it for future access; in this case, we should override ``._get_leaf`` to
 simply access the leaf-hash in storage:
 
@@ -167,11 +167,11 @@ simply access the leaf-hash in storage:
             super().__init__(algorithm, security)
 
 
-        def _append(self, data):
+        def _store_data(self, entry):
             ...
 
             blob = ... # Compute data blob
-            digest = self.hash_entry(blob)  # Compute leaf-hash from blob
+            digest = self.hash_leaf(blob)  # Compute leaf-hash from blob
 
             # Store hash along with the rest data
             ...
@@ -216,7 +216,7 @@ list as storage:
         super().__init__(algorithm, security)
 
 
-    def _append(self, data):
+    def _store_data(self, entry):
         self.leaves += [blob]
 
         return len(self.leaves)
@@ -247,9 +247,9 @@ processing. Applying leaf-hash precomputation, we get the following variance:
         super().__init__(algorithm, security)
 
 
-    def _append(self, data):
-        digest = self.hash_entry(blob)
-        self.leaves += [(data, digest)]
+    def _store_data(self, entry):
+        digest = self.hash_leaf(blob)
+        self.leaves += [(entry, digest)]
 
         return len(self.leaves)
 
@@ -295,8 +295,8 @@ This implementation uses `dbm`_ to peristently store entries in a
         super().__init__(algorithm, security)
 
 
-    def _append(self, data):
-        blob = data
+    def _store_data(self, entry):
+        blob = entry
 
         with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
             index = len(db) + 1
@@ -346,9 +346,9 @@ to store it along with the blob:
         super().__init__(algorithm, security)
 
 
-    def _append(self, data):
-        blob = data
-        digest = self.hash_entry(blob)
+    def _store_data(self, entry):
+        blob = entry
+        digest = self.hash_leaf(blob)
 
         with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
             index = len(db) + 1

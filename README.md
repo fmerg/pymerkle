@@ -40,18 +40,18 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(algorithm, security)
 
 
-    def _get_size(self):
-        return len(self.leaves)
-
-
-    def _append(self, data):
-        self.leaves += [data]
+    def _store_data(self, entry):
+        self.leaves += [entry]
 
         return len(self.leaves)
 
 
     def _get_blob(self, index):
         return self.leaves[index - 1]
+
+
+    def _get_size(self):
+        return len(self.leaves)
 ```
 
 This is the simplest possible non-persistent implementation utilizing a list.

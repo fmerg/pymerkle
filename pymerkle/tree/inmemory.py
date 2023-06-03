@@ -139,14 +139,14 @@ class Leaf(Node):
     """
     Merkle-tree leaf
 
-    :param data: blob stored by the leaf
-    :type data: bytes
+    :param blob: data stored by the leaf
+    :type blob: bytes
     """
 
-    def __init__(self, data, hasher):
-        self.data = data
+    def __init__(self, blob, hasher):
+        self.blob = blob
 
-        value = hasher.hash_entry(self.data)
+        value = hasher.hash_leaf(self.blob)
         super().__init__(value, None, None)
 
 
@@ -173,24 +173,19 @@ class InmemoryTree(BaseMerkleTree):
         return self.root.expand(indent, trim) + '\n'
 
 
-    def _get_size(self):
-        """
-        :returns: current number of leaves
-        :rtype: int
-        """
-        return len(self.leaves)
-
-
-    def _append(self, data):
+    def _store_data(self, entry):
         """
         Stores the provided data in a new leaf and returns its index
 
-        :param data: blob to append
-        :type data: bytes
+        :param entry: blob to append
+        :type entry: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        tail = Leaf(data, hasher=self)
+        if not isinstance(entry, bytes):
+            raise ValueError('Provided data is not binary')
+
+        tail = Leaf(entry, hasher=self)
 
         return self._append_leaf(tail)
 
@@ -206,7 +201,15 @@ class InmemoryTree(BaseMerkleTree):
         if index < 1 or index > len(self.leaves):
             raise ValueError("%d not in leaf range" % index)
 
-        return self.leaves[index - 1].data
+        return self.leaves[index - 1].blob
+
+
+    def _get_size(self):
+        """
+        :returns: current number of leaves
+        :rtype: int
+        """
+        return len(self.leaves)
 
 
     def _get_state(self, subsize=None):

@@ -10,9 +10,9 @@ def test_append():
     tree = MerkleTree()
     assert tree.get_size() == 0
 
-    for data in entries:
-        index = tree.append(data)
+    for entry in entries:
+        index = tree.append(entry)
         value = tree.get_leaf(index)
 
         assert index == tree.get_size()
-        assert value == tree.hash_entry(data).hex()
+        assert value == tree.hash_leaf(entry).hex()
