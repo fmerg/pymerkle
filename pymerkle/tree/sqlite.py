@@ -1,4 +1,4 @@
-import sqlite3 as orm
+import sqlite3
 from pymerkle.base import BaseMerkleTree
 
 
@@ -16,7 +16,7 @@ class SqliteTree(BaseMerkleTree):
     """
 
     def __init__(self, dbfile, algorithm='sha256', security=True):
-        self.con = orm.connect(dbfile)
+        self.con = sqlite3.connect(dbfile)
         self.cur = self.con.cursor()
 
         with self.con:
@@ -47,13 +47,16 @@ class SqliteTree(BaseMerkleTree):
         :returns: index of newly appended leaf counting from one
         :rtype: bytes
         """
+        if not isinstance(entry, bytes):
+            raise ValueError('Provided data is not binary')
+
         cur = self.cur
 
         with self.con:
             query = f'''
                 INSERT INTO leaf(entry) VALUES (?)
             '''
-            cur.execute(query, (data,))
+            cur.execute(query, (entry,))
 
         return cur.lastrowid
 
