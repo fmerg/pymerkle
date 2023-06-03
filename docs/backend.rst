@@ -390,5 +390,49 @@ In-memory
 Sqlite
 ------
 
+``SqliteTree`` is a Merkle-tree with a SQLite database as storage backend.
+It is a wrapper of `sqlite3`_, suitable for leightweight or local applications
+that do not require separate server processes for the database.
+
+
+.. code-block:: python
+
+  from pymerkle import SqliteTree
+
+  tree = SqliteTree('merkle.db', algorithm='sha256')
+
+
+This establishes a connection to the database located at the provided filepath,
+which will also be created if not already existent.
+
+The database schema consists of a single table called *leaf* with two columns:
+*index*, which is the primary key serving also as leaf index, and *entry*,
+which is a blob field storing the appended data. In particular, the tree expects
+the inserted data to be in binary format and stores them without further processing:
+
+
+.. code-block:: python
+
+  index = tree.append(b'sample')
+
+  assert tree._get_blob(index) == b'sample'
+
+It is suggested to close the connection to the database when ready:
+
+.. code-block:: python
+
+  tree.con.close()
+
+
+Alternatively, initialize the tree as context-manager to ensure that this will
+be done without taking explicit care:
+
+
+.. code-block:: python
+
+  with SqliteTree('merkle.db', algorithm='sha256') as tree:
+    ...
+
 
 .. _dbm: https://docs.python.org/3/library/dbm.html
+.. _sqlite3: https://docs.python.org/3/library/sqlite3.html

@@ -61,6 +61,15 @@ def strpath(rule, path):
     return ''.join(pairs)
 
 
+def strtree(tree):
+    if not isinstance(tree, InmemoryTree):
+        entries = [tree._get_blob(index) for index in range(1, tree.get_size()
+            + 1)]
+        tree = InmemoryTree.init_from_entries(*entries)
+
+    return str(tree)
+
+
 def strproof(proof):
     template = """
     algorithm   : {algorithm}
@@ -85,11 +94,8 @@ def strproof(proof):
 if __name__ == '__main__':
     args = parse_cli_args()
 
-    MerkleTree = {
-        'inmemory': InmemoryTree,
-        'sqlite': SqliteTree,
-    }[args.backend]
-
+    MerkleTree = { 'inmemory': InmemoryTree, 'sqlite': SqliteTree }[
+        args.backend]
 
     config = {'algorithm': args.algorithm, 'security': not args.no_security}
     tree = MerkleTree(**config)
@@ -99,7 +105,7 @@ if __name__ == '__main__':
         tree.append(entry)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
-    sys.stdout.write(str(tree))
+    sys.stdout.write(strtree(tree))
 
     # Prove and verify inclusion of `bar`
     proof = tree.prove_inclusion(2)
@@ -116,7 +122,7 @@ if __name__ == '__main__':
         tree.append(entry)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
-    sys.stdout.write(str(tree))
+    sys.stdout.write(strtree(tree))
 
     # Prove and verify previous state
     size2 = tree.get_size()
