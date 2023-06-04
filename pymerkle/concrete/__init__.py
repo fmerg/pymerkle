@@ -1,3 +1,7 @@
+"""
+merkle-tree concrete implementations
+"""
+
 from .inmemory import InmemoryTree
 from .sqlite import SqliteTree
 

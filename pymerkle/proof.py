@@ -39,7 +39,7 @@ def verify_inclusion(base, target, proof):
 def verify_consistency(state1, state2, proof):
     """
     Verifies the provided merkle-proof of consistency for the given state
-    against the provided root hash.
+    against the provided root hash
 
     :param state1: acclaimed prior state
     :type state1: str
@@ -128,7 +128,7 @@ class MerkleProof(MerkleHasher):
             mask]
 
         if not subpath:
-            return h.consume(b'')
+            return self.consume(b'')
 
         result = subpath[0]
         index = 0
@@ -146,7 +146,7 @@ class MerkleProof(MerkleHasher):
         path = list(zip(self.rule, self.path))
 
         if not path:
-            return h.consume(b'')
+            return self.consume(b'')
 
         bit, result = path[0]
         index = 0

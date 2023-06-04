@@ -12,23 +12,23 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pymerkle.tree
+   pymerkle.concrete
 
 Submodules
 ----------
-
-pymerkle.base module
---------------------
-
-.. automodule:: pymerkle.base
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 pymerkle.constants module
 -------------------------
 
 .. automodule:: pymerkle.constants
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pymerkle.core module
+--------------------
+
+.. automodule:: pymerkle.core
    :members:
    :undoc-members:
    :show-inheritance:

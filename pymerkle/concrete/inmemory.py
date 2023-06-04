@@ -3,7 +3,7 @@ Merkle-tree implementation following Sakura
 """
 
 from pymerkle.utils import decompose
-from pymerkle.base import BaseMerkleTree
+from pymerkle.core import BaseMerkleTree
 
 
 class Node:
@@ -276,19 +276,13 @@ class InmemoryTree(BaseMerkleTree):
         return index
 
 
-    def inclusion_path(self, start, offset, end, bit):
+    def inclusion_path_fallback(self, offset):
         """
-        Returns the inclusion path based on the provided leaf-hash against the
-        given leaf range
+        Non-recursive utility using concrete node traversals to compute the
+        inclusion path of the provided leaf-hash aginst the current tree state
 
-        :param start: leftmost leaf index counting from zero
-        :type start: int
         :param offset: base leaf index counring from zero
         :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
-        :param bit: indicates direction during recursive call
-        :type bit: int
         :rtype: (list[0/1], list[bytes])
         """
         base = self.leaves[offset]
@@ -317,6 +311,27 @@ class InmemoryTree(BaseMerkleTree):
         rule[-1] = 0
 
         return rule, path
+
+
+    def inclusion_path(self, start, offset, end, bit):
+        """
+        Returns the inclusion path based on the provided leaf-hash against the
+        given leaf range
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: base leaf index counring from zero
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[0/1], list[bytes])
+        """
+        if start == 0 and end == self.get_size():
+            return self.inclusion_path_fallback(offset)
+
+        return super().inclusion_path(start, offset, end, bit)
 
 
     def get_perfect_node(self, index, height):

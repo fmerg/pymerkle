@@ -1,8 +1,7 @@
 """
-Performs second-preimage attack against for both possible security modes
-
-Attack should succeed only when the tree's security mode is deactivated, that
-is, iff the security attribute has been set to False at construction
+Performs second-preimage attack for both security modes. Attach should succeed
+only when the tree's securitu mode has been disabled, that is, iff the security
+attribute has been set to false
 
 Attack Schema
 -------------
@@ -13,13 +12,13 @@ Attack Schema
                    /   \                       /   \
                  E       F = h(CD)           E      F    ------> [injected leaf]
                 / \     / \                 / \     |
-hashes:        D   B   C   D               A   B   (CD)  <------ [forged entry]
+hashes:        A   B   C   D               A   B   (CD)  <------ [forged entry]
                |   |   |   |               |   |
-entries:       A   b   c   d               a   b
+entries:       a   b   c   d               a   b
 
 
-Concatenate the hashes stored by the third and fourth leaves and append the result
-as third leaf, leaving the rest leaves untouced
+Concatenate the 3-rd and 4-th leaf-hashes and append the result as 3-rd,
+leaving the rest leaves unoutched
 """
 
 import pytest
@@ -30,12 +29,12 @@ MerkleTree = resolve_backend(option)
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_second_preimage_attack(config):
-    tree = MerkleTree.init_from_entries(b'a', b'b', b'c', b'd',
+    tree = MerkleTree.init_from_entries(b'alpha', b'beta', b'gamma', b'delta',
         **config)
 
     forged = bytes.fromhex(tree.get_leaf(3) + tree.get_leaf(4))
 
-    attacker = MerkleTree.init_from_entries(b'a', b'b', forged,
+    attacker = MerkleTree.init_from_entries(b'alpha', b'beta', forged,
         **config)
 
     assert tree.security ^ (attacker.get_state() == tree.get_state())

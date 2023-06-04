@@ -20,7 +20,7 @@ for logarithm in range(0, 8):
             exponents = list(_) + [logarithm]
 
             # 2 ^ i_1 + ... + 2 ^ i_k + 2 ^ p
-            number = sum(2 ** i for i in exponents)
+            number = sum(1 << i for i in exponents)
 
             numbers += [number]
             logarithms += [logarithm]

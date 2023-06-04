@@ -26,11 +26,8 @@ def pytest_configure(config):
 def all_configs(option):
     algorithms = constants.ALGORITHMS if option.extended else ['sha256']
 
-    for (security, algorithm) in itertools.product(
-        (True, False),
-        algorithms,
-    ):
-        yield {'security': security, 'algorithm': algorithm}
+    return [{'algorithm': algorithm, 'security': security} for (security,
+        algorithm) in itertools.product((True, False), algorithms)]
 
 
 def resolve_backend(option):
@@ -40,19 +37,23 @@ def resolve_backend(option):
     return InmemoryTree
 
 
-def tree_and_index(maxsize=7, default_config=False):
-    fixtures = []
+def trees(maxsize=7, default_config=False):
     configs = all_configs(option) if not default_config else [{'algorithm':
         'sha256', 'security': True}]
-
     MerkleTree = resolve_backend(option)
 
-    for config in configs:
-        for size in range(0, maxsize + 1):
-            entries = [f'{i}-th entry'.encode() for i in range(size)]
-            tree = MerkleTree.init_from_entries(*entries, **config)
+    return [MerkleTree.init_from_entries(
+        *[f'entry-{i}'.encode() for i in range(size)], **config)
+                                for size in range(0, maxsize + 1)
+                                for config in configs]
 
-            for index in range(1, size + 1):
-                fixtures += [(tree, index)]
 
-    return fixtures
+def tree_and_index(maxsize=7, default_config=False):
+    return [(tree, index) for tree in trees(maxsize, default_config)
+                          for index in range(1, tree.get_size() + 1)]
+
+
+def tree_and_range(maxsize=7, default_config=False):
+    return [(tree, start, end) for tree in trees(maxsize, default_config)
+                               for start in range(0, tree.get_size())
+                               for end in range(start + 1, tree.get_size())]

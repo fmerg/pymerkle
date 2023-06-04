@@ -1,5 +1,5 @@
 import sqlite3
-from pymerkle.base import BaseMerkleTree
+from pymerkle.core import BaseMerkleTree
 
 
 class SqliteTree(BaseMerkleTree):
