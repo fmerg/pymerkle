@@ -2,12 +2,10 @@
 pymerkle
 ########
 
-|Build-Status| |Coverage-Status| |PyPI-version| |Python >= 3.10|
+|Build-Status| |PyPI-version| |Python >= 3.10|
 
-.. |Build-Status| image:: https://travis-ci.com/fmerg/pymerkle.svg?branch=master
-   :target: https://travis-ci.com/fmerg/pymerkle
-.. |Coverage-Status| image:: https://codecov.io/gh/fmerg/pymerkle/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/fmerg/pymerkle
+.. |Build-Status| image:: https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg
+   :target: https://gitlab.com/fmerg/pymerkle/commits/master
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
 .. |Python >= 3.10| image:: https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg
