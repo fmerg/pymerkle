@@ -12,7 +12,7 @@ def test_append(tree):
     value = tree.get_leaf(index)
 
     assert index == tree.get_size()
-    assert value == tree.hash_leaf(entry).hex()
+    assert value == tree.hash_leaf(entry)
 
 
 @pytest.mark.parametrize('tree, start, end', tree_and_range(maxsize=11))
@@ -36,7 +36,7 @@ def test_hash_range(tree, start, end):
 
 @pytest.mark.parametrize('tree, subsize', tree_and_index(maxsize=11))
 def test_state(tree, subsize):
-    assert tree.get_state(subsize) == tree.hash_range(0, subsize).hex()
+    assert tree.get_state(subsize) == tree.hash_range(0, subsize)
 
     principals = []
     start = 0
@@ -52,4 +52,4 @@ def test_state(tree, subsize):
         result = tree.hash_nodes(principals[index + 1], result)
         index += 1
 
-    assert tree.get_state(subsize) == result.hex()
+    assert tree.get_state(subsize) == result

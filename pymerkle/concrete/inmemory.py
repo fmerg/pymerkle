@@ -213,7 +213,7 @@ class InmemoryTree(BaseMerkleTree):
         return len(self.leaves)
 
 
-    def _get_state(self, subsize=None):
+    def get_state(self, subsize=None):
         """
         Computes the root-hash of the subtree corresponding to the provided
         size

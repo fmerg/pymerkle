@@ -52,7 +52,7 @@ CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
 
 DEFAULT_THEME="alabaster"     # Default sphinx theme
 CUSTOM_THEME="sphinx_rtd_theme"  # Read-the-docs theme
-# CUSTOM_THEME="python_docs_theme"  # Python docs theme
+CUSTOM_THEME="python_docs_theme"  # Python docs theme
 # CUSTOM_THEME=$DEFAULT_THEME
 
 # Generate sphinx source

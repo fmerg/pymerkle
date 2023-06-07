@@ -70,10 +70,10 @@ hexadecimal format as follows:
 .. code-block:: python
 
    >>> tree.get_leaf(1)
-   '2a158d8afd48e3f88cb4195dfdb2a9e4817d95fa57fd34440d93f9aae5c4f82b'
+   b'\x1d9\xfayq\xf4\xbf\x01\xa1\xc2\x0c\xb2\xa3\xfez\xf4he\xca\x9c\xd9\xb8@\xc2\x06=\xf8\xfe\xc4\xffu'
    >>>
    >>> tree.get_leaf(2)
-   'e23537b050e84af2cbaab46f2f83d8d3b5febc8e5ac6200d306284f687d46924'
+   b'HY\x04\x12\x9b\xdd\xa5\xd1\xb5\xfb\xc6\xbcJ\x82\x95\x9e\xcf\xb9\x04-\xb4M\xc0\x8f\xe8~6\x0b\n?%\x01'
 
 
 Hash computation
@@ -100,7 +100,7 @@ The commutation between index and entry is then
 
 .. code-block:: python
 
-   assert tree.get_leaf(1) = hasher.hash_leaf(b'foo').hex()
+   assert tree.get_leaf(1) = hasher.hash_leaf(b'foo')
 
 having assumed that the tree admits binary entries without further processing
 and that the entry ``b'foo'`` has leaf index equal to one.
@@ -115,7 +115,7 @@ be accessed in hexadecimal format as follows:
 .. code-block:: python
 
    >>> tree.get_state()
-   '9b7e00a525731ee1e8716668b8a4fff14a5dc7b10346dcf528fbe334144db382'
+   b'\xdcRj\xc4\x98\x81&}\x10\xf4<\x80\x8e\xc5\x92\xa1r\x08\xefxs<\xfa\x06""\xbeS[\xc7O"'
 
 
 The root-hash of any intermediate state can be retrieved by providing the
@@ -124,9 +124,10 @@ corresponding number of leaves:
 .. code-block:: python
 
    >>> tree.get_state(2)
-   '9531b48579f0e741979005d67ba64455a9f68b06630b3c431152d445ecd2716a'
+   b"9(jJU1b'Q\xd6\x84[\xb8\xef\xb4\xcf3\xbe\xc2\xc5\xf3\xf8C\ru\x84\x87Cq\xa3[\xda"
+   >>>
    >>> tree.get_state(5)
-   '9b7e00a525731ee1e8716668b8a4fff14a5dc7b10346dcf528fbe334144db382'
+   b'\xdcRj\xc4\x98\x81&}\x10\xf4<\x80\x8e\xc5\x92\xa1r\x08\xefxs<\xfa\x06""\xbeS[\xc7O"'
 
 
 By convention, the state of the empty tree is the hash of the empty string:
@@ -180,7 +181,7 @@ would fail:
 .. code-block:: python
 
    >>> from pymerkle.hasher import MerkleHasher
-   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random').hex()
+   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random')
    >>>
    >>> verify_inclusion(forged, target, proof)
    Traceback (most recent call last):
@@ -235,7 +236,7 @@ fail:
 .. code-block:: python
 
    >>> from pymerkle.hasher import MerkleHasher
-   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random').hex()
+   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random')
    >>>
    >>> verify_consistency(forged, state2, proof)
    Traceback (most recent call last):

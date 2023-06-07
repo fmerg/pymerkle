@@ -41,7 +41,7 @@ The tree state coincides with the value stored by the current root-node:
 
 .. code-block:: python
 
-  assert tree.get_state() == tree.root.value.hex()
+  assert tree.get_state() == tree.root.value
 
 
 Nodes have a ``right``, ``left`` and ``parent`` attribute, pointing to their
@@ -172,11 +172,11 @@ abstract base class:
             ...
 
 
-Use ``._store_data`` to, say, insert data into a database (after possibly
-validating that it conforms to the db schema) and ``._get_blob`` to customize its
+Use ``_store_data`` to, say, insert data into a database (after possibly
+validating that it conforms to the db schema) and ``_get_blob`` to customize its
 binary representation, so that it becomes amenable to hashing operations. Below
 the exact protocol which must be implemented (Note how the output of
-``._get_blob`` is consumed inside the non-abstract ``._get_leaf`` method):
+``_get_blob`` is consumed inside the non-abstract ``get_leaf`` method):
 
 
 .. code-block:: python
@@ -219,7 +219,7 @@ the exact protocol which must be implemented (Note how the output of
           :rtype: int
           """
 
-      def _get_leaf(self, index):
+      def get_leaf(self, index):
           """
           Returns the hash of the entry located at the leaf specified
 
@@ -234,12 +234,12 @@ the exact protocol which must be implemented (Note how the output of
       ...
 
 
-Various strategies are here possible. Note that ``._get_leaf`` (and
-consequently ``._get_blob``) will be called for a wide range of indices everytime
-a Merkle-proof is generated, while ``._store_data`` is only called once for each
-entry. This means, ``._store_data`` could be used to also precompute the binary
+Various strategies are here possible. Note that ``get_leaf`` (and
+consequently ``_get_blob``) will be called for a wide range of indices everytime
+a Merkle-proof is generated, while ``_store_data`` is only called once for each
+entry. This means, ``_store_data`` could be used to also precompute the binary
 representation and store it in order to reduce the bottleneck of repeatedly
-converting entries to bytes, in which case ``._get_blob`` would
+converting entries to bytes, in which case ``_get_blob`` would
 only serve to access the blob in storage:
 
 
@@ -276,8 +276,8 @@ only serve to access the blob in storage:
 
 
 One could even completely bypass
-``._get_blob`` for ever by precomputing inside ``._store_data`` the leaf-hash and
-store it for future access; in this case, we should override ``._get_leaf`` to
+``_get_blob`` for ever by precomputing inside ``_store_data`` the leaf-hash and
+store it for future access; in this case, we should override ``get_leaf`` to
 simply access the leaf-hash in storage:
 
 
@@ -312,7 +312,7 @@ simply access the leaf-hash in storage:
             ...
 
 
-        def _get_leaf(self, index):
+        def get_leaf(self, index):
             digest = ... # Use index to access leaf-hash in storage
 
             return digest
@@ -391,7 +391,7 @@ processing. Applying leaf-hash precomputation, we get the following variance:
         return len(self.leaves)
 
 
-    def _get_leaf(self, index):
+    def get_leaf(self, index):
         _, digest = self.leaves[index - 1]
 
         return digest

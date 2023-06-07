@@ -44,8 +44,8 @@ Store data into the tree and retrieve the corresponding leaf-hash:
 
 .. code-block:: python
 
-  index = tree.append(b'foo')   # leaf index counting from one
-  value = tree.get_leaf(index)  # hash in hexadecimal format
+  index = tree.append(b'foo')   # index counting from one
+  value = tree.get_leaf(index)  # leaf hash
 
 
 Current size and root-hash:
@@ -53,7 +53,7 @@ Current size and root-hash:
 .. code-block:: python
 
   size = tree.get_size()    # number of leaves
-  state = tree.get_state()  # hash in hexadecimal format
+  state = tree.get_state()  # root hash
 
 
 Inclusion proof

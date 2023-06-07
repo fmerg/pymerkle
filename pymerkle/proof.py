@@ -17,20 +17,18 @@ def verify_inclusion(base, target, proof):
     Verifies the provided Merkle-proof of inclusion against the provided base
     hash and state
 
-    .. note:: Involved hashes are assumed to be in hexadecimal format
-
     :param base: acclaimed base hash
-    :type base: str
+    :type base: bytes
     :param target: acclaimed root hash
-    :type target: str
+    :type target: bytes
     :param proof: proof of inclusion
     :type proof: MerkleProof
     :raises InvalidProof: if the proof is found invalid
     """
-    if not proof.path[0] == bytes.fromhex(base):
+    if not proof.path[0] == base:
         raise InvalidProof('Base hash does not match')
 
-    if not proof.resolve() == bytes.fromhex(target):
+    if not proof.resolve() == target:
         raise InvalidProof('State does not match')
 
 
@@ -38,20 +36,18 @@ def verify_consistency(state1, state2, proof):
     """
     Verifies the provided Merkle-proof of consistency against the given states
 
-    .. note:: Involved hashes are assumed to be in hexadecimal format
-
     :param state1: acclaimed prior state
-    :type state1: str
+    :type state1: bytes
     :param state2: acclaimed later state
-    :type state2: str
+    :type state2: bytes
     :raises InvalidProof: if the proof is found invalid
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
-    if not proof.retrieve_prior_state() == bytes.fromhex(state1):
+    if not proof.retrieve_prior_state() == state1:
         raise InvalidProof('Prior state does not match')
 
-    if not proof.resolve() == bytes.fromhex(state2):
+    if not proof.resolve() == state2:
         raise InvalidProof('Later state does not match')
 
 

@@ -61,35 +61,6 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: int
         """
 
-    def _get_leaf(self, index):
-        """
-        Returns the hash of the leaf located at the provided position
-
-        :param index: leaf index counting from one
-        :type index: int
-        :rtype: bytes
-        """
-        blob = self._get_blob(index)
-
-        return self.hash_leaf(blob)
-
-
-    def _get_state(self, subsize=None):
-        """
-        Computes the root-hash of the subtree corresponding to the provided
-        size
-
-        :param subsize: [optional] number of leaves to consider. Defaults to
-            current tree size
-        :type subsize: int
-        :rtype: bytes
-        """
-        if subsize is None:
-            subsize = self._get_size()
-
-        return self.hash_range(0, subsize)
-
-
     def append(self, entry):
         """
         Appends a new leaf storing the provided entry
@@ -104,14 +75,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_leaf(self, index):
         """
-        Returns the hexadecimal representation of the leaf-hash located at the
-        provided position
+        Returns the hash of the leaf located at the provided position
 
         :param index: leaf index counting from one
         :type index: int
-        :rtype: str
+        :rtype: bytes
         """
-        return self._get_leaf(index).hex()
+        blob = self._get_blob(index)
+
+        return self.hash_leaf(blob)
 
 
     def get_size(self):
@@ -125,15 +97,18 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_state(self, subsize=None):
         """
-        Returns the hexadecimal representation of the root-hash corresponding
-        to the provided number of leaves
+        Computes the root-hash of the subtree corresponding to the provided
+        size
 
         :param subsize: [optional] number of leaves to consider. Defaults to
             current tree size
         :type subsize: int
-        :rtype: str
+        :rtype: bytes
         """
-        return self._get_state(subsize).hex()
+        if subsize is None:
+            subsize = self._get_size()
+
+        return self.hash_range(0, subsize)
 
 
     @classmethod
@@ -173,7 +148,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             return self.consume(b'')
 
         if end == start + 1:
-            return self._get_leaf(end)
+            return self.get_leaf(end)
 
         k = 1 << log2(end - start)
         if k == end - start:
@@ -204,7 +179,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: (list[int], list[bytes])
         """
         if offset == start and start == end - 1:
-            value = self._get_leaf(offset + 1)
+            value = self.get_leaf(offset + 1)
             return [bit], [value]
 
         k = 1 << log2(end - start)
@@ -273,7 +248,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             return [bit], [1], [value]
 
         if offset == 0 and end == 1:
-            value = self._get_leaf(start + offset + 1)
+            value = self.get_leaf(start + offset + 1)
             return [bit], [0], [value]
 
         k = 1 << log2(end)
