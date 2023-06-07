@@ -4,14 +4,20 @@ from pymerkle.core import BaseMerkleTree
 
 class SqliteTree(BaseMerkleTree):
     """
-    Merkle-tree implementation using sqlite as data storage
+    Persistent Merkle-tree implementation using a SQLite database as storage
+
+    The database schema consists of a single table called *leaf* with two
+    columns: *index*, which is the primary key serving as leaf index, and
+    *entry*, which is a blob field storing the appended data. Inserted data are
+    expected by the tree to be in binary format and stored without further
+    processing
 
     :param dbfile: database filepath
     :type dbfile: str
-    :param algorithm: [optional] hashing algorithm. Defaults to sha256
+    :param algorithm: [optional] hashing algorithm. Defaults to *sha256*
     :type algorithm: str
-    :param security: [optional] resistance against 2nd-preimage attack.
-        Defaults to true
+    :param security: [optional] resistance against second-preimage attack.
+        Defaults to *True*
     :type security: bool
     """
 

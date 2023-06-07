@@ -14,7 +14,7 @@ from pymerkle import (
 )
 
 
-# Make init interface identical to that of InMemoryTree
+# Make init interface identical to that of InmemoryTree
 class SqliteTree(_SqliteTree):
 
     def __init__(self, algorithm='sha256', security=True):
@@ -33,17 +33,17 @@ def parse_cli_args():
     parser = argparse.ArgumentParser(**PARSER_CONFIG)
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
-            default='inmemory', help='Tree storage backend')
+            default='inmemory', help='Storage backend')
     parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
             default='sha256', help='Hashing algorithm')
     parser.add_argument('--no-security', action='store_true',
-            default=False, help='Disable resistance against 2nd-preimage attack')
+            default=False, help='Disable resistance against second-preimage attack')
 
     return parser.parse_args()
 
 
 def order_of_magnitude(num):
-    return int(log10(num)) if num != 0 else 0
+    return int(log10(num)) if not num == 0 else 0
 
 
 def strpath(rule, path):

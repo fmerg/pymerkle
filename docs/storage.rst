@@ -6,8 +6,135 @@ entries should be stored in concrete. "Leaves" is an abstraction for the indexed
 sequence of data expected by the internal hashing machinery to be available
 in binary format, no matter what their concrete form in persistent or volatile memory is.
 Specifying how to store data in concrete and how to represent them in binary belongs to the
-business logic of the application and amounts to implementing the following
-interface.
+business logic of the application and amounts to implementing the interface
+presented in this section.
+
+
+Implementations
+===============
+
+In-memory
+---------
+
+``InmemoryTree`` is a non-persistent implementation where nodes are loaded in
+the runtime memory, suitable for investigating and visualizing the tree structure.
+It is intended as a debugging and testing tool.
+
+.. code-block:: python
+
+  from pymerkle import SqliteTree
+
+  tree = InmemoryTree(algorithm='sha256')
+
+
+The tree expects the inserted data to be in binary format and stores them
+without further processing:
+
+.. code-block:: python
+
+  index = tree.append(b'foo')
+
+  assert tree._get_blob(index) == b'foo'
+
+
+The tree state coincides with the value stored by the current root-node:
+
+.. code-block:: python
+
+  assert tree.get_state() == tree.root.value.hex()
+
+
+Nodes have a ``right``, ``left`` and ``parent`` attribute, pointing to their
+right child, left child and parent node respectively. Leaf-nodes are stored in a
+list and have no children, whereas the current root-node is characterized by the
+fact that it has no parent. These linkages allow for concrete path traversals;
+for example, the following trivial loop detects the root-node starting from the
+first leaf of a non-empty tree:
+
+.. code-block:: python
+
+  leaf = tree.leaves[0]
+
+  curr = leaf
+  while curr.parent:
+    curr = curr.parent
+
+  assert curr == tree.root
+
+
+Concrete path traversals are used under the hood for visualizing the tree by
+just printing it:
+
+.. code-block:: python
+
+  >>> print(tree)
+
+   └─346ec544...
+      ├──bbe0bdaf...
+      │   ├──39286a4a...
+      │   │   ├──1d2039fa...
+      │   │   └──48590412...
+      │   └──0bf15c4f...
+      │       ├──b06d6958...
+      │       └──5a43bc14...
+      └──4c715fb1...
+          ├──7a4b8eff...
+          │   ├──2e219794...
+          │   └──1c0c3f26...
+          └──e9345fea...
+              ├──2c3bb97e...
+              └──dcd08bea...
+
+
+Sqlite
+------
+
+``SqliteTree`` is a Merkle-tree with a SQLite database as storage backend.
+It is a wrapper of `sqlite3`_, suitable for leightweight or local applications
+that do not require separate server processes for the database.
+
+
+.. code-block:: python
+
+  from pymerkle import SqliteTree
+
+  tree = SqliteTree('merkle.db', algorithm='sha256')
+
+
+This opens a connection to the database located at the provided filepath,
+which will also be created if not already existent.
+
+The database schema consists of a single table called *leaf* with two columns:
+*index*, which is the primary key serving also as leaf index, and *entry*,
+which is a blob field storing the appended data. In particular, the tree expects
+the inserted data to be in binary format and stores them without further processing:
+
+
+.. code-block:: python
+
+  index = tree.append(b'foo')
+
+  assert tree._get_blob(index) == b'foo'
+
+It is suggested to close the connection to the database when ready:
+
+.. code-block:: python
+
+  tree.con.close()
+
+
+Alternatively, initialize the tree as context-manager to ensure that this will
+be done without taking explicit care:
+
+
+.. code-block:: python
+
+  with SqliteTree('merkle.db', algorithm='sha256') as tree:
+    ...
+
+
+.. _dbm: https://docs.python.org/3/library/dbm.html
+.. _sqlite3: https://docs.python.org/3/library/sqlite3.html
 
 
 Interface
@@ -273,8 +400,8 @@ processing. Applying leaf-hash precomputation, we get the following variance:
 Unix DBM
 --------
 
-This implementation uses `dbm`_ to peristently store entries in a
-``merkledb`` file (simple key/value datastore).
+Here is a hasty implementation using `dbm`_ to persistently store entries in a
+``"merkledb"`` file (simple key/value datastore).
 
 .. code-block:: python
 
@@ -323,116 +450,6 @@ It assumes entries already in binary format and stores them without further
 processing. Note that Unix DBM requires both key and value to be in binary, so
 we have to also store the index as bytes.
 
-The following variance applies hash-leaf precomputation and uses a separator
-to store it along with the blob:
-
-
-.. code-block:: python
-
-  import dbm
-  from pymerkle import BaseMerkleTree
-
-
-  class MerkleTree(BaseMerkleTree):
-
-    def __init__(self, algorithm='sha256', security=True):
-        self.dbfile = 'merkledb'
-        self.mode = 0o666
-
-        # Create file if it doesn't exist
-        with dbm.open(self.dbfile, 'c', mode=self.mode) as db:
-            pass
-
-        super().__init__(algorithm, security)
-
-
-    def _store_data(self, entry):
-        blob = entry
-        digest = self.hash_leaf(blob)
-
-        with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
-            index = len(db) + 1
-            db[hex(index)] = b'|'.join(blob, digest)
-
-        return index
-
-
-    def _get_blob(self, index):
-        with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-            blob, _ = db[hex(index)].split(b'|')
-
-        return blob
-
-
-    def _get_size(self):
-        with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-            size = len(db)
-
-        return size
-
-
-    def _get_leaf(self, index):
-        with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-            _, digest = db[hex(index)].split(b'|')
-
-        return digest
-
-
 Django app
 ----------
 
-Provided backends
-=================
-
-In-memory
----------
-
-Sqlite
-------
-
-``SqliteTree`` is a Merkle-tree with a SQLite database as storage backend.
-It is a wrapper of `sqlite3`_, suitable for leightweight or local applications
-that do not require separate server processes for the database.
-
-
-.. code-block:: python
-
-  from pymerkle import SqliteTree
-
-  tree = SqliteTree('merkle.db', algorithm='sha256')
-
-
-This establishes a connection to the database located at the provided filepath,
-which will also be created if not already existent.
-
-The database schema consists of a single table called *leaf* with two columns:
-*index*, which is the primary key serving also as leaf index, and *entry*,
-which is a blob field storing the appended data. In particular, the tree expects
-the inserted data to be in binary format and stores them without further processing:
-
-
-.. code-block:: python
-
-  index = tree.append(b'sample')
-
-  assert tree._get_blob(index) == b'sample'
-
-It is suggested to close the connection to the database when ready:
-
-.. code-block:: python
-
-  tree.con.close()
-
-
-Alternatively, initialize the tree as context-manager to ensure that this will
-be done without taking explicit care:
-
-
-.. code-block:: python
-
-  with SqliteTree('merkle.db', algorithm='sha256') as tree:
-    ...
-
-
-.. _dbm: https://docs.python.org/3/library/dbm.html
-.. _sqlite3: https://docs.python.org/3/library/sqlite3.html

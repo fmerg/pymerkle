@@ -1,7 +1,3 @@
-"""
-Merkle-tree implementation following Sakura
-"""
-
 from pymerkle.utils import decompose
 from pymerkle.core import BaseMerkleTree
 
@@ -90,6 +86,8 @@ class Node:
 
     def expand(self, indent=2, trim=None, level=0, ignored=None):
         """
+        Returns a string representing the subtree rooted at the current node
+
         :param indent: [optional]
         :type indent: str
         :param trim: [optional]
@@ -152,7 +150,10 @@ class Leaf(Node):
 
 class InmemoryTree(BaseMerkleTree):
     """
-    In-memory merkle-tree
+    Non-persistent Merkle-tree with all nodes stored in the runtime memory
+
+    .. note:: This implementation is intended for debugging and testing. Use it
+        to investigate the tree topology by means of concrete traversals
     """
 
     def __init__(self, algorithm='sha256', security=True):
@@ -164,7 +165,7 @@ class InmemoryTree(BaseMerkleTree):
 
     def __str__(self, indent=2, trim=8):
         """
-        :returns:
+        :returns: visual representation of the tree
         :rtype: str
         """
         if not self.root:
@@ -214,7 +215,11 @@ class InmemoryTree(BaseMerkleTree):
 
     def _get_state(self, subsize=None):
         """
-        Computes the root-hash of the subtree specified by the provided size
+        Computes the root-hash of the subtree corresponding to the provided
+        size
+
+        .. note:: Overrides the default implementation inherited from the base
+            class
 
         :param subsize: [optional] number of leaves to consider. Defaults to
             current tree size
@@ -230,7 +235,7 @@ class InmemoryTree(BaseMerkleTree):
         if subsize == self.get_size():
             return self.root.value
 
-        principals = self.get_principals(subsize)
+        principals = self.get_principal_nodes(subsize)
         result = principals[0].value
         i = 0
         while i < len(principals) - 1:
@@ -242,7 +247,7 @@ class InmemoryTree(BaseMerkleTree):
 
     def _append_leaf(self, tail):
         """
-        Appends the provided leaf to the tree by restructuring it accordingly
+        Appends the provided leaf node to the tree by restructuring it accordingly
 
         :param tail: leaf to append
         :type tail: Leaf
@@ -254,7 +259,7 @@ class InmemoryTree(BaseMerkleTree):
             self.root = tail
             return 1
 
-        node = self.last_maximal_perfect()
+        node = self.get_last_maximal_perfect_node()
         self.leaves += [tail]
         value = self.hash_nodes(node.value, tail.value)
 
@@ -268,8 +273,7 @@ class InmemoryTree(BaseMerkleTree):
         curr.right.parent = curr
         while curr:
             curr.value = self.hash_nodes(
-                curr.left.value, curr.right.value
-            )
+                curr.left.value, curr.right.value)
             curr = curr.parent
 
         index = self.get_size()
@@ -278,12 +282,16 @@ class InmemoryTree(BaseMerkleTree):
 
     def inclusion_path_fallback(self, offset):
         """
-        Non-recursive utility using concrete node traversals to compute the
-        inclusion path of the provided leaf-hash aginst the current tree state
+        Non-recursive utility using concrete traversals to compute the inclusion
+        path of the provided leaf hash against the current tree state
 
-        :param offset: base leaf index counring from zero
+        .. warning:: This method is intended for investigating the tree
+            structure and testing. Use ``prove_inclusion`` to properly generate
+            inclusion proofs
+
+        :param offset: base leaf index counting from zero
         :type offset: int
-        :rtype: (list[0/1], list[bytes])
+        :rtype: (list[int], list[bytes])
         """
         base = self.leaves[offset]
         bit = 1 if base.is_right_child() else 0
@@ -315,18 +323,21 @@ class InmemoryTree(BaseMerkleTree):
 
     def inclusion_path(self, start, offset, end, bit):
         """
-        Returns the inclusion path based on the provided leaf-hash against the
-        given leaf range
+        Computes the inclusion path for the leaf located at the provided offset
+        against the specified leaf range
+
+        .. warning:: This method should not be called directly. Use
+            ``prove_inclusion`` instead
 
         :param start: leftmost leaf index counting from zero
         :type start: int
-        :param offset: base leaf index counring from zero
+        :param offset: base leaf index counting from zero
         :type offset: int
         :param end: rightmost leaf index counting from zero
         :type end: int
-        :param bit: indicates direction during recursive call
+        :param bit: bit indicating direction during recursive call
         :type bit: int
-        :rtype: (list[0/1], list[bytes])
+        :rtype: (list[int], list[bytes])
         """
         if start == 0 and end == self.get_size():
             return self.inclusion_path_fallback(offset)
@@ -336,11 +347,11 @@ class InmemoryTree(BaseMerkleTree):
 
     def get_perfect_node(self, index, height):
         """
-        Detect the root of the perfect subtree of the provided height whose
+        Returns the root node of the perfect subtree of the provided height whose
         leftmost leaf node is located at the provided position
 
         .. note:: Returns *None* if no binary subtree exists for the provided
-            parameters.
+            parameters
 
         :param index: position of leftmost leaf node coutning from one
         :type index: int
@@ -379,9 +390,9 @@ class InmemoryTree(BaseMerkleTree):
         return node
 
 
-    def last_maximal_perfect(self):
+    def get_last_maximal_perfect_node(self):
         """
-        Detect the root of the perfect subtree of maximum possible size
+        Returns the root-node of the perfect subtree of maximum possible size
         containing the currently last leaf
 
         :rtype: Node
@@ -391,9 +402,10 @@ class InmemoryTree(BaseMerkleTree):
         return self.leaves[-1].get_ancestor(degree)
 
 
-    def get_principals(self, subsize):
+    def get_principal_nodes(self, subsize):
         """
-        Returns the principal nodes corresponding to the provided size
+        Returns in respective order the root-nodes of the successive perfect
+        subtrees whose sizes sum up to the provided size
 
         :param subsize:
         :type subsize: int

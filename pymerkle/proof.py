@@ -1,7 +1,3 @@
-"""
-Merkle-proof machinery
-"""
-
 import os
 import json
 from time import time
@@ -11,19 +7,21 @@ from pymerkle.hasher import MerkleHasher
 
 class InvalidProof(Exception):
     """
-    Raised when a merkle-proof is found to be invalid
+    Raised when a Merkle-proof is found to be invalid
     """
     pass
 
 
 def verify_inclusion(base, target, proof):
     """
-    Verifies the provided merkle-proof of inclusion for the given base entry
-    against the provided state
+    Verifies the provided Merkle-proof of inclusion against the provided base
+    hash and state
 
-    :param base: acclaimed hash to verify
+    .. note:: Involved hashes are assumed to be in hexadecimal format
+
+    :param base: acclaimed base hash
     :type base: str
-    :param target: acclaimed state during proof generation
+    :param target: acclaimed root hash
     :type target: str
     :param proof: proof of inclusion
     :type proof: MerkleProof
@@ -38,12 +36,13 @@ def verify_inclusion(base, target, proof):
 
 def verify_consistency(state1, state2, proof):
     """
-    Verifies the provided merkle-proof of consistency for the given state
-    against the provided root hash
+    Verifies the provided Merkle-proof of consistency against the given states
+
+    .. note:: Involved hashes are assumed to be in hexadecimal format
 
     :param state1: acclaimed prior state
     :type state1: str
-    :param state2: acclaimed state during proof generation
+    :param state2: acclaimed later state
     :type state2: str
     :raises InvalidProof: if the proof is found invalid
     :param proof: proof of consistency
@@ -57,23 +56,26 @@ def verify_consistency(state1, state2, proof):
 
 
 class MerkleProof(MerkleHasher):
+    """
+    Verifiable Merkle-proof object
+
+    :param algorithm: hash algorithm
+    :type algorithm: str
+    :param security: resistance against 2-nd preimage attack
+    :type security: bool
+    :param size: tree size corresponding to requested state
+    :type size: int
+    :param rule: specifies parenthetization of hashes during state
+        resolution
+    :type rule: list[int]
+    :param subset: indicates subset of hashes for prior state resolution
+        (makes sense only for proofs of consistency)
+    :type subset: list[int]
+    :param path: path of hashes
+    :type path: list[bytes]
+    """
 
     def __init__(self, algorithm, security, size, rule, subset, path):
-        """
-        :param algorithm: hash algorithm
-        :type algorithm: str
-        :param security: defense against 2-nd preimage attack
-        :type security: bool
-        :param size: nr leaves corresponding to requested current state
-        :typw size: int
-        :param rule: specifies parenthetization of hashes during current state
-            recovery
-        :type rule: list[int]
-        :param subset: indicates subset of hashes for prior state recovery
-        :type subset: list[int]
-        :param path: path of hashes
-        :type path: list[bytes]
-        """
         self.algorithm = algorithm
         self.security = security
         self.size = size
@@ -108,20 +110,27 @@ class MerkleProof(MerkleHasher):
 
 
     @classmethod
-    def deserialize(cls, proof):
+    def deserialize(cls, data):
         """
+        :param data:
+        :type data: dict
         :rtype: MerkleProof
         """
-        metadata = proof['metadata']
-        rule = proof['rule']
-        subset = proof['subset']
-        path = [bytes.fromhex(value) for value in proof['path']]
+        metadata = data['metadata']
+        rule = data['rule']
+        subset = data['subset']
+        path = [bytes.fromhex(value) for value in data['path']]
 
         return cls(**metadata, rule=rule, subset=subset, path=path)
 
 
     def retrieve_prior_state(self):
         """
+        Computes the acclaimed prior state which is immanent in the included
+        path of hashes
+
+        .. note:: Makes sense only for consistency proofs
+
         :rtype: bytes
         """
         subpath = [value for (mask, value) in zip(self.subset, self.path) if
@@ -141,6 +150,8 @@ class MerkleProof(MerkleHasher):
 
     def resolve(self):
         """
+        Computes the target of the included path of hashes
+
         :rtype: bytes
         """
         path = list(zip(self.rule, self.path))

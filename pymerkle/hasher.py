@@ -1,7 +1,3 @@
-"""
-Hashing machinery for data insertion and proof verification
-"""
-
 import hashlib
 from pymerkle import constants
 
@@ -15,9 +11,11 @@ class UnsupportedParameter(Exception):
 
 class MerkleHasher:
     """
+    Encapsulates elementary hashing operations
+
     :param algorithm: hash algorithm
     :type algorithm: str
-    :param security: [optional] defense against 2nd-preimage attack. Defaults
+    :param security: [optional] defense against second-preimage attack. Defaults
         to *True*
     :type security: bool
     """
@@ -35,7 +33,7 @@ class MerkleHasher:
 
     def consume(self, buff):
         """
-        Computes the raw hash of the provided input
+        Computes the raw hash of the provided data
 
         :param buff:
         :type buff: bytes
@@ -57,7 +55,7 @@ class MerkleHasher:
 
     def hash_leaf(self, blob):
         """
-        Computes the hash of the provided data
+        Computes the hash of the provided binary data
 
         .. note:: Prepends ``\\x00`` if security mode is enabled
 
@@ -69,18 +67,18 @@ class MerkleHasher:
         return self.consume(buff)
 
 
-    def hash_nodes(self, left, right):
+    def hash_nodes(self, blob1, blob2):
         """
-        Computes the hash of the concatenation of the provided values
+        Computes the hash of the concatenation of the provided binary data
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
-        :param left: first value
-        :type left: bytes
-        :param right: second value
-        :type right: bytes
+        :param blob1: left value
+        :type blob1: bytes
+        :param blob2: right value
+        :type blob2: bytes
         :rtype: bytes
         """
-        buff = self.prefx01 + left + right
+        buff = self.prefx01 + blob1 + blob2
 
         return self.consume(buff)

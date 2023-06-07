@@ -1,5 +1,5 @@
 """
-Merkle-tree core functionality and interface specification
+Merkle-tree core functionality
 """
 
 from abc import ABCMeta, abstractmethod
@@ -11,16 +11,21 @@ from pymerkle.proof import MerkleProof
 
 class InvalidChallenge(Exception):
     """
-    Raised when no merkle-proof exists for the provided challenge
+    Raised when no Merkle-proof exists for the provided challenge
     """
     pass
 
 
 class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
+    Storage agnostic encapsulation of the core Merkle-tree functionality.
+    Concrete definitions should inherit from this class and implement its
+    private storage interface
+
     :param algorithm: hash algorithm
     :type algorithm: str
-    :param security: [optional] resistance against 2nd-preimage attack
+    :param security: [optional] resistance against second-preimage attack.
+        Defaults to *True*
     :type security: bool
     """
 
@@ -28,7 +33,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def _store_data(self, entry):
         """
         Should store the provided entry as determined by the application logic
-        and return its index counting from one
+        and return its leaf index counting from one
 
         :param entry: data to append
         :type entry: whatever expected according to application logic
@@ -39,8 +44,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def _get_blob(self, index):
         """
-        Should compute and return the binary representation of the entry
-        located at the leaf specified
+        Should return the binary representation of the entry located at the
+        leaf specified
 
         :param index: leaf index counting from one
         :type index: int
@@ -51,14 +56,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def _get_size(self):
         """
-        Should return the current number of leaves (entries)
+        Should return the current number of leaves
 
         :rtype: int
         """
 
     def _get_leaf(self, index):
         """
-        Returns the hash of the entry located at the leaf specified
+        Returns the hash of the leaf located at the provided position
 
         :param index: leaf index counting from one
         :type index: int
@@ -71,7 +76,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def _get_state(self, subsize=None):
         """
-        Computes the root-hash of the subtree specified by the provided size
+        Computes the root-hash of the subtree corresponding to the provided
+        size
 
         :param subsize: [optional] number of leaves to consider. Defaults to
             current tree size
@@ -98,11 +104,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_leaf(self, index):
         """
-        Should return the leaf hash located at the provided position
+        Returns the hexadecimal representation of the leaf-hash located at the
+        provided position
 
         :param index: leaf index counting from one
         :type index: int
-        :rtype: bytes
+        :rtype: str
         """
         return self._get_leaf(index).hex()
 
@@ -118,12 +125,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_state(self, subsize=None):
         """
-        Computes the root-hash of the subtree specified by the provided size
+        Returns the hexadecimal representation of the root-hash corresponding
+        to the provided number of leaves
 
         :param subsize: [optional] number of leaves to consider. Defaults to
             current tree size
         :type subsize: int
-        :rtype: bytes
+        :rtype: str
         """
         return self._get_state(subsize).hex()
 
@@ -134,10 +142,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         Create tree from initial data
 
         :param entries: initial data to append
-        :type entries: iterable of bytes
-        :param algorithm: [optional] hashing algorithm
+        :type entries: iterable of whatever expected according to application
+            logic
+        :param algorithm: [optional] hash function. Defaults to *sha256*
         :type algorithm: str
-        :param security: [optional] resistance against 2nd-preimage attack
+        :param security: [optional] resistance against second-preimage attack.
+            Defaults to *True*
         :type security: bool
         """
         tree = cls(algorithm, security)
@@ -151,8 +161,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def hash_range(self, start, end):
         """
-        Computes the root-hash of the subtree specified by the provided leaf
-        range
+        Returns the root-hash corresponding to the provided leaf range
 
         :param start: first leaf index counting from zero
         :type start: int
@@ -171,25 +180,28 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             k >>= 1
 
         left = self.hash_range(start, start + k)
-        rght = self.hash_range(start + k, end)
+        right = self.hash_range(start + k, end)
 
-        return self.hash_nodes(left, rght)
+        return self.hash_nodes(left, right)
 
 
     def inclusion_path(self, start, offset, end, bit):
         """
-        Should return the inclusion path based on the provided leaf-hash
-        against the given leaf range
+        Computes the inclusion path for the leaf located at the provided offset
+        against the specified leaf range
+
+        .. warning:: This method should not be called directly. Use
+            ``prove_inclusion`` instead
 
         :param start: leftmost leaf index counting from zero
         :type start: int
-        :param offset: base leaf index counring from zero
+        :param offset: base leaf index counting from zero
         :type offset: int
         :param end: rightmost leaf index counting from zero
         :type end: int
         :param bit: indicates direction during recursive call
         :type bit: int
-        :rtype: (list[0/1], list[bytes])
+        :rtype: (list[int], list[bytes])
         """
         if offset == start and start == end - 1:
             value = self._get_leaf(offset + 1)
@@ -240,18 +252,21 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def consistency_path(self, start, offset, end, bit):
         """
-        Returns the consistency path for the state corresponding to the
+        Computes the consistency path for the state corresponding to the
         provided offset against the specified leaf range
+
+        .. warning:: This method should not be called directly. Use
+            ``prove_consistency`` instead
 
         :param start: leftmost leaf index counting from zero
         :type start: int
-        :param offset: represents the state currently under consisteration
+        :param offset: size corresponding to state under consideration
         :type offset: int
         :param end: rightmost leaf index counting from zero
         :type end: int
         :param bit: indicates direction during recursive call
         :type bit: int
-        :rtype: (list[0/1], list[0/1], list[bytes])
+        :rtype: (list[int], list[int], list[bytes])
         """
         if offset == end:
             value = self.hash_range(start, start + end)
@@ -280,13 +295,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def prove_consistency(self, size1, size2=None):
         """
-        Prove consistency betwee the states corresponding to the respective
-        sizes provided
+        Proves consistency between the states corresponding to the provided
+        sizes
 
-        :param size1: acclaimed size of prior state
+        :param size1: size of prior state
         :type size1: int
-        :param size2: [optional] acclaimed size of later state. Defaults to
-            current tree size
+        :param size2: [optional] size of later state. Defaults to current tree
+            size
         :type size2: int
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters are invalid or

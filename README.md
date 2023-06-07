@@ -10,7 +10,7 @@
 Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
 
 Storage agnostic Merkle-tree implementation, capable of generating
-inclusion and consistency proofs.
+inclusion and consistency proofs
 
 
 ## Install
@@ -18,45 +18,6 @@ inclusion and consistency proofs.
 ```bash
 pip3 install pymerkle
 ```
-
-## Custom backend
-
-Core cryptographic functionality is encapsulated in the `BaseMerkleTree`
-abstract class which admits pluggable storage backends. It is the developer's
-choice to define how to store data in concrete by implementing the interface
-specified by this class. For example:
-
-
-```python
-from pymerkle.base import BaseMerkleTree
-
-
-class MerkleTree(BaseMerkleTree):
-
-    def __init__(self, algorithm='sha256', security=True):
-        self.leaves = []
-
-        super().__init__(algorithm, security)
-
-
-    def _store_data(self, entry):
-        self.leaves += [entry]
-
-        return len(self.leaves)
-
-
-    def _get_blob(self, index):
-        return self.leaves[index - 1]
-
-
-    def _get_size(self):
-        return len(self.leaves)
-```
-
-This is the simplest possible non-persistent implementation utilizing a list.
-A more elaborate in-memory and a persistent sqlite implementation are provided
-out of the box for reference and testing.
-
 
 ## Basic API
 
@@ -70,16 +31,18 @@ from pymerkle import InmemoryTree as MerkleTree
 tree = MerkleTree()
 ```
 
-Storing data into the tree should return the index of the newly appended leaf:
+Store data into the tree and retrieve the corresponding leaf-hash:
 
 ```python
-index = tree.append(b'foo')
+index = tree.append(b'foo')   # leaf index counting from one
+value = tree.get_leaf(index)  # hash in hexadecimal format
 ```
 
-Use it to retrieve the corresponding leaf hash as follows:
+Current size and root-hash:
 
 ```python
-checksum = tree.get_leaf(index)
+size = tree.get_size()    # number of leaves
+state = tree.get_state()  # hash in hexadecimal format
 ```
 
 ### Inclusion proof
@@ -118,6 +81,48 @@ state1 = tree.get_state(3)
 state2 = tree.get_state(5)
 
 verify_consistency(state1, state2, proof)
+```
+
+## Storage
+
+Pymerkle is unopinionated on how leaves are appended to the tree, i.e., how
+entries should be stored in concrete. Core cryptographic functionality is
+encapsulated in the `BaseMerkleTree` abstract class which admits pluggable
+storage backends. It is the developer's choice to decide how to store data in
+concrete by implementing the interior storage interface of this class.
+
+
+### Example
+
+This is the simplest possible non-persistent implementation utilizing a list,
+where inserted data is expected to be in binary format and stored without
+further processing:
+
+
+```python
+from pymerkle.base import BaseMerkleTree
+
+
+class MerkleTree(BaseMerkleTree):
+
+    def __init__(self, algorithm='sha256', security=True):
+        self.leaves = []
+
+        super().__init__(algorithm, security)
+
+
+    def _store_data(self, entry):
+        self.leaves += [entry]
+
+        return len(self.leaves)
+
+
+    def _get_blob(self, index):
+        return self.leaves[index - 1]
+
+
+    def _get_size(self):
+        return len(self.leaves)
 ```
 
 ## Security

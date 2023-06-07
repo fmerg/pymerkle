@@ -3,15 +3,15 @@
 usage_string="usage: ./$(basename "$0") [pytest_options] [--extended] [--backend ...]
 
 Options
-  --backend [inmemory|sqlite]   Tree storage backend (default: inmemory)
-  --extended                    un tests against all supported hash algorithms;
+  --backend [inmemory|sqlite]   Storage backend (default: inmemory)
+  --extended                    Run tests against all supported hash algorithms;
                                 otherwise only against sha256 (default: false)
   -h, --help                    Display help message and exit
 "
 
 set -e
 
-BACKEND="inmemory"
+STORAGE="inmemory"
 
 usage() { echo -n "$usage_string" 1>&2; }
 
@@ -25,7 +25,7 @@ do
             shift
             ;;
         --backend)
-            BACKEND="$2"
+            STORAGE="$2"
             shift
             shift
             ;;
@@ -43,7 +43,7 @@ done
 
 python3 -m \
   pytest tests/ \
-  --backend ${BACKEND} \
+  --backend ${STORAGE} \
   --cov-report term-missing \
   --cov=. \
   $opts

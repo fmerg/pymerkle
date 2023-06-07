@@ -4,50 +4,68 @@ Public API
 Initialization
 ==============
 
+Concrete Merkle-tree implementations should inherit from the ``BaseMerkleTree``
+abstract base class and implement its internal storage interface. Pymerkle
+provides two such implementations out of the box.
+
+``InmemoryTree`` is a non-persistent imeplementation where nodes are stored
+in the runtime memory and is primarily intended for investigating the tree
+structure:
+
+
 .. code-block:: python
 
     from pymerkle import InmemoryTree as MerkleTree
 
-    tree = MerkleTree(algorithm='sha256', security=True)
+    tree = MerkleTree(algorithm='sha256')
 
+``SqliteTree`` is a persistent implementation using a SQLite database as leaf
+storage and is intended for local leightweight applications:
+
+
+.. code-block:: python
+
+    from pymerkle import SqliteTree as MerkleTree
+
+    tree = MerkleTree('merkle.db', algorithm='sha256')
+
+
+Both are designed to admit data in binary format and store them without further
+processing. Refer here to see how to implement a Merkle-tree in detail.
+
+The hash function used by the tree is parametrizable via the ``algorithm``
+argument as shown above. The currently supported hash functions are *sha224*,
+*sha256*, *sha384*, *sha512*, *sha3_224*, *sha3_256*, *sha3_384* and *sha3_512*.
 
 .. note:: Requesting a tree with unsupported algorithm raises
    ``UnsupportedParameter``
 
 
-Inspection
-==========
+Entries
+=======
 
-Hash algorithm used by the tree:
-Prefix policy applied before hashing:
+Entries inserted to the tree are appended as leaves with increasing index.
+Their exact type depends on the particular Merkle-tree implementation and is
+determined by the business logic of the application. The sole constraint is that
+they must be available in binary format whenever needed by the internal hashing
+machinery of the tree (see here for details).
 
-.. code-block:: python
-
-    >>> tree.algorithm
-    'sha256'
-    >>>
-    >>> tree.security
-    True
+That said, appending an entry returns the index of the corresponding leaf counting
+from one. For example (assuming that the tree admits entries in binary format):
 
 
 .. code-block:: python
 
-    >>> tree.get_size()
-    0
-
-
-Data
-====
-
-.. code-block:: python
-
-    >>> tree.append(b'alpha')
+    >>> tree.append(b'foo')
     1
-    >>> tree.append(b'beta')
+    >>> tree.append(b'bar')
     2
     >>> tree.get_size()
     2
 
+
+The index of a leaf can be used to retrieve the corresponding hash value in
+hexadecimal format as follows:
 
 .. code-block:: python
 
@@ -57,8 +75,42 @@ Data
    >>> tree.get_leaf(2)
    'e23537b050e84af2cbaab46f2f83d8d3b5febc8e5ac6200d306284f687d46924'
 
+
+Hash computation
+----------------
+
+Sometimes it is useful to be able to compute independently the hash value assigned
+to an entry (or supposed entry). For example, in order to verify the inclusion
+proof for an entry (see below) we need its hash value, which can be computed
+without querying the tree provided that its binary representation can be inferred
+according to some known business logic.
+
+To do so, we need to configure a standalone hasher that uses the same hash function
+as the Merkle-tree and applies the same security policy:
+
+
+.. code-block:: python
+
+   from pymerkle.hasher import MerkleHasher
+
+   hasher = MerkleHasher(tree.algorithm, tree.security)
+
+
+The commutation between index and entry is then
+
+.. code-block:: python
+
+   assert tree.get_leaf(1) = hasher.hash_leaf(b'foo').hex()
+
+having assumed that the tree admits binary entries without further processing
+and that the entry ``b'foo'`` has leaf index equal to one.
+
+
 State
 =====
+
+The *state* of the tree is uniquely determined by its current root-hash. It can
+be accessed in hexadecimal format as follows:
 
 .. code-block:: python
 
@@ -66,38 +118,48 @@ State
    '9b7e00a525731ee1e8716668b8a4fff14a5dc7b10346dcf528fbe334144db382'
 
 
+The root-hash of any intermediate state can be retrieved by providing the
+corresponding number of leaves:
+
 .. code-block:: python
 
    >>> tree.get_state(2)
    '9531b48579f0e741979005d67ba64455a9f68b06630b3c431152d445ecd2716a'
-   >>>
    >>> tree.get_state(5)
    '9b7e00a525731ee1e8716668b8a4fff14a5dc7b10346dcf528fbe334144db382'
 
 
-.. code-block:: python
-
-   >>> tree.get_size()
-   5
-   >>> tree.get_state() == tree.get_state(5)
-   True
-
+By convention, the state of the empty tree is the hash of the empty string:
 
 .. code-block:: python
 
    >>> tree.get_state(0) == tree.consume(b'')
    True
 
+
 Proofs
 ======
+
+Pymerke is capable of generating proofs of *inclusion* and proofs of
+*consistency*. Both are modeled by the verifiable ``MerkleProof`` object.
 
 
 Inclusion
 ---------
 
+Given any intermediate state, an inclusion proof is a path of
+hashes proving that a certain entry has been appended at some previous point
+and that the tree has not been tampered afterwards. The following is an
+inclusion proof for the entry stored by the third leaf against the state
+corresponding to the first five leaves:
+
+
 .. code-block:: python
 
-   >>> proof = tree.prove_inclusion(3, 5)
+   >>> proof = tree.prove_inclusion(3, size=5)
+
+
+Verification proceeds as follows:
 
 
 .. code-block:: python
@@ -109,9 +171,16 @@ Inclusion
    >>>
    >>> verify_inclusion(base, target, proof)
 
+
+This checks that the path of hashes is indeed based on the requested hash and
+that it resolves to the acclaimed state. Trying to verify against a forged base
+would fail:
+
+
 .. code-block:: python
 
-   >>> forged = tree.hash_leaf(b'random').hex()
+   >>> from pymerkle.hasher import MerkleHasher
+   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random').hex()
    >>>
    >>> verify_inclusion(forged, target, proof)
    Traceback (most recent call last):
@@ -119,10 +188,11 @@ Inclusion
    pymerkle.proof.InvalidProof: Base hash does not match
 
 
+Similarly, trying to verify against a forged state would fail:
+
+
 .. code-block:: python
 
-   >>> forged = tree.hash_leaf(b'random').hex()
-   >>>
    >>> verify_inclusion(base, forged, proof)
    Traceback (most recent call last):
    ...
@@ -132,9 +202,19 @@ Inclusion
 Consistency
 -----------
 
+Given any two intermediate states, a consistency proof is a path of
+hashes proving that the second is a valid later state of the first, i.e., that
+the tree has not been tampered with in the meanwhile. The following is
+a consistency proof for the states with three and five leaves respectively:
+
+
 .. code-block:: python
 
    >>> proof = tree.prove_consistency(3, 5)
+
+
+Verification proceeds as follows:
+
 
 .. code-block:: python
 
@@ -145,14 +225,25 @@ Consistency
    >>>
    >>> verify_consistency(state1, state2, proof)
 
+
+This checks that an appropriate subpath of the included path of hashes resolves
+to the acclaimed prior state and the path of hashes as a whole resolves to the
+acclaimed later state. Trying to verify against a forged prior state would
+fail:
+
+
 .. code-block:: python
 
-   >>> forged = tree.hash_leaf(b'random').hex()
+   >>> from pymerkle.hasher import MerkleHasher
+   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random').hex()
    >>>
    >>> verify_consistency(forged, state2, proof)
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Prior state does not match
+
+
+Similarly, trying to verify against a forged later state would fail:
 
 .. code-block:: python
 
@@ -165,12 +256,15 @@ Consistency
 Serialization
 -------------
 
+For, say, network transmission purposes, a Merkle-proof might need to be
+serialized. This is done as follows:
+
 .. code-block:: python
 
   data = proof.serialize()
 
 
-yields a json structure similar to this one:
+which yields a JSON similar to this one:
 
 
 .. code-block:: json
@@ -196,9 +290,18 @@ yields a json structure similar to this one:
     ]
   }
 
+The ``metadata`` section contains the parameters required for configuring the
+verification hasher (``algorithm`` and ``security``) along with the size of the
+state against which the proof was requested (``size``) (this can be used
+for requesting the acclaimed tree state needed for verifying the proof, if not
+otherwise available). ``rule`` determines parenthetization of hashes during
+path resolution and ``subset`` selects the hashes resolving to the acclaimed
+prior state (it makes sense only for consistency proofs).
+
+The verifiable Merkle-proof object can be retrieved as follows:
 
 .. code-block:: python
 
-  from pymerkle import Merkleroof
+  from pymerkle import MerkleProof
 
   proof = MerkleProof.deserialize(data)

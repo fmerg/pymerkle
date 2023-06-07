@@ -14,7 +14,7 @@ def pytest_addoption(parser):
     parser.addoption('--extended', action='store_true', default=False,
                      help='Test against all supported hash algorothms')
     parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
-                     help='Tree backend storage')
+                     help='Storage backend')
 
 option = None
 
