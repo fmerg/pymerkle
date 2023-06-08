@@ -2,6 +2,8 @@
     :maxdepth: 0
     :titlesonly:
 
-    Merkle-tree <tree>
-    Merkle-proof <proof>
+    Public API <api>
+    Storage backend <storage>
+    Implementations <implementations>
+    Tree topology <topology>
     Reference <modules>

@@ -1,9 +1,7 @@
 """
-Performs second preimage attack against Merkle-trees of all possible
-combinations of hash and encoding types, for both possible security modes.
-
-Attack should succeed only when the tree's security mode is deactivated, that
-is, iff the security attribute has been set to False at construction
+Performs second-preimage attack for both security modes. Attach should succeed
+only when the tree's securitu mode has been disabled, that is, iff the security
+attribute has been set to false
 
 Attack Schema
 -------------
@@ -14,28 +12,28 @@ Attack Schema
                    /   \                       /   \
                  E       F = h(CD)           E      F    ------> [injected leaf]
                 / \     / \                 / \     |
-hashes:        D   B   C   D               A   B   (CD)  <------ [forged entry]
+hashes:        A   B   C   D               A   B   (CD)  <------ [forged entry]
                |   |   |   |               |   |
-entries:       A   b   c   d               a   b
+entries:       a   b   c   d               a   b
 
 
-Concatenate the hashes stored by the 3-rd and 4-th leaves and append the result
-3-rd leaf, leaving the rest leaves untouced.
+Concatenate the 3-rd and 4-th leaf-hashes and append the result as 3-rd,
+leaving the rest leaves unoutched
 """
 
 import pytest
-from pymerkle import MerkleTree
-from tests.conftest import all_configs, option
+from tests.conftest import all_configs, option, resolve_backend
+
+MerkleTree = resolve_backend(option)
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_defense_against_second_preimage_attack(config):
-    tree = MerkleTree.init_from_entries('a', 'b', 'c', 'd',
+def test_second_preimage_attack(config):
+    tree = MerkleTree.init_from_entries(b'foo', b'bar', b'baz', b'qux',
         **config)
 
-    forged = tree.leaf(2) + tree.leaf(3)
-
-    attacker = MerkleTree.init_from_entries('a', 'b', forged,
+    forged = tree.get_leaf(3) + tree.get_leaf(4)
+    attacker = MerkleTree.init_from_entries(b'foo', b'bar', forged,
         **config)
 
-    assert tree.security ^ (attacker.root == tree.root)
+    assert tree.security ^ (attacker.get_state() == tree.get_state())

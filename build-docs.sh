@@ -16,7 +16,7 @@ usage() { echo -n "$usage_string" 1>&2; }
 # TODO: Derive the following default values from package meta
 PROJECT="pymerkle"
 SOURCE_CODE="pymerkle"
-VERSION="4.0.0"
+VERSION="5.0.0"
 AUTHOR="fmerg"
 
 LANG="en"
@@ -47,11 +47,12 @@ set -e
 
 CONTENT="docs"    # Content that is not auto-generated from docs
 TARGET="docs/target"  # Will contain auto-generated files (unstaged)
-
 CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
-
-DEFAULT_THEME="alabaster"     # Default sphinx theme
-RTD_THEME="sphinx_rtd_theme"  # Read-the-docs theme
+DEFAULT_THEME="alabaster"         # Default sphinx theme
+RTD_THEME="sphinx_rtd_theme"      # Read-the-docs theme
+PYTHON_THEME="python_docs_theme"  # Python docs theme
+CUSTOM_THEME="$RTD_THEME"
+CUSTOM_THEME="$PYTHON_THEME"
 
 # Generate sphinx source
 rm -rf "$TARGET"
@@ -67,7 +68,7 @@ sphinx-quickstart "$TARGET" \
     --sep
 
 # Adjust sphinx configuration
-sed -ie "/html_theme/s/$DEFAULT_THEME/$RTD_THEME/" $CONFIG
+sed -ie "/html_theme/s/$DEFAULT_THEME/$CUSTOM_THEME/" $CONFIG
 echo >> $CONFIG
 echo "master_doc = 'index'" >> $CONFIG
 echo "pygments_style = 'sphinx'" >> $CONFIG
@@ -80,6 +81,16 @@ sed -ie "/$line_1/s/^# //" $CONFIG
 sed -ie "/$line_2/s/^# //" $CONFIG
 sed -ie "/$line_3/s/^# //" $CONFIG
 sed -ie "/$line_3/s/('.')/('..\/..\/..')/" $CONFIG
+
+# echo "autodoc_default_options = {'private-members': True}" >> $CONFIG
+echo "extensions += ['sphinx.ext.autosectionlabel']" >> $CONFIG
+
+if [ $CUSTOM_THEME == $PYTHON_THEME ]; then
+  echo "html_sidebars = {
+    '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+    'using/windows': ['windowssidebar.html', 'searchbox.html']
+  }" >> $CONFIG
+fi
 
 # Content auto-generated from source code
 sphinx-apidoc \

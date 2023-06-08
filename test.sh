@@ -1,25 +1,32 @@
 #!/bin/bash
 
-usage_string="usage: ./$(basename "$0") [pytest_options] [--extended]
+usage_string="usage: ./$(basename "$0") [pytest_options] [--extended] [--backend ...]
 
 Options
-  --extended  If provided, tests run against all combinations of hash
-              algorithms and encoding schemes; otherwise run only against
-              encodings UTF-8, UTF-16 and UTF-32
-  -h, --help  Display help message and exit
+  --backend [inmemory|sqlite]   Storage backend (default: inmemory)
+  --extended                    Run tests against all supported hash algorithms;
+                                otherwise only against sha256 (default: false)
+  -h, --help                    Display help message and exit
 "
 
 set -e
 
+STORAGE="inmemory"
+
 usage() { echo -n "$usage_string" 1>&2; }
 
-args=()
+opts=()
 while [[ $# -gt 0 ]]
 do
     arg="$1"
     case $arg in
         --extended|-e)
-            args+=($arg)
+            opts+=($arg)
+            shift
+            ;;
+        --backend)
+            STORAGE="$2"
+            shift
             shift
             ;;
         -h|--help)
@@ -27,14 +34,16 @@ do
             exit 0
             ;;
         *)
-            args+=($arg)
+            opts+=($arg)
             shift
             ;;
     esac
 done
 
+
 python3 -m \
   pytest tests/ \
+  --backend ${STORAGE} \
   --cov-report term-missing \
   --cov=. \
-  $args
+  $opts
