@@ -52,7 +52,7 @@ DEFAULT_THEME="alabaster"         # Default sphinx theme
 RTD_THEME="sphinx_rtd_theme"      # Read-the-docs theme
 PYTHON_THEME="python_docs_theme"  # Python docs theme
 CUSTOM_THEME="$RTD_THEME"
-CUSTOM_THEME="$PYTHON_THEME"
+# CUSTOM_THEME="$PYTHON_THEME"
 
 # Generate sphinx source
 rm -rf "$TARGET"
