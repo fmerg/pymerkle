@@ -33,7 +33,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def _store_data(self, entry):
         """
         Should store the provided entry as determined by the application logic
-        and return its leaf index counting from one
+        and return its leaf index
 
         :param entry: data to append
         :type entry: whatever expected according to application logic
@@ -44,19 +44,19 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def _get_blob(self, index):
         """
-        Should return the binary representation of the entry located at the
-        leaf specified
+        Should return in binary format of the entry located at the specified
+        leaf
 
         :param index: leaf index counting from one
         :type index: int
-        :returns: binary representation as specified by the application
+        :returns: binary format as specified by the application logic
         :rtype: bytes
         """
 
     @abstractmethod
     def _get_size(self):
         """
-        Should return the current number of leaves
+        Should return the current number of leaves (entries)
 
         :rtype: int
         """

@@ -47,13 +47,12 @@ set -e
 
 CONTENT="docs"    # Content that is not auto-generated from docs
 TARGET="docs/target"  # Will contain auto-generated files (unstaged)
-
 CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
-
-DEFAULT_THEME="alabaster"     # Default sphinx theme
-CUSTOM_THEME="sphinx_rtd_theme"  # Read-the-docs theme
-CUSTOM_THEME="python_docs_theme"  # Python docs theme
-# CUSTOM_THEME=$DEFAULT_THEME
+DEFAULT_THEME="alabaster"         # Default sphinx theme
+RTD_THEME="sphinx_rtd_theme"      # Read-the-docs theme
+PYTHON_THEME="python_docs_theme"  # Python docs theme
+CUSTOM_THEME="$RTD_THEME"
+CUSTOM_THEME="$PYTHON_THEME"
 
 # Generate sphinx source
 rm -rf "$TARGET"
@@ -83,12 +82,15 @@ sed -ie "/$line_2/s/^# //" $CONFIG
 sed -ie "/$line_3/s/^# //" $CONFIG
 sed -ie "/$line_3/s/('.')/('..\/..\/..')/" $CONFIG
 
-echo "html_sidebars = {
-  '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
-  'using/windows': ['windowssidebar.html', 'searchbox.html']
-}" >> $CONFIG
-
 # echo "autodoc_default_options = {'private-members': True}" >> $CONFIG
+echo "extensions += ['sphinx.ext.autosectionlabel']" >> $CONFIG
+
+if [ $CUSTOM_THEME == $PYTHON_THEME ]; then
+  echo "html_sidebars = {
+    '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+    'using/windows': ['windowssidebar.html', 'searchbox.html']
+  }" >> $CONFIG
+fi
 
 # Content auto-generated from source code
 sphinx-apidoc \

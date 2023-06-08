@@ -31,11 +31,11 @@ storage and is intended for local leightweight applications:
 
 
 Both are designed to admit data in binary format and store them without further
-processing. Refer here to see how to implement a Merkle-tree in detail.
+processing. Refer :ref:`here<Storage backend>` to see how to implement a Merkle-tree in detail.
 
 The hash function used by the tree is parametrizable via the ``algorithm``
 argument as shown above. The currently supported hash functions are *sha224*,
-*sha256*, *sha384*, *sha512*, *sha3_224*, *sha3_256*, *sha3_384* and *sha3_512*.
+*sha256*, *sha384*, *sha512*, *sha3-224*, *sha3-256*, *sha3-384* and *sha3-512*.
 
 .. note:: Requesting a tree with unsupported algorithm raises
    ``UnsupportedParameter``
@@ -48,7 +48,7 @@ Entries inserted to the tree are appended as leaves with increasing index.
 Their exact type depends on the particular Merkle-tree implementation and is
 determined by the business logic of the application. The sole constraint is that
 they must be available in binary format whenever needed by the internal hashing
-machinery of the tree (see here for details).
+machinery of the tree.
 
 That said, appending an entry returns the index of the corresponding leaf counting
 from one. For example (assuming that the tree admits entries in binary format):
@@ -64,8 +64,8 @@ from one. For example (assuming that the tree admits entries in binary format):
     2
 
 
-The index of a leaf can be used to retrieve the corresponding hash value in
-hexadecimal format as follows:
+The index of a leaf can be used to retrieve the corresponding hash value as
+follows:
 
 .. code-block:: python
 
@@ -80,10 +80,10 @@ Hash computation
 ----------------
 
 Sometimes it is useful to be able to compute independently the hash value assigned
-to an entry (or supposed entry). For example, in order to verify the inclusion
-proof for an entry (see below) we need its hash value, which can be computed
-without querying the tree provided that its binary representation can be inferred
-according to some known business logic.
+to an entry. For example, in order to verify the inclusion proof for an entry
+(see :ref:`below<Inclusion>`) we need its hash value, which can be computed without
+querying the tree directly (provided that the binary format can be inferred
+according to some known contract).
 
 To do so, we need to configure a standalone hasher that uses the same hash function
 as the Merkle-tree and applies the same security policy:
@@ -103,14 +103,13 @@ The commutation between index and entry is then
    assert tree.get_leaf(1) = hasher.hash_leaf(b'foo')
 
 having assumed that the tree admits binary entries without further processing
-and that the entry ``b'foo'`` has leaf index equal to one.
+and that the entry ``b'foo'`` is stored at the first index.
 
 
 State
 =====
 
-The *state* of the tree is uniquely determined by its current root-hash. It can
-be accessed in hexadecimal format as follows:
+The *state* of the tree is uniquely determined by its current root-hash:
 
 .. code-block:: python
 

@@ -14,8 +14,7 @@ pymerkle
 Merkle-tree cryptography in python
 **********************************
 
-Storage agnostic Merkle-tree implementation, capable of generating
-inclusion and consistency proofs
+Storage agnostic implementation, capable of generating inclusion and consistency proofs
 
 
 Installation
@@ -53,7 +52,7 @@ Current size and root-hash:
 .. code-block:: python
 
   size = tree.get_size()    # number of leaves
-  state = tree.get_state()  # root hash
+  state = tree.get_state()  # current root hash
 
 
 Inclusion proof
