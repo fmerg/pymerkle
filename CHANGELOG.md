@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## 5.0.0 2023-06-08
+
+### Removed
+
+- proof timestamp
+- size, length, root and height properties
+- tree metadata getter
+- append_entry
+- has_previous_state
+
+### Added
+
+- InmemoryTree implementation
+- SqliteTree implementation
+- state and size getter
+
+### Changed
+
+- Inclusion proof interface
+- Consistency proof interface
+- Renamed HashEngine to MerkleHasher
+- Renamed hash_pair to hash_nodes
+- Renamed hash_entry to hash_leaf
+- Return leaf index when appending entry
+- Drop hexadecimal representations
+
+
 ## 4.0.0 2023-03-06
 
 ### Added
