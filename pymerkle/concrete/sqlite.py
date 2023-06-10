@@ -29,7 +29,8 @@ class SqliteTree(BaseMerkleTree):
             query = f'''
                 CREATE TABLE IF NOT EXISTS leaf(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    entry BLOB
+                    entry BLOB,
+                    hash BLOB
                 );'''
             self.cur.execute(query)
 
@@ -44,14 +45,30 @@ class SqliteTree(BaseMerkleTree):
         self.con.close()
 
 
-    def _store_data(self, entry):
+    def _encode_leaf(self, entry):
         """
-        Stores the provided data in a new leaf and returns its index
+        Returns the binary format of the provided entry
 
-        :param entry: blob to append
+        :param entry: data to encode
         :type entry: bytes
-        :returns: index of newly appended leaf counting from one
         :rtype: bytes
+        """
+        return entry
+
+
+    def _store_leaf(self, entry, blob, value):
+        """
+        Creates a new leaf storing the provided entry along with its binary
+        format and corresponding hash value
+
+        :param entry: data to append
+        :type entry: whatever expected according to application logic
+        :param blob: data in binary format
+        :type blob: bytes
+        :param value: hashed data
+        :type value: bytes
+        :returns: index of newly appended leaf counting from one
+        :rtype: int
         """
         if not isinstance(entry, bytes):
             raise ValueError('Provided data is not binary')
@@ -60,25 +77,24 @@ class SqliteTree(BaseMerkleTree):
 
         with self.con:
             query = f'''
-                INSERT INTO leaf(entry) VALUES (?)
+                INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
-            cur.execute(query, (entry,))
+            cur.execute(query, (blob, value))
 
         return cur.lastrowid
 
-
-    def _get_blob(self, index):
+    def _get_leaf(self, index):
         """
-        Returns the blob stored at the leaf specified
+        Returns the hash stored by the leaf specified
 
-        :param index:
+        :param index: leaf index counting from one
         :type index: int
         :rtype: bytes
         """
         cur = self.cur
 
         query = f'''
-            SELECT entry FROM leaf WHERE id = ?
+            SELECT hash FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
 
@@ -96,5 +112,23 @@ class SqliteTree(BaseMerkleTree):
             SELECT COUNT(*) FROM leaf
         '''
         cur.execute(query)
+
+        return cur.fetchone()[0]
+
+
+    def get_entry(self, index):
+        """
+        Returns the original data stored by the leaf specified
+
+        :param index: leaf index counting from one
+        :type index: int
+        :rtype: bytes
+        """
+        cur = self.cur
+
+        query = f'''
+            SELECT entry FROM leaf WHERE id = ?
+        '''
+        cur.execute(query, (index,))
 
         return cur.fetchone()[0]

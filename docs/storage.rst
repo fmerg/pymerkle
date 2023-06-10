@@ -33,24 +33,27 @@ storage interface, which is to be implemented by any concrete subclass:
             super().__init__(algorithm, security)
 
 
-        def _store_data(self, entry):
-            # Store data by increasing index counting from one
+        def _encode_leaf(self, entry):
+            # Customize the binary format of entries
             ...
 
 
-        def _get_blob(self, index):
-            # Use index to access the data and convert it to bytes
+        def _store_leaf(self, entry, blob, value):
+            # Store entry along with its binary format and hash value
+            ...
+
+
+        def _get_leaf(self, index):
+            # Return the hash value stored at the specified position
             ...
 
 
         def _get_size(self):
-            # Return the current size of the storage
+            # Return the current size of storage
             ...
 
 
-Use ``_store_data`` to, say, insert data into a database and ``_get_blob``
-to customize its binary format, so that it becomes amenable to hashing
-operations. Below the exact protocol which is to be implemented:
+Below the exact protocol that is to be implemented:
 
 
 .. code-block:: python
@@ -61,124 +64,54 @@ operations. Below the exact protocol which is to be implemented:
       ...
 
 
-      @abstractmethod
-      def _store_data(self, entry):
-          """
-          Should store the provided entry as determined by the application logic
-          and return its leaf index
+    @abstractmethod
+    def _encode_leaf(self, entry):
+        """
+        Should return the binary format of the provided entry
 
-          :param entry: data to append
-          :type entry: whatever expected according to application logic
-          :returns: index of newly appended leaf counting from one
-          :rtype: int
-          """
+        :param entry: data to encode
+        :type entry: whatever expected according to application logic
+        :rtype: bytes
+        """
 
+    @abstractmethod
+    def _store_leaf(self, entry, blob, value):
+        """
+        Should create a new leaf storing the provided entry along with its
+        binary format and corresponding hash value
 
-      @abstractmethod
-      def _get_blob(self, index):
-          """
-          Should return in binary format of the entry located at the specified
-          leaf
+        :param entry: data to append
+        :type entry: whatever expected according to application logic
+        :param blob: data in binary format
+        :type blob: bytes
+        :param value: hashed data
+        :type value: bytes
+        :returns: index of newly appended leaf counting from one
+        :rtype: int
+        """
 
-          :param index: leaf index counting from one
-          :type index: int
-          :returns: binary format as specified by the application logic
-          :rtype: bytes
-          """
+    @abstractmethod
+    def _get_leaf(self, index):
+        """
+        Should return the hash stored by the leaf specified
 
+        :param index: leaf index counting from one
+        :type index: int
+        :rtype: bytes
+        """
 
-      @abstractmethod
-      def _get_size(self):
-          """
-          Should return the current number of leaves (entries)
+    @abstractmethod
+    def _get_size(self):
+        """
+        Should return the current number of leaves
 
-          :rtype: int
-          """
-
-      ...
-
-      def get_leaf(self, index):
-          """
-          Returns the hash of the leaf located at the provided position
-
-          :param index: leaf index counting from one
-          :type index: int
-          :rtype: bytes
-          """
-          blob = self._get_blob(index)
-
-          return self.hash_leaf(blob)
+        :rtype: int
+        """
 
       ...
 
-Note how the output of ``_get_blob`` is consumed inside the non-abstract
-``get_leaf`` method, which is how leaf hashes are accessed by the tree hashing
-machinery during proof generation.
 
-Various strategies are here possible. ``get_leaf``, and consequently ``_get_blob``,
-will be called for a wide range of indices everytime a Merkle-proof is requested,
-while ``_store_data`` is only called once for entry. This means, ``_store_data``
-could be used to also precompute the binary format and store it for future
-access, in which case ``_get_blob`` would only serve to access the blob in storage:
-
-
-.. code-block:: python
-
-    from pymerkle import BaseMerkleTree
-
-
-    class MerkleTree(BaseMerkleTree):
-        ...
-
-
-        def _store_data(self, entry):
-            ...
-
-            blob = ...  # Compute blob from entry
-
-            # Store blob along with the rest data
-            ...
-
-
-        def _get_blob(self, index):
-            blob = ...  # Use index to access the blob
-
-            return blob
-
-
-One could even completely bypass ``_get_blob`` by precomputing the leaf hash
-and store it for future access; in this case, ``get_leaf`` would have to be
-overriden to simply access the hash in storage:
-
-
-.. code-block:: python
-
-    from pymerkle import BaseMerkleTree
-
-
-    class MerkleTree(BaseMerkleTree):
-        ...
-
-
-        def _store_data(self, entry):
-            ...
-
-            blob = ...  # Compute blob from entry
-            value = self.hash_leaf(blob)  # Compute hash from blob
-
-            # Store hash along with the rest data
-            ...
-
-
-        def _get_blob(self, index):
-            pass
-
-        ...
-
-        def get_leaf(self, index):
-            value = ...   # Use index to access hash in storage
-
-            return value
+Various strategies are here possible.
 
 
 Examples
@@ -199,66 +132,37 @@ Here is the simplest possible non-peristent tree using a list as storage:
 
   class MerkleTree(BaseMerkleTree):
 
-    def __init__(self, algorithm='sha256', security=True):
-        self.leaves = []
+      def __init__(self, algorithm='sha256', security=True):
+          self.leaves = []
 
-        super().__init__(algorithm, security)
-
-
-    def _store_data(self, entry):
-        self.leaves += [entry]
-
-        return len(self.leaves)
+          super().__init__(algorithm, security)
 
 
-    def _get_blob(self, index):
-        blob = self.leaves[index - 1]
+      def _encode_leaf(self, entry):
+          blob = entry
 
-        return blob
+          return blob
 
 
-    def _get_size(self):
-        return len(self.leaves)
+      def _store_leaf(self, entry, blob, value):
+          self.leaves += [(blob, value)]
+          index = len(self.leaves)
+
+          return index
+
+
+      def _get_leaf(self, index):
+          _, value = self.leaves[index - 1]
+
+          return value
+
+
+      def _get_size(self):
+          return len(self.leaves)
 
 
 It assumes entries already in binary format and stores them without further
-processing. Applying hash precomputation, we get the following variance:
-
-
-.. code-block:: python
-
-  from pymerkle import BaseMerkleTree
-
-
-  class MerkleTree(BaseMerkleTree):
-
-    def __init__(self, algorithm='sha256', security=True):
-        self.leaves = []
-
-        super().__init__(algorithm, security)
-
-
-    def _store_data(self, entry):
-        value = self.hash_leaf(blob)
-        self.leaves += [(entry, value)]
-
-        return len(self.leaves)
-
-
-    def _get_blob(self, index):
-        blob, _ = self.leaves[index - 1]
-
-        return blob
-
-
-    def _get_size(self):
-        return len(self.leaves)
-
-
-    def get_leaf(self, index):
-        _, value = self.leaves[index - 1]
-
-        return value
+processing.
 
 
 Unix DBM
@@ -275,39 +179,43 @@ Here is a hasty implementation using `dbm`_ to persistently store entries in a
 
   class MerkleTree(BaseMerkleTree):
 
-    def __init__(self, algorithm='sha256', security=True):
-        self.dbfile = 'merkledb'
-        self.mode = 0o666
+      def __init__(self, algorithm='sha256', security=True):
+          self.dbfile = 'merkledb'
+          self.mode = 0o666
 
-        # Create file if it doesn't exist
-        with dbm.open(self.dbfile, 'c', mode=self.mode) as db:
-            pass
+          # Create file if it doesn't exist
+          with dbm.open(self.dbfile, 'c', mode=self.mode) as db:
+              pass
 
-        super().__init__(algorithm, security)
-
-
-    def _store_data(self, entry):
-        blob = entry
-
-        with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
-            index = len(db) + 1
-            db[hex(index)] = blob
-
-        return index
+          super().__init__(algorithm, security)
 
 
-    def _get_blob(self, index):
-        with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-            blob = db[hex(index)]
+      def _encode_leaf(self, entry):
+          blob = entry
 
-        return blob
+          return blob
 
 
-    def _get_size(self):
-        with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-            size = len(db)
+      def _store_leaf(self, entry, blob, value):
+          with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
+              index = len(db) + 1
+              db[hex(index)] = b'|'.join(blob, value)
 
-        return size
+          return index
+
+
+      def _get_leaf(self, index):
+          with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
+            value = db[hex(index)].split(b'|')[1]
+
+          return value
+
+
+      def _get_size(self):
+          with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
+              size = len(db)
+
+          return size
 
 
 It assumes entries already in binary format and stores them without further

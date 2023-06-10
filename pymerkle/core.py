@@ -30,33 +30,45 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def _store_data(self, entry):
+    def _encode_leaf(self, entry):
         """
-        Should store the provided entry as determined by the application logic
-        and return its leaf index
+        Should return the binary format of the provided entry
+
+        :param entry: data to encode
+        :type entry: whatever expected according to application logic
+        :rtype: bytes
+        """
+
+    @abstractmethod
+    def _store_leaf(self, entry, blob, value):
+        """
+        Should create a new leaf storing the provided entry along with its
+        binary format and corresponding hash value
 
         :param entry: data to append
         :type entry: whatever expected according to application logic
+        :param blob: data in binary format
+        :type blob: bytes
+        :param value: hashed data
+        :type value: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
 
     @abstractmethod
-    def _get_blob(self, index):
+    def _get_leaf(self, index):
         """
-        Should return in binary format of the entry located at the specified
-        leaf
+        Should return the hash stored by the leaf specified
 
         :param index: leaf index counting from one
         :type index: int
-        :returns: binary format as specified by the application logic
         :rtype: bytes
         """
 
     @abstractmethod
     def _get_size(self):
         """
-        Should return the current number of leaves (entries)
+        Should return the current number of leaves
 
         :rtype: int
         """
@@ -70,7 +82,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        return self._store_data(entry)
+        blob = self._encode_leaf(entry)
+        value = self.hash_leaf(blob)
+        index = self._store_leaf(entry, blob, value)
+
+        return index
 
 
     def get_leaf(self, index):
@@ -81,9 +97,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type index: int
         :rtype: bytes
         """
-        blob = self._get_blob(index)
-
-        return self.hash_leaf(blob)
+        return self._get_leaf(index)
 
 
     def get_size(self):

@@ -139,12 +139,13 @@ class Leaf(Node):
 
     :param blob: data stored by the leaf
     :type blob: bytes
+    :param value: hash value stored by the leaf
+    :type value: bytes
     """
 
-    def __init__(self, blob, hasher):
+    def __init__(self, blob, value):
         self.blob = blob
 
-        value = hasher.hash_leaf(self.blob)
         super().__init__(value, None, None)
 
 
@@ -174,26 +175,62 @@ class InmemoryTree(BaseMerkleTree):
         return self.root.expand(indent, trim) + '\n'
 
 
-    def _store_data(self, entry):
+    def _encode_leaf(self, entry):
         """
-        Stores the provided data in a new leaf and returns its index
+        Returns the binary format of the provided entry
 
-        :param entry: blob to append
+        :param entry: data to encode
         :type entry: bytes
+        :rtype: bytes
+        """
+        return entry
+
+
+    def _store_leaf(self, entry, blob, value):
+        """
+        Creates a new leaf storing the provided entry along with its binary
+        format and corresponding hash value
+
+        :param entry: data to append
+        :type entry: whatever expected according to application logic
+        :param blob: data in binary format
+        :type blob: bytes
+        :param value: hashed data
+        :type value: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        if not isinstance(entry, bytes):
-            raise ValueError('Provided data is not binary')
+        tail = Leaf(entry, value)
 
-        tail = Leaf(entry, hasher=self)
+        if not self.leaves:
+            self.leaves += [tail]
+            self.root = tail
+            return 1
 
-        return self._append_leaf(tail)
+        node = self.get_last_maximal_perfect_node()
+        self.leaves += [tail]
+        value = self.hash_nodes(node.value, tail.value)
+
+        if node.is_root():
+            self.root = Node(value, node, tail)
+            index = self.get_size()
+            return index
+
+        curr = node.parent
+        curr.right = Node(value, node, tail)
+        curr.right.parent = curr
+        while curr:
+            curr.value = self.hash_nodes(
+                curr.left.value, curr.right.value)
+            curr = curr.parent
+
+        index = self.get_size()
+        return index
 
 
-    def _get_blob(self, index):
+    def _get_leaf(self, index):
         """
-        Returns the blob stored at the leaf specified
+        Returns the hash stored by the leaf specified
 
         :param index: leaf index counting from one
         :type index: int
@@ -202,7 +239,7 @@ class InmemoryTree(BaseMerkleTree):
         if index < 1 or index > len(self.leaves):
             raise ValueError("%d not in leaf range" % index)
 
-        return self.leaves[index - 1].blob
+        return self.leaves[index - 1].value
 
 
     def _get_size(self):
@@ -243,41 +280,6 @@ class InmemoryTree(BaseMerkleTree):
             i += 1
 
         return result
-
-
-    def _append_leaf(self, tail):
-        """
-        Appends the provided leaf node to the tree by restructuring it accordingly
-
-        :param tail: leaf to append
-        :type tail: Leaf
-        :returns: index of newly appended leaf counting from one
-        :rtype: int
-        """
-        if not self.leaves:
-            self.leaves += [tail]
-            self.root = tail
-            return 1
-
-        node = self.get_last_maximal_perfect_node()
-        self.leaves += [tail]
-        value = self.hash_nodes(node.value, tail.value)
-
-        if node.is_root():
-            self.root = Node(value, node, tail)
-            index = self.get_size()
-            return index
-
-        curr = node.parent
-        curr.right = Node(value, node, tail)
-        curr.right.parent = curr
-        while curr:
-            curr.value = self.hash_nodes(
-                curr.left.value, curr.right.value)
-            curr = curr.parent
-
-        index = self.get_size()
-        return index
 
 
     def inclusion_path_fallback(self, offset):

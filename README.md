@@ -99,7 +99,7 @@ further processing:
 
 
 ```python
-from pymerkle.base import BaseMerkleTree
+from pymerkle import BaseMerkleTree
 
 
 class MerkleTree(BaseMerkleTree):
@@ -110,14 +110,23 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(algorithm, security)
 
 
-    def _store_data(self, entry):
-        self.leaves += [entry]
+    def _encode_leaf(self, entry):
+        blob = entry
 
-        return len(self.leaves)
+        return blob
 
 
-    def _get_blob(self, index):
-        return self.leaves[index - 1]
+    def _store_leaf(self, entry, blob, value):
+        self.leaves += [(blob, value)]
+        index = len(self.leaves)
+
+        return index
+
+
+    def _get_leaf(self, index):
+        _, value = self.leaves[index - 1]
+
+        return value
 
 
     def _get_size(self):

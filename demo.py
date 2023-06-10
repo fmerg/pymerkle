@@ -62,8 +62,8 @@ def strpath(rule, path):
 
 
 def strtree(tree):
-    if not isinstance(tree, InmemoryTree):
-        entries = [tree._get_blob(index) for index in range(1, tree.get_size()
+    if isinstance(tree, SqliteTree):
+        entries = [tree.get_entry(index) for index in range(1, tree.get_size()
             + 1)]
         tree = InmemoryTree.init_from_entries(*entries)
 

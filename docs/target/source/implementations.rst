@@ -26,8 +26,6 @@ without further processing:
 
     index = tree.append(b'foo')
 
-    assert tree._get_blob(index) == b'foo'
-
 
 State coincides with the value stored by the current root-node:
 
@@ -106,7 +104,6 @@ the inserted data to be in binary format and stores them without further process
 
   index = tree.append(b'foo')
 
-  assert tree._get_blob(index) == b'foo'
 
 It is suggested to close the connection to the database when ready:
 

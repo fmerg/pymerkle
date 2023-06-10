@@ -125,26 +125,33 @@ further processing:
 
   class MerkleTree(BaseMerkleTree):
 
-    def __init__(self, algorithm='sha256', security=True):
-        self.leaves = []
+      def __init__(self, algorithm='sha256', security=True):
+          self.leaves = []
 
-        super().__init__(algorithm, security)
-
-
-    def _store_data(self, entry):
-        self.leaves += [entry]
-
-        return len(self.leaves)
+          super().__init__(algorithm, security)
 
 
-    def _get_blob(self, index):
-        return self.leaves[index - 1]
+      def _encode_leaf(self, entry):
+          blob = entry
+
+          return blob
 
 
-    def _get_size(self):
-        return len(self.leaves)
+      def _store_leaf(self, entry, blob, value):
+          self.leaves += [(blob, value)]
+          index = len(self.leaves)
+
+          return index
 
 
+      def _get_leaf(self, index):
+          _, value = self.leaves[index - 1]
+
+          return value
+
+
+      def _get_size(self):
+          return len(self.leaves)
 
 
 Security
