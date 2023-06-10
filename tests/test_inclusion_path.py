@@ -5,11 +5,11 @@ MerkleTree = resolve_backend(option)
 
 entries = [b'a', b'b', b'c', b'd', b'e']
 
-tree_1 = MerkleTree.init_from_entries(*entries[:1])
-tree_2 = MerkleTree.init_from_entries(*entries[:2])
-tree_3 = MerkleTree.init_from_entries(*entries[:3])
-tree_4 = MerkleTree.init_from_entries(*entries[:4])
-tree_5 = MerkleTree.init_from_entries(*entries[:5])
+tree_1 = MerkleTree.init_from_entries(entries[:1])
+tree_2 = MerkleTree.init_from_entries(entries[:2])
+tree_3 = MerkleTree.init_from_entries(entries[:3])
+tree_4 = MerkleTree.init_from_entries(entries[:4])
+tree_5 = MerkleTree.init_from_entries(entries[:5])
 
 
 fixtures = [

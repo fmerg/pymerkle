@@ -3,11 +3,21 @@ import pytest
 from pymerkle import constants, InmemoryTree, SqliteTree as _SqliteTree
 
 
-# Make init interface identical to that of InMemoryTree
+# Make init interface identical to that of InmemoryTree
 class SqliteTree(_SqliteTree):
 
     def __init__(self, algorithm='sha256', security=True):
         super().__init__(':memory:', algorithm, security)
+
+    @classmethod
+    def init_from_entries(cls, entries, algorithm='sha256', security=True):
+        tree = cls(algorithm, security)
+
+        append = tree.append
+        for entry in entries:
+            append(entry)
+
+        return tree
 
 
 def pytest_addoption(parser):
@@ -43,9 +53,9 @@ def trees(maxsize=7, default_config=False):
     MerkleTree = resolve_backend(option)
 
     return [MerkleTree.init_from_entries(
-        *[f'entry-{i}'.encode() for i in range(size)], **config)
-                                for size in range(0, maxsize + 1)
-                                for config in configs]
+        [f'entry-{i}'.encode() for i in range(size)], **config)
+                               for size in range(0, maxsize + 1)
+                               for config in configs]
 
 
 def tree_and_index(maxsize=7, default_config=False):

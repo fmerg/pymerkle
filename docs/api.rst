@@ -4,8 +4,8 @@ Public API
 Initialization
 ==============
 
-Concrete Merkle-tree implementations should inherit from the ``BaseMerkleTree``
-abstract base class and implement its internal storage interface. Pymerkle
+Concrete implementations should inherit from the ``BaseMerkleTree``
+base class and implement its internal storage interface. Pymerkle
 provides two such implementations out of the box.
 
 ``InmemoryTree`` is a non-persistent imeplementation where nodes are stored
@@ -19,8 +19,9 @@ structure:
 
     tree = MerkleTree(algorithm='sha256')
 
-``SqliteTree`` is a persistent implementation using a SQLite database as leaf
-storage and is intended for local leightweight applications:
+
+``SqliteTree`` is a persistent implementation using a SQLite database as 
+storage and is intended for leightweight applications:
 
 
 .. code-block:: python
@@ -30,11 +31,11 @@ storage and is intended for local leightweight applications:
     tree = MerkleTree('merkle.db', algorithm='sha256')
 
 
-Both are designed to admit data in binary format and store them without further
+Both are designed to accept data in binary format and store them without further
 processing. Refer :ref:`here<Storage backend>` to see how to implement a Merkle-tree in detail.
 
-The hash function used by the tree is parametrizable via the ``algorithm``
-argument as shown above. The currently supported hash functions are *sha224*,
+The hash function is controlled via the ``algorithm`` parameter. The currently
+supported hash functions are *sha224*,
 *sha256*, *sha384*, *sha512*, *sha3-224*, *sha3-256*, *sha3-384* and *sha3-512*.
 
 .. note:: Requesting a tree with unsupported algorithm raises
@@ -44,14 +45,11 @@ argument as shown above. The currently supported hash functions are *sha224*,
 Entries
 =======
 
-Entries inserted to the tree are appended as leaves with increasing index.
-Their exact type depends on the particular Merkle-tree implementation and is
-determined by the business logic of the application. The sole constraint is that
-they must be available in binary format whenever needed by the internal hashing
-machinery of the tree.
+Entries are appended as leaves with contiguously increasing index.
+Their exact type depends on the implementation as determined by the
+particular application logic.
 
-That said, appending an entry returns the index of the corresponding leaf counting
-from one. For example (assuming that the tree admits entries in binary format):
+Apending an entry returns the index of the corresponding leaf (counting from 1):
 
 
 .. code-block:: python
@@ -60,12 +58,10 @@ from one. For example (assuming that the tree admits entries in binary format):
     1
     >>> tree.append(b'bar')
     2
-    >>> tree.get_size()
-    2
 
 
-The index of a leaf can be used to retrieve the corresponding hash value as
-follows:
+The index of a leaf can be used to retrieve the corresponding hash value:
+
 
 .. code-block:: python
 
@@ -83,10 +79,8 @@ Sometimes it is useful to be able to compute independently the hash value assign
 to an entry. For example, in order to verify the inclusion proof for an entry
 (see :ref:`below<Inclusion>`) we need its hash value, which can be computed without
 querying the tree directly (provided that the binary format can be inferred
-according to some known contract).
-
-To do so, we need to configure a standalone hasher that uses the same hash function
-as the Merkle-tree and applies the same security policy:
+according to some known contract). To do so, we need to configure a standalone
+hasher that uses the same hash function as the tree and applies the same security policy:
 
 
 .. code-block:: python
@@ -100,16 +94,33 @@ The commutation between index and entry is then
 
 .. code-block:: python
 
-   assert tree.get_leaf(1) = hasher.hash_leaf(b'foo')
+   assert tree.get_leaf(1) == hasher.hash_leaf(b'foo')
 
-having assumed that the tree admits binary entries without further processing
-and that the entry ``b'foo'`` is stored at the first index.
+having assumed that the tree admits binary data and that ``b'foo'`` is stored
+at the first leaf.
+
+
+Size
+====
+
+The *size* of the tree is the current number of leaves (i.e., appended
+entries):
+
+
+.. code-block:: python
+
+   >>> tree.get_size()
+   5
+
+
+It coincides with the index of the last appended leaf.
 
 
 State
 =====
 
-The *state* of the tree is uniquely determined by its current root-hash:
+The current *state* of the tree is uniquely determined by its current root-hash. This
+can be retrieved as follows:
 
 .. code-block:: python
 
@@ -118,18 +129,16 @@ The *state* of the tree is uniquely determined by its current root-hash:
 
 
 The root-hash of any intermediate state can be retrieved by providing the
-corresponding number of leaves:
+corresponding size:
+
 
 .. code-block:: python
 
    >>> tree.get_state(2)
    b"9(jJU1b'Q\xd6\x84[\xb8\xef\xb4\xcf3\xbe\xc2\xc5\xf3\xf8C\ru\x84\x87Cq\xa3[\xda"
-   >>>
-   >>> tree.get_state(5)
-   b'\xdcRj\xc4\x98\x81&}\x10\xf4<\x80\x8e\xc5\x92\xa1r\x08\xefxs<\xfa\x06""\xbeS[\xc7O"'
 
 
-By convention, the state of the empty tree is the hash of the empty string:
+By convention, the empty tree state is the hash of the empty string:
 
 .. code-block:: python
 
@@ -148,18 +157,19 @@ Inclusion
 ---------
 
 Given any intermediate state, an inclusion proof is a path of
-hashes proving that a certain entry has been appended at some previous point
-and that the tree has not been tampered afterwards. The following is an
-inclusion proof for the entry stored by the third leaf against the state
-corresponding to the first five leaves:
+hashes proving that a certain entry has been appended at some previous moment
+and that the tree has not been afterwards tampered. Below the
+inclusion proof for the entry stored by the 3-rd leaf against the state
+corresponding to the first 5 leaves:
 
 
 .. code-block:: python
 
-   >>> proof = tree.prove_inclusion(3, size=5)
+   >>> proof = tree.prove_inclusion(3, 5)
 
 
-Verification proceeds as follows:
+The second argument is optional end defaults to the current size. Verification
+proceeds as follows:
 
 
 .. code-block:: python
@@ -172,9 +182,9 @@ Verification proceeds as follows:
    >>> verify_inclusion(base, target, proof)
 
 
-This checks that the path of hashes is indeed based on the requested hash and
+This checks that the path of hashes is indeed based on the acclaimed hash and
 that it resolves to the acclaimed state. Trying to verify against a forged base
-would fail:
+base or state would raise an error:
 
 
 .. code-block:: python
@@ -186,13 +196,7 @@ would fail:
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Base hash does not match
-
-
-Similarly, trying to verify against a forged state would fail:
-
-
-.. code-block:: python
-
+   >>>
    >>> verify_inclusion(base, forged, proof)
    Traceback (most recent call last):
    ...
@@ -204,8 +208,8 @@ Consistency
 
 Given any two intermediate states, a consistency proof is a path of
 hashes proving that the second is a valid later state of the first, i.e., that
-the tree has not been tampered with in the meanwhile. The following is
-a consistency proof for the states with three and five leaves respectively:
+the tree has not been tampered with in the meanwhile. Below the
+consistency proof for the states with three and five leaves respectively:
 
 
 .. code-block:: python
@@ -213,7 +217,8 @@ a consistency proof for the states with three and five leaves respectively:
    >>> proof = tree.prove_consistency(3, 5)
 
 
-Verification proceeds as follows:
+The second argument is optional end defaults to the current size. Verification
+proceeds as follows:
 
 
 .. code-block:: python
@@ -228,8 +233,8 @@ Verification proceeds as follows:
 
 This checks that an appropriate subpath of the included path of hashes resolves
 to the acclaimed prior state and the path of hashes as a whole resolves to the
-acclaimed later state. Trying to verify against a forged prior state would
-fail:
+acclaimed later state. Trying to verify against forged states would raise an
+error:
 
 
 .. code-block:: python
@@ -241,12 +246,7 @@ fail:
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Prior state does not match
-
-
-Similarly, trying to verify against a forged later state would fail:
-
-.. code-block:: python
-
+   >>>
    >>> verify_consistency(state1, forged, proof)
    Traceback (most recent call last):
    ...
@@ -256,15 +256,14 @@ Similarly, trying to verify against a forged later state would fail:
 Serialization
 -------------
 
-For, say, network transmission purposes, a Merkle-proof might need to be
-serialized. This is done as follows:
+Serialize a proof object as follows:
 
 .. code-block:: python
 
   data = proof.serialize()
 
 
-which yields a JSON similar to this one:
+This yields a JSON entity similar to this one:
 
 
 .. code-block:: json
@@ -290,15 +289,15 @@ which yields a JSON similar to this one:
     ]
   }
 
-The ``metadata`` section contains the parameters required for configuring the
-verification hasher (``algorithm`` and ``security``) along with the size of the
-state against which the proof was requested (``size``) (this can be used
-for requesting the acclaimed tree state needed for verifying the proof, if not
-otherwise available). ``rule`` determines parenthetization of hashes during
-path resolution and ``subset`` selects the hashes resolving to the acclaimed
-prior state (it makes sense only for consistency proofs).
+The *metadata* section contains the parameters required for configuring the
+verification hasher (*algorithm* and *security*) along with the size of the
+state against which the proof was requested (*size*). The latter can be used
+in order to request the acclaimed state needed for proof verification (if not
+otherwise available). *Rule* determines parenthetization of hashes during
+path resolution and *subset* selects the hashes resolving to the acclaimed
+prior state (makes sense only for consistency proofs).
 
-The verifiable Merkle-proof object can be retrieved as follows:
+Retrieve the verifiable proof-object as follows:
 
 .. code-block:: python
 

@@ -40,15 +40,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def _store_leaf(self, entry, blob, value):
+    def _store_leaf(self, entry, value):
         """
         Should create a new leaf storing the provided entry along with its
         binary format and corresponding hash value
 
         :param entry: data to append
         :type entry: whatever expected according to application logic
-        :param blob: data in binary format
-        :type blob: bytes
         :param value: hashed data
         :type value: bytes
         :returns: index of newly appended leaf counting from one
@@ -84,7 +82,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
         blob = self._encode_leaf(entry)
         value = self.hash_leaf(blob)
-        index = self._store_leaf(entry, blob, value)
+        index = self._store_leaf(entry, value)
 
         return index
 
@@ -123,29 +121,6 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             subsize = self._get_size()
 
         return self.hash_range(0, subsize)
-
-
-    @classmethod
-    def init_from_entries(cls, *entries, algorithm='sha256', security=True):
-        """
-        Create tree from initial data
-
-        :param entries: initial data to append
-        :type entries: iterable of whatever expected according to application
-            logic
-        :param algorithm: [optional] hash function. Defaults to *sha256*
-        :type algorithm: str
-        :param security: [optional] resistance against second-preimage attack.
-            Defaults to *True*
-        :type security: bool
-        """
-        tree = cls(algorithm, security)
-
-        append = tree.append
-        for entry in entries:
-            append(entry)
-
-        return tree
 
 
     def hash_range(self, start, end):

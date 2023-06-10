@@ -137,24 +137,24 @@ class Leaf(Node):
     """
     Merkle-tree leaf
 
-    :param blob: data stored by the leaf
-    :type blob: bytes
+    :param entry: data stored by the leaf
+    :type entry: bytes
     :param value: hash value stored by the leaf
     :type value: bytes
     """
 
-    def __init__(self, blob, value):
-        self.blob = blob
+    def __init__(self, entry, value):
+        self.entry = entry
 
         super().__init__(value, None, None)
 
 
 class InmemoryTree(BaseMerkleTree):
     """
-    Non-persistent Merkle-tree with all nodes stored in the runtime memory
+    Non-persistent Merkle-tree with with nodes residing inside the runtime memory
 
     .. note:: This implementation is intended for debugging and testing. Use it
-        to investigate the tree topology by means of concrete traversals
+        to investigate the tree topology by means of concrete path traversals
     """
 
     def __init__(self, algorithm='sha256', security=True):
@@ -186,15 +186,13 @@ class InmemoryTree(BaseMerkleTree):
         return entry
 
 
-    def _store_leaf(self, entry, blob, value):
+    def _store_leaf(self, entry, value):
         """
         Creates a new leaf storing the provided entry along with its binary
         format and corresponding hash value
 
         :param entry: data to append
         :type entry: whatever expected according to application logic
-        :param blob: data in binary format
-        :type blob: bytes
         :param value: hashed data
         :type value: bytes
         :returns: index of newly appended leaf counting from one
@@ -248,6 +246,28 @@ class InmemoryTree(BaseMerkleTree):
         :rtype: int
         """
         return len(self.leaves)
+
+
+    @classmethod
+    def init_from_entries(cls, entries, algorithm='sha256', security=True):
+        """
+        Create tree from initial data
+
+        :param entries: initial data to append
+        :type entries: iterable of bytes
+        :param algorithm: [optional] hash function. Defaults to *sha256*
+        :type algorithm: str
+        :param security: [optional] resistance against second-preimage attack.
+            Defaults to *True*
+        :type security: bool
+        """
+        tree = cls(algorithm, security)
+
+        append = tree.append
+        for entry in entries:
+            append(entry)
+
+        return tree
 
 
     def get_state(self, subsize=None):

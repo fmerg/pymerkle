@@ -2,19 +2,19 @@ Storage backend
 +++++++++++++++
 
 Pymerkle is unopinionated on how leaves are appended to the tree, i.e., how
-inserted entries should be stored in  concrete. "Leaves" is an abstraction for the
-indexed sequence of data expected by the internal hashing machinery to be available
-in binary format, no matter what their concrete form in persistent or volatile
-memory is. Specifying how to store data in concrete and how to represent them in
-binary belongs to the business logic of the application and amounts to implementing
-the internal storage interface presented in this section.
+entries should be stored in concrete. "Leaves" is an abstraction for the
+contiguously indexed data which the tree operates upon, no matter what their
+concrete form in persistent or volatile memory is. Specifying how to store
+entries and how to encode them (so that they become amenable to hashing
+operations) belongs to the particular application logic and amounts to
+implementing the internal storage interface presented in this section.
 
 
 Interface
 =========
 
 A Merkle-tree implementation is a concrete subclass of the ``BaseMerkleTree``
-abstract base class. The base class encapsulates the core hashing machinery
+abstract base class. The latter encapsulates the core hashing machinery
 in a storage agnostic fashion, i.e., without making assumptions about how
 entries are stored and accessed. It operates on top of an abstract
 storage interface, which is to be implemented by any concrete subclass:
@@ -34,12 +34,12 @@ storage interface, which is to be implemented by any concrete subclass:
 
 
         def _encode_leaf(self, entry):
-            # Customize the binary format of entries
+            # Define the binary format of the entry so that it can be hashed
             ...
 
 
-        def _store_leaf(self, entry, blob, value):
-            # Store entry along with its binary format and hash value
+        def _store_leaf(self, entry, value):
+            # Store entry along with its hash value
             ...
 
 
@@ -53,7 +53,11 @@ storage interface, which is to be implemented by any concrete subclass:
             ...
 
 
-Below the exact protocol that is to be implemented:
+Appending an entry calls ``_encode_leaf`` to convert it to a binary object,
+which is then hashed as *value*; the entry is in turn passed along with its hash
+value to ``_store_leaf``, which is responsible for storing them for future
+access and return the index. ``_get_leaf`` should return the hash
+value by index. Below the exact protocol that is to be implemented:
 
 
 .. code-block:: python
@@ -64,54 +68,60 @@ Below the exact protocol that is to be implemented:
       ...
 
 
-    @abstractmethod
-    def _encode_leaf(self, entry):
-        """
-        Should return the binary format of the provided entry
+      @abstractmethod
+      def _encode_leaf(self, entry):
+          """
+          Should return the binary format of the provided entry
 
-        :param entry: data to encode
-        :type entry: whatever expected according to application logic
-        :rtype: bytes
-        """
+          :param entry: data to encode
+          :type entry: whatever expected according to application logic
+          :rtype: bytes
+          """
 
-    @abstractmethod
-    def _store_leaf(self, entry, blob, value):
-        """
-        Should create a new leaf storing the provided entry along with its
-        binary format and corresponding hash value
 
-        :param entry: data to append
-        :type entry: whatever expected according to application logic
-        :param blob: data in binary format
-        :type blob: bytes
-        :param value: hashed data
-        :type value: bytes
-        :returns: index of newly appended leaf counting from one
-        :rtype: int
-        """
+      @abstractmethod
+      def _store_leaf(self, entry, value):
+          """
+          Should create a new leaf storing the provided entry along with its
+          binary format and corresponding hash value
 
-    @abstractmethod
-    def _get_leaf(self, index):
-        """
-        Should return the hash stored by the leaf specified
+          :param entry: data to append
+          :type entry: whatever expected according to application logic
+          :param value: hashed data
+          :type value: bytes
+          :returns: index of newly appended leaf counting from one
+          :rtype: int
+          """
 
-        :param index: leaf index counting from one
-        :type index: int
-        :rtype: bytes
-        """
 
-    @abstractmethod
-    def _get_size(self):
-        """
-        Should return the current number of leaves
+      @abstractmethod
+      def _get_leaf(self, index):
+          """
+          Should return the hash stored by the leaf specified
 
-        :rtype: int
-        """
+          :param index: leaf index counting from one
+          :type index: int
+          :rtype: bytes
+          """
 
+
+      @abstractmethod
+      def _get_size(self):
+          """
+          Should return the current number of leaves
+
+          :rtype: int
+          """
       ...
 
 
-Various strategies are here possible.
+Various strategies are here possible according to convenience. For example, the
+entry could be further processed by ``_store_leaf`` in order to conform with
+a given database schema and have the hash value stored in the appropriate table.
+Or, if a database schema is given that does not make space for hashes, the hash
+value could be forwarded to a dedicated datastore for future access; ``_get_leaf``
+would then have to access that separate datastore in order to make available the
+hash value.
 
 
 Examples
@@ -123,7 +133,10 @@ Examples
 Simple list
 -----------
 
-Here is the simplest possible non-peristent tree using a list as storage:
+This is the simplest possible non-peristent implementation utilizing a list
+as storage. It expects strings as entries and encodes them in utf-8 before
+hashing.
+
 
 .. code-block:: python
 
@@ -139,16 +152,13 @@ Here is the simplest possible non-peristent tree using a list as storage:
 
 
       def _encode_leaf(self, entry):
-          blob = entry
-
-          return blob
+          return entry.encode('utf-8')
 
 
-      def _store_leaf(self, entry, blob, value):
-          self.leaves += [(blob, value)]
-          index = len(self.leaves)
+      def _store_leaf(self, entry, value):
+          self.leaves += [(entry, value)]
 
-          return index
+          return len(self.leaves)
 
 
       def _get_leaf(self, index):
@@ -161,15 +171,13 @@ Here is the simplest possible non-peristent tree using a list as storage:
           return len(self.leaves)
 
 
-It assumes entries already in binary format and stores them without further
-processing.
-
-
 Unix DBM
 --------
 
-Here is a hasty implementation using `dbm`_ to persistently store entries in a
-``"merkledb"`` file (simple key/value datastore).
+This is a hasty implementing using `dbm`_ to persistently store entries in
+a ``"merkledb"`` file (simple key/value datastore). It expects strings as
+entries and encodes them in utf-8 before hashing.
+
 
 .. code-block:: python
 
@@ -191,15 +199,13 @@ Here is a hasty implementation using `dbm`_ to persistently store entries in a
 
 
       def _encode_leaf(self, entry):
-          blob = entry
-
-          return blob
+          return entry.encode('utf-8')
 
 
-      def _store_leaf(self, entry, blob, value):
+      def _store_leaf(self, entry, value):
           with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
               index = len(db) + 1
-              db[hex(index)] = b'|'.join(blob, value)
+              db[hex(index)] = b'|'.join(entry.encode(), value)
 
           return index
 
@@ -218,9 +224,9 @@ Here is a hasty implementation using `dbm`_ to persistently store entries in a
           return size
 
 
-It assumes entries already in binary format and stores them without further
-processing. Note that Unix DBM requires both key and value to be in binary, so
-we had to also store the index as bytes.
+Note that Unix DBM requires both key and value to be binary objects,
+so we have to also convert the index into bytes.
+
 
 Django app
 ----------

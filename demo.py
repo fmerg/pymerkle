@@ -65,7 +65,7 @@ def strtree(tree):
     if isinstance(tree, SqliteTree):
         entries = [tree.get_entry(index) for index in range(1, tree.get_size()
             + 1)]
-        tree = InmemoryTree.init_from_entries(*entries)
+        tree = InmemoryTree.init_from_entries(entries)
 
     return str(tree)
 

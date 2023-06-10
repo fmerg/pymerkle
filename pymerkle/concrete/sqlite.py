@@ -56,15 +56,13 @@ class SqliteTree(BaseMerkleTree):
         return entry
 
 
-    def _store_leaf(self, entry, blob, value):
+    def _store_leaf(self, entry, value):
         """
         Creates a new leaf storing the provided entry along with its binary
         format and corresponding hash value
 
         :param entry: data to append
         :type entry: whatever expected according to application logic
-        :param blob: data in binary format
-        :type blob: bytes
         :param value: hashed data
         :type value: bytes
         :returns: index of newly appended leaf counting from one
@@ -79,7 +77,7 @@ class SqliteTree(BaseMerkleTree):
             query = f'''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
-            cur.execute(query, (blob, value))
+            cur.execute(query, (entry, value))
 
         return cur.lastrowid
 

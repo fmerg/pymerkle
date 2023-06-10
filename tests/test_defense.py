@@ -29,11 +29,11 @@ MerkleTree = resolve_backend(option)
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_second_preimage_attack(config):
-    tree = MerkleTree.init_from_entries(b'foo', b'bar', b'baz', b'qux',
+    tree = MerkleTree.init_from_entries([b'foo', b'bar', b'baz', b'qux'],
         **config)
 
     forged = tree.get_leaf(3) + tree.get_leaf(4)
-    attacker = MerkleTree.init_from_entries(b'foo', b'bar', forged,
+    attacker = MerkleTree.init_from_entries([b'foo', b'bar', forged],
         **config)
 
     assert tree.security ^ (attacker.get_state() == tree.get_state())

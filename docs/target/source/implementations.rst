@@ -1,15 +1,15 @@
 Implementations
 +++++++++++++++
 
-Pymerkle provides out of the box the following concrete implementations.
+Pymerkle provides the following implementations of ``BaseMerkleTree``.
 
 
-In-memory
+In memory
 =========
 
-``InmemoryTree`` is a non-persistent implementation where nodes are loaded
-into the runtime memory, suitable for investigating and visualizing the
-tree structure. It is intended as a debugging and testing tool.
+``InmemoryTree`` is a non-persistent implementation where nodes reside inside the
+runtime memory, suitable for investigating and visualizing the tree structure.
+It is intended for debugging and testing.
 
 .. code-block:: python
 
@@ -18,16 +18,23 @@ tree structure. It is intended as a debugging and testing tool.
   tree = InmemoryTree(algorithm='sha256')
 
 
-The tree expects the inserted data to be in binary format and stores them
-without further processing:
+Data is expected to be provided in binary:
+
+.. code-block:: python
+
+  index = tree.append(b'foo')
+
+
+It is stored without further processing and can be accessed as follows:
 
 
 .. code-block:: python
 
-    index = tree.append(b'foo')
+  data = tree.leaves[index - 1].entry
+  assert data == b'foo'
 
 
-State coincides with the value stored by the current root-node:
+State coincides with the value of the current root-node:
 
 
 .. code-block:: python
@@ -36,11 +43,11 @@ State coincides with the value stored by the current root-node:
 
 
 Nodes have a ``right``, ``left`` and ``parent`` attribute, pointing to their
-right child, left child and parent node respectively. Leaf-nodes are stored in a
-list and have no children, whereas the current root-node is characterized by the
-fact that it has no parent. These linkages allow for concrete path traversals;
-for example, the following loop detects the root-node starting from the
-first leaf of a non-empty tree:
+right child, left child and parent node respectively. (Leaf nodes have no
+children, whereas the current root-node has no parent). These linkages allow
+for concrete path traversals. For example, the following loop detects the
+root-node starting from the first leaf of a non-empty tree:
+
 
 .. code-block:: python
 
@@ -54,7 +61,8 @@ first leaf of a non-empty tree:
 
 
 Concrete path traversals are used under the hood for visualizing the tree by
-just printing it:
+means of printing:
+
 
 .. code-block:: bash
 
@@ -80,8 +88,8 @@ just printing it:
 Sqlite
 ======
 
-``SqliteTree`` is a persistent implementation with a SQLite database as storage.
-It is a wrapper of `sqlite3`_, suitable for leightweight or local applications
+``SqliteTree`` uses a SQLite database to persistently store entries.
+It is a wrapper of `sqlite3`_, suitable for leightweight applications
 that do not require separate server processes for the database.
 
 
@@ -92,17 +100,27 @@ that do not require separate server processes for the database.
   tree = SqliteTree('merkle.db', algorithm='sha256')
 
 
-This opens a connection to the database located at the provided filepath,
-which will also be created if not already existent. The database schema
-consists of a single table called *leaf* with two columns:
-*index*, which is the primary key serving also as leaf index, and *entry*,
-which is a blob field storing the appended data. That is, the tree expects
-the inserted data to be in binary format and stores them without further processing:
+This opens a connection to the provided database, which will also be created
+if not already existent. The database schema consists of a single table
+called *leaf* with three columns: *index*, which is the primary key serving
+also as leaf index, *entry*, which is a blob field storing the appended data,
+and *hash*, which is a blob field storing the corresponding hash value. Data is
+expected to be provided in binary:
 
 
 .. code-block:: python
 
   index = tree.append(b'foo')
+
+
+It is stored without further processing and can be accessed as follows:
+
+
+.. code-block:: python
+
+  data = tree.get_entry(index)
+  assert data == b'foo'
+
 
 
 It is suggested to close the connection to the database when ready:
