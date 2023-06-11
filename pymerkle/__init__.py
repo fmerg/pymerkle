@@ -2,14 +2,13 @@
 merkle-tree cryptography
 """
 
-from pymerkle.concrete.inmemory import InmemoryTree
-from pymerkle.concrete.sqlite import SqliteTree
-from pymerkle.core import BaseMerkleTree, InvalidChallenge
-from pymerkle.proof import MerkleProof, \
-    verify_inclusion, verify_consistency, InvalidProof
+from .concrete.inmemory import InmemoryTree
+from .concrete.sqlite import SqliteTree
+from .core import BaseMerkleTree, InvalidChallenge
+from .proof import MerkleProof, verify_inclusion, verify_consistency, InvalidProof
 
 
-__version__ = '5.0.0'
+__version__ = '5.0.3'
 
 __all__ = (
     'BaseMerkleTree',

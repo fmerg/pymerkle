@@ -16,7 +16,7 @@ usage() { echo -n "$usage_string" 1>&2; }
 # TODO: Derive the following default values from package meta
 PROJECT="pymerkle"
 SOURCE_CODE="pymerkle"
-VERSION="5.0.0"
+VERSION="5.0.3"
 AUTHOR="fmerg"
 
 LANG="en"
@@ -52,7 +52,7 @@ DEFAULT_THEME="alabaster"         # Default sphinx theme
 RTD_THEME="sphinx_rtd_theme"      # Read-the-docs theme
 PYTHON_THEME="python_docs_theme"  # Python docs theme
 CUSTOM_THEME="$RTD_THEME"
-CUSTOM_THEME="$PYTHON_THEME"
+# CUSTOM_THEME="$PYTHON_THEME"
 
 # Generate sphinx source
 rm -rf "$TARGET"

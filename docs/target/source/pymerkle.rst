@@ -6,6 +6,14 @@ pymerkle package
    :undoc-members:
    :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pymerkle.concrete
+
 Submodules
 ----------
 
