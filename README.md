@@ -175,6 +175,13 @@ pip3 install -r requirements-dev.txt
 ./test.sh --help
 ```
 
+
+### Benchmarks
+
+```commandline
+./benchmark.sh --help
+```
+
 ## Documentation
 
 **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.

@@ -41,7 +41,7 @@ do
 done
 
 
-python3 -m \
+python -m \
   pytest tests/ \
   --backend ${STORAGE} \
   --cov-report term-missing \
