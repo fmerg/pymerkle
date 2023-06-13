@@ -120,14 +120,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if subsize is None:
             subsize = self._get_size()
 
-        return self.hash_range(0, subsize)
+        return self.get_root(0, subsize)
 
 
-    def hash_range(self, start, end):
+    def get_root(self, start, end):
         """
         Returns the root-hash corresponding to the provided leaf range
 
-        :param start: first leaf index counting from zero
+        :param start: offset counting from zero
         :type start: int
         :param end: last leaf index counting from one
         :type end: int
@@ -143,8 +143,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if k == end - start:
             k >>= 1
 
-        left = self.hash_range(start, start + k)
-        right = self.hash_range(start + k, end)
+        left = self.get_root(start, start + k)
+        right = self.get_root(start + k, end)
 
         return self.hash_nodes(left, right)
 
@@ -177,10 +177,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         if offset < start + k:
             rule, path = self.inclusion_path(start, offset, start + k, 0)
-            value = self.hash_range(start + k, end)
+            value = self.get_root(start + k, end)
         else:
             rule, path = self.inclusion_path(start + k, offset, end, 1)
-            value = self.hash_range(start, start + k)
+            value = self.get_root(start, start + k)
 
         return rule + [bit], path + [value]
 
@@ -235,7 +235,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: (list[int], list[int], list[bytes])
         """
         if offset == end:
-            value = self.hash_range(start, start + end)
+            value = self.get_root(start, start + end)
             return [bit], [1], [value]
 
         if offset == 0 and end == 1:
@@ -249,11 +249,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         if offset < k:
             rule, subset, path = self.consistency_path(start, offset, k, 0)
-            value = self.hash_range(start + k, start + end)
+            value = self.get_root(start + k, start + end)
         else:
             rule, subset, path = self.consistency_path(start + k, offset - k,
                     end - k, 1)
-            value = self.hash_range(start, start + k)
+            value = self.get_root(start, start + k)
             mask = int(k == 1 << log2(k))
 
         return rule + [bit], subset + [mask], path + [value]
