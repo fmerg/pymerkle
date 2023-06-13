@@ -94,7 +94,7 @@ contiguously indexed dataset should do the job.
 
 ### Example
 
-This is the simplest possible non-peristent implementation utilizing a list as storage.
+This is the simplest possible non-persistent implementation utilizing a list as storage.
 It expects strings as entries and encodes them in utf-8 before hashing.
 
 ```python

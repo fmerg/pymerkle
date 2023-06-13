@@ -114,7 +114,7 @@ contiguously indexed dataset should do the job.
 Example
 -------
 
-This is the simplest possible non-peristent implementation utilizing a list
+This is the simplest possible non-persistent implementation utilizing a list
 as storage. It expects strings as entries and encodes them in utf-8 before
 hashing.
 
@@ -181,8 +181,8 @@ Tree topology
 *************
 
 Interior nodes are in general not stored in memory and no concrete links are
-established between them. The tree structure is determined by the recursive
-function which computes intermediate states on the fly and is essentially the same as
+established between them. The tree structure is determined by the
+function which computes intermediate states on the fly and is essentially the same
 `RFC 9162`_ (Section 2).
 It turns out to be that of a binary
 `Sakura tree`_ (Section 5.4).
