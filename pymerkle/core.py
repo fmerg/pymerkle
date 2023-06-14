@@ -135,6 +135,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def get_root_naive(self, start, end):
         """
         Returns the root-hash corresponding to the provided leaf range
+        according to RFC 9162.
+
+        .. warning:: This is an unoptimized recursive function intended for
+        testing. Use ``hash_leaves`` instead.
 
         :param start: offset counting from zero
         :type start: int
@@ -159,7 +163,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def get_root_base(self, offset, width):
+    def get_subroot(self, offset, width):
         """
         :param offset:
         :type start: int
@@ -175,9 +179,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         while width > 1:
             count = 0
             while count < width:
-                node1 = popleft()
-                node2 = popleft()
-                node = hash_nodes(node1, node2)
+                lnode = popleft()
+                rnode = popleft()
+                node = hash_nodes(lnode, rnode)
                 append(node)
                 count += 2
             width >>= 1
@@ -198,7 +202,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         offset = start
         principals = []
         for p in list(reversed(decompose(end - start))):
-            curr = self.get_root_base(offset, 1 << p)
+            curr = self.get_subroot(offset, 1 << p)
             principals += [curr]
             offset += 1 << p
 

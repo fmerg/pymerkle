@@ -16,7 +16,7 @@ def test_append(tree):
 
 
 @pytest.mark.parametrize('tree, start, end', tree_and_range(maxsize=11))
-def test_get_root(tree, start, end):
+def test_get_root_naive(tree, start, end):
     _start = start
     principals = []
     for p in list(reversed(decompose(end - start))):
@@ -31,7 +31,7 @@ def test_get_root(tree, start, end):
         result = tree.hash_nodes(principals[index + 1], result)
         index += 1
 
-    assert tree.get_root(start, end) == result
+    assert tree.get_root_naive(start, end) == result
 
 
 @pytest.mark.parametrize('tree, start, end', tree_and_range(maxsize=11))
