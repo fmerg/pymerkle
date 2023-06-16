@@ -3,10 +3,19 @@ Merkle-tree core functionality
 """
 
 from abc import ABCMeta, abstractmethod
+from collections import deque
+import builtins
 
 from pymerkle.utils import log2, decompose
 from pymerkle.hasher import MerkleHasher
 from pymerkle.proof import MerkleProof
+
+
+try:
+    builtins.profile
+except AttributeError:
+    def profile(func): return func
+    builtins.profile = profile
 
 
 class InvalidChallenge(Exception):
@@ -123,7 +132,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self.get_root(0, subsize)
 
 
-    def get_root(self, start, end):
+    def get_root_naive(self, start, end):
         """
         Returns the root-hash corresponding to the provided leaf range
 
@@ -149,6 +158,61 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self.hash_nodes(left, right)
 
 
+    @profile
+    def get_root_base(self, offset, width):
+        """
+        :param offset:
+        :type start: int
+        :param width:
+        :type width: int
+        :rtype: bytes
+        """
+        get_leaf = self.get_leaf
+        hash_nodes = self.hash_nodes
+        level = deque(get_leaf(i + 1) for i in range(offset, offset + width))
+        popleft = level.popleft
+        append = level.append
+        while width > 1:
+            count = 0
+            while count < width:
+                node1 = popleft()
+                node2 = popleft()
+                node = hash_nodes(node1, node2)
+                append(node)
+                count += 2
+            width >>= 1
+
+        return level[0]
+
+
+    def get_root(self, start, end):
+        """
+        Returns the root-hash corresponding to the provided leaf range
+
+        :param start: offset counting from zero
+        :type start: int
+        :param end: last leaf index counting from one
+        :type end: int
+        :rtype: bytes
+        """
+        offset = start
+        principals = []
+        for p in list(reversed(decompose(end - start))):
+            curr = self.get_root_base(offset, 1 << p)
+            principals += [curr]
+            offset += 1 << p
+
+        principals = list(reversed(principals))
+        result = principals[0]
+        index = 0
+        while index < len(principals) - 1:
+            result = self.hash_nodes(principals[index + 1], result)
+            index += 1
+
+        return result
+
+
+    @profile
     def inclusion_path(self, start, offset, end, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
@@ -216,6 +280,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 path)
 
 
+    @profile
     def consistency_path(self, start, offset, end, bit):
         """
         Computes the consistency path for the state corresponding to the

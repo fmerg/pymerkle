@@ -21,16 +21,12 @@ class SqliteTree(_SqliteTree):
         super().__init__(':memory:', algorithm, security)
 
 
-PARSER_CONFIG = {
-    'prog': sys.argv[0],
-    'usage': 'python %s' % sys.argv[0],
-    'description': __doc__,
-    'epilog': '\n',
-    'formatter_class': argparse.ArgumentDefaultsHelpFormatter,
-}
-
 def parse_cli_args():
-    parser = argparse.ArgumentParser(**PARSER_CONFIG)
+    config = {'prog': sys.argv[0], 'usage': 'python %s' % sys.argv[0],
+              'description': __doc__, 'epilog': '\n',
+              'formatter_class': argparse.ArgumentDefaultsHelpFormatter}
+
+    parser = argparse.ArgumentParser(**config)
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
             default='inmemory', help='Storage backend')

@@ -175,11 +175,16 @@ pip3 install -r requirements-dev.txt
 ./test.sh --help
 ```
 
-
 ### Benchmarks
 
 ```commandline
 ./benchmark.sh --help
+```
+
+### Profiling
+
+```commandline
+./profile.sh --help
 ```
 
 ## Documentation

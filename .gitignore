@@ -5,10 +5,6 @@ env/
 *.pyc
 *.pye
 *.sw*
-*profile*
-cpu*
-*.svg
-deploy.sh
 TODOS.txt
 NOTES.txt
 
@@ -23,3 +19,8 @@ dist/
 # Benchmarks
 *.benchmarks/
 benchmarks/merkle.db
+
+# Profiling
+profiler/.results/
+*.lprof
+mprofile_*
