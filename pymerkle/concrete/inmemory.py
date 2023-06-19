@@ -240,6 +240,19 @@ class InmemoryTree(BaseMerkleTree):
         return self.leaves[index - 1].value
 
 
+    def _get_leaves(self, offset, width):
+        """
+        Returns in respective order the hashes stored by the leaves in the
+        range specified
+
+        :param offset: starting position counting from zero
+        :type offset: int
+        :param width: number of leaves to consider
+        :type width: int
+        """
+        return [l.value for l in self.leaves[offset: offset + width]]
+
+
     def _get_size(self):
         """
         :returns: current number of leaves
@@ -270,7 +283,7 @@ class InmemoryTree(BaseMerkleTree):
         return tree
 
 
-    def get_state(self, subsize=None):
+    def get_state(self, size=None):
         """
         Computes the root-hash of the subtree corresponding to the provided
         size

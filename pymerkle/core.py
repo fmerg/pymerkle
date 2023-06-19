@@ -73,6 +73,20 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
 
     @abstractmethod
+    def _get_leaves(self, offset, width):
+        """
+        Should return in respective order the hashes stored by the leaves in
+        the range specified
+
+        :param offset: starting position counting from zero
+        :type offset: int
+        :param width: number of leaves to consider
+        :type width: int
+        :rtype: iterable of bytes
+        """
+
+
+    @abstractmethod
     def _get_size(self):
         """
         Should return the current number of leaves
@@ -171,11 +185,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type width: int
         :rtype: bytes
         """
-        get_leaf = self.get_leaf
-        hash_nodes = self.hash_nodes
-        level = deque(get_leaf(i + 1) for i in range(offset, offset + width))
+        level = deque(self._get_leaves(offset, width))
         popleft = level.popleft
         append = level.append
+        hash_nodes = self.hash_nodes
         while width > 1:
             count = 0
             while count < width:

@@ -100,6 +100,26 @@ class SqliteTree(BaseMerkleTree):
         return cur.fetchone()
 
 
+    def _get_leaves(self, offset, width):
+        """
+        Returns in respective order the hashes stored by the leaves in the
+        range specified
+
+        :param offset: starting position counting from zero
+        :type offset: int
+        :param width: number of leaves to consider
+        :type width: int
+        """
+        cur = self.cur
+
+        query = f'''
+            SELECT hash FROM leaf WHERE id BETWEEN ? AND ?
+        '''
+        cur.execute(query, (offset + 1, offset + width))
+
+        return cur.fetchall()
+
+
     def _get_size(self):
         """
         :returns: current number of leaves
