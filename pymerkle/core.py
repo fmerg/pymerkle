@@ -189,6 +189,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return level[0]
 
 
+    @profile
     def get_root(self, start, end):
         """
         Returns the root-hash corresponding to the provided leaf range
@@ -199,21 +200,28 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type end: int
         :rtype: bytes
         """
-        offset = start
-        principals = []
-        for p in list(reversed(decompose(end - start))):
-            curr = self.get_subroot(offset, 1 << p)
-            principals += [curr]
-            offset += 1 << p
+        subroots = deque()
+        prepend = subroots.appendleft
+        append = subroots.append
+        pop = subroots.pop
 
-        principals = list(reversed(principals))
-        result = principals[0]
-        index = 0
-        while index < len(principals) - 1:
-            result = self.hash_nodes(principals[index + 1], result)
-            index += 1
+        get_subroot = self.get_subroot
+        exponents = decompose(end - start)
+        for p in exponents:
+            width = 1 << p
+            offset = end - width
+            curr = get_subroot(offset, width)
+            prepend(curr)
+            end = offset
 
-        return result
+        hash_nodes = self.hash_nodes
+        while len(subroots) > 1:
+            lnode = pop()
+            rnode = pop()
+            node = hash_nodes(rnode, lnode)
+            append(node)
+
+        return subroots[0]
 
 
     @profile
