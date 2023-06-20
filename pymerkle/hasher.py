@@ -27,8 +27,11 @@ class MerkleHasher:
 
         self.algorithm = algorithm
         self.security = security
-        self.prefx00 = b'\x00' if security else b''
-        self.prefx01 = b'\x01' if security else b''
+
+        self.prefx00 = b'\x00' if self.security else b''
+        self.prefx01 = b'\x01' if self.security else b''
+
+        self.func = getattr(hashlib, self.algorithm)
 
 
     def consume(self, buff):
@@ -39,9 +42,8 @@ class MerkleHasher:
         :type buff: bytes
         :rtype: bytes
         """
-        _hasher = getattr(hashlib, self.algorithm)()
-
-        update = _hasher.update
+        hasher = self.func()
+        update = hasher.update
         chunksize = 1024
         offset = 0
         chunk = buff[offset: chunksize]
@@ -50,7 +52,7 @@ class MerkleHasher:
             offset += chunksize
             chunk = buff[offset: offset + chunksize]
 
-        return _hasher.digest()
+        return hasher.digest()
 
 
     def hash_leaf(self, blob):
@@ -67,18 +69,18 @@ class MerkleHasher:
         return self.consume(buff)
 
 
-    def hash_nodes(self, blob1, blob2):
+    def hash_nodes(self, lblob, rblob):
         """
         Computes the hash of the concatenation of the provided binary data
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
-        :param blob1: left value
-        :type blob1: bytes
-        :param blob2: right value
-        :type blob2: bytes
+        :param lblob: left value
+        :type lblob: bytes
+        :param rblob: right value
+        :type rblob: bytes
         :rtype: bytes
         """
-        buff = self.prefx01 + blob1 + blob2
+        buff = self.prefx01 + lblob + rblob
 
-        return self.consume(buff)
+        return self.func(buff).digest()
