@@ -127,3 +127,5 @@ if __name__ == '__main__':
         print('round %d:' % count, args)
         func(*args)
         count += 1
+
+    print("\033[92m {}\033[00m".format(tree.get_cache_info()))

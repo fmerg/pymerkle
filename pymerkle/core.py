@@ -3,18 +3,23 @@ Merkle-tree core functionality
 """
 
 from abc import ABCMeta, abstractmethod
-from collections import deque
+from collections import deque, namedtuple
+from threading import Lock
 import builtins
 
-from pymerkle.utils import log2, decompose
+from cachetools import LRUCache
+
 from pymerkle.hasher import MerkleHasher
 from pymerkle.proof import MerkleProof
+from pymerkle.utils import log2, decompose
 
 
 try:
     builtins.profile
 except AttributeError:
-    def profile(func): return func
+    def profile(func):
+        return func
+
     builtins.profile = profile
 
 
@@ -25,18 +30,59 @@ class InvalidChallenge(Exception):
     pass
 
 
+
+_CacheInfo = namedtuple('CacheInfo', ['size', 'capacity', 'hits', 'misses'])
+
+
 class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
     Storage agnostic encapsulation of the core Merkle-tree functionality.
     Concrete definitions should inherit from this class and implement its
     private storage interface
 
-    :param algorithm: hash algorithm
+    :param algorithm: [optional] hash algorithm. Defailts to sha256
     :type algorithm: str
     :param security: [optional] resistance against second-preimage attack.
         Defaults to *True*
     :type security: bool
+    :param threshold: [optional]
+    :type threshold: int
+    :param capacity: [optional]
+    :type capacity: int
     """
+
+    def __init__(self, algorithm='sha256', security=True, **opts):
+        threshold = opts.get('threshold', 128)
+        capacity = opts.get('capacity', 1024 ** 3)
+        self.threshold = threshold
+        self.cache = LRUCache(maxsize=capacity, getsizeof=len)
+        self.hits = 0
+        self.misses = 0
+        self.lock = Lock()
+
+        self.get_subroot = self.get_subroot_cached
+
+        super().__init__(algorithm, security)
+
+
+    def get_cache_info(self):
+        """
+        Information related to subroot cache
+        """
+        return _CacheInfo(self.cache.currsize, self.cache.maxsize, self.hits,
+                self.misses)
+
+
+    def cache_clear(self):
+        """
+        Clears the subroot cache
+        """
+        with self.lock:
+            self.cache.clear()
+
+        self.hits = 0
+        self.misses = 0
+
 
     @abstractmethod
     def _encode_leaf(self, entry):
@@ -47,6 +93,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type entry: whatever expected according to application logic
         :rtype: bytes
         """
+
 
     @abstractmethod
     def _store_leaf(self, entry, value):
@@ -62,6 +109,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: int
         """
 
+
     @abstractmethod
     def _get_leaf(self, index):
         """
@@ -71,6 +119,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type index: int
         :rtype: bytes
         """
+
 
     @abstractmethod
     def _get_leaves(self, offset, width):
@@ -93,6 +142,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         :rtype: int
         """
+
 
     def append(self, entry):
         """
@@ -177,7 +227,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def get_subroot(self, offset, width):
+    def get_subroot_uncached(self, offset, width):
         """
         :param offset:
         :type start: int
@@ -200,6 +250,36 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             width >>= 1
 
         return level[0]
+
+
+    @profile
+    def get_subroot_cached(self, offset, width):
+        """
+        :param offset:
+        :type start: int
+        :param width:
+        :type width: int
+        :rtype: bytes
+        """
+        if width < self.threshold:
+            return self.get_subroot_uncached(offset, width)
+
+        key = (offset, width)
+
+        with self.lock:
+            try:
+                value = self.cache[key]
+                self.hits += 1
+
+                return value
+            except KeyError:
+                pass
+
+            self.misses += 1
+            value = self.get_subroot_uncached(offset, width)
+            self.cache[key] = value
+
+        return value
 
 
     @profile

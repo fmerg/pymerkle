@@ -181,8 +181,8 @@ Tree topology
 *************
 
 Interior nodes are in general not stored in memory and no concrete links are
-established between them. The tree structure is determined by the
-function which computes intermediate states on the fly and is essentially the same
+established between them. The tree structure is determined by the 
+function which computes intermediate states on the fly and is essentially the same as
 `RFC 9162`_ (Section 2).
 It turns out to be that of a binary
 `Sakura tree`_ (Section 5.4).

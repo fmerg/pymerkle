@@ -5,7 +5,7 @@ stages:
 before_script:
   - apt-get update
   - python --version
-  - pip3 install -r requirements-dev.txt
+  - pip3 install -r requirements.txt -r requirements-dev.txt
 
 test inmemory:
   image: "python:3.10-bullseye"

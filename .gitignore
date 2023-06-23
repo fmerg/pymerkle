@@ -1,6 +1,6 @@
 # Dev
 env/
-*cache*
+*pycache*
 *lint*
 *.pyc
 *.pye
