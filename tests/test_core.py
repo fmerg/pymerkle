@@ -53,3 +53,12 @@ def test_inclusion_path(tree, start, end):
         path1 = tree.inclusion_path(start, offset, end, bit)
         path2 = tree.inclusion_path_naive(start, offset, end, bit)
         assert path1 == path2
+
+
+@pytest.mark.parametrize('tree, size1, size2', tree_and_range(maxsize=11))
+def test_consistency_path(tree, size1, size2):
+    for bit1 in [0, 1]:
+        bit2 = bit1
+        path1 = tree.consistency_path(bit1, size1, size2, bit2)
+        path2 = tree.consistency_path_naive(bit1, size1, size2, bit2)
+        assert path1 == path2

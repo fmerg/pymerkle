@@ -432,8 +432,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 path)
 
 
-    @profile
-    def consistency_path(self, start, offset, end, bit):
+    def consistency_path_naive(self, start, offset, end, bit):
         """
         Computes the consistency path for the state corresponding to the
         provided offset against the specified leaf range
@@ -465,15 +464,76 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         mask = 0
 
         if offset < k:
-            rule, subset, path = self.consistency_path(start, offset, k, 0)
+            rule, subset, path = self.consistency_path_naive(start, offset, k, 0)
             value = self.get_root(start + k, start + end)
         else:
-            rule, subset, path = self.consistency_path(start + k, offset - k,
+            rule, subset, path = self.consistency_path_naive(start + k, offset - k,
                     end - k, 1)
             value = self.get_root(start, start + k)
             mask = int(k == 1 << log2(k))
 
         return rule + [bit], subset + [mask], path + [value]
+
+
+    @profile
+    def consistency_path(self, start, offset, end, bit):
+        """
+        Computes the consistency path for the state corresponding to the
+        provided offset against the specified leaf range
+
+        .. warning:: This method should not be called directly. Use
+            ``prove_consistency`` instead
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: size corresponding to state under consideration
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[int], list[int], list[bytes])
+        """
+        stack = deque()
+        push = stack.append
+        while not offset == end and not (offset == 0 and end == 1):
+            k = 1 << log2(end)
+            if k == end:
+                k >>= 1
+
+            mask = 0
+            if offset < k:
+                push((bit, mask, (start + k, start + end)))
+                end = k
+                bit = 0
+            else:
+                mask = int(k == 1 << log2(k))
+                push((bit, mask, (start, start + k)))
+                start += k
+                offset -= k
+                end -= k
+                bit = 1
+
+        get_root = self.get_root
+        get_leaf = self.get_leaf
+        if offset == end:
+            mask = 1
+            base = get_root(start, start + end)
+        else:
+            mask = 0
+            base = get_leaf(start + offset + 1)
+
+        rule = [bit]
+        subset = [mask]
+        path = [base]
+        while stack:
+            bit, mask, args = stack.pop()
+            rule += [bit]
+            subset += [mask]
+            value = get_root(*args)
+            path += [value]
+
+        return rule, subset, path
 
 
     def prove_consistency(self, size1, size2=None):
