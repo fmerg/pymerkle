@@ -202,7 +202,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         according to RFC 9162.
 
         .. warning:: This is an unoptimized recursive function intended for
-        testing. Use ``hash_leaves`` instead.
+        testing. Use ``get_root`` instead.
 
         :param start: offset counting from zero
         :type start: int
@@ -317,8 +317,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return subroots[0]
 
 
-    @profile
-    def inclusion_path(self, start, offset, end, bit):
+    def inclusion_path_naive(self, start, offset, end, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
@@ -345,13 +344,61 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             k >>= 1
 
         if offset < start + k:
-            rule, path = self.inclusion_path(start, offset, start + k, 0)
+            rule, path = self.inclusion_path_naive(start, offset, start + k, 0)
             value = self.get_root(start + k, end)
         else:
-            rule, path = self.inclusion_path(start + k, offset, end, 1)
+            rule, path = self.inclusion_path_naive(start + k, offset, end, 1)
             value = self.get_root(start, start + k)
 
         return rule + [bit], path + [value]
+
+
+    @profile
+    def inclusion_path(self, start, offset, end, bit):
+        """
+        Computes the inclusion path for the leaf located at the provided offset
+        against the specified leaf range
+
+        .. warning:: This method should not be called directly. Use
+            ``prove_inclusion`` instead
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: base leaf index counting from zero
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[int], list[bytes])
+        """
+        stack = deque()
+        push = stack.append
+        while end > start + 1:
+            k = 1 << log2(end - start)
+            if k == end - start:
+                k >>= 1
+
+            if offset < start + k:
+                push((bit, (start + k, end)))
+                end = start + k
+                bit = 0
+            else:
+                push((bit, (start, start + k)))
+                start = start + k
+                bit = 1
+
+        rule = [bit]
+        base = self.get_leaf(offset + 1)
+        path = [base]
+        get_root = self.get_root
+        while stack:
+            bit, args = stack.pop()
+            rule += [bit]
+            value = get_root(*args)
+            path += [value]
+
+        return rule, path
 
 
     def prove_inclusion(self, index, subsize=None):

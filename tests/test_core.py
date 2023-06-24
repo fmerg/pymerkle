@@ -1,3 +1,4 @@
+from itertools import product
 import pytest
 
 from pymerkle.utils import decompose
@@ -36,10 +37,19 @@ def test_get_root_naive(tree, start, end):
 
 @pytest.mark.parametrize('tree, start, end', tree_and_range(maxsize=11))
 def test_get_root(tree, start, end):
-    assert tree.get_root(start, end) == tree.get_root(
+    assert tree.get_root(start, end) == tree.get_root_naive(
             start, end)
 
 
 @pytest.mark.parametrize('tree, subsize', tree_and_index(maxsize=11))
 def test_state(tree, subsize):
     assert tree.get_state(subsize) == tree.get_root(0, subsize)
+    assert tree.get_state(subsize) == tree.get_root_naive(0, subsize)
+
+
+@pytest.mark.parametrize('tree, start, end', tree_and_range(maxsize=11))
+def test_inclusion_path(tree, start, end):
+    for bit, offset in product([0, 1], range(start, end)):
+        path1 = tree.inclusion_path(start, offset, end, bit)
+        path2 = tree.inclusion_path_naive(start, offset, end, bit)
+        assert path1 == path2
