@@ -23,6 +23,7 @@ class SqliteTree(BaseMerkleTree):
 
     def __init__(self, dbfile, algorithm='sha256', security=True):
         self.con = sqlite3.connect(dbfile)
+        self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
 
         with self.con:
@@ -96,7 +97,7 @@ class SqliteTree(BaseMerkleTree):
         '''
         cur.execute(query, (index,))
 
-        return cur.fetchone()[0]
+        return cur.fetchone()
 
 
     def _get_size(self):
@@ -111,7 +112,7 @@ class SqliteTree(BaseMerkleTree):
         '''
         cur.execute(query)
 
-        return cur.fetchone()[0]
+        return cur.fetchone()
 
 
     def get_entry(self, index):
@@ -129,4 +130,4 @@ class SqliteTree(BaseMerkleTree):
         '''
         cur.execute(query, (index,))
 
-        return cur.fetchone()[0]
+        return cur.fetchone()
