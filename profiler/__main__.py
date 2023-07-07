@@ -56,9 +56,9 @@ def parse_cli_args():
 
     consistency = operation.add_parser('consistency',
         help='Run `prove_consistency`')
-    consistency.add_argument('--size1', type=int, required=True,
+    consistency.add_argument('--lsize', type=int, required=True,
         help='Size of prior state')
-    consistency.add_argument('--size2', type=int, default=DB_SIZE,
+    consistency.add_argument('--rsize', type=int, default=DB_SIZE,
         help='Size of later state')
 
     return parser.parse_args()
@@ -91,9 +91,9 @@ if __name__ == '__main__':
 
             if cli.randomize:
                 def get_args():
-                    subsize = randint(1, cli.size)
+                    size = randint(1, cli.size)
 
-                    return (subsize,)
+                    return (size,)
 
         case 'inclusion':
             func = tree.prove_inclusion
@@ -103,23 +103,23 @@ if __name__ == '__main__':
 
             if cli.randomize:
                 def get_args():
-                    subsize = cli.size
-                    index = randint(1, subsize)
+                    size = cli.size
+                    index = randint(1, size)
 
-                    return (index, subsize)
+                    return (index, size)
 
         case 'consistency':
             func = tree.prove_consistency
 
             def get_args():
-                return (cli.size1, cli.size2)
+                return (cli.lsize, cli.rsize)
 
             if cli.randomize:
                 def get_args():
-                    size2 = cli.size2
-                    size1 = randint(1, size2)
+                    rsize = cli.rsize
+                    lsize = randint(1, rsize)
 
-                    return (size1, size2)
+                    return (lsize, rsize)
 
     count = 0
     while count < cli.rounds:

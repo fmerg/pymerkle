@@ -41,10 +41,10 @@ def test_get_root(tree, start, end):
             start, end)
 
 
-@pytest.mark.parametrize('tree, subsize', tree_and_index(maxsize=11))
-def test_state(tree, subsize):
-    assert tree.get_state(subsize) == tree.get_root(0, subsize)
-    assert tree.get_state(subsize) == tree.get_root_naive(0, subsize)
+@pytest.mark.parametrize('tree, size', tree_and_index(maxsize=11))
+def test_state(tree, size):
+    assert tree.get_state(size) == tree.get_root(0, size)
+    assert tree.get_state(size) == tree.get_root_naive(0, size)
 
 
 @pytest.mark.parametrize('tree, start, end', tree_and_range(maxsize=11))
@@ -55,10 +55,10 @@ def test_inclusion_path(tree, start, end):
         assert path1 == path2
 
 
-@pytest.mark.parametrize('tree, size1, size2', tree_and_range(maxsize=11))
-def test_consistency_path(tree, size1, size2):
+@pytest.mark.parametrize('tree, lsize, rsize', tree_and_range(maxsize=11))
+def test_consistency_path(tree, lsize, rsize):
     for bit1 in [0, 1]:
         bit2 = bit1
-        path1 = tree.consistency_path(bit1, size1, size2, bit2)
-        path2 = tree.consistency_path_naive(bit1, size1, size2, bit2)
+        path1 = tree.consistency_path(bit1, lsize, rsize, bit2)
+        path2 = tree.consistency_path_naive(bit1, lsize, rsize, bit2)
         assert path1 == path2

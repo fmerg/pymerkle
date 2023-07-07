@@ -180,20 +180,20 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self._get_size()
 
 
-    def get_state(self, subsize=None):
+    def get_state(self, size=None):
         """
         Computes the root-hash of the subtree corresponding to the provided
         size
 
-        :param subsize: [optional] number of leaves to consider. Defaults to
+        :param size: [optional] number of leaves to consider. Defaults to
             current tree size
-        :type subsize: int
+        :type size: int
         :rtype: bytes
         """
-        if subsize is None:
-            subsize = self._get_size()
+        if size is None:
+            size = self._get_size()
 
-        return self.get_root(0, subsize)
+        return self.get_root(0, size)
 
 
     def get_root_naive(self, start, end):
@@ -220,10 +220,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if k == end - start:
             k >>= 1
 
-        left = self.get_root(start, start + k)
-        right = self.get_root(start + k, end)
+        lnode = self.get_root(start, start + k)
+        rnode = self.get_root(start + k, end)
 
-        return self.hash_nodes(left, right)
+        return self.hash_nodes(lnode, rnode)
 
 
     @profile
@@ -401,34 +401,34 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return rule, path
 
 
-    def prove_inclusion(self, index, subsize=None):
+    def prove_inclusion(self, index, size=None):
         """
         Proves inclusion of the hash located at the provided index against the
         subtree specified by the provided size
 
         :param index: leaf index counting from one
         :type index: int
-        :param subsize: [optional] subsize of subtree to consider. Defaults to
+        :param size: [optional] size of subtree to consider. Defaults to
             current tree size
-        :type subsize: int
+        :type size: int
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
         currsize = self.get_size()
 
-        if subsize is None:
-            subsize = currsize
+        if size is None:
+            size = currsize
 
-        if not (0 < subsize <= currsize):
+        if not (0 < size <= currsize):
             raise InvalidChallenge('Provided size is out of bounds')
 
-        if not (0 < index <= subsize):
+        if not (0 < index <= size):
             raise InvalidChallenge('Provided index is out of bounds')
 
-        rule, path = self.inclusion_path(0, index - 1, subsize, 0)
+        rule, path = self.inclusion_path(0, index - 1, size, 0)
 
-        return MerkleProof(self.algorithm, self.security, subsize, rule, [],
+        return MerkleProof(self.algorithm, self.security, size, rule, [],
                 path)
 
 
@@ -536,32 +536,32 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return rule, subset, path
 
 
-    def prove_consistency(self, size1, size2=None):
+    def prove_consistency(self, lsize, rsize=None):
         """
         Proves consistency between the states corresponding to the provided
         sizes
 
-        :param size1: size of prior state
-        :type size1: int
-        :param size2: [optional] size of later state. Defaults to current tree
+        :param lsize: size of prior state
+        :type lsize: int
+        :param rsize: [optional] size of later state. Defaults to current tree
             size
-        :type size2: int
+        :type rsize: int
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
         currsize = self.get_size()
 
-        if size2 is None:
-            size2 = currsize
+        if rsize is None:
+            rsize = currsize
 
-        if not (0 < size2 <= currsize):
-            raise InvalidChallenge('Provided size2 is out of bounds')
+        if not (0 < rsize <= currsize):
+            raise InvalidChallenge('Provided later size out of bounds')
 
-        if not (0 < size1 <= size2):
-            raise InvalidChallenge('Provided size1 is out of bounds')
+        if not (0 < lsize <= rsize):
+            raise InvalidChallenge('Provided prior size out of bounds')
 
-        rule, subset, path = self.consistency_path(0, size1, size2, 0)
+        rule, subset, path = self.consistency_path(0, lsize, rsize, 0)
 
-        return MerkleProof(self.algorithm, self.security, size2, rule,
+        return MerkleProof(self.algorithm, self.security, rsize, rule,
                 subset, path)

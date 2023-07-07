@@ -25,10 +25,10 @@ def test_root(benchmark):
 def test_state(benchmark):
 
     def setup():
-        subsize = randint(1, option.size) if option.randomize \
+        size = randint(1, option.size) if option.randomize \
             else option.size
 
-        return (subsize,), {}
+        return (size,), {}
 
     benchmark.pedantic(tree.get_state, setup=setup, **defaults)
 
@@ -36,10 +36,10 @@ def test_state(benchmark):
 def test_inclusion(benchmark):
 
     def setup():
-        subsize = option.size
-        index = randint(1, subsize) if option.randomize else option.index
+        size = option.size
+        index = randint(1, size) if option.randomize else option.index
 
-        return (index, subsize), {}
+        return (index, size), {}
 
     benchmark.pedantic(tree.prove_inclusion, setup=setup, **defaults)
 
@@ -47,9 +47,9 @@ def test_inclusion(benchmark):
 def test_consistency(benchmark):
 
     def setup():
-        size2 = option.size
-        size1 = randint(1, size2) if option.randomize else option.index
+        rsize = option.size
+        lsize = randint(1, rsize) if option.randomize else option.index
 
-        return (size1, size2), {}
+        return (lsize, rsize), {}
 
     benchmark.pedantic(tree.prove_consistency, setup=setup, **defaults)

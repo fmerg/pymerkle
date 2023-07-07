@@ -46,7 +46,7 @@ resolve_options() {
           OPTIONS="--index ${INDEX} --size ${SIZE}"
           ;;
       consistency)
-          OPTIONS="--size1 ${INDEX} --size2 ${SIZE}"
+          OPTIONS="--lsize ${INDEX} --rsize ${SIZE}"
           ;;
       *)
           echo "Invalid operation: ${ACTION}"

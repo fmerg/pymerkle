@@ -205,7 +205,7 @@ class InmemoryTree(BaseMerkleTree):
             self.root = tail
             return 1
 
-        node = self.get_last_maximal_perfect_node()
+        node = self.get_last_maximal_subroot()
         self.leaves += [tail]
         value = self.hash_nodes(node.value, tail.value)
 
@@ -291,25 +291,27 @@ class InmemoryTree(BaseMerkleTree):
         .. note:: Overrides the default implementation inherited from the base
             class
 
-        :param subsize: [optional] number of leaves to consider. Defaults to
+        :param size: [optional] number of leaves to consider. Defaults to
             current tree size
-        :type subsize: int
+        :type size: int
         :rtype: bytes
         """
-        if subsize is None:
-            subsize = self.get_size()
+        currsize = self.get_size()
 
-        if subsize == 0:
+        if size is None:
+            size = currsize
+
+        if size == 0:
             return self.consume(b'')
 
-        if subsize == self.get_size():
+        if size == currsize:
             return self.root.value
 
-        principals = self.get_principal_nodes(subsize)
-        result = principals[0].value
+        subroots = self.get_subroots(size)
+        result = subroots[0].value
         i = 0
-        while i < len(principals) - 1:
-            result = self.hash_nodes(principals[i + 1].value, result)
+        while i < len(subroots) - 1:
+            result = self.hash_nodes(subroots[i + 1].value, result)
             i += 1
 
         return result
@@ -425,7 +427,7 @@ class InmemoryTree(BaseMerkleTree):
         return node
 
 
-    def get_last_maximal_perfect_node(self):
+    def get_last_maximal_subroot(self):
         """
         Returns the root-node of the perfect subtree of maximum possible size
         containing the currently last leaf
@@ -437,27 +439,27 @@ class InmemoryTree(BaseMerkleTree):
         return self.leaves[-1].get_ancestor(degree)
 
 
-    def get_principal_nodes(self, subsize):
+    def get_subroots(self, size):
         """
         Returns in respective order the root-nodes of the successive perfect
         subtrees whose sizes sum up to the provided size
 
-        :param subsize:
-        :type subsize: int
+        :param size:
+        :type size: int
         :rtype: list[Node]
         """
-        if subsize < 0 or subsize > self.get_size():
+        if size < 0 or size > self.get_size():
             return []
 
-        principals = []
+        subroots = []
         offset = 0
-        for height in reversed(decompose(subsize)):
+        for height in reversed(decompose(size)):
             node = self.get_perfect_node(offset + 1, height)
 
             if not node:
                 return []
 
-            principals += [node]
+            subroots += [node]
             offset += 1 << height
 
-        return list(reversed(principals))
+        return list(reversed(subroots))
