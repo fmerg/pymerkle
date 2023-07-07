@@ -199,13 +199,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
-        if subsize is None:
-            subsize = self.get_size()
+        currsize = self.get_size()
 
-        if subsize > self.get_size():
+        if subsize is None:
+            subsize = currsize
+
+        if not (0 < subsize <= currsize):
             raise InvalidChallenge('Provided size is out of bounds')
 
-        if index <= 0 or index > subsize:
+        if not (0 < index <= subsize):
             raise InvalidChallenge('Provided index is out of bounds')
 
         rule, path = self.inclusion_path(0, index - 1, subsize, 0)
@@ -271,13 +273,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
-        if size2 is None:
-            size2 = self.get_size()
+        currsize = self.get_size()
 
-        if size2 < 0 or size2 > self.get_size():
+        if size2 is None:
+            size2 = currsize
+
+        if not (0 < size2 <= currsize):
             raise InvalidChallenge('Provided size2 is out of bounds')
 
-        if size1 < 0 or size1 > size2:
+        if not (0 < size1 <= size2):
             raise InvalidChallenge('Provided size1 is out of bounds')
 
         rule, subset, path = self.consistency_path(0, size1, size2, 0)
