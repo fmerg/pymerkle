@@ -19,7 +19,7 @@ def test_root(benchmark):
 
         return (start, final), {}
 
-    benchmark.pedantic(tree.get_root, setup=setup, **defaults)
+    benchmark.pedantic(tree._get_root, setup=setup, **defaults)
 
 
 def test_state(benchmark):

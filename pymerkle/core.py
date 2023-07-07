@@ -60,14 +60,126 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         self.misses = 0
         self.lock = Lock()
 
-        self.get_subroot = self.get_subroot_cached
-
         super().__init__(algorithm, security)
+
+
+    def append(self, entry):
+        """
+        Appends a new leaf storing the provided entry
+
+        :param entry: data to append
+        :type entry: whatever expected according to application logic
+        :returns: index of newly appended leaf counting from one
+        :rtype: int
+        """
+        blob = self._encode_leaf(entry)
+        value = self.hash_leaf(blob)
+        index = self._store_leaf(entry, value)
+
+        return index
+
+
+    def get_leaf(self, index):
+        """
+        Returns the hash of the leaf located at the provided position
+
+        :param index: leaf index counting from one
+        :type index: int
+        :rtype: bytes
+        """
+        return self._get_leaf(index)
+
+
+    def get_size(self):
+        """
+        Returns the current number of leaves
+
+        :rtype: int
+        """
+        return self._get_size()
+
+
+    def get_state(self, size=None):
+        """
+        Computes the root-hash of the subtree corresponding to the provided
+        size
+
+        :param size: [optional] number of leaves to consider. Defaults to
+            current tree size
+        :type size: int
+        :rtype: bytes
+        """
+        if size is None:
+            size = self._get_size()
+
+        return self._get_root(0, size)
+
+
+    def prove_inclusion(self, index, size=None):
+        """
+        Proves inclusion of the hash located at the provided index against the
+        subtree specified by the provided size
+
+        :param index: leaf index counting from one
+        :type index: int
+        :param size: [optional] size of subtree to consider. Defaults to
+            current tree size
+        :type size: int
+        :rtype: MerkleProof
+        :raises InvalidChallenge: if the provided parameters are invalid or
+            incompatible with each other
+        """
+        currsize = self.get_size()
+
+        if size is None:
+            size = currsize
+
+        if not (0 < size <= currsize):
+            raise InvalidChallenge('Provided size is out of bounds')
+
+        if not (0 < index <= size):
+            raise InvalidChallenge('Provided index is out of bounds')
+
+        rule, path = self._inclusion_path(0, index - 1, size, 0)
+
+        return MerkleProof(self.algorithm, self.security, size, rule, [],
+                path)
+
+
+    def prove_consistency(self, lsize, rsize=None):
+        """
+        Proves consistency between the states corresponding to the provided
+        sizes
+
+        :param lsize: size of prior state
+        :type lsize: int
+        :param rsize: [optional] size of later state. Defaults to current tree
+            size
+        :type rsize: int
+        :rtype: MerkleProof
+        :raises InvalidChallenge: if the provided parameters are invalid or
+            incompatible with each other
+        """
+        currsize = self.get_size()
+
+        if rsize is None:
+            rsize = currsize
+
+        if not (0 < rsize <= currsize):
+            raise InvalidChallenge('Provided later size out of bounds')
+
+        if not (0 < lsize <= rsize):
+            raise InvalidChallenge('Provided prior size out of bounds')
+
+        rule, subset, path = self._consistency_path(0, lsize, rsize, 0)
+
+        return MerkleProof(self.algorithm, self.security, rsize, rule,
+                subset, path)
 
 
     def get_cache_info(self):
         """
-        Information related to subroot cache
+        Returns subroot cache info
         """
         return _CacheInfo(self.cache.currsize, self.cache.maxsize, self.hits,
                 self.misses)
@@ -144,116 +256,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
 
 
-    def append(self, entry):
-        """
-        Appends a new leaf storing the provided entry
-
-        :param entry: data to append
-        :type entry: whatever expected according to application logic
-        :returns: index of newly appended leaf counting from one
-        :rtype: int
-        """
-        blob = self._encode_leaf(entry)
-        value = self.hash_leaf(blob)
-        index = self._store_leaf(entry, value)
-
-        return index
-
-
-    def get_leaf(self, index):
-        """
-        Returns the hash of the leaf located at the provided position
-
-        :param index: leaf index counting from one
-        :type index: int
-        :rtype: bytes
-        """
-        return self._get_leaf(index)
-
-
-    def get_size(self):
-        """
-        Returns the current number of leaves
-
-        :rtype: int
-        """
-        return self._get_size()
-
-
-    def get_state(self, size=None):
-        """
-        Computes the root-hash of the subtree corresponding to the provided
-        size
-
-        :param size: [optional] number of leaves to consider. Defaults to
-            current tree size
-        :type size: int
-        :rtype: bytes
-        """
-        if size is None:
-            size = self._get_size()
-
-        return self.get_root(0, size)
-
-
-    def get_root_naive(self, start, end):
-        """
-        Returns the root-hash corresponding to the provided leaf range
-        according to RFC 9162.
-
-        .. warning:: This is an unoptimized recursive function intended for
-        testing. Use ``get_root`` instead.
-
-        :param start: offset counting from zero
-        :type start: int
-        :param end: last leaf index counting from one
-        :type end: int
-        :rtype: bytes
-        """
-        if end == start:
-            return self.consume(b'')
-
-        if end == start + 1:
-            return self.get_leaf(end)
-
-        k = 1 << log2(end - start)
-        if k == end - start:
-            k >>= 1
-
-        lnode = self.get_root(start, start + k)
-        rnode = self.get_root(start + k, end)
-
-        return self.hash_nodes(lnode, rnode)
-
-
     @profile
-    def get_subroot_uncached(self, offset, width):
-        """
-        :param offset:
-        :type start: int
-        :param width:
-        :type width: int
-        :rtype: bytes
-        """
-        level = deque(self._get_leaves(offset, width))
-        popleft = level.popleft
-        append = level.append
-        hash_nodes = self.hash_nodes
-        while width > 1:
-            count = 0
-            while count < width:
-                lnode = popleft()
-                rnode = popleft()
-                node = hash_nodes(lnode, rnode)
-                append(node)
-                count += 2
-            width >>= 1
-
-        return level[0]
-
-
-    @profile
-    def get_subroot_cached(self, offset, width):
+    def _get_subroot(self, offset, width):
         """
         :param offset:
         :type start: int
@@ -262,7 +266,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: bytes
         """
         if width < self.threshold:
-            return self.get_subroot_uncached(offset, width)
+            return self._get_subroot_uncached(offset, width)
 
         key = (offset, width)
 
@@ -276,14 +280,43 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 pass
 
             self.misses += 1
-            value = self.get_subroot_uncached(offset, width)
+            value = self._get_subroot_uncached(offset, width)
             self.cache[key] = value
 
         return value
 
 
     @profile
-    def get_root(self, start, end):
+    def _get_subroot_uncached(self, offset, width):
+        """
+        :param offset:
+        :type start: int
+        :param width:
+        :type width: int
+        :rtype: bytes
+        """
+        level = deque(self._get_leaves(offset, width))
+
+        popleft = level.popleft
+        append = level.append
+        hash_nodes = self.hash_nodes
+        while width > 1:
+            count = 0
+
+            while count < width:
+                lnode = popleft()
+                rnode = popleft()
+                node = hash_nodes(lnode, rnode)
+                append(node)
+                count += 2
+
+            width >>= 1
+
+        return level[0]
+
+
+    @profile
+    def _get_root(self, start, end):
         """
         Returns the root-hash corresponding to the provided leaf range
 
@@ -298,13 +331,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         append = subroots.append
         pop = subroots.pop
 
-        get_subroot = self.get_subroot
+        _get_subroot = self._get_subroot
         exponents = decompose(end - start)
         for p in exponents:
             width = 1 << p
             offset = end - width
-            curr = get_subroot(offset, width)
-            prepend(curr)
+            node = _get_subroot(offset, width)
+            prepend(node)
             end = offset
 
         hash_nodes = self.hash_nodes
@@ -317,44 +350,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return subroots[0]
 
 
-    def inclusion_path_naive(self, start, offset, end, bit):
-        """
-        Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range
-
-        .. warning:: This method should not be called directly. Use
-            ``prove_inclusion`` instead
-
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: base leaf index counting from zero
-        :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
-        :param bit: indicates direction during recursive call
-        :type bit: int
-        :rtype: (list[int], list[bytes])
-        """
-        if offset == start and start == end - 1:
-            value = self.get_leaf(offset + 1)
-            return [bit], [value]
-
-        k = 1 << log2(end - start)
-        if k == end - start:
-            k >>= 1
-
-        if offset < start + k:
-            rule, path = self.inclusion_path_naive(start, offset, start + k, 0)
-            value = self.get_root(start + k, end)
-        else:
-            rule, path = self.inclusion_path_naive(start + k, offset, end, 1)
-            value = self.get_root(start, start + k)
-
-        return rule + [bit], path + [value]
-
-
     @profile
-    def inclusion_path(self, start, offset, end, bit):
+    def _inclusion_path(self, start, offset, end, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
@@ -388,95 +385,23 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 start = start + k
                 bit = 1
 
+        _get_root = self._get_root
+        _get_leaf = self._get_leaf
+
         rule = [bit]
-        base = self.get_leaf(offset + 1)
+        base = _get_leaf(offset + 1)
         path = [base]
-        get_root = self.get_root
         while stack:
             bit, args = stack.pop()
             rule += [bit]
-            value = get_root(*args)
+            value = _get_root(*args)
             path += [value]
 
         return rule, path
 
 
-    def prove_inclusion(self, index, size=None):
-        """
-        Proves inclusion of the hash located at the provided index against the
-        subtree specified by the provided size
-
-        :param index: leaf index counting from one
-        :type index: int
-        :param size: [optional] size of subtree to consider. Defaults to
-            current tree size
-        :type size: int
-        :rtype: MerkleProof
-        :raises InvalidChallenge: if the provided parameters are invalid or
-            incompatible with each other
-        """
-        currsize = self.get_size()
-
-        if size is None:
-            size = currsize
-
-        if not (0 < size <= currsize):
-            raise InvalidChallenge('Provided size is out of bounds')
-
-        if not (0 < index <= size):
-            raise InvalidChallenge('Provided index is out of bounds')
-
-        rule, path = self.inclusion_path(0, index - 1, size, 0)
-
-        return MerkleProof(self.algorithm, self.security, size, rule, [],
-                path)
-
-
-    def consistency_path_naive(self, start, offset, end, bit):
-        """
-        Computes the consistency path for the state corresponding to the
-        provided offset against the specified leaf range
-
-        .. warning:: This method should not be called directly. Use
-            ``prove_consistency`` instead
-
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: size corresponding to state under consideration
-        :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
-        :param bit: indicates direction during recursive call
-        :type bit: int
-        :rtype: (list[int], list[int], list[bytes])
-        """
-        if offset == end:
-            value = self.get_root(start, start + end)
-            return [bit], [1], [value]
-
-        if offset == 0 and end == 1:
-            value = self.get_leaf(start + offset + 1)
-            return [bit], [0], [value]
-
-        k = 1 << log2(end)
-        if k == end:
-            k >>= 1
-        mask = 0
-
-        if offset < k:
-            rule, subset, path = self.consistency_path_naive(start, offset, k, 0)
-            value = self.get_root(start + k, start + end)
-        else:
-            rule, subset, path = self.consistency_path_naive(start + k, offset - k,
-                    end - k, 1)
-            value = self.get_root(start, start + k)
-            mask = int(k == 1 << log2(k))
-
-        return rule + [bit], subset + [mask], path + [value]
-
-
     @profile
-    def consistency_path(self, start, offset, end, bit):
+    def _consistency_path(self, start, offset, end, bit):
         """
         Computes the consistency path for the state corresponding to the
         provided offset against the specified leaf range
@@ -514,14 +439,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 end -= k
                 bit = 1
 
-        get_root = self.get_root
-        get_leaf = self.get_leaf
+        _get_root = self._get_root
+        _get_leaf = self._get_leaf
+
         if offset == end:
             mask = 1
-            base = get_root(start, start + end)
+            base = _get_root(start, start + end)
         else:
             mask = 0
-            base = get_leaf(start + offset + 1)
+            base = _get_leaf(start + offset + 1)
 
         rule = [bit]
         subset = [mask]
@@ -530,38 +456,120 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             bit, mask, args = stack.pop()
             rule += [bit]
             subset += [mask]
-            value = get_root(*args)
+            value = _get_root(*args)
             path += [value]
 
         return rule, subset, path
 
 
-    def prove_consistency(self, lsize, rsize=None):
+    @profile
+    def _get_root_naive(self, start, end):
         """
-        Proves consistency between the states corresponding to the provided
-        sizes
+        Returns the root-hash corresponding to the provided leaf range,
+        essentially according to RFC 9162.
 
-        :param lsize: size of prior state
-        :type lsize: int
-        :param rsize: [optional] size of later state. Defaults to current tree
-            size
-        :type rsize: int
-        :rtype: MerkleProof
-        :raises InvalidChallenge: if the provided parameters are invalid or
-            incompatible with each other
+        .. warning:: This is an unoptimized recursive function intended for
+        reference and testing. Use ``_get_root`` instead.
+
+        :param start: offset counting from zero
+        :type start: int
+        :param end: last leaf index counting from one
+        :type end: int
+        :rtype: bytes
         """
-        currsize = self.get_size()
+        if end == start:
+            return self.consume(b'')
 
-        if rsize is None:
-            rsize = currsize
+        if end == start + 1:
+            return self._get_leaf(end)
 
-        if not (0 < rsize <= currsize):
-            raise InvalidChallenge('Provided later size out of bounds')
+        k = 1 << log2(end - start)
+        if k == end - start:
+            k >>= 1
 
-        if not (0 < lsize <= rsize):
-            raise InvalidChallenge('Provided prior size out of bounds')
+        lnode = self._get_root_naive(start, start + k)
+        rnode = self._get_root_naive(start + k, end)
 
-        rule, subset, path = self.consistency_path(0, lsize, rsize, 0)
+        return self.hash_nodes(lnode, rnode)
 
-        return MerkleProof(self.algorithm, self.security, rsize, rule,
-                subset, path)
+
+    @profile
+    def _inclusion_path_naive(self, start, offset, end, bit):
+        """
+        Computes the inclusion path for the leaf located at the provided offset
+        against the specified leaf range, essentially according to RFC 9162.
+
+        .. warning:: This is an unoptimized recursive function intended for
+        reference and testing. Use ``_inclusion_path`` instead.
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: base leaf index counting from zero
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[int], list[bytes])
+        """
+        if offset == start and start == end - 1:
+            value = self._get_leaf(offset + 1)
+            return [bit], [value]
+
+        k = 1 << log2(end - start)
+        if k == end - start:
+            k >>= 1
+
+        if offset < start + k:
+            rule, path = self._inclusion_path_naive(start, offset, start + k, 0)
+            value = self._get_root(start + k, end)
+        else:
+            rule, path = self._inclusion_path_naive(start + k, offset, end, 1)
+            value = self._get_root(start, start + k)
+
+        return rule + [bit], path + [value]
+
+
+    @profile
+    def _consistency_path_naive(self, start, offset, end, bit):
+        """
+        Computes the consistency path for the state corresponding to the
+        provided offset against the specified leaf range, essentially according
+        to RFC 9162.
+
+        .. warning:: This is an unoptimized recursive function intended for
+        reference and testing. Use ``_consistency_path`` instead.
+
+        :param start: leftmost leaf index counting from zero
+        :type start: int
+        :param offset: size corresponding to state under consideration
+        :type offset: int
+        :param end: rightmost leaf index counting from zero
+        :type end: int
+        :param bit: indicates direction during recursive call
+        :type bit: int
+        :rtype: (list[int], list[int], list[bytes])
+        """
+        if offset == end:
+            value = self._get_root(start, start + end)
+            return [bit], [1], [value]
+
+        if offset == 0 and end == 1:
+            value = self._get_leaf(start + offset + 1)
+            return [bit], [0], [value]
+
+        k = 1 << log2(end)
+        if k == end:
+            k >>= 1
+        mask = 0
+
+        if offset < k:
+            rule, subset, path = self._consistency_path_naive(start, offset, k, 0)
+            value = self._get_root(start + k, start + end)
+        else:
+            rule, subset, path = self._consistency_path_naive(start + k, offset - k,
+                    end - k, 1)
+            value = self._get_root(start, start + k)
+            mask = int(k == 1 << log2(k))
+
+        return rule + [bit], subset + [mask], path + [value]

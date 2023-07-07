@@ -205,7 +205,7 @@ class InmemoryTree(BaseMerkleTree):
             self.root = tail
             return 1
 
-        node = self.get_last_maximal_subroot()
+        node = self._get_last_maximal_subroot()
         self.leaves += [tail]
         value = self.hash_nodes(node.value, tail.value)
 
@@ -307,7 +307,7 @@ class InmemoryTree(BaseMerkleTree):
         if size == currsize:
             return self.root.value
 
-        subroots = self.get_subroots(size)
+        subroots = self._get_subroots(size)
         result = subroots[0].value
         i = 0
         while i < len(subroots) - 1:
@@ -317,7 +317,7 @@ class InmemoryTree(BaseMerkleTree):
         return result
 
 
-    def inclusion_path_fallback(self, offset):
+    def _inclusion_path_fallback(self, offset):
         """
         Non-recursive utility using concrete traversals to compute the inclusion
         path of the provided leaf hash against the current tree state
@@ -358,7 +358,7 @@ class InmemoryTree(BaseMerkleTree):
         return rule, path
 
 
-    def inclusion_path(self, start, offset, end, bit):
+    def _inclusion_path(self, start, offset, end, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
@@ -377,12 +377,12 @@ class InmemoryTree(BaseMerkleTree):
         :rtype: (list[int], list[bytes])
         """
         if start == 0 and end == self.get_size():
-            return self.inclusion_path_fallback(offset)
+            return self._inclusion_path_fallback(offset)
 
-        return super().inclusion_path(start, offset, end, bit)
+        return super()._inclusion_path(start, offset, end, bit)
 
 
-    def get_perfect_node(self, index, height):
+    def _get_subroot_node(self, index, height):
         """
         Returns the root node of the perfect subtree of the provided height whose
         leftmost leaf node is located at the provided position
@@ -427,7 +427,7 @@ class InmemoryTree(BaseMerkleTree):
         return node
 
 
-    def get_last_maximal_subroot(self):
+    def _get_last_maximal_subroot(self):
         """
         Returns the root-node of the perfect subtree of maximum possible size
         containing the currently last leaf
@@ -439,7 +439,7 @@ class InmemoryTree(BaseMerkleTree):
         return self.leaves[-1].get_ancestor(degree)
 
 
-    def get_subroots(self, size):
+    def _get_subroots(self, size):
         """
         Returns in respective order the root-nodes of the successive perfect
         subtrees whose sizes sum up to the provided size
@@ -454,7 +454,7 @@ class InmemoryTree(BaseMerkleTree):
         subroots = []
         offset = 0
         for height in reversed(decompose(size)):
-            node = self.get_perfect_node(offset + 1, height)
+            node = self._get_subroot_node(offset + 1, height)
 
             if not node:
                 return []
