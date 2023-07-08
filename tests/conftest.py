@@ -25,6 +25,8 @@ def pytest_addoption(parser):
                      help='Test against all supported hash algorothms')
     parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
                      help='Storage backend')
+    parser.addoption('--maxsize', type=int, default=11,
+                     help='Maximum size of tree fixtures')
 
 option = None
 
@@ -47,23 +49,23 @@ def resolve_backend(option):
     return InmemoryTree
 
 
-def trees(maxsize=7, default_config=False):
+def make_trees(default_config=False):
     configs = all_configs(option) if not default_config else [{'algorithm':
         'sha256', 'security': True}]
     MerkleTree = resolve_backend(option)
 
     return [MerkleTree.init_from_entries(
         [f'entry-{i}'.encode() for i in range(size)], **config)
-                               for size in range(0, maxsize + 1)
+                               for size in range(0, option.maxsize + 1)
                                for config in configs]
 
 
-def tree_and_index(maxsize=7, default_config=False):
-    return [(tree, index) for tree in trees(maxsize, default_config)
+def tree_and_index(default_config=False):
+    return [(tree, index) for tree in make_trees(default_config)
                           for index in range(1, tree.get_size() + 1)]
 
 
-def tree_and_range(maxsize=7, default_config=False):
-    return [(tree, start, end) for tree in trees(maxsize, default_config)
+def tree_and_range(default_config=False):
+    return [(tree, start, end) for tree in make_trees(default_config)
                                for start in range(0, tree.get_size())
                                for end in range(start + 1, tree.get_size())]

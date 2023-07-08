@@ -4,6 +4,7 @@ usage_string="usage: ./$(basename "$0") [pytest_options] [--extended] [--backend
 
 Options
   --backend [inmemory|sqlite]   Storage backend (default: inmemory)
+  --maxsize MAX                 Maximum size of tree fixtures (default: 11)
   --extended                    Run tests against all supported hash algorithms;
                                 otherwise only against sha256 (default: false)
   -h, --help                    Display help message and exit
@@ -12,6 +13,7 @@ Options
 set -e
 
 STORAGE="inmemory"
+MAXSIZE=11
 
 usage() { echo -n "$usage_string" 1>&2; }
 
@@ -26,6 +28,11 @@ do
             ;;
         --backend)
             STORAGE="$2"
+            shift
+            shift
+            ;;
+        --maxsize)
+            MAXSIZE="$2"
             shift
             shift
             ;;
@@ -44,6 +51,7 @@ done
 python -m \
   pytest tests/ \
   --backend ${STORAGE} \
+  --maxsize ${MAXSIZE} \
   --cov-report term-missing \
   --cov=. \
   $opts
