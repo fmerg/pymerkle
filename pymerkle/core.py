@@ -60,6 +60,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         self.misses = 0
         self.lock = Lock()
 
+        if opts.get('disable_optimizations', False):
+            self._get_root = self._get_root_naive
+            self._inclusion_path = self._inclusion_path_naive
+            self._consistency_path = self._consistency_path_naive
+
         super().__init__(algorithm, security)
 
 

@@ -25,6 +25,8 @@ def pytest_addoption(parser):
                      help='Hash algorithm used by the tree')
     parser.addoption('--randomize', action='store_true', default=False,
                      help='Randomize function input per round')
+    parser.addoption('--disable-optimizations', action='store_true', default=False,
+                     help='Use unoptimized versions of core operations')
 
 option = None
 

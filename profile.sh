@@ -12,21 +12,22 @@ database ${DBFILE} of ten million entries
 Results saved in ./profiler/.results
 
 Options
-  --dbfile          Database to use (default: ${DBFILE}
-  --size            Nr entries to consider (default: 10,000,000)
-  --index           Base index for proof operations. If not provided, it will
-                    be set equal to the ceil(size/2)
-  -o, --operation   Operation to profile: root, state, inclusion,
-                    consistency (default: root)
-  --rounds          Nr rounds (default: 1)
-  --randomize       Randomize function input per round. Useful for
-                    realistically capturing the effect of caching. WARNING:
-                    This will nullify the effect of the index option
-  -a, --algorithm   Hash algorithm used by the tree (default: sha256)
-  -t, --time        Measure also time delay per line
-  -nm, --no-memory  Skip memory allocation measurements
-  -g, --graph       Create flame graph
-  -h, --help        Display help message and exit
+  --dbfile                  Database to use (default: ${DBFILE}
+  --size                    Nr entries to consider (default: 10,000,000)
+  --index                   Base index for proof operations. If not provided,
+                            it will be set equal to the ceil(size/2)
+  -o, --operation           Operation to profile: root, state, inclusion,
+                            consistency (default: root)
+  --rounds                  Nr rounds (default: 1)
+  --randomize               Randomize function input per round. Useful for
+                            realistically capturing the effect of caching. WARNING:
+                            This will nullify the effect of the index option
+  --disable-optimizations   Use unoptimized version of core operations
+  -a, --algorithm           Hash algorithm used by the tree (default: sha256)
+  -t, --time                Measure also time delay per line
+  -nm, --no-memory          Skip memory allocation measurements
+  -g, --graph               Create flame graph
+  -h, --help                Display help message and exit
 "
 
 set -e
@@ -101,6 +102,7 @@ ROUNDS=1
 RANDOMIZE=false
 ACTION="root"
 GRAPH=false
+OPTIMIZATIONS=true
 FOLDER='./profiler/.results'
 
 while [[ $# -gt 0 ]]
@@ -129,6 +131,10 @@ do
             ;;
         --randomize)
             RANDOMIZE=true
+            shift
+            ;;
+        --disable-optimizations)
+            OPTIMIZATIONS=false
             shift
             ;;
         -a|--algorithm)
@@ -185,6 +191,10 @@ SCRIPT="profiler/__main__.py \
 
 if [ ${RANDOMIZE} == true ]; then
     SCRIPT+=" --randomize"
+fi
+
+if [ ${OPTIMIZATIONS} == false ]; then
+    SCRIPT+=" --disable-optimizations"
 fi
 
 

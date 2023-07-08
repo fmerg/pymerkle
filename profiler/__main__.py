@@ -32,6 +32,8 @@ def parse_cli_args():
         help='Nr rounds')
     parser.add_argument('--randomize', action='store_true', default=False,
         help='Randomize function input per round')
+    parser.add_argument('--disable-optimizations', action='store_true', default=False,
+        help='Use unoptimized versions of core functionalities')
 
     operation = parser.add_subparsers(dest='operation')
 
@@ -67,7 +69,8 @@ def parse_cli_args():
 if __name__ == '__main__':
     cli = parse_cli_args()
 
-    tree = MerkleTree(cli.dbfile, algorithm=cli.algorithm)
+    opts = {'disable_optimizations': cli.disable_optimizations}
+    tree = MerkleTree(cli.dbfile, algorithm=cli.algorithm, **opts)
 
     match cli.operation:
         case 'root':

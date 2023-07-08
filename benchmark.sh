@@ -12,20 +12,22 @@ entries
 Results saved in ./.bencmarks/Linux-CPyhton-3.*
 
 Options
-  --dbfile          Database to use (default: ${DBFILE}
-  --size            Nr entries to consider (default: 10,000,000)
-  --index           Base index for proof operations. If not provided, it will
-                    be set equal to the ceil(size/2)
-  --randomize       Randomize function input per round. Useful for
-                    realistically capturing the effect of caching. WARNING:
-                    This will nullify the effect of the index option
-  -r, --rounds      Nr rounds per benchmark (default: 100)
-  -o, --operation   Benchmark a single operation: root, state, inclusion,
-                    consistency. If not provided, it benchmarks everything
-  -c, --compare     Compare against last saved benchmark
-  -ns, --no-save    Do not save results
-  -a, --algorithm   Hash algorithm used by the tree (default: sha256)
-  -h, --help        Display help message and exit
+  --dbfile                  Database to use (default: ${DBFILE}
+  --size                    Nr entries to consider (default: 10,000,000)
+  --index                   Base index for proof operations. If not provided,
+                            it will be set equal to the ceil(size/2)
+  --randomize               Randomize function input per round. Useful for
+                            realistically capturing the effect of caching.
+                            WARNING: This will nullify the effect of the index
+                            option
+  --disable-optimizations   Use unoptimized version of core operations
+  -r, --rounds              Nr rounds per benchmark (default: 100)
+  -o, --operation           Benchmark a single operation: root, state, inclusion,
+                            consistency. If not provided, it benchmarks everything
+  -c, --compare             Compare against last saved benchmark
+  -ns, --no-save            Do not save results
+  -a, --algorithm           Hash algorithm used by the tree (default: sha256)
+  -h, --help                Display help message and exit
 "
 
 set -e
@@ -77,6 +79,10 @@ do
         -o|--operation)
             OPERATION="$2"
             shift
+            shift
+            ;;
+        --disable-otimizations)
+            opts+=" $arg"
             shift
             ;;
         --randomize)

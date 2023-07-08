@@ -21,7 +21,7 @@ class SqliteTree(BaseMerkleTree):
     :type security: bool
     """
 
-    def __init__(self, dbfile, algorithm='sha256', security=True):
+    def __init__(self, dbfile, algorithm='sha256', security=True, **opts):
         self.con = sqlite3.connect(dbfile)
         self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
@@ -35,7 +35,7 @@ class SqliteTree(BaseMerkleTree):
                 );'''
             self.cur.execute(query)
 
-        super().__init__(algorithm, security)
+        super().__init__(algorithm, security, **opts)
 
 
     def __enter__(self):

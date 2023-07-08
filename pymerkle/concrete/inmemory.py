@@ -157,11 +157,11 @@ class InmemoryTree(BaseMerkleTree):
         to investigate the tree topology by means of concrete path traversals
     """
 
-    def __init__(self, algorithm='sha256', security=True):
+    def __init__(self, algorithm='sha256', security=True, **opts):
         self.root = None
         self.leaves = []
 
-        super().__init__(algorithm, security)
+        super().__init__(algorithm, security, **opts)
 
 
     def __str__(self, indent=2, trim=8):
