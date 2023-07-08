@@ -7,7 +7,8 @@ from .conftest import option
 defaults = {'warmup_rounds': 0, 'rounds': option.rounds}
 
 
-opts = {'disable_optimizations': option.disable_optimizations}
+opts = {'disable_optimizations': option.disable_optimizations,
+        'disable_cache': option.disable_cache}
 tree = MerkleTree(option.dbfile, algorithm=option.algorithm, **opts)
 
 

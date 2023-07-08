@@ -23,6 +23,7 @@ Options
                             realistically capturing the effect of caching. WARNING:
                             This will nullify the effect of the index option
   --disable-optimizations   Use unoptimized version of core operations
+  --disable-cache           Disable subroot caching
   -a, --algorithm           Hash algorithm used by the tree (default: sha256)
   -t, --time                Measure also time delay per line
   -nm, --no-memory          Skip memory allocation measurements
@@ -103,6 +104,7 @@ RANDOMIZE=false
 ACTION="root"
 GRAPH=false
 OPTIMIZATIONS=true
+CACHE=true
 FOLDER='./profiler/.results'
 
 while [[ $# -gt 0 ]]
@@ -135,6 +137,10 @@ do
             ;;
         --disable-optimizations)
             OPTIMIZATIONS=false
+            shift
+            ;;
+        --disable-cache)
+            CACHE=false
             shift
             ;;
         -a|--algorithm)
@@ -195,6 +201,10 @@ fi
 
 if [ ${OPTIMIZATIONS} == false ]; then
     SCRIPT+=" --disable-optimizations"
+fi
+
+if [ ${CACHE} == false ]; then
+    SCRIPT+=" --disable-cache"
 fi
 
 

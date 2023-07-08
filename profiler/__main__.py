@@ -34,6 +34,8 @@ def parse_cli_args():
         help='Randomize function input per round')
     parser.add_argument('--disable-optimizations', action='store_true', default=False,
         help='Use unoptimized versions of core functionalities')
+    parser.add_argument('--disable-cache', action='store_true', default=False,
+        help='Disable subroot caching')
 
     operation = parser.add_subparsers(dest='operation')
 
@@ -69,7 +71,8 @@ def parse_cli_args():
 if __name__ == '__main__':
     cli = parse_cli_args()
 
-    opts = {'disable_optimizations': cli.disable_optimizations}
+    opts = {'disable_optimizations': cli.disable_optimizations,
+            'disable_cache': cli.disable_cache}
     tree = MerkleTree(cli.dbfile, algorithm=cli.algorithm, **opts)
 
     match cli.operation:

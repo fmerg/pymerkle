@@ -36,6 +36,8 @@ def parse_cli_args():
             default=False, help='Disable resistance against second-preimage attack')
     parser.add_argument('--disable-optimizations', action='store_true',
             default=False, help='Use unopmitized versions of core operations')
+    parser.add_argument('--disable-cache', action='store_true',
+            default=False, help='Disable subroot caching')
 
     return parser.parse_args()
 
@@ -96,7 +98,8 @@ if __name__ == '__main__':
         args.backend]
 
     config = {'algorithm': args.algorithm, 'security': not args.no_security,
-              'disable_optimizations': args.disable_optimizations}
+              'disable_optimizations': args.disable_optimizations,
+              'disable_cache': args.disable_cache}
     tree = MerkleTree(**config)
 
     # Populate tree with some entries

@@ -65,6 +65,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             self._inclusion_path = self._inclusion_path_naive
             self._consistency_path = self._consistency_path_naive
 
+        if opts.get('disable_cache', False):
+            self._get_subroot = self._get_subroot_uncached
+
         super().__init__(algorithm, security)
 
 

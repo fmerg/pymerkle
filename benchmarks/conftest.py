@@ -27,6 +27,8 @@ def pytest_addoption(parser):
                      help='Randomize function input per round')
     parser.addoption('--disable-optimizations', action='store_true', default=False,
                      help='Use unoptimized versions of core operations')
+    parser.addoption('--disable-cache', action='store_true', default=False,
+                     help='Disable subroot caching')
 
 option = None
 

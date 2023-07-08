@@ -21,6 +21,7 @@ Options
                             WARNING: This will nullify the effect of the index
                             option
   --disable-optimizations   Use unoptimized version of core operations
+  --disable-cache           Disable subroot caching
   -r, --rounds              Nr rounds per benchmark (default: 100)
   -o, --operation           Benchmark a single operation: root, state, inclusion,
                             consistency. If not provided, it benchmarks everything
@@ -82,6 +83,10 @@ do
             shift
             ;;
         --disable-otimizations)
+            opts+=" $arg"
+            shift
+            ;;
+        --disable-cache)
             opts+=" $arg"
             shift
             ;;
