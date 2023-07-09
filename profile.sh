@@ -24,6 +24,8 @@ Options
                             This will nullify the effect of the index option
   --disable-optimizations   Use unoptimized version of core operations
   --disable-cache           Disable subroot caching
+  --threshold               Subroot cache threshold (default: 128)
+  --capacity                Subroout cache capacity in bytes (default: 1GB)
   -a, --algorithm           Hash algorithm used by the tree (default: sha256)
   -t, --time                Measure also time delay per line
   -nm, --no-memory          Skip memory allocation measurements
@@ -105,6 +107,8 @@ ACTION="root"
 GRAPH=false
 OPTIMIZATIONS=true
 CACHE=true
+THRESHOLD=128
+CAPACITY=$((1024 ** 3))
 FOLDER='./profiler/.results'
 
 while [[ $# -gt 0 ]]
@@ -141,6 +145,16 @@ do
             ;;
         --disable-cache)
             CACHE=false
+            shift
+            ;;
+        --threshold)
+            THRESHOLD="$2"
+            shift
+            shift
+            ;;
+        --capacity)
+            CAPACITY="$2"
+            shift
             shift
             ;;
         -a|--algorithm)
@@ -192,7 +206,9 @@ fi
 SCRIPT="profiler/__main__.py \
     --dbfile ${DBFILE} \
     --algorithm ${ALGORITHM} \
-    --rounds ${ROUNDS}
+    --rounds ${ROUNDS} \
+    --threshold ${THRESHOLD} \
+    --capacity ${CAPACITY}
 "
 
 if [ ${RANDOMIZE} == true ]; then

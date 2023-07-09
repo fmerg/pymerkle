@@ -5,6 +5,8 @@ usage_string="usage: ./$(basename "$0") [pytest_options] [--extended] [--backend
 Options
   --backend [inmemory|sqlite]   Storage backend (default: inmemory)
   --maxsize MAX                 Maximum size of tree fixtures (default: 11)
+  --threshold WIDTH             Subroot cache threshold (default: 2)
+  --capacity MAXSIZE            Subroout cache capacity in bytes (default: 1GB)
   --extended                    Run tests against all supported hash algorithms;
                                 otherwise only against sha256 (default: false)
   -h, --help                    Display help message and exit
@@ -14,6 +16,8 @@ set -e
 
 STORAGE="inmemory"
 MAXSIZE=11
+THRESHOLD=2
+CAPACITY=$((1024 ** 3))
 
 usage() { echo -n "$usage_string" 1>&2; }
 
@@ -36,6 +40,16 @@ do
             shift
             shift
             ;;
+        --threshold)
+            THRESHOLD="$2"
+            shift
+            shift
+            ;;
+        --capacity)
+            CAPACITY="$2"
+            shift
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -49,9 +63,11 @@ done
 
 
 python -m \
-  pytest tests/ \
-  --backend ${STORAGE} \
-  --maxsize ${MAXSIZE} \
-  --cov-report term-missing \
-  --cov=. \
-  $opts
+    pytest tests/ \
+    --backend ${STORAGE} \
+    --maxsize ${MAXSIZE} \
+    --threshold $THRESHOLD \
+    --capacity $CAPACITY \
+    --cov-report term-missing \
+    --cov=. \
+    $opts

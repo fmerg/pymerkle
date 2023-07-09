@@ -10,6 +10,8 @@ DEFAULT_DB = os.path.join(current_dir, 'merkle.db')
 DEFAULT_SIZE = 10 ** 7
 DEFAULT_INDEX = math.ceil(DEFAULT_SIZE / 2)
 DEFAULT_ROUNDS = 100
+DEFAULT_THRESHOLD = 128
+DEFAULT_CAPACITY = 1024 ** 3
 
 
 def pytest_addoption(parser):
@@ -29,6 +31,12 @@ def pytest_addoption(parser):
                      help='Use unoptimized versions of core operations')
     parser.addoption('--disable-cache', action='store_true', default=False,
                      help='Disable subroot caching')
+    parser.addoption('--threshold', type=int, metavar='WIDTH',
+                     default=DEFAULT_THRESHOLD,
+                     help='Subroot cache threshold')
+    parser.addoption('--capacity', type=int, metavar='BYTES',
+                     default=DEFAULT_CAPACITY,
+                     help='Subroot cache capacity in bytes')
 
 option = None
 

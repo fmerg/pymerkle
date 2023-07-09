@@ -22,6 +22,8 @@ Options
                             option
   --disable-optimizations   Use unoptimized version of core operations
   --disable-cache           Disable subroot caching
+  --threshold               Subroot cache threshold (default: 128)
+  --capacity                Subroout cache capacity in bytes (default: 1GB)
   -r, --rounds              Nr rounds per benchmark (default: 100)
   -o, --operation           Benchmark a single operation: root, state, inclusion,
                             consistency. If not provided, it benchmarks everything
@@ -39,6 +41,8 @@ usage() { echo -n "$usage_string" 1>&2; }
 BENCHMARK="benchmarks/test_perf.py"
 SIZE=$((10 ** 7))
 ROUNDS=100
+THRESHOLD=128
+CAPACITY=$((1024 ** 3))
 ALGORITHM=sha256
 OPERATION=""
 SAVE=true
@@ -90,6 +94,16 @@ do
             opts+=" $arg"
             shift
             ;;
+        --threshold)
+            THRESHOLD="$2"
+            shift
+            shift
+            ;;
+        --capacity)
+            CAPACITY="$2"
+            shift
+            shift
+            ;;
         --randomize)
             opts+=" $arg"
             shift
@@ -137,6 +151,8 @@ python -m pytest $BENCHMARK \
     --index $INDEX \
     --rounds $ROUNDS \
     --algorithm $ALGORITHM \
+    --threshold $THRESHOLD \
+    --capacity $CAPACITY \
     --quiet \
     --benchmark-only \
     --benchmark-name=short \

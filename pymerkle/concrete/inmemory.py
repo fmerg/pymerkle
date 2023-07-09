@@ -262,7 +262,8 @@ class InmemoryTree(BaseMerkleTree):
 
 
     @classmethod
-    def init_from_entries(cls, entries, algorithm='sha256', security=True):
+    def init_from_entries(cls, entries, algorithm='sha256', security=True,
+            **opts):
         """
         Create tree from initial data
 
@@ -274,7 +275,7 @@ class InmemoryTree(BaseMerkleTree):
             Defaults to *True*
         :type security: bool
         """
-        tree = cls(algorithm, security)
+        tree = cls(algorithm, security, **opts)
 
         append = tree.append
         for entry in entries:

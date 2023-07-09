@@ -8,7 +8,10 @@ defaults = {'warmup_rounds': 0, 'rounds': option.rounds}
 
 
 opts = {'disable_optimizations': option.disable_optimizations,
-        'disable_cache': option.disable_cache}
+        'disable_cache': option.disable_cache,
+        'threshold': option.threshold,
+        'capacity': option.capacity}
+
 tree = MerkleTree(option.dbfile, algorithm=option.algorithm, **opts)
 
 

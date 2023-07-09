@@ -3,15 +3,21 @@ import pytest
 from pymerkle import constants, InmemoryTree, SqliteTree as _SqliteTree
 
 
+DEFAULT_MAXSIZE = 11
+DEFAULT_THRESHOLD = 2
+DEFAULT_CAPACITY = 1024 ** 3
+
+
 # Make init interface identical to that of InmemoryTree
 class SqliteTree(_SqliteTree):
 
-    def __init__(self, algorithm='sha256', security=True):
-        super().__init__(':memory:', algorithm, security)
+    def __init__(self, algorithm='sha256', security=True, **opts):
+        super().__init__(':memory:', algorithm, security, **opts)
 
     @classmethod
-    def init_from_entries(cls, entries, algorithm='sha256', security=True):
-        tree = cls(algorithm, security)
+    def init_from_entries(cls, entries, algorithm='sha256', security=True,
+            **opts):
+        tree = cls(algorithm, security, **opts)
 
         append = tree.append
         for entry in entries:
@@ -25,8 +31,14 @@ def pytest_addoption(parser):
                      help='Test against all supported hash algorothms')
     parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
                      help='Storage backend')
-    parser.addoption('--maxsize', type=int, default=11,
+    parser.addoption('--maxsize', type=int, default=DEFAULT_MAXSIZE,
                      help='Maximum size of tree fixtures')
+    parser.addoption('--threshold', type=int, metavar='WIDTH',
+                     default=DEFAULT_THRESHOLD,
+                     help='Subroot cache threshold')
+    parser.addoption('--capacity', type=int, metavar='BYTES',
+                     default=DEFAULT_CAPACITY,
+                     help='Subroot cache capacity in bytes')
 
 option = None
 
@@ -38,8 +50,14 @@ def pytest_configure(config):
 def all_configs(option):
     algorithms = constants.ALGORITHMS if option.extended else ['sha256']
 
-    return [{'algorithm': algorithm, 'security': security} for (security,
-        algorithm) in itertools.product((True, False), algorithms)]
+    configs = []
+    for (security, algorithm) in itertools.product((True, False), algorithms):
+        config = {'algorithm': algorithm, 'security': security,
+                  'threshold': option.threshold,
+                  'capacity': option.capacity}
+        configs += [config]
+
+    return configs
 
 
 def resolve_backend(option):

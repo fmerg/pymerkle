@@ -16,6 +16,8 @@ parent_dir = os.path.dirname(current_dir)
 DEFAULT_DB = os.path.join(parent_dir, 'benchmarks', 'merkle.db')
 DB_SIZE = 10 ** 7   # Nr entries merkle.db
 DEFAULT_ROUNDS = 1
+DEFAULT_THRESHOLD = 128
+DEFAULT_CAPACITY = 1024 ** 3
 
 
 def parse_cli_args():
@@ -36,6 +38,12 @@ def parse_cli_args():
         help='Use unoptimized versions of core functionalities')
     parser.add_argument('--disable-cache', action='store_true', default=False,
         help='Disable subroot caching')
+    parser.add_argument('--threshold', type=int, metavar='WIDTH',
+        default=DEFAULT_THRESHOLD, 
+        help='Subroot cache threshold')
+    parser.add_argument('--capacity', type=int, metavar='BYTES',
+        default=DEFAULT_CAPACITY,
+        help='Subroot cache capacity in bytes')
 
     operation = parser.add_subparsers(dest='operation')
 
@@ -72,7 +80,10 @@ if __name__ == '__main__':
     cli = parse_cli_args()
 
     opts = {'disable_optimizations': cli.disable_optimizations,
-            'disable_cache': cli.disable_cache}
+            'disable_cache': cli.disable_cache,
+            'threshold': cli.threshold,
+            'capacity': cli.capacity}
+
     tree = MerkleTree(cli.dbfile, algorithm=cli.algorithm, **opts)
 
     match cli.operation:

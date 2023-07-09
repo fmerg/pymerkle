@@ -34,6 +34,10 @@ def parse_cli_args():
             default='sha256', help='Hashing algorithm')
     parser.add_argument('--no-security', action='store_true',
             default=False, help='Disable resistance against second-preimage attack')
+    parser.add_argument('--threshold', type=int, metavar='WIDTH',
+            default=128, help='Subroot cache threshold')
+    parser.add_argument('--capacity', type=int, metavar='MAXSIZE',
+            default=1024 ** 3, help='Subroot cache capacity in bytes')
     parser.add_argument('--disable-optimizations', action='store_true',
             default=False, help='Use unopmitized versions of core operations')
     parser.add_argument('--disable-cache', action='store_true',
@@ -99,7 +103,9 @@ if __name__ == '__main__':
 
     config = {'algorithm': args.algorithm, 'security': not args.no_security,
               'disable_optimizations': args.disable_optimizations,
-              'disable_cache': args.disable_cache}
+              'disable_cache': args.disable_cache,
+              'threshold': args.threshold,
+              'capacity': args.capacity}
     tree = MerkleTree(**config)
 
     # Populate tree with some entries
@@ -133,3 +139,5 @@ if __name__ == '__main__':
 
     state2 = tree.get_state()
     verify_consistency(state1, state2, proof)
+
+    print(tree.get_cache_info())
