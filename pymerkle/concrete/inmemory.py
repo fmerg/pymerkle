@@ -157,11 +157,11 @@ class InmemoryTree(BaseMerkleTree):
         to investigate the tree topology by means of concrete path traversals
     """
 
-    def __init__(self, algorithm='sha256', security=True, **opts):
+    def __init__(self, algorithm='sha256', **opts):
         self.root = None
         self.leaves = []
 
-        super().__init__(algorithm, security, **opts)
+        super().__init__(algorithm, **opts)
 
 
     def __str__(self, indent=2, trim=8):
@@ -262,8 +262,7 @@ class InmemoryTree(BaseMerkleTree):
 
 
     @classmethod
-    def init_from_entries(cls, entries, algorithm='sha256', security=True,
-            **opts):
+    def init_from_entries(cls, entries, algorithm='sha256', **opts):
         """
         Create tree from initial data
 
@@ -271,11 +270,8 @@ class InmemoryTree(BaseMerkleTree):
         :type entries: iterable of bytes
         :param algorithm: [optional] hash function. Defaults to *sha256*
         :type algorithm: str
-        :param security: [optional] resistance against second-preimage attack.
-            Defaults to *True*
-        :type security: bool
         """
-        tree = cls(algorithm, security, **opts)
+        tree = cls(algorithm, **opts)
 
         append = tree.append
         for entry in entries:

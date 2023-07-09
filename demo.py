@@ -17,8 +17,8 @@ from pymerkle import (
 # Make init interface identical to that of InmemoryTree
 class SqliteTree(_SqliteTree):
 
-    def __init__(self, algorithm='sha256', security=True, **opts):
-        super().__init__(':memory:', algorithm, security, **opts)
+    def __init__(self, algorithm='sha256', **opts):
+        super().__init__(':memory:', algorithm, **opts)
 
 
 def parse_cli_args():
@@ -32,12 +32,12 @@ def parse_cli_args():
             default='inmemory', help='Storage backend')
     parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
             default='sha256', help='Hashing algorithm')
-    parser.add_argument('--no-security', action='store_true',
-            default=False, help='Disable resistance against second-preimage attack')
     parser.add_argument('--threshold', type=int, metavar='WIDTH',
             default=128, help='Subroot cache threshold')
     parser.add_argument('--capacity', type=int, metavar='MAXSIZE',
             default=1024 ** 3, help='Subroot cache capacity in bytes')
+    parser.add_argument('--disable-security', action='store_true',
+            default=False, help='Disable resistance against second-preimage attack')
     parser.add_argument('--disable-optimizations', action='store_true',
             default=False, help='Use unopmitized versions of core operations')
     parser.add_argument('--disable-cache', action='store_true',
@@ -101,7 +101,8 @@ if __name__ == '__main__':
     MerkleTree = { 'inmemory': InmemoryTree, 'sqlite': SqliteTree }[
         args.backend]
 
-    config = {'algorithm': args.algorithm, 'security': not args.no_security,
+    config = {'algorithm': args.algorithm,
+              'disable_security': args.disable_security,
               'disable_optimizations': args.disable_optimizations,
               'disable_cache': args.disable_cache,
               'threshold': args.threshold,

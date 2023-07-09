@@ -16,12 +16,9 @@ class SqliteTree(BaseMerkleTree):
     :type dbfile: str
     :param algorithm: [optional] hashing algorithm. Defaults to *sha256*
     :type algorithm: str
-    :param security: [optional] resistance against second-preimage attack.
-        Defaults to *True*
-    :type security: bool
     """
 
-    def __init__(self, dbfile, algorithm='sha256', security=True, **opts):
+    def __init__(self, dbfile, algorithm='sha256', **opts):
         self.con = sqlite3.connect(dbfile)
         self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
@@ -35,7 +32,7 @@ class SqliteTree(BaseMerkleTree):
                 );'''
             self.cur.execute(query)
 
-        super().__init__(algorithm, security, **opts)
+        super().__init__(algorithm, **opts)
 
 
     def __enter__(self):

@@ -11,13 +11,12 @@ DEFAULT_CAPACITY = 1024 ** 3
 # Make init interface identical to that of InmemoryTree
 class SqliteTree(_SqliteTree):
 
-    def __init__(self, algorithm='sha256', security=True, **opts):
-        super().__init__(':memory:', algorithm, security, **opts)
+    def __init__(self, algorithm='sha256', **opts):
+        super().__init__(':memory:', algorithm, **opts)
 
     @classmethod
-    def init_from_entries(cls, entries, algorithm='sha256', security=True,
-            **opts):
-        tree = cls(algorithm, security, **opts)
+    def init_from_entries(cls, entries, algorithm='sha256', **opts):
+        tree = cls(algorithm, **opts)
 
         append = tree.append
         for entry in entries:
@@ -51,8 +50,9 @@ def all_configs(option):
     algorithms = constants.ALGORITHMS if option.extended else ['sha256']
 
     configs = []
-    for (security, algorithm) in itertools.product((True, False), algorithms):
-        config = {'algorithm': algorithm, 'security': security,
+    for (disable_security, algorithm) in itertools.product((True, False), algorithms):
+        config = {'algorithm': algorithm,
+                  'disable_security': disable_security,
                   'threshold': option.threshold,
                   'capacity': option.capacity}
         configs += [config]
@@ -69,7 +69,7 @@ def resolve_backend(option):
 
 def make_trees(default_config=False):
     configs = all_configs(option) if not default_config else [{'algorithm':
-        'sha256', 'security': True}]
+        'sha256', 'disable_security': False}]
     MerkleTree = resolve_backend(option)
 
     return [MerkleTree.init_from_entries(

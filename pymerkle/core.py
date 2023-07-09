@@ -42,9 +42,6 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     :param algorithm: [optional] hash algorithm. Defailts to sha256
     :type algorithm: str
-    :param security: [optional] resistance against second-preimage attack.
-        Defaults to *True*
-    :type security: bool
     :param threshold: [optional] Subroot cache width threshold. Defaults to 128
     :type threshold: int
     :param capacity: [optional] Subroot cache capacity in bytes. Defaults to
@@ -52,7 +49,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     :type capacity: int
     """
 
-    def __init__(self, algorithm='sha256', security=True, **opts):
+    def __init__(self, algorithm='sha256', **opts):
         self.threshold = opts.get('threshold', 128)
         self.capacity = opts.get('capacity', 1024 ** 3)
         self.cache = LRUCache(maxsize=self.capacity, getsizeof=len)
@@ -68,6 +65,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if opts.get('disable_cache', False):
             self._get_subroot = self._get_subroot_uncached
 
+        security = not opts.get('disable_security', False)
         super().__init__(algorithm, security)
 
 
