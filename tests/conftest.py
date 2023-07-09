@@ -18,9 +18,9 @@ class SqliteTree(_SqliteTree):
     def init_from_entries(cls, entries, algorithm='sha256', **opts):
         tree = cls(algorithm, **opts)
 
-        append = tree.append
-        for entry in entries:
-            append(entry)
+        append_entry = tree.append_entry
+        for data in entries:
+            append_entry(data)
 
         return tree
 

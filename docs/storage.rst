@@ -33,7 +33,7 @@ storage interface, which is to be implemented by any concrete subclass:
             super().__init__(algorithm, security)
 
 
-        def _encode_leaf(self, entry):
+        def _encode_entry(self, entry):
             # Define the binary format of the entry so that it can be hashed
             ...
 
@@ -53,7 +53,7 @@ storage interface, which is to be implemented by any concrete subclass:
             ...
 
 
-Appending an entry calls ``_encode_leaf`` to convert it to a binary object,
+Appending an entry calls ``_encode_entry`` to convert it to a binary object,
 which is then hashed as *value*; the entry is in turn passed along with its hash
 value to ``_store_leaf``, which is responsible for storing them for future
 access and return the index. ``_get_leaf`` should return the hash
@@ -69,7 +69,7 @@ value by index. Below the exact protocol that is to be implemented:
 
 
       @abstractmethod
-      def _encode_leaf(self, entry):
+      def _encode_entry(self, entry):
           """
           Should return the binary format of the provided entry
 
@@ -151,7 +151,7 @@ hashing.
           super().__init__(algorithm, security)
 
 
-      def _encode_leaf(self, entry):
+      def _encode_entry(self, entry):
           return entry.encode('utf-8')
 
 
@@ -198,7 +198,7 @@ entries and encodes them in utf-8 before hashing.
           super().__init__(algorithm, security)
 
 
-      def _encode_leaf(self, entry):
+      def _encode_entry(self, entry):
           return entry.encode('utf-8')
 
 

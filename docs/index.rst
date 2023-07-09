@@ -43,7 +43,7 @@ Store data into the tree and retrieve the corresponding leaf-hash:
 
 .. code-block:: python
 
-  index = tree.append(b'foo')   # index counting from one
+  index = tree.append_entry(b'foo')   # index counting from one
   value = tree.get_leaf(index)  # leaf hash
 
 
@@ -132,7 +132,7 @@ hashing.
           super().__init__(algorithm, security)
 
 
-      def _encode_leaf(self, entry):
+      def _encode_entry(self, entry):
           return entry.encode('utf-8')
 
 

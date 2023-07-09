@@ -101,7 +101,7 @@ class MerkleProof(MerkleHasher):
             },
             'rule': self.rule,
             'subset': self.subset,
-            'path': [value.hex() for value in self.path]
+            'path': [digest.hex() for digest in self.path]
         }
 
 
@@ -115,7 +115,7 @@ class MerkleProof(MerkleHasher):
         metadata = data['metadata']
         rule = data['rule']
         subset = data['subset']
-        path = [bytes.fromhex(value) for value in data['path']]
+        path = [bytes.fromhex(checksum) for checksum in data['path']]
 
         return cls(**metadata, rule=rule, subset=subset, path=path)
 
@@ -129,7 +129,7 @@ class MerkleProof(MerkleHasher):
 
         :rtype: bytes
         """
-        subpath = [value for (mask, value) in zip(self.subset, self.path) if
+        subpath = [digest for (mask, digest) in zip(self.subset, self.path) if
             mask]
 
         if not subpath:
@@ -158,13 +158,13 @@ class MerkleProof(MerkleHasher):
         bit, result = path[0]
         index = 0
         while index < len(path) - 1:
-            next_bit, value = path[index + 1]
+            next_bit, digest = path[index + 1]
 
             match bit:
                 case 0:
-                    result = self.hash_nodes(result, value)
+                    result = self.hash_nodes(result, digest)
                 case 1:
-                    result = self.hash_nodes(value, result)
+                    result = self.hash_nodes(digest, result)
                 case _:
                     raise Exception('Invalid bit found')
 

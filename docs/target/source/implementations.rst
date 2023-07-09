@@ -22,7 +22,7 @@ Data is expected to be provided in binary:
 
 .. code-block:: python
 
-  index = tree.append(b'foo')
+  index = tree.append_entry(b'foo')
 
 
 It is stored without further processing and can be accessed as follows:
@@ -110,7 +110,7 @@ expected to be provided in binary:
 
 .. code-block:: python
 
-  index = tree.append(b'foo')
+  index = tree.append_entry(b'foo')
 
 
 It is stored without further processing and can be accessed as follows:

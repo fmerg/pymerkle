@@ -110,8 +110,8 @@ if __name__ == '__main__':
     tree = MerkleTree(**config)
 
     # Populate tree with some entries
-    for entry in [b'foo', b'bar', b'baz', b'qux', b'quux']:
-        tree.append(entry)
+    for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
+        tree.append_entry(data)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
     sys.stdout.write(strtree(tree))
@@ -127,8 +127,8 @@ if __name__ == '__main__':
     # Save current state and append further entries
     lsize = tree.get_size()
     state1 = tree.get_state()
-    for entry in [b'corge', b'grault', b'garlpy']:
-        tree.append(entry)
+    for data in [b'corge', b'grault', b'garlpy']:
+        tree.append_entry(data)
 
     sys.stdout.write('\n nr leaves: %d' % tree.get_size())
     sys.stdout.write(strtree(tree))

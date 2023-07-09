@@ -6,8 +6,8 @@ class Node:
     """
     Merkle-tree node
 
-    :param value: the hash to be stored by the node
-    :type value: bytes
+    :param digest: the hash to be stored by the node
+    :type digest: bytes
     :param left: [optional] left child
     :type left: Node
     :param right: [optional] right child
@@ -15,11 +15,11 @@ class Node:
     :rtype: Node
     """
 
-    __slots__ = ('value', 'left', 'right', 'parent')
+    __slots__ = ('digest', 'left', 'right', 'parent')
 
 
-    def __init__(self, value, left=None, right=None):
-        self.value = value
+    def __init__(self, digest, left=None, right=None):
+        self.digest = digest
 
         self.left = left
         if left:
@@ -118,7 +118,7 @@ class Node:
             out += ' └──'
             ignored += [level]
 
-        checksum = self.value.hex()
+        checksum = self.digest.hex()
         out += (checksum[:trim] + '...') if trim else checksum
         out += '\n'
 
@@ -137,16 +137,16 @@ class Leaf(Node):
     """
     Merkle-tree leaf
 
-    :param entry: data stored by the leaf
-    :type entry: bytes
-    :param value: hash value stored by the leaf
-    :type value: bytes
+    :param data: data stored by the leaf
+    :type data: bytes
+    :param digest: hash value stored by the leaf
+    :type digest: bytes
     """
 
-    def __init__(self, entry, value):
-        self.entry = entry
+    def __init__(self, data, digest):
+        self.data = data
 
-        super().__init__(value, None, None)
+        super().__init__(digest, None, None)
 
 
 class InmemoryTree(BaseMerkleTree):
@@ -175,30 +175,30 @@ class InmemoryTree(BaseMerkleTree):
         return self.root.expand(indent, trim) + '\n'
 
 
-    def _encode_leaf(self, entry):
+    def _encode_entry(self, data):
         """
-        Returns the binary format of the provided entry
+        Returns the binary format of the provided data entry.
 
-        :param entry: data to encode
-        :type entry: bytes
+        :param data: data to encode
+        :type data: bytes
         :rtype: bytes
         """
-        return entry
+        return data
 
 
-    def _store_leaf(self, entry, value):
+    def _store_leaf(self, data, digest):
         """
-        Creates a new leaf storing the provided entry along with its binary
-        format and corresponding hash value
+        Creates a new leaf storing the provided data entry along with
+        its hash value.
 
-        :param entry: data to append
-        :type entry: whatever expected according to application logic
-        :param value: hashed data
-        :type value: bytes
+        :param data: data entry
+        :type data: whatever expected according to application lontry
+        :param digest: hashed data
+        :type digest: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        tail = Leaf(entry, value)
+        tail = Leaf(data, digest)
 
         if not self.leaves:
             self.leaves += [tail]
@@ -207,19 +207,19 @@ class InmemoryTree(BaseMerkleTree):
 
         node = self._get_last_maximal_subroot()
         self.leaves += [tail]
-        value = self.hash_nodes(node.value, tail.value)
+        digest = self.hash_nodes(node.digest, tail.digest)
 
         if node.is_root():
-            self.root = Node(value, node, tail)
+            self.root = Node(digest, node, tail)
             index = self.get_size()
             return index
 
         curr = node.parent
-        curr.right = Node(value, node, tail)
+        curr.right = Node(digest, node, tail)
         curr.right.parent = curr
         while curr:
-            curr.value = self.hash_nodes(
-                curr.left.value, curr.right.value)
+            curr.digest = self.hash_nodes(
+                curr.left.digest, curr.right.digest)
             curr = curr.parent
 
         index = self.get_size()
@@ -237,7 +237,7 @@ class InmemoryTree(BaseMerkleTree):
         if index < 1 or index > len(self.leaves):
             raise ValueError("%d not in leaf range" % index)
 
-        return self.leaves[index - 1].value
+        return self.leaves[index - 1].digest
 
 
     def _get_leaves(self, offset, width):
@@ -250,7 +250,7 @@ class InmemoryTree(BaseMerkleTree):
         :param width: number of leaves to consider
         :type width: int
         """
-        return [l.value for l in self.leaves[offset: offset + width]]
+        return [l.digest for l in self.leaves[offset: offset + width]]
 
 
     def _get_size(self):
@@ -273,9 +273,9 @@ class InmemoryTree(BaseMerkleTree):
         """
         tree = cls(algorithm, **opts)
 
-        append = tree.append
-        for entry in entries:
-            append(entry)
+        append_entry = tree.append_entry
+        for data in entries:
+            append_entry(data)
 
         return tree
 
@@ -302,13 +302,13 @@ class InmemoryTree(BaseMerkleTree):
             return self.consume(b'')
 
         if size == currsize:
-            return self.root.value
+            return self.root.digest
 
         subroots = self._get_subroots(size)
-        result = subroots[0].value
+        result = subroots[0].digest
         i = 0
         while i < len(subroots) - 1:
-            result = self.hash_nodes(subroots[i + 1].value, result)
+            result = self.hash_nodes(subroots[i + 1].digest, result)
             i += 1
 
         return result
@@ -330,7 +330,7 @@ class InmemoryTree(BaseMerkleTree):
         base = self.leaves[offset]
         bit = 1 if base.is_right_child() else 0
 
-        path = [base.value]
+        path = [base.digest]
         rule = [bit]
 
         curr = base
@@ -338,14 +338,14 @@ class InmemoryTree(BaseMerkleTree):
             parent = curr.parent
 
             if curr.is_left_child():
-                value = parent.right.value
+                digest = parent.right.digest
                 bit = 0 if parent.is_left_child() else 1
             else:
-                value = parent.left.value
+                digest = parent.left.digest
                 bit = 1 if parent.is_right_child() else 0
 
             rule += [bit]
-            path += [value]
+            path += [digest]
             curr = parent
 
         # Last bit is insignificant; fix it to zero just to be fully compatible

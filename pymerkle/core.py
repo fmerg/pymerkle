@@ -69,18 +69,18 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         super().__init__(algorithm, security)
 
 
-    def append(self, entry):
+    def append_entry(self, data):
         """
-        Appends a new leaf storing the provided entry
+        Appends a new leaf storing the provided data entry.
 
-        :param entry: data to append
-        :type entry: whatever expected according to application logic
+        :param data: data to append
+        :type data: whatever expected according to application logic
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        blob = self._encode_leaf(entry)
-        value = self.hash_leaf(blob)
-        index = self._store_leaf(entry, value)
+        blob = self._encode_entry(data)
+        digest = self.hash_leaf(blob)
+        index = self._store_leaf(data, digest)
 
         return index
 
@@ -203,26 +203,26 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @abstractmethod
-    def _encode_leaf(self, entry):
+    def _encode_entry(self, data):
         """
-        Should return the binary format of the provided entry
+        Should return the binary format of the provided data entry.
 
-        :param entry: data to encode
-        :type entry: whatever expected according to application logic
+        :param data: data to encode
+        :type data: whatever expected according to application logic
         :rtype: bytes
         """
 
 
     @abstractmethod
-    def _store_leaf(self, entry, value):
+    def _store_leaf(self, data, digest):
         """
-        Should create a new leaf storing the provided entry along with its
-        binary format and corresponding hash value
+        Should create a new leaf storing the provided data entry along
+        with its hash value
 
-        :param entry: data to append
-        :type entry: whatever expected according to application logic
-        :param value: hashed data
-        :type value: bytes
+        :param data: data entry
+        :type data: whatever expected according to application logic
+        :param digest: hashed data
+        :type digest: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
@@ -400,8 +400,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         while stack:
             bit, args = stack.pop()
             rule += [bit]
-            value = _get_root(*args)
-            path += [value]
+            node = _get_root(*args)
+            path += [node]
 
         return rule, path
 
@@ -462,8 +462,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             bit, mask, args = stack.pop()
             rule += [bit]
             subset += [mask]
-            value = _get_root(*args)
-            path += [value]
+            node = _get_root(*args)
+            path += [node]
 
         return rule, subset, path
 
@@ -519,8 +519,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: (list[int], list[bytes])
         """
         if offset == start and start == end - 1:
-            value = self._get_leaf(offset + 1)
-            return [bit], [value]
+            node = self._get_leaf(offset + 1)
+            return [bit], [node]
 
         k = 1 << log2(end - start)
         if k == end - start:
@@ -528,12 +528,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         if offset < start + k:
             rule, path = self._inclusion_path_naive(start, offset, start + k, 0)
-            value = self._get_root(start + k, end)
+            node = self._get_root(start + k, end)
         else:
             rule, path = self._inclusion_path_naive(start + k, offset, end, 1)
-            value = self._get_root(start, start + k)
+            node = self._get_root(start, start + k)
 
-        return rule + [bit], path + [value]
+        return rule + [bit], path + [node]
 
 
     @profile
@@ -557,12 +557,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: (list[int], list[int], list[bytes])
         """
         if offset == end:
-            value = self._get_root(start, start + end)
-            return [bit], [1], [value]
+            node = self._get_root(start, start + end)
+            return [bit], [1], [node]
 
         if offset == 0 and end == 1:
-            value = self._get_leaf(start + offset + 1)
-            return [bit], [0], [value]
+            node = self._get_leaf(start + offset + 1)
+            return [bit], [0], [node]
 
         k = 1 << log2(end)
         if k == end:
@@ -571,11 +571,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         if offset < k:
             rule, subset, path = self._consistency_path_naive(start, offset, k, 0)
-            value = self._get_root(start + k, start + end)
+            node = self._get_root(start + k, start + end)
         else:
             rule, subset, path = self._consistency_path_naive(start + k, offset - k,
                     end - k, 1)
-            value = self._get_root(start, start + k)
+            node = self._get_root(start, start + k)
             mask = int(k == 1 << log2(k))
 
-        return rule + [bit], subset + [mask], path + [value]
+        return rule + [bit], subset + [mask], path + [node]

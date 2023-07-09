@@ -54,9 +54,9 @@ Apending an entry returns the index of the corresponding leaf (counting from 1):
 
 .. code-block:: python
 
-    >>> tree.append(b'foo')
+    >>> tree.append_entry(b'foo')
     1
-    >>> tree.append(b'bar')
+    >>> tree.append_entry(b'bar')
     2
 
 

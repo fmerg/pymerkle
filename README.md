@@ -109,7 +109,7 @@ class MerkleTree(BaseMerkleTree):
         super().__init__(algorithm, security)
 
 
-    def _encode_leaf(self, entry):
+    def _encode_entry(self, entry):
         return entry.encode('utf-8')
 
 

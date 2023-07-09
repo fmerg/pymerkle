@@ -43,30 +43,30 @@ class SqliteTree(BaseMerkleTree):
         self.con.close()
 
 
-    def _encode_leaf(self, entry):
+    def _encode_entry(self, data):
         """
-        Returns the binary format of the provided entry
+        Returns the binary format of the provided data entry.
 
-        :param entry: data to encode
-        :type entry: bytes
+        :param data: data to encode
+        :type data: bytes
         :rtype: bytes
         """
-        return entry
+        return data
 
 
-    def _store_leaf(self, entry, value):
+    def _store_leaf(self, data, digest):
         """
-        Creates a new leaf storing the provided entry along with its binary
-        format and corresponding hash value
+        Creates a new leaf storing the provided data along with
+        hash value.
 
-        :param entry: data to append
-        :type entry: whatever expected according to application logic
-        :param value: hashed data
-        :type value: bytes
+        :param data: data entry
+        :type data: whatever expected according to application logic
+        :param digest: hashed data
+        :type digest: bytes
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        if not isinstance(entry, bytes):
+        if not isinstance(data, bytes):
             raise ValueError('Provided data is not binary')
 
         cur = self.cur
@@ -75,9 +75,10 @@ class SqliteTree(BaseMerkleTree):
             query = f'''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
-            cur.execute(query, (entry, value))
+            cur.execute(query, (data, digest))
 
         return cur.lastrowid
+
 
     def _get_leaf(self, index):
         """
