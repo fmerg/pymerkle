@@ -27,7 +27,7 @@ class MerkleHasher:
         self.hashfunc = getattr(hashlib, algorithm)
 
 
-    def _consume(self, buff):
+    def _consume_bytes(self, buff):
         """
         :param buff:
         :type buff: bytes
@@ -55,7 +55,7 @@ class MerkleHasher:
         :type buff: bytes
         :rtype: bytes
         """
-        return self._consume(b'')
+        return self._consume_bytes(b'')
 
 
     def hash_raw(self, buff):
@@ -67,10 +67,10 @@ class MerkleHasher:
         :type buff: bytes
         :rtype: bytes
         """
-        return self._consume(buff)
+        return self._consume_bytes(buff)
 
 
-    def hash_leaf(self, blob):
+    def hash_entry(self, blob):
         """
         Computes the hash of the provided binary data.
 
@@ -79,9 +79,7 @@ class MerkleHasher:
         :type blob: bytes
         :rtype: bytes
         """
-        buff = self.prefx00 + blob
-
-        return self._consume(buff)
+        return self._consume_bytes(self.prefx00 + blob)
 
 
     def hash_nodes(self, lblob, rblob):

@@ -91,7 +91,7 @@ The commutation between index and entry is then
 
 .. code-block:: python
 
-   assert tree.get_leaf(1) == hasher.hash_leaf(b'foo')
+   assert tree.get_leaf(1) == hasher.hash_entry(b'foo')
 
 having assumed that the tree admits binary data and that ``b'foo'`` is stored
 at the first leaf.

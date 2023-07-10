@@ -79,7 +79,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: int
         """
         blob = self._encode_entry(data)
-        digest = self.hash_leaf(blob)
+        digest = self.hash_entry(blob)
         index = self._store_leaf(data, digest)
 
         return index

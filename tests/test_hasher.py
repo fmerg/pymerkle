@@ -12,14 +12,14 @@ prefx01 = b'\x01'
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_hash_leaf(config):
+def test_hash_entry(config):
     h = MerkleHasher(**config)
 
     if h.security:
-        assert h.hash_leaf(blob) == getattr(hashlib, h.algorithm)(
+        assert h.hash_entry(blob) == getattr(hashlib, h.algorithm)(
             prefx00 + blob).digest()
     else:
-        assert h.hash_leaf(blob) == getattr(hashlib, h.algorithm)(
+        assert h.hash_entry(blob) == getattr(hashlib, h.algorithm)(
             blob).digest()
 
 

@@ -21,7 +21,7 @@ def test_consistency_invalid_prior(tree, lsize):
     rsize = tree.get_size()
     proof = tree.prove_consistency(lsize, rsize)
 
-    state1 = tree.hash_leaf(b'random')
+    state1 = tree.hash_raw(b'random')
     state2 = tree.get_state(rsize)
     with pytest.raises(InvalidProof):
         verify_consistency(state1, state2, proof)
@@ -33,7 +33,7 @@ def test_consistency_invalid_state(tree, lsize):
     proof = tree.prove_consistency(lsize, rsize)
 
     state1 = tree.get_state(lsize)
-    state2 = tree.hash_leaf(b'random')
+    state2 = tree.hash_raw(b'random')
     with pytest.raises(InvalidProof):
         verify_consistency(state1, state2, proof)
 
