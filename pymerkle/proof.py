@@ -138,7 +138,7 @@ class MerkleProof(MerkleHasher):
         result = subpath[0]
         index = 0
         while index < len(subpath) - 1:
-            result = self.hash_nodes(subpath[index + 1], result)
+            result = self.hash_pair(subpath[index + 1], result)
             index += 1
 
         return result
@@ -162,9 +162,9 @@ class MerkleProof(MerkleHasher):
 
             match bit:
                 case 0:
-                    result = self.hash_nodes(result, digest)
+                    result = self.hash_pair(result, digest)
                 case 1:
-                    result = self.hash_nodes(digest, result)
+                    result = self.hash_pair(digest, result)
                 case _:
                     raise Exception('Invalid bit found')
 

@@ -82,18 +82,16 @@ class MerkleHasher:
         return self._consume_bytes(self.prefx00 + blob)
 
 
-    def hash_nodes(self, lblob, rblob):
+    def hash_pair(self, blob1, blob2):
         """
         Computes the hash of the concatenation of the provided binary data.
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
-        :param lblob: left value
-        :type lblob: bytes
-        :param rblob: right value
-        :type rblob: bytes
+        :param blob1: left value
+        :type blob1: bytes
+        :param blob2: right value
+        :type blob2: bytes
         :rtype: bytes
         """
-        buff = self.prefx01 + lblob + rblob
-
-        return self.hashfunc(buff).digest()
+        return self.hashfunc(self.prefx01 + blob1 + blob2).digest()

@@ -152,34 +152,34 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 path)
 
 
-    def prove_consistency(self, lsize, rsize=None):
+    def prove_consistency(self, size1, size2=None):
         """
         Proves consistency between the states corresponding to the provided
         sizes
 
-        :param lsize: size of prior state
-        :type lsize: int
-        :param rsize: [optional] size of later state. Defaults to current tree
+        :param size1: size of prior state
+        :type size1: int
+        :param size2: [optional] size of later state. Defaults to current tree
             size
-        :type rsize: int
+        :type size2: int
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
         currsize = self.get_size()
 
-        if rsize is None:
-            rsize = currsize
+        if size2 is None:
+            size2 = currsize
 
-        if not (0 < rsize <= currsize):
+        if not (0 < size2 <= currsize):
             raise InvalidChallenge('Provided later size out of bounds')
 
-        if not (0 < lsize <= rsize):
+        if not (0 < size1 <= size2):
             raise InvalidChallenge('Provided prior size out of bounds')
 
-        rule, subset, path = self._consistency_path(0, lsize, rsize, 0)
+        rule, subset, path = self._consistency_path(0, size1, size2, 0)
 
-        return MerkleProof(self.algorithm, self.security, rsize, rule,
+        return MerkleProof(self.algorithm, self.security, size2, rule,
                 subset, path)
 
 
@@ -305,14 +305,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         popleft = level.popleft
         append = level.append
-        hash_nodes = self.hash_nodes
+        hash_pair = self.hash_pair
         while width > 1:
             count = 0
 
             while count < width:
                 lnode = popleft()
                 rnode = popleft()
-                node = hash_nodes(lnode, rnode)
+                node = hash_pair(lnode, rnode)
                 append(node)
                 count += 2
 
@@ -346,11 +346,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             prepend(node)
             end = offset
 
-        hash_nodes = self.hash_nodes
+        hash_pair = self.hash_pair
         while len(subroots) > 1:
             lnode = pop()
             rnode = pop()
-            node = hash_nodes(rnode, lnode)
+            node = hash_pair(rnode, lnode)
             append(node)
 
         return subroots[0]
@@ -496,7 +496,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         lnode = self._get_root_naive(start, start + k)
         rnode = self._get_root_naive(start + k, end)
 
-        return self.hash_nodes(lnode, rnode)
+        return self.hash_pair(lnode, rnode)
 
 
     @profile

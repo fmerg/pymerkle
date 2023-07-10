@@ -24,12 +24,12 @@ def test_hash_entry(config):
 
 
 @pytest.mark.parametrize('config', all_configs(option))
-def test_hash_nodes(config):
+def test_hash_pair(config):
     h = MerkleHasher(**config)
 
     if h.security:
-        assert h.hash_nodes(blob, blob) == getattr(hashlib, h.algorithm)(
+        assert h.hash_pair(blob, blob) == getattr(hashlib, h.algorithm)(
             prefx01 + blob + blob).digest()
     else:
-        assert h.hash_nodes(blob, blob) == getattr(hashlib, h.algorithm)(
+        assert h.hash_pair(blob, blob) == getattr(hashlib, h.algorithm)(
             blob + blob).digest()

@@ -68,9 +68,9 @@ def parse_cli_args():
 
     consistency = operation.add_parser('consistency',
         help='Run `prove_consistency`')
-    consistency.add_argument('--lsize', type=int, required=True,
+    consistency.add_argument('--size1', type=int, required=True,
         help='Size of prior state')
-    consistency.add_argument('--rsize', type=int, default=DB_SIZE,
+    consistency.add_argument('--size2', type=int, default=DB_SIZE,
         help='Size of later state')
 
     return parser.parse_args()
@@ -129,14 +129,14 @@ if __name__ == '__main__':
             func = tree.prove_consistency
 
             def get_args():
-                return (cli.lsize, cli.rsize)
+                return (cli.size1, cli.size2)
 
             if cli.randomize:
                 def get_args():
-                    rsize = cli.rsize
-                    lsize = randint(1, rsize)
+                    size2 = cli.size2
+                    size1 = randint(1, size2)
 
-                    return (lsize, rsize)
+                    return (size1, size2)
 
     count = 0
     while count < cli.rounds:

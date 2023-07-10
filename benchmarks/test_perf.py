@@ -52,9 +52,9 @@ def test_inclusion(benchmark):
 def test_consistency(benchmark):
 
     def setup():
-        rsize = option.size
-        lsize = randint(1, rsize) if option.randomize else option.index
+        size2 = option.size
+        size1 = randint(1, size2) if option.randomize else option.index
 
-        return (lsize, rsize), {}
+        return (size1, size2), {}
 
     benchmark.pedantic(tree.prove_consistency, setup=setup, **defaults)

@@ -17,9 +17,8 @@ def test_get_root(tree, start, end):
     subroots = list(reversed(subroots))
     root = subroots[0]
     index = 0
-    hash_nodes = tree.hash_nodes
     while index < len(subroots) - 1:
-        root = hash_nodes(subroots[index + 1], root)
+        root = tree.hash_pair(subroots[index + 1], root)
         index += 1
 
     assert root == tree._get_root_naive(start, end)
@@ -43,10 +42,10 @@ def test_inclusion_path(tree, start, end):
         assert path1 == path2
 
 
-@pytest.mark.parametrize('tree, lsize, rsize', tree_and_range())
-def test_consistency_path(tree, lsize, rsize):
+@pytest.mark.parametrize('tree, size1, size2', tree_and_range())
+def test_consistency_path(tree, size1, size2):
     for bit1, bit2 in product([0, 1], [0, 1]):
-        path1 = tree._consistency_path(bit1, lsize, rsize, bit2)
-        path2 = tree._consistency_path_naive(bit1, lsize, rsize, bit2)
+        path1 = tree._consistency_path(bit1, size1, size2, bit2)
+        path2 = tree._consistency_path_naive(bit1, size1, size2, bit2)
 
         assert path1 == path2

@@ -125,7 +125,7 @@ if __name__ == '__main__':
     verify_inclusion(base, target, proof)
 
     # Save current state and append further entries
-    lsize = tree.get_size()
+    size1 = tree.get_size()
     state1 = tree.get_state()
     for data in [b'corge', b'grault', b'garlpy']:
         tree.append_entry(data)
@@ -134,8 +134,8 @@ if __name__ == '__main__':
     sys.stdout.write(strtree(tree))
 
     # Prove and verify previous state
-    rsize = tree.get_size()
-    proof = tree.prove_consistency(lsize, rsize)
+    size2 = tree.get_size()
+    proof = tree.prove_consistency(size1, size2)
     sys.stdout.write(strproof(proof))
 
     state2 = tree.get_state()
