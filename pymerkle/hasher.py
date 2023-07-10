@@ -2,16 +2,9 @@ import hashlib
 from pymerkle import constants
 
 
-class UnsupportedParameter(Exception):
-    """
-    Raised when a Merkle-hasher with unsupported parameters is requested
-    """
-    pass
-
-
 class MerkleHasher:
     """
-    Encapsulates elementary hashing operations
+    Encapsulates elementary hashing operations.
 
     :param algorithm: hash algorithm
     :type algorithm: str
@@ -24,7 +17,7 @@ class MerkleHasher:
         normalized = algorithm.lower().replace('-', '_')
 
         if normalized not in constants.ALGORITHMS:
-            raise UnsupportedParameter(f'{algorithm} is not supported')
+            raise ValueError(f'{algorithm} not supported')
 
         self.prefx00 = b'\x00' if security else b''
         self.prefx01 = b'\x01' if security else b''

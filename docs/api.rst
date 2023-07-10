@@ -38,9 +38,6 @@ The hash function is controlled via the ``algorithm`` parameter. The currently
 supported hash functions are *sha224*,
 *sha256*, *sha384*, *sha512*, *sha3-224*, *sha3-256*, *sha3-384* and *sha3-512*.
 
-.. note:: Requesting a tree with unsupported algorithm raises
-   ``UnsupportedParameter``
-
 
 Entries
 =======
