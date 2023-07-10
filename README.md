@@ -196,10 +196,6 @@ pip3 install -r requirements-dev.txt
 Documentation is built with
 [`sphinx`](https://www.sphinx-doc.org/en/master/index.html):
 
-```commandline
-pip3 install -r requirements-doc.txt
-```
-
 Once installed, build the docs with
 
 ```commandline

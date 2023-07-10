@@ -1,25 +1,30 @@
 #!/bin/bash
 
-usage_string="usage: ./$(basename "$0") [pytest_options] [--extended] [--backend ...]
+DEFAULT_STORAGE="inmemory"
+DEFAULT_MAXSIZE=11
+DEFAULT_THRESHOLD=2
+DEFAULT_CAPACITY=$((1024 ** 3))
+
+usage_string="usage: ./$(basename "$0") [options] [pytest_options]
 
 Options
-  --backend [inmemory|sqlite]   Storage backend (default: inmemory)
-  --maxsize MAX                 Maximum size of tree fixtures (default: 11)
-  --threshold WIDTH             Subroot cache threshold (default: 2)
-  --capacity MAXSIZE            Subroout cache capacity in bytes (default: 1GB)
+  --backend [inmemory|sqlite]   Storage backend (default: ${DEFAULT_STORAGE})
+  --maxsize MAX                 Maximum size of tree fixtures (default: ${DEFAULT_MAXSIZE})
+  --threshold WIDTH             Subroot cache threshold (default: ${DEFAULT_THRESHOLD})
+  --capacity BYTES              Subroout cache capacity in bytes (default: 1GB)
   --extended                    Run tests against all supported hash algorithms;
-                                otherwise only against sha256 (default: false)
+                                otherwise only against sha256
   -h, --help                    Display help message and exit
 "
 
 set -e
 
-STORAGE="inmemory"
-MAXSIZE=11
-THRESHOLD=2
-CAPACITY=$((1024 ** 3))
-
 usage() { echo -n "$usage_string" 1>&2; }
+
+STORAGE="$DEFAULT_STORAGE"
+MAXSIZE="$DEFAULT_MAXSIZE"
+THRESHOLD="$DEFAULT_THRESHOLD"
+CAPACITY="$DEFAULT_CAPACITY"
 
 opts=()
 while [[ $# -gt 0 ]]
@@ -66,8 +71,8 @@ python -m \
     pytest tests/ \
     --backend ${STORAGE} \
     --maxsize ${MAXSIZE} \
-    --threshold $THRESHOLD \
-    --capacity $CAPACITY \
+    --threshold ${THRESHOLD} \
+    --capacity ${CAPACITY} \
     --cov-report term-missing \
     --cov=. \
     $opts

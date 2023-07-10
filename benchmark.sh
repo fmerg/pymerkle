@@ -1,36 +1,48 @@
 #!/bin/bash
 
 
-DBFILE="./benchmarks/merkle.db"
+DEFAULT_DBFILE="./benchmarks/merkle.db"
+DEFAULT_BENCHMARK="benchmarks/test_perf.py"
+DEFAULT_SIZE=$((10 ** 6))
+DEFAULT_ROUNDS=100
+DEFAULT_THRESHOLD=128
+DEFAULT_CAPACITY=$((1024 ** 3))
+DEFAULT_ALGORITHM=sha256
+DEFAULT_OPERATION=""
+DEFAULT_SAVE=true
 
 usage_string="
 usage: ./$(basename "$0") [options]
 
-Run benchmarks against the database ${DBFILE} of ten million
+Run benchmarks against the database ${DEFAULT_DBFILE} of ten million
 entries
 
 Results saved in ./.bencmarks/Linux-CPyhton-3.*
 
 Options
-  --dbfile                  Database to use (default: ${DBFILE}
-  --size                    Nr entries to consider (default: 10,000,000)
-  --index                   Base index for proof operations. If not provided,
+  --dbfile DB               Database to use (default: ${DEFAULT_DBFILE})
+  --size SIZE               Nr entries to consider (default: ${DEFAULT_SIZE})
+  --index INDEX             Base index for proof operations. If not provided,
                             it will be set equal to the ceil(size/2)
-  --randomize               Randomize function input per round. Useful for
-                            realistically capturing the effect of caching.
-                            WARNING: This will nullify the effect of the index
-                            option
-  --disable-optimizations   Use unoptimized version of core operations
-  --disable-cache           Disable subroot caching
-  --threshold               Subroot cache threshold (default: 128)
-  --capacity                Subroout cache capacity in bytes (default: 1GB)
-  -r, --rounds              Nr rounds per benchmark (default: 100)
-  -o, --operation           Benchmark a single operation: root, state, inclusion,
+  --rounds ROUNDS           Nr rounds per benchmark (default: ${DEFAULT_ROUNDS})
+  --algorithm HASH          Hash algorithm used by the tree (default: ${DEFAULT_ALGORITHM})
+  --threshold WIDTH         Subroot cache threshold (default: ${DEFAULT_THRESHOLD})
+  --capacity MAXSIZE        Subroout cache capacity in bytes (default: 1GiB)
+  --operation OP            Benchmark a single operation: root, state, inclusion,
                             consistency. If not provided, it benchmarks everything
+  --disable-optimizations   Use unoptimized version of core operations
+  --disable-cache           Disable caching
+  -r, --randomize           Randomize function input per round. Useful for
+                            capturing the effect of caching. WARNING: This will
+                            nullify the effect of the index option
   -c, --compare             Compare against last saved benchmark
-  -ns, --no-save            Do not save results
-  -a, --algorithm           Hash algorithm used by the tree (default: sha256)
+  -ss, --skip-save          Do not save results
   -h, --help                Display help message and exit
+
+Examples:
+  $ ./benchmark.sh --rounds 10 --skip-save --size 1000000 --randomize --disable-optimizations
+  $ ./benchmark.sh --rounds 10 --skip-save --size 1000000 --randomize --disable-cache
+  $ ./benchmark.sh --rounds 10 --skip-save --size 1000000 --randomize
 "
 
 set -e
@@ -38,14 +50,16 @@ set -e
 usage() { echo -n "$usage_string" 1>&2; }
 
 
-BENCHMARK="benchmarks/test_perf.py"
-SIZE=$((10 ** 7))
-ROUNDS=100
-THRESHOLD=128
-CAPACITY=$((1024 ** 3))
-ALGORITHM=sha256
-OPERATION=""
-SAVE=true
+DBFILE="$DEFAULT_DBFILE"
+BENCHMARK="$DEFAULT_BENCHMARK"
+SIZE="$DEFAULT_SIZE"
+ROUNDS="$DEFAULT_ROUNDS"
+THRESHOLD="$DEFAULT_THRESHOLD"
+CAPACITY="$DEFAULT_CAPACITY"
+ALGORITHM="$DEFAULT_ALGORITHM"
+OPERATION="$DEFAULT_OPERATION"
+SAVE="$DEFAULT_SAVE"
+
 
 opts=()
 while [[ $# -gt 0 ]]
@@ -67,31 +81,14 @@ do
             shift
             shift
             ;;
-        -r|--rounds)
+        --rounds)
             ROUNDS="$2"
             shift
             shift
             ;;
-        -a|--algorithm)
+        --algorithm)
             ALGORITHM="$2"
             shift
-            shift
-            ;;
-        -c|--compare)
-            opts+=(--benchmark-compare)
-            shift
-            ;;
-        -o|--operation)
-            OPERATION="$2"
-            shift
-            shift
-            ;;
-        --disable-otimizations)
-            opts+=" $arg"
-            shift
-            ;;
-        --disable-cache)
-            opts+=" $arg"
             shift
             ;;
         --threshold)
@@ -104,11 +101,28 @@ do
             shift
             shift
             ;;
-        --randomize)
+        --operation)
+            OPERATION="$2"
+            shift
+            shift
+            ;;
+        --disable-optimizations)
             opts+=" $arg"
             shift
             ;;
-        -ns|--no-save)
+        --disable-cache)
+            opts+=" $arg"
+            shift
+            ;;
+        -r|--randomize)
+            opts+=" $arg"
+            shift
+            ;;
+        -c|--compare)
+            opts+=(--benchmark-compare)
+            shift
+            ;;
+        -ss|--skip-save)
             SAVE=false
             shift
             ;;

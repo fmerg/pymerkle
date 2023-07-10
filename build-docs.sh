@@ -5,7 +5,8 @@ usage_string="usage: ./$(basename "$0") [OPTIONS]
 Script for building docs from source code
 
 Options:
-  -o, --open BROWSER  Open docs after build with the provided browser
+  --theme THEME       Specify theme: alabaster, rtd or python (default: rtd)
+  --open BROWSER      Open docs after build with the provided browser
   -h, --help          Display help message and exit
 
 Examples:
@@ -13,21 +14,59 @@ Examples:
 
 usage() { echo -n "$usage_string" 1>&2; }
 
-# TODO: Derive the following default values from package meta
-PROJECT="pymerkle"
-SOURCE_CODE="pymerkle"
-VERSION="5.0.3"
-AUTHOR="fmerg"
+parse_project_version() {
+  source_code=$1
+  init_file="./${source_code}/__init__.py"
+  parsed=$(sed -n 's/^__version__ = \(.*\)/\1/p' < ${init_file})
+  version=$(echo $parsed | tr -d "\'")
+  echo $version
+}
+
+
+CONTENT="docs"    # Content that is not auto-generated from docs
+TARGET="docs/target"  # Will contain auto-generated files (unstaged)
+CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
+ALABASTER_THEME="alabaster"       # Default sphinx theme
+RTD_THEME="sphinx_rtd_theme"      # Read-the-docs theme
+PYTHON_THEME="python_docs_theme"  # Python docs theme
 
 LANG="en"
 BROWSER=
+
+PROJECT="pymerkle"
+SOURCE_CODE="pymerkle"
+VERSION=$(parse_project_version "$SOURCE_CODE")
+AUTHOR="fmerg"
+
+
+THEME="$RTD_THEME"
 
 while [[ $# -gt 0 ]]
 do
     arg="$1"
     case $arg in
-        -o|--open)
+        --open)
             BROWSER="$2"
+            shift
+            shift
+            ;;
+        --theme)
+            case $2 in
+                alabaster)
+                    THEME="$ALABASTER_THEME"
+                    ;;
+                rtd)
+                    THEME="$RTD_THEME"
+                    ;;
+                python)
+                    THEME="$PYTHON_THEME"
+                    ;;
+                *)
+                    echo "[-] Unsupported theme: $arg"
+                    usage
+                    exit 1
+                    ;;
+            esac
             shift
             shift
             ;;
@@ -45,15 +84,6 @@ done
 
 set -e
 
-CONTENT="docs"    # Content that is not auto-generated from docs
-TARGET="docs/target"  # Will contain auto-generated files (unstaged)
-CONFIG="$TARGET/source/conf.py"   # Sphinx configuration file
-DEFAULT_THEME="alabaster"         # Default sphinx theme
-RTD_THEME="sphinx_rtd_theme"      # Read-the-docs theme
-PYTHON_THEME="python_docs_theme"  # Python docs theme
-CUSTOM_THEME="$RTD_THEME"
-# CUSTOM_THEME="$PYTHON_THEME"
-
 # Generate sphinx source
 rm -rf "$TARGET"
 sphinx-quickstart "$TARGET" \
@@ -68,7 +98,7 @@ sphinx-quickstart "$TARGET" \
     --sep
 
 # Adjust sphinx configuration
-sed -ie "/html_theme/s/$DEFAULT_THEME/$CUSTOM_THEME/" $CONFIG
+sed -ie "/html_theme/s/$ALABASTER_THEME/$THEME/" $CONFIG
 echo >> $CONFIG
 echo "master_doc = 'index'" >> $CONFIG
 echo "pygments_style = 'sphinx'" >> $CONFIG
@@ -85,7 +115,7 @@ sed -ie "/$line_3/s/('.')/('..\/..\/..')/" $CONFIG
 # echo "autodoc_default_options = {'private-members': True}" >> $CONFIG
 echo "extensions += ['sphinx.ext.autosectionlabel']" >> $CONFIG
 
-if [ $CUSTOM_THEME == $PYTHON_THEME ]; then
+if [ $THEME == $PYTHON_THEME ]; then
   echo "html_sidebars = {
     '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
     'using/windows': ['windowssidebar.html', 'searchbox.html']

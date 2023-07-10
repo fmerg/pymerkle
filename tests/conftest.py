@@ -8,8 +8,11 @@ DEFAULT_THRESHOLD = 2
 DEFAULT_CAPACITY = 1024 ** 3
 
 
-# Make init interface identical to that of InmemoryTree
 class SqliteTree(_SqliteTree):
+    """
+    Make init interface identical to that of InmemoryTree so that it can be
+    used interchangeably
+    """
 
     def __init__(self, algorithm='sha256', **opts):
         super().__init__(':memory:', algorithm, **opts)
@@ -27,17 +30,17 @@ class SqliteTree(_SqliteTree):
 
 def pytest_addoption(parser):
     parser.addoption('--extended', action='store_true', default=False,
-                     help='Test against all supported hash algorothms')
+        help='Test against all supported hash algorothms')
     parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
-                     help='Storage backend')
+        help='Storage backend')
     parser.addoption('--maxsize', type=int, default=DEFAULT_MAXSIZE,
-                     help='Maximum size of tree fixtures')
+        help='Maximum size of tree fixtures')
     parser.addoption('--threshold', type=int, metavar='WIDTH',
-                     default=DEFAULT_THRESHOLD,
-                     help='Subroot cache threshold')
+        default=DEFAULT_THRESHOLD,
+        help='Subroot cache threshold')
     parser.addoption('--capacity', type=int, metavar='BYTES',
-                     default=DEFAULT_CAPACITY,
-                     help='Subroot cache capacity in bytes')
+        default=DEFAULT_CAPACITY,
+        help='Subroot cache capacity in bytes')
 
 option = None
 

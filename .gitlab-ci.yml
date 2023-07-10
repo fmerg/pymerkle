@@ -27,7 +27,7 @@ pages:
   image: "python:3.10-bullseye"
   stage: deploy
   script:
-    - pip3 install -r requirements-doc.txt
+    - pip3 install -r requirements-dev.txt
     - ./build-docs.sh
     - mv docs/target/build/html/ public/
   artifacts:

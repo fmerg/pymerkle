@@ -14,7 +14,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 
 DEFAULT_DB = os.path.join(parent_dir, 'benchmarks', 'merkle.db')
-DB_SIZE = 10 ** 7   # Nr entries merkle.db
+DB_SIZE = 10 ** 6
 DEFAULT_ROUNDS = 1
 DEFAULT_THRESHOLD = 128
 DEFAULT_CAPACITY = 1024 ** 3
@@ -48,7 +48,7 @@ def parse_cli_args():
     operation = parser.add_subparsers(dest='operation')
 
     root = operation.add_parser('root',
-        help='Run `get_root`')
+        help='Run `_get_root`')
     root.add_argument('--start', type=int, default=0,
         help='Starting position')
     root.add_argument('--end', type=int, default=DB_SIZE,
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     match cli.operation:
         case 'root':
-            func = tree.get_root
+            func = tree._get_root
 
             def get_args():
                 return (cli.start, cli.end)
