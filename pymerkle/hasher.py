@@ -22,27 +22,25 @@ class MerkleHasher:
 
     def __init__(self, algorithm, security=True, **kw):
         normalized = algorithm.lower().replace('-', '_')
+
         if normalized not in constants.ALGORITHMS:
-            raise UnsupportedParameter('%s is not supported' % algorithm)
+            raise UnsupportedParameter(f'{algorithm} is not supported')
+
+        self.prefx00 = b'\x00' if security else b''
+        self.prefx01 = b'\x01' if security else b''
 
         self.algorithm = algorithm
         self.security = security
-
-        self.prefx00 = b'\x00' if self.security else b''
-        self.prefx01 = b'\x01' if self.security else b''
-
-        self.func = getattr(hashlib, self.algorithm)
+        self.hashfunc = getattr(hashlib, algorithm)
 
 
-    def consume(self, buff):
+    def _consume(self, buff):
         """
-        Computes the raw hash of the provided data
-
         :param buff:
         :type buff: bytes
         :rtype: bytes
         """
-        hasher = self.func()
+        hasher = self.hashfunc()
         update = hasher.update
         chunksize = 1024
         offset = 0
@@ -55,9 +53,33 @@ class MerkleHasher:
         return hasher.digest()
 
 
+    def hash_empty(self):
+        """
+        Computes the hash of the empty data without prepending security
+        prefixes.
+
+        :param buff:
+        :type buff: bytes
+        :rtype: bytes
+        """
+        return self._consume(b'')
+
+
+    def hash_raw(self, buff):
+        """
+        Computes the hash of the provided data without prepending security
+        prefixes.
+
+        :param buff:
+        :type buff: bytes
+        :rtype: bytes
+        """
+        return self._consume(buff)
+
+
     def hash_leaf(self, blob):
         """
-        Computes the hash of the provided binary data
+        Computes the hash of the provided binary data.
 
         .. note:: Prepends ``\\x00`` if security mode is enabled
 
@@ -66,12 +88,12 @@ class MerkleHasher:
         """
         buff = self.prefx00 + blob
 
-        return self.consume(buff)
+        return self._consume(buff)
 
 
     def hash_nodes(self, lblob, rblob):
         """
-        Computes the hash of the concatenation of the provided binary data
+        Computes the hash of the concatenation of the provided binary data.
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
@@ -83,4 +105,4 @@ class MerkleHasher:
         """
         buff = self.prefx01 + lblob + rblob
 
-        return self.func(buff).digest()
+        return self.hashfunc(buff).digest()

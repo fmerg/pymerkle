@@ -299,7 +299,7 @@ class InmemoryTree(BaseMerkleTree):
             size = currsize
 
         if size == 0:
-            return self.consume(b'')
+            return self.hash_empty()
 
         if size == currsize:
             return self.root.digest

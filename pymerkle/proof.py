@@ -133,7 +133,7 @@ class MerkleProof(MerkleHasher):
             mask]
 
         if not subpath:
-            return self.consume(b'')
+            return self.hash_empty()
 
         result = subpath[0]
         index = 0
@@ -153,7 +153,7 @@ class MerkleProof(MerkleHasher):
         path = list(zip(self.rule, self.path))
 
         if not path:
-            return self.consume(b'')
+            return self.hash_empty()
 
         bit, result = path[0]
         index = 0

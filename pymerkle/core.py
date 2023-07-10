@@ -484,7 +484,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: bytes
         """
         if end == start:
-            return self.consume(b'')
+            return sef.hash_empty()
 
         if end == start + 1:
             return self._get_leaf(end)

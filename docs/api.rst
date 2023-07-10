@@ -20,7 +20,7 @@ structure:
     tree = MerkleTree(algorithm='sha256')
 
 
-``SqliteTree`` is a persistent implementation using a SQLite database as 
+``SqliteTree`` is a persistent implementation using a SQLite database as
 storage and is intended for leightweight applications:
 
 
@@ -142,7 +142,7 @@ By convention, the empty tree state is the hash of the empty string:
 
 .. code-block:: python
 
-   >>> tree.get_state(0) == tree.consume(b'')
+   >>> tree.get_state(0) == tree.hash_empty(b'')
    True
 
 
@@ -190,7 +190,7 @@ base or state would raise an error:
 .. code-block:: python
 
    >>> from pymerkle.hasher import MerkleHasher
-   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random')
+   >>> forged = MerkleHasher(tree.algorithm, tree.security).hash_raw(b'random')
    >>>
    >>> verify_inclusion(forged, target, proof)
    Traceback (most recent call last):
@@ -240,7 +240,7 @@ error:
 .. code-block:: python
 
    >>> from pymerkle.hasher import MerkleHasher
-   >>> forged = MerkleHasher(tree.algorithm, tree.security).consume(b'random')
+   >>> forged = MerkleHasher(tree.algorithm, tree.security).hash_raw(b'random')
    >>>
    >>> verify_consistency(forged, state2, proof)
    Traceback (most recent call last):
