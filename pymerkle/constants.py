@@ -1,5 +1,5 @@
 """
-Provides the list of supported hash functions
+List of supported hash functions.
 """
 
 ALGORITHMS = ['sha224', 'sha256', 'sha384', 'sha512', 'sha3_224', 'sha3_256', 'sha3_384',

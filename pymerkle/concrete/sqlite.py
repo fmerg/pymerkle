@@ -4,13 +4,14 @@ from pymerkle.core import BaseMerkleTree
 
 class SqliteTree(BaseMerkleTree):
     """
-    Persistent Merkle-tree implementation using a SQLite database as storage
+    Persistent Merkle-tree implementation using a SQLite database as storage.
 
-    The database schema consists of a single table called *leaf* with two
-    columns: *index*, which is the primary key serving as leaf index, and
-    *entry*, which is a blob field storing the appended data. Inserted data are
-    expected by the tree to be in binary format and stored without further
-    processing
+    Inserted data is expected to be in binary format and hashed without
+    further processing.
+
+    .. note:: The database schema consists of a single table called *leaf*
+        with two columns: *index*, which is the primary key serving as leaf
+        index, and *entry*, which is a blob field storing the appended data.
 
     :param dbfile: database filepath
     :type dbfile: str
@@ -57,7 +58,7 @@ class SqliteTree(BaseMerkleTree):
 
     def _store_leaf(self, data, digest):
         """
-        Creates a new leaf storing the provided data along with
+        Creates a new leaf storing the provided data along with its
         hash value.
 
         :param data: data entry
@@ -83,7 +84,7 @@ class SqliteTree(BaseMerkleTree):
 
     def _get_leaf(self, index):
         """
-        Returns the hash stored by the leaf specified
+        Returns the hash stored at the specified leaf.
 
         :param index: leaf index counting from one
         :type index: int
@@ -102,7 +103,7 @@ class SqliteTree(BaseMerkleTree):
     def _get_leaves(self, offset, width):
         """
         Returns in respective order the hashes stored by the leaves in the
-        range specified
+        specified range.
 
         :param offset: starting position counting from zero
         :type offset: int
@@ -136,7 +137,7 @@ class SqliteTree(BaseMerkleTree):
 
     def get_entry(self, index):
         """
-        Returns the original data stored by the leaf specified
+        Returns the unhashed data stored at the specified leaf.
 
         :param index: leaf index counting from one
         :type index: int
@@ -154,6 +155,8 @@ class SqliteTree(BaseMerkleTree):
 
     def _hash_per_chunk(self, entries, chunksize):
         """
+        Generator yielding in chunks pairs of entry data and hash value.
+
         :param entries:
         :type entries: iterable of bytes
         :param chunksize:
@@ -175,10 +178,10 @@ class SqliteTree(BaseMerkleTree):
         """
         Bulk operation for appending a batch of entries.
 
-        :param entries: new data entries
+        :param entries: data entries to append
         :type entries: iterable of bytes
-        :param chunksize: [optional] nr entries to append per db transaction.
-            Defaults to 100,000.
+        :param chunksize: [optional] number entries to insert per
+            database transaction.
         :type chunksize: int
         :returns: index of last appended entry
         :rtype: int

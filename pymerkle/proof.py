@@ -7,17 +7,17 @@ from pymerkle.hasher import MerkleHasher
 
 class InvalidProof(Exception):
     """
-    Raised when a Merkle-proof is found to be invalid
+    Raised when a Merkle-proof is found to be invalid.
     """
     pass
 
 
 def verify_inclusion(base, root, proof):
     """
-    Verifies the provided Merkle-proof of inclusion against the provided base
-    hash and state
+    Verifies the provided Merkle-proof of inclusion against the provided leaf
+    hash and tree state.
 
-    :param base: acclaimed base hash
+    :param base: acclaimed leaf hash
     :type base: bytes
     :param root: acclaimed root hash
     :type root: bytes
@@ -34,7 +34,7 @@ def verify_inclusion(base, root, proof):
 
 def verify_consistency(state1, state2, proof):
     """
-    Verifies the provided Merkle-proof of consistency against the given states
+    Verifies the provided Merkle-proof of consistency against the given states.
 
     :param state1: acclaimed prior state
     :type state1: bytes
@@ -55,17 +55,17 @@ class MerkleProof:
     """
     Verifiable Merkle-proof object
 
-    :param algorithm: hash algorithm
+    :param algorithm: hash algorithm to be applied during state resolution
     :type algorithm: str
-    :param security: resistance against 2-nd preimage attack
+    :param security: resistance against 2-nd preimage attack indicator
     :type security: bool
     :param size: tree size corresponding to requested state
     :type size: int
     :param rule: specifies parenthetization of hashes during state
         resolution
     :type rule: list[int]
-    :param subset: indicates subset of hashes for prior state resolution
-        (makes sense only for proofs of consistency)
+    :param subset: indicates subset of hashes during prior state resolution
+        (makes sense only for consistency proofs)
     :type subset: list[int]
     :param path: path of hashes
     :type path: list[bytes]
@@ -83,6 +83,8 @@ class MerkleProof:
 
     def get_metadata(self):
         """
+        Returns the information needed to configure the hashing machinery.
+
         :rtype: dict
         """
         return {'algorithm': self.algorithm, 'security': self.security,
@@ -90,6 +92,8 @@ class MerkleProof:
 
     def serialize(self):
         """
+        Returns the JSON representation of the verifiable object.
+
         :rtype: dict
         """
         return {
@@ -121,10 +125,10 @@ class MerkleProof:
 
     def retrieve_prior_state(self):
         """
-        Computes the acclaimed prior state which is immanent in the included
-        path of hashes
+        Computes the acclaimed prior state as specified by the included path of
+        hashes.
 
-        .. note:: Makes sense only for consistency proofs
+        .. note:: Makes sense only for consistency proofs.
 
         :rtype: bytes
         """
@@ -146,7 +150,7 @@ class MerkleProof:
 
     def resolve(self):
         """
-        Computes the target hash of the included path of hashes
+        Computes the target hash of the included path of hashes.
 
         :rtype: bytes
         """

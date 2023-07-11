@@ -1,15 +1,19 @@
 Implementations
 +++++++++++++++
 
-Pymerkle provides the following implementations of ``BaseMerkleTree``.
+Pymerkle provides out of the box the following concrete implementations
+of ``BaseMerkleTree``.
 
 
 In memory
 =========
 
-``InmemoryTree`` is a non-persistent implementation where nodes reside inside the
-runtime memory, suitable for investigating and visualizing the tree structure.
-It is intended for debugging and testing.
+.. warning:: This is a very memory inefficient implementation. Use it
+    for debugging, testing and investigating the tree structure.
+
+
+``InmemoryTree`` is a non-persistent implementation where nodes reside in
+runtime.
 
 .. code-block:: python
 
@@ -25,7 +29,7 @@ Data is expected to be provided in binary:
   index = tree.append_entry(b'foo')
 
 
-It is stored without further processing and can be accessed as follows:
+It is hashed without further processing and can be accessed as follows:
 
 
 .. code-block:: python
@@ -97,23 +101,26 @@ that do not require separate server processes for the database.
 
   from pymerkle import SqliteTree
 
-  tree = SqliteTree('merkle.db', algorithm='sha256')
+  tree = SqliteTree('merkle.db')
 
 
 This opens a connection to the provided database, which will also be created
-if not already existent. The database schema consists of a single table
-called *leaf* with three columns: *index*, which is the primary key serving
-also as leaf index, *entry*, which is a blob field storing the appended data,
-and *hash*, which is a blob field storing the corresponding hash value. Data is
-expected to be provided in binary:
+if not already existent.
 
+
+.. note:: The database schema consists of a single table called *leaf*
+    with two columns: *index*, which is the primary key serving as leaf
+    index, and *entry*, which is a blob field storing the appended data.
+
+
+Data is expected to be provided in binary:
 
 .. code-block:: python
 
   index = tree.append_entry(b'foo')
 
 
-It is stored without further processing and can be accessed as follows:
+It is hashed without further processing and can be accessed as follows:
 
 
 .. code-block:: python
@@ -121,6 +128,19 @@ It is stored without further processing and can be accessed as follows:
   data = tree.get_entry(index)
   assert data == b'foo'
 
+
+In order to efficiently append multiple entries at once, you can do the
+following:
+
+.. code-block:: python
+
+  entries = [f'entry-{i + 1}'.encode() for i in range(100000)]
+
+  tree.append_entries(entries, chunksize=1024)
+
+
+where ``chunksize`` controls the number of insertions per database transaction
+(defaults to 100,000).
 
 
 It is suggested to close the connection to the database when ready:
@@ -136,7 +156,7 @@ be done without taking explicit care:
 
 .. code-block:: python
 
-  with SqliteTree('merkle.db', algorithm='sha256') as tree:
+  with SqliteTree('merkle.db') as tree:
     ...
 
 

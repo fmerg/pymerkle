@@ -8,7 +8,7 @@ class MerkleHasher:
 
     :param algorithm: hash algorithm
     :type algorithm: str
-    :param security: [optional] defense against second-preimage attack. Defaults
+    :param security: [optional] resistance against second-preimage attack. Defaults
         to *True*
     :type security: bool
     """

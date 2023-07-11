@@ -3,7 +3,7 @@
     :titlesonly:
 
     Public API <api>
-    Storage backend <storage>
+    Storage <storage>
+    Optimizations <optimizations>
     Implementations <implementations>
-    Tree topology <topology>
     Reference <modules>

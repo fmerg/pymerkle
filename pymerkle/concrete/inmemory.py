@@ -4,9 +4,9 @@ from pymerkle.core import BaseMerkleTree
 
 class Node:
     """
-    Merkle-tree node
+    Merkle-tree node.
 
-    :param digest: the hash to be stored by the node
+    :param digest: hash value to be stored
     :type digest: bytes
     :param left: [optional] left child
     :type left: Node
@@ -34,6 +34,8 @@ class Node:
 
     def is_root(self):
         """
+        Returns *True* iff the node is currently root.
+
         :rtype: bool
         """
         return not self.parent
@@ -41,6 +43,8 @@ class Node:
 
     def is_leaf(self):
         """
+        Returns *True* iff the node is leaf.
+
         :rtype: bool
         """
         return not self.left and not self.right
@@ -48,6 +52,8 @@ class Node:
 
     def is_left_child(self):
         """
+        Returns *True* iff the node is currently left child.
+
         :rtype: bool
         """
         parent = self.parent
@@ -59,6 +65,8 @@ class Node:
 
     def is_right_child(self):
         """
+        Returns *True* iff the node is currently right child.
+
         :rtype: bool
         """
         parent = self.parent
@@ -86,7 +94,7 @@ class Node:
 
     def expand(self, indent=2, trim=None, level=0, ignored=None):
         """
-        Returns a string representing the subtree rooted at the current node
+        Returns a string representing the subtree rooted at the present node.
 
         :param indent: [optional]
         :type indent: str
@@ -135,7 +143,7 @@ class Node:
 
 class Leaf(Node):
     """
-    Merkle-tree leaf
+    Merkle-tree leaf node.
 
     :param data: data stored by the leaf
     :type data: bytes
@@ -151,10 +159,13 @@ class Leaf(Node):
 
 class InmemoryTree(BaseMerkleTree):
     """
-    Non-persistent Merkle-tree with with nodes residing inside the runtime memory
+    Non-persistent Merkle-tree with interior nodes loaded into the runtime.
 
-    .. note:: This implementation is intended for debugging and testing. Use it
-        to investigate the tree topology by means of concrete path traversals
+    Inserted data is expected to be in binary format and hashed without
+    further processing.
+
+    .. warning:: This is a very memory inefficient implementation. Use it
+        for debugging, testing and investigating the tree structure.
     """
 
     def __init__(self, algorithm='sha256', **opts):
@@ -228,7 +239,7 @@ class InmemoryTree(BaseMerkleTree):
 
     def _get_leaf(self, index):
         """
-        Returns the hash stored by the leaf specified
+        Returns the hash stored at the specified leaf.
 
         :param index: leaf index counting from one
         :type index: int
@@ -243,7 +254,7 @@ class InmemoryTree(BaseMerkleTree):
     def _get_leaves(self, offset, width):
         """
         Returns in respective order the hashes stored by the leaves in the
-        range specified
+        specified range.
 
         :param offset: starting position counting from zero
         :type offset: int
@@ -285,11 +296,10 @@ class InmemoryTree(BaseMerkleTree):
         Computes the root-hash of the subtree corresponding to the provided
         size
 
-        .. note:: Overrides the default implementation inherited from the base
-            class
+        .. note:: Overrides the function inherited from the base class.
 
         :param size: [optional] number of leaves to consider. Defaults to
-            current tree size
+            current tree size.
         :type size: int
         :rtype: bytes
         """
@@ -317,11 +327,7 @@ class InmemoryTree(BaseMerkleTree):
     def _inclusion_path_fallback(self, offset):
         """
         Non-recursive utility using concrete traversals to compute the inclusion
-        path of the provided leaf hash against the current tree state
-
-        .. warning:: This method is intended for investigating the tree
-            structure and testing. Use ``prove_inclusion`` to properly generate
-            inclusion proofs
+        path against the current number of leaves.
 
         :param offset: base leaf index counting from zero
         :type offset: int
@@ -360,8 +366,8 @@ class InmemoryTree(BaseMerkleTree):
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
 
-        .. warning:: This method should not be called directly. Use
-            ``prove_inclusion`` instead
+        .. warning:: This is an unoptimized recursive function intended for
+        reference and testing. Use ``_inclusion_path`` in production.
 
         :param start: leftmost leaf index counting from zero
         :type start: int
@@ -369,7 +375,7 @@ class InmemoryTree(BaseMerkleTree):
         :type offset: int
         :param limit: rightmost leaf index counting from zero
         :type limit: int
-        :param bit: bit indicating direction during recursive call
+        :param bit: indicates direction during path parenthetization
         :type bit: int
         :rtype: (list[int], list[bytes])
         """
@@ -382,10 +388,10 @@ class InmemoryTree(BaseMerkleTree):
     def _get_subroot_node(self, index, height):
         """
         Returns the root node of the perfect subtree of the provided height whose
-        leftmost leaf node is located at the provided position
+        leftmost leaf node is located at the provided position.
 
         .. note:: Returns *None* if no binary subtree exists for the provided
-            parameters
+            parameters.
 
         :param index: position of leftmost leaf node coutning from one
         :type index: int
@@ -426,8 +432,8 @@ class InmemoryTree(BaseMerkleTree):
 
     def _get_last_maximal_subroot(self):
         """
-        Returns the root-node of the perfect subtree of maximum possible size
-        containing the currently last leaf
+        Returns the root node of the perfect subtree of maximum possible size
+        containing the currently last leaf.
 
         :rtype: Node
         """
@@ -438,8 +444,8 @@ class InmemoryTree(BaseMerkleTree):
 
     def _get_subroots(self, size):
         """
-        Returns in respective order the root-nodes of the successive perfect
-        subtrees whose sizes sum up to the provided size
+        Returns in respective order the root nodes of the successive perfect
+        subtrees whose sizes sum up to the provided size.
 
         :param size:
         :type size: int

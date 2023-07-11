@@ -1,7 +1,3 @@
-"""
-merkle-tree cryptography
-"""
-
 from .concrete.inmemory import InmemoryTree
 from .concrete.sqlite import SqliteTree
 from .core import BaseMerkleTree, InvalidChallenge

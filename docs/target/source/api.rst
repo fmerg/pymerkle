@@ -4,49 +4,124 @@ Public API
 Initialization
 ==============
 
-Concrete implementations should inherit from the ``BaseMerkleTree``
-base class and implement its internal storage interface. Pymerkle
-provides two such implementations out of the box.
-
-``InmemoryTree`` is a non-persistent imeplementation where nodes are stored
-in the runtime memory and is primarily intended for investigating the tree
-structure:
+Although pymerkle comes with concrete tree implementations, its primary
+purpose is to provide an abstract base class that encapsulates the
+cryptographic functionality of a Merkle-tree:
 
 
 .. code-block:: python
 
-    from pymerkle import InmemoryTree as MerkleTree
+    from pymerkle import BaseMerkleTree
 
-    tree = MerkleTree(algorithm='sha256')
+Concrete implementations should inherit from this class and implement its
+internal abstract interface. This amounts to customizing leaf storage according
+to any desired application logic.
+
+
+Superclass initialization
+-------------------------
+
+Initialization of ``BaseMerkleTree`` accepts the options shown below:
+
+
+.. code-block:: python
+
+    class MerkleTree(BaseMerkleTree):
+
+        def __init__(self, *args, **kwargs)
+            ...
+
+            super().__init__(
+                algorithm='sha256',
+                disable_security=False,
+                disable_optimizations=False,
+                disable_cache=False,
+                threshold=128,
+                capacity=1024 ** 3
+            )
+
+        ...
+
+
+- ``algorithm``: specifies the hash function used by the tree. Defaults to
+  *sha256*.
+- ``disable_security``: if *True*, resistance against second-preimage attack will be
+  deactivated. Use it only for testing or debugging purposes. Defaults to
+  *False*.
+- ``disable_optimizations``: if *True*, low-level computations will fallback to
+  recursive unoptimized functions, similar to those described in `RFC 9162`_.
+  Use it for comparison purposes. Defaults to *False*.
+- ``disable_cache``: if *True*, the results of optimized low-level computations
+  will not be cached. Use it for comparison purposes. Defaults to *False*.
+- ``theshold``: specifies which outputs of a low-level computation must be
+  cached depending on the input of the computation. Refer :ref:`here<Optimizations>`
+  for the exact meaning of this parameter. Defaults to *128*.
+- ``capacity``: cache capacity in bytes. Defaults to 1GiB (which should be
+  overabundant for any imaginable use case).
+
+See :ref:`here<Storage>` to see how to implement a Merkle-tree in detail.
+
+.. note:: The currently supported hash functions are *sha224*, *sha256*, *sha384*,
+      *sha512*, *sha3-224*, *sha3-256*, *sha3-384* and *sha3-512*. Requesting
+      anything except for these would raise a ``ValueError``.
+
+
+Concrete classes
+----------------
+
+Pymerkle provides two concrete implementations of ``BaseMerkleTree`` out of the
+box.
+
+``InmemoryTree`` is a non-persistent implementation where nodes are stored at
+runtime, intended for investigating and visualising the tree structure:
+
+
+.. code-block:: python
+
+    from pymerkle import InmemoryTree
+
+    tree = InmemoryTree(algorithm='sha256')
 
 
 ``SqliteTree`` is a persistent implementation using a SQLite database as
-storage and is intended for leightweight applications:
+storage, intended for leightweight local applications:
+
 
 
 .. code-block:: python
 
-    from pymerkle import SqliteTree as MerkleTree
+    from pymerkle import SqliteTree
 
-    tree = MerkleTree('merkle.db', algorithm='sha256')
+    tree = SqliteTree('merkle.db', algorithm='sha256')
 
 
-Both are designed to accept data in binary format and store them without further
-processing. Refer :ref:`here<Storage backend>` to see how to implement a Merkle-tree in detail.
+This will open a connection to the specified database file (after creating it if
+not already existent). Alternatively, you can create an in-memory database as
+follows:
 
-The hash function is controlled via the ``algorithm`` parameter. The currently
-supported hash functions are *sha224*,
-*sha256*, *sha384*, *sha512*, *sha3-224*, *sha3-256*, *sha3-384* and *sha3-512*.
+
+.. code-block:: python
+
+    tree = SqliteTree(':memory:', algorithm='sha256')
+
+
+Both trees are designed to accept data in binary format and hash it without
+further processing. See :ref:`here<Implementations>` for more details on these
+classes.
 
 
 Entries
 =======
 
-Entries are appended as leaves with contiguously increasing index.
-Their exact type depends on the implementation as determined by the
-particular application logic.
+Entries are appended to the tree as leaves with contiguously increasing index.
+The exact type of entries depends on the particular implementation.
 
-Apending an entry returns the index of the corresponding leaf (counting from 1):
+
+.. note:: In what follows, it is assumed without loss of generality that the tree
+      accepts data in binary format and hashes it without further processing.
+
+
+Apending an entry returns the index of the corresponding leaf (counting from one):
 
 
 .. code-block:: python
@@ -73,11 +148,13 @@ Hash computation
 ----------------
 
 Sometimes it is useful to be able to compute independently the hash value assigned
-to an entry. For example, in order to verify the inclusion proof for an entry
-(see :ref:`below<Inclusion>`) we need its hash value, which can be computed without
-querying the tree directly (provided that the binary format can be inferred
-according to some known contract). To do so, we need to configure a standalone
-hasher that uses the same hash function as the tree and applies the same security policy:
+to an data entry. For example, in order to verify the inclusion proof for an entry
+(see :ref:`below<Inclusion>`) we need to know its hash value, which can be computed without
+querying the tree directly (provided that its binary format can be inferred
+according to some known contract).
+
+To do so, we need to configure a standalone hasher that uses the same hash function
+as the tree and applies the same security policy:
 
 
 .. code-block:: python
@@ -87,21 +164,17 @@ hasher that uses the same hash function as the tree and applies the same securit
    hasher = MerkleHasher(tree.algorithm, tree.security)
 
 
-The commutation between index and entry is then
+The commutation between index and entry is
 
 .. code-block:: python
 
    assert tree.get_leaf(1) == hasher.hash_entry(b'foo')
 
-having assumed that the tree admits binary data and that ``b'foo'`` is stored
-at the first leaf.
-
 
 Size
 ====
 
-The *size* of the tree is the current number of leaves (i.e., appended
-entries):
+The *size* of the tree is the current number of leaves (i.e., data entries):
 
 
 .. code-block:: python
@@ -116,7 +189,7 @@ It coincides with the index of the last appended leaf.
 State
 =====
 
-The current *state* of the tree is uniquely determined by its current root-hash. This
+The *state* of the tree is uniquely determined by its current root-hash. This
 can be retrieved as follows:
 
 .. code-block:: python
@@ -154,15 +227,15 @@ Inclusion
 ---------
 
 Given any intermediate state, an inclusion proof is a path of
-hashes proving that a certain entry has been appended at some previous moment
+hashes proving that a certain data entry has been appended at some previous moment
 and that the tree has not been afterwards tampered. Below the
-inclusion proof for the entry stored by the 3-rd leaf against the state
-corresponding to the first 5 leaves:
+inclusion proof for the 3-rd entry against the state corresponding to the first
+5 leaves:
 
 
 .. code-block:: python
 
-   >>> proof = tree.prove_inclusion(3, 5)
+   proof = tree.prove_inclusion(3, 5)
 
 
 The second argument is optional and defaults to the current tree size. Verification
@@ -181,13 +254,15 @@ proceeds as follows:
 
 This checks that the path of hashes is indeed based on the acclaimed hash and
 that it resolves to the acclaimed state. Trying to verify against a forged base
-base or state would raise an error:
+or state would raise an ``InvalidProof`` error:
 
 
 .. code-block:: python
 
    >>> from pymerkle.hasher import MerkleHasher
-   >>> forged = MerkleHasher(tree.algorithm, tree.security).hash_raw(b'random')
+   >>>
+   >>> hasher = MerkleHasher(tree.algorithm, tree.security)
+   >>> forged = hasher.hash_raw(b'random')
    >>>
    >>> verify_inclusion(forged, root, proof)
    Traceback (most recent call last):
@@ -211,7 +286,7 @@ consistency proof for the states with three and five leaves respectively:
 
 .. code-block:: python
 
-   >>> proof = tree.prove_consistency(3, 5)
+   proof = tree.prove_consistency(3, 5)
 
 
 The second argument is optional and defaults to the current tree size. Verification
@@ -220,24 +295,26 @@ proceeds as follows:
 
 .. code-block:: python
 
-   >>> from pymerkle import verify_consistency
-   >>>
-   >>> state1 = tree.get_state(3)
-   >>> state2 = tree.get_state(5)
-   >>>
-   >>> verify_consistency(state1, state2, proof)
+   from pymerkle import verify_consistency
+
+   state1 = tree.get_state(3)
+   state2 = tree.get_state(5)
+
+   verify_consistency(state1, state2, proof)
 
 
 This checks that an appropriate subpath of the included path of hashes resolves
 to the acclaimed prior state and the path of hashes as a whole resolves to the
 acclaimed later state. Trying to verify against forged states would raise an
-error:
+``InvalidProof`` error:
 
 
 .. code-block:: python
 
    >>> from pymerkle.hasher import MerkleHasher
-   >>> forged = MerkleHasher(tree.algorithm, tree.security).hash_raw(b'random')
+   >>>
+   >>> hasher = MerkleHasher(tree.algorithm, tree.security)
+   >>> forged = hasher.hash_raw(b'random')
    >>>
    >>> verify_consistency(forged, state2, proof)
    Traceback (most recent call last):
@@ -253,7 +330,7 @@ error:
 Serialization
 -------------
 
-Serialize a proof object as follows:
+A ``MerkleProof`` object can be serialized as follows:
 
 .. code-block:: python
 
@@ -294,10 +371,13 @@ otherwise available). *Rule* determines parenthetization of hashes during
 path resolution and *subset* selects the hashes resolving to the acclaimed
 prior state (makes sense only for consistency proofs).
 
-Retrieve the verifiable proof-object as follows:
+The verifiable proof-object can be retrieved as follows:
 
 .. code-block:: python
 
   from pymerkle import MerkleProof
 
   proof = MerkleProof.deserialize(data)
+
+
+.. _RFC 9162: https://datatracker.ietf.org/doc/html/rfc9162

@@ -17,7 +17,9 @@ try:
     encoding="utf-8") as f:
     install_requires = [_.strip() for _ in f.readlines()]
 except FileNotFoundError:
-    install_requires = []
+    install_requires = [
+        "cachetools==5.3.1"
+    ]
 
 with open("README.md", 'r') as f:
     long_description = f.read()

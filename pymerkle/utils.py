@@ -2,8 +2,8 @@ def log2(n):
     """
     Base 2 logarithm
 
-    .. note:: This is the exponent of the largest power of 2 which is less than
-        or equal to the provided integer
+    .. note:: This is the exponent of the largest power of two which is less than
+        or equal to the provided integer.
 
     :param n: non-negative integer
     :type n: int
@@ -20,7 +20,7 @@ def log2(n):
 def decompose(n):
     """
     Returns in respective order the exponents corresponding to the binary
-    decomposition of the provided integer
+    decomposition of the provided integer.
 
     :param n: non-negative integer
     :type n: int

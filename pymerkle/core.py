@@ -25,7 +25,7 @@ except AttributeError:
 
 class InvalidChallenge(Exception):
     """
-    Raised when no Merkle-proof exists for the provided challenge
+    Raised when no Merkle-proof exists for the provided prameters
     """
     pass
 
@@ -36,17 +36,33 @@ _CacheInfo = namedtuple('CacheInfo', ['size', 'capacity', 'hits', 'misses'])
 
 class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
-    Storage agnostic encapsulation of the core Merkle-tree functionality.
-    Concrete definitions should inherit from this class and implement its
-    private storage interface
+    Abstract base class encapsulating the core Merkle-tree functionalities in
+    a storage agnostic fashion.
 
-    :param algorithm: [optional] hash algorithm. Defailts to sha256
+    .. note:: Concrete implentations should inherit from this class and
+        implement its interior storage interface.
+
+    :param algorithm: [optional] hash algorithm. Defaults to *sha256*.
     :type algorithm: str
-    :param threshold: [optional] Subroot cache width threshold. Defaults to 128
+    :param threshold: [optional] Subroot cache threshold. Defaults to 128.
     :type threshold: int
     :param capacity: [optional] Subroot cache capacity in bytes. Defaults to
-        1GB
+        1GiB.
     :type capacity: int
+    :param disable_security: [optional] if *True*, resistance against
+        second-preimage attack will be deactivated. Defaults to *False*.
+    :type disable_security: boolean
+    :param disable_optimizations: [optional] if *True*, low-level operations
+        will fallback to their unoptimized recursive version. Defaults to
+        *False*.
+    :type disable_optimizations: boolean
+    :param disable_optimizations: [optional] if *True*, low-level operations
+        will fallback to their unoptimized recursive version. Defaults to
+        *False*.
+    :type disable_optimizations: boolean
+    :param disable_cache: [optional] if *True*, subroot caching will be
+        deactivated. Defaults to *False*.
+    :type cache: boolean
     """
 
     def __init__(self, algorithm='sha256', **opts):
@@ -71,23 +87,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     def _hash_entry(self, data):
-        """
-        TODO
-
-        :param data: data to hash
-        :type data: whatever expected according to application logic
-        :returns: data digest
-        :rtype: bytes
-        """
         return self.hash_buff(data)
 
 
     def _hash_nodes(self, lnode, rnode):
-        """
-        TODO
-        """
         return self.hash_pair(lnode, rnode)
-
 
 
     def append_entry(self, data):
@@ -108,7 +112,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_leaf(self, index):
         """
-        Returns the hash of the leaf located at the provided position
+        Returns the leaf hash located at the provided position.
 
         :param index: leaf index counting from one
         :type index: int
@@ -119,7 +123,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_size(self):
         """
-        Returns the current number of leaves
+        Returns the current number of leaves.
 
         :rtype: int
         """
@@ -128,11 +132,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_state(self, size=None):
         """
-        Computes the root-hash of the subtree corresponding to the provided
-        size
+        Computes the root-hash of the tree corresponding to the provided number
+        of leaves.
 
         :param size: [optional] number of leaves to consider. Defaults to
-            current tree size
+            current tree size.
         :type size: int
         :rtype: bytes
         """
@@ -145,11 +149,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def prove_inclusion(self, index, size=None):
         """
         Proves inclusion of the hash located at the provided index against the
-        subtree specified by the provided size
+        tree corresponding to the provided number of leaves.
 
         :param index: leaf index counting from one
         :type index: int
-        :param size: [optional] size of subtree to consider. Defaults to
+        :param size: [optional] number of leaves to consider. Defaults to
             current tree size
         :type size: int
         :rtype: MerkleProof
@@ -176,12 +180,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def prove_consistency(self, size1, size2=None):
         """
         Proves consistency between the states corresponding to the provided
-        sizes
+        sizes.
 
-        :param size1: size of prior state
+        :param size1: number of leaves for prior state
         :type size1: int
-        :param size2: [optional] size of later state. Defaults to current tree
-            size
+        :param size2: [optional] number of leaves for later state. Defaults to
+            current tree size.
         :type size2: int
         :rtype: MerkleProof
         :raises InvalidChallenge: if the provided parameters are invalid or
@@ -206,7 +210,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def get_cache_info(self):
         """
-        Returns subroot cache info
+        Returns subroot cache info.
         """
         return _CacheInfo(self.cache.currsize, self.cache.maxsize, self.hits,
                 self.misses)
@@ -214,7 +218,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     def cache_clear(self):
         """
-        Clears the subroot cache
+        Clears the subroot cache.
         """
         with self.lock:
             self.cache.clear()
@@ -237,8 +241,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def _store_leaf(self, data, digest):
         """
-        Should create a new leaf storing the provided data entry along
-        with its hash value
+        Should create a new leaf storing the provided data entry along with
+        its hash value.
 
         :param data: data entry
         :type data: whatever expected according to application logic
@@ -252,7 +256,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @abstractmethod
     def _get_leaf(self, index):
         """
-        Should return the hash stored by the leaf specified
+        Should return the hash stored at the specified leaf.
 
         :param index: leaf index counting from one
         :type index: int
@@ -264,7 +268,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def _get_leaves(self, offset, width):
         """
         Should return in respective order the hashes stored by the leaves in
-        the range specified
+        the specified range.
 
         :param offset: starting position counting from zero
         :type offset: int
@@ -286,9 +290,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @profile
     def _get_subroot(self, offset, width):
         """
-        :param offset:
-        :type start: int
-        :param width:
+        Cached subroot computation.
+
+        .. warning:: The ``parameter`` is expected to be a number of two.
+
+        :param offset: index of leftmost leaf counting from zero
+        :type offset: int
+        :param width: number of leaves to consider
         :type width: int
         :rtype: bytes
         """
@@ -316,9 +324,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @profile
     def _get_subroot_uncached(self, offset, width):
         """
-        :param offset:
-        :type start: int
-        :param width:
+        Uncached subroot computation.
+
+        .. warning:: The ``parameter`` is expected to be a number of two.
+
+        :param offset: index of leftmost leaf counting from zero
+        :type offset: int
+        :param width: number of leaves to consider
         :type width: int
         :rtype: bytes
         """
@@ -346,7 +358,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @profile
     def _get_root(self, start, limit):
         """
-        Returns the root-hash corresponding to the provided leaf range
+        Computes the root-hash for the provided leaf range.
 
         :param start: offset counting from zero
         :type start: int
@@ -383,10 +395,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def _inclusion_path(self, start, offset, limit, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range
+        against the specified leaf range.
 
-        .. warning:: This method should not be called directly. Use
-            ``prove_inclusion`` instead
+        .. warning:: Do not use this method directly unless you know what you
+            do. Use ``prove_inclusion`` instead.
 
         :param start: leftmost leaf index counting from zero
         :type start: int
@@ -394,7 +406,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type offset: int
         :param limit: rightmost leaf index counting from zero
         :type limit: int
-        :param bit: indicates direction during recursive call
+        :param bit: indicates direction during path parenthetization
         :type bit: int
         :rtype: (list[int], list[bytes])
         """
@@ -435,8 +447,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         Computes the consistency path for the state corresponding to the
         provided offset against the specified leaf range
 
-        .. warning:: This method should not be called directly. Use
-            ``prove_consistency`` instead
+        .. warning:: Do not use this method directly unless you know what you
+            do. Use ``prove_consistency`` instead.
 
         :param start: leftmost leaf index counting from zero
         :type start: int
@@ -444,7 +456,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type offset: int
         :param limit: rightmost leaf index counting from zero
         :type limit: int
-        :param bit: indicates direction during recursive call
+        :param bit: indicates direction during path parenthetization
         :type bit: int
         :rtype: (list[int], list[int], list[bytes])
         """
@@ -494,11 +506,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     @profile
     def _get_root_naive(self, start, limit):
         """
-        Returns the root-hash corresponding to the provided leaf range,
-        essentially according to RFC 9162.
+        Computes the root-hash for the provided leaf range.
+
+        Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_get_root`` instead.
+        reference and testing. Use ``_get_root`` in production.
 
         :param start: offset counting from zero
         :type start: int
@@ -526,10 +539,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def _inclusion_path_naive(self, start, offset, limit, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range, essentially according to RFC 9162.
+        against the specified leaf range.
+
+        Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_inclusion_path`` instead.
+        reference and testing. Use ``_inclusion_path`` in production.
 
         :param start: leftmost leaf index counting from zero
         :type start: int
@@ -537,7 +552,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type offset: int
         :param limit: rightmost leaf index counting from zero
         :type limit: int
-        :param bit: indicates direction during recursive call
+        :param bit: indicates direction during path parenthetization
         :type bit: int
         :rtype: (list[int], list[bytes])
         """
@@ -563,11 +578,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     def _consistency_path_naive(self, start, offset, limit, bit):
         """
         Computes the consistency path for the state corresponding to the
-        provided offset against the specified leaf range, essentially according
-        to RFC 9162.
+        provided offset against the specified leaf range.
+
+        Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_consistency_path`` instead.
+        reference and testing. Use ``_consistency_path`` in production.
 
         :param start: leftmost leaf index counting from zero
         :type start: int
@@ -575,7 +591,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type offset: int
         :param limit: rightmost leaf index counting from zero
         :type limit: int
-        :param bit: indicates direction during recursive call
+        :param bit: indicates direction during path parenthetization
         :type bit: int
         :rtype: (list[int], list[int], list[bytes])
         """

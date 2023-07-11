@@ -1,5 +1,5 @@
-Storage backend
-+++++++++++++++
+Storage
++++++++
 
 Pymerkle is unopinionated on how leaves are appended to the tree, i.e., how
 entries should be stored in concrete. "Leaves" is an abstraction for the
@@ -14,9 +14,9 @@ Interface
 =========
 
 A Merkle-tree implementation is a concrete subclass of the ``BaseMerkleTree``
-abstract base class. The latter encapsulates the core hashing machinery
-in a storage agnostic fashion, i.e., without making assumptions about how
-entries are stored and accessed. It operates on top of an abstract
+abstract base class. The latter encapsulates the cryptographic
+functionality in a storage agnostic fashion, i.e., without making assumptions
+about how entries are stored and accessed. It operates on top of an abstract
 storage interface, which is to be implemented by any concrete subclass:
 
 
@@ -27,102 +27,114 @@ storage interface, which is to be implemented by any concrete subclass:
 
     class MerkleTree(BaseMerkleTree):
 
-        def __init__(self, algorithm='sha256', security=True):
-            ... # setup or connnect to storage
+        def __init__(self, algorithm='sha256'):
+            """
+            Storage setup and superclass initialization
+            """
 
-            super().__init__(algorithm, security)
+        def _encode_entry(self, data):
+            """
+            Prepares data entry for hashing
+            """
 
-
-        def _encode_entry(self, entry):
-            # Define the binary format of the entry so that it can be hashed
-            ...
-
-
-        def _store_leaf(self, entry, value):
-            # Store entry along with its hash value
-            ...
-
+        def _store_leaf(self, data, digest):
+            """
+            Stores data hash in a new leaf and returns index
+            """
 
         def _get_leaf(self, index):
-            # Return the hash value stored at the specified position
-            ...
+            """
+            Returns the hash stored by the leaf specified
+            """
 
+        def _get_leaves(self, offset, width):
+            """
+            Returns hashes corresponding to the specified leaf range
+            """
 
         def _get_size(self):
-            # Return the current size of storage
-            ...
+            """
+            Returns the current number of leaves
+            """
+
+- ``_encode_entry``: converts data entry to binary, so that it becomes amenable
+  to hashing.
+- ``_store_leaf``: stores the output of hashing alogn with the original entry
+  and returns the leaf index.
+- ``_get_leaf``: leaf hash by index (counting from one)
+- ``_get_leaves``: an iterable of the leaf hashes corresponding to the
+  specified range
+- ``_get_size``: current tree size (number of leaves).
 
 
-Appending an entry calls ``_encode_entry`` to convert it to a binary object,
-which is then hashed as *value*; the entry is in turn passed along with its hash
-value to ``_store_leaf``, which is responsible for storing them for future
-access and return the index. ``_get_leaf`` should return the hash
-value by index. Below the exact protocol that is to be implemented:
+Various strategies are here possible. For example, data entry could be
+further processed by ``_store_leaf`` in order to conform to a given database
+schema and have the hash value stored in the appropriate table.
+Or, if a predefined schema is given that does not make space for hashes,
+the hash value could be forwarded to a dedicated datastore for future access;
+``_get_leaf`` and ``_get_leaves`` would then have to access that separate datastore
+in order to make available the hash value.
 
 
-.. code-block:: python
+.. collapse:: See here the exact protocol that is to be implemented.
 
-   # pymerkle/base.py
+    .. code-block:: python
 
-   class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
-      ...
+       # pymerkle/base.py
 
+       class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
+          ...
 
-      @abstractmethod
-      def _encode_entry(self, entry):
-          """
-          Should return the binary format of the provided entry
+          @abstractmethod
+          def _encode_entry(self, data):
+              """
+              Should return the binary format of the provided data entry.
 
-          :param entry: data to encode
-          :type entry: whatever expected according to application logic
-          :rtype: bytes
-          """
-
-
-      @abstractmethod
-      def _store_leaf(self, entry, value):
-          """
-          Should create a new leaf storing the provided entry along with its
-          binary format and corresponding hash value
-
-          :param entry: data to append
-          :type entry: whatever expected according to application logic
-          :param value: hashed data
-          :type value: bytes
-          :returns: index of newly appended leaf counting from one
-          :rtype: int
-          """
+              :param data: data to encode
+              :type data: whatever expected according to application logic
+              :rtype: bytes
+              """
 
 
-      @abstractmethod
-      def _get_leaf(self, index):
-          """
-          Should return the hash stored by the leaf specified
+          @abstractmethod
+          def _store_leaf(self, data, digest):
+              """
+              Should create a new leaf storing the provided data entry along
+              with its hash value.
 
-          :param index: leaf index counting from one
-          :type index: int
-          :rtype: bytes
-          """
-
-
-      @abstractmethod
-      def _get_size(self):
-          """
-          Should return the current number of leaves
-
-          :rtype: int
-          """
-      ...
+              :param data: data entry
+              :type data: whatever expected according to application logic
+              :param digest: hashed data
+              :type digest: bytes
+              :returns: index of newly appended leaf counting from one
+              :rtype: int
+              """
 
 
-Various strategies are here possible according to convenience. For example, the
-entry could be further processed by ``_store_leaf`` in order to conform with
-a given database schema and have the hash value stored in the appropriate table.
-Or, if a database schema is given that does not make space for hashes, the hash
-value could be forwarded to a dedicated datastore for future access; ``_get_leaf``
-would then have to access that separate datastore in order to make available the
-hash value.
+          @abstractmethod
+          def _get_leaf(self, index):
+              """
+              Should return the hash stored by the leaf specified.
 
+              :param index: leaf index counting from one
+              :type index: int
+              :rtype: bytes
+              """
+
+
+          @abstractmethod
+          def _get_leaves(self, offset, width):
+              """
+              Should return in respective order the hashes stored by the leaves in
+              the range specified.
+
+              :param offset: starting position counting from zero
+              :type offset: int
+              :param width: number of leaves to consider
+              :type width: int
+              :rtype: iterable of bytes
+              """
+          ...
 
 Examples
 ========
@@ -133,9 +145,8 @@ Examples
 Simple list
 -----------
 
-This is the simplest possible non-persistent implementation utilizing a list
-as storage. It expects strings as entries and encodes them in utf-8 before
-hashing.
+This is a simple non-persistent implementation utilizing a list as storage. It
+expects entries to be strings, which it encodes in utf-8 before hashing.
 
 
 .. code-block:: python
@@ -145,38 +156,44 @@ hashing.
 
   class MerkleTree(BaseMerkleTree):
 
-      def __init__(self, algorithm='sha256', security=True):
-          self.leaves = []
+      def __init__(self, algorithm='sha256'):
+          self.hashes = []
 
-          super().__init__(algorithm, security)
-
-
-      def _encode_entry(self, entry):
-          return entry.encode('utf-8')
+          super().__init__(algorithm)
 
 
-      def _store_leaf(self, entry, value):
-          self.leaves += [(entry, value)]
+      def _encode_entry(self, data):
+          return data.encode('utf-8')
 
-          return len(self.leaves)
+
+      def _store_leaf(self, data, digest):
+          self.hashes += [digest]
+  
+          return len(self.hashes)
 
 
       def _get_leaf(self, index):
-          _, value = self.leaves[index - 1]
-
+          value = self.hashes[index - 1]
+  
           return value
 
 
+      def _get_leaves(self, offset, width):
+          values = self.hashes[offset: offset + width]
+  
+          return values
+
+
       def _get_size(self):
-          return len(self.leaves)
+          return len(self.hashes)
 
 
 Unix DBM
 --------
 
 This is a hasty implementing using `dbm`_ to persistently store entries in
-a ``"merkledb"`` file (simple key/value datastore). It expects strings as
-entries and encodes them in utf-8 before hashing.
+a ``"merkledb"`` file. It expects strings as entries and encodes them in
+utf-8 before hashing.
 
 
 .. code-block:: python
@@ -187,25 +204,24 @@ entries and encodes them in utf-8 before hashing.
 
   class MerkleTree(BaseMerkleTree):
 
-      def __init__(self, algorithm='sha256', security=True):
+      def __init__(self, algorithm='sha256'):
           self.dbfile = 'merkledb'
           self.mode = 0o666
 
-          # Create file if it doesn't exist
           with dbm.open(self.dbfile, 'c', mode=self.mode) as db:
               pass
 
-          super().__init__(algorithm, security)
+          super().__init__(algorithm)
 
 
-      def _encode_entry(self, entry):
-          return entry.encode('utf-8')
+      def _encode_entry(self, data):
+          return data.encode('utf-8')
 
 
-      def _store_leaf(self, entry, value):
+      def _store_leaf(self, data, digest):
           with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
               index = len(db) + 1
-              db[hex(index)] = b'|'.join(entry.encode(), value)
+              db[hex(index)] = b'|'.join(data, digest)
 
           return index
 
@@ -222,10 +238,6 @@ entries and encodes them in utf-8 before hashing.
               size = len(db)
 
           return size
-
-
-Note that Unix DBM requires both key and value to be binary objects,
-so we have to also convert the index into bytes.
 
 
 Django app
