@@ -14,24 +14,25 @@ DEFAULT_SAVE=true
 usage_string="
 usage: ./$(basename "$0") [options]
 
-Run benchmarks against the database ${DEFAULT_DBFILE} of ten million
-entries
+Run benchmarks against ${DEFAULT_DBFILE}
 
 Results saved in ./.bencmarks/Linux-CPyhton-3.*
 
-Options
-  --dbfile DB               Database to use (default: ${DEFAULT_DBFILE})
-  --size SIZE               Nr entries to consider (default: ${DEFAULT_SIZE})
-  --index INDEX             Base index for proof operations. If not provided,
-                            it will be set equal to the ceil(size/2)
-  --rounds ROUNDS           Nr rounds per benchmark (default: ${DEFAULT_ROUNDS})
+Tree configuration
   --algorithm HASH          Hash algorithm used by the tree (default: ${DEFAULT_ALGORITHM})
   --threshold WIDTH         Subroot cache threshold (default: ${DEFAULT_THRESHOLD})
   --capacity MAXSIZE        Subroout cache capacity in bytes (default: 1GiB)
-  --operation OP            Benchmark a single operation: root, state, inclusion,
-                            consistency. If not provided, it benchmarks everything
   --disable-optimizations   Use unoptimized version of core operations
   --disable-cache           Disable caching
+
+Benchmarking options
+  --dbfile DB               Database to use (default: ${DEFAULT_DBFILE})
+  --operation OP            Benchmark a single operation: root, state, inclusion,
+                            consistency. If not provided, it benchmarks everything
+  --size SIZE               Nr entries to consider (default: ${DEFAULT_SIZE})
+  --index INDEX             Base index for proof operations. If not provided,
+                            it will be set equal to ceil(size/2)
+  --rounds ROUNDS           Nr rounds per benchmark (default: ${DEFAULT_ROUNDS})
   -r, --randomize           Randomize function input per round. Useful for
                             capturing the effect of caching. WARNING: This will
                             nullify the effect of the index option
@@ -43,6 +44,7 @@ Examples:
   $ ./benchmark.sh --rounds 10 --skip-save --size 1000000 --randomize --disable-optimizations
   $ ./benchmark.sh --rounds 10 --skip-save --size 1000000 --randomize --disable-cache
   $ ./benchmark.sh --rounds 10 --skip-save --size 1000000 --randomize
+
 "
 
 set -e
