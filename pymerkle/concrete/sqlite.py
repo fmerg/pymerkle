@@ -19,7 +19,8 @@ class SqliteTree(BaseMerkleTree):
     """
 
     def __init__(self, dbfile, algorithm='sha256', **opts):
-        self.con = sqlite3.connect(dbfile)
+        self.dbfile = dbfile
+        self.con = sqlite3.connect(self.dbfile)
         self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
 
@@ -149,3 +150,51 @@ class SqliteTree(BaseMerkleTree):
         cur.execute(query, (index,))
 
         return cur.fetchone()
+
+
+    def _hash_per_chunk(self, entries, chunksize):
+        """
+        :param entries:
+        :type entries: iterable of bytes
+        :param chunksize:
+        :type chunksize: int
+        """
+        hash_entry = self.hash_entry
+
+        offset = 0
+        chunk = entries[offset: chunksize]
+        while chunk:
+            hashes = [hash_entry(data) for data in chunk]
+            yield zip(chunk, hashes)
+
+            offset += chunksize
+            chunk = entries[offset: offset + chunksize]
+
+
+    def append_entries(self, entries, chunksize=100_000):
+        """
+        Bulk operation for appending a batch of entries.
+
+        :param entries: new data entries
+        :type entries: iterable of bytes
+        :param chunksize: [optional] nr entries to append per db transaction.
+            Defaults to 1,000,000.
+        :type chunksize: int
+        :returns: index of last appended entry
+        :rtype: int
+        """
+        cur = self.cur
+
+        with self.con:
+            query = f'''
+                INSERT INTO leaf(entry, hash) VALUES (?, ?)
+            '''
+            for chunk in self._hash_per_chunk(entries, chunksize):
+                cur.execute('BEGIN TRANSACTION')
+
+                for (data, digest) in chunk:
+                    cur.execute(query, (data, digest))
+
+                cur.execute('END TRANSACTION')
+
+        return cur.lastrowid
