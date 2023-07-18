@@ -12,15 +12,15 @@ class InvalidProof(Exception):
     pass
 
 
-def verify_inclusion(base, target, proof):
+def verify_inclusion(base, root, proof):
     """
     Verifies the provided Merkle-proof of inclusion against the provided base
     hash and state
 
     :param base: acclaimed base hash
     :type base: bytes
-    :param target: acclaimed root hash
-    :type target: bytes
+    :param root: acclaimed root hash
+    :type root: bytes
     :param proof: proof of inclusion
     :type proof: MerkleProof
     :raises InvalidProof: if the proof is found invalid
@@ -28,7 +28,7 @@ def verify_inclusion(base, target, proof):
     if not proof.path[0] == base:
         raise InvalidProof('Base hash does not match')
 
-    if not proof.resolve() == target:
+    if not proof.resolve() == root:
         raise InvalidProof('State does not match')
 
 
@@ -146,7 +146,7 @@ class MerkleProof:
 
     def resolve(self):
         """
-        Computes the target of the included path of hashes
+        Computes the target hash of the included path of hashes
 
         :rtype: bytes
         """

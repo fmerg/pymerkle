@@ -84,6 +84,6 @@ def tree_and_index(default_config=False):
 
 
 def tree_and_range(default_config=False):
-    return [(tree, start, end) for tree in make_trees(default_config)
-                               for start in range(0, tree.get_size())
-                               for end in range(start + 1, tree.get_size())]
+    return [(tree, start, limit) for tree in make_trees(default_config)
+                                 for start in range(0, tree.get_size())
+                                 for limit in range(start + 1, tree.get_size())]

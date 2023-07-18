@@ -58,9 +58,9 @@ Verify the proof against the base hash and the subtree root:
 from pymerkle import verify_inclusion
 
 base = tree.get_leaf(3)
-target = tree.get_state(5)
+root = tree.get_state(5)
 
-verify_inclusion(base, target, proof)
+verify_inclusion(base, root, proof)
 ```
 
 ### Consistency proof

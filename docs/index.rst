@@ -5,7 +5,7 @@ pymerkle
 |Build-Status| |PyPI-version| |Python >= 3.10|
 
 .. |Build-Status| image:: https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg
-   :target: https://gitlab.com/fmerg/pymerkle/commits/master
+   :ttargetarget: https://gitlab.com/fmerg/pymerkle/commits/master
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
 .. |Python >= 3.10| image:: https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg
@@ -72,9 +72,9 @@ Verify the proof against the base hash and the subtree root:
   from pymerkle import verify_inclusion
 
   base = tree.get_leaf(3)
-  target = tree.get_state(5)
+  root = tree.get_state(5)
 
-  verify_inclusion(base, target, proof)
+  verify_inclusion(base, root, proof)
 
 
 Consistency proof

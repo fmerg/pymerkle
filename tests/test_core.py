@@ -5,11 +5,11 @@ from pymerkle.utils import decompose
 from tests.conftest import option, tree_and_index, tree_and_range
 
 
-@pytest.mark.parametrize('tree, start, end', tree_and_range())
-def test_get_root(tree, start, end):
+@pytest.mark.parametrize('tree, start, limit', tree_and_range())
+def test_get_root(tree, start, limit):
     offset = start
     subroots = []
-    for p in reversed(decompose(end - start)):
+    for p in reversed(decompose(limit - start)):
         node = tree._get_subroot(offset, 1 << p)
         subroots += [node]
         offset += 1 << p
@@ -21,8 +21,8 @@ def test_get_root(tree, start, end):
         root = tree._hash_nodes(subroots[index + 1], root)
         index += 1
 
-    assert root == tree._get_root_naive(start, end)
-    assert root == tree._get_root(start, end)
+    assert root == tree._get_root_naive(start, limit)
+    assert root == tree._get_root(start, limit)
 
 
 @pytest.mark.parametrize('tree, size', tree_and_index())
@@ -33,11 +33,11 @@ def test_state(tree, size):
     assert state == tree._get_root(0, size)
 
 
-@pytest.mark.parametrize('tree, start, end', tree_and_range())
-def test_inclusion_path(tree, start, end):
-    for bit, offset in product([0, 1], range(start, end)):
-        path1 = tree._inclusion_path(start, offset, end, bit)
-        path2 = tree._inclusion_path_naive(start, offset, end, bit)
+@pytest.mark.parametrize('tree, start, limit', tree_and_range())
+def test_inclusion_path(tree, start, limit):
+    for bit, offset in product([0, 1], range(start, limit)):
+        path1 = tree._inclusion_path(start, offset, limit, bit)
+        path2 = tree._inclusion_path_naive(start, offset, limit, bit)
 
         assert path1 == path2
 

@@ -51,7 +51,7 @@ def parse_cli_args():
         help='Run `_get_root`')
     root.add_argument('--start', type=int, default=0,
         help='Starting position')
-    root.add_argument('--end', type=int, default=DB_SIZE,
+    root.add_argument('--limit', type=int, default=DB_SIZE,
         help='Final position')
 
     state = operation.add_parser('state',
@@ -91,14 +91,14 @@ if __name__ == '__main__':
             func = tree._get_root
 
             def get_args():
-                return (cli.start, cli.end)
+                return (cli.start, cli.limit)
 
             if cli.randomize:
                 def get_args():
-                    start = randint(0, cli.end - 2)
-                    end = randint(start + 1, cli.end)
+                    start = randint(0, cli.limit - 2)
+                    limit = randint(start + 1, cli.limit)
 
-                    return (start, end)
+                    return (start, limit)
 
         case 'state':
             func = tree.get_state

@@ -68,7 +68,7 @@ resolve_action_options() {
 
     case $1 in
         root)
-            options="--start ${INDEX} --end ${SIZE}"
+            options="--start ${INDEX} --limit ${SIZE}"
             ;;
         state)
             options="--size ${SIZE}"

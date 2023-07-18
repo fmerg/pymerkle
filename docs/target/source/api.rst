@@ -165,18 +165,18 @@ corresponding to the first 5 leaves:
    >>> proof = tree.prove_inclusion(3, 5)
 
 
-The second argument is optional end defaults to the current size. Verification
+The second argument is optional and defaults to the current tree size. Verification
 proceeds as follows:
 
 
 .. code-block:: python
 
-   >>> from pymerkle import verify_inclusion
-   >>>
-   >>> base = tree.get_leaf(3)
-   >>> target = tree.get_state(5)
-   >>>
-   >>> verify_inclusion(base, target, proof)
+   from pymerkle import verify_inclusion
+
+   base = tree.get_leaf(3)
+   root = tree.get_state(5)
+
+   verify_inclusion(base, root, proof)
 
 
 This checks that the path of hashes is indeed based on the acclaimed hash and
@@ -189,7 +189,7 @@ base or state would raise an error:
    >>> from pymerkle.hasher import MerkleHasher
    >>> forged = MerkleHasher(tree.algorithm, tree.security).hash_raw(b'random')
    >>>
-   >>> verify_inclusion(forged, target, proof)
+   >>> verify_inclusion(forged, root, proof)
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Base hash does not match
@@ -214,7 +214,7 @@ consistency proof for the states with three and five leaves respectively:
    >>> proof = tree.prove_consistency(3, 5)
 
 
-The second argument is optional end defaults to the current size. Verification
+The second argument is optional and defaults to the current tree size. Verification
 proceeds as follows:
 
 

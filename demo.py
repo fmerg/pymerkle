@@ -120,9 +120,9 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(2)
     sys.stdout.write(strproof(proof))
 
-    target = tree.get_state()
+    root = tree.get_state()
     base = tree.get_leaf(2)
-    verify_inclusion(base, target, proof)
+    verify_inclusion(base, root, proof)
 
     # Save current state and append further entries
     size1 = tree.get_size()

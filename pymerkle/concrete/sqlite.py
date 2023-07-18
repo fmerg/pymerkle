@@ -178,7 +178,7 @@ class SqliteTree(BaseMerkleTree):
         :param entries: new data entries
         :type entries: iterable of bytes
         :param chunksize: [optional] nr entries to append per db transaction.
-            Defaults to 1,000,000.
+            Defaults to 100,000.
         :type chunksize: int
         :returns: index of last appended entry
         :rtype: int

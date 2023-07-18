@@ -211,7 +211,7 @@ class InmemoryTree(BaseMerkleTree):
         digest = self._hash_nodes(node.digest, tail.digest)
         if node.is_root():
             self.root = Node(digest, node, tail)
-            index = self.get_size()
+            index = self._get_size()
             return index
 
         curr = node.parent
@@ -222,7 +222,7 @@ class InmemoryTree(BaseMerkleTree):
                 curr.left.digest, curr.right.digest)
             curr = curr.parent
 
-        index = self.get_size()
+        index = self._get_size()
         return index
 
 
@@ -293,7 +293,7 @@ class InmemoryTree(BaseMerkleTree):
         :type size: int
         :rtype: bytes
         """
-        currsize = self.get_size()
+        currsize = self._get_size()
 
         if size is None:
             size = currsize
@@ -355,7 +355,7 @@ class InmemoryTree(BaseMerkleTree):
         return rule, path
 
 
-    def _inclusion_path(self, start, offset, end, bit):
+    def _inclusion_path(self, start, offset, limit, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
@@ -367,16 +367,16 @@ class InmemoryTree(BaseMerkleTree):
         :type start: int
         :param offset: base leaf index counting from zero
         :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
+        :param limit: rightmost leaf index counting from zero
+        :type limit: int
         :param bit: bit indicating direction during recursive call
         :type bit: int
         :rtype: (list[int], list[bytes])
         """
-        if start == 0 and end == self.get_size():
+        if start == 0 and limit == self._get_size():
             return self._inclusion_path_fallback(offset)
 
-        return super()._inclusion_path(start, offset, end, bit)
+        return super()._inclusion_path(start, offset, limit, bit)
 
 
     def _get_subroot_node(self, index, height):
@@ -445,7 +445,7 @@ class InmemoryTree(BaseMerkleTree):
         :type size: int
         :rtype: list[Node]
         """
-        if size < 0 or size > self.get_size():
+        if size < 0 or size > self._get_size():
             return []
 
         subroots = []

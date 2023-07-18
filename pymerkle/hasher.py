@@ -70,28 +70,29 @@ class MerkleHasher:
         return self._consume_bytes(buff)
 
 
-    def hash_buff(self, blob):
+    def hash_buff(self, data):
         """
         Computes the hash of the provided binary data.
 
         .. note:: Prepends ``\\x00`` if security mode is enabled
 
-        :type blob: bytes
+        :type data: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(self.prefx00 + blob)
+        return self._consume_bytes(self.prefx00 + data)
 
 
-    def hash_pair(self, blob1, blob2):
+
+    def hash_pair(self, buff1, buff2):
         """
         Computes the hash of the concatenation of the provided binary data.
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
-        :param blob1: left value
-        :type blob1: bytes
-        :param blob2: right value
-        :type blob2: bytes
+        :param buff1: left value
+        :type buff1: bytes
+        :param buff2: right value
+        :type buff2: bytes
         :rtype: bytes
         """
-        return self.hashfunc(self.prefx01 + blob1 + blob2).digest()
+        return self.hashfunc(self.prefx01 + buff1 + buff2).digest()

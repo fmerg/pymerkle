@@ -99,8 +99,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        blob = self._encode_entry(data)
-        digest = self._hash_entry(blob)
+        buffer = self._encode_entry(data)
+        digest = self._hash_entry(buffer)
         index = self._store_leaf(data, digest)
 
         return index
@@ -344,14 +344,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _get_root(self, start, end):
+    def _get_root(self, start, limit):
         """
         Returns the root-hash corresponding to the provided leaf range
 
         :param start: offset counting from zero
         :type start: int
-        :param end: last leaf index counting from one
-        :type end: int
+        :param limit: last leaf index counting from one
+        :type limit: int
         :rtype: bytes
         """
         subroots = deque()
@@ -360,13 +360,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         pop = subroots.pop
 
         _get_subroot = self._get_subroot
-        exponents = decompose(end - start)
+        exponents = decompose(limit - start)
         for p in exponents:
             width = 1 << p
-            offset = end - width
+            offset = limit - width
             node = _get_subroot(offset, width)
             prepend(node)
-            end = offset
+            limit = offset
 
         hashfunc = self.hashfunc
         prefx01 = self.prefx01
@@ -380,7 +380,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _inclusion_path(self, start, offset, end, bit):
+    def _inclusion_path(self, start, offset, limit, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
@@ -392,22 +392,22 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type start: int
         :param offset: base leaf index counting from zero
         :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
+        :param limit: rightmost leaf index counting from zero
+        :type limit: int
         :param bit: indicates direction during recursive call
         :type bit: int
         :rtype: (list[int], list[bytes])
         """
         stack = deque()
         push = stack.append
-        while end > start + 1:
-            k = 1 << log2(end - start)
-            if k == end - start:
+        while limit > start + 1:
+            k = 1 << log2(limit - start)
+            if k == limit - start:
                 k >>= 1
 
             if offset < start + k:
-                push((bit, (start + k, end)))
-                end = start + k
+                push((bit, (start + k, limit)))
+                limit = start + k
                 bit = 0
             else:
                 push((bit, (start, start + k)))
@@ -430,7 +430,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _consistency_path(self, start, offset, end, bit):
+    def _consistency_path(self, start, offset, limit, bit):
         """
         Computes the consistency path for the state corresponding to the
         provided offset against the specified leaf range
@@ -442,38 +442,38 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type start: int
         :param offset: size corresponding to state under consideration
         :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
+        :param limit: rightmost leaf index counting from zero
+        :type limit: int
         :param bit: indicates direction during recursive call
         :type bit: int
         :rtype: (list[int], list[int], list[bytes])
         """
         stack = deque()
         push = stack.append
-        while not offset == end and not (offset == 0 and end == 1):
-            k = 1 << log2(end)
-            if k == end:
+        while not offset == limit and not (offset == 0 and limit == 1):
+            k = 1 << log2(limit)
+            if k == limit:
                 k >>= 1
 
             mask = 0
             if offset < k:
-                push((bit, mask, (start + k, start + end)))
-                end = k
+                push((bit, mask, (start + k, start + limit)))
+                limit = k
                 bit = 0
             else:
                 mask = int(k == 1 << log2(k))
                 push((bit, mask, (start, start + k)))
                 start += k
                 offset -= k
-                end -= k
+                limit -= k
                 bit = 1
 
         _get_root = self._get_root
         _get_leaf = self._get_leaf
 
-        if offset == end:
+        if offset == limit:
             mask = 1
-            base = _get_root(start, start + end)
+            base = _get_root(start, start + limit)
         else:
             mask = 0
             base = _get_leaf(start + offset + 1)
@@ -492,7 +492,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _get_root_naive(self, start, end):
+    def _get_root_naive(self, start, limit):
         """
         Returns the root-hash corresponding to the provided leaf range,
         essentially according to RFC 9162.
@@ -502,28 +502,28 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         :param start: offset counting from zero
         :type start: int
-        :param end: last leaf index counting from one
-        :type end: int
+        :param limit: last leaf index counting from one
+        :type limit: int
         :rtype: bytes
         """
-        if end == start:
+        if limit == start:
             return sef.hash_empty()
 
-        if end == start + 1:
-            return self._get_leaf(end)
+        if limit == start + 1:
+            return self._get_leaf(limit)
 
-        k = 1 << log2(end - start)
-        if k == end - start:
+        k = 1 << log2(limit - start)
+        if k == limit - start:
             k >>= 1
 
         lnode = self._get_root_naive(start, start + k)
-        rnode = self._get_root_naive(start + k, end)
+        rnode = self._get_root_naive(start + k, limit)
 
         return self._hash_nodes(lnode, rnode)
 
 
     @profile
-    def _inclusion_path_naive(self, start, offset, end, bit):
+    def _inclusion_path_naive(self, start, offset, limit, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range, essentially according to RFC 9162.
@@ -535,32 +535,32 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type start: int
         :param offset: base leaf index counting from zero
         :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
+        :param limit: rightmost leaf index counting from zero
+        :type limit: int
         :param bit: indicates direction during recursive call
         :type bit: int
         :rtype: (list[int], list[bytes])
         """
-        if offset == start and start == end - 1:
+        if offset == start and start == limit - 1:
             node = self._get_leaf(offset + 1)
             return [bit], [node]
 
-        k = 1 << log2(end - start)
-        if k == end - start:
+        k = 1 << log2(limit - start)
+        if k == limit - start:
             k >>= 1
 
         if offset < start + k:
             rule, path = self._inclusion_path_naive(start, offset, start + k, 0)
-            node = self._get_root(start + k, end)
+            node = self._get_root(start + k, limit)
         else:
-            rule, path = self._inclusion_path_naive(start + k, offset, end, 1)
+            rule, path = self._inclusion_path_naive(start + k, offset, limit, 1)
             node = self._get_root(start, start + k)
 
         return rule + [bit], path + [node]
 
 
     @profile
-    def _consistency_path_naive(self, start, offset, end, bit):
+    def _consistency_path_naive(self, start, offset, limit, bit):
         """
         Computes the consistency path for the state corresponding to the
         provided offset against the specified leaf range, essentially according
@@ -573,31 +573,31 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type start: int
         :param offset: size corresponding to state under consideration
         :type offset: int
-        :param end: rightmost leaf index counting from zero
-        :type end: int
+        :param limit: rightmost leaf index counting from zero
+        :type limit: int
         :param bit: indicates direction during recursive call
         :type bit: int
         :rtype: (list[int], list[int], list[bytes])
         """
-        if offset == end:
-            node = self._get_root(start, start + end)
+        if offset == limit:
+            node = self._get_root(start, start + limit)
             return [bit], [1], [node]
 
-        if offset == 0 and end == 1:
+        if offset == 0 and limit == 1:
             node = self._get_leaf(start + offset + 1)
             return [bit], [0], [node]
 
-        k = 1 << log2(end)
-        if k == end:
+        k = 1 << log2(limit)
+        if k == limit:
             k >>= 1
         mask = 0
 
         if offset < k:
             rule, subset, path = self._consistency_path_naive(start, offset, k, 0)
-            node = self._get_root(start + k, start + end)
+            node = self._get_root(start + k, start + limit)
         else:
             rule, subset, path = self._consistency_path_naive(start + k, offset - k,
-                    end - k, 1)
+                    limit - k, 1)
             node = self._get_root(start, start + k)
             mask = int(k == 1 << log2(k))
 
