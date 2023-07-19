@@ -58,7 +58,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'python_docs_theme'
+html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -77,8 +77,3 @@ intersphinx_mapping = {
 master_doc = 'index'
 pygments_style = 'sphinx'
 extensions += ['sphinx.ext.autosectionlabel']
-extensions += ['sphinx_toolbox.collapse']
-html_sidebars = {
-    '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
-    'using/windows': ['windowssidebar.html', 'searchbox.html']
-  }

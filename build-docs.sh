@@ -114,7 +114,6 @@ sed -ie "/$line_3/s/('.')/('..\/..\/..')/" $CONFIG
 
 # echo "autodoc_default_options = {'private-members': True}" >> $CONFIG
 echo "extensions += ['sphinx.ext.autosectionlabel']" >> $CONFIG
-echo "extensions += ['sphinx_toolbox.collapse']" >> $CONFIG
 
 if [ $THEME == $PYTHON_THEME ]; then
   echo "html_sidebars = {

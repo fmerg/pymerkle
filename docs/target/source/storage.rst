@@ -76,65 +76,81 @@ the hash value could be forwarded to a dedicated datastore for future access;
 in order to make available the hash value.
 
 
-.. collapse:: See here the exact protocol that is to be implemented.
-
-    .. code-block:: python
-
-       # pymerkle/base.py
-
-       class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
-          ...
-
-          @abstractmethod
-          def _encode_entry(self, data):
-              """
-              Should return the binary format of the provided data entry.
-
-              :param data: data to encode
-              :type data: whatever expected according to application logic
-              :rtype: bytes
-              """
+.. note:: It is important to implement ``_get_leaves`` as efficiently as
+    possible depending on your working framework.
+    See :ref:`Optimizations<Optimizations>` for details.
 
 
-          @abstractmethod
-          def _store_leaf(self, data, digest):
-              """
-              Should create a new leaf storing the provided data entry along
-              with its hash value.
-
-              :param data: data entry
-              :type data: whatever expected according to application logic
-              :param digest: hashed data
-              :type digest: bytes
-              :returns: index of newly appended leaf counting from one
-              :rtype: int
-              """
+Here the exact interface to be implemented:
 
 
-          @abstractmethod
-          def _get_leaf(self, index):
-              """
-              Should return the hash stored by the leaf specified.
+.. code-block:: python
 
-              :param index: leaf index counting from one
-              :type index: int
-              :rtype: bytes
-              """
+   # pymerkle/base.py
+
+   class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
+      ...
+
+      @abstractmethod
+      def _encode_entry(self, data):
+          """
+          Should return the binary format of the provided data entry.
+
+          :param data: data to encode
+          :type data: whatever expected according to application logic
+          :rtype: bytes
+          """
 
 
-          @abstractmethod
-          def _get_leaves(self, offset, width):
-              """
-              Should return in respective order the hashes stored by the leaves in
-              the range specified.
+      @abstractmethod
+      def _store_leaf(self, data, digest):
+          """
+          Should create a new leaf storing the provided data entry along with
+          its hash value.
 
-              :param offset: starting position counting from zero
-              :type offset: int
-              :param width: number of leaves to consider
-              :type width: int
-              :rtype: iterable of bytes
-              """
-          ...
+          :param data: data entry
+          :type data: whatever expected according to application logic
+          :param digest: hashed data
+          :type digest: bytes
+          :returns: index of newly appended leaf counting from one
+          :rtype: int
+          """
+
+
+      @abstractmethod
+      def _get_leaf(self, index):
+          """
+          Should return the hash stored at the specified leaf.
+
+          :param index: leaf index counting from one
+          :type index: int
+          :rtype: bytes
+          """
+
+
+      @abstractmethod
+      def _get_leaves(self, offset, width):
+          """
+          Should return in respective order the hashes stored by the leaves in
+          the specified range.
+
+          :param offset: starting position counting from zero
+          :type offset: int
+          :param width: number of leaves to consider
+          :type width: int
+          :rtype: iterable of bytes
+          """
+
+
+      @abstractmethod
+      def _get_size(self):
+          """
+          Should return the current number of leaves
+
+          :rtype: int
+          """
+      ...
+
 
 Examples
 ========

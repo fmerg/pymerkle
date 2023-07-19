@@ -3,5 +3,4 @@ pytest-cov>=3.0.0
 pytest-benchmark[histogram]>=3.4.1
 sphinx==4.4.0
 sphinx_rtd_theme>=1.0.0
-sphinx_toolbox==3.4.0
 python-docs-theme
