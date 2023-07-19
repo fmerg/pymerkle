@@ -159,12 +159,12 @@ class SqliteTree(BaseMerkleTree):
         :param chunksize:
         :type chunksize: int
         """
-        hash_entry = self.hash_entry
+        _hash_entry = self.hash_buff
 
         offset = 0
         chunk = entries[offset: chunksize]
         while chunk:
-            hashes = [hash_entry(data) for data in chunk]
+            hashes = [_hash_entry(data) for data in chunk]
             yield zip(chunk, hashes)
 
             offset += chunksize

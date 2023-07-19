@@ -70,7 +70,7 @@ class MerkleHasher:
         return self._consume_bytes(buff)
 
 
-    def hash_entry(self, blob):
+    def hash_buff(self, blob):
         """
         Computes the hash of the provided binary data.
 

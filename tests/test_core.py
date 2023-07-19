@@ -18,7 +18,7 @@ def test_get_root(tree, start, end):
     root = subroots[0]
     index = 0
     while index < len(subroots) - 1:
-        root = tree.hash_pair(subroots[index + 1], root)
+        root = tree._hash_nodes(subroots[index + 1], root)
         index += 1
 
     assert root == tree._get_root_naive(start, end)

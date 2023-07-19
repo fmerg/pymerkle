@@ -50,6 +50,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
 
     def __init__(self, algorithm='sha256', **opts):
+        self.algorithm = algorithm
+        self.security = not opts.get('disable_security', False)
         self.threshold = opts.get('threshold', 128)
         self.capacity = opts.get('capacity', 1024 ** 3)
         self.cache = LRUCache(maxsize=self.capacity, getsizeof=len)
@@ -65,8 +67,27 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if opts.get('disable_cache', False):
             self._get_subroot = self._get_subroot_uncached
 
-        security = not opts.get('disable_security', False)
-        super().__init__(algorithm, security)
+        super().__init__(self.algorithm, self.security)
+
+
+    def _hash_entry(self, data):
+        """
+        TODO
+
+        :param data: data to hash
+        :type data: whatever expected according to application logic
+        :returns: data digest
+        :rtype: bytes
+        """
+        return self.hash_buff(data)
+
+
+    def _hash_nodes(self, lnode, rnode):
+        """
+        TODO
+        """
+        return self.hash_pair(lnode, rnode)
+
 
 
     def append_entry(self, data):
@@ -79,7 +100,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: int
         """
         blob = self._encode_entry(data)
-        digest = self.hash_entry(blob)
+        digest = self._hash_entry(blob)
         index = self._store_leaf(data, digest)
 
         return index
@@ -305,14 +326,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         popleft = level.popleft
         append = level.append
-        hash_pair = self.hash_pair
+        hashfunc = self.hashfunc
+        prefx01 = self.prefx01
         while width > 1:
             count = 0
 
             while count < width:
                 lnode = popleft()
                 rnode = popleft()
-                node = hash_pair(lnode, rnode)
+                node = hashfunc(prefx01 + lnode + rnode).digest()
                 append(node)
                 count += 2
 
@@ -346,11 +368,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             prepend(node)
             end = offset
 
-        hash_pair = self.hash_pair
+        hashfunc = self.hashfunc
+        prefx01 = self.prefx01
         while len(subroots) > 1:
             lnode = pop()
             rnode = pop()
-            node = hash_pair(rnode, lnode)
+            node = hashfunc(prefx01 + rnode + lnode).digest()
             append(node)
 
         return subroots[0]
@@ -496,7 +519,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         lnode = self._get_root_naive(start, start + k)
         rnode = self._get_root_naive(start + k, end)
 
-        return self.hash_pair(lnode, rnode)
+        return self._hash_nodes(lnode, rnode)
 
 
     @profile
