@@ -5,10 +5,8 @@ from setuptools import setup, find_packages
 import os
 import io
 
-import pymerkle
-
-
 URL = "https://github.com/fmerg/pymerkle"
+VERSION = '6.0.0'
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -26,9 +24,9 @@ with open("README.md", 'r') as f:
 
 def main():
     setup(
-       name=pymerkle.__name__,
-       version=pymerkle.__version__,
-       description=pymerkle.__doc__.strip(),
+       name='pymerkle',
+       version=VERSION,
+       description='Merkle-tree cryptography in python',
        long_description=long_description,
        long_description_content_type='text/markdown',
        packages=find_packages(exclude=['tests']),
@@ -36,8 +34,8 @@ def main():
        url=URL,
        project_urls={
             "github": URL,
-            "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
-            "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__,
+            "source": "%s/%s" % (URL, "tree/master/%s" % 'pymerkle'),
+            "docs": "https://%s.readthedocs.io/en/latest/" % VERSION,
        },
        author="fmerg",
        author_email="fmerg@protonmail.com",

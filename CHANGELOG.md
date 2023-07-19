@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 
 
+## 6.0.0 2023-07-19
+
+This version introduces significant optimizations.
+
+
+### Added
+
+- `append_entry` method
+- `hash_empty` and `hash_raw` methods
+- `append_entries` operation to `SqliteTree`
+
+
+### Changed
+
+- `BaseMerkleTree` private interface
+- `hash_leaf` renamed to `hash_entry`
+- `hash_nodes` renamed to `hash_pair`
+
+
+### Removed
+
+- `UnsupportedParameter`
+
+
 ## 5.0.3 2023-06-11
 
 ### Removed
