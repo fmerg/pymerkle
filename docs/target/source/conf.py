@@ -42,7 +42,3 @@ intersphinx_mapping = {
 master_doc = 'index'
 pygments_style = 'sphinx'
 extensions += ['sphinx.ext.autosectionlabel']
-html_sidebars = {
-    '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
-    'using/windows': ['windowssidebar.html', 'searchbox.html']
-  }
