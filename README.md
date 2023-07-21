@@ -1,6 +1,6 @@
 # pymerkle
 
-**Merkle-tree cryptography in python**
+**Merkle-tree in Python**
 
 [![Build Status](https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg)](https://gitlab.com/fmerg/pymerkle/commits/master)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
@@ -253,22 +253,22 @@ pip3 install -r requirements-dev.txt
 ### Tests
 
 ```commandline
-./test.sh --help
+./test.sh [--help]
 ```
 
-### Performance measurements
+### Performance
 
 In order to capture the effect of I/O operations, performance measurements are
 run against a SQLite database as leaf storage. Create it using the following script:
 
 ```commandline
-python benchmarks/init_db.py --help
+python benchmarks/init_db.py [--help]
 ```
 
 #### Benchmarks
 
 ```commandline
-./benchmark.sh --help
+./benchmark.sh [--help]
 ```
 
 #### Profiling
@@ -277,7 +277,7 @@ Assuming [`valgrind`](https://valgrind.org/) and
 [`massif-visualizer`](https://apps.kde.org/massif-visualizer/) are installed, use
 
 ```commandline
-./profile.sh --help
+./profile.sh [--help]
 ```
 
 to do memory profiling. Pass `--time` to profile execution times
@@ -291,7 +291,7 @@ instead of memory allocations.
 ### Build locally
 
 Documentation is built with
-[`sphinx`](https://www.sphinx-doc.org/en/master/index.html)
+[`sphinx`](https://www.sphinx-doc.org/en/master/index.html).
 
 Assuming dev requirements have been installed, build the docs with
 
@@ -304,3 +304,5 @@ and browse at
 ```
 docs/target/build/html/index.html
 ```
+
+to view them.

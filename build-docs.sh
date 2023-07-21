@@ -84,6 +84,8 @@ done
 
 set -e
 
+export LC_ALL=C
+
 # Generate sphinx source
 rm -rf "$TARGET"
 sphinx-quickstart "$TARGET" \

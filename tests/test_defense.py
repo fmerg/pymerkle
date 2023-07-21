@@ -1,23 +1,22 @@
 """
-Performs second-preimage attack for both security modes. Attach should succeed
-only when the tree's securitu mode has been disabled, that is, iff the security
-attribute has been set to false
+Performs second-preimage attack for both security modes. Attack should succeed
+only when the tree's securitu mode has been disabled.
 
-Attack Schema
+Attack schema
 -------------
 
                Original tree               Attacker's tree
 
                      G                           G
                    /   \                       /   \
-                 E       F = h(CD)           E      F    ------> [injected leaf]
-                / \     / \                 / \     |
-hashes:        A   B   C   D               A   B   (CD)  <------ [forged entry]
+                 E       F = h(CD)           E       F    ------> [injected leaf]
+                / \     / \                 / \      |
+hashes:        A   B   C   D               A   B    (CD)  <------ [forged entry]
                |   |   |   |               |   |
 entries:       a   b   c   d               a   b
 
 
-Concatenate the 3-rd and 4-th leaf-hashes and append the result as 3-rd,
+Concatenate the 3-rd and 4-th leaf-hashes and append the result as 3-rd leaf,
 leaving the rest leaves unoutched
 """
 

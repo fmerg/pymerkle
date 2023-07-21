@@ -244,7 +244,17 @@ utf-8 before hashing.
 
       def _get_leaf(self, index):
           with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-            value = db[hex(index)].split(b'|')[1]
+              value = db[hex(index)].split(b'|')[1]
+
+          return value
+
+
+      def _get_leaves(self, offset, width):
+          values = []
+          with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
+              for index in range(offset + 1, width + 1):
+                  value = db[hex(index)].split(b'|')[index]
+                  values += [value]
 
           return value
 
