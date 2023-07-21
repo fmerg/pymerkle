@@ -157,7 +157,7 @@ be done without taking explicit care:
 .. code-block:: python
 
   with SqliteTree('merkle.db') as tree:
-    ...
+      ...
 
 
 .. _sqlite3: https://docs.python.org/3/library/sqlite3.html

@@ -1,6 +1,6 @@
 # pymerkle
 
-**Merkle-tree cryptography in python**
+**Merkle-tree implementation in Python**
 
 [![Build Status](https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg)](https://gitlab.com/fmerg/pymerkle/commits/master)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)

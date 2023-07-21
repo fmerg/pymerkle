@@ -10,9 +10,9 @@ pymerkle
    :target: https://pypi.org/project/pymerkle/
 .. |Python >= 3.10| image:: https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg
 
-**********************************
-Merkle-tree cryptography in python
-**********************************
+************************************
+Merkle-tree implementation in Python
+************************************
 
 Storage agnostic implementation capable of generating inclusion and consistency proofs.
 
