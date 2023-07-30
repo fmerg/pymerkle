@@ -165,13 +165,12 @@ class MerkleProof:
         while index < len(path) - 1:
             next_bit, digest = path[index + 1]
 
-            match bit:
-                case 0:
-                    result = hash_pair(result, digest)
-                case 1:
-                    result = hash_pair(digest, result)
-                case _:
-                    raise ValuError('Invalid bit found')
+            if bit == 0:
+                result = hash_pair(result, digest)
+            elif bit == 1:
+                result = hash_pair(digest, result)
+            else:
+                raise ValueError('Invalid bit found')
 
             bit = next_bit
             index += 1
