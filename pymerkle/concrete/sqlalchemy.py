@@ -110,7 +110,7 @@ class SqlAlchemyTree(BaseMerkleTree):
         :type index: int
         :rtype: bytes
         """
-        stmt = select(self.leaf_table.c.entry).where(self.leaf.c.id == index)
+        stmt = select(self.leaf_table.c.entry).where(self.leaf_table.c.id == index)
         with self.engine.connect() as conn:
             result = conn.execute(stmt)
             return result.scalar_one()
