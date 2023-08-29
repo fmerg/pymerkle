@@ -1,4 +1,5 @@
 import hashlib
+import sha3
 from pymerkle import constants
 
 
@@ -24,7 +25,10 @@ class MerkleHasher:
 
         self.algorithm = algorithm
         self.security = security
-        self.hashfunc = getattr(hashlib, algorithm)
+        self.hashfunc = getattr(
+            sha3 if algorithm.startswith('keccak') else hashlib,
+            algorithm
+        )
 
 
     def _consume_bytes(self, buff):

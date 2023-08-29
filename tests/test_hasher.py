@@ -1,7 +1,7 @@
 import pytest
 import hashlib
+import sha3
 from pymerkle.hasher import MerkleHasher
-from pymerkle.constants import ALGORITHMS
 from tests.conftest import option, all_configs
 
 
@@ -13,23 +13,21 @@ prefx01 = b'\x01'
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_hash_buff(config):
-    h = MerkleHasher(**config)
+    algorithm = config['algorithm']
+    security = not config['disable_security']
+    h = MerkleHasher(algorithm, security)
 
-    if h.security:
-        assert h.hash_buff(data) == getattr(hashlib, h.algorithm)(
-            prefx00 + data).digest()
-    else:
-        assert h.hash_buff(data) == getattr(hashlib, h.algorithm)(
-            data).digest()
+    module = sha3 if algorithm.startswith('keccak') else hashlib
+    payload = data if not security else (prefx00 + data)
+    assert h.hash_buff(data) == getattr(module, algorithm)(payload).digest()
 
 
 @pytest.mark.parametrize('config', all_configs(option))
 def test_hash_pair(config):
-    h = MerkleHasher(**config)
+    algorithm = config['algorithm']
+    security = not config['disable_security']
+    h = MerkleHasher(algorithm, security)
 
-    if h.security:
-        assert h.hash_pair(data, data) == getattr(hashlib, h.algorithm)(
-            prefx01 + data + data).digest()
-    else:
-        assert h.hash_pair(data, data) == getattr(hashlib, h.algorithm)(
-            data + data).digest()
+    module = sha3 if algorithm.startswith('keccak') else hashlib
+    payload = (data + data) if not h.security else (prefx01 + data + data)
+    assert h.hash_pair(data, data) == getattr(module, algorithm)(payload).digest()
