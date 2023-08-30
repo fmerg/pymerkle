@@ -65,8 +65,14 @@ See :ref:`here<Storage>` to see how to implement a Merkle-tree in detail.
 Supported hash functions
 ------------------------
 
-The currently supported hash functions are *sha224*, *sha256*, *sha384*,
-*sha512*, *sha3_224*, *sha3_256*, *sha3_384*, *sha3_512*.
+``sha224``, ``sha256``, ``sha384``, ``sha512``, ``sha3_224``, ``sha3_256``, ``sha3_384``, ``sha3_512``
+
+**Support for Keccak beyond SHA3**
+
+Installing `pysha3`_ makes available following hash functions:
+
+``keccak_224``, ``keccak_256``, ``keccak_384``, ``keccak_512``
+
 
 .. warning:: Requesting anything except for these raises a ``ValueError``.
 
@@ -386,3 +392,4 @@ The verifiable proof-object can be retrieved as follows:
 
 
 .. _RFC 9162: https://datatracker.ietf.org/doc/html/rfc9162
+.. _pysha3: https://pypi.org/project/pysha3/

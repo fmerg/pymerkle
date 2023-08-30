@@ -99,8 +99,15 @@ verify_consistency(state1, state2, proof)
 
 ## Supported hash functions
 
-The currently supported hash functions are `sha224`, `sha256`, `sha384`,
-`sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`.
+`sha224`, `sha256`, `sha384`, `sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`
+
+### Support for Keccak beyond SHA3
+
+Installing [`pysha3==1.0.2`](https://pypi.org/project/pysha3/) makes available
+the following hash functions:
+
+`keccak_224`, `keccak_256`, `keccak_384`, `keccak_512`
+
 
 ## Security
 

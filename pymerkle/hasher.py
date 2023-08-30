@@ -15,16 +15,22 @@ class MerkleHasher:
 
     def __init__(self, algorithm, security=True, **kw):
         normalized = algorithm.lower().replace('-', '_')
-
         if normalized not in constants.ALGORITHMS:
-            raise ValueError(f'{algorithm} not supported')
-
-        self.prefx00 = b'\x00' if security else b''
-        self.prefx01 = b'\x01' if security else b''
-
+            msg = f'{algorithm} not supported'
+            if normalized in constants.KECCAK_ALGORITHMS:
+                msg += ': You need to install pysha3'
+            raise ValueError(msg)
         self.algorithm = algorithm
+
+        module = hashlib
+        if normalized in constants.KECCAK_ALGORITHMS:
+            import sha3
+            module = sha3
+        self.hashfunc = getattr(module, self.algorithm)
+
         self.security = security
-        self.hashfunc = getattr(hashlib, algorithm)
+        self.prefx00 = b'\x00' if self.security else b''
+        self.prefx01 = b'\x01' if self.security else b''
 
 
     def _consume_bytes(self, buff):
