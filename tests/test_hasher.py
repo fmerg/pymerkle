@@ -1,12 +1,17 @@
-import pytest
 import hashlib
-import sha3
+import pytest
+
+# Ensure that sha3 is available if a keccak hash function is requested
+try:
+    import sha3
+except ImportError:
+    pass
+
 from pymerkle.hasher import MerkleHasher
 from tests.conftest import option, all_configs
 
 
 data = b'oculusnonviditnecaurisaudivit'
-
 prefx00 = b'\x00'
 prefx01 = b'\x01'
 
