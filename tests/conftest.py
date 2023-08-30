@@ -26,6 +26,9 @@ class SqliteTree(_SqliteTree):
 
 
 def pytest_addoption(parser):
+    parser.addoption('--algorithm', default='sha256',
+        choices=constants.ALGORITHMS,
+        help='Hash algorithm to be used')
     parser.addoption('--extended', action='store_true', default=False,
         help='Test against all supported hash algorothms')
     parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
@@ -47,11 +50,11 @@ def pytest_configure(config):
 
 
 def all_configs(option):
-    algorithms = constants.ALGORITHMS if option.extended else ['sha256']
+    algorithms = constants.ALGORITHMS if option.extended else [option.algorithm]
 
     configs = []
     for (disable_security, algorithm) in itertools.product((True, False), algorithms):
-        config = {'algorithm': algorithm,
+        config = {'algorithm': option.algorithm,
                   'disable_security': disable_security,
                   'threshold': option.threshold,
                   'capacity': option.capacity}
@@ -69,7 +72,7 @@ def resolve_backend(option):
 
 def make_trees(default_config=False):
     configs = all_configs(option) if not default_config else [{'algorithm':
-        'sha256', 'disable_security': False}]
+        option.algorithm, 'disable_security': False}]
     MerkleTree = resolve_backend(option)
 
     return [MerkleTree.init_from_entries(

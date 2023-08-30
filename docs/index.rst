@@ -2,17 +2,17 @@
 pymerkle
 ########
 
-|Build-Status| |PyPI-version| |Python >= 3.10|
+|Build-Status| |PyPI-version| |Python >= 3.7|
 
 .. |Build-Status| image:: https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg
    :target: https://gitlab.com/fmerg/pymerkle/commits/master
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
-.. |Python >= 3.10| image:: https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg
+.. |Python >= 3.7| image:: https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg
 
-**********************************
-Merkle-tree cryptography in python
-**********************************
+*********************
+Merkle-tree in Python
+*********************
 
 Storage agnostic implementation capable of generating inclusion and consistency proofs.
 
@@ -38,7 +38,7 @@ interface; e.g.,
 
   from pymerkle import InmemoryTree as MerkleTree
 
-  tree = MerkleTree()
+  tree = MerkleTree(algorithm='sha256')
 
 
 Append data into the tree and retrieve the corresponding hash value:

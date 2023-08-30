@@ -520,7 +520,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: bytes
         """
         if limit == start:
-            return sef.hash_empty()
+            return self.hash_empty()
 
         if limit == start + 1:
             return self._get_leaf(limit)

@@ -1,11 +1,11 @@
 # pymerkle
 
-**Merkle-tree cryptography in python**
+**Merkle-tree in Python**
 
 [![Build Status](https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg)](https://gitlab.com/fmerg/pymerkle/commits/master)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
-![Python >= 3.10](https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg)
+![Python >= 3.7](https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg)
 
 Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
 
@@ -31,7 +31,7 @@ interface; e.g.,
 ```python
 from pymerkle import InmemoryTree as MerkleTree
 
-tree = MerkleTree()
+tree = MerkleTree(algorithm='sha256')
 ```
 
 Append data into the tree and retrieve the corresponding hash value:
@@ -96,6 +96,18 @@ state2 = tree.get_state(5)
 
 verify_consistency(state1, state2, proof)
 ```
+
+## Supported hash functions
+
+`sha224`, `sha256`, `sha384`, `sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`
+
+### Support for Keccak beyond SHA3
+
+Installing [`pysha3==1.0.2`](https://pypi.org/project/pysha3/) makes available
+the following hash functions:
+
+`keccak_224`, `keccak_256`, `keccak_384`, `keccak_512`
+
 
 ## Security
 
@@ -253,22 +265,22 @@ pip3 install -r requirements-dev.txt
 ### Tests
 
 ```commandline
-./test.sh --help
+./test.sh [--help]
 ```
 
-### Performance measurements
+### Performance
 
 In order to capture the effect of I/O operations, performance measurements are
 run against a SQLite database as leaf storage. Create it using the following script:
 
 ```commandline
-python benchmarks/init_db.py --help
+python benchmarks/init_db.py [--help]
 ```
 
 #### Benchmarks
 
 ```commandline
-./benchmark.sh --help
+./benchmark.sh [--help]
 ```
 
 #### Profiling
@@ -277,7 +289,7 @@ Assuming [`valgrind`](https://valgrind.org/) and
 [`massif-visualizer`](https://apps.kde.org/massif-visualizer/) are installed, use
 
 ```commandline
-./profile.sh --help
+./profile.sh [--help]
 ```
 
 to do memory profiling. Pass `--time` to profile execution times
@@ -291,7 +303,7 @@ instead of memory allocations.
 ### Build locally
 
 Documentation is built with
-[`sphinx`](https://www.sphinx-doc.org/en/master/index.html)
+[`sphinx`](https://www.sphinx-doc.org/en/master/index.html).
 
 Assuming dev requirements have been installed, build the docs with
 
@@ -304,3 +316,5 @@ and browse at
 ```
 docs/target/build/html/index.html
 ```
+
+to view them.

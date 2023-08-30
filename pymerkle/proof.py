@@ -1,6 +1,6 @@
 import os
 import json
-from time import time
+from hmac import compare_digest
 
 from pymerkle.hasher import MerkleHasher
 
@@ -25,10 +25,10 @@ def verify_inclusion(base, root, proof):
     :type proof: MerkleProof
     :raises InvalidProof: if the proof is found invalid
     """
-    if not proof.path[0] == base:
+    if not compare_digest(proof.path[0], base):
         raise InvalidProof('Base hash does not match')
 
-    if not proof.resolve() == root:
+    if not compare_digest(proof.resolve(), root):
         raise InvalidProof('State does not match')
 
 
@@ -44,10 +44,10 @@ def verify_consistency(state1, state2, proof):
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
-    if not proof.retrieve_prior_state() == state1:
+    if not compare_digest(proof.retrieve_prior_state(), state1):
         raise InvalidProof('Prior state does not match')
 
-    if not proof.resolve() == state2:
+    if not compare_digest(proof.resolve(), state2):
         raise InvalidProof('Later state does not match')
 
 
@@ -165,13 +165,12 @@ class MerkleProof:
         while index < len(path) - 1:
             next_bit, digest = path[index + 1]
 
-            match bit:
-                case 0:
-                    result = hash_pair(result, digest)
-                case 1:
-                    result = hash_pair(digest, result)
-                case _:
-                    raise ValuError('Invalid bit found')
+            if bit == 0:
+                result = hash_pair(result, digest)
+            elif bit == 1:
+                result = hash_pair(digest, result)
+            else:
+                raise ValueError('Invalid bit found')
 
             bit = next_bit
             index += 1

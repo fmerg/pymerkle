@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 
 
+## 6.1.0 2023-08-30
+
+### Added
+
+- Support for `python>=3.7`
+- Support for Keccak functions beyond SHA3
+
+
+### Changed
+
+- Constant-time operations in proof verification
+
+
 ## 6.0.0 2023-07-19
 
 This version introduces significant optimizations.

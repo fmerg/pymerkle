@@ -8,7 +8,7 @@ before_script:
   - pip3 install -r requirements.txt -r requirements-dev.txt
 
 test inmemory:
-  image: "python:3.10-bullseye"
+  image: "python:3.7-bullseye"
   stage: test
   interruptible: true
   script:
@@ -16,7 +16,7 @@ test inmemory:
   coverage: '/TOTAL.*\s+(\d+%)$/'
 
 test sqlite:
-  image: "python:3.10-bullseye"
+  image: "python:3.7-bullseye"
   stage: test
   interruptible: true
   script:
@@ -24,7 +24,7 @@ test sqlite:
   coverage: '/TOTAL.*\s+(\d+%)$/'
 
 pages:
-  image: "python:3.10-bullseye"
+  image: "python:3.7-bullseye"
   stage: deploy
   script:
     - pip3 install -r requirements-dev.txt
