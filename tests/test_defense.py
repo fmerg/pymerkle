@@ -1,6 +1,6 @@
 """
 Performs second-preimage attack for both security modes. Attack should succeed
-only when the tree's securitu mode has been disabled.
+only when the tree's security mode has been disabled.
 
 Attack schema
 -------------
@@ -35,4 +35,5 @@ def test_second_preimage_attack(config):
     attacker = MerkleTree.init_from_entries([b'foo', b'bar', forged],
         **config)
 
+    print(attacker.get_state())
     assert tree.security ^ (attacker.get_state() == tree.get_state())
