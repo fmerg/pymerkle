@@ -31,7 +31,7 @@ interface; e.g.,
 ```python
 from pymerkle import InmemoryTree as MerkleTree
 
-tree = MerkleTree()
+tree = MerkleTree(algorithm='sha256')
 ```
 
 Append data into the tree and retrieve the corresponding hash value:
@@ -96,6 +96,11 @@ state2 = tree.get_state(5)
 
 verify_consistency(state1, state2, proof)
 ```
+
+## Supported hash functions
+
+The currently supported hash functions are `sha224`, `sha256`, `sha384`,
+`sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`.
 
 ## Security
 

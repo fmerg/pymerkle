@@ -38,7 +38,7 @@ interface; e.g.,
 
   from pymerkle import InmemoryTree as MerkleTree
 
-  tree = MerkleTree()
+  tree = MerkleTree(algorithm='sha256')
 
 
 Append data into the tree and retrieve the corresponding hash value:
