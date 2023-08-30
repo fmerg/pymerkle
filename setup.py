@@ -6,7 +6,7 @@ import os
 import io
 
 homepage = 'https://github.com/fmerg/pymerkle'
-version = '6.0.0'
+version = '6.1.0'
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 

@@ -9,7 +9,7 @@
 project = 'pymerkle'
 copyright = '2023, fmerg'
 author = 'fmerg'
-release = '6.0.0'
+release = '6.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
