@@ -1,6 +1,5 @@
-import os
-import json
 from hmac import compare_digest
+from typing import Any
 
 from pymerkle.hasher import MerkleHasher
 
@@ -12,7 +11,7 @@ class InvalidProof(Exception):
     pass
 
 
-def verify_inclusion(base, root, proof):
+def verify_inclusion(base: bytes, root: bytes, proof: 'MerkleProof') -> None:
     """
     Verifies the provided Merkle-proof of inclusion against the provided leaf
     hash and tree state.
@@ -32,7 +31,7 @@ def verify_inclusion(base, root, proof):
         raise InvalidProof('State does not match')
 
 
-def verify_consistency(state1, state2, proof):
+def verify_consistency(state1: bytes, state2: bytes, proof: 'MerkleProof') -> None:
     """
     Verifies the provided Merkle-proof of consistency against the given states.
 
@@ -71,7 +70,15 @@ class MerkleProof:
     :type path: list[bytes]
     """
 
-    def __init__(self, algorithm, security, size, rule, subset, path):
+    algorithm: str
+    security: bool
+    size: int
+    rule: list[int]
+    subset: list[int]
+    path: list[bytes]
+    hasher: MerkleHasher
+
+    def __init__(self, algorithm: str, security: bool, size: int, rule: list[int], subset: list[int], path: list[bytes]) -> None:
         self.algorithm = algorithm
         self.security = security
         self.size = size
@@ -80,8 +87,7 @@ class MerkleProof:
         self.path = path
         self.hasher = MerkleHasher(**self.get_metadata())
 
-
-    def get_metadata(self):
+    def get_metadata(self) -> dict[str, Any]:
         """
         Returns the information needed to configure the hashing machinery.
 
@@ -90,7 +96,7 @@ class MerkleProof:
         return {'algorithm': self.algorithm, 'security': self.security,
                 'size': self.size}
 
-    def serialize(self):
+    def serialize(self) -> dict[str, Any]:
         """
         Returns the JSON representation of the verifiable object.
 
@@ -107,9 +113,8 @@ class MerkleProof:
             'path': [digest.hex() for digest in self.path]
         }
 
-
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, data: dict) -> 'MerkleProof':
         """
         :param data:
         :type data: dict
@@ -118,12 +123,12 @@ class MerkleProof:
         metadata = data['metadata']
         rule = data['rule']
         subset = data['subset']
-        path = [bytes.fromhex(checksum) for checksum in data['path']]
+        path: list[bytes] = [bytes.fromhex(checksum)
+                             for checksum in data['path']]
 
         return cls(**metadata, rule=rule, subset=subset, path=path)
 
-
-    def retrieve_prior_state(self):
+    def retrieve_prior_state(self) -> bytes:
         """
         Computes the acclaimed prior state as specified by the included path of
         hashes.
@@ -132,35 +137,34 @@ class MerkleProof:
 
         :rtype: bytes
         """
-        subpath = [digest for (mask, digest) in zip(self.subset, self.path) if
-            mask]
+        subpath: list[bytes] = [digest for (mask, digest) in zip(self.subset, self.path) if
+                                mask]
 
         if not subpath:
             return self.hasher.hash_empty()
 
-        result = subpath[0]
-        index = 0
+        result: bytes = subpath[0]
+        index: int = 0
         hash_pair = self.hasher.hash_pair
         while index < len(subpath) - 1:
-            result = hash_pair(subpath[index + 1], result)
+            result = hash_pair(buff1=subpath[index + 1], buff2=result)
             index += 1
 
         return result
 
-
-    def resolve(self):
+    def resolve(self) -> bytes:
         """
         Computes the target hash of the included path of hashes.
 
         :rtype: bytes
         """
-        path = list(zip(self.rule, self.path))
+        path: list[tuple[int, bytes]] = list(zip(self.rule, self.path))
 
         if not path:
             return self.hasher.hash_empty()
 
         bit, result = path[0]
-        index = 0
+        index: int = 0
         hash_pair = self.hasher.hash_pair
         while index < len(path) - 1:
             next_bit, digest = path[index + 1]

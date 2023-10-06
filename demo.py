@@ -29,19 +29,19 @@ def parse_cli_args():
     parser = argparse.ArgumentParser(**config)
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
-            default='inmemory', help='Storage backend')
+                        default='inmemory', help='Storage backend')
     parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
-            default='sha256', help='Hashing algorithm')
+                        default='sha256', help='Hashing algorithm')
     parser.add_argument('--threshold', type=int, metavar='WIDTH',
-            default=128, help='Subroot cache threshold')
+                        default=128, help='Subroot cache threshold')
     parser.add_argument('--capacity', type=int, metavar='MAXSIZE',
-            default=1024 ** 3, help='Subroot cache capacity in bytes')
+                        default=1024 ** 3, help='Subroot cache capacity in bytes')
     parser.add_argument('--disable-security', action='store_true',
-            default=False, help='Disable resistance against second-preimage attack')
+                        default=False, help='Disable resistance against second-preimage attack')
     parser.add_argument('--disable-optimizations', action='store_true',
-            default=False, help='Use unopmitized versions of core operations')
+                        default=False, help='Use unopmitized versions of core operations')
     parser.add_argument('--disable-cache', action='store_true',
-            default=False, help='Disable subroot caching')
+                        default=False, help='Disable subroot caching')
 
     return parser.parse_args()
 
@@ -50,7 +50,7 @@ def order_of_magnitude(num):
     return int(log10(num)) if not num == 0 else 0
 
 
-def strpath(rule, path):
+def strpath(rule, path) -> str:
     s2 = 3 * ' '
     s3 = 3 * ' '
     template = '\n{s1}[{index}]{s2}{bit}{s3}{value}'
@@ -65,16 +65,16 @@ def strpath(rule, path):
     return ''.join(pairs)
 
 
-def strtree(tree):
+def strtree(tree) -> str:
     if isinstance(tree, SqliteTree):
         entries = [tree.get_entry(index) for index in range(1, tree.get_size()
-            + 1)]
+                                                            + 1)]
         tree = InmemoryTree.init_from_entries(entries)
 
     return str(tree)
 
 
-def strproof(proof):
+def strproof(proof) -> str:
     template = """
     algorithm   : {algorithm}
     security    : {security}
@@ -98,7 +98,7 @@ def strproof(proof):
 if __name__ == '__main__':
     args = parse_cli_args()
 
-    MerkleTree = { 'inmemory': InmemoryTree, 'sqlite': SqliteTree }[
+    MerkleTree = {'inmemory': InmemoryTree, 'sqlite': SqliteTree}[
         args.backend]
 
     config = {'algorithm': args.algorithm,

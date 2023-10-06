@@ -1,4 +1,4 @@
-def log2(n):
+def log2(n: int) -> int:
     """
     Base 2 logarithm
 
@@ -9,7 +9,11 @@ def log2(n):
     :type n: int
     :rtype: int
     """
-    k = 0
+
+    if (n < 0):
+        raise ArithmeticError('n must be a non-negative integer')
+
+    k: int = 0
     while n >> 1:
         k += 1
         n >>= 1
@@ -17,7 +21,7 @@ def log2(n):
     return k
 
 
-def decompose(n):
+def decompose(n: int) -> list[int]:
     """
     Returns in respective order the exponents corresponding to the binary
     decomposition of the provided integer.
@@ -26,13 +30,16 @@ def decompose(n):
     :type n: int
     :rtype: list[int]
     """
-    exponents = []
+    if (n < 0):
+        raise ArithmeticError('n must be a non-negative integer')
 
-    i = 1
+    exponents: list[int] = []
+
+    i: int = 1
     while i < n + 1:
         if i & n:
-            p = -1
-            j = i
+            p: int = -1
+            j: int = i
             while j:
                 j >>= 1
                 p += 1

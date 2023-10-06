@@ -1,4 +1,6 @@
 import sqlite3
+from typing import Any, Generator, Iterator, Optional
+
 from pymerkle.core import BaseMerkleTree
 
 
@@ -19,14 +21,14 @@ class SqliteTree(BaseMerkleTree):
     :type algorithm: str
     """
 
-    def __init__(self, dbfile, algorithm='sha256', **opts):
-        self.dbfile = dbfile
-        self.con = sqlite3.connect(self.dbfile)
+    def __init__(self, dbfile: str, algorithm: str = 'sha256', **opts) -> None:
+        self.dbfile: str = dbfile
+        self.con: sqlite3.Connection = sqlite3.connect(database=self.dbfile)
         self.con.row_factory = lambda cursor, row: row[0]
-        self.cur = self.con.cursor()
+        self.cur: sqlite3.Cursor = self.con.cursor()
 
         with self.con:
-            query = f'''
+            query: str = f'''
                 CREATE TABLE IF NOT EXISTS leaf(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     entry BLOB,
@@ -34,18 +36,15 @@ class SqliteTree(BaseMerkleTree):
                 );'''
             self.cur.execute(query)
 
-        super().__init__(algorithm, **opts)
+        super().__init__(algorithm=algorithm, **opts)
 
-
-    def __enter__(self):
+    def __enter__(self) -> 'SqliteTree':
         return self
 
-
-    def __exit__(self, *exc):
+    def __exit__(self, *exc) -> None:
         self.con.close()
 
-
-    def _encode_entry(self, data):
+    def _encode_entry(self, data: bytes) -> bytes:
         """
         Returns the binary format of the provided data entry.
 
@@ -55,8 +54,7 @@ class SqliteTree(BaseMerkleTree):
         """
         return data
 
-
-    def _store_leaf(self, data, digest):
+    def _store_leaf(self, data: bytes, digest: bytes) -> Optional[int]:
         """
         Creates a new leaf storing the provided data along with its
         hash value.
@@ -71,7 +69,7 @@ class SqliteTree(BaseMerkleTree):
         if not isinstance(data, bytes):
             raise ValueError('Provided data is not binary')
 
-        cur = self.cur
+        cur: sqlite3.Cursor = self.cur
 
         with self.con:
             query = f'''
@@ -81,8 +79,7 @@ class SqliteTree(BaseMerkleTree):
 
         return cur.lastrowid
 
-
-    def _get_leaf(self, index):
+    def _get_leaf(self, index: int) -> bytes:
         """
         Returns the hash stored at the specified leaf.
 
@@ -90,17 +87,16 @@ class SqliteTree(BaseMerkleTree):
         :type index: int
         :rtype: bytes
         """
-        cur = self.cur
+        cur: sqlite3.Cursor = self.cur
 
-        query = f'''
+        query: str = f'''
             SELECT hash FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
 
-        return cur.fetchone()
+        return bytes(cur.fetchone())
 
-
-    def _get_leaves(self, offset, width):
+    def _get_leaves(self, offset: int, width: int) -> list[bytes]:
         """
         Returns in respective order the hashes stored by the leaves in the
         specified range.
@@ -110,32 +106,30 @@ class SqliteTree(BaseMerkleTree):
         :param width: number of leaves to consider
         :type width: int
         """
-        cur = self.cur
+        cur: sqlite3.Cursor = self.cur
 
-        query = f'''
+        query: str = f'''
             SELECT hash FROM leaf WHERE id BETWEEN ? AND ?
         '''
         cur.execute(query, (offset + 1, offset + width))
 
         return cur.fetchall()
 
-
-    def _get_size(self):
+    def _get_size(self) -> int:
         """
         :returns: current number of leaves
         :rtype: int
         """
-        cur = self.cur
+        cur: sqlite3.Cursor = self.cur
 
-        query = f'''
+        query: str = f'''
             SELECT COUNT(*) FROM leaf
         '''
         cur.execute(query)
 
         return cur.fetchone()
 
-
-    def get_entry(self, index):
+    def get_entry(self, index: int) -> bytes:
         """
         Returns the unhashed data stored at the specified leaf.
 
@@ -143,17 +137,16 @@ class SqliteTree(BaseMerkleTree):
         :type index: int
         :rtype: bytes
         """
-        cur = self.cur
+        cur: sqlite3.Cursor = self.cur
 
-        query = f'''
+        query: str = f'''
             SELECT entry FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
 
         return cur.fetchone()
 
-
-    def _hash_per_chunk(self, entries, chunksize):
+    def _hash_per_chunk(self, entries: list[bytes], chunksize: int) -> Generator[Iterator[tuple[bytes, bytes]], Any, None]:
         """
         Generator yielding in chunks pairs of entry data and hash value.
 
@@ -165,16 +158,15 @@ class SqliteTree(BaseMerkleTree):
         _hash_entry = self.hash_buff
 
         offset = 0
-        chunk = entries[offset: chunksize]
+        chunk: list[bytes] = entries[offset: chunksize]
         while chunk:
-            hashes = [_hash_entry(data) for data in chunk]
+            hashes: list[bytes] = [_hash_entry(data=data) for data in chunk]
             yield zip(chunk, hashes)
 
             offset += chunksize
             chunk = entries[offset: offset + chunksize]
 
-
-    def append_entries(self, entries, chunksize=100_000):
+    def append_entries(self, entries: list[bytes], chunksize: int = 100_000) -> int:
         """
         Bulk operation for appending a batch of entries.
 
@@ -186,13 +178,13 @@ class SqliteTree(BaseMerkleTree):
         :returns: index of last appended entry
         :rtype: int
         """
-        cur = self.cur
+        cur: sqlite3.Cursor = self.cur
 
         with self.con:
-            query = f'''
+            query: str = f'''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
-            for chunk in self._hash_per_chunk(entries, chunksize):
+            for chunk in self._hash_per_chunk(entries=entries, chunksize=chunksize):
                 cur.execute('BEGIN TRANSACTION')
 
                 for (data, digest) in chunk:
@@ -200,4 +192,8 @@ class SqliteTree(BaseMerkleTree):
 
                 cur.execute('END TRANSACTION')
 
-        return cur.lastrowid
+        result = cur.lastrowid
+        if result is None:
+            raise Exception(
+                'Query returned no result. Integrity of the database cannot be guranteed.')
+        return result

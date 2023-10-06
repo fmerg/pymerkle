@@ -1,21 +1,24 @@
 from random import randint
+from typing import Any
+
 import pytest
 
 from pymerkle import SqliteTree as MerkleTree
+
 from .conftest import option
 
-defaults = {'warmup_rounds': 0, 'rounds': option.rounds}
+defaults: dict[str, Any] = {'warmup_rounds': 0, 'rounds': option.rounds}
 
 
-opts = {'disable_optimizations': option.disable_optimizations,
-        'disable_cache': option.disable_cache,
-        'threshold': option.threshold,
-        'capacity': option.capacity}
+opts: dict[str, Any] = {'disable_optimizations': option.disable_optimizations,
+                        'disable_cache': option.disable_cache,
+                        'threshold': option.threshold,
+                        'capacity': option.capacity}
 
-tree = MerkleTree(option.dbfile, algorithm=option.algorithm, **opts)
+tree = MerkleTree(dbfile=option.dbfile, algorithm=option.algorithm, **opts)
 
 
-def test_root(benchmark):
+def test_root(benchmark) -> None:
 
     def setup():
         start = randint(0, option.size - 2) if option.randomize else 0
@@ -27,7 +30,7 @@ def test_root(benchmark):
     benchmark.pedantic(tree._get_root, setup=setup, **defaults)
 
 
-def test_state(benchmark):
+def test_state(benchmark) -> None:
 
     def setup():
         size = randint(1, option.size) if option.randomize \
@@ -38,7 +41,7 @@ def test_state(benchmark):
     benchmark.pedantic(tree.get_state, setup=setup, **defaults)
 
 
-def test_inclusion(benchmark):
+def test_inclusion(benchmark) -> None:
 
     def setup():
         size = option.size
@@ -49,7 +52,7 @@ def test_inclusion(benchmark):
     benchmark.pedantic(tree.prove_inclusion, setup=setup, **defaults)
 
 
-def test_consistency(benchmark):
+def test_consistency(benchmark) -> None:
 
     def setup():
         size2 = option.size
