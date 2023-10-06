@@ -1,5 +1,7 @@
-from pymerkle.utils import decompose
+from typing import Literal, Optional, Union
+
 from pymerkle.core import BaseMerkleTree
+from pymerkle.utils import decompose
 
 
 class Node:
@@ -17,8 +19,12 @@ class Node:
 
     __slots__ = ('digest', 'left', 'right', 'parent')
 
+    digest: bytes
+    parent: Optional['Node']
+    left: Optional['Node']
+    right: Optional['Node']
 
-    def __init__(self, digest, left=None, right=None):
+    def __init__(self, digest: bytes, left: Optional['Node'] = None, right: Optional['Node'] = None) -> None:
         self.digest = digest
 
         self.left = left
@@ -31,8 +37,7 @@ class Node:
 
         self.parent = None
 
-
-    def is_root(self):
+    def is_root(self) -> bool:
         """
         Returns *True* iff the node is currently root.
 
@@ -40,8 +45,7 @@ class Node:
         """
         return not self.parent
 
-
-    def is_leaf(self):
+    def is_leaf(self) -> bool:
         """
         Returns *True* iff the node is leaf.
 
@@ -49,34 +53,31 @@ class Node:
         """
         return not self.left and not self.right
 
-
-    def is_left_child(self):
+    def is_left_child(self) -> bool:
         """
         Returns *True* iff the node is currently left child.
 
         :rtype: bool
         """
-        parent = self.parent
+        parent: Optional[Node] = self.parent
         if not parent:
             return False
 
         return self == parent.left
 
-
-    def is_right_child(self):
+    def is_right_child(self) -> bool:
         """
         Returns *True* iff the node is currently right child.
 
         :rtype: bool
         """
-        parent = self.parent
+        parent: Optional[Node] = self.parent
         if not parent:
             return False
 
         return self == parent.right
 
-
-    def get_ancestor(self, degree):
+    def get_ancestor(self, degree: int) -> 'Node':
         """
         .. note:: Ancestor of degree 0 is the node itself, ancestor of degree
             1 is the node's parent, etc.
@@ -84,22 +85,24 @@ class Node:
         :type degree: int
         :rtype: Node
         """
-        curr = self
+        curr: 'Node' = self
         while degree > 0:
+            if curr.parent is None:
+                raise Exception(
+                    'If degree is greater than 0, parent cannot be None.')
             curr = curr.parent
             degree -= 1
 
         return curr
 
-
-    def expand(self, indent=2, trim=None, level=0, ignored=None):
+    def expand(self, indent: int = 2, trim: Optional[int] = None, level: int = 0, ignored: Optional[list[str]] = None) -> str:
         """
         Returns a string representing the subtree rooted at the present node.
 
         :param indent: [optional]
-        :type indent: str
+        :type indent: int
         :param trim: [optional]
-        :type trim: str
+        :type trim: int
         :param level: [optional]
         :type level: str
         :param ignored: [optional]
@@ -109,7 +112,7 @@ class Node:
         ignored = ignored or []
 
         if level == 0:
-            out = 2 * '\n' + ' └─' if not self.parent else ''
+            out: str = 2 * '\n' + ' └─' if not self.parent else ''
         else:
             out = (indent + 1) * ' '
 
@@ -124,7 +127,7 @@ class Node:
 
         if self.is_right_child():
             out += ' └──'
-            ignored += [level]
+            ignored += [str(level)]
 
         checksum = self.digest.hex()
         out += (checksum[:trim] + '...') if trim else checksum
@@ -134,6 +137,10 @@ class Node:
             return out
 
         recursion = (indent, trim, level + 1, ignored[:])
+
+        if self.left is None or self.right is None:
+            raise Exception(
+                'Node cannot be None.')
 
         out += self.left.expand(*recursion)
         out += self.right.expand(*recursion)
@@ -151,10 +158,13 @@ class Leaf(Node):
     :type digest: bytes
     """
 
-    def __init__(self, data, digest):
+    data: bytes
+    parent: Optional[Union['Node', 'Leaf']]
+
+    def __init__(self, data: bytes, digest: bytes) -> None:
         self.data = data
 
-        super().__init__(digest, None, None)
+        super().__init__(digest=digest, left=None, right=None)
 
 
 class InmemoryTree(BaseMerkleTree):
@@ -167,15 +177,16 @@ class InmemoryTree(BaseMerkleTree):
     .. warning:: This is a very memory inefficient implementation. Use it
         for debugging, testing and investigating the tree structure.
     """
+    root: Optional[Node]
+    leaves: list[Union[Node, Leaf]]
 
-    def __init__(self, algorithm='sha256', **opts):
+    def __init__(self, algorithm: str = 'sha256', **opts) -> None:
         self.root = None
         self.leaves = []
 
-        super().__init__(algorithm, **opts)
+        super().__init__(algorithm=algorithm, **opts)
 
-
-    def __str__(self, indent=2, trim=8):
+    def __str__(self, indent: int = 2, trim: int = 8) -> str:
         """
         :returns: visual representation of the tree
         :rtype: str
@@ -183,10 +194,9 @@ class InmemoryTree(BaseMerkleTree):
         if not self.root:
             return '\n └─[None]\n'
 
-        return self.root.expand(indent, trim) + '\n'
+        return self.root.expand(indent=indent, trim=trim) + '\n'
 
-
-    def _encode_entry(self, data):
+    def _encode_entry(self, data: bytes) -> bytes:
         """
         Returns the binary format of the provided data entry.
 
@@ -196,8 +206,7 @@ class InmemoryTree(BaseMerkleTree):
         """
         return data
 
-
-    def _store_leaf(self, data, digest):
+    def _store_leaf(self, data: bytes, digest: bytes) -> int:
         """
         Creates a new leaf storing the provided data entry along with
         its hash value.
@@ -209,35 +218,42 @@ class InmemoryTree(BaseMerkleTree):
         :returns: index of newly appended leaf counting from one
         :rtype: int
         """
-        tail = Leaf(data, digest)
+        tail = Leaf(data=data, digest=digest)
 
         if not self.leaves:
             self.leaves += [tail]
             self.root = tail
             return 1
 
-        node = self._get_last_maximal_subroot()
+        node: Node = self._get_last_maximal_subroot()
         self.leaves += [tail]
 
-        digest = self._hash_nodes(node.digest, tail.digest)
+        digest = self._hash_nodes(lnode=node.digest, rnode=tail.digest)
         if node.is_root():
-            self.root = Node(digest, node, tail)
+            self.root = Node(digest=digest, left=node, right=tail)
             index = self._get_size()
             return index
 
-        curr = node.parent
-        curr.right = Node(digest, node, tail)
+        curr: Optional[Node] = node.parent
+        if curr is None:
+            raise Exception(
+                'Node cannot be None.')
+
+        curr.right = Node(digest=digest, left=node, right=tail)
         curr.right.parent = curr
         while curr:
+            if curr.left is None or curr.right is None:
+                raise Exception(
+                    'Node cannot be None.')
+
             curr.digest = self._hash_nodes(
-                curr.left.digest, curr.right.digest)
+                lnode=curr.left.digest, rnode=curr.right.digest)
             curr = curr.parent
 
-        index = self._get_size()
+        index: int = self._get_size()
         return index
 
-
-    def _get_leaf(self, index):
+    def _get_leaf(self, index: int) -> bytes:
         """
         Returns the hash stored at the specified leaf.
 
@@ -250,8 +266,7 @@ class InmemoryTree(BaseMerkleTree):
 
         return self.leaves[index - 1].digest
 
-
-    def _get_leaves(self, offset, width):
+    def _get_leaves(self, offset: int, width: int) -> list[bytes]:
         """
         Returns in respective order the hashes stored by the leaves in the
         specified range.
@@ -263,17 +278,15 @@ class InmemoryTree(BaseMerkleTree):
         """
         return [l.digest for l in self.leaves[offset: offset + width]]
 
-
-    def _get_size(self):
+    def _get_size(self) -> int:
         """
         :returns: current number of leaves
         :rtype: int
         """
         return len(self.leaves)
 
-
     @classmethod
-    def init_from_entries(cls, entries, algorithm='sha256', **opts):
+    def init_from_entries(cls, entries: list[bytes], algorithm: str = 'sha256', **opts) -> 'InmemoryTree':
         """
         Create tree from initial data
 
@@ -286,12 +299,11 @@ class InmemoryTree(BaseMerkleTree):
 
         append_entry = tree.append_entry
         for data in entries:
-            append_entry(data)
+            append_entry(data=data)
 
         return tree
 
-
-    def get_state(self, size=None):
+    def get_state(self, size: Optional[int] = None) -> bytes:
         """
         Computes the root-hash of the subtree corresponding to the provided
         size
@@ -303,7 +315,7 @@ class InmemoryTree(BaseMerkleTree):
         :type size: int
         :rtype: bytes
         """
-        currsize = self._get_size()
+        currsize: int = self._get_size()
 
         if size is None:
             size = currsize
@@ -312,19 +324,23 @@ class InmemoryTree(BaseMerkleTree):
             return self.hash_empty()
 
         if size == currsize:
+            if self.root is None:
+                raise Exception(
+                    'Root cannot be None.')
+
             return self.root.digest
 
-        subroots = self._get_subroots(size)
+        subroots: list[Node] = self._get_subroots(size=size)
         result = subroots[0].digest
         i = 0
         while i < len(subroots) - 1:
-            result = self._hash_nodes(subroots[i + 1].digest, result)
+            result: bytes = self._hash_nodes(
+                lnode=subroots[i + 1].digest, rnode=result)
             i += 1
 
         return result
 
-
-    def _inclusion_path_fallback(self, offset):
+    def _inclusion_path_fallback(self, offset) -> tuple[list[int], list[bytes]]:
         """
         Non-recursive utility using concrete traversals to compute the inclusion
         path against the current number of leaves.
@@ -333,21 +349,21 @@ class InmemoryTree(BaseMerkleTree):
         :type offset: int
         :rtype: (list[int], list[bytes])
         """
-        base = self.leaves[offset]
-        bit = 1 if base.is_right_child() else 0
+        base: Union[Node, Leaf] = self.leaves[offset]
+        bit: Literal[1, 0] = 1 if base.is_right_child() else 0
 
-        path = [base.digest]
-        rule = [bit]
+        path: list[bytes] = [base.digest]
+        rule: list[int] = [bit]
 
-        curr = base
+        curr: Union[Node, Leaf] = base
         while curr.parent:
-            parent = curr.parent
+            parent: Union[Node, Leaf] = curr.parent
 
             if curr.is_left_child():
-                digest = parent.right.digest
+                digest: bytes = parent.right.digest  # type: ignore
                 bit = 0 if parent.is_left_child() else 1
             else:
-                digest = parent.left.digest
+                digest = parent.left.digest  # type: ignore
                 bit = 1 if parent.is_right_child() else 0
 
             rule += [bit]
@@ -360,8 +376,7 @@ class InmemoryTree(BaseMerkleTree):
 
         return rule, path
 
-
-    def _inclusion_path(self, start, offset, limit, bit):
+    def _inclusion_path(self, start: int, offset: int, limit: int, bit: int) -> tuple[list[int], list[bytes]]:
         """
         Computes the inclusion path for the leaf located at the provided offset
         against the specified leaf range
@@ -380,12 +395,11 @@ class InmemoryTree(BaseMerkleTree):
         :rtype: (list[int], list[bytes])
         """
         if start == 0 and limit == self._get_size():
-            return self._inclusion_path_fallback(offset)
+            return self._inclusion_path_fallback(offset=offset)
 
-        return super()._inclusion_path(start, offset, limit, bit)
+        return super()._inclusion_path(start=start, offset=offset, limit=limit, bit=bit)
 
-
-    def _get_subroot_node(self, index, height):
+    def _get_subroot_node(self, index: int, height: int) -> Optional[Node]:
         """
         Returns the root node of the perfect subtree of the provided height whose
         leftmost leaf node is located at the provided position.
@@ -399,14 +413,14 @@ class InmemoryTree(BaseMerkleTree):
         :type height: int
         :rtype: Node
         """
-        node = self.leaves[index - 1]
+        node: Union[Node, Leaf] = self.leaves[index - 1]
 
         if not node:
             return
 
         i = 0
         while i < height:
-            curr = node.parent
+            curr: Optional[Union[Node, Leaf]] = node.parent
 
             if not curr:
                 return
@@ -414,35 +428,41 @@ class InmemoryTree(BaseMerkleTree):
             if curr.left is not node:
                 return
 
-            node = curr
+            node = curr  # type: ignore
             i += 1
 
         # Verify existence of perfect subtree rooted at the detected node
         curr = node
+        if curr is None:
+            raise Exception(
+                'Node cannot be None.')
+
         i = 0
         while i < height:
             if curr.is_leaf():
                 return
 
             curr = curr.right
+            if curr is None:
+                raise Exception(
+                    'Node cannot be None.')
+
             i += 1
 
         return node
 
-
-    def _get_last_maximal_subroot(self):
+    def _get_last_maximal_subroot(self) -> Node:
         """
         Returns the root node of the perfect subtree of maximum possible size
         containing the currently last leaf.
 
         :rtype: Node
         """
-        degree = decompose(len(self.leaves))[0]
+        degree: int = decompose(len(self.leaves))[0]
 
-        return self.leaves[-1].get_ancestor(degree)
+        return self.leaves[-1].get_ancestor(degree=degree)
 
-
-    def _get_subroots(self, size):
+    def _get_subroots(self, size: int) -> list[Node]:
         """
         Returns in respective order the root nodes of the successive perfect
         subtrees whose sizes sum up to the provided size.
@@ -454,10 +474,10 @@ class InmemoryTree(BaseMerkleTree):
         if size < 0 or size > self._get_size():
             return []
 
-        subroots = []
-        offset = 0
+        subroots: list[Node] = []
+        offset: int = 0
         for height in reversed(decompose(size)):
-            node = self._get_subroot_node(offset + 1, height)
+            node: Optional[Node] = self._get_subroot_node(offset + 1, height)
 
             if not node:
                 return []

@@ -1,4 +1,8 @@
 import hashlib
+from typing import Callable, Literal
+
+from typing_extensions import Buffer
+
 from pymerkle import constants
 
 
@@ -12,11 +16,16 @@ class MerkleHasher:
         to *True*
     :type security: bool
     """
+    algorithm: str
+    security: bool
+    prefx00: Literal[b"\x00", b""]
+    prefx01: Literal[b"\x01", b""]
+    hashfunc: Callable[[bytes,], 'hashlib._Hash']
 
-    def __init__(self, algorithm, security=True, **kw):
-        normalized = algorithm.lower().replace('-', '_')
+    def __init__(self, algorithm: str, security: bool = True, **kw) -> None:
+        normalized: str = algorithm.lower().replace('-', '_')
         if normalized not in constants.ALGORITHMS:
-            msg = f'{algorithm} not supported'
+            msg: str = f'{algorithm} not supported'
             if normalized in constants.KECCAK_ALGORITHMS:
                 msg += ': You need to install pysha3'
             raise ValueError(msg)
@@ -32,18 +41,17 @@ class MerkleHasher:
         self.prefx00 = b'\x00' if self.security else b''
         self.prefx01 = b'\x01' if self.security else b''
 
-
-    def _consume_bytes(self, buff):
+    def _consume_bytes(self, buff: bytes) -> bytes:
         """
         :param buff:
         :type buff: bytes
         :rtype: bytes
         """
-        hasher = self.hashfunc()
-        update = hasher.update
-        chunksize = 1024
-        offset = 0
-        chunk = buff[offset: chunksize]
+        hasher: hashlib._Hash = self.hashfunc()  # type: ignore
+        update: Callable[[Buffer], None] = hasher.update
+        chunksize: Literal[1024] = 1024
+        offset: int = 0
+        chunk: bytes = buff[offset: chunksize]
         while chunk:
             update(chunk)
             offset += chunksize
@@ -51,8 +59,7 @@ class MerkleHasher:
 
         return hasher.digest()
 
-
-    def hash_empty(self):
+    def hash_empty(self) -> bytes:
         """
         Computes the hash of the empty data without prepending security
         prefixes.
@@ -61,10 +68,9 @@ class MerkleHasher:
         :type buff: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(b'')
+        return self._consume_bytes(buff=b'')
 
-
-    def hash_raw(self, buff):
+    def hash_raw(self, buff: bytes) -> bytes:
         """
         Computes the hash of the provided data without prepending security
         prefixes.
@@ -73,10 +79,9 @@ class MerkleHasher:
         :type buff: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(buff)
+        return self._consume_bytes(buff=buff)
 
-
-    def hash_buff(self, data):
+    def hash_buff(self, data: bytes) -> bytes:
         """
         Computes the hash of the provided binary data.
 
@@ -85,11 +90,9 @@ class MerkleHasher:
         :type data: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(self.prefx00 + data)
+        return self._consume_bytes(buff=self.prefx00 + data)
 
-
-
-    def hash_pair(self, buff1, buff2):
+    def hash_pair(self, buff1: bytes, buff2: bytes) -> bytes:
         """
         Computes the hash of the concatenation of the provided binary data.
 
