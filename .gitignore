@@ -1,14 +1,10 @@
 # Dev
 env/
-*cache*
+*pycache*
 *lint*
 *.pyc
 *.pye
 *.sw*
-*profile*
-cpu*
-*.svg
-deploy.sh
 TODOS.txt
 NOTES.txt
 
@@ -18,8 +14,13 @@ build/
 dist/
 
 # Tests
-/tests/logs/NASA*
 .coverage
 
 # Benchmarks
 *.benchmarks/
+benchmarks/merkle.db
+
+# Profiling
+profiler/.results/
+*.lprof
+mprofile_*

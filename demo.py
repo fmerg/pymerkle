@@ -3,142 +3,142 @@ pymerkle demo
 """
 
 import sys
+import argparse
 from math import log10
-from datetime import datetime
-from pymerkle import MerkleTree, verify_inclusion, verify_consistency
+from pymerkle import (
+    constants,
+    InmemoryTree,
+    SqliteTree as _SqliteTree,
+    verify_inclusion,
+    verify_consistency
+)
 
 
-def expand(node, encoding, indent, trim=None, level=0, ignored=None):
-    ignored = ignored or []
+# Make init interface identical to that of InmemoryTree
+class SqliteTree(_SqliteTree):
 
-    if level == 0:
-        out = 2 * '\n' + ' └─' if not node.parent else ''
-    else:
-        out = (indent + 1) * ' '
-
-    col = 1
-    while col < level:
-        out += ' │' if col not in ignored else 2 * ' '
-        out += indent * ' '
-        col += 1
-
-    if node.is_left_child():
-        out += ' ├──'
-
-    if node.is_right_child():
-        out += ' └──'
-        ignored += [level]
-
-    checksum = node.value.decode(encoding)
-    out += (checksum[:trim] + '...') if trim else checksum
-    out += '\n'
-
-    if node.is_leaf():
-        return out
-
-    recursion = (encoding, indent, trim, level + 1, ignored[:])
-
-    out += expand(node.left, *recursion)
-    out += expand(node.right, *recursion)
-
-    return out
+    def __init__(self, algorithm='sha256', **opts):
+        super().__init__(':memory:', algorithm, **opts)
 
 
-def structure(tree, indent=2, trim=8):
-    if not tree:
-        return '\n └─[None]\n'
+def parse_cli_args():
+    config = {'prog': sys.argv[0], 'usage': 'python %s' % sys.argv[0],
+              'description': __doc__, 'epilog': '\n',
+              'formatter_class': argparse.ArgumentDefaultsHelpFormatter}
 
-    return expand(tree.root_node, tree.encoding, indent, trim) + '\n'
+    parser = argparse.ArgumentParser(**config)
 
+    parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
+            default='inmemory', help='Storage backend')
+    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+            default='sha256', help='Hashing algorithm')
+    parser.add_argument('--threshold', type=int, metavar='WIDTH',
+            default=128, help='Subroot cache threshold')
+    parser.add_argument('--capacity', type=int, metavar='MAXSIZE',
+            default=1024 ** 3, help='Subroot cache capacity in bytes')
+    parser.add_argument('--disable-security', action='store_true',
+            default=False, help='Disable resistance against second-preimage attack')
+    parser.add_argument('--disable-optimizations', action='store_true',
+            default=False, help='Use unopmitized versions of core operations')
+    parser.add_argument('--disable-cache', action='store_true',
+            default=False, help='Disable subroot caching')
 
-def dimensions(tree):
-    return '\n leaves: %s, nodes: %d, height: %d' % (
-        tree.length, tree.size, tree.height)
+    return parser.parse_args()
 
 
 def order_of_magnitude(num):
-    return int(log10(num)) if num != 0 else 0
+    return int(log10(num)) if not num == 0 else 0
 
 
-def get_signed(num):
-    return f'{"+" if num >= 0 else ""}{num}'
-
-
-def strpath(path, encoding):
-    template = '\n{left}[{index}]{middle}{sign}{right}{value}'
+def strpath(rule, path):
+    s2 = 3 * ' '
+    s3 = 3 * ' '
+    template = '\n{s1}[{index}]{s2}{bit}{s3}{value}'
 
     pairs = []
-    for index, curr in enumerate(path):
-        kw = {
-            'left': (7 - order_of_magnitude(index)) * ' ',
-            'index': index,
-            'middle': 3 * ' ',
-            'sign': get_signed(curr[0]),
-            'right': 3 * ' ',
-            'value': curr[1]
-        }
+    for index, (bit, value) in enumerate(zip(rule, path)):
+        s1 = (7 - order_of_magnitude(index)) * ' '
+        kw = {'s1': s1, 'index': index, 's2': s2, 'bit': bit, 's3': s3,
+              'value': value}
         pairs += [template.format(**kw)]
 
     return ''.join(pairs)
 
 
-def display(proof):
+def strtree(tree):
+    if isinstance(tree, SqliteTree):
+        entries = [tree.get_entry(index) for index in range(1, tree.get_size()
+            + 1)]
+        tree = InmemoryTree.init_from_entries(entries)
+
+    return str(tree)
+
+
+def strproof(proof):
     template = """
     algorithm   : {algorithm}
-    encoding    : {encoding}
     security    : {security}
-    timestamp   : {timestamp} ({created_at})
-    offset      : {offset}
+    size        : {size}
+    rule        : {rule}
+    subset      : {subset}
     {path}\n\n"""
 
-    serialized = proof.serialize()
+    data = proof.serialize()
+    metadata = data['metadata']
+    rule = data['rule']
+    subset = data['subset']
+    path = data['path']
 
-    metadata = serialized['metadata']
-    path = serialized['path']
-    offset = serialized['offset']
+    path = strpath(rule, path)
 
-    encoding = metadata.pop('encoding')
-    kw = {
-        **metadata,
-        'encoding': encoding.replace('_', '-'),
-        'created_at': datetime.utcfromtimestamp(metadata['timestamp']).strftime(
-            '%Y-%m-%d %H:%M:%S'),
-        'offset': offset,
-        'path': strpath(path, encoding),
-    }
-
+    kw = {**metadata, 'rule': rule, 'subset': subset, 'path': path}
     return template.format(**kw)
 
 
 if __name__ == '__main__':
-    tree = MerkleTree(algorithm='sha256', encoding='utf-8', security=True)
+    args = parse_cli_args()
+
+    MerkleTree = { 'inmemory': InmemoryTree, 'sqlite': SqliteTree }[
+        args.backend]
+
+    config = {'algorithm': args.algorithm,
+              'disable_security': args.disable_security,
+              'disable_optimizations': args.disable_optimizations,
+              'disable_cache': args.disable_cache,
+              'threshold': args.threshold,
+              'capacity': args.capacity}
+    tree = MerkleTree(**config)
 
     # Populate tree with some entries
     for data in [b'foo', b'bar', b'baz', b'qux', b'quux']:
         tree.append_entry(data)
 
-    sys.stdout.write(dimensions(tree))
-    sys.stdout.write(structure(tree))
+    sys.stdout.write('\n nr leaves: %d' % tree.get_size())
+    sys.stdout.write(strtree(tree))
 
     # Prove and verify inclusion of `bar`
-    proof = tree.prove_inclusion(b'bar')
-    sys.stdout.write(display(proof))
+    proof = tree.prove_inclusion(2)
+    sys.stdout.write(strproof(proof))
 
-    verify_inclusion(b'bar', tree.root, proof)
+    root = tree.get_state()
+    base = tree.get_leaf(2)
+    verify_inclusion(base, root, proof)
 
-    # Save current tree state
-    sublength = tree.length
-    subroot = tree.root
-
-    # Append further entries
+    # Save current state and append further entries
+    size1 = tree.get_size()
+    state1 = tree.get_state()
     for data in [b'corge', b'grault', b'garlpy']:
         tree.append_entry(data)
 
-    sys.stdout.write(dimensions(tree))
-    sys.stdout.write(structure(tree))
+    sys.stdout.write('\n nr leaves: %d' % tree.get_size())
+    sys.stdout.write(strtree(tree))
 
     # Prove and verify previous state
-    proof = tree.prove_consistency(sublength, subroot)
-    sys.stdout.write(display(proof))
+    size2 = tree.get_size()
+    proof = tree.prove_consistency(size1, size2)
+    sys.stdout.write(strproof(proof))
 
-    verify_consistency(subroot, tree.root, proof)
+    state2 = tree.get_state()
+    verify_consistency(state1, state2, proof)
+
+    print(tree.get_cache_info())

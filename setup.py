@@ -5,55 +5,55 @@ from setuptools import setup, find_packages
 import os
 import io
 
-import pymerkle
-
-
-URL = "https://github.com/fmerg/pymerkle"
+homepage = 'https://github.com/fmerg/pymerkle'
+version = '6.1.0'
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
 try:
-  with io.open(os.path.join(current_dir, "requirements.txt"),
-    encoding="utf-8") as f:
+  with io.open(os.path.join(current_dir, 'requirements.txt'),
+    encoding='utf-8') as f:
     install_requires = [_.strip() for _ in f.readlines()]
 except FileNotFoundError:
-    install_requires = []
+    install_requires = [
+        'cachetools==5.3.1'
+    ]
 
-with open("README.md", 'r') as f:
+with open('README.md', 'r') as f:
     long_description = f.read()
 
 def main():
     setup(
-       name=pymerkle.__name__,
-       version=pymerkle.__version__,
-       description=pymerkle.__doc__.strip(),
+       name='pymerkle',
+       version=version,
+       description='Merkle-tree cryptography in python',
        long_description=long_description,
        long_description_content_type='text/markdown',
-       packages=find_packages(),
+       packages=find_packages(exclude=['tests']),
        # package_dir={'': 'pymerkle'},
-       url=URL,
+       url=homepage,
        project_urls={
-            "github": URL,
-            "source": "%s/%s" % (URL, "tree/master/%s" % pymerkle.__name__),
-            "docs": "https://%s.readthedocs.io/en/latest/" % pymerkle.__name__,
+            'github': homepage,
+            'source': '%s/%s' % (homepage, 'tree/master/%s' % 'pymerkle'),
+            'docs': 'https://%s.readthedocs.io/en/latest/' % version,
        },
-       author="fmerg",
-       author_email="fmerg@protonmail.com",
-       python_requires=">=3.6",
+       author='fmerg',
+       author_email='fmerg@protonmail.com',
+       python_requires='>=3.6',
        install_requires=install_requires,
        zip_safe=False,
        keywords=[
-           "merkle", "proof", "inclusion", "consistency",
+           'merkle', 'proof', 'inclusion', 'consistency',
        ],
        classifiers=[
-           "Development Status :: 4 - Beta",
-           "Intended Audience :: Developers",
-           "Intended Audience :: Science/Research",
-           "Programming Language :: Python :: 3.6",
-           "Operating System :: POSIX",
-           "Topic :: Security :: Cryptography",
-           "Topic :: Software Development :: Libraries :: Python Modules",
-           "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+           'Development Status :: 4 - Beta',
+           'Intended Audience :: Developers',
+           'Intended Audience :: Science/Research',
+           'Programming Language :: Python :: 3.6',
+           'Operating System :: POSIX',
+           'Topic :: Security :: Cryptography',
+           'Topic :: Software Development :: Libraries :: Python Modules',
+           'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
        ],
     )
 

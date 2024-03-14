@@ -1,8 +1,11 @@
 def log2(n):
     """
-    Logarithm with base 2
+    Base 2 logarithm
 
-    :param n: non negative integer
+    .. note:: This is the exponent of the largest power of two which is less than
+        or equal to the provided integer.
+
+    :param n: non-negative integer
     :type n: int
     :rtype: int
     """
@@ -16,33 +19,25 @@ def log2(n):
 
 def decompose(n):
     """
-    Returns the exponents corresponding to the binary decomposition of the
-    provided integer in increasing order
+    Returns in respective order the exponents corresponding to the binary
+    decomposition of the provided integer.
 
-    :Example:
-
-    >>> 45 == 2 ** 0 + 2 ** 2 + 2 ** 3 + 2 ** 5
-    True
-    >>>
-    >>> decompose(45)
-    [0, 2, 3, 5]
-
-    :param n: non negative integer
+    :param n: non-negative integer
     :type n: int
     :rtype: list[int]
     """
-    out = []
+    exponents = []
 
     i = 1
-    while i <= n:
+    while i < n + 1:
         if i & n:
             p = -1
             j = i
             while j:
                 j >>= 1
                 p += 1
-            out += [p]
+            exponents += [p]
 
         i <<= 1
 
-    return out
+    return exponents

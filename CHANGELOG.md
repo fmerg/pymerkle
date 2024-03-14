@@ -2,6 +2,83 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## 6.1.0 2023-08-30
+
+### Added
+
+- Support for `python>=3.7`
+- Support for Keccak functions beyond SHA3
+
+
+### Changed
+
+- Constant-time operations in proof verification
+
+
+## 6.0.0 2023-07-19
+
+This version introduces significant optimizations.
+
+
+### Added
+
+- `append_entry` method
+- `hash_empty` and `hash_raw` methods
+- `append_entries` operation to `SqliteTree`
+
+
+### Changed
+
+- `BaseMerkleTree` private interface
+- `hash_leaf` renamed to `hash_entry`
+- `hash_nodes` renamed to `hash_pair`
+
+
+### Removed
+
+- `UnsupportedParameter`
+
+
+## 5.0.3 2023-06-11
+
+### Removed
+
+- `init_from_entries` from base class
+
+### Changed
+
+- Apply hash precomputation
+- Pass iterable to `init_from_entries`
+
+
+## 5.0.0 2023-06-08
+
+### Removed
+
+- proof timestamp
+- size, length, root and height properties
+- tree metadata getter
+- `append_entry`
+- `has_previous_state`
+
+### Added
+
+- `InmemoryTree` implementation
+- `SqliteTree` implementation
+- state and size getter
+
+### Changed
+
+- Inclusion proof interface
+- Consistency proof interface
+- Renamed `HashEngine` to`MerkleHasher`
+- Renamed `hash_pair` to `hash_nodes`
+- Renamed `hash_entry` to `hash_leaf`
+- Return leaf index when appending entry
+- Drop hexadecimal representations
+
+
 ## 4.0.0 2023-03-06
 
 ### Added
