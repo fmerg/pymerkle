@@ -53,7 +53,7 @@ Initialization of ``BaseMerkleTree`` accepts the options shown below:
   Use it for comparison purposes. Defaults to *False*.
 - ``disable_cache``: if *True*, the results of optimized low-level computations
   will not be cached. Use it for comparison purposes. Defaults to *False*.
-- ``theshold``: specifies which outputs of a low-level computation must be
+- ``threshold``: specifies which outputs of a low-level computation must be
   cached depending on the input of the computation. Refer :ref:`here<Optimizations>`
   for the exact meaning of this parameter. Defaults to *128*.
 - ``capacity``: cache capacity in bytes. Defaults to 1GiB (which should be
