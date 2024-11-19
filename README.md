@@ -7,6 +7,9 @@
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 ![Python >= 3.7](https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg)
 
+:warning: **This library requires security audit. Use at youn own risk for
+the moment.**
+
 Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
 
 Storage agnostic implementation capable of generating inclusion and consistency proofs.
@@ -111,7 +114,8 @@ the following hash functions:
 
 ## Security
 
-*This library requires security review.*
+:warning: **This library requires security audit. Use at youn own risk for
+the moment.**
 
 ### Resistance against second-preimage attack
 
@@ -185,7 +189,9 @@ with negligible penalty in memory usage.
 This library is unopinionated on how leaves are appended to the tree, i.e., how
 data is stored in concrete.  Cryptographic functionality is encapsulated in the
 `BaseMerkleTree` abstract class, which admits pluggable storage backends
-through subclassing. It is the the developer's choice to decide how to
+through subclassing.
+
+It is the the developer's choice to decide how to
 store data by implementing the interior storage interface of this class.
 Any contiguously indexed dataset should do the job. Conversely, given any such
 dataset, we should be able to trivially implement a Merkle-tree that is
@@ -195,7 +201,7 @@ operable with it.
 ### Example
 
 This is a simple non-persistent implementation utilizing a list as storage. It
-expects entries to be strings, which it encodes in utf-8 before hashing.
+expects entries to be strings, which are `utf-8`-encoded before hashing.
 
 
 ```python
@@ -278,6 +284,8 @@ python benchmarks/init_db.py [--help]
 ```
 
 #### Benchmarks
+
+Assuming a local leaf database has been created as above, run
 
 ```commandline
 ./benchmark.sh [--help]
