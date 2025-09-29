@@ -26,7 +26,10 @@ class MerkleHasher:
         if normalized in constants.KECCAK_ALGORITHMS:
             import sha3
             module = sha3
-        self.hashfunc = getattr(module, self.algorithm)
+        elif normalized == 'blake3':
+            import blake3
+            module = blake3
+        self.hashfunc = getattr(module, normalized)
 
         self.security = security
         self.prefx00 = b'\x00' if self.security else b''
