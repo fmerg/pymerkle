@@ -99,14 +99,19 @@ verify_consistency(state1, state2, proof)
 
 ## Supported hash functions
 
-`sha224`, `sha256`, `sha384`, `sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`
+`sha224`, `sha256`, `sha384`, `sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`, `blake2b`, `blake2s`
 
-### Support for Keccak beyond SHA3
+### Optional algorithms
 
-Installing [`pysha3==1.0.2`](https://pypi.org/project/pysha3/) makes available
-the following hash functions:
+Installing extras enables more algorithms:
+
+- Keccak (beyond SHA3): install [`pysha3`](https://pypi.org/project/pysha3/) to enable:
 
 `keccak_224`, `keccak_256`, `keccak_384`, `keccak_512`
+
+- BLAKE3: install [`blake3`](https://pypi.org/project/blake3/) to enable:
+
+`blake3`
 
 
 ## Security
