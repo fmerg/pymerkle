@@ -69,9 +69,18 @@ Supported hash functions
 
 **Support for Keccak beyond SHA3**
 
-Installing `pysha3`_ makes available following hash functions:
+Installing the ``keccak`` extra, which pulls in `pysha3`_,
+
+.. code-block:: bash
+
+  pip3 install pymerkle[keccak]
+
+makes available the following hash functions:
 
 ``keccak_224``, ``keccak_256``, ``keccak_384``, ``keccak_512``
+
+.. note:: `pysha3`_ is unmaintained and fails to build on recent Python
+  versions, in which case these hash functions are unavailable.
 
 
 .. warning:: Requesting anything except for these raises a ``ValueError``.
@@ -260,11 +269,16 @@ proceeds as follows:
    base = tree.get_leaf(3)
    root = tree.get_state(5)
 
-   verify_inclusion(base, root, proof)
+   verify_inclusion(base, root, proof, index=3, size=5)
 
 
-This checks that the path of hashes is indeed based on the acclaimed hash and
-that it resolves to the acclaimed state. Trying to verify against a forged base
+This checks that the structure of the proof is the one determined by the leaf
+index and size it refers to, that the path of hashes is indeed based on the
+acclaimed hash and that it resolves to the acclaimed state. Passing *index*
+and *size* ensures that the proof refers to the expected leaf position and
+state. Proofs are resolved with resistance against second-preimage attack
+unless ``security=False`` is passed; pass *algorithm* as well to ensure that
+the expected hash function is used. Trying to verify against a forged base
 or state would raise an ``InvalidProof`` error:
 
 
@@ -311,12 +325,15 @@ proceeds as follows:
    state1 = tree.get_state(3)
    state2 = tree.get_state(5)
 
-   verify_consistency(state1, state2, proof)
+   verify_consistency(state1, state2, proof, size1=3, size2=5)
 
 
-This checks that an appropriate subpath of the included path of hashes resolves
+This checks that the structure of the proof is the one determined by the sizes
+it refers to, that an appropriate subpath of the included path of hashes resolves
 to the acclaimed prior state and the path of hashes as a whole resolves to the
-acclaimed later state. Trying to verify against forged states would raise an
+acclaimed later state. Passing *size1* and *size2* ensures that the proof
+refers to the expected states; *security* and *algorithm* behave as in the
+inclusion case. Trying to verify against forged states would raise an
 ``InvalidProof`` error:
 
 
@@ -341,7 +358,8 @@ acclaimed later state. Trying to verify against forged states would raise an
 Serialization
 -------------
 
-A ``MerkleProof`` object can be serialized as follows:
+Proofs are ``InclusionProof`` and ``ConsistencyProof`` objects respectively,
+both deriving from ``MerkleProof``. They can be serialized as follows:
 
 .. code-block:: python
 
@@ -354,10 +372,12 @@ This yields a JSON entity similar to this one:
 .. code-block:: json
 
   {
+    "type": "inclusion",
     "metadata": {
         "algorithm": "sha256",
         "security": true,
-        "size": 5
+        "size": 5,
+        "index": 3
     },
     "rule": [
         0,
@@ -365,7 +385,6 @@ This yields a JSON entity similar to this one:
         0,
         0
     ],
-    "subset": [],
     "path": [
         "4c79d0d62f7cf5ca8874155f2d3b875f2625da2bb3abc86bbd6833f25ba90e51",
         "5c7117fb9edb0cec387257891105da6a6616722af247083e2d6eda671529cdc5",
@@ -378,9 +397,11 @@ The *metadata* section contains the parameters required for configuring the
 verification hasher (*algorithm* and *security*) along with the size of the
 state against which the proof was requested (*size*). The latter can be used
 in order to request the acclaimed state needed for proof verification (if not
-otherwise available). *Rule* determines parenthetization of hashes during
-path resolution and *subset* selects the hashes resolving to the acclaimed
-prior state (makes sense only for consistency proofs).
+otherwise available). Inclusion proofs also contain the index of the leaf in
+question (*index*), whereas consistency proofs contain the size of the prior
+state (*prior_size*). *Rule* determines parenthetization of hashes during
+path resolution. Consistency proofs additionally contain a *subset* entry,
+which selects the hashes resolving to the acclaimed prior state.
 
 The verifiable proof-object can be retrieved as follows:
 
@@ -389,6 +410,15 @@ The verifiable proof-object can be retrieved as follows:
   from pymerkle import MerkleProof
 
   proof = MerkleProof.deserialize(data)
+
+This returns a proof of the serialized type. Use
+``InclusionProof.deserialize`` or ``ConsistencyProof.deserialize`` instead to
+also ensure that the proof is of the expected type. Proofs can also be
+verified by means of their ``verify`` method, e.g.,
+``proof.verify(base, root, index=3, size=5)``.
+
+
+Malformed data raise an ``InvalidProof`` error.
 
 
 .. _RFC 9162: https://datatracker.ietf.org/doc/html/rfc9162
