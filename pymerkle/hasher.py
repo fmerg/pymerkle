@@ -1,4 +1,3 @@
-import hashlib
 from pymerkle import constants
 
 
@@ -20,13 +19,8 @@ class MerkleHasher:
             if normalized in constants.KECCAK_ALGORITHMS:
                 msg += ': You need to install pysha3'
             raise ValueError(msg)
-        self.algorithm = algorithm
-
-        module = hashlib
-        if normalized in constants.KECCAK_ALGORITHMS:
-            import sha3
-            module = sha3
-        self.hashfunc = getattr(module, self.algorithm)
+        self.algorithm = normalized
+        self.hashfunc = constants.HASH_FUNCTIONS[normalized]
 
         self.security = security
         self.prefx00 = b'\x00' if self.security else b''

@@ -7,6 +7,7 @@ try:
 except ImportError:
     pass
 
+from pymerkle import constants
 from pymerkle.hasher import MerkleHasher
 from tests.conftest import option, all_configs
 
@@ -22,7 +23,7 @@ def test_hash_buff(config):
     security = not config['disable_security']
     h = MerkleHasher(algorithm, security)
 
-    module = sha3 if algorithm.startswith('keccak') else hashlib
+    module = sha3 if algorithm in constants.KECCAK_ALGORITHMS else hashlib
     payload = data if not security else (prefx00 + data)
     assert h.hash_buff(data) == getattr(module, algorithm)(payload).digest()
 
@@ -33,6 +34,20 @@ def test_hash_pair(config):
     security = not config['disable_security']
     h = MerkleHasher(algorithm, security)
 
-    module = sha3 if algorithm.startswith('keccak') else hashlib
+    module = sha3 if algorithm in constants.KECCAK_ALGORITHMS else hashlib
     payload = (data + data) if not h.security else (prefx01 + data + data)
     assert h.hash_pair(data, data) == getattr(module, algorithm)(payload).digest()
+
+
+@pytest.mark.parametrize('algorithm', constants.ALGORITHMS)
+def test_algorithm_normalization(algorithm):
+    variant = algorithm.upper().replace('_', '-')
+    h = MerkleHasher(variant)
+
+    assert h.algorithm == algorithm
+    assert h.hash_buff(data) == MerkleHasher(algorithm).hash_buff(data)
+
+
+def test_unsupported_algorithm():
+    with pytest.raises(ValueError):
+        MerkleHasher('md5')
