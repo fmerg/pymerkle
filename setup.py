@@ -4,11 +4,17 @@
 from setuptools import setup, find_packages
 import os
 import io
+import re
 
 homepage = 'https://github.com/fmerg/pymerkle'
-version = '6.1.0'
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Single source of version: parse rather than import the package, which may
+# not be importable before its dependencies are installed
+with io.open(os.path.join(current_dir, 'pymerkle', '__init__.py'),
+    encoding='utf-8') as f:
+    version = re.search(r"^__version__ = '([^']+)'", f.read(), re.M).group(1)
 
 try:
   with io.open(os.path.join(current_dir, 'requirements.txt'),
