@@ -7,6 +7,7 @@ from collections import deque, namedtuple
 from functools import wraps
 from threading import RLock
 import builtins
+import sys
 
 from cachetools import LRUCache
 
@@ -47,6 +48,22 @@ class InvalidChallenge(Exception):
 _CacheInfo = namedtuple('CacheInfo', ['size', 'capacity', 'hits', 'misses'])
 
 
+# Approximate memory in bytes occupied by the bookkeeping of a cache entry
+# besides the cached digest, i.e., key tuple and slots of the LRU structures
+_CACHE_ENTRY_OVERHEAD = 256
+
+
+def _cache_entry_size(value):
+    """
+    Approximate memory in bytes occupied by a subroot cache entry.
+
+    :param value: cached digest
+    :type value: bytes
+    :rtype: int
+    """
+    return sys.getsizeof(value) + _CACHE_ENTRY_OVERHEAD
+
+
 class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     """
     Abstract base class encapsulating the core Merkle-tree functionalities in
@@ -63,8 +80,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     :type algorithm: str
     :param threshold: [optional] Subroot cache threshold. Defaults to 128.
     :type threshold: int
-    :param capacity: [optional] Subroot cache capacity in bytes. Defaults to
-        1GiB.
+    :param capacity: [optional] Subroot cache capacity in bytes, i.e.,
+        approximate memory occupied by cached digests along with their
+        bookkeeping. Defaults to 1GiB.
     :type capacity: int
     :param disable_security: [optional] if *True*, resistance against
         second-preimage attack will be deactivated. Defaults to *False*.
@@ -83,7 +101,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         self.security = not opts.get('disable_security', False)
         self.threshold = opts.get('threshold', 128)
         self.capacity = opts.get('capacity', 1024 ** 3)
-        self.cache = LRUCache(maxsize=self.capacity, getsizeof=len)
+        self.cache = LRUCache(maxsize=self.capacity,
+            getsizeof=_cache_entry_size)
         self.hits = 0
         self.misses = 0
         self.lock = RLock()
