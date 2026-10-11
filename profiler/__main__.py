@@ -8,7 +8,7 @@ import argparse
 from random import randint
 
 from pymerkle import SqliteTree as MerkleTree
-from pymerkle import constants
+from pymerkle.hasher import ALGORITHMS
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -28,7 +28,7 @@ def parse_cli_args():
 
     parser.add_argument('--dbfile', type=str, default=DEFAULT_DB,
         help='Database filepath')
-    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+    parser.add_argument('--algorithm', choices=ALGORITHMS,
         default='sha256', help='Hashing algorithm')
     parser.add_argument('--rounds', type=int, default=DEFAULT_ROUNDS,
         help='Nr rounds')

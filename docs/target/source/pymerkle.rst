@@ -17,14 +17,6 @@ Subpackages
 Submodules
 ----------
 
-pymerkle.constants module
--------------------------
-
-.. automodule:: pymerkle.constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pymerkle.core module
 --------------------
 

@@ -2,7 +2,8 @@ import os
 import math
 import pytest
 
-from pymerkle import SqliteTree as MerkleTree, constants
+from pymerkle import SqliteTree as MerkleTree
+from pymerkle.hasher import ALGORITHMS
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -24,7 +25,7 @@ def pytest_addoption(parser):
     parser.addoption('--rounds', type=int, default=DEFAULT_ROUNDS,
         help='Nr rounds per benchmark')
     parser.addoption('--algorithm', default='sha256',
-        choices=constants.ALGORITHMS,
+        choices=ALGORITHMS,
         help='Hash algorithm used by the tree')
     parser.addoption('--randomize', action='store_true', default=False,
         help='Randomize function input per round')

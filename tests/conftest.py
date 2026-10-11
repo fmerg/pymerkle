@@ -1,5 +1,6 @@
 import itertools
-from pymerkle import constants, InmemoryTree, SqliteTree as _SqliteTree
+from pymerkle import InmemoryTree, SqliteTree as _SqliteTree
+from pymerkle.hasher import ALGORITHMS
 
 
 DEFAULT_MAXSIZE = 11
@@ -26,7 +27,7 @@ class SqliteTree(_SqliteTree):
 
 def pytest_addoption(parser):
     parser.addoption('--algorithm', default='sha256',
-        choices=constants.ALGORITHMS,
+        choices=ALGORITHMS,
         help='Hash algorithm to be used')
     parser.addoption('--extended', action='store_true', default=False,
         help='Test against all supported hash algorothms')
@@ -49,7 +50,7 @@ def pytest_configure(config):
 
 
 def all_configs(option):
-    algorithms = constants.ALGORITHMS if option.extended else [option.algorithm]
+    algorithms = ALGORITHMS if option.extended else [option.algorithm]
 
     configs = []
     for (disable_security, algorithm) in itertools.product((True, False), algorithms):

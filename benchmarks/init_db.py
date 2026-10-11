@@ -8,7 +8,8 @@ import sys
 import argparse
 import time
 
-from pymerkle import SqliteTree, constants
+from pymerkle import SqliteTree
+from pymerkle.hasher import ALGORITHMS
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,7 +27,7 @@ def parse_cli_args():
 
     parser.add_argument('--dbfile', type=str, default=DEFAULT_DB,
         help='Database filepath')
-    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+    parser.add_argument('--algorithm', choices=ALGORITHMS,
         default=DEFAULT_ALGORITHM, help='Hashing algorithm')
     parser.add_argument('--disable-security', action='store_true', default=False,
         help='Disable resistance against 2nd-preimage attack')

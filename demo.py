@@ -5,8 +5,8 @@ pymerkle demo
 import sys
 import argparse
 from math import log10
+from pymerkle.hasher import ALGORITHMS
 from pymerkle import (
-    constants,
     InmemoryTree,
     SqliteTree as _SqliteTree,
     verify_inclusion,
@@ -30,7 +30,7 @@ def parse_cli_args():
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
             default='inmemory', help='Storage backend')
-    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+    parser.add_argument('--algorithm', choices=ALGORITHMS,
             default='sha256', help='Hashing algorithm')
     parser.add_argument('--threshold', type=int, metavar='WIDTH',
             default=128, help='Subroot cache threshold')
