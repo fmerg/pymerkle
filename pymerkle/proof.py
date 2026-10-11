@@ -1,7 +1,6 @@
 from hmac import compare_digest
 
 from pymerkle.hasher import MerkleHasher
-from pymerkle.layout import inclusion_layout, consistency_layout
 
 
 class InvalidProof(Exception):
@@ -273,7 +272,10 @@ class InclusionProof(MerkleProof):
         if size is not None and self.size != size:
             raise InvalidProof('Size does not match')
 
-        rule, _ = inclusion_layout(self.index - 1, self.size)
+        # Imported here, since the core module depends on this one
+        from pymerkle.core import inclusion_layout
+
+        rule, _ = inclusion_layout(self.index, self.size)
         self._check_rule(rule)
         self._check_hashing(algorithm, security)
 
@@ -372,6 +374,9 @@ class ConsistencyProof(MerkleProof):
 
         if size2 is not None and self.size != size2:
             raise InvalidProof('Later size does not match')
+
+        # Imported here, since the core module depends on this one
+        from pymerkle.core import consistency_layout
 
         rule, subset, _ = consistency_layout(self.prior_size, self.size)
         self._check_rule(rule)

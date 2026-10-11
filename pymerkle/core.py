@@ -12,7 +12,6 @@ import sys
 from cachetools import LRUCache
 
 from pymerkle.hasher import MerkleHasher
-from pymerkle.layout import inclusion_layout, consistency_layout
 from pymerkle.proof import InclusionProof, ConsistencyProof
 from pymerkle.utils import log2, decompose
 
@@ -32,6 +31,108 @@ def synchronized(func):
             return func(self, *args, **kwargs)
 
     return wrapper
+
+
+def _split(width):
+    """
+    Returns the number of leaves under the left child of the root of a tree
+    with the provided number of leaves, i.e., the largest power of two which
+    is strictly less than the provided width.
+
+    :param width: number of leaves (greater than one)
+    :type width: int
+    :rtype: int
+    """
+    k = 1 << log2(width)
+
+    return k >> 1 if k == width else k
+
+
+def inclusion_layout(index, size):
+    """
+    Layout of the inclusion proof for the leaf located at the provided index
+    against the state corresponding to the provided size, i.e., the leaf
+    ranges whose root-hashes make up the path of hashes along with the bits
+    specifying how to resolve it.
+
+    .. note:: The layout depends only on the index and size, not on the
+        hashes themselves, so that it is shared by proof generation and
+        verification. Ranges are pairs ``(start, end)`` of leaf positions
+        counting from zero, the end being exclusive.
+
+    :param index: leaf index counting from one
+    :type index: int
+    :param size: number of leaves
+    :type size: int
+    :returns: rule and ranges whose root-hashes make up the path, the first
+        one being the base leaf
+    :rtype: (list[int], list[(int, int)])
+    """
+    offset = index - 1
+    start, end, bit = 0, size, 0
+    steps = []
+    while end - start > 1:
+        k = _split(end - start)
+
+        if offset < start + k:
+            steps += [(bit, (start + k, end))]
+            end = start + k
+            bit = 0
+        else:
+            steps += [(bit, (start, start + k))]
+            start += k
+            bit = 1
+
+    steps.reverse()
+    rule = [bit] + [b for (b, _) in steps]
+    ranges = [(offset, offset + 1)] + [r for (_, r) in steps]
+
+    return rule, ranges
+
+
+def consistency_layout(size1, size2):
+    """
+    Layout of the consistency proof between the states corresponding to the
+    provided sizes, i.e., the leaf ranges whose root-hashes make up the path
+    of hashes along with the bits specifying how to resolve it.
+
+    .. note:: See ``inclusion_layout`` regarding ranges.
+
+    :param size1: number of leaves for prior state
+    :type size1: int
+    :param size2: number of leaves for later state
+    :type size2: int
+    :returns: rule, subset and ranges whose root-hashes make up the path, the
+        subset indicating those resolving to the prior state
+    :rtype: (list[int], list[int], list[(int, int)])
+    """
+    start, offset, width, bit = 0, size1, size2, 0
+    steps = []
+    while not (offset == width or (offset == 0 and width == 1)):
+        k = _split(width)
+
+        if offset < k:
+            steps += [(bit, 0, (start + k, start + width))]
+            width = k
+            bit = 0
+        else:
+            steps += [(bit, 1, (start, start + k))]
+            start += k
+            offset -= k
+            width -= k
+            bit = 1
+
+    if offset == width:
+        mask, base = 1, (start, start + width)
+    else:
+        mask, base = 0, (start, start + 1)
+
+    steps.reverse()
+    rule = [bit] + [b for (b, _, _) in steps]
+    subset = [mask] + [m for (_, m, _) in steps]
+    ranges = [base] + [r for (_, _, r) in steps]
+
+    return rule, subset, ranges
 
 
 class InvalidChallenge(Exception):
@@ -226,7 +327,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if not (0 < index <= size):
             raise InvalidChallenge('Provided index is out of bounds')
 
-        rule, path = self._inclusion_path(index - 1, size)
+        rule, path = self._inclusion_path(index, size)
 
         return InclusionProof(self.algorithm, self.security, size, index,
                 rule, path)
@@ -436,21 +537,21 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _inclusion_path(self, pos, size):
+    def _inclusion_path(self, index, size):
         """
-        Computes the inclusion path for the leaf located at the provided
-        position against the state corresponding to the provided size.
+        Computes the inclusion path for the leaf located at the provided index
+        against the state corresponding to the provided size.
 
         .. warning:: Do not use this method directly unless you know what you
             do. Use ``prove_inclusion`` instead.
 
-        :param pos: leaf position counting from zero
-        :type pos: int
+        :param index: leaf index counting from one
+        :type index: int
         :param size: number of leaves
         :type size: int
         :rtype: (list[int], list[bytes])
         """
-        rule, ranges = inclusion_layout(pos, size)
+        rule, ranges = inclusion_layout(index, size)
         _get_root = self._get_root
 
         return rule, [_get_root(*r) for r in ranges]
@@ -510,31 +611,31 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _inclusion_path_naive(self, pos, size):
+    def _inclusion_path_naive(self, index, size):
         """
-        Computes the inclusion path for the leaf located at the provided
-        position against the state corresponding to the provided size.
+        Computes the inclusion path for the leaf located at the provided index
+        against the state corresponding to the provided size.
 
         Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
             reference and testing. Use ``_inclusion_path`` in production.
 
-        :param pos: leaf position counting from zero
-        :type pos: int
+        :param index: leaf index counting from one
+        :type index: int
         :param size: number of leaves
         :type size: int
         :rtype: (list[int], list[bytes])
         """
         def path(start, end, bit):
             if end == start + 1:
-                return [bit], [self._get_leaf(pos + 1)]
+                return [bit], [self._get_leaf(index)]
 
             k = 1 << log2(end - start)
             if k == end - start:
                 k >>= 1
 
-            if pos < start + k:
+            if index <= start + k:
                 rule, nodes = path(start, start + k, 0)
                 node = self._get_root(start + k, end)
             else:

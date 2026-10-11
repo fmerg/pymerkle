@@ -168,7 +168,7 @@ def test_consistency_serialization(tree, size1):
 
 @pytest.mark.parametrize('tree, size1', tree_and_index())
 def test_consistency_layout(tree, size1):
-    from pymerkle.layout import consistency_layout
+    from pymerkle.core import consistency_layout
 
     for size2 in range(size1, tree.get_size() + 1):
         rule, subset, path = tree._consistency_path_naive(size1, size2)

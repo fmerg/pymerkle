@@ -41,14 +41,6 @@ pymerkle.hasher module
    :undoc-members:
    :show-inheritance:
 
-pymerkle.layout module
-----------------------
-
-.. automodule:: pymerkle.layout
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pymerkle.proof module
 ---------------------
 

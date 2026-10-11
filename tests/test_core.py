@@ -35,9 +35,9 @@ def test_state(tree, size):
 @pytest.mark.parametrize('tree', make_trees())
 def test_inclusion_path(tree):
     for size in range(1, tree.get_size() + 1):
-        for pos in range(size):
-            path1 = tree._inclusion_path(pos, size)
-            path2 = tree._inclusion_path_naive(pos, size)
+        for index in range(1, size + 1):
+            path1 = tree._inclusion_path(index, size)
+            path2 = tree._inclusion_path_naive(index, size)
 
             assert path1 == path2
 
