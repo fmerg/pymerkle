@@ -1,4 +1,4 @@
-from pymerkle.utils import decompose
+from pymerkle.utils import log2, decompose
 from pymerkle.core import BaseMerkleTree, synchronized
 
 
@@ -296,9 +296,10 @@ class InmemoryTree(BaseMerkleTree):
     def get_state(self, size=None):
         """
         Computes the root-hash of the subtree corresponding to the provided
-        size
+        size.
 
-        .. note:: Overrides the function inherited from the base class.
+        .. note:: Overrides the function inherited from the base class in
+            order to read the current state off the root node.
 
         :param size: [optional] number of leaves to consider. Defaults to
             current tree size.
@@ -306,80 +307,33 @@ class InmemoryTree(BaseMerkleTree):
         :rtype: bytes
         :raises ValueError: if the provided size is out of bounds
         """
-        currsize = self._get_size()
-
-        if size is None:
-            size = currsize
-
-        if not 0 <= size <= currsize:
-            raise ValueError('Provided size is out of bounds')
-
-        if size == 0:
-            return self.hash_empty()
-
-        if size == currsize:
+        if self.root and size in (None, self._get_size()):
             return self.root.digest
 
-        subroots = self._get_subroots(size)
-
-        return self.hash_fold([node.digest for node in subroots])
+        return super().get_state(size)
 
 
-    def _inclusion_path_fallback(self, offset):
+    def _get_subroot(self, offset, width):
         """
-        Non-recursive utility using concrete traversals to compute the inclusion
-        path against the current number of leaves.
+        Reads the root-hash of the perfect subtree with the provided leaf
+        range off the corresponding node, falling back to computation if no
+        such node exists.
 
-        :param offset: base leaf index counting from zero
+        .. note:: Overrides the function inherited from the base class, so
+            that the subroot cache is not used.
+
+        :param offset: position of leftmost leaf counting from zero
         :type offset: int
-        :rtype: (list[int], list[bytes])
+        :param width: number of leaves (power of two)
+        :type width: int
+        :rtype: bytes
         """
-        base = self.leaves[offset]
-        bit = 1 if base.is_right_child() else 0
+        node = self._get_subroot_node(offset + 1, log2(width))
 
-        path = [base.digest]
-        rule = [bit]
+        if not node:
+            return super()._get_subroot(offset, width)
 
-        curr = base
-        while curr.parent:
-            parent = curr.parent
-
-            if curr.is_left_child():
-                digest = parent.right.digest
-                bit = 0 if parent.is_left_child() else 1
-            else:
-                digest = parent.left.digest
-                bit = 1 if parent.is_right_child() else 0
-
-            rule += [bit]
-            path += [digest]
-            curr = parent
-
-        # Last bit is insignificant; fix it to zero just to be fully compatible
-        # with the output of the overriden method
-        rule[-1] = 0
-
-        return rule, path
-
-
-    def _inclusion_path(self, pos, size):
-        """
-        Computes the inclusion path for the leaf located at the provided
-        position against the state corresponding to the provided size.
-
-        .. note:: Traverses the concrete tree structure if the size is the
-            current one; falls back to the base class implementation otherwise.
-
-        :param pos: leaf position counting from zero
-        :type pos: int
-        :param size: number of leaves
-        :type size: int
-        :rtype: (list[int], list[bytes])
-        """
-        if size == self._get_size():
-            return self._inclusion_path_fallback(pos)
-
-        return super()._inclusion_path(pos, size)
+        return node.digest
 
 
     def _get_subroot_node(self, index, height):
@@ -437,29 +391,3 @@ class InmemoryTree(BaseMerkleTree):
         degree = decompose(len(self.leaves))[0]
 
         return self.leaves[-1].get_ancestor(degree)
-
-
-    def _get_subroots(self, size):
-        """
-        Returns in respective order the root nodes of the successive perfect
-        subtrees whose sizes sum up to the provided size.
-
-        :param size:
-        :type size: int
-        :rtype: list[Node]
-        """
-        if size < 0 or size > self._get_size():
-            return []
-
-        subroots = []
-        offset = 0
-        for height in reversed(decompose(size)):
-            node = self._get_subroot_node(offset + 1, height)
-
-            if not node:
-                return []
-
-            subroots += [node]
-            offset += 1 << height
-
-        return list(reversed(subroots))
