@@ -367,28 +367,24 @@ class InmemoryTree(BaseMerkleTree):
         return rule, path
 
 
-    def _inclusion_path(self, start, offset, limit, bit):
+    def _inclusion_path(self, pos, size):
         """
-        Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range.
+        Computes the inclusion path for the leaf located at the provided
+        position against the state corresponding to the provided size.
 
-        .. note:: Traverses the concrete tree structure if the range is the
-            whole tree; falls back to the base class implementation otherwise.
+        .. note:: Traverses the concrete tree structure if the size is the
+            current one; falls back to the base class implementation otherwise.
 
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: base leaf index counting from zero
-        :type offset: int
-        :param limit: rightmost leaf index counting from zero
-        :type limit: int
-        :param bit: indicates direction during path parenthetization
-        :type bit: int
+        :param pos: leaf position counting from zero
+        :type pos: int
+        :param size: number of leaves
+        :type size: int
         :rtype: (list[int], list[bytes])
         """
-        if start == 0 and limit == self._get_size():
-            return self._inclusion_path_fallback(offset)
+        if size == self._get_size():
+            return self._inclusion_path_fallback(pos)
 
-        return super()._inclusion_path(start, offset, limit, bit)
+        return super()._inclusion_path(pos, size)
 
 
     def _get_subroot_node(self, index, height):

@@ -167,13 +167,15 @@ def test_consistency_serialization(tree, size1):
 
 
 @pytest.mark.parametrize('tree, size1', tree_and_index())
-def test_consistency_structure(tree, size1):
-    from pymerkle.proof import _consistency_structure
+def test_consistency_layout(tree, size1):
+    from pymerkle.layout import consistency_layout
 
-    size2 = tree.get_size()
-    proof = tree.prove_consistency(size1, size2)
+    for size2 in range(size1, tree.get_size() + 1):
+        rule, subset, path = tree._consistency_path_naive(size1, size2)
+        layout_rule, layout_subset, ranges = consistency_layout(size1, size2)
 
-    assert _consistency_structure(size1, size2) == (proof.rule, proof.subset)
+        assert (layout_rule, layout_subset) == (rule, subset)
+        assert [tree._get_root_naive(*r) for r in ranges] == path
 
 
 def test_consistency_security_downgrade():

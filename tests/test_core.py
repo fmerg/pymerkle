@@ -33,22 +33,24 @@ def test_state(tree, size):
     assert state == tree._get_root(0, size)
 
 
-@pytest.mark.parametrize('tree, start, limit', tree_and_range())
-def test_inclusion_path(tree, start, limit):
-    for bit, offset in product([0, 1], range(start, limit)):
-        path1 = tree._inclusion_path(start, offset, limit, bit)
-        path2 = tree._inclusion_path_naive(start, offset, limit, bit)
+@pytest.mark.parametrize('tree', make_trees())
+def test_inclusion_path(tree):
+    for size in range(1, tree.get_size() + 1):
+        for pos in range(size):
+            path1 = tree._inclusion_path(pos, size)
+            path2 = tree._inclusion_path_naive(pos, size)
 
-        assert path1 == path2
+            assert path1 == path2
 
 
-@pytest.mark.parametrize('tree, size1, size2', tree_and_range())
-def test_consistency_path(tree, size1, size2):
-    for bit1, bit2 in product([0, 1], [0, 1]):
-        path1 = tree._consistency_path(bit1, size1, size2, bit2)
-        path2 = tree._consistency_path_naive(bit1, size1, size2, bit2)
+@pytest.mark.parametrize('tree', make_trees())
+def test_consistency_path(tree):
+    for size2 in range(1, tree.get_size() + 1):
+        for size1 in range(size2 + 1):
+            path1 = tree._consistency_path(size1, size2)
+            path2 = tree._consistency_path_naive(size1, size2)
 
-        assert path1 == path2
+            assert path1 == path2
 
 
 @pytest.mark.parametrize('tree', make_trees())

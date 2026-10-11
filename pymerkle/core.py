@@ -12,6 +12,7 @@ import sys
 from cachetools import LRUCache
 
 from pymerkle.hasher import MerkleHasher
+from pymerkle.layout import inclusion_layout, consistency_layout
 from pymerkle.proof import MerkleProof
 from pymerkle.utils import log2, decompose
 
@@ -205,7 +206,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if not (0 < index <= size):
             raise InvalidChallenge('Provided index is out of bounds')
 
-        rule, path = self._inclusion_path(0, index - 1, size, 0)
+        rule, path = self._inclusion_path(index - 1, size)
 
         return MerkleProof(self.algorithm, self.security, size, rule, [],
                 path, index=index)
@@ -237,7 +238,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if not (0 < size1 <= size2):
             raise InvalidChallenge('Provided prior size out of bounds')
 
-        rule, subset, path = self._consistency_path(0, size1, size2, 0)
+        rule, subset, path = self._consistency_path(size1, size2)
 
         return MerkleProof(self.algorithm, self.security, size2, rule,
                 subset, path, prior_size=size1)
@@ -391,17 +392,17 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _get_root(self, start, limit):
+    def _get_root(self, start, end):
         """
         Computes the root-hash for the provided leaf range.
 
-        :param start: offset counting from zero
+        :param start: first leaf position counting from zero
         :type start: int
-        :param limit: last leaf index counting from one
-        :type limit: int
+        :param end: position after the last leaf (exclusive)
+        :type end: int
         :rtype: bytes
         """
-        if limit == start:
+        if end == start:
             return self.hash_empty()
 
         subroots = deque()
@@ -410,13 +411,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         pop = subroots.pop
 
         _get_subroot = self._get_subroot
-        exponents = decompose(limit - start)
-        for p in exponents:
+        for p in decompose(end - start):
             width = 1 << p
-            offset = limit - width
-            node = _get_subroot(offset, width)
-            prepend(node)
-            limit = offset
+            end -= width
+            prepend(_get_subroot(end, width))
 
         hashfunc = self.hashfunc
         prefx01 = self.prefx01
@@ -430,227 +428,153 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _inclusion_path(self, start, offset, limit, bit):
+    def _inclusion_path(self, pos, size):
         """
-        Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range.
+        Computes the inclusion path for the leaf located at the provided
+        position against the state corresponding to the provided size.
 
         .. warning:: Do not use this method directly unless you know what you
             do. Use ``prove_inclusion`` instead.
 
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: base leaf index counting from zero
-        :type offset: int
-        :param limit: rightmost leaf index counting from zero
-        :type limit: int
-        :param bit: indicates direction during path parenthetization
-        :type bit: int
+        :param pos: leaf position counting from zero
+        :type pos: int
+        :param size: number of leaves
+        :type size: int
         :rtype: (list[int], list[bytes])
         """
-        stack = deque()
-        push = stack.append
-        while limit > start + 1:
-            k = 1 << log2(limit - start)
-            if k == limit - start:
-                k >>= 1
-
-            if offset < start + k:
-                push((bit, (start + k, limit)))
-                limit = start + k
-                bit = 0
-            else:
-                push((bit, (start, start + k)))
-                start = start + k
-                bit = 1
-
+        rule, ranges = inclusion_layout(pos, size)
         _get_root = self._get_root
-        _get_leaf = self._get_leaf
 
-        rule = [bit]
-        base = _get_leaf(offset + 1)
-        path = [base]
-        while stack:
-            bit, args = stack.pop()
-            rule += [bit]
-            node = _get_root(*args)
-            path += [node]
-
-        return rule, path
+        return rule, [_get_root(*r) for r in ranges]
 
 
     @profile
-    def _consistency_path(self, start, offset, limit, bit):
+    def _consistency_path(self, size1, size2):
         """
-        Computes the consistency path for the state corresponding to the
-        provided offset against the specified leaf range
+        Computes the consistency path between the states corresponding to the
+        provided sizes.
 
         .. warning:: Do not use this method directly unless you know what you
             do. Use ``prove_consistency`` instead.
 
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: size corresponding to state under consideration
-        :type offset: int
-        :param limit: rightmost leaf index counting from zero
-        :type limit: int
-        :param bit: indicates direction during path parenthetization
-        :type bit: int
+        :param size1: number of leaves for prior state
+        :type size1: int
+        :param size2: number of leaves for later state
+        :type size2: int
         :rtype: (list[int], list[int], list[bytes])
         """
-        stack = deque()
-        push = stack.append
-        while not offset == limit and not (offset == 0 and limit == 1):
-            k = 1 << log2(limit)
-            if k == limit:
-                k >>= 1
-
-            if offset < k:
-                push((bit, 0, (start + k, start + limit)))
-                limit = k
-                bit = 0
-            else:
-                push((bit, 1, (start, start + k)))
-                start += k
-                offset -= k
-                limit -= k
-                bit = 1
-
+        rule, subset, ranges = consistency_layout(size1, size2)
         _get_root = self._get_root
-        _get_leaf = self._get_leaf
 
-        if offset == limit:
-            mask = 1
-            base = _get_root(start, start + limit)
-        else:
-            mask = 0
-            base = _get_leaf(start + offset + 1)
-
-        rule = [bit]
-        subset = [mask]
-        path = [base]
-        while stack:
-            bit, mask, args = stack.pop()
-            rule += [bit]
-            subset += [mask]
-            node = _get_root(*args)
-            path += [node]
-
-        return rule, subset, path
+        return rule, subset, [_get_root(*r) for r in ranges]
 
 
     @profile
-    def _get_root_naive(self, start, limit):
+    def _get_root_naive(self, start, end):
         """
         Computes the root-hash for the provided leaf range.
 
         Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_get_root`` in production.
+            reference and testing. Use ``_get_root`` in production.
 
-        :param start: offset counting from zero
+        :param start: first leaf position counting from zero
         :type start: int
-        :param limit: last leaf index counting from one
-        :type limit: int
+        :param end: position after the last leaf (exclusive)
+        :type end: int
         :rtype: bytes
         """
-        if limit == start:
+        if end == start:
             return self.hash_empty()
 
-        if limit == start + 1:
-            return self._get_leaf(limit)
+        if end == start + 1:
+            return self._get_leaf(end)
 
-        k = 1 << log2(limit - start)
-        if k == limit - start:
+        k = 1 << log2(end - start)
+        if k == end - start:
             k >>= 1
 
         lnode = self._get_root_naive(start, start + k)
-        rnode = self._get_root_naive(start + k, limit)
+        rnode = self._get_root_naive(start + k, end)
 
         return self.hash_pair(lnode, rnode)
 
 
     @profile
-    def _inclusion_path_naive(self, start, offset, limit, bit):
+    def _inclusion_path_naive(self, pos, size):
         """
-        Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range.
+        Computes the inclusion path for the leaf located at the provided
+        position against the state corresponding to the provided size.
 
         Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_inclusion_path`` in production.
+            reference and testing. Use ``_inclusion_path`` in production.
 
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: base leaf index counting from zero
-        :type offset: int
-        :param limit: rightmost leaf index counting from zero
-        :type limit: int
-        :param bit: indicates direction during path parenthetization
-        :type bit: int
+        :param pos: leaf position counting from zero
+        :type pos: int
+        :param size: number of leaves
+        :type size: int
         :rtype: (list[int], list[bytes])
         """
-        if offset == start and start == limit - 1:
-            node = self._get_leaf(offset + 1)
-            return [bit], [node]
+        def path(start, end, bit):
+            if end == start + 1:
+                return [bit], [self._get_leaf(pos + 1)]
 
-        k = 1 << log2(limit - start)
-        if k == limit - start:
-            k >>= 1
+            k = 1 << log2(end - start)
+            if k == end - start:
+                k >>= 1
 
-        if offset < start + k:
-            rule, path = self._inclusion_path_naive(start, offset, start + k, 0)
-            node = self._get_root(start + k, limit)
-        else:
-            rule, path = self._inclusion_path_naive(start + k, offset, limit, 1)
-            node = self._get_root(start, start + k)
+            if pos < start + k:
+                rule, nodes = path(start, start + k, 0)
+                node = self._get_root(start + k, end)
+            else:
+                rule, nodes = path(start + k, end, 1)
+                node = self._get_root(start, start + k)
 
-        return rule + [bit], path + [node]
+            return rule + [bit], nodes + [node]
+
+        return path(0, size, 0)
 
 
     @profile
-    def _consistency_path_naive(self, start, offset, limit, bit):
+    def _consistency_path_naive(self, size1, size2):
         """
-        Computes the consistency path for the state corresponding to the
-        provided offset against the specified leaf range.
+        Computes the consistency path between the states corresponding to the
+        provided sizes.
 
         Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_consistency_path`` in production.
+            reference and testing. Use ``_consistency_path`` in production.
 
-        :param start: leftmost leaf index counting from zero
-        :type start: int
-        :param offset: size corresponding to state under consideration
-        :type offset: int
-        :param limit: rightmost leaf index counting from zero
-        :type limit: int
-        :param bit: indicates direction during path parenthetization
-        :type bit: int
+        :param size1: number of leaves for prior state
+        :type size1: int
+        :param size2: number of leaves for later state
+        :type size2: int
         :rtype: (list[int], list[int], list[bytes])
         """
-        if offset == limit:
-            node = self._get_root(start, start + limit)
-            return [bit], [1], [node]
+        def path(start, offset, width, bit):
+            if offset == width:
+                return [bit], [1], [self._get_root(start, start + width)]
 
-        if offset == 0 and limit == 1:
-            node = self._get_leaf(start + offset + 1)
-            return [bit], [0], [node]
+            if offset == 0 and width == 1:
+                return [bit], [0], [self._get_leaf(start + 1)]
 
-        k = 1 << log2(limit)
-        if k == limit:
-            k >>= 1
+            k = 1 << log2(width)
+            if k == width:
+                k >>= 1
 
-        if offset < k:
-            rule, subset, path = self._consistency_path_naive(start, offset, k, 0)
-            node = self._get_root(start + k, start + limit)
-            mask = 0
-        else:
-            rule, subset, path = self._consistency_path_naive(start + k, offset - k,
-                    limit - k, 1)
-            node = self._get_root(start, start + k)
-            mask = 1
+            if offset < k:
+                rule, subset, nodes = path(start, offset, k, 0)
+                node = self._get_root(start + k, start + width)
+                mask = 0
+            else:
+                rule, subset, nodes = path(start + k, offset - k, width - k, 1)
+                node = self._get_root(start, start + k)
+                mask = 1
 
-        return rule + [bit], subset + [mask], path + [node]
+            return rule + [bit], subset + [mask], nodes + [node]
+
+        return path(0, size1, size2, 0)

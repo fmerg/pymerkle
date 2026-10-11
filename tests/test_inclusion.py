@@ -133,12 +133,15 @@ def test_inclusion_serialization(tree, index):
 
 
 @pytest.mark.parametrize('tree, index', tree_and_index())
-def test_inclusion_structure(tree, index):
-    from pymerkle.proof import _inclusion_structure
+def test_inclusion_layout(tree, index):
+    from pymerkle.layout import inclusion_layout
 
     for size in range(index, tree.get_size() + 1):
-        proof = tree.prove_inclusion(index, size)
-        assert _inclusion_structure(index - 1, size) == proof.rule
+        rule, path = tree._inclusion_path_naive(index - 1, size)
+        layout_rule, ranges = inclusion_layout(index - 1, size)
+
+        assert layout_rule == rule
+        assert [tree._get_root_naive(*r) for r in ranges] == path
 
 
 @pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))

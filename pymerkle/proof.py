@@ -1,7 +1,7 @@
 from hmac import compare_digest
 
 from pymerkle.hasher import MerkleHasher
-from pymerkle.utils import log2
+from pymerkle.layout import inclusion_layout, consistency_layout
 
 
 class InvalidProof(Exception):
@@ -59,36 +59,6 @@ def _check_hashing(proof, algorithm, security):
             raise InvalidProof('Invalid digest found in path')
 
 
-def _inclusion_structure(offset, size):
-    """
-    Computes the rule of a well-formed inclusion proof for the leaf located at
-    the provided offset against the state corresponding to the provided size,
-    independently of the proof under verification.
-
-    :param offset: base leaf index counting from zero
-    :type offset: int
-    :param size: number of leaves
-    :type size: int
-    :rtype: list[int]
-    """
-    start, limit, bit = 0, size, 0
-    bits = []
-    while limit > start + 1:
-        k = 1 << log2(limit - start)
-        if k == limit - start:
-            k >>= 1
-
-        bits += [bit]
-        if offset < start + k:
-            limit = start + k
-            bit = 0
-        else:
-            start = start + k
-            bit = 1
-
-    return [bit] + bits[::-1]
-
-
 def verify_inclusion(base, root, proof, index=None, size=None,
         algorithm=None, security=True):
     """
@@ -128,7 +98,7 @@ def verify_inclusion(base, root, proof, index=None, size=None,
     if size is not None and proof.size != size:
         raise InvalidProof('Size does not match')
 
-    rule = _inclusion_structure(proof.index - 1, proof.size)
+    rule, _ = inclusion_layout(proof.index - 1, proof.size)
     if proof.rule != rule or proof.subset != [] or \
             not isinstance(proof.path, list) or \
             len(proof.path) != len(rule):
@@ -141,41 +111,6 @@ def verify_inclusion(base, root, proof, index=None, size=None,
 
     if not _digests_match(proof.resolve(), root):
         raise InvalidProof('State does not match')
-
-
-def _consistency_structure(size1, size2):
-    """
-    Computes the rule and subset of a well-formed consistency proof between
-    the states corresponding to the provided sizes, independently of the
-    proof under verification.
-
-    :param size1: number of leaves for prior state
-    :type size1: int
-    :param size2: number of leaves for later state
-    :type size2: int
-    :rtype: (list[int], list[int])
-    """
-    offset, limit, bit = size1, size2, 0
-    bits, masks = [], []
-    while not offset == limit and not (offset == 0 and limit == 1):
-        k = 1 << log2(limit)
-        if k == limit:
-            k >>= 1
-
-        bits += [bit]
-        if offset < k:
-            masks += [0]
-            limit = k
-            bit = 0
-        else:
-            masks += [1]
-            offset -= k
-            limit -= k
-            bit = 1
-
-    mask = int(offset == limit)
-
-    return [bit] + bits[::-1], [mask] + masks[::-1]
 
 
 def verify_consistency(state1, state2, proof, size1=None, size2=None,
@@ -216,7 +151,7 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None,
     if size2 is not None and proof.size != size2:
         raise InvalidProof('Later size does not match')
 
-    rule, subset = _consistency_structure(prior_size, proof.size)
+    rule, subset, _ = consistency_layout(prior_size, proof.size)
     if proof.rule != rule or proof.subset != subset or \
             not isinstance(proof.path, list) or \
             len(proof.path) != len(rule):
