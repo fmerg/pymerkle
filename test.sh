@@ -1,7 +1,6 @@
 #!/bin/bash
 
 DEFAULT_ALGORITHM="sha256"
-DEFAULT_STORAGE="inmemory"
 DEFAULT_MAXSIZE=11
 DEFAULT_THRESHOLD=2
 DEFAULT_CAPACITY=$((1024 ** 3))
@@ -10,7 +9,7 @@ usage_string="usage: ./$(basename "$0") [options] [pytest_options]
 
 Options
   --algorithm HASH              Hash algorithm to be used (default: ${DEFAULT_ALGORITHM})
-  --backend [inmemory|sqlite]   Storage backend (default: ${DEFAULT_STORAGE})
+  --backend [inmemory|sqlite]   Restrict to storage backend (default: all)
   --maxsize MAX                 Maximum size of tree fixtures (default: ${DEFAULT_MAXSIZE})
   --threshold WIDTH             Subroot cache threshold (default: ${DEFAULT_THRESHOLD})
   --capacity BYTES              Subroout cache capacity in bytes (default: 1GB)
@@ -25,7 +24,6 @@ set -e
 usage() { echo -n "$usage_string" 1>&2; }
 
 ALGORITHM="$DEFAULT_ALGORITHM"
-STORAGE="$DEFAULT_STORAGE"
 MAXSIZE="$DEFAULT_MAXSIZE"
 THRESHOLD="$DEFAULT_THRESHOLD"
 CAPACITY="$DEFAULT_CAPACITY"
@@ -45,7 +43,7 @@ do
             shift
             ;;
         --backend)
-            STORAGE="$2"
+            opts+=(--backend "$2")
             shift
             shift
             ;;
@@ -79,10 +77,9 @@ done
 python -m \
     pytest tests/ \
     --algorithm ${ALGORITHM} \
-    --backend ${STORAGE} \
     --maxsize ${MAXSIZE} \
     --threshold ${THRESHOLD} \
     --capacity ${CAPACITY} \
     --cov-report term-missing \
     --cov=. \
-    $opts
+    "${opts[@]}"

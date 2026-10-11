@@ -13,8 +13,8 @@ def pytest_addoption(parser):
         help='Hash algorithm to be used')
     parser.addoption('--extended', action='store_true', default=False,
         help='Test against all supported hash algorithms')
-    parser.addoption('--backend', choices=list(BACKENDS), default='inmemory',
-        help='Storage backend')
+    parser.addoption('--backend', choices=list(BACKENDS), default=None,
+        help='Storage backend to restrict to (default: all)')
     parser.addoption('--maxsize', type=int, default=DEFAULT_MAXSIZE,
         help='Maximum size of tree fixtures')
     parser.addoption('--threshold', type=int, metavar='WIDTH',
@@ -34,7 +34,7 @@ def pytest_generate_tests(metafunc):
     """
     Parametrizes tests according to their argument names:
 
-    - ``tree_class``: the selected backend
+    - ``tree_class``: the selected backends
     - ``config``: the selected tree configurations
     - ``tree``: trees of every size up to the maximum, combined with
         ``index``, ``size`` or ``size1`` ranging from one to the tree size,
@@ -45,10 +45,11 @@ def pytest_generate_tests(metafunc):
     default_config = metafunc.definition.get_closest_marker(
         'default_config') is not None
     configs = make_configs(options, default_config)
-    tree_class = BACKENDS[options.backend]
+    tree_classes = [BACKENDS[options.backend]] if options.backend else \
+        list(BACKENDS.values())
 
     if 'tree_class' in names:
-        metafunc.parametrize('tree_class', [tree_class])
+        metafunc.parametrize('tree_class', tree_classes)
 
     if 'config' in names:
         metafunc.parametrize('config', configs)
@@ -56,7 +57,8 @@ def pytest_generate_tests(metafunc):
     if 'tree' not in names:
         return
 
-    trees = make_trees(tree_class, configs, options.maxsize)
+    trees = [tree for tree_class in tree_classes
+                  for tree in make_trees(tree_class, configs, options.maxsize)]
 
     for name in ('index', 'size', 'size1'):
         if name in names:
