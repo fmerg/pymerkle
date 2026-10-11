@@ -54,7 +54,7 @@ def all_configs(option):
 
     configs = []
     for (disable_security, algorithm) in itertools.product((True, False), algorithms):
-        config = {'algorithm': option.algorithm,
+        config = {'algorithm': algorithm,
                   'disable_security': disable_security,
                   'threshold': option.threshold,
                   'capacity': option.capacity}
