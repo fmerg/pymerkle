@@ -18,8 +18,13 @@ def frequent_thread_switching():
 def run_threads(*targets):
     errors = []
 
+    # Start all targets together, so that none may complete before the
+    # others have started
+    barrier = threading.Barrier(len(targets))
+
     def guard(target):
         try:
+            barrier.wait()
             target()
         except Exception as err:
             errors.append(err)
@@ -85,11 +90,14 @@ def test_reads_during_appends(make_tree):
         done.set()
 
     def reader():
-        while not done.is_set():
+        # Observe at least once, even if the writer is done first
+        while True:
             size = tree.get_size()
             observed.append((size, tree.get_state(size),
                 tree.prove_inclusion(1, size),
                 tree.prove_consistency(size // 2 or 1, size)))
+            if done.is_set():
+                break
 
     run_threads(writer, reader, reader)
 
@@ -113,10 +121,12 @@ def test_sqlite_bulk_append_during_reads():
         done.set()
 
     def reader():
-        while not done.is_set():
+        while True:
             size = tree.get_size()
             assert tree.get_entry(size) is not None
             tree.get_state(size)
+            if done.is_set():
+                break
 
     run_threads(writer, reader)
 
