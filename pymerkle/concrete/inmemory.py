@@ -284,10 +284,7 @@ class InmemoryTree(BaseMerkleTree):
         :type algorithm: str
         """
         tree = cls(algorithm, **opts)
-
-        append_entry = tree.append_entry
-        for data in entries:
-            append_entry(data)
+        tree.append_entries(entries)
 
         return tree
 

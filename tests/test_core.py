@@ -80,3 +80,15 @@ def test_unknown_option():
 
     with pytest.raises(TypeError):
         InmemoryTree(disable_cahce=True)
+
+
+def test_append_entries():
+    from pymerkle import InmemoryTree
+
+    entries = [b'%d' % i for i in range(10)]
+    tree = InmemoryTree.init_from_entries(entries[:3])
+
+    assert tree.append_entries(e for e in entries[3:]) == len(entries)
+    assert tree.append_entries([]) == len(entries)
+    assert tree.get_state() == \
+        InmemoryTree.init_from_entries(entries).get_state()

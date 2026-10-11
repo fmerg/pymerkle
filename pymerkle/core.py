@@ -132,6 +132,26 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @synchronized
+    def append_entries(self, entries):
+        """
+        Appends new leaves storing the provided data entries in respective
+        order.
+
+        .. note:: Concrete implementations may override this method with a
+            more efficient bulk operation.
+
+        :param entries: data entries to append
+        :type entries: iterable
+        :returns: index of last appended leaf, i.e., the current tree size
+        :rtype: int
+        """
+        for data in entries:
+            self.append_entry(data)
+
+        return self._get_size()
+
+
+    @synchronized
     def get_leaf(self, index):
         """
         Returns the leaf hash located at the provided position.
