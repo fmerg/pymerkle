@@ -27,6 +27,9 @@ All notable changes to this project will be documented in this file.
 - Proofs generated with security disabled require `security=False` upon
   verification
 - Proofs serialized by earlier versions are rejected
+- Proofs are `InclusionProof` and `ConsistencyProof` objects deriving from
+  `MerkleProof`, with a `verify` method; their serialization carries a `type`
+  field and only consistency proofs contain `subset`
 - Tree operations are thread-safe; `SqliteTree` can be shared between threads
 - `SqliteTree.append_entries` is atomic and accepts any iterable
 - The `SqliteTree` leaf table is append-only

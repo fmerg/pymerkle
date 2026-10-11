@@ -32,85 +32,24 @@ def _digests_match(digest1, digest2):
         return False
 
 
-def _check_hashing(proof, algorithm, security):
-    """
-    Ensures that the proof is resolved with the hashing configuration expected
-    by the verifier and that its path consists of digests of proper length.
-
-    :param proof: proof under verification
-    :type proof: MerkleProof
-    :param algorithm: expected hash algorithm, or *None* to accept the one
-        specified by the proof
-    :type algorithm: str
-    :param security: expected resistance against second-preimage attack
-    :type security: bool
-    :raises InvalidProof: if the proof does not comply
-    """
-    if bool(proof.security) != bool(security):
-        raise InvalidProof('Security mode does not match')
-
-    if algorithm is not None and \
-            algorithm.lower().replace('-', '_') != proof.hasher.algorithm:
-        raise InvalidProof('Hash algorithm does not match')
-
-    digest_size = proof.hasher.hashfunc().digest_size
-    for digest in proof.path:
-        if not isinstance(digest, bytes) or len(digest) != digest_size:
-            raise InvalidProof('Invalid digest found in path')
-
-
 def verify_inclusion(base, root, proof, index=None, size=None,
         algorithm=None, security=True):
     """
     Verifies the provided Merkle-proof of inclusion against the provided leaf
     hash and tree state.
 
-    .. note:: The structure of the proof is recomputed from the leaf index
-        and size it claims and must match exactly. Pass *index* and *size*
-        to also ensure that these are the position of the leaf and the size
-        of the state under consideration.
+    .. note:: Equivalent to ``proof.verify(base, root, ...)`` after ensuring
+        that the provided proof is an inclusion proof. See
+        ``InclusionProof.verify`` for the parameters.
 
-    :param base: acclaimed leaf hash
-    :type base: bytes
-    :param root: acclaimed root hash
-    :type root: bytes
-    :param proof: proof of inclusion
-    :type proof: MerkleProof
-    :param index: [optional] expected leaf index counting from one
-    :type index: int
-    :param size: [optional] expected number of leaves
-    :type size: int
-    :param algorithm: [optional] expected hash algorithm. Defaults to the one
-        specified by the proof.
-    :type algorithm: str
-    :param security: [optional] expected resistance against second-preimage
-        attack. Defaults to *True*.
-    :type security: bool
+    :type proof: InclusionProof
     :raises InvalidProof: if the proof is found invalid
     """
-    if not (isinstance(proof.index, int) and isinstance(proof.size, int)
-            and 0 < proof.index <= proof.size < MAX_SIZE):
-        raise InvalidProof('Invalid index or size')
+    if not isinstance(proof, InclusionProof):
+        raise InvalidProof('Not an inclusion proof')
 
-    if index is not None and proof.index != index:
-        raise InvalidProof('Index does not match')
-
-    if size is not None and proof.size != size:
-        raise InvalidProof('Size does not match')
-
-    rule, _ = inclusion_layout(proof.index - 1, proof.size)
-    if proof.rule != rule or proof.subset != [] or \
-            not isinstance(proof.path, list) or \
-            len(proof.path) != len(rule):
-        raise InvalidProof('Invalid proof structure')
-
-    _check_hashing(proof, algorithm, security)
-
-    if not _digests_match(proof.path[0], base):
-        raise InvalidProof('Base hash does not match')
-
-    if not _digests_match(proof.resolve(), root):
-        raise InvalidProof('State does not match')
+    proof.verify(base, root, index=index, size=size, algorithm=algorithm,
+        security=security)
 
 
 def verify_consistency(state1, state2, proof, size1=None, size2=None,
@@ -118,57 +57,23 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None,
     """
     Verifies the provided Merkle-proof of consistency against the given states.
 
-    .. note:: The structure of the proof is recomputed from the sizes it
-        claims and must match exactly. Pass *size1* and *size2* to also
-        ensure that these are the sizes of the states under consideration.
+    .. note:: Equivalent to ``proof.verify(state1, state2, ...)`` after
+        ensuring that the provided proof is a consistency proof. See
+        ``ConsistencyProof.verify`` for the parameters.
 
-    :param state1: acclaimed prior state
-    :type state1: bytes
-    :param state2: acclaimed later state
-    :type state2: bytes
-    :param proof: proof of consistency
-    :type proof: MerkleProof
-    :param size1: [optional] expected number of leaves for prior state
-    :type size1: int
-    :param size2: [optional] expected number of leaves for later state
-    :type size2: int
-    :param algorithm: [optional] expected hash algorithm. Defaults to the one
-        specified by the proof.
-    :type algorithm: str
-    :param security: [optional] expected resistance against second-preimage
-        attack. Defaults to *True*.
-    :type security: bool
+    :type proof: ConsistencyProof
     :raises InvalidProof: if the proof is found invalid
     """
-    prior_size = proof.prior_size
-    if not (isinstance(prior_size, int) and isinstance(proof.size, int)
-            and 0 < prior_size <= proof.size < MAX_SIZE):
-        raise InvalidProof('Invalid sizes')
+    if not isinstance(proof, ConsistencyProof):
+        raise InvalidProof('Not a consistency proof')
 
-    if size1 is not None and prior_size != size1:
-        raise InvalidProof('Prior size does not match')
-
-    if size2 is not None and proof.size != size2:
-        raise InvalidProof('Later size does not match')
-
-    rule, subset, _ = consistency_layout(prior_size, proof.size)
-    if proof.rule != rule or proof.subset != subset or \
-            not isinstance(proof.path, list) or \
-            len(proof.path) != len(rule):
-        raise InvalidProof('Invalid proof structure')
-
-    _check_hashing(proof, algorithm, security)
-
-    if not _digests_match(proof.retrieve_prior_state(), state1):
-        raise InvalidProof('Prior state does not match')
-
-    if not _digests_match(proof.resolve(), state2):
-        raise InvalidProof('Later state does not match')
+    proof.verify(state1, state2, size1=size1, size2=size2,
+        algorithm=algorithm, security=security)
 
 
 class MerkleProof:
     """
-    Verifiable Merkle-proof object
+    Base class of verifiable Merkle-proofs.
 
     :param algorithm: hash algorithm to be applied during state resolution
     :type algorithm: str
@@ -179,29 +84,18 @@ class MerkleProof:
     :param rule: specifies parenthetization of hashes during state
         resolution
     :type rule: list[int]
-    :param subset: indicates subset of hashes during prior state resolution
-        (makes sense only for consistency proofs)
-    :type subset: list[int]
     :param path: path of hashes
     :type path: list[bytes]
-    :param index: [optional] leaf index counting from one (makes sense only
-        for inclusion proofs)
-    :type index: int
-    :param prior_size: [optional] tree size corresponding to prior state
-        (makes sense only for consistency proofs)
-    :type prior_size: int
     """
 
-    def __init__(self, algorithm, security, size, rule, subset, path,
-            index=None, prior_size=None):
+    kind = None
+
+    def __init__(self, algorithm, security, size, rule, path):
         self.algorithm = algorithm
         self.security = security
         self.size = size
         self.rule = rule
-        self.subset = subset
         self.path = path
-        self.index = index
-        self.prior_size = prior_size
         self.hasher = MerkleHasher(algorithm, security)
 
 
@@ -211,16 +105,9 @@ class MerkleProof:
 
         :rtype: dict
         """
-        metadata = {'algorithm': self.algorithm, 'security': self.security,
-                    'size': self.size}
+        return {'algorithm': self.algorithm, 'security': self.security,
+                'size': self.size}
 
-        if self.index is not None:
-            metadata['index'] = self.index
-
-        if self.prior_size is not None:
-            metadata['prior_size'] = self.prior_size
-
-        return metadata
 
     def serialize(self):
         """
@@ -229,9 +116,9 @@ class MerkleProof:
         :rtype: dict
         """
         return {
+            'type': self.kind,
             'metadata': self.get_metadata(),
             'rule': self.rule,
-            'subset': self.subset,
             'path': [digest.hex() for digest in self.path]
         }
 
@@ -239,40 +126,28 @@ class MerkleProof:
     @classmethod
     def deserialize(cls, data):
         """
+        Retrieves the proof from its JSON representation. Called on the base
+        class, returns a proof of the serialized type; called on a subclass,
+        additionally ensures that the serialized proof is of that type.
+
         :param data:
         :type data: dict
         :rtype: MerkleProof
-        :raises InvalidProof: if the provided data are malformed
+        :raises InvalidProof: if the provided data are malformed or of
+            unexpected type
         """
         try:
-            metadata = data['metadata']
-            rule = data['rule']
-            subset = data['subset']
+            proof_cls = _PROOF_TYPES[data['type']]
+            if not issubclass(proof_cls, cls):
+                raise InvalidProof('Unexpected proof type')
+
             if len(data['path']) > MAX_PATH:
                 raise InvalidProof('Path too long')
             path = [bytes.fromhex(checksum) for checksum in data['path']]
 
-            return cls(**metadata, rule=rule, subset=subset, path=path)
+            return proof_cls._from_data(data, path)
         except (KeyError, TypeError, ValueError, AttributeError) as err:
             raise InvalidProof('Malformed proof') from err
-
-
-    def retrieve_prior_state(self):
-        """
-        Computes the acclaimed prior state as specified by the included path of
-        hashes.
-
-        .. note:: Makes sense only for consistency proofs.
-
-        :rtype: bytes
-        """
-        subpath = [digest for (mask, digest) in zip(self.subset, self.path)
-                   if mask]
-
-        if not subpath:
-            return self.hasher.hash_empty()
-
-        return self.hasher.hash_fold(subpath)
 
 
     def resolve(self):
@@ -296,3 +171,219 @@ class MerkleProof:
                 raise ValueError('Invalid bit found')
 
         return result
+
+
+    def _check_rule(self, rule):
+        """
+        Ensures that the proof has the provided rule and a path of matching
+        length.
+
+        :raises InvalidProof: if the proof does not comply
+        """
+        if self.rule != rule or not isinstance(self.path, list) or \
+                len(self.path) != len(rule):
+            raise InvalidProof('Invalid proof structure')
+
+
+    def _check_hashing(self, algorithm, security):
+        """
+        Ensures that the proof is resolved with the hashing configuration
+        expected by the verifier and that its path consists of digests of
+        proper length.
+
+        :param algorithm: expected hash algorithm, or *None* to accept the
+            one specified by the proof
+        :type algorithm: str
+        :param security: expected resistance against second-preimage attack
+        :type security: bool
+        :raises InvalidProof: if the proof does not comply
+        """
+        if bool(self.security) != bool(security):
+            raise InvalidProof('Security mode does not match')
+
+        if algorithm is not None and \
+                algorithm.lower().replace('-', '_') != self.hasher.algorithm:
+            raise InvalidProof('Hash algorithm does not match')
+
+        digest_size = self.hasher.hashfunc().digest_size
+        for digest in self.path:
+            if not isinstance(digest, bytes) or len(digest) != digest_size:
+                raise InvalidProof('Invalid digest found in path')
+
+
+class InclusionProof(MerkleProof):
+    """
+    Verifiable proof of inclusion of a leaf in some tree state.
+
+    :param index: leaf index counting from one
+    :type index: int
+
+    The remaining parameters are those of ``MerkleProof``.
+    """
+
+    kind = 'inclusion'
+
+    def __init__(self, algorithm, security, size, index, rule, path):
+        super().__init__(algorithm, security, size, rule, path)
+        self.index = index
+
+
+    def get_metadata(self):
+        return {**super().get_metadata(), 'index': self.index}
+
+
+    @classmethod
+    def _from_data(cls, data, path):
+        return cls(**data['metadata'], rule=data['rule'], path=path)
+
+
+    def verify(self, base, root, index=None, size=None, algorithm=None,
+            security=True):
+        """
+        Verifies the proof against the provided leaf hash and tree state.
+
+        .. note:: The structure of the proof is recomputed from the leaf index
+            and size it claims and must match exactly. Pass *index* and
+            *size* to also ensure that these are the position of the leaf and
+            the size of the state under consideration.
+
+        :param base: acclaimed leaf hash
+        :type base: bytes
+        :param root: acclaimed root hash
+        :type root: bytes
+        :param index: [optional] expected leaf index counting from one
+        :type index: int
+        :param size: [optional] expected number of leaves
+        :type size: int
+        :param algorithm: [optional] expected hash algorithm. Defaults to the
+            one specified by the proof.
+        :type algorithm: str
+        :param security: [optional] expected resistance against
+            second-preimage attack. Defaults to *True*.
+        :type security: bool
+        :raises InvalidProof: if the proof is found invalid
+        """
+        if not (isinstance(self.index, int) and isinstance(self.size, int)
+                and 0 < self.index <= self.size < MAX_SIZE):
+            raise InvalidProof('Invalid index or size')
+
+        if index is not None and self.index != index:
+            raise InvalidProof('Index does not match')
+
+        if size is not None and self.size != size:
+            raise InvalidProof('Size does not match')
+
+        rule, _ = inclusion_layout(self.index - 1, self.size)
+        self._check_rule(rule)
+        self._check_hashing(algorithm, security)
+
+        if not _digests_match(self.path[0], base):
+            raise InvalidProof('Base hash does not match')
+
+        if not _digests_match(self.resolve(), root):
+            raise InvalidProof('State does not match')
+
+
+class ConsistencyProof(MerkleProof):
+    """
+    Verifiable proof of consistency between two tree states.
+
+    :param prior_size: tree size corresponding to prior state
+    :type prior_size: int
+    :param subset: indicates subset of hashes resolving to the prior state
+    :type subset: list[int]
+
+    The remaining parameters are those of ``MerkleProof``, *size*
+    corresponding to the later state.
+    """
+
+    kind = 'consistency'
+
+    def __init__(self, algorithm, security, size, prior_size, rule, subset,
+            path):
+        super().__init__(algorithm, security, size, rule, path)
+        self.prior_size = prior_size
+        self.subset = subset
+
+
+    def get_metadata(self):
+        return {**super().get_metadata(), 'prior_size': self.prior_size}
+
+
+    def serialize(self):
+        return {**super().serialize(), 'subset': self.subset}
+
+
+    @classmethod
+    def _from_data(cls, data, path):
+        return cls(**data['metadata'], rule=data['rule'],
+            subset=data['subset'], path=path)
+
+
+    def retrieve_prior_state(self):
+        """
+        Computes the acclaimed prior state as specified by the included path of
+        hashes.
+
+        :rtype: bytes
+        """
+        subpath = [digest for (mask, digest) in zip(self.subset, self.path)
+                   if mask]
+
+        if not subpath:
+            return self.hasher.hash_empty()
+
+        return self.hasher.hash_fold(subpath)
+
+
+    def verify(self, state1, state2, size1=None, size2=None, algorithm=None,
+            security=True):
+        """
+        Verifies the proof against the provided states.
+
+        .. note:: The structure of the proof is recomputed from the sizes it
+            claims and must match exactly. Pass *size1* and *size2* to also
+            ensure that these are the sizes of the states under
+            consideration.
+
+        :param state1: acclaimed prior state
+        :type state1: bytes
+        :param state2: acclaimed later state
+        :type state2: bytes
+        :param size1: [optional] expected number of leaves for prior state
+        :type size1: int
+        :param size2: [optional] expected number of leaves for later state
+        :type size2: int
+        :param algorithm: [optional] expected hash algorithm. Defaults to the
+            one specified by the proof.
+        :type algorithm: str
+        :param security: [optional] expected resistance against
+            second-preimage attack. Defaults to *True*.
+        :type security: bool
+        :raises InvalidProof: if the proof is found invalid
+        """
+        if not (isinstance(self.prior_size, int) and
+                isinstance(self.size, int) and
+                0 < self.prior_size <= self.size < MAX_SIZE):
+            raise InvalidProof('Invalid sizes')
+
+        if size1 is not None and self.prior_size != size1:
+            raise InvalidProof('Prior size does not match')
+
+        if size2 is not None and self.size != size2:
+            raise InvalidProof('Later size does not match')
+
+        rule, subset, _ = consistency_layout(self.prior_size, self.size)
+        self._check_rule(rule)
+        if self.subset != subset:
+            raise InvalidProof('Invalid proof structure')
+        self._check_hashing(algorithm, security)
+
+        if not _digests_match(self.retrieve_prior_state(), state1):
+            raise InvalidProof('Prior state does not match')
+
+        if not _digests_match(self.resolve(), state2):
+            raise InvalidProof('Later state does not match')
+
+
+_PROOF_TYPES = {cls.kind: cls for cls in (InclusionProof, ConsistencyProof)}

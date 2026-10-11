@@ -2,7 +2,8 @@ import pytest
 from tests.conftest import tree_and_index
 
 from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
-    InvalidProof, MerkleProof, InmemoryTree
+    InvalidProof, MerkleProof, InclusionProof, ConsistencyProof, \
+    InmemoryTree
 
 
 @pytest.mark.parametrize('tree, index', tree_and_index())
@@ -68,10 +69,8 @@ def test_inclusion_wrong_type(tree, index):
 def test_inclusion_empty_path(tree, index):
     base = tree.get_leaf(index)
     state = tree.get_state()
-    proof = MerkleProof.deserialize({
-        'metadata': {'algorithm': tree.algorithm, 'security': tree.security,
-                     'size': tree.get_size()},
-        'rule': [], 'subset': [], 'path': []})
+    proof = InclusionProof(tree.algorithm, tree.security, tree.get_size(),
+        index, [], [])
 
     with pytest.raises(InvalidProof):
         verify_inclusion(base, state, proof)
@@ -192,6 +191,9 @@ def test_inclusion_invalid_digest_length(tree, index):
     lambda d: d.update({'path': [1]}),
     lambda d: d.update({'path': None}),
     lambda d: d.update({'path': ['00'] * 1000}),
+    lambda d: d.pop('type'),
+    lambda d: d.update({'type': 'unknown'}),
+    lambda d: d.update({'type': 'consistency'}),
 ])
 def test_deserialize_malformed(mutate):
     tree = InmemoryTree.init_from_entries([b'a', b'b', b'c'])
@@ -219,3 +221,20 @@ def test_inclusion_huge_size():
 
     with pytest.raises(InvalidProof):
         verify_inclusion(tree.get_leaf(2), tree.get_state(), proof)
+
+
+@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+def test_inclusion_proof_type(tree, index):
+    proof = tree.prove_inclusion(index)
+    data = proof.serialize()
+
+    assert data['type'] == 'inclusion'
+    assert 'subset' not in data
+    assert isinstance(MerkleProof.deserialize(data), InclusionProof)
+    assert isinstance(InclusionProof.deserialize(data), InclusionProof)
+
+    with pytest.raises(InvalidProof):
+        ConsistencyProof.deserialize(data)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(tree.get_state(), tree.get_state(), proof)

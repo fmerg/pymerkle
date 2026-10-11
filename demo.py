@@ -76,6 +76,7 @@ def strtree(tree):
 
 def strproof(proof):
     template = """
+    type        : {type}
     algorithm   : {algorithm}
     security    : {security}
     size        : {size}
@@ -86,12 +87,13 @@ def strproof(proof):
     data = proof.serialize()
     metadata = data['metadata']
     rule = data['rule']
-    subset = data['subset']
+    subset = data.get('subset', '-')
     path = data['path']
 
     path = strpath(rule, path)
 
-    kw = {**metadata, 'rule': rule, 'subset': subset, 'path': path}
+    kw = {**metadata, 'type': data['type'], 'rule': rule, 'subset': subset,
+          'path': path}
     return template.format(**kw)
 
 

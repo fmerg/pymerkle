@@ -13,7 +13,7 @@ from cachetools import LRUCache
 
 from pymerkle.hasher import MerkleHasher
 from pymerkle.layout import inclusion_layout, consistency_layout
-from pymerkle.proof import MerkleProof
+from pymerkle.proof import InclusionProof, ConsistencyProof
 from pymerkle.utils import log2, decompose
 
 
@@ -191,7 +191,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :param size: [optional] number of leaves to consider. Defaults to
             current tree size
         :type size: int
-        :rtype: MerkleProof
+        :rtype: InclusionProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
@@ -208,8 +208,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         rule, path = self._inclusion_path(index - 1, size)
 
-        return MerkleProof(self.algorithm, self.security, size, rule, [],
-                path, index=index)
+        return InclusionProof(self.algorithm, self.security, size, index,
+                rule, path)
 
 
     @synchronized
@@ -223,7 +223,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :param size2: [optional] number of leaves for later state. Defaults to
             current tree size.
         :type size2: int
-        :rtype: MerkleProof
+        :rtype: ConsistencyProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
@@ -240,8 +240,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         rule, subset, path = self._consistency_path(size1, size2)
 
-        return MerkleProof(self.algorithm, self.security, size2, rule,
-                subset, path, prior_size=size1)
+        return ConsistencyProof(self.algorithm, self.security, size2, size1,
+                rule, subset, path)
 
 
     @synchronized

@@ -349,7 +349,8 @@ inclusion case. Trying to verify against forged states would raise an
 Serialization
 -------------
 
-A ``MerkleProof`` object can be serialized as follows:
+Proofs are ``InclusionProof`` and ``ConsistencyProof`` objects respectively,
+both deriving from ``MerkleProof``. They can be serialized as follows:
 
 .. code-block:: python
 
@@ -362,6 +363,7 @@ This yields a JSON entity similar to this one:
 .. code-block:: json
 
   {
+    "type": "inclusion",
     "metadata": {
         "algorithm": "sha256",
         "security": true,
@@ -374,7 +376,6 @@ This yields a JSON entity similar to this one:
         0,
         0
     ],
-    "subset": [],
     "path": [
         "4c79d0d62f7cf5ca8874155f2d3b875f2625da2bb3abc86bbd6833f25ba90e51",
         "5c7117fb9edb0cec387257891105da6a6616722af247083e2d6eda671529cdc5",
@@ -390,8 +391,8 @@ in order to request the acclaimed state needed for proof verification (if not
 otherwise available). Inclusion proofs also contain the index of the leaf in
 question (*index*), whereas consistency proofs contain the size of the prior
 state (*prior_size*). *Rule* determines parenthetization of hashes during
-path resolution and *subset* selects the hashes resolving to the acclaimed
-prior state (makes sense only for consistency proofs).
+path resolution. Consistency proofs additionally contain a *subset* entry,
+which selects the hashes resolving to the acclaimed prior state.
 
 The verifiable proof-object can be retrieved as follows:
 
@@ -400,6 +401,12 @@ The verifiable proof-object can be retrieved as follows:
   from pymerkle import MerkleProof
 
   proof = MerkleProof.deserialize(data)
+
+This returns a proof of the serialized type. Use
+``InclusionProof.deserialize`` or ``ConsistencyProof.deserialize`` instead to
+also ensure that the proof is of the expected type. Proofs can also be
+verified by means of their ``verify`` method, e.g.,
+``proof.verify(base, root, index=3, size=5)``.
 
 
 Malformed data raise an ``InvalidProof`` error.
