@@ -75,8 +75,12 @@ from pymerkle import verify_inclusion
 base = tree.get_leaf(3)
 root = tree.get_state(5)
 
-verify_inclusion(base, root, proof)
+verify_inclusion(base, root, proof, index=3, size=5)
 ```
+
+The proof structure is recomputed from the leaf index and size and must
+match exactly. Passing `index` and `size` additionally ensures that the
+proof refers to the expected leaf position and state.
 
 ### Consistency proof
 

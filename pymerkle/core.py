@@ -170,7 +170,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         rule, path = self._inclusion_path(0, index - 1, size, 0)
 
         return MerkleProof(self.algorithm, self.security, size, rule, [],
-                path)
+                path, index=index)
 
 
     def prove_consistency(self, size1, size2=None):
