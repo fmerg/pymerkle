@@ -12,8 +12,14 @@ class SqliteTree(BaseMerkleTree):
     further processing.
 
     .. note:: The database schema consists of a single table called *leaf*
-        with two columns: *index*, which is the primary key serving as leaf
-        index, and *entry*, which is a blob field storing the appended data.
+        with three columns: *id*, which is the primary key serving as leaf
+        index, *entry*, which is a blob field storing the appended data, and
+        *hash*, which stores its hash value. The table is append-only:
+        deleting or updating rows is rejected by triggers, since leaf indices
+        must remain contiguous.
+
+    :raises ValueError: if the leaf indices of an existing database are not
+        contiguous
 
     .. note:: A tree can be shared between threads, its database connection
         being guarded by the tree lock.
@@ -39,6 +45,23 @@ class SqliteTree(BaseMerkleTree):
                     hash BLOB
                 );'''
             self.cur.execute(query)
+
+            # Leaf indices must remain contiguous, i.e., the table is
+            # append-only
+            for (name, action) in (('leaf_no_delete', 'DELETE'),
+                                   ('leaf_no_update', 'UPDATE')):
+                query = f'''
+                    CREATE TRIGGER IF NOT EXISTS {name}
+                    BEFORE {action} ON leaf
+                    BEGIN
+                        SELECT RAISE(ABORT, 'leaf table is append-only');
+                    END;'''
+                self.cur.execute(query)
+
+        self.cur.execute('SELECT COUNT(*) = COALESCE(MAX(id), 0) FROM leaf')
+        if not self.cur.fetchone():
+            self.con.close()
+            raise ValueError('Leaf indices are not contiguous')
 
         super().__init__(algorithm, **opts)
 

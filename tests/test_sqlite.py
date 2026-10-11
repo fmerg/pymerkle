@@ -1,3 +1,5 @@
+import sqlite3
+
 import pytest
 
 from pymerkle import SqliteTree, InmemoryTree
@@ -64,3 +66,53 @@ def test_append_entries_encoding():
 
     assert tree1.get_leaf(1) == tree2.get_leaf(1) == tree1.hash_buff(b'FOO')
     assert tree1.get_state() == tree2.get_state()
+
+
+@pytest.mark.parametrize('statement', [
+    'DELETE FROM leaf WHERE id = 2',
+    'DELETE FROM leaf',
+    "UPDATE leaf SET hash = x'00' WHERE id = 1",
+])
+def test_leaf_table_append_only(statement):
+    """
+    Deleting rows used to break the contiguity of leaf indices, so that
+    subsequent operations failed or returned wrong results.
+    """
+    tree = make_tree()
+    state = tree.get_state()
+
+    with pytest.raises(sqlite3.DatabaseError):
+        with tree.con:
+            tree.con.execute(statement)
+
+    tree.append_entry(b'new')
+    assert tree.get_size() == 4
+    assert tree.get_state(3) == state
+    assert tree.get_state() == \
+        InmemoryTree.init_from_entries(entries[:3] + [b'new']).get_state()
+
+
+def test_non_contiguous_database(tmp_path):
+    dbfile = str(tmp_path / 'merkle.db')
+    with SqliteTree(dbfile) as tree:
+        tree.append_entries(entries)
+
+    con = sqlite3.connect(dbfile)
+    with con:
+        con.execute('DROP TRIGGER leaf_no_delete')
+        con.execute('DELETE FROM leaf WHERE id = 5')
+    con.close()
+
+    with pytest.raises(ValueError):
+        SqliteTree(dbfile)
+
+
+def test_reopen_database(tmp_path):
+    dbfile = str(tmp_path / 'merkle.db')
+    with SqliteTree(dbfile) as tree:
+        tree.append_entries(entries)
+        state = tree.get_state()
+
+    with SqliteTree(dbfile) as tree:
+        assert tree.get_size() == len(entries)
+        assert tree.get_state() == state
