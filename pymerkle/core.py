@@ -201,7 +201,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         rule, subset, path = self._consistency_path(0, size1, size2, 0)
 
         return MerkleProof(self.algorithm, self.security, size2, rule,
-                subset, path)
+                subset, path, prior_size=size1)
 
 
     def get_cache_info(self):

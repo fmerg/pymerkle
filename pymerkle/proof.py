@@ -3,6 +3,7 @@ import json
 from hmac import compare_digest
 
 from pymerkle.hasher import MerkleHasher
+from pymerkle.utils import log2
 
 
 class InvalidProof(Exception):
@@ -47,18 +48,77 @@ def verify_inclusion(base, root, proof):
         raise InvalidProof('State does not match')
 
 
-def verify_consistency(state1, state2, proof):
+def _consistency_structure(size1, size2):
+    """
+    Computes the rule and subset of a well-formed consistency proof between
+    the states corresponding to the provided sizes, independently of the
+    proof under verification.
+
+    :param size1: number of leaves for prior state
+    :type size1: int
+    :param size2: number of leaves for later state
+    :type size2: int
+    :rtype: (list[int], list[int])
+    """
+    offset, limit, bit = size1, size2, 0
+    bits, masks = [], []
+    while not offset == limit and not (offset == 0 and limit == 1):
+        k = 1 << log2(limit)
+        if k == limit:
+            k >>= 1
+
+        bits += [bit]
+        if offset < k:
+            masks += [0]
+            limit = k
+            bit = 0
+        else:
+            masks += [1]
+            offset -= k
+            limit -= k
+            bit = 1
+
+    mask = int(offset == limit)
+
+    return [bit] + bits[::-1], [mask] + masks[::-1]
+
+
+def verify_consistency(state1, state2, proof, size1=None, size2=None):
     """
     Verifies the provided Merkle-proof of consistency against the given states.
+
+    .. note:: The structure of the proof is recomputed from the sizes it
+        claims and must match exactly. Pass *size1* and *size2* to also
+        ensure that these are the sizes of the states under consideration.
 
     :param state1: acclaimed prior state
     :type state1: bytes
     :param state2: acclaimed later state
     :type state2: bytes
-    :raises InvalidProof: if the proof is found invalid
     :param proof: proof of consistency
     :type proof: MerkleProof
+    :param size1: [optional] expected number of leaves for prior state
+    :type size1: int
+    :param size2: [optional] expected number of leaves for later state
+    :type size2: int
+    :raises InvalidProof: if the proof is found invalid
     """
+    prior_size = proof.prior_size
+    if not (isinstance(prior_size, int) and isinstance(proof.size, int)
+            and 0 < prior_size <= proof.size):
+        raise InvalidProof('Invalid sizes')
+
+    if size1 is not None and prior_size != size1:
+        raise InvalidProof('Prior size does not match')
+
+    if size2 is not None and proof.size != size2:
+        raise InvalidProof('Later size does not match')
+
+    rule, subset = _consistency_structure(prior_size, proof.size)
+    if proof.rule != rule or proof.subset != subset or \
+            len(proof.path) != len(rule):
+        raise InvalidProof('Invalid proof structure')
+
     if not _digests_match(proof.retrieve_prior_state(), state1):
         raise InvalidProof('Prior state does not match')
 
@@ -84,15 +144,20 @@ class MerkleProof:
     :type subset: list[int]
     :param path: path of hashes
     :type path: list[bytes]
+    :param prior_size: [optional] tree size corresponding to prior state
+        (makes sense only for consistency proofs)
+    :type prior_size: int
     """
 
-    def __init__(self, algorithm, security, size, rule, subset, path):
+    def __init__(self, algorithm, security, size, rule, subset, path,
+            prior_size=None):
         self.algorithm = algorithm
         self.security = security
         self.size = size
         self.rule = rule
         self.subset = subset
         self.path = path
+        self.prior_size = prior_size
         self.hasher = MerkleHasher(**self.get_metadata())
 
 
@@ -102,8 +167,13 @@ class MerkleProof:
 
         :rtype: dict
         """
-        return {'algorithm': self.algorithm, 'security': self.security,
-                'size': self.size}
+        metadata = {'algorithm': self.algorithm, 'security': self.security,
+                    'size': self.size}
+
+        if self.prior_size is not None:
+            metadata['prior_size'] = self.prior_size
+
+        return metadata
 
     def serialize(self):
         """
@@ -112,11 +182,7 @@ class MerkleProof:
         :rtype: dict
         """
         return {
-            'metadata': {
-                'algorithm': self.algorithm,
-                'security': self.security,
-                'size': self.size,
-            },
+            'metadata': self.get_metadata(),
             'rule': self.rule,
             'subset': self.subset,
             'path': [digest.hex() for digest in self.path]

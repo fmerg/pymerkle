@@ -94,8 +94,13 @@ from pymerkle import verify_consistency
 state1 = tree.get_state(3)
 state2 = tree.get_state(5)
 
-verify_consistency(state1, state2, proof)
+verify_consistency(state1, state2, proof, size1=3, size2=5)
 ```
+
+The proof structure is recomputed from the sizes and must match exactly.
+Passing `size1` and `size2` additionally ensures that the proof refers to
+the expected states; omit them only if the states are not bound to known
+sizes.
 
 ## Supported hash functions
 
