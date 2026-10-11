@@ -132,7 +132,11 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :param index: leaf index counting from one
         :type index: int
         :rtype: bytes
+        :raises ValueError: if the provided index is out of bounds
         """
+        if not 0 < index <= self._get_size():
+            raise ValueError('Provided index is out of bounds')
+
         return self._get_leaf(index)
 
 
@@ -156,9 +160,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             current tree size.
         :type size: int
         :rtype: bytes
+        :raises ValueError: if the provided size is out of bounds
         """
+        currsize = self._get_size()
+
         if size is None:
-            size = self._get_size()
+            size = currsize
+
+        if not 0 <= size <= currsize:
+            raise ValueError('Provided size is out of bounds')
 
         return self._get_root(0, size)
 
@@ -385,6 +395,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type limit: int
         :rtype: bytes
         """
+        if limit == start:
+            return self.hash_empty()
+
         subroots = deque()
         prepend = subroots.appendleft
         append = subroots.append

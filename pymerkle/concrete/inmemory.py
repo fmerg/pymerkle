@@ -304,11 +304,15 @@ class InmemoryTree(BaseMerkleTree):
             current tree size.
         :type size: int
         :rtype: bytes
+        :raises ValueError: if the provided size is out of bounds
         """
         currsize = self._get_size()
 
         if size is None:
             size = currsize
+
+        if not 0 <= size <= currsize:
+            raise ValueError('Provided size is out of bounds')
 
         if size == 0:
             return self.hash_empty()
