@@ -267,12 +267,12 @@ class MerkleProof:
         self.path = path
         self.index = index
         self.prior_size = prior_size
-        self.hasher = MerkleHasher(**self.get_metadata())
+        self.hasher = MerkleHasher(algorithm, security)
 
 
     def get_metadata(self):
         """
-        Returns the information needed to configure the hashing machinery.
+        Returns the parameters of the proof.
 
         :rtype: dict
         """

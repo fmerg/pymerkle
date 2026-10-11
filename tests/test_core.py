@@ -71,3 +71,10 @@ def test_get_leaf_bounds(tree):
     for invalid in (-1, 0, size + 1):
         with pytest.raises(ValueError):
             tree.get_leaf(invalid)
+
+
+def test_unknown_option():
+    from pymerkle import InmemoryTree
+
+    with pytest.raises(TypeError):
+        InmemoryTree(disable_cahce=True)

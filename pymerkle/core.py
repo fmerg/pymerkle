@@ -92,26 +92,25 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     :type disable_cache: boolean
     """
 
-    def __init__(self, algorithm='sha256', **opts):
-        self.algorithm = algorithm
-        self.security = not opts.get('disable_security', False)
-        self.threshold = opts.get('threshold', 128)
-        self.capacity = opts.get('capacity', 1024 ** 3)
-        self.cache = LRUCache(maxsize=self.capacity,
-            getsizeof=_cache_entry_size)
+    def __init__(self, algorithm='sha256', *, threshold=128,
+            capacity=1024 ** 3, disable_security=False,
+            disable_optimizations=False, disable_cache=False):
+        self.threshold = threshold
+        self.capacity = capacity
+        self.cache = LRUCache(maxsize=capacity, getsizeof=_cache_entry_size)
         self.hits = 0
         self.misses = 0
         self.lock = RLock()
 
-        if opts.get('disable_optimizations', False):
+        if disable_optimizations:
             self._get_root = self._get_root_naive
             self._inclusion_path = self._inclusion_path_naive
             self._consistency_path = self._consistency_path_naive
 
-        if opts.get('disable_cache', False):
+        if disable_cache:
             self._get_subroot = self._get_subroot_uncached
 
-        super().__init__(self.algorithm, self.security)
+        super().__init__(algorithm, security=not disable_security)
 
 
     @synchronized
