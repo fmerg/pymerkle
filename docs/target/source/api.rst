@@ -28,7 +28,7 @@ Initialization of ``BaseMerkleTree`` accepts the options shown below:
 
     class MerkleTree(BaseMerkleTree):
 
-        def __init__(self, *args, **kwargs)
+        def __init__(self, *args, **kwargs):
             ...
 
             super().__init__(
@@ -53,7 +53,7 @@ Initialization of ``BaseMerkleTree`` accepts the options shown below:
   Use it for comparison purposes. Defaults to *False*.
 - ``disable_cache``: if *True*, the results of optimized low-level computations
   will not be cached. Use it for comparison purposes. Defaults to *False*.
-- ``theshold``: specifies which outputs of a low-level computation must be
+- ``threshold``: specifies which outputs of a low-level computation must be
   cached depending on the input of the computation. Refer :ref:`here<Optimizations>`
   for the exact meaning of this parameter. Defaults to *128*.
 - ``capacity``: cache capacity in bytes, i.e., approximate memory occupied by
@@ -105,7 +105,7 @@ runtime, intended for investigating and visualising the tree structure:
 
 
 ``SqliteTree`` is a persistent implementation using a SQLite database as
-storage, intended for leightweight local applications:
+storage, intended for lightweight local applications:
 
 
 
@@ -142,7 +142,7 @@ The exact type of entries depends on the particular implementation.
       accepts data in binary format and hashes it without further processing.
 
 
-Apending an entry returns the index of the corresponding leaf (counting from one):
+Appending an entry returns the index of the corresponding leaf (counting from one):
 
 
 .. code-block:: python
@@ -169,7 +169,7 @@ Hash computation
 ----------------
 
 Sometimes it is useful to be able to compute independently the hash value assigned
-to an data entry. For example, in order to verify the inclusion proof for an entry
+to a data entry. For example, in order to verify the inclusion proof for an entry
 (see :ref:`below<Inclusion>`) we need to know its hash value, which can be computed without
 querying the tree directly (provided that its binary format can be inferred
 according to some known contract).
@@ -189,7 +189,7 @@ The commutation between index and entry is
 
 .. code-block:: python
 
-   assert tree.get_leaf(1) == hasher.hash_entry(b'foo')
+   assert tree.get_leaf(1) == hasher.hash_buff(b'foo')
 
 
 Size
@@ -233,15 +233,16 @@ By convention, the empty tree state is the hash of the empty string:
 
 .. code-block:: python
 
-   >>> tree.get_state(0) == tree.hash_empty(b'')
+   >>> tree.get_state(0) == tree.hash_empty()
    True
 
 
 Proofs
 ======
 
-Pymerke is capable of generating proofs of *inclusion* and proofs of
-*consistency*. Both are modeled by the verifiable ``MerkleProof`` object.
+Pymerkle is capable of generating proofs of *inclusion* and proofs of
+*consistency*, modeled by the verifiable ``InclusionProof`` and
+``ConsistencyProof`` objects respectively.
 
 
 Inclusion

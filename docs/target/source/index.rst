@@ -157,7 +157,7 @@ Storage
 This library is unopinionated on how leaves are appended to the tree, i.e., how
 data is stored in concrete.  Cryptographic functionality is encapsulated in the
 ``BaseMerkleTree`` abstract class, which admits pluggable storage backends
-through subclassing. It is the the developer's choice to decide how to
+through subclassing. It is the developer's choice to decide how to
 store data by implementing the interior storage interface of this class.
 Any contiguously indexed dataset should do the job. Conversely, given any such
 dataset, we should be able to trivially implement a Merkle-tree that is
@@ -167,14 +167,15 @@ operable with it.
 Optimizations
 *************
 
-State computation and proof generation rely on computing root-hashes for
-arbitrary leaf ranges, which in practice means loading leaf hashes from a
-database. Instead of the recursive algorithm of `RFC 9162`_ (Section 2),
-pymerkle combines the root-hashes of ranges whose size is a power of two,
-computed from bulk reads, and caches the larger ones. In our measurements with
-SQLite databases, this makes proof generation several times faster, while
-memory usage remains modest. See :ref:`Optimizations<Optimizations>` for
-details.
+The performance of a Merkle-tree depends on how efficiently it computes the root-hash
+for arbitrary leaf ranges. The recursive version of this function is slow (e.g.,
+`RFC 9162`_, Section 2).
+
+This operation can be optimized using iterations on ranges whose size is
+a power of two. This has the effect of making proof generation several times faster,
+while memory usage remains reasonably low. Further boost is given by caching.
+Practically, a tree with sufficiently long uptime will respond considerably faster
+with little penalty in memory usage.
 
 
 .. toctree::
