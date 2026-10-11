@@ -1,8 +1,7 @@
-from itertools import product
 import pytest
 
 from pymerkle.utils import decompose
-from tests.conftest import option, make_trees, tree_and_index, tree_and_range
+from tests.conftest import make_trees, tree_and_index, tree_and_range
 
 
 @pytest.mark.parametrize('tree, start, limit', tree_and_range())

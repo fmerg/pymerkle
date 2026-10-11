@@ -1,5 +1,4 @@
 import itertools
-import pytest
 from pymerkle import constants, InmemoryTree, SqliteTree as _SqliteTree
 
 

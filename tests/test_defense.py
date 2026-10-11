@@ -1,4 +1,4 @@
-"""
+r"""
 Performs second-preimage attack for both security modes. Attack should succeed
 only when the tree's security mode has been disabled.
 
