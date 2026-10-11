@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - The `SqliteTree` leaf table is append-only
 - `get_state` and `get_leaf` raise `ValueError` for out-of-bounds arguments
 - Subroot cache capacity accounts for the actual memory of cached entries
+- The `pymerkle.concrete` subpackage is renamed to `pymerkle.backends`
 
 ### Fixed
 

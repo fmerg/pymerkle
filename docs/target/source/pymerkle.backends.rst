@@ -1,7 +1,7 @@
-pymerkle.concrete package
+pymerkle.backends package
 =========================
 
-.. automodule:: pymerkle.concrete
+.. automodule:: pymerkle.backends
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,18 +9,18 @@ pymerkle.concrete package
 Submodules
 ----------
 
-pymerkle.concrete.inmemory module
+pymerkle.backends.inmemory module
 ---------------------------------
 
-.. automodule:: pymerkle.concrete.inmemory
+.. automodule:: pymerkle.backends.inmemory
    :members:
    :undoc-members:
    :show-inheritance:
 
-pymerkle.concrete.sqlite module
+pymerkle.backends.sqlite module
 -------------------------------
 
-.. automodule:: pymerkle.concrete.sqlite
+.. automodule:: pymerkle.backends.sqlite
    :members:
    :undoc-members:
    :show-inheritance:

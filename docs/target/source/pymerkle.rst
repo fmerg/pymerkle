@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pymerkle.concrete
+   pymerkle.backends
 
 Submodules
 ----------
