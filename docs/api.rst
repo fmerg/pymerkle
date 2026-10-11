@@ -260,11 +260,16 @@ proceeds as follows:
    base = tree.get_leaf(3)
    root = tree.get_state(5)
 
-   verify_inclusion(base, root, proof)
+   verify_inclusion(base, root, proof, index=3, size=5)
 
 
-This checks that the path of hashes is indeed based on the acclaimed hash and
-that it resolves to the acclaimed state. Trying to verify against a forged base
+This checks that the structure of the proof is the one determined by the leaf
+index and size it refers to, that the path of hashes is indeed based on the
+acclaimed hash and that it resolves to the acclaimed state. Passing *index*
+and *size* ensures that the proof refers to the expected leaf position and
+state. Proofs are resolved with resistance against second-preimage attack
+unless ``security=False`` is passed; pass *algorithm* as well to ensure that
+the expected hash function is used. Trying to verify against a forged base
 or state would raise an ``InvalidProof`` error:
 
 
@@ -311,12 +316,15 @@ proceeds as follows:
    state1 = tree.get_state(3)
    state2 = tree.get_state(5)
 
-   verify_consistency(state1, state2, proof)
+   verify_consistency(state1, state2, proof, size1=3, size2=5)
 
 
-This checks that an appropriate subpath of the included path of hashes resolves
+This checks that the structure of the proof is the one determined by the sizes
+it refers to, that an appropriate subpath of the included path of hashes resolves
 to the acclaimed prior state and the path of hashes as a whole resolves to the
-acclaimed later state. Trying to verify against forged states would raise an
+acclaimed later state. Passing *size1* and *size2* ensures that the proof
+refers to the expected states; *security* and *algorithm* behave as in the
+inclusion case. Trying to verify against forged states would raise an
 ``InvalidProof`` error:
 
 
@@ -357,7 +365,8 @@ This yields a JSON entity similar to this one:
     "metadata": {
         "algorithm": "sha256",
         "security": true,
-        "size": 5
+        "size": 5,
+        "index": 3
     },
     "rule": [
         0,
@@ -378,7 +387,9 @@ The *metadata* section contains the parameters required for configuring the
 verification hasher (*algorithm* and *security*) along with the size of the
 state against which the proof was requested (*size*). The latter can be used
 in order to request the acclaimed state needed for proof verification (if not
-otherwise available). *Rule* determines parenthetization of hashes during
+otherwise available). Inclusion proofs also contain the index of the leaf in
+question (*index*), whereas consistency proofs contain the size of the prior
+state (*prior_size*). *Rule* determines parenthetization of hashes during
 path resolution and *subset* selects the hashes resolving to the acclaimed
 prior state (makes sense only for consistency proofs).
 
@@ -389,6 +400,9 @@ The verifiable proof-object can be retrieved as follows:
   from pymerkle import MerkleProof
 
   proof = MerkleProof.deserialize(data)
+
+
+Malformed data raise an ``InvalidProof`` error.
 
 
 .. _RFC 9162: https://datatracker.ietf.org/doc/html/rfc9162

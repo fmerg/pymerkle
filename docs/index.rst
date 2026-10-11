@@ -85,7 +85,7 @@ Verify the proof against the base hash and the subtree root:
   base = tree.get_leaf(3)
   root = tree.get_state(5)
 
-  verify_inclusion(base, root, proof)
+  verify_inclusion(base, root, proof, index=3, size=5)
 
 
 Consistency proof
@@ -108,7 +108,7 @@ Verify the proof against the respective root hashes:
   state1 = tree.get_state(3)
   state2 = tree.get_state(5)
 
-  verify_consistency(state1, state2, proof)
+  verify_consistency(state1, state2, proof, size1=3, size2=5)
 
 
 Security

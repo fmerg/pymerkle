@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 
 
+## Unreleased
+
+### Security
+
+- Reject forged consistency proofs: the proof structure is recomputed from
+  the sizes it refers to (consistency proofs now carry `prior_size`)
+- Bind inclusion proofs to the leaf index (inclusion proofs now carry `index`)
+- Verification no longer trusts the hash configuration carried by proofs;
+  path digests are length-checked
+- Malformed or oversized proofs raise `InvalidProof`
+
+### Added
+
+- `index`/`size` and `size1`/`size2` arguments to `verify_inclusion` and
+  `verify_consistency` respectively, binding proofs to the expected parameters
+- `algorithm` and `security` arguments to the verification functions
+- `synchronized` decorator and `SqliteTree.close`
+- `keccak` installation extra
+
+### Changed
+
+- Proofs generated with security disabled require `security=False` upon
+  verification
+- Proofs serialized by earlier versions are rejected
+- Tree operations are thread-safe; `SqliteTree` can be shared between threads
+- `SqliteTree.append_entries` is atomic and accepts any iterable
+- The `SqliteTree` leaf table is append-only
+- `get_state` and `get_leaf` raise `ValueError` for out-of-bounds arguments
+- Subroot cache capacity accounts for the actual memory of cached entries
+
+### Fixed
+
+- `get_state` of empty `SqliteTree`
+- Hash function lookup for non-canonical algorithm names
+- Importing pymerkle no longer defines `builtins.profile`
+
+
 ## 6.1.0 2023-08-30
 
 ### Added
