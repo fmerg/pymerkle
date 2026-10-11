@@ -1,4 +1,6 @@
 import sqlite3
+from itertools import islice
+
 from pymerkle.core import BaseMerkleTree, synchronized
 
 
@@ -174,17 +176,23 @@ class SqliteTree(BaseMerkleTree):
         :type entries: iterable of bytes
         :param chunksize:
         :type chunksize: int
+        :raises ValueError: if some entry is not binary
         """
-        _hash_entry = self.hash_buff
+        entries = iter(entries)
 
-        offset = 0
-        chunk = entries[offset: chunksize]
+        chunk = list(islice(entries, chunksize))
         while chunk:
-            hashes = [_hash_entry(data) for data in chunk]
-            yield zip(chunk, hashes)
+            pairs = []
+            for data in chunk:
+                if not isinstance(data, bytes):
+                    raise ValueError('Provided data is not binary')
 
-            offset += chunksize
-            chunk = entries[offset: offset + chunksize]
+                digest = self._hash_entry(self._encode_entry(data))
+                pairs += [(data, digest)]
+
+            yield pairs
+
+            chunk = list(islice(entries, chunksize))
 
 
     @synchronized
@@ -192,13 +200,17 @@ class SqliteTree(BaseMerkleTree):
         """
         Bulk operation for appending a batch of entries.
 
+        .. note:: The operation is atomic, i.e., if it fails, none of the
+            provided entries is appended.
+
         :param entries: data entries to append
         :type entries: iterable of bytes
-        :param chunksize: [optional] number entries to insert per
-            database transaction.
+        :param chunksize: [optional] number of entries to hash and insert at a
+            time.
         :type chunksize: int
-        :returns: index of last appended entry
+        :returns: index of last appended entry, i.e., the current tree size
         :rtype: int
+        :raises ValueError: if some entry is not binary
         """
         cur = self.cur
 
@@ -207,11 +219,6 @@ class SqliteTree(BaseMerkleTree):
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
             for chunk in self._hash_per_chunk(entries, chunksize):
-                cur.execute('BEGIN TRANSACTION')
+                cur.executemany(query, chunk)
 
-                for (data, digest) in chunk:
-                    cur.execute(query, (data, digest))
-
-                cur.execute('END TRANSACTION')
-
-        return cur.lastrowid
+        return self._get_size()
