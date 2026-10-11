@@ -3,8 +3,8 @@ pymerkle.backends package
 
 .. automodule:: pymerkle.backends
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Submodules
 ----------
@@ -14,13 +14,13 @@ pymerkle.backends.inmemory module
 
 .. automodule:: pymerkle.backends.inmemory
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pymerkle.backends.sqlite module
 -------------------------------
 
 .. automodule:: pymerkle.backends.sqlite
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
