@@ -276,6 +276,14 @@ class MerkleTree(BaseMerkleTree):
         return len(self.hashes)
 ```
 
+### Concurrency
+
+Public tree operations are serialized by means of a reentrant lock, so that
+a tree can be shared between threads. Concrete implementations should
+decorate any additional public method accessing their storage with
+`pymerkle.core.synchronized`.
+
+
 ## Development
 
 In what follows, you need to have locally installed dev requirements:

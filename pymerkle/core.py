@@ -4,7 +4,8 @@ Merkle-tree core functionality
 
 from abc import ABCMeta, abstractmethod
 from collections import deque, namedtuple
-from threading import Lock
+from functools import wraps
+from threading import RLock
 import builtins
 
 from cachetools import LRUCache
@@ -21,6 +22,18 @@ except AttributeError:
         return func
 
     builtins.profile = profile
+
+
+def synchronized(func):
+    """
+    Serializes calls to the decorated tree method by means of the tree lock.
+    """
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        with self.lock:
+            return func(self, *args, **kwargs)
+
+    return wrapper
 
 
 class InvalidChallenge(Exception):
@@ -41,6 +54,10 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
     .. note:: Concrete implentations should inherit from this class and
         implement its interior storage interface.
+
+    .. note:: Public operations are serialized by means of a reentrant lock
+        (``self.lock``). Subclasses should decorate with ``synchronized``
+        any additional public method accessing the storage.
 
     :param algorithm: [optional] hash algorithm. Defaults to *sha256*.
     :type algorithm: str
@@ -69,7 +86,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         self.cache = LRUCache(maxsize=self.capacity, getsizeof=len)
         self.hits = 0
         self.misses = 0
-        self.lock = Lock()
+        self.lock = RLock()
 
         if opts.get('disable_optimizations', False):
             self._get_root = self._get_root_naive
@@ -90,6 +107,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self.hash_pair(lnode, rnode)
 
 
+    @synchronized
     def append_entry(self, data):
         """
         Appends a new leaf storing the provided data entry.
@@ -106,6 +124,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return index
 
 
+    @synchronized
     def get_leaf(self, index):
         """
         Returns the leaf hash located at the provided position.
@@ -117,6 +136,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self._get_leaf(index)
 
 
+    @synchronized
     def get_size(self):
         """
         Returns the current number of leaves.
@@ -126,6 +146,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self._get_size()
 
 
+    @synchronized
     def get_state(self, size=None):
         """
         Computes the root-hash of the tree corresponding to the provided number
@@ -142,6 +163,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         return self._get_root(0, size)
 
 
+    @synchronized
     def prove_inclusion(self, index, size=None):
         """
         Proves inclusion of the hash located at the provided index against the
@@ -173,6 +195,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 path, index=index)
 
 
+    @synchronized
     def prove_consistency(self, size1, size2=None):
         """
         Proves consistency between the states corresponding to the provided
@@ -204,6 +227,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 subset, path, prior_size=size1)
 
 
+    @synchronized
     def get_cache_info(self):
         """
         Returns subroot cache info.
@@ -212,13 +236,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
                 self.misses)
 
 
+    @synchronized
     def cache_clear(self):
         """
         Clears the subroot cache.
         """
-        with self.lock:
-            self.cache.clear()
-
+        self.cache.clear()
         self.hits = 0
         self.misses = 0
 

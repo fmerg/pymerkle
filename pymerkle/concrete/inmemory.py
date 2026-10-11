@@ -1,5 +1,5 @@
 from pymerkle.utils import decompose
-from pymerkle.core import BaseMerkleTree
+from pymerkle.core import BaseMerkleTree, synchronized
 
 
 class Node:
@@ -175,6 +175,7 @@ class InmemoryTree(BaseMerkleTree):
         super().__init__(algorithm, **opts)
 
 
+    @synchronized
     def __str__(self, indent=2, trim=8):
         """
         :returns: visual representation of the tree
@@ -291,6 +292,7 @@ class InmemoryTree(BaseMerkleTree):
         return tree
 
 
+    @synchronized
     def get_state(self, size=None):
         """
         Computes the root-hash of the subtree corresponding to the provided
