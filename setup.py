@@ -35,11 +35,11 @@ def main():
        project_urls={
             'github': homepage,
             'source': '%s/%s' % (homepage, 'tree/master/%s' % 'pymerkle'),
-            'docs': 'https://%s.readthedocs.io/en/latest/' % version,
+            'docs': 'https://pymerkle.readthedocs.io/en/latest/',
        },
        author='fmerg',
        author_email='fmerg@protonmail.com',
-       python_requires='>=3.6',
+       python_requires='>=3.7',
        install_requires=install_requires,
        zip_safe=False,
        keywords=[
@@ -49,7 +49,7 @@ def main():
            'Development Status :: 4 - Beta',
            'Intended Audience :: Developers',
            'Intended Audience :: Science/Research',
-           'Programming Language :: Python :: 3.6',
+           'Programming Language :: Python :: 3.7',
            'Operating System :: POSIX',
            'Topic :: Security :: Cryptography',
            'Topic :: Software Development :: Libraries :: Python Modules',
