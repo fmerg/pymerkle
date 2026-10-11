@@ -2,5 +2,11 @@ pytest>=6.2.5
 pytest-cov>=3.0.0
 pytest-benchmark[histogram]>=3.4.1
 sphinx==4.4.0
+# Last releases of Sphinx's own extensions supporting Sphinx < 5
+sphinxcontrib-applehelp<1.0.5
+sphinxcontrib-devhelp<1.0.3
+sphinxcontrib-htmlhelp<2.0.2
+sphinxcontrib-qthelp<1.0.4
+sphinxcontrib-serializinghtml<1.1.6
 sphinx_rtd_theme>=1.0.0
 python-docs-theme
