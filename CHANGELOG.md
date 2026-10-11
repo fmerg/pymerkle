@@ -28,6 +28,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Support for `python>=3.11`; Python 3.7 to 3.10 are end-of-life or about to
+  become so
 - Proofs generated with security disabled require `security=False` upon
   verification
 - Proofs serialized by earlier versions are rejected

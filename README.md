@@ -5,7 +5,7 @@
 [![Build Status](https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg)](https://gitlab.com/fmerg/pymerkle/commits/master)
 [![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](https://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
-![Python >= 3.7](https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg)
+![Python >= 3.11](https://img.shields.io/badge/python-%3E%3D%203.11-blue.svg)
 
 Documentation at **[pymerkle.readthedocs.org](https://pymerkle.readthedocs.org/)**.
 
