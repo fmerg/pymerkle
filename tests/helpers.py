@@ -28,6 +28,27 @@ class SqliteTree(_SqliteTree):
 BACKENDS = {'inmemory': InmemoryTree, 'sqlite': SqliteTree}
 
 
+def backend_id(tree_class):
+    return next(name for (name, cls) in BACKENDS.items() if cls is tree_class)
+
+
+def config_id(config):
+    mode = 'insecure' if config['disable_security'] else 'secure'
+
+    return f"{config['algorithm']}-{mode}"
+
+
+def tree_id(tree):
+    """
+    Test id identifying the backend, configuration and size of a tree,
+    e.g., ``sqlite-sha256-secure-size5``.
+    """
+    mode = 'secure' if tree.security else 'insecure'
+
+    return f'{backend_id(type(tree))}-{tree.algorithm}-{mode}-' \
+        f'size{tree.get_size()}'
+
+
 def make_configs(options, default_config=False):
     """
     Tree configurations selected by the command line options; only the

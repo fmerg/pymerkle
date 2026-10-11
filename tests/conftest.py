@@ -1,5 +1,6 @@
 from pymerkle.hasher import ALGORITHMS
-from tests.helpers import BACKENDS, make_configs, make_trees
+from tests.helpers import BACKENDS, make_configs, make_trees, backend_id, \
+    config_id, tree_id
 
 
 DEFAULT_MAXSIZE = 11
@@ -49,10 +50,12 @@ def pytest_generate_tests(metafunc):
         list(BACKENDS.values())
 
     if 'tree_class' in names:
-        metafunc.parametrize('tree_class', tree_classes)
+        metafunc.parametrize('tree_class', tree_classes,
+            ids=[backend_id(cls) for cls in tree_classes])
 
     if 'config' in names:
-        metafunc.parametrize('config', configs)
+        metafunc.parametrize('config', configs,
+            ids=[config_id(config) for config in configs])
 
     if 'tree' not in names:
         return
@@ -60,19 +63,24 @@ def pytest_generate_tests(metafunc):
     trees = [tree for tree_class in tree_classes
                   for tree in make_trees(tree_class, configs, options.maxsize)]
 
-    for name in ('index', 'size', 'size1'):
+    # Second parameter name and label used in test ids
+    for (name, label) in (('index', 'index'), ('size', 'state'),
+                          ('size1', 'prior')):
         if name in names:
-            metafunc.parametrize(f'tree, {name}',
-                [(tree, i) for tree in trees
-                           for i in range(1, tree.get_size() + 1)])
+            params = [(tree, i) for tree in trees
+                                for i in range(1, tree.get_size() + 1)]
+            metafunc.parametrize(f'tree, {name}', params,
+                ids=[f'{tree_id(tree)}-{label}{i}' for (tree, i) in params])
             return
 
     if 'start' in names and 'end' in names:
-        metafunc.parametrize('tree, start, end',
-            [(tree, start, end) for tree in trees
-                                for start in range(tree.get_size())
-                                for end in range(start + 1,
-                                    tree.get_size() + 1)])
+        params = [(tree, start, end) for tree in trees
+                                     for start in range(tree.get_size())
+                                     for end in range(start + 1,
+                                         tree.get_size() + 1)]
+        metafunc.parametrize('tree, start, end', params,
+            ids=[f'{tree_id(tree)}-start{start}-end{end}'
+                 for (tree, start, end) in params])
         return
 
-    metafunc.parametrize('tree', trees)
+    metafunc.parametrize('tree', trees, ids=[tree_id(tree) for tree in trees])
