@@ -240,6 +240,11 @@ root-node starting from the first leaf of a non-empty tree:
     assert curr == tree.root
 
 
+Since interior nodes are stored, ``InmemoryTree`` reads the root-hashes of
+subroots off the corresponding nodes instead of caching them (see
+:ref:`Optimizations<Optimizations>`), so that it does not use the subroot
+cache; disabling the cache makes it recompute them from the leaves instead.
+
 Concrete path traversals are used under the hood for visualizing the tree by
 means of printing:
 
@@ -288,7 +293,10 @@ if not already existent.
     with three columns: *id*, which is the primary key serving as leaf
     index, *entry*, which stores the appended data, and *hash*, which stores
     its hash value. The table is append-only, since leaf indices must remain
-    contiguous.
+    contiguous: deleting or updating rows is rejected, and opening a database
+    whose leaf indices are not contiguous raises a ``ValueError``. Opening a
+    database created by an earlier version adds the triggers enforcing this,
+    which requires write access.
 
 
 Data is expected to be provided in binary:
@@ -457,6 +465,8 @@ utf-8 before hashing. Entries and hashes are stored under separate keys.
 
 Django app
 ----------
+
+This example is yet to be documented.
 
 
 .. _dbm: https://docs.python.org/3/library/dbm.html

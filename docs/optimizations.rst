@@ -39,7 +39,7 @@ Caching
 
 In view of the above technique, subroot computation is the only massively repeated
 and relatively costly operation. It thus makes sense to apply memoization
-for ranges whose size exceeds a certain threshold (128 leaves by default).
+for ranges whose size is at least a certain threshold (128 leaves by default).
 For example, on a database with one million entries, proof generation becomes
 several times faster after a few thousand proofs, with the cache occupying a few MiB.
 Practically, a tree with sufficiently long uptime will respond considerably faster

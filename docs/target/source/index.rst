@@ -22,7 +22,7 @@ Installation
 
 .. code-block:: bash
 
-  pip install pymerkle
+  pip3 install pymerkle
 
 This will also install `cachetools`_ as a dependency.
 
@@ -50,6 +50,9 @@ Append data into the tree and retrieve the corresponding hash value:
   value = tree.get_leaf(index)        # leaf hash
 
 
+The examples below assume that the tree contains at least five entries.
+
+
 Current tree size:
 
 .. code-block:: python
@@ -57,26 +60,26 @@ Current tree size:
   size = tree.get_size()    # number of leaves
 
 
-Current and intermediate state:
+Current and intermediate states:
 
 .. code-block:: python
 
   state = tree.get_state()    # current root-hash
 
-  state = tree.get_state(5)   # root-hash of size 5 subtree
+  state = tree.get_state(5)   # root-hash for the first 5 leaves
 
 
 Inclusion proof
 ---------------
 
-Prove inclusion of the 3-rd leaf hash in the subtree of size 5:
+Prove inclusion of the 3-rd leaf hash in the state of size 5:
 
 .. code-block:: python
 
   proof = tree.prove_inclusion(3, 5)
 
 
-Verify the proof against the base hash and the subtree root:
+Verify the proof against the base hash and the corresponding state:
 
 .. code-block:: python
 
@@ -144,8 +147,8 @@ should be invulnerable to the `CVE-2012-2459`_ DOS attack
 Topology
 ********
 
-Interior nodes are not assumed to be stored anywhere and no concrete links are
-created between them. The tree structure is determined by the recursive
+Interior nodes are not assumed to be stored anywhere and storage backends need
+not create links between them. The tree structure is determined by the recursive
 function which computes intermediate states on the fly and is essentially the same as
 `RFC 9162`_ (Section 2). It turns out to be that of a binary
 `Sakura tree`_ (Section 5.4).
@@ -158,7 +161,7 @@ This library is unopinionated on how leaves are appended to the tree, i.e., how
 data is stored in concrete.  Cryptographic functionality is encapsulated in the
 ``BaseMerkleTree`` abstract class, which admits pluggable storage backends
 through subclassing. It is the developer's choice to decide how to
-store data by implementing the interior storage interface of this class.
+store data by implementing the internal storage interface of this class.
 Any contiguously indexed dataset should do the job. Conversely, given any such
 dataset, we should be able to trivially implement a Merkle-tree that is
 operable with it.

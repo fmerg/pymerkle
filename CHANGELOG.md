@@ -21,6 +21,10 @@ All notable changes to this project will be documented in this file.
 - `algorithm` and `security` arguments to the verification functions
 - `synchronized` decorator and `SqliteTree.close`
 - `keccak` installation extra
+- `append_entries` operation to `BaseMerkleTree`, overridden by `SqliteTree`
+  with its bulk version
+- `MerkleHasher.hash_fold`
+- `pymerkle.backends` exports `InmemoryTree` and `SqliteTree`
 
 ### Changed
 
@@ -32,7 +36,19 @@ All notable changes to this project will be documented in this file.
   field and only consistency proofs contain `subset`
 - Tree operations are thread-safe; `SqliteTree` can be shared between threads
 - `SqliteTree.append_entries` is atomic and accepts any iterable
-- The `SqliteTree` leaf table is append-only
+- The `SqliteTree` leaf table is append-only; opening a database whose leaf
+  indices are not contiguous raises `ValueError`, and opening a database
+  created by an earlier version adds the enforcing triggers, which requires
+  write access
+- `SqliteTree` reads its size off the primary key index instead of counting
+  rows, which makes state computation and proof generation considerably
+  faster for large databases
+- `InmemoryTree` reads subroots off its nodes and no longer uses the subroot
+  cache
+- `verify_inclusion` and `verify_consistency` reject proofs of the wrong kind
+- `BaseMerkleTree` options are keyword-only; unknown options raise `TypeError`
+- `MerkleHasher` no longer accepts arbitrary keyword arguments, so that it
+  cannot be initialized from proof metadata as a whole
 - `get_state` and `get_leaf` raise `ValueError` for out-of-bounds arguments
 - Subroot cache capacity accounts for the actual memory of cached entries
 - The `pymerkle.concrete` subpackage is renamed to `pymerkle.backends`
@@ -44,6 +60,8 @@ All notable changes to this project will be documented in this file.
 - `get_state` of empty `SqliteTree`
 - Hash function lookup for non-canonical algorithm names
 - Importing pymerkle no longer defines `builtins.profile`
+- Package metadata: `python_requires` aligned with the supported Python
+  versions and corrected documentation URL
 
 
 ## 6.1.0 2023-08-30

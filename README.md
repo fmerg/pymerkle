@@ -3,11 +3,11 @@
 **Merkle-tree in Python**
 
 [![Build Status](https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg)](https://gitlab.com/fmerg/pymerkle/commits/master)
-[![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
+[![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](https://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
 ![Python >= 3.7](https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg)
 
-Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
+Documentation at **[pymerkle.readthedocs.org](https://pymerkle.readthedocs.org/)**.
 
 Storage agnostic implementation capable of generating inclusion and consistency proofs.
 
@@ -42,6 +42,8 @@ index = tree.append_entry(b'foo')   # leaf index
 value = tree.get_leaf(index)        # leaf hash
 ```
 
+The examples below assume that the tree contains at least five entries.
+
 
 Current tree size:
 
@@ -55,19 +57,19 @@ Current and intermediate states:
 ```python
 state = tree.get_state()    # current root-hash
 
-state = tree.get_state(5)   # root-hash of size 5 subtree
+state = tree.get_state(5)   # root-hash for the first 5 leaves
 ```
 
 
 ### Inclusion proof
 
-Prove inclusion of the 3-rd leaf hash in the subtree of size 5:
+Prove inclusion of the 3-rd leaf hash in the state of size 5:
 
 ```python
 proof = tree.prove_inclusion(3, 5)
 ```
 
-Verify the proof against the base hash and the subtree root:
+Verify the proof against the base hash and the corresponding state:
 
 ```python
 from pymerkle import verify_inclusion
@@ -161,8 +163,8 @@ for insight).
 
 ## Topology
 
-Interior nodes are not assumed to be stored anywhere and no concrete links are
-created between them. The tree structure is determined by the recursive
+Interior nodes are not assumed to be stored anywhere and storage backends need
+not create links between them. The tree structure is determined by the recursive
 function which computes intermediate states on the fly and is essentially the same as
 [RFC 9162](https://datatracker.ietf.org/doc/html/rfc9162) (Section 2).
 It turns out to be that of a binary
@@ -191,7 +193,7 @@ whole process when generating proofs against one million entries).
 
 In view of the above technique, subroot computation is the only massively repeated
 and relatively costly operation. It thus makes sense to apply memoization
-for ranges whose size exceeds a certain threshold (128 leaves by default).
+for ranges whose size is at least a certain threshold (128 leaves by default).
 For example, on a database with one million entries, proof generation becomes
 several times faster after a few thousand proofs, with the cache occupying a few MiB.
 Practically, a tree with sufficiently long uptime will respond considerably faster
@@ -208,7 +210,7 @@ This library is unopinionated on how leaves are appended to the tree, i.e., how
 data is stored in concrete.  Cryptographic functionality is encapsulated in the
 `BaseMerkleTree` abstract class, which admits pluggable storage backends
 through subclassing. It is the developer's choice to decide how to
-store data by implementing the interior storage interface of this class.
+store data by implementing the internal storage interface of this class.
 Any contiguously indexed dataset should do the job. Conversely, given any such
 dataset, we should be able to trivially implement a Merkle-tree that is
 operable with it.
@@ -286,10 +288,11 @@ decorate any additional public method accessing their storage with
 
 ## Development
 
-In what follows, you need to have locally installed dev requirements:
+In what follows, you need to have locally installed the package and dev
+requirements:
 
 ```commandline
-pip3 install -r requirements-dev.txt
+pip3 install -r requirements.txt -r requirements-dev.txt
 ```
 
 ### Tests
@@ -328,7 +331,7 @@ instead of memory allocations.
 
 ## Documentation
 
-**[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
+**[pymerkle.readthedocs.org](https://pymerkle.readthedocs.org/)**.
 
 ### Build locally
 

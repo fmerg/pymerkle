@@ -153,13 +153,18 @@ Appending an entry returns the index of the corresponding leaf (counting from on
     2
 
 
+.. note:: The examples below refer to a tree with the entries ``b'foo'``,
+      ``b'bar'``, ``b'baz'``, ``b'qux'`` and ``b'quux'`` appended in this
+      order.
+
+
 The index of a leaf can be used to retrieve the corresponding hash value:
 
 
 .. code-block:: python
 
    >>> tree.get_leaf(1)
-   b'\x1d9\xfayq\xf4\xbf\x01\xa1\xc2\x0c\xb2\xa3\xfez\xf4he\xca\x9c\xd9\xb8@\xc2\x06=\xf8\xfe\xc4\xffu'
+   b'\x1d 9\xfayq\xf4\xbf\x01\xa1\xc2\x0c\xb2\xa3\xfez\xf4he\xca\x9c\xd9\xb8@\xc2\x06=\xf8\xfe\xc4\xffu'
    >>>
    >>> tree.get_leaf(2)
    b'HY\x04\x12\x9b\xdd\xa5\xd1\xb5\xfb\xc6\xbcJ\x82\x95\x9e\xcf\xb9\x04-\xb4M\xc0\x8f\xe8~6\x0b\n?%\x01'
@@ -388,16 +393,17 @@ This yields a JSON entity similar to this one:
         0
     ],
     "path": [
-        "4c79d0d62f7cf5ca8874155f2d3b875f2625da2bb3abc86bbd6833f25ba90e51",
-        "5c7117fb9edb0cec387257891105da6a6616722af247083e2d6eda671529cdc5",
-        "9531b48579f0e741979005d67ba64455a9f68b06630b3c431152d445ecd2716a",
-        "bf36e59f88d0623d36dd3860e24a44fcc6bcd2ad88fdf67249dc1953f3605b51"
+        "b06d695869f105fffa5f68c4b9628d58a1aff469a3c62c8c74ddb2af47b178ef",
+        "5a43bc145b8c045b535615392edfba2bd2c4556dfdb13f968bd0668c042ecb35",
+        "39286a4a5531622751d6845bb8efb4cf33bec2c5f3f8430d7584874371a35bda",
+        "2e219794e81e9bb22e230e7f40906eecb4cfcc289e1af253d88b23634266c5a2"
     ]
   }
 
-The *metadata* section contains the parameters required for configuring the
-verification hasher (*algorithm* and *security*) along with the size of the
-state against which the proof was requested (*size*). The latter can be used
+The *metadata* section contains the hash configuration of the tree
+(*algorithm* and *security*), which verification checks against the one
+expected by the verifier (see above), along with the size of the state
+against which the proof was requested (*size*). The latter can be used
 in order to request the acclaimed state needed for proof verification (if not
 otherwise available). Inclusion proofs also contain the index of the leaf in
 question (*index*), whereas consistency proofs contain the size of the prior
