@@ -16,13 +16,9 @@ from pymerkle.proof import MerkleProof
 from pymerkle.utils import log2, decompose
 
 
-try:
-    builtins.profile
-except AttributeError:
-    def profile(func):
-        return func
-
-    builtins.profile = profile
+# Decorator injected into builtins by line_profiler or memory_profiler when
+# profiling; no-op otherwise. Builtins are left untouched.
+profile = getattr(builtins, 'profile', lambda func: func)
 
 
 def synchronized(func):
