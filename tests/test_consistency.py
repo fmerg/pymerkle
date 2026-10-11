@@ -1,6 +1,5 @@
 from itertools import product
 import pytest
-from tests.conftest import tree_and_index
 
 from pymerkle.utils import log2
 
@@ -8,7 +7,6 @@ from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
     InvalidProof
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index())
 def test_consistency_success(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -19,7 +17,7 @@ def test_consistency_success(tree, size1):
     verify_consistency(state1, state2, proof, security=tree.security)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_invalid_prior(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -30,7 +28,7 @@ def test_consistency_invalid_prior(tree, size1):
         verify_consistency(state1, state2, proof)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_invalid_state(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -41,7 +39,7 @@ def test_consistency_invalid_state(tree, size1):
         verify_consistency(state1, state2, proof)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_invalid_challenge(tree, size1):
     size2 = tree.get_size()
 
@@ -58,7 +56,7 @@ def test_consistency_invalid_challenge(tree, size1):
         tree.prove_consistency(-1, size1)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_wrong_type(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -106,7 +104,7 @@ def test_consistency_forged_prior_state(size):
         assert proof.retrieve_prior_state() in genuine
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_right_subtree_forgery(tree, size1):
     from pymerkle import ConsistencyProof
 
@@ -125,7 +123,7 @@ def test_consistency_right_subtree_forgery(tree, size1):
         verify_consistency(rnode, tree.get_state(), proof)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_expected_sizes(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -141,7 +139,7 @@ def test_consistency_expected_sizes(tree, size1):
         verify_consistency(state1, state2, proof, size2=size2 + 1)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_tampered_prior_size(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -154,7 +152,7 @@ def test_consistency_tampered_prior_size(tree, size1):
             verify_consistency(state1, state2, proof)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_serialization(tree, size1):
     from pymerkle import MerkleProof
 
@@ -166,7 +164,6 @@ def test_consistency_serialization(tree, size1):
     verify_consistency(tree.get_state(size1), tree.get_state(size2), proof)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index())
 def test_consistency_layout(tree, size1):
     from pymerkle.core import consistency_layout
 
@@ -202,7 +199,7 @@ def test_consistency_security_downgrade():
         verify_consistency(forged, tree.get_state(), proof, security=False)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_expected_algorithm(tree, size1):
     size2 = tree.get_size()
     proof = tree.prove_consistency(size1, size2)
@@ -227,7 +224,7 @@ def test_consistency_huge_size():
         verify_consistency(tree.get_state(2), tree.get_state(), proof)
 
 
-@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_consistency_proof_type(tree, size1):
     from pymerkle import MerkleProof, InclusionProof, ConsistencyProof
 

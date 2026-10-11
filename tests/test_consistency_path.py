@@ -1,20 +1,12 @@
 import pytest
-from tests.conftest import option, resolve_backend
 
-MerkleTree = resolve_backend(option)
 
 entries = [b'a', b'b', b'c', b'd', b'e']
-
-tree_1 = MerkleTree.init_from_entries(entries[:1])
-tree_2 = MerkleTree.init_from_entries(entries[:2])
-tree_3 = MerkleTree.init_from_entries(entries[:3])
-tree_4 = MerkleTree.init_from_entries(entries[:4])
-tree_5 = MerkleTree.init_from_entries(entries[:5])
 
 
 fixtures = [
     (
-        tree_1,
+        1,
         0,
         (
             [0],
@@ -25,7 +17,7 @@ fixtures = [
         )
     ),
     (
-        tree_1,
+        1,
         1,
         (
             [0],
@@ -36,7 +28,7 @@ fixtures = [
         )
     ),
     (
-        tree_2,
+        2,
         0,
         (
             [0, 0],
@@ -48,7 +40,7 @@ fixtures = [
         )
     ),
     (
-        tree_2,
+        2,
         1,
         (
             [1, 0],
@@ -60,7 +52,7 @@ fixtures = [
         )
     ),
     (
-        tree_2,
+        2,
         2,
         (
             [0],
@@ -71,7 +63,7 @@ fixtures = [
         )
     ),
     (
-        tree_3,
+        3,
         0,
         (
             [0, 0, 0],
@@ -84,7 +76,7 @@ fixtures = [
         )
     ),
     (
-        tree_3,
+        3,
         1,
         (
             [1, 0, 0],
@@ -97,7 +89,7 @@ fixtures = [
         )
     ),
     (
-        tree_3,
+        3,
         2,
         (
             [1, 0],
@@ -109,7 +101,7 @@ fixtures = [
         )
     ),
     (
-        tree_3,
+        3,
         3,
         (
             [0],
@@ -120,7 +112,7 @@ fixtures = [
         )
     ),
     (
-        tree_4,
+        4,
         0,
         (
             [0, 0, 0],
@@ -133,7 +125,7 @@ fixtures = [
         )
     ),
     (
-        tree_4,
+        4,
         1,
         (
             [1, 0, 0],
@@ -146,7 +138,7 @@ fixtures = [
         )
     ),
     (
-        tree_4,
+        4,
         2,
         (
             [0, 1, 0],
@@ -159,7 +151,7 @@ fixtures = [
         )
     ),
     (
-        tree_4,
+        4,
         3,
         (
             [1, 1, 0],
@@ -172,7 +164,7 @@ fixtures = [
         )
     ),
     (
-        tree_4,
+        4,
         4,
         (
             [0],
@@ -183,7 +175,7 @@ fixtures = [
         )
     ),
     (
-        tree_5,
+        5,
         0,
         (
             [0, 0, 0, 0],
@@ -197,7 +189,7 @@ fixtures = [
         )
     ),
     (
-        tree_5,
+        5,
         1,
         (
             [1, 0, 0, 0],
@@ -211,7 +203,7 @@ fixtures = [
         )
     ),
     (
-        tree_5,
+        5,
         2,
         (
             [0, 1, 0, 0],
@@ -225,7 +217,7 @@ fixtures = [
         )
     ),
     (
-        tree_5,
+        5,
         3,
         (
             [1, 1, 0, 0],
@@ -239,7 +231,7 @@ fixtures = [
         )
     ),
     (
-        tree_5,
+        5,
         4,
         (
             [1, 0],
@@ -251,7 +243,7 @@ fixtures = [
         )
     ),
     (
-        tree_5,
+        5,
         5,
         (
             [0],
@@ -264,9 +256,9 @@ fixtures = [
 ]
 
 
-@pytest.mark.parametrize('tree, size1, expected', fixtures)
-def test_consistency_path(tree, size1, expected):
-    size2 = tree.get_size()
+@pytest.mark.parametrize('size2, size1, expected', fixtures)
+def test_consistency_path(tree_class, size2, size1, expected):
+    tree = tree_class.init_from_entries(entries[:size2])
     rule, subset, path = tree._consistency_path(size1, size2)
     path = list(map(lambda _: _.hex(), path))
     assert (rule, subset, path) == expected

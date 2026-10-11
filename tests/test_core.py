@@ -1,14 +1,12 @@
 import pytest
 
 from pymerkle.utils import decompose
-from tests.conftest import make_trees, tree_and_index, tree_and_range
 
 
-@pytest.mark.parametrize('tree, start, limit', tree_and_range())
-def test_get_root(tree, start, limit):
+def test_get_root(tree, start, end):
     offset = start
     subroots = []
-    for p in reversed(decompose(limit - start)):
+    for p in reversed(decompose(end - start)):
         node = tree._get_subroot(offset, 1 << p)
         subroots += [node]
         offset += 1 << p
@@ -20,11 +18,10 @@ def test_get_root(tree, start, limit):
         root = tree.hash_pair(subroots[index + 1], root)
         index += 1
 
-    assert root == tree._get_root_naive(start, limit)
-    assert root == tree._get_root(start, limit)
+    assert root == tree._get_root_naive(start, end)
+    assert root == tree._get_root(start, end)
 
 
-@pytest.mark.parametrize('tree, size', tree_and_index())
 def test_state(tree, size):
     state = tree.get_state(size)
 
@@ -32,7 +29,6 @@ def test_state(tree, size):
     assert state == tree._get_root(0, size)
 
 
-@pytest.mark.parametrize('tree', make_trees())
 def test_inclusion_path(tree):
     for size in range(1, tree.get_size() + 1):
         for index in range(1, size + 1):
@@ -42,7 +38,6 @@ def test_inclusion_path(tree):
             assert path1 == path2
 
 
-@pytest.mark.parametrize('tree', make_trees())
 def test_consistency_path(tree):
     for size2 in range(1, tree.get_size() + 1):
         for size1 in range(size2 + 1):
@@ -52,7 +47,6 @@ def test_consistency_path(tree):
             assert path1 == path2
 
 
-@pytest.mark.parametrize('tree', make_trees())
 def test_state_bounds(tree):
     size = tree.get_size()
 
@@ -65,7 +59,7 @@ def test_state_bounds(tree):
             tree.get_state(invalid)
 
 
-@pytest.mark.parametrize('tree', make_trees(default_config=True))
+@pytest.mark.default_config
 def test_get_leaf_bounds(tree):
     size = tree.get_size()
 

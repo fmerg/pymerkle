@@ -1,12 +1,10 @@
 import pytest
-from tests.conftest import tree_and_index
 
 from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
     InvalidProof, MerkleProof, InclusionProof, ConsistencyProof, \
     InmemoryTree
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index())
 def test_inclusion_success(tree, index):
     base = tree.get_leaf(index)
     proof = tree.prove_inclusion(index)
@@ -15,7 +13,7 @@ def test_inclusion_success(tree, index):
     verify_inclusion(base, state, proof, security=tree.security)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_invalid_base(tree, index):
     base = tree.hash_raw(b'random')
     proof = tree.prove_inclusion(index)
@@ -25,7 +23,7 @@ def test_inclusion_invalid_base(tree, index):
         verify_inclusion(base, state, proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_invalid_state(tree, index):
     base = tree.get_leaf(index)
     proof = tree.prove_inclusion(index)
@@ -35,7 +33,7 @@ def test_inclusion_invalid_state(tree, index):
         verify_inclusion(base, state, proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_invalid_challenge(tree, index):
     size = tree.get_size()
 
@@ -52,7 +50,7 @@ def test_inclusion_invalid_challenge(tree, index):
         tree.prove_inclusion(index + 1, index)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_wrong_type(tree, index):
     base = tree.get_leaf(index)
     proof = tree.prove_inclusion(index)
@@ -65,7 +63,7 @@ def test_inclusion_wrong_type(tree, index):
         verify_inclusion(base, state.hex(), proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_empty_path(tree, index):
     base = tree.get_leaf(index)
     state = tree.get_state()
@@ -76,7 +74,7 @@ def test_inclusion_empty_path(tree, index):
         verify_inclusion(base, state, proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_expected_index_and_size(tree, index):
     size = tree.get_size()
     base = tree.get_leaf(index)
@@ -93,7 +91,7 @@ def test_inclusion_expected_index_and_size(tree, index):
         verify_inclusion(base, state, proof, size=size + 1)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_tampered_index(tree, index):
     """
     The proof used not to commit to the leaf position; a valid proof must now
@@ -111,7 +109,7 @@ def test_inclusion_tampered_index(tree, index):
             verify_inclusion(base, state, proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_tampered_rule(tree, index):
     base = tree.get_leaf(index)
     state = tree.get_state()
@@ -123,7 +121,7 @@ def test_inclusion_tampered_rule(tree, index):
             verify_inclusion(base, state, proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_serialization(tree, index):
     proof = MerkleProof.deserialize(tree.prove_inclusion(index).serialize())
 
@@ -131,7 +129,6 @@ def test_inclusion_serialization(tree, index):
     verify_inclusion(tree.get_leaf(index), tree.get_state(), proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index())
 def test_inclusion_layout(tree, index):
     from pymerkle.core import inclusion_layout
 
@@ -143,7 +140,7 @@ def test_inclusion_layout(tree, index):
         assert [tree._get_root_naive(*r) for r in ranges] == path
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_security_downgrade(tree, index):
     base = tree.get_leaf(index)
     state = tree.get_state()
@@ -154,7 +151,7 @@ def test_inclusion_security_downgrade(tree, index):
         verify_inclusion(base, state, proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_expected_algorithm(tree, index):
     base = tree.get_leaf(index)
     state = tree.get_state()
@@ -168,7 +165,7 @@ def test_inclusion_expected_algorithm(tree, index):
         verify_inclusion(base, state, proof, algorithm=other)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_invalid_digest_length(tree, index):
     base = tree.get_leaf(index)
     state = tree.get_state()
@@ -223,7 +220,7 @@ def test_inclusion_huge_size():
         verify_inclusion(tree.get_leaf(2), tree.get_state(), proof)
 
 
-@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+@pytest.mark.default_config
 def test_inclusion_proof_type(tree, index):
     proof = tree.prove_inclusion(index)
     data = proof.serialize()
