@@ -56,8 +56,9 @@ Initialization of ``BaseMerkleTree`` accepts the options shown below:
 - ``theshold``: specifies which outputs of a low-level computation must be
   cached depending on the input of the computation. Refer :ref:`here<Optimizations>`
   for the exact meaning of this parameter. Defaults to *128*.
-- ``capacity``: cache capacity in bytes. Defaults to 1GiB (which should be
-  overabundant for any imaginable use case).
+- ``capacity``: cache capacity in bytes, i.e., approximate memory occupied by
+  cached digests along with their bookkeeping. Defaults to 1GiB, which should
+  be ample for most applications.
 
 See :ref:`here<Storage>` to see how to implement a Merkle-tree in detail.
 

@@ -167,16 +167,14 @@ operable with it.
 Optimizations
 *************
 
-The performance of a Merkle-tree depends on how efficiently it computes the root-hash
-for arbitrary leaf ranges. The recursive version of this function is slow (e.g.,
-`RFC 9162`_, Section 2).
-
-This operation can be optimized using iterations on ranges whose size is
-a power of two. This has the effect of making proof generation five times faster,
-while peak memory usage remains reasonably low and sublinear with respect to
-size. Further boost is given by caching. Practically, a pretty
-big tree with sufficiently long uptime will respond instantly with negligible
-penalty in memory usage.
+State computation and proof generation rely on computing root-hashes for
+arbitrary leaf ranges, which in practice means loading leaf hashes from a
+database. Instead of the recursive algorithm of `RFC 9162`_ (Section 2),
+pymerkle combines the root-hashes of ranges whose size is a power of two,
+computed from bulk reads, and caches the larger ones. In our measurements with
+SQLite databases, this makes proof generation several times faster, while
+memory usage remains modest. See :ref:`Optimizations<Optimizations>` for
+details.
 
 
 .. toctree::
