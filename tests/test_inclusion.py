@@ -2,7 +2,7 @@ import pytest
 from tests.conftest import tree_and_index
 
 from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
-    InvalidProof, MerkleProof
+    InvalidProof, MerkleProof, InmemoryTree
 
 
 @pytest.mark.parametrize('tree, index', tree_and_index())
@@ -177,3 +177,42 @@ def test_inclusion_invalid_digest_length(tree, index):
             proof.path[i] = alter(proof.path[i])
             with pytest.raises(InvalidProof):
                 verify_inclusion(base, state, proof)
+
+
+@pytest.mark.parametrize('mutate', [
+    lambda d: d.pop('metadata'),
+    lambda d: d.pop('path'),
+    lambda d: d['metadata'].update({'extra': 1}),
+    lambda d: d['metadata'].update({'algorithm': 'md5'}),
+    lambda d: d['metadata'].pop('algorithm'),
+    lambda d: d.update({'path': ['zz']}),
+    lambda d: d.update({'path': [1]}),
+    lambda d: d.update({'path': None}),
+    lambda d: d.update({'path': ['00'] * 1000}),
+])
+def test_deserialize_malformed(mutate):
+    tree = InmemoryTree.init_from_entries([b'a', b'b', b'c'])
+    data = tree.prove_inclusion(2).serialize()
+    mutate(data)
+
+    with pytest.raises(InvalidProof):
+        MerkleProof.deserialize(data)
+
+
+def test_inclusion_invalid_rule_bit():
+    tree = InmemoryTree.init_from_entries([b'a', b'b', b'c'])
+    data = tree.prove_inclusion(2).serialize()
+    data['rule'][0] = 2
+
+    with pytest.raises(InvalidProof):
+        verify_inclusion(tree.get_leaf(2), tree.get_state(),
+            MerkleProof.deserialize(data))
+
+
+def test_inclusion_huge_size():
+    tree = InmemoryTree.init_from_entries([b'a', b'b', b'c'])
+    proof = tree.prove_inclusion(2)
+    proof.size = 10 ** 100000
+
+    with pytest.raises(InvalidProof):
+        verify_inclusion(tree.get_leaf(2), tree.get_state(), proof)

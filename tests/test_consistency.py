@@ -212,3 +212,14 @@ def test_consistency_expected_algorithm(tree, size1):
     other = 'sha512' if tree.algorithm != 'sha512' else 'sha256'
     with pytest.raises(InvalidProof):
         verify_consistency(state1, state2, proof, algorithm=other)
+
+
+def test_consistency_huge_size():
+    from pymerkle import InmemoryTree
+
+    tree = InmemoryTree.init_from_entries([b'a', b'b', b'c'])
+    proof = tree.prove_consistency(2)
+    proof.size = 10 ** 100000
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(tree.get_state(2), tree.get_state(), proof)

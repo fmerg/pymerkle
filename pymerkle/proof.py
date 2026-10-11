@@ -13,6 +13,12 @@ class InvalidProof(Exception):
     pass
 
 
+# Upper bound for tree sizes accepted upon verification. Well-formed proofs
+# against such trees have paths of at most 2 * 64 hashes.
+MAX_SIZE = 1 << 64
+MAX_PATH = 2 * 64
+
+
 def _digests_match(digest1, digest2):
     """
     Constant-time comparison of digests that treats values of incompatible
@@ -115,7 +121,7 @@ def verify_inclusion(base, root, proof, index=None, size=None,
     :raises InvalidProof: if the proof is found invalid
     """
     if not (isinstance(proof.index, int) and isinstance(proof.size, int)
-            and 0 < proof.index <= proof.size):
+            and 0 < proof.index <= proof.size < MAX_SIZE):
         raise InvalidProof('Invalid index or size')
 
     if index is not None and proof.index != index:
@@ -126,6 +132,7 @@ def verify_inclusion(base, root, proof, index=None, size=None,
 
     rule = _inclusion_structure(proof.index - 1, proof.size)
     if proof.rule != rule or proof.subset != [] or \
+            not isinstance(proof.path, list) or \
             len(proof.path) != len(rule):
         raise InvalidProof('Invalid proof structure')
 
@@ -202,7 +209,7 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None,
     """
     prior_size = proof.prior_size
     if not (isinstance(prior_size, int) and isinstance(proof.size, int)
-            and 0 < prior_size <= proof.size):
+            and 0 < prior_size <= proof.size < MAX_SIZE):
         raise InvalidProof('Invalid sizes')
 
     if size1 is not None and prior_size != size1:
@@ -213,6 +220,7 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None,
 
     rule, subset = _consistency_structure(prior_size, proof.size)
     if proof.rule != rule or proof.subset != subset or \
+            not isinstance(proof.path, list) or \
             len(proof.path) != len(rule):
         raise InvalidProof('Invalid proof structure')
 
@@ -301,13 +309,19 @@ class MerkleProof:
         :param data:
         :type data: dict
         :rtype: MerkleProof
+        :raises InvalidProof: if the provided data are malformed
         """
-        metadata = data['metadata']
-        rule = data['rule']
-        subset = data['subset']
-        path = [bytes.fromhex(checksum) for checksum in data['path']]
+        try:
+            metadata = data['metadata']
+            rule = data['rule']
+            subset = data['subset']
+            if len(data['path']) > MAX_PATH:
+                raise InvalidProof('Path too long')
+            path = [bytes.fromhex(checksum) for checksum in data['path']]
 
-        return cls(**metadata, rule=rule, subset=subset, path=path)
+            return cls(**metadata, rule=rule, subset=subset, path=path)
+        except (KeyError, TypeError, ValueError, AttributeError) as err:
+            raise InvalidProof('Malformed proof') from err
 
 
     def retrieve_prior_state(self):
