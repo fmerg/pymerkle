@@ -53,3 +53,18 @@ def test_consistency_invalid_challenge(tree, size1):
 
     with pytest.raises(InvalidChallenge):
         tree.prove_consistency(-1, size1)
+
+
+@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+def test_consistency_wrong_type(tree, size1):
+    size2 = tree.get_size()
+    proof = tree.prove_consistency(size1, size2)
+
+    state1 = tree.get_state(size1)
+    state2 = tree.get_state(size2)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(state1.hex(), state2, proof)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(state1, 'n\u00f6n-ascii', proof)

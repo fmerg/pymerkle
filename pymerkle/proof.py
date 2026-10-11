@@ -12,6 +12,21 @@ class InvalidProof(Exception):
     pass
 
 
+def _digests_match(digest1, digest2):
+    """
+    Constant-time comparison of digests that treats values of incompatible
+    type as non-matching instead of raising.
+
+    :type digest1: bytes
+    :type digest2: bytes
+    :rtype: bool
+    """
+    try:
+        return compare_digest(digest1, digest2)
+    except TypeError:
+        return False
+
+
 def verify_inclusion(base, root, proof):
     """
     Verifies the provided Merkle-proof of inclusion against the provided leaf
@@ -25,10 +40,10 @@ def verify_inclusion(base, root, proof):
     :type proof: MerkleProof
     :raises InvalidProof: if the proof is found invalid
     """
-    if not compare_digest(proof.path[0], base):
+    if not proof.path or not _digests_match(proof.path[0], base):
         raise InvalidProof('Base hash does not match')
 
-    if not compare_digest(proof.resolve(), root):
+    if not _digests_match(proof.resolve(), root):
         raise InvalidProof('State does not match')
 
 
@@ -44,10 +59,10 @@ def verify_consistency(state1, state2, proof):
     :param proof: proof of consistency
     :type proof: MerkleProof
     """
-    if not compare_digest(proof.retrieve_prior_state(), state1):
+    if not _digests_match(proof.retrieve_prior_state(), state1):
         raise InvalidProof('Prior state does not match')
 
-    if not compare_digest(proof.resolve(), state2):
+    if not _digests_match(proof.resolve(), state2):
         raise InvalidProof('Later state does not match')
 
 
