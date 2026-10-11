@@ -41,6 +41,9 @@ def main():
        author_email='fmerg@protonmail.com',
        python_requires='>=3.7',
        install_requires=install_requires,
+       extras_require={
+           'keccak': ['pysha3==1.0.2'],
+       },
        zip_safe=False,
        keywords=[
            'merkle', 'proof', 'inclusion', 'consistency',
