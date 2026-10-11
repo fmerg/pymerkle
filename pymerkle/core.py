@@ -56,13 +56,9 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         will fallback to their unoptimized recursive version. Defaults to
         *False*.
     :type disable_optimizations: boolean
-    :param disable_optimizations: [optional] if *True*, low-level operations
-        will fallback to their unoptimized recursive version. Defaults to
-        *False*.
-    :type disable_optimizations: boolean
     :param disable_cache: [optional] if *True*, subroot caching will be
         deactivated. Defaults to *False*.
-    :type cache: boolean
+    :type disable_cache: boolean
     """
 
     def __init__(self, algorithm='sha256', **opts):
