@@ -166,8 +166,11 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
+        # Leaf indices are contiguous (append-only table), so that the largest
+        # one equals the number of leaves and is read off the primary key index
+        # instead of scanning the table
         query = '''
-            SELECT COUNT(*) FROM leaf
+            SELECT COALESCE(MAX(id), 0) FROM leaf
         '''
         cur.execute(query)
 
