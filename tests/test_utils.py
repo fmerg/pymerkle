@@ -27,12 +27,12 @@ for logarithm in range(0, 8):
             collections += [exponents]
 
 
-@pytest.mark.parametrize('number, logarithm', zip(numbers, logarithms))
+@pytest.mark.parametrize('number, logarithm', list(zip(numbers, logarithms)))
 def test_log2(number, logarithm):
     assert log2(number) == logarithm
 
 
-@pytest.mark.parametrize('number, exponents', zip(numbers, collections))
+@pytest.mark.parametrize('number, exponents', list(zip(numbers, collections)))
 def test_decompose(number, exponents):
     assert decompose(number) == exponents
     assert log2(number) == (exponents[-1] if number > 0 else 0)
