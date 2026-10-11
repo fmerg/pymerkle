@@ -34,11 +34,13 @@ class SqliteTree(BaseMerkleTree):
         self.dbfile = dbfile
         # Access to the connection is serialized by the tree lock
         self.con = sqlite3.connect(self.dbfile, check_same_thread=False)
+        # All queries select a single column; return its value instead of
+        # one-element tuples
         self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
 
         with self.con:
-            query = f'''
+            query = '''
                 CREATE TABLE IF NOT EXISTS leaf(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     entry BLOB,
@@ -111,7 +113,7 @@ class SqliteTree(BaseMerkleTree):
         cur = self.cur
 
         with self.con:
-            query = f'''
+            query = '''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
             cur.execute(query, (data, digest))
@@ -129,7 +131,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT hash FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
@@ -149,7 +151,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT hash FROM leaf WHERE id BETWEEN ? AND ?
         '''
         cur.execute(query, (offset + 1, offset + width))
@@ -164,7 +166,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT COUNT(*) FROM leaf
         '''
         cur.execute(query)
@@ -183,7 +185,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT entry FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
@@ -238,7 +240,7 @@ class SqliteTree(BaseMerkleTree):
         cur = self.cur
 
         with self.con:
-            query = f'''
+            query = '''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
             for chunk in self._hash_per_chunk(entries, chunksize):

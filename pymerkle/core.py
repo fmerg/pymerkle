@@ -35,7 +35,7 @@ def synchronized(func):
 
 class InvalidChallenge(Exception):
     """
-    Raised when no Merkle-proof exists for the provided prameters
+    Raised when no Merkle-proof exists for the provided parameters
     """
     pass
 
@@ -65,7 +65,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
     Abstract base class encapsulating the core Merkle-tree functionalities in
     a storage agnostic fashion.
 
-    .. note:: Concrete implentations should inherit from this class and
+    .. note:: Concrete implementations should inherit from this class and
         implement its interior storage interface.
 
     .. note:: Public operations are serialized by means of a reentrant lock
@@ -336,7 +336,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
         Cached subroot computation.
 
-        .. warning:: The ``parameter`` is expected to be a number of two.
+        .. warning:: The provided width is expected to be a power of two.
 
         :param offset: index of leftmost leaf counting from zero
         :type offset: int
@@ -370,7 +370,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         """
         Uncached subroot computation.
 
-        .. warning:: The ``parameter`` is expected to be a number of two.
+        .. warning:: The provided width is expected to be a power of two.
 
         :param offset: index of leftmost leaf counting from zero
         :type offset: int
@@ -514,14 +514,12 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             if k == limit:
                 k >>= 1
 
-            mask = 0
             if offset < k:
-                push((bit, mask, (start + k, start + limit)))
+                push((bit, 0, (start + k, start + limit)))
                 limit = k
                 bit = 0
             else:
-                mask = int(k == 1 << log2(k))
-                push((bit, mask, (start, start + k)))
+                push((bit, 1, (start, start + k)))
                 start += k
                 offset -= k
                 limit -= k
@@ -653,15 +651,15 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         k = 1 << log2(limit)
         if k == limit:
             k >>= 1
-        mask = 0
 
         if offset < k:
             rule, subset, path = self._consistency_path_naive(start, offset, k, 0)
             node = self._get_root(start + k, start + limit)
+            mask = 0
         else:
             rule, subset, path = self._consistency_path_naive(start + k, offset - k,
                     limit - k, 1)
             node = self._get_root(start, start + k)
-            mask = int(k == 1 << log2(k))
+            mask = 1
 
         return rule + [bit], subset + [mask], path + [node]

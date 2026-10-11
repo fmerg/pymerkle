@@ -1,5 +1,3 @@
-import os
-import json
 from hmac import compare_digest
 
 from pymerkle.hasher import MerkleHasher

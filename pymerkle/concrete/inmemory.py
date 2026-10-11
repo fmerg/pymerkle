@@ -204,7 +204,7 @@ class InmemoryTree(BaseMerkleTree):
         its hash value.
 
         :param data: data entry
-        :type data: whatever expected according to application lontry
+        :type data: whatever expected according to application logic
         :param digest: hashed data
         :type digest: bytes
         :returns: index of newly appended leaf counting from one
@@ -370,10 +370,10 @@ class InmemoryTree(BaseMerkleTree):
     def _inclusion_path(self, start, offset, limit, bit):
         """
         Computes the inclusion path for the leaf located at the provided offset
-        against the specified leaf range
+        against the specified leaf range.
 
-        .. warning:: This is an unoptimized recursive function intended for
-        reference and testing. Use ``_inclusion_path`` in production.
+        .. note:: Traverses the concrete tree structure if the range is the
+            whole tree; falls back to the base class implementation otherwise.
 
         :param start: leftmost leaf index counting from zero
         :type start: int
