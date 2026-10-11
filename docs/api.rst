@@ -69,9 +69,18 @@ Supported hash functions
 
 **Support for Keccak beyond SHA3**
 
-Installing `pysha3`_ makes available following hash functions:
+Installing the ``keccak`` extra, which pulls in `pysha3`_,
+
+.. code-block:: bash
+
+  pip3 install pymerkle[keccak]
+
+makes available the following hash functions:
 
 ``keccak_224``, ``keccak_256``, ``keccak_384``, ``keccak_512``
+
+.. note:: `pysha3`_ is unmaintained and fails to build on recent Python
+  versions, in which case these hash functions are unavailable.
 
 
 .. warning:: Requesting anything except for these raises a ``ValueError``.

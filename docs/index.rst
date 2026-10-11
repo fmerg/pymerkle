@@ -124,6 +124,12 @@ This consists in the following standard technique:
 * Upon computing the hash of a leaf node, prepend ``0x00`` to the payload
 * Upon computing the hash of an interior node, prepend ``0x01`` to the payload
 
+.. note:: For, say, testing purposes, this feature can be disabled by passing
+  ``disable_security=True`` when initializing the ``BaseMerkleTree``
+  superclass. Proofs generated this way are rejected upon verification unless
+  ``security=False`` is explicitly passed to ``verify_inclusion`` or
+  ``verify_consistency``.
+
 
 Resistance against CVE-2012-2459 DOS
 ------------------------------------

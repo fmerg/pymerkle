@@ -152,6 +152,28 @@ Here the exact interface to be implemented:
       ...
 
 
+Concurrency
+-----------
+
+Public tree operations are serialized by means of a reentrant lock
+(``self.lock``), so that a tree can be shared between threads. Concrete
+implementations should decorate any additional public method accessing their
+storage with ``pymerkle.core.synchronized``:
+
+.. code-block:: python
+
+  from pymerkle.core import BaseMerkleTree, synchronized
+
+
+  class MerkleTree(BaseMerkleTree):
+
+      ...
+
+      @synchronized
+      def get_entry(self, index):
+          ...
+
+
 Implementations
 ===============
 
