@@ -51,3 +51,12 @@ def test_algorithm_normalization(algorithm):
 def test_unsupported_algorithm():
     with pytest.raises(ValueError):
         MerkleHasher('md5')
+
+
+def test_hash_fold():
+    h = MerkleHasher('sha256')
+    d1, d2, d3 = (h.hash_buff(b'%d' % i) for i in range(3))
+
+    assert h.hash_fold([d1]) == d1
+    assert h.hash_fold([d1, d2, d3]) == \
+        h.hash_pair(d3, h.hash_pair(d2, d1))

@@ -405,26 +405,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if end == start:
             return self.hash_empty()
 
-        subroots = deque()
-        prepend = subroots.appendleft
-        append = subroots.append
-        pop = subroots.pop
-
-        _get_subroot = self._get_subroot
+        # Roots of maximal perfect subtrees from right to left
+        subroots = []
         for p in decompose(end - start):
             width = 1 << p
             end -= width
-            prepend(_get_subroot(end, width))
+            subroots += [self._get_subroot(end, width)]
 
-        hashfunc = self.hashfunc
-        prefx01 = self.prefx01
-        while len(subroots) > 1:
-            lnode = pop()
-            rnode = pop()
-            node = hashfunc(prefx01 + rnode + lnode).digest()
-            append(node)
-
-        return subroots[0]
+        return self.hash_fold(subroots)
 
 
     @profile

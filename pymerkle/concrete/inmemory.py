@@ -321,13 +321,8 @@ class InmemoryTree(BaseMerkleTree):
             return self.root.digest
 
         subroots = self._get_subroots(size)
-        result = subroots[0].digest
-        i = 0
-        while i < len(subroots) - 1:
-            result = self.hash_pair(subroots[i + 1].digest, result)
-            i += 1
 
-        return result
+        return self.hash_fold([node.digest for node in subroots])
 
 
     def _inclusion_path_fallback(self, offset):

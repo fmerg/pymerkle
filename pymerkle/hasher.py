@@ -74,3 +74,22 @@ class MerkleHasher:
         :rtype: bytes
         """
         return self.hashfunc(self.prefx01 + buff1 + buff2).digest()
+
+
+    def hash_fold(self, digests):
+        """
+        Combines the provided digests from right to left, i.e., computes
+        ``hash_pair(d_n, ... hash_pair(d_2, d_1))`` for digests ``d_1, ...,
+        d_n`` given in this order. This is how the root-hash of a tree is
+        obtained from the roots of its maximal perfect subtrees.
+
+        :param digests: non-empty sequence of digests ordered from right to
+            left
+        :type digests: list[bytes]
+        :rtype: bytes
+        """
+        result = digests[0]
+        for digest in digests[1:]:
+            result = self.hash_pair(digest, result)
+
+        return result

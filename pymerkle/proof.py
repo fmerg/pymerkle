@@ -266,20 +266,13 @@ class MerkleProof:
 
         :rtype: bytes
         """
-        subpath = [digest for (mask, digest) in zip(self.subset, self.path) if
-            mask]
+        subpath = [digest for (mask, digest) in zip(self.subset, self.path)
+                   if mask]
 
         if not subpath:
             return self.hasher.hash_empty()
 
-        result = subpath[0]
-        index = 0
-        hash_pair = self.hasher.hash_pair
-        while index < len(subpath) - 1:
-            result = hash_pair(subpath[index + 1], result)
-            index += 1
-
-        return result
+        return self.hasher.hash_fold(subpath)
 
 
     def resolve(self):
@@ -288,25 +281,18 @@ class MerkleProof:
 
         :rtype: bytes
         """
-        path = list(zip(self.rule, self.path))
-
-        if not path:
+        if not self.rule or not self.path:
             return self.hasher.hash_empty()
 
-        bit, result = path[0]
-        index = 0
         hash_pair = self.hasher.hash_pair
-        while index < len(path) - 1:
-            next_bit, digest = path[index + 1]
 
+        result = self.path[0]
+        for (bit, digest) in zip(self.rule, self.path[1:]):
             if bit == 0:
                 result = hash_pair(result, digest)
             elif bit == 1:
                 result = hash_pair(digest, result)
             else:
                 raise ValueError('Invalid bit found')
-
-            bit = next_bit
-            index += 1
 
         return result
