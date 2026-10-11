@@ -1,5 +1,5 @@
 import sqlite3
-from pymerkle.core import BaseMerkleTree
+from pymerkle.core import BaseMerkleTree, synchronized
 
 
 class SqliteTree(BaseMerkleTree):
@@ -13,6 +13,9 @@ class SqliteTree(BaseMerkleTree):
         with two columns: *index*, which is the primary key serving as leaf
         index, and *entry*, which is a blob field storing the appended data.
 
+    .. note:: A tree can be shared between threads, its database connection
+        being guarded by the tree lock.
+
     :param dbfile: database filepath
     :type dbfile: str
     :param algorithm: [optional] hashing algorithm. Defaults to *sha256*
@@ -21,7 +24,8 @@ class SqliteTree(BaseMerkleTree):
 
     def __init__(self, dbfile, algorithm='sha256', **opts):
         self.dbfile = dbfile
-        self.con = sqlite3.connect(self.dbfile)
+        # Access to the connection is serialized by the tree lock
+        self.con = sqlite3.connect(self.dbfile, check_same_thread=False)
         self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
 
@@ -42,6 +46,14 @@ class SqliteTree(BaseMerkleTree):
 
 
     def __exit__(self, *exc):
+        self.close()
+
+
+    @synchronized
+    def close(self):
+        """
+        Closes the database connection.
+        """
         self.con.close()
 
 
@@ -135,6 +147,7 @@ class SqliteTree(BaseMerkleTree):
         return cur.fetchone()
 
 
+    @synchronized
     def get_entry(self, index):
         """
         Returns the unhashed data stored at the specified leaf.
@@ -174,6 +187,7 @@ class SqliteTree(BaseMerkleTree):
             chunk = entries[offset: offset + chunksize]
 
 
+    @synchronized
     def append_entries(self, entries, chunksize=100_000):
         """
         Bulk operation for appending a batch of entries.
