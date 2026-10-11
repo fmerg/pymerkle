@@ -105,14 +105,11 @@ echo >> $CONFIG
 echo "master_doc = 'index'" >> $CONFIG
 echo "pygments_style = 'sphinx'" >> $CONFIG
 
-# Make sphinx configuration see the source code
-line_1="import os"
-line_2="import sys"
-line_3="sys.path.insert(0, os.path.abspath('.'))"
-sed -ie "/$line_1/s/^# //" $CONFIG
-sed -ie "/$line_2/s/^# //" $CONFIG
-sed -ie "/$line_3/s/^# //" $CONFIG
-sed -ie "/$line_3/s/('.')/('..\/..\/..')/" $CONFIG
+# Make sphinx configuration see the source code (appended explicitly, since
+# recent conf.py templates no longer contain these lines commented out)
+echo "import os" >> $CONFIG
+echo "import sys" >> $CONFIG
+echo "sys.path.insert(0, os.path.abspath('../../..'))" >> $CONFIG
 
 # echo "autodoc_default_options = {'private-members': True}" >> $CONFIG
 echo "extensions += ['sphinx.ext.autosectionlabel']" >> $CONFIG

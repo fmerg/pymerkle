@@ -10,7 +10,8 @@ SHA3_ALGORITHMS = ['sha3_224', 'sha3_256', 'sha3_384', 'sha3_512']
 KECCAK_ALGORITHMS = ['keccak_224', 'keccak_256', 'keccak_384', 'keccak_512']
 
 
-# Supported hash functions by name; keccak ones only if pysha3 is installed
+# Supported hash functions by name; keccak ones only if the keccak extra
+# (safe-pysha3, providing the sha3 module) is installed
 HASH_FUNCTIONS = {name: getattr(hashlib, name) for name in
     SHA2_ALGORITHMS + SHA3_ALGORITHMS}
 try:
@@ -40,7 +41,7 @@ class MerkleHasher:
         if normalized not in ALGORITHMS:
             msg = f'{algorithm} not supported'
             if normalized in KECCAK_ALGORITHMS:
-                msg += ': You need to install pysha3'
+                msg += ': You need to install pymerkle[keccak]'
             raise ValueError(msg)
         self.algorithm = normalized
         self.hashfunc = HASH_FUNCTIONS[normalized]

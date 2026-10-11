@@ -30,6 +30,9 @@ All notable changes to this project will be documented in this file.
 
 - Support for `python>=3.11`; Python 3.7 to 3.10 are end-of-life or about to
   become so
+- Dependencies upgraded to their current releases (`cachetools` 7); the
+  `keccak` extra relies on `safe-pysha3`, a maintained fork of the no longer
+  installable `pysha3`
 - Proofs generated with security disabled require `security=False` upon
   verification
 - Proofs serialized by earlier versions are rejected

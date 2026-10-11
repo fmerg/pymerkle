@@ -1,12 +1,10 @@
-pytest>=6.2.5
-pytest-cov>=3.0.0
-pytest-benchmark[histogram]>=3.4.1
-sphinx==4.4.0
-# Last releases of Sphinx's own extensions supporting Sphinx < 5
-sphinxcontrib-applehelp<1.0.5
-sphinxcontrib-devhelp<1.0.3
-sphinxcontrib-htmlhelp<2.0.2
-sphinxcontrib-qthelp<1.0.4
-sphinxcontrib-serializinghtml<1.1.6
-sphinx_rtd_theme>=1.0.0
-python-docs-theme
+pytest>=9.1
+pytest-cov>=7.1
+pytest-benchmark[histogram]>=5.3
+# Current documentation tooling requires Python 3.12; fall back to the last
+# releases supporting Python 3.11
+sphinx>=9.1; python_version >= "3.12"
+sphinx>=8.2,<9; python_version < "3.12"
+sphinx_rtd_theme>=3.1
+python-docs-theme>=2026.9; python_version >= "3.12"
+python-docs-theme==2025.2; python_version < "3.12"

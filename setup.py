@@ -22,7 +22,7 @@ try:
     install_requires = [_.strip() for _ in f.readlines()]
 except FileNotFoundError:
     install_requires = [
-        'cachetools==5.3.1'
+        'cachetools==7.2.1'
     ]
 
 with open('README.md', 'r') as f:
@@ -48,7 +48,7 @@ def main():
        python_requires='>=3.11',
        install_requires=install_requires,
        extras_require={
-           'keccak': ['pysha3==1.0.2'],
+           'keccak': ['safe-pysha3==1.0.5'],
        },
        zip_safe=False,
        keywords=[

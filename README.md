@@ -115,7 +115,8 @@ sizes.
 ### Support for Keccak beyond SHA3
 
 Installing the `keccak` extra, which pulls in
-[`pysha3==1.0.2`](https://pypi.org/project/pysha3/),
+[`safe-pysha3`](https://pypi.org/project/safe-pysha3/) (a maintained fork of
+`pysha3`),
 
 ```bash
 pip3 install pymerkle[keccak]
@@ -124,9 +125,6 @@ pip3 install pymerkle[keccak]
 makes available the following hash functions:
 
 `keccak_224`, `keccak_256`, `keccak_384`, `keccak_512`
-
-**Note**: `pysha3` is unmaintained and fails to build on recent Python
-versions, in which case these hash functions are unavailable.
 
 
 ## Security
