@@ -1,5 +1,6 @@
 import pytest
 
+from pymerkle import InmemoryTree
 from pymerkle.utils import decompose
 
 
@@ -69,15 +70,11 @@ def test_get_leaf_bounds(tree):
 
 
 def test_unknown_option():
-    from pymerkle import InmemoryTree
-
     with pytest.raises(TypeError):
         InmemoryTree(disable_cahce=True)
 
 
 def test_append_entries():
-    from pymerkle import InmemoryTree
-
     entries = [b'%d' % i for i in range(10)]
     tree = InmemoryTree.init_from_entries(entries[:3])
 
