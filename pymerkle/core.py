@@ -114,14 +114,6 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         super().__init__(self.algorithm, self.security)
 
 
-    def _hash_entry(self, data):
-        return self.hash_buff(data)
-
-
-    def _hash_nodes(self, lnode, rnode):
-        return self.hash_pair(lnode, rnode)
-
-
     @synchronized
     def append_entry(self, data):
         """
@@ -133,7 +125,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :rtype: int
         """
         buffer = self._encode_entry(data)
-        digest = self._hash_entry(buffer)
+        digest = self.hash_buff(buffer)
         index = self._store_leaf(data, digest)
 
         return index
@@ -577,7 +569,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         lnode = self._get_root_naive(start, start + k)
         rnode = self._get_root_naive(start + k, limit)
 
-        return self._hash_nodes(lnode, rnode)
+        return self.hash_pair(lnode, rnode)
 
 
     @profile

@@ -212,7 +212,7 @@ class SqliteTree(BaseMerkleTree):
                 if not isinstance(data, bytes):
                     raise ValueError('Provided data is not binary')
 
-                digest = self._hash_entry(self._encode_entry(data))
+                digest = self.hash_buff(self._encode_entry(data))
                 pairs += [(data, digest)]
 
             yield pairs

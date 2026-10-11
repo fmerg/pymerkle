@@ -220,7 +220,7 @@ class InmemoryTree(BaseMerkleTree):
         node = self._get_last_maximal_subroot()
         self.leaves += [tail]
 
-        digest = self._hash_nodes(node.digest, tail.digest)
+        digest = self.hash_pair(node.digest, tail.digest)
         if node.is_root():
             self.root = Node(digest, node, tail)
             index = self._get_size()
@@ -230,7 +230,7 @@ class InmemoryTree(BaseMerkleTree):
         curr.right = Node(digest, node, tail)
         curr.right.parent = curr
         while curr:
-            curr.digest = self._hash_nodes(
+            curr.digest = self.hash_pair(
                 curr.left.digest, curr.right.digest)
             curr = curr.parent
 
@@ -324,7 +324,7 @@ class InmemoryTree(BaseMerkleTree):
         result = subroots[0].digest
         i = 0
         while i < len(subroots) - 1:
-            result = self._hash_nodes(subroots[i + 1].digest, result)
+            result = self.hash_pair(subroots[i + 1].digest, result)
             i += 1
 
         return result

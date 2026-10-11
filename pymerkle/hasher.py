@@ -27,35 +27,14 @@ class MerkleHasher:
         self.prefx01 = b'\x01' if self.security else b''
 
 
-    def _consume_bytes(self, buff):
-        """
-        :param buff:
-        :type buff: bytes
-        :rtype: bytes
-        """
-        hasher = self.hashfunc()
-        update = hasher.update
-        chunksize = 1024
-        offset = 0
-        chunk = buff[offset: chunksize]
-        while chunk:
-            update(chunk)
-            offset += chunksize
-            chunk = buff[offset: offset + chunksize]
-
-        return hasher.digest()
-
-
     def hash_empty(self):
         """
         Computes the hash of the empty data without prepending security
         prefixes.
 
-        :param buff:
-        :type buff: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(b'')
+        return self.hashfunc(b'').digest()
 
 
     def hash_raw(self, buff):
@@ -67,7 +46,7 @@ class MerkleHasher:
         :type buff: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(buff)
+        return self.hashfunc(buff).digest()
 
 
     def hash_buff(self, data):
@@ -79,8 +58,7 @@ class MerkleHasher:
         :type data: bytes
         :rtype: bytes
         """
-        return self._consume_bytes(self.prefx00 + data)
-
+        return self.hashfunc(self.prefx00 + data).digest()
 
 
     def hash_pair(self, buff1, buff2):
