@@ -11,7 +11,7 @@ def test_inclusion_success(tree, index):
     proof = tree.prove_inclusion(index)
     state = tree.get_state()
 
-    verify_inclusion(base, state, proof)
+    verify_inclusion(base, state, proof, security=tree.security)
 
 
 @pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
@@ -139,3 +139,41 @@ def test_inclusion_structure(tree, index):
     for size in range(index, tree.get_size() + 1):
         proof = tree.prove_inclusion(index, size)
         assert _inclusion_structure(index - 1, size) == proof.rule
+
+
+@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+def test_inclusion_security_downgrade(tree, index):
+    base = tree.get_leaf(index)
+    state = tree.get_state()
+
+    proof = tree.prove_inclusion(index)
+    proof.security = False
+    with pytest.raises(InvalidProof):
+        verify_inclusion(base, state, proof)
+
+
+@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+def test_inclusion_expected_algorithm(tree, index):
+    base = tree.get_leaf(index)
+    state = tree.get_state()
+    proof = tree.prove_inclusion(index)
+
+    variant = tree.algorithm.upper().replace('_', '-')
+    verify_inclusion(base, state, proof, algorithm=variant)
+
+    other = 'sha512' if tree.algorithm != 'sha512' else 'sha256'
+    with pytest.raises(InvalidProof):
+        verify_inclusion(base, state, proof, algorithm=other)
+
+
+@pytest.mark.parametrize('tree, index', tree_and_index(default_config=True))
+def test_inclusion_invalid_digest_length(tree, index):
+    base = tree.get_leaf(index)
+    state = tree.get_state()
+
+    for i in range(len(tree.prove_inclusion(index).path)):
+        for alter in (lambda d: d[:-1], lambda d: d + b'\x00', bytes.hex):
+            proof = tree.prove_inclusion(index)
+            proof.path[i] = alter(proof.path[i])
+            with pytest.raises(InvalidProof):
+                verify_inclusion(base, state, proof)

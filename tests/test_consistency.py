@@ -16,7 +16,7 @@ def test_consistency_success(tree, size1):
     state1 = tree.get_state(size1)
     state2 = tree.get_state()
 
-    verify_consistency(state1, state2, proof)
+    verify_consistency(state1, state2, proof, security=tree.security)
 
 
 @pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
@@ -174,3 +174,41 @@ def test_consistency_structure(tree, size1):
     proof = tree.prove_consistency(size1, size2)
 
     assert _consistency_structure(size1, size2) == (proof.rule, proof.subset)
+
+
+def test_consistency_security_downgrade():
+    """
+    With prefixes disabled by the prover and path elements of arbitrary
+    length, the interior node preimage 0x01 || lnode used to be accepted as
+    prior state of a secure tree.
+    """
+    from pymerkle import InmemoryTree, MerkleProof
+
+    tree = InmemoryTree.init_from_entries([b'a', b'b'])
+    lnode, rnode = tree.get_leaf(1), tree.get_leaf(2)
+    forged = b'\x01' + lnode
+
+    proof = MerkleProof('sha256', False, 2, [1, 0], [0, 1], [rnode, forged],
+            prior_size=1)
+    assert proof.retrieve_prior_state() == forged
+    assert proof.resolve() == tree.get_state()
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(forged, tree.get_state(), proof)
+
+    with pytest.raises(InvalidProof):
+        verify_consistency(forged, tree.get_state(), proof, security=False)
+
+
+@pytest.mark.parametrize('tree, size1', tree_and_index(default_config=True))
+def test_consistency_expected_algorithm(tree, size1):
+    size2 = tree.get_size()
+    proof = tree.prove_consistency(size1, size2)
+    state1 = tree.get_state(size1)
+    state2 = tree.get_state(size2)
+
+    verify_consistency(state1, state2, proof, algorithm=tree.algorithm)
+
+    other = 'sha512' if tree.algorithm != 'sha512' else 'sha256'
+    with pytest.raises(InvalidProof):
+        verify_consistency(state1, state2, proof, algorithm=other)

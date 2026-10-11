@@ -28,6 +28,33 @@ def _digests_match(digest1, digest2):
         return False
 
 
+def _check_hashing(proof, algorithm, security):
+    """
+    Ensures that the proof is resolved with the hashing configuration expected
+    by the verifier and that its path consists of digests of proper length.
+
+    :param proof: proof under verification
+    :type proof: MerkleProof
+    :param algorithm: expected hash algorithm, or *None* to accept the one
+        specified by the proof
+    :type algorithm: str
+    :param security: expected resistance against second-preimage attack
+    :type security: bool
+    :raises InvalidProof: if the proof does not comply
+    """
+    if bool(proof.security) != bool(security):
+        raise InvalidProof('Security mode does not match')
+
+    if algorithm is not None and \
+            algorithm.lower().replace('-', '_') != proof.hasher.algorithm:
+        raise InvalidProof('Hash algorithm does not match')
+
+    digest_size = proof.hasher.hashfunc().digest_size
+    for digest in proof.path:
+        if not isinstance(digest, bytes) or len(digest) != digest_size:
+            raise InvalidProof('Invalid digest found in path')
+
+
 def _inclusion_structure(offset, size):
     """
     Computes the rule of a well-formed inclusion proof for the leaf located at
@@ -58,7 +85,8 @@ def _inclusion_structure(offset, size):
     return [bit] + bits[::-1]
 
 
-def verify_inclusion(base, root, proof, index=None, size=None):
+def verify_inclusion(base, root, proof, index=None, size=None,
+        algorithm=None, security=True):
     """
     Verifies the provided Merkle-proof of inclusion against the provided leaf
     hash and tree state.
@@ -78,6 +106,12 @@ def verify_inclusion(base, root, proof, index=None, size=None):
     :type index: int
     :param size: [optional] expected number of leaves
     :type size: int
+    :param algorithm: [optional] expected hash algorithm. Defaults to the one
+        specified by the proof.
+    :type algorithm: str
+    :param security: [optional] expected resistance against second-preimage
+        attack. Defaults to *True*.
+    :type security: bool
     :raises InvalidProof: if the proof is found invalid
     """
     if not (isinstance(proof.index, int) and isinstance(proof.size, int)
@@ -94,6 +128,8 @@ def verify_inclusion(base, root, proof, index=None, size=None):
     if proof.rule != rule or proof.subset != [] or \
             len(proof.path) != len(rule):
         raise InvalidProof('Invalid proof structure')
+
+    _check_hashing(proof, algorithm, security)
 
     if not _digests_match(proof.path[0], base):
         raise InvalidProof('Base hash does not match')
@@ -137,7 +173,8 @@ def _consistency_structure(size1, size2):
     return [bit] + bits[::-1], [mask] + masks[::-1]
 
 
-def verify_consistency(state1, state2, proof, size1=None, size2=None):
+def verify_consistency(state1, state2, proof, size1=None, size2=None,
+        algorithm=None, security=True):
     """
     Verifies the provided Merkle-proof of consistency against the given states.
 
@@ -155,6 +192,12 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None):
     :type size1: int
     :param size2: [optional] expected number of leaves for later state
     :type size2: int
+    :param algorithm: [optional] expected hash algorithm. Defaults to the one
+        specified by the proof.
+    :type algorithm: str
+    :param security: [optional] expected resistance against second-preimage
+        attack. Defaults to *True*.
+    :type security: bool
     :raises InvalidProof: if the proof is found invalid
     """
     prior_size = proof.prior_size
@@ -172,6 +215,8 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None):
     if proof.rule != rule or proof.subset != subset or \
             len(proof.path) != len(rule):
         raise InvalidProof('Invalid proof structure')
+
+    _check_hashing(proof, algorithm, security)
 
     if not _digests_match(proof.retrieve_prior_state(), state1):
         raise InvalidProof('Prior state does not match')

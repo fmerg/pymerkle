@@ -140,6 +140,10 @@ This consists in the following standard technique:
 
 **Note**: For, say, testing purposes, you can disable this feature by passing
 `disable_security=True` when initializing the `BaseMerkleTree` superclass.
+Proofs generated this way are rejected upon verification unless
+`security=False` is explicitly passed to `verify_inclusion` or
+`verify_consistency`. Pass `algorithm` as well to make sure that proofs are
+resolved with the expected hash function.
 Refer [here](./tests/test_defense.py) to see how to perform second-preimage
 attack against the present implementation.
 
