@@ -16,8 +16,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `index`/`size` and `size1`/`size2` arguments to `verify_inclusion` and
-  `verify_consistency` respectively, binding proofs to the expected parameters
+- `index`/`size` and `prior_size`/`later_size` arguments to `verify_inclusion`
+  and `verify_consistency` respectively, binding proofs to the expected
+  parameters
 - `algorithm` and `security` arguments to the verification functions
 - `synchronized` decorator and `SqliteTree.close`
 - `keccak` installation extra
@@ -62,6 +63,12 @@ All notable changes to this project will be documented in this file.
   `render`
 - `pymerkle.utils.log2` and `decompose` are renamed to `floor_log2` and
   `binary_exponents` respectively
+- The `state1`/`state2` and `size1`/`size2` parameters of `verify_consistency`
+  and `ConsistencyProof.verify` are renamed to `prior_state`/`later_state`
+  and `prior_size`/`later_size`; similarly for those of `prove_consistency`
+- The `prefx00` and `prefx01` attributes of `MerkleHasher` are renamed to
+  `leaf_prefix` and `node_prefix`; the parameters of `hash_pair` to `left`
+  and `right`, and that of `hash_raw` to `data`
 - The `pymerkle.concrete` subpackage is renamed to `pymerkle.backends`
 - The contents of `pymerkle.constants` (supported hash functions) moved to
   `pymerkle.hasher`

@@ -108,7 +108,7 @@ def test_reads_during_appends(make_tree):
         verify_inclusion(tree.get_leaf(1), state, inclusion, index=1,
             size=size)
         verify_consistency(tree.get_root(size // 2 or 1), state,
-            consistency, size2=size)
+            consistency, later_size=size)
 
 
 def test_sqlite_bulk_append_during_reads():

@@ -327,18 +327,19 @@ proceeds as follows:
 
    from pymerkle import verify_consistency
 
-   state1 = tree.get_root(3)
-   state2 = tree.get_root(5)
+   prior_state = tree.get_root(3)
+   later_state = tree.get_root(5)
 
-   verify_consistency(state1, state2, proof, size1=3, size2=5)
+   verify_consistency(prior_state, later_state, proof, prior_size=3,
+       later_size=5)
 
 
 This checks that the structure of the proof is the one determined by the sizes
 it refers to, that an appropriate subpath of the included path of hashes resolves
 to the acclaimed prior state and the path of hashes as a whole resolves to the
-acclaimed later state. Passing *size1* and *size2* ensures that the proof
-refers to the expected states; *security* and *algorithm* behave as in the
-inclusion case. Trying to verify against forged states would raise an
+acclaimed later state. Passing *prior_size* and *later_size* ensures that the
+proof refers to the expected states; *security* and *algorithm* behave as in
+the inclusion case. Trying to verify against forged states would raise an
 ``InvalidProof`` error:
 
 
@@ -349,12 +350,12 @@ inclusion case. Trying to verify against forged states would raise an
    >>> hasher = MerkleHasher(tree.algorithm, tree.security)
    >>> forged = hasher.hash_raw(b'random')
    >>>
-   >>> verify_consistency(forged, state2, proof)
+   >>> verify_consistency(forged, later_state, proof)
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Prior state does not match
    >>>
-   >>> verify_consistency(state1, forged, proof)
+   >>> verify_consistency(prior_state, forged, proof)
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Later state does not match

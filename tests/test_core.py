@@ -45,10 +45,10 @@ def test_inclusion_path(tree):
 
 
 def test_consistency_path(tree):
-    for size2 in range(1, tree.get_size() + 1):
-        for size1 in range(size2 + 1):
-            path1 = tree._get_consistency_path(size1, size2)
-            path2 = tree._get_consistency_path_naive(size1, size2)
+    for later_size in range(1, tree.get_size() + 1):
+        for prior_size in range(later_size + 1):
+            path1 = tree._get_consistency_path(prior_size, later_size)
+            path2 = tree._get_consistency_path_naive(prior_size, later_size)
 
             assert path1 == path2
 

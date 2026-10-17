@@ -77,7 +77,7 @@ resolve_action_options() {
             options="--index ${INDEX} --size ${SIZE}"
             ;;
         consistency)
-            options="--size1 ${INDEX} --size2 ${SIZE}"
+            options="--prior-size ${INDEX} --later-size ${SIZE}"
             ;;
         *)
             echo "Invalid operation: ${ACTION}"

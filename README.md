@@ -97,16 +97,17 @@ Verify the proof against the respective root-hashes:
 ```python
 from pymerkle import verify_consistency
 
-state1 = tree.get_root(3)
-state2 = tree.get_root(5)
+prior_state = tree.get_root(3)
+later_state = tree.get_root(5)
 
-verify_consistency(state1, state2, proof, size1=3, size2=5)
+verify_consistency(prior_state, later_state, proof, prior_size=3,
+    later_size=5)
 ```
 
 The proof structure is recomputed from the sizes and must match exactly.
-Passing `size1` and `size2` additionally ensures that the proof refers to
-the expected states; omit them only if the states are not bound to known
-sizes.
+Passing `prior_size` and `later_size` additionally ensures that the proof
+refers to the expected states; omit them only if the states are not bound to
+known sizes.
 
 ## Supported hash functions
 

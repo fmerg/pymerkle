@@ -47,8 +47,8 @@ class MerkleHasher:
         self.hashfunc = HASH_FUNCTIONS[normalized]
 
         self.security = security
-        self.prefx00 = b'\x00' if self.security else b''
-        self.prefx01 = b'\x01' if self.security else b''
+        self.leaf_prefix = b'\x00' if self.security else b''
+        self.node_prefix = b'\x01' if self.security else b''
 
 
     def hash_empty(self):
@@ -61,16 +61,15 @@ class MerkleHasher:
         return self.hashfunc(b'').digest()
 
 
-    def hash_raw(self, buff):
+    def hash_raw(self, data):
         """
         Computes the hash of the provided data without prepending security
         prefixes.
 
-        :param buff:
-        :type buff: bytes
+        :type data: bytes
         :rtype: bytes
         """
-        return self.hashfunc(buff).digest()
+        return self.hashfunc(data).digest()
 
 
     def hash_buff(self, data):
@@ -82,22 +81,22 @@ class MerkleHasher:
         :type data: bytes
         :rtype: bytes
         """
-        return self.hashfunc(self.prefx00 + data).digest()
+        return self.hashfunc(self.leaf_prefix + data).digest()
 
 
-    def hash_pair(self, buff1, buff2):
+    def hash_pair(self, left, right):
         """
         Computes the hash of the concatenation of the provided binary data.
 
         .. note:: Prepends ``\\x01`` if security mode is enabled
 
-        :param buff1: left value
-        :type buff1: bytes
-        :param buff2: right value
-        :type buff2: bytes
+        :param left: left digest
+        :type left: bytes
+        :param right: right digest
+        :type right: bytes
         :rtype: bytes
         """
-        return self.hashfunc(self.prefx01 + buff1 + buff2).digest()
+        return self.hashfunc(self.node_prefix + left + right).digest()
 
 
     def hash_fold(self, digests):

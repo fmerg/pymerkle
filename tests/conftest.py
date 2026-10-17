@@ -38,8 +38,8 @@ def pytest_generate_tests(metafunc):
     - ``tree_class``: the selected backends
     - ``config``: the selected tree configurations
     - ``tree``: trees of every size up to the maximum, combined with
-        ``index``, ``size`` or ``size1`` ranging from one to the tree size,
-        or with ``start`` and ``end`` ranging over its leaf ranges
+        ``index``, ``size`` or ``prior_size`` ranging from one to the tree
+        size, or with ``start`` and ``end`` ranging over its leaf ranges
     """
     options = metafunc.config.option
     names = metafunc.fixturenames
@@ -65,7 +65,7 @@ def pytest_generate_tests(metafunc):
 
     # Second parameter name and label used in test ids
     for (name, label) in (('index', 'index'), ('size', 'state'),
-                          ('size1', 'prior')):
+                          ('prior_size', 'prior')):
         if name in names:
             params = [(tree, i) for tree in trees
                                 for i in range(1, tree.get_size() + 1)]

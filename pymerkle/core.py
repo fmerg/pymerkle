@@ -54,7 +54,7 @@ def _inclusion_path_layout(index, size):
         one being the base leaf
     :rtype: (list[int], list[(int, int)])
     """
-    offset = index - 1
+    position = index - 1
     start, end, bit = 0, size, 0
     steps = []
     while end - start > 1:
@@ -63,7 +63,7 @@ def _inclusion_path_layout(index, size):
         if k == end - start:
             k >>= 1
 
-        if offset < start + k:
+        if position < start + k:
             steps += [(bit, (start + k, end))]
             end = start + k
             bit = 0
@@ -74,12 +74,12 @@ def _inclusion_path_layout(index, size):
 
     steps.reverse()
     rule = [bit] + [b for (b, _) in steps]
-    ranges = [(offset, offset + 1)] + [r for (_, r) in steps]
+    ranges = [(position, position + 1)] + [r for (_, r) in steps]
 
     return rule, ranges
 
 
-def _consistency_path_layout(size1, size2):
+def _consistency_path_layout(prior_size, later_size):
     """
     Layout of the consistency proof between the states corresponding to the
     provided sizes, i.e., the leaf ranges whose root-hashes make up the path
@@ -87,34 +87,34 @@ def _consistency_path_layout(size1, size2):
 
     .. note:: See ``_inclusion_path_layout`` regarding ranges.
 
-    :param size1: number of leaves for prior state
-    :type size1: int
-    :param size2: number of leaves for later state
-    :type size2: int
+    :param prior_size: number of leaves for prior state
+    :type prior_size: int
+    :param later_size: number of leaves for later state
+    :type later_size: int
     :returns: rule, subset and ranges whose root-hashes make up the path, the
         subset indicating those resolving to the prior state
     :rtype: (list[int], list[int], list[(int, int)])
     """
-    start, offset, width, bit = 0, size1, size2, 0
+    start, prior_width, width, bit = 0, prior_size, later_size, 0
     steps = []
-    while not (offset == width or (offset == 0 and width == 1)):
+    while not (prior_width == width or (prior_width == 0 and width == 1)):
         # Leaves under left child: largest power of two less than width
         k = 1 << floor_log2(width)
         if k == width:
             k >>= 1
 
-        if offset < k:
+        if prior_width < k:
             steps += [(bit, 0, (start + k, start + width))]
             width = k
             bit = 0
         else:
             steps += [(bit, 1, (start, start + k))]
             start += k
-            offset -= k
+            prior_width -= k
             width -= k
             bit = 1
 
-    if offset == width:
+    if prior_width == width:
         mask, base = 1, (start, start + width)
     else:
         mask, base = 0, (start, start + 1)
@@ -168,7 +168,7 @@ def _inclusion_path_naive_layout(index, start, end, bit):
     return rule + [bit], ranges + [sibling]
 
 
-def _consistency_path_naive_layout(start, offset, width, bit):
+def _consistency_path_naive_layout(start, prior_width, width, bit):
     """
     Layout of the consistency path between the prior state of the provided
     size and the provided leaf range, computed recursively.
@@ -182,8 +182,8 @@ def _consistency_path_naive_layout(start, offset, width, bit):
 
     :param start: first leaf position counting from zero
     :type start: int
-    :param offset: number of leaves of the prior state within the range
-    :type offset: int
+    :param prior_width: number of leaves of the prior state within the range
+    :type prior_width: int
     :param width: number of leaves in the range
     :type width: int
     :param bit: bit specifying the position of the range relative to its
@@ -191,10 +191,10 @@ def _consistency_path_naive_layout(start, offset, width, bit):
     :type bit: int
     :rtype: (list[int], list[int], list[(int, int)])
     """
-    if offset == width:
+    if prior_width == width:
         return [bit], [1], [(start, start + width)]
 
-    if offset == 0 and width == 1:
+    if prior_width == 0 and width == 1:
         return [bit], [0], [(start, start + 1)]
 
     # Leaves under left child: largest power of two less than width
@@ -202,13 +202,13 @@ def _consistency_path_naive_layout(start, offset, width, bit):
     if k == width:
         k >>= 1
 
-    if offset < k:
-        rule, subset, ranges = _consistency_path_naive_layout(start, offset,
-            k, 0)
+    if prior_width < k:
+        rule, subset, ranges = _consistency_path_naive_layout(start,
+            prior_width, k, 0)
         sibling, mask = (start + k, start + width), 0
     else:
         rule, subset, ranges = _consistency_path_naive_layout(start + k,
-            offset - k, width - k, 1)
+            prior_width - k, width - k, 1)
         sibling, mask = (start, start + k), 1
 
     return rule + [bit], subset + [mask], ranges + [sibling]
@@ -426,35 +426,35 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @synchronized
-    def prove_consistency(self, size1, size2=None):
+    def prove_consistency(self, prior_size, later_size=None):
         """
         Proves consistency between the states corresponding to the provided
         sizes.
 
-        :param size1: number of leaves for prior state
-        :type size1: int
-        :param size2: [optional] number of leaves for later state. Defaults to
-            current tree size.
-        :type size2: int
+        :param prior_size: number of leaves for prior state
+        :type prior_size: int
+        :param later_size: [optional] number of leaves for later state.
+            Defaults to current tree size.
+        :type later_size: int
         :rtype: ConsistencyProof
         :raises InvalidChallenge: if the provided parameters are invalid or
             incompatible with each other
         """
         currsize = self.get_size()
 
-        if size2 is None:
-            size2 = currsize
+        if later_size is None:
+            later_size = currsize
 
-        if not (0 < size2 <= currsize):
+        if not (0 < later_size <= currsize):
             raise InvalidChallenge('Provided later size out of bounds')
 
-        if not (0 < size1 <= size2):
+        if not (0 < prior_size <= later_size):
             raise InvalidChallenge('Provided prior size out of bounds')
 
-        rule, subset, path = self._get_consistency_path(size1, size2)
+        rule, subset, path = self._get_consistency_path(prior_size, later_size)
 
-        return ConsistencyProof(self.algorithm, self.security, size2, size1,
-                rule, subset, path)
+        return ConsistencyProof(self.algorithm, self.security, later_size,
+                prior_size, rule, subset, path)
 
 
     @synchronized
@@ -588,14 +588,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         popleft = level.popleft
         append = level.append
         hashfunc = self.hashfunc
-        prefx01 = self.prefx01
+        node_prefix = self.node_prefix
         while width > 1:
             count = 0
 
             while count < width:
                 lnode = popleft()
                 rnode = popleft()
-                node = hashfunc(prefx01 + lnode + rnode).digest()
+                node = hashfunc(node_prefix + lnode + rnode).digest()
                 append(node)
                 count += 2
 
@@ -705,7 +705,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _get_consistency_path(self, size1, size2):
+    def _get_consistency_path(self, prior_size, later_size):
         """
         Computes the consistency path between the states corresponding to the
         provided sizes.
@@ -713,20 +713,20 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         .. warning:: Do not use this method directly unless you know what you
             do. Use ``prove_consistency`` instead.
 
-        :param size1: number of leaves for prior state
-        :type size1: int
-        :param size2: number of leaves for later state
-        :type size2: int
+        :param prior_size: number of leaves for prior state
+        :type prior_size: int
+        :param later_size: number of leaves for later state
+        :type later_size: int
         :rtype: (list[int], list[int], list[bytes])
         """
-        rule, subset, ranges = _consistency_path_layout(size1, size2)
+        rule, subset, ranges = _consistency_path_layout(prior_size, later_size)
         _get_root = self._get_root
 
         return rule, subset, [_get_root(*r) for r in ranges]
 
 
     @profile
-    def _get_consistency_path_naive(self, size1, size2):
+    def _get_consistency_path_naive(self, prior_size, later_size):
         """
         Computes the consistency path between the states corresponding to the
         provided sizes.
@@ -736,14 +736,14 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         .. warning:: This is an unoptimized recursive function intended for
             reference and testing. Use ``_get_consistency_path`` in production.
 
-        :param size1: number of leaves for prior state
-        :type size1: int
-        :param size2: number of leaves for later state
-        :type size2: int
+        :param prior_size: number of leaves for prior state
+        :type prior_size: int
+        :param later_size: number of leaves for later state
+        :type later_size: int
         :rtype: (list[int], list[int], list[bytes])
         """
-        rule, subset, ranges = _consistency_path_naive_layout(0, size1,
-            size2, 0)
+        rule, subset, ranges = _consistency_path_naive_layout(0, prior_size,
+            later_size, 0)
         _get_root = self._get_root
 
         return rule, subset, [_get_root(*r) for r in ranges]

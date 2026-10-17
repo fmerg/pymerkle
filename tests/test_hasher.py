@@ -12,8 +12,8 @@ from pymerkle.hasher import MerkleHasher
 
 
 data = b'oculusnonviditnecaurisaudivit'
-prefx00 = b'\x00'
-prefx01 = b'\x01'
+leaf_prefix = b'\x00'
+node_prefix = b'\x01'
 
 
 def test_hash_buff(config):
@@ -22,7 +22,7 @@ def test_hash_buff(config):
     h = MerkleHasher(algorithm, security)
 
     module = sha3 if algorithm in KECCAK_ALGORITHMS else hashlib
-    payload = data if not security else (prefx00 + data)
+    payload = data if not security else (leaf_prefix + data)
     assert h.hash_buff(data) == getattr(module, algorithm)(payload).digest()
 
 
@@ -32,7 +32,7 @@ def test_hash_pair(config):
     h = MerkleHasher(algorithm, security)
 
     module = sha3 if algorithm in KECCAK_ALGORITHMS else hashlib
-    payload = (data + data) if not h.security else (prefx01 + data + data)
+    payload = (data + data) if not h.security else (node_prefix + data + data)
     assert h.hash_pair(data, data) == getattr(module, algorithm)(payload).digest()
 
 

@@ -16,17 +16,17 @@ MAX_SIZE = 1 << 64
 MAX_PATH = 2 * 64
 
 
-def _digests_match(digest1, digest2):
+def _digests_match(lhs, rhs):
     """
     Constant-time comparison of digests that treats values of incompatible
     type as non-matching instead of raising.
 
-    :type digest1: bytes
-    :type digest2: bytes
+    :type lhs: bytes
+    :type rhs: bytes
     :rtype: bool
     """
     try:
-        return compare_digest(digest1, digest2)
+        return compare_digest(lhs, rhs)
     except TypeError:
         return False
 
@@ -51,13 +51,13 @@ def verify_inclusion(base, root, proof, index=None, size=None,
         security=security)
 
 
-def verify_consistency(state1, state2, proof, size1=None, size2=None,
-        algorithm=None, security=True):
+def verify_consistency(prior_state, later_state, proof, prior_size=None,
+        later_size=None, algorithm=None, security=True):
     """
     Verifies the provided Merkle-proof of consistency against the given states.
 
-    .. note:: Equivalent to ``proof.verify(state1, state2, ...)`` after
-        ensuring that the provided proof is a consistency proof. See
+    .. note:: Equivalent to ``proof.verify(prior_state, later_state, ...)``
+        after ensuring that the provided proof is a consistency proof. See
         ``ConsistencyProof.verify`` for the parameters.
 
     :type proof: ConsistencyProof
@@ -66,8 +66,8 @@ def verify_consistency(state1, state2, proof, size1=None, size2=None,
     if not isinstance(proof, ConsistencyProof):
         raise InvalidProof('Not a consistency proof')
 
-    proof.verify(state1, state2, size1=size1, size2=size2,
-        algorithm=algorithm, security=security)
+    proof.verify(prior_state, later_state, prior_size=prior_size,
+        later_size=later_size, algorithm=algorithm, security=security)
 
 
 class MerkleProof:
@@ -142,7 +142,7 @@ class MerkleProof:
 
             if len(data['path']) > MAX_PATH:
                 raise InvalidProof('Path too long')
-            path = [bytes.fromhex(checksum) for checksum in data['path']]
+            path = [bytes.fromhex(hexdigest) for hexdigest in data['path']]
 
             return proof_cls._from_data(data, path)
         except (KeyError, TypeError, ValueError, AttributeError) as err:
@@ -338,24 +338,24 @@ class ConsistencyProof(MerkleProof):
         return self.hasher.hash_fold(subpath)
 
 
-    def verify(self, state1, state2, size1=None, size2=None, algorithm=None,
-            security=True):
+    def verify(self, prior_state, later_state, prior_size=None,
+            later_size=None, algorithm=None, security=True):
         """
         Verifies the proof against the provided states.
 
         .. note:: The structure of the proof is recomputed from the sizes it
-            claims and must match exactly. Pass *size1* and *size2* to also
-            ensure that these are the sizes of the states under
+            claims and must match exactly. Pass *prior_size* and *later_size*
+            to also ensure that these are the sizes of the states under
             consideration.
 
-        :param state1: acclaimed prior state
-        :type state1: bytes
-        :param state2: acclaimed later state
-        :type state2: bytes
-        :param size1: [optional] expected number of leaves for prior state
-        :type size1: int
-        :param size2: [optional] expected number of leaves for later state
-        :type size2: int
+        :param prior_state: acclaimed prior state
+        :type prior_state: bytes
+        :param later_state: acclaimed later state
+        :type later_state: bytes
+        :param prior_size: [optional] expected number of leaves for prior state
+        :type prior_size: int
+        :param later_size: [optional] expected number of leaves for later state
+        :type later_size: int
         :param algorithm: [optional] expected hash algorithm. Defaults to the
             one specified by the proof.
         :type algorithm: str
@@ -369,10 +369,10 @@ class ConsistencyProof(MerkleProof):
                 0 < self.prior_size <= self.size < MAX_SIZE):
             raise InvalidProof('Invalid sizes')
 
-        if size1 is not None and self.prior_size != size1:
+        if prior_size is not None and self.prior_size != prior_size:
             raise InvalidProof('Prior size does not match')
 
-        if size2 is not None and self.size != size2:
+        if later_size is not None and self.size != later_size:
             raise InvalidProof('Later size does not match')
 
         # Imported here, since the core module depends on this one
@@ -384,10 +384,10 @@ class ConsistencyProof(MerkleProof):
             raise InvalidProof('Invalid proof structure')
         self._check_hashing(algorithm, security)
 
-        if not _digests_match(self.retrieve_prior_state(), state1):
+        if not _digests_match(self.retrieve_prior_state(), prior_state):
             raise InvalidProof('Prior state does not match')
 
-        if not _digests_match(self.compute_root(), state2):
+        if not _digests_match(self.compute_root(), later_state):
             raise InvalidProof('Later state does not match')
 
 

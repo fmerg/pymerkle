@@ -92,21 +92,24 @@ class Node:
         return curr
 
 
-    def render(self, indent=2, trim=None, level=0, ignored=None):
+    def render(self, indent=2, trim=None, level=0, closed_levels=None):
         """
         Returns a string representing the subtree rooted at the present node.
 
-        :param indent: [optional]
-        :type indent: str
-        :param trim: [optional]
-        :type trim: str
-        :param level: [optional]
-        :type level: str
-        :param ignored: [optional]
-        :type ignored: str
+        :param indent: [optional] number of spaces per level of depth
+        :type indent: int
+        :param trim: [optional] number of hex characters displayed per hash.
+            Displays the full hash if not provided.
+        :type trim: int
+        :param level: [optional] depth of the present node relative to the
+            node where rendering started
+        :type level: int
+        :param closed_levels: [optional] levels whose vertical connector is no
+            longer drawn, their last child having already been rendered
+        :type closed_levels: list[int]
         :rtype: str
         """
-        ignored = ignored or []
+        closed_levels = closed_levels or []
 
         if level == 0:
             out = 2 * '\n' + ' └─' if not self.parent else ''
@@ -115,7 +118,7 @@ class Node:
 
         col = 1
         while col < level:
-            out += ' │' if col not in ignored else 2 * ' '
+            out += ' │' if col not in closed_levels else 2 * ' '
             out += indent * ' '
             col += 1
 
@@ -124,19 +127,19 @@ class Node:
 
         if self.is_right_child():
             out += ' └──'
-            ignored += [level]
+            closed_levels += [level]
 
-        checksum = self.digest.hex()
-        out += (checksum[:trim] + '...') if trim else checksum
+        hexdigest = self.digest.hex()
+        out += (hexdigest[:trim] + '...') if trim else hexdigest
         out += '\n'
 
         if self.is_leaf():
             return out
 
-        recursion = (indent, trim, level + 1, ignored[:])
+        child_args = (indent, trim, level + 1, closed_levels[:])
 
-        out += self.left.render(*recursion)
-        out += self.right.render(*recursion)
+        out += self.left.render(*child_args)
+        out += self.right.render(*child_args)
 
         return out
 

@@ -108,10 +108,11 @@ Verify the proof against the respective root hashes:
 
   from pymerkle import verify_consistency
 
-  state1 = tree.get_root(3)
-  state2 = tree.get_root(5)
+  prior_state = tree.get_root(3)
+  later_state = tree.get_root(5)
 
-  verify_consistency(state1, state2, proof, size1=3, size2=5)
+  verify_consistency(prior_state, later_state, proof, prior_size=3,
+      later_size=5)
 
 
 Security
