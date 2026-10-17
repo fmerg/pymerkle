@@ -58,6 +58,10 @@ Profiler options
 
 set -e
 
+# The profiler script is run by path, which puts its own directory instead of
+# the project root on the module search path
+export PYTHONPATH="$(cd "$(dirname "$0")" && pwd)${PYTHONPATH:+:$PYTHONPATH}"
+
 usage() { echo -n "$usage_string" 1>&2; }
 
 
@@ -77,7 +81,7 @@ resolve_action_options() {
             options="--index ${INDEX} --size ${SIZE}"
             ;;
         consistency)
-            options="--size1 ${INDEX} --size2 ${SIZE}"
+            options="--prior-size ${INDEX} --later-size ${SIZE}"
             ;;
         *)
             echo "Invalid operation: ${ACTION}"
@@ -201,8 +205,7 @@ DBFILE="$DEFAULT_DBFILE"
 ACTION="$DEFAULT_ACTION"
 SIZE="$DEFAULT_SIZE"
 ROUNDS="$DEFAULT_ROUNDS"
-RANDOMIZE="$DEFAULT_ROUNDS"
-MEMORY="$DEFAULT_MEMORY"
+RANDOMIZE="$DEFAULT_RANDOMIZE"
 TIMING="$DEFAULT_TIMING"
 LINE="$DEFAULT_LINE"
 GRAPH="$DEFAULT_GRAPH"

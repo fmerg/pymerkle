@@ -1,6 +1,6 @@
 import pytest
 from itertools import combinations
-from pymerkle.utils import log2, decompose
+from pymerkle.utils import floor_log2, binary_exponents
 
 
 numbers = [0]
@@ -27,12 +27,12 @@ for logarithm in range(0, 8):
             collections += [exponents]
 
 
-@pytest.mark.parametrize('number, logarithm', zip(numbers, logarithms))
-def test_log2(number, logarithm):
-    assert log2(number) == logarithm
+@pytest.mark.parametrize('number, logarithm', list(zip(numbers, logarithms)))
+def test_floor_log2(number, logarithm):
+    assert floor_log2(number) == logarithm
 
 
-@pytest.mark.parametrize('number, exponents', zip(numbers, collections))
-def test_decompose(number, exponents):
-    assert decompose(number) == exponents
-    assert log2(number) == (exponents[-1] if number > 0 else 0)
+@pytest.mark.parametrize('number, exponents', list(zip(numbers, collections)))
+def test_binary_exponents(number, exponents):
+    assert binary_exponents(number) == exponents
+    assert floor_log2(number) == (exponents[-1] if number > 0 else 0)

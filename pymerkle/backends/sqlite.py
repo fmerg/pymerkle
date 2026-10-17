@@ -1,5 +1,7 @@
 import sqlite3
-from pymerkle.core import BaseMerkleTree
+from itertools import islice
+
+from pymerkle.core import BaseMerkleTree, synchronized
 
 
 class SqliteTree(BaseMerkleTree):
@@ -10,8 +12,17 @@ class SqliteTree(BaseMerkleTree):
     further processing.
 
     .. note:: The database schema consists of a single table called *leaf*
-        with two columns: *index*, which is the primary key serving as leaf
-        index, and *entry*, which is a blob field storing the appended data.
+        with three columns: *id*, which is the primary key serving as leaf
+        index, *entry*, which is a blob field storing the appended data, and
+        *hash*, which stores its hash value. The table is append-only:
+        deleting or updating rows is rejected by triggers, since leaf indices
+        must remain contiguous.
+
+    :raises ValueError: if the leaf indices of an existing database are not
+        contiguous
+
+    .. note:: A tree can be shared between threads, its database connection
+        being guarded by the tree lock.
 
     :param dbfile: database filepath
     :type dbfile: str
@@ -21,18 +32,38 @@ class SqliteTree(BaseMerkleTree):
 
     def __init__(self, dbfile, algorithm='sha256', **opts):
         self.dbfile = dbfile
-        self.con = sqlite3.connect(self.dbfile)
+        # Access to the connection is serialized by the tree lock
+        self.con = sqlite3.connect(self.dbfile, check_same_thread=False)
+        # All queries select a single column; return its value instead of
+        # one-element tuples
         self.con.row_factory = lambda cursor, row: row[0]
         self.cur = self.con.cursor()
 
         with self.con:
-            query = f'''
+            query = '''
                 CREATE TABLE IF NOT EXISTS leaf(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     entry BLOB,
                     hash BLOB
                 );'''
             self.cur.execute(query)
+
+            # Leaf indices must remain contiguous, i.e., the table is
+            # append-only
+            for (name, action) in (('leaf_no_delete', 'DELETE'),
+                                   ('leaf_no_update', 'UPDATE')):
+                query = f'''
+                    CREATE TRIGGER IF NOT EXISTS {name}
+                    BEFORE {action} ON leaf
+                    BEGIN
+                        SELECT RAISE(ABORT, 'leaf table is append-only');
+                    END;'''
+                self.cur.execute(query)
+
+        self.cur.execute('SELECT COUNT(*) = COALESCE(MAX(id), 0) FROM leaf')
+        if not self.cur.fetchone():
+            self.con.close()
+            raise ValueError('Leaf indices are not contiguous')
 
         super().__init__(algorithm, **opts)
 
@@ -42,6 +73,14 @@ class SqliteTree(BaseMerkleTree):
 
 
     def __exit__(self, *exc):
+        self.close()
+
+
+    @synchronized
+    def close(self):
+        """
+        Closes the database connection.
+        """
         self.con.close()
 
 
@@ -74,7 +113,7 @@ class SqliteTree(BaseMerkleTree):
         cur = self.cur
 
         with self.con:
-            query = f'''
+            query = '''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
             cur.execute(query, (data, digest))
@@ -92,7 +131,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT hash FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
@@ -112,7 +151,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT hash FROM leaf WHERE id BETWEEN ? AND ?
         '''
         cur.execute(query, (offset + 1, offset + width))
@@ -127,14 +166,18 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
-            SELECT COUNT(*) FROM leaf
+        # Leaf indices are contiguous (append-only table), so that the largest
+        # one equals the number of leaves and is read off the primary key index
+        # instead of scanning the table
+        query = '''
+            SELECT COALESCE(MAX(id), 0) FROM leaf
         '''
         cur.execute(query)
 
         return cur.fetchone()
 
 
+    @synchronized
     def get_entry(self, index):
         """
         Returns the unhashed data stored at the specified leaf.
@@ -145,7 +188,7 @@ class SqliteTree(BaseMerkleTree):
         """
         cur = self.cur
 
-        query = f'''
+        query = '''
             SELECT entry FROM leaf WHERE id = ?
         '''
         cur.execute(query, (index,))
@@ -161,43 +204,49 @@ class SqliteTree(BaseMerkleTree):
         :type entries: iterable of bytes
         :param chunksize:
         :type chunksize: int
+        :raises ValueError: if some entry is not binary
         """
-        _hash_entry = self.hash_buff
+        entries = iter(entries)
 
-        offset = 0
-        chunk = entries[offset: chunksize]
+        chunk = list(islice(entries, chunksize))
         while chunk:
-            hashes = [_hash_entry(data) for data in chunk]
-            yield zip(chunk, hashes)
+            pairs = []
+            for data in chunk:
+                if not isinstance(data, bytes):
+                    raise ValueError('Provided data is not binary')
 
-            offset += chunksize
-            chunk = entries[offset: offset + chunksize]
+                digest = self.hash_buff(self._encode_entry(data))
+                pairs += [(data, digest)]
+
+            yield pairs
+
+            chunk = list(islice(entries, chunksize))
 
 
+    @synchronized
     def append_entries(self, entries, chunksize=100_000):
         """
         Bulk operation for appending a batch of entries.
 
+        .. note:: The operation is atomic, i.e., if it fails, none of the
+            provided entries is appended.
+
         :param entries: data entries to append
         :type entries: iterable of bytes
-        :param chunksize: [optional] number entries to insert per
-            database transaction.
+        :param chunksize: [optional] number of entries to hash and insert at a
+            time.
         :type chunksize: int
-        :returns: index of last appended entry
+        :returns: index of last appended entry, i.e., the current tree size
         :rtype: int
+        :raises ValueError: if some entry is not binary
         """
         cur = self.cur
 
         with self.con:
-            query = f'''
+            query = '''
                 INSERT INTO leaf(entry, hash) VALUES (?, ?)
             '''
             for chunk in self._hash_per_chunk(entries, chunksize):
-                cur.execute('BEGIN TRANSACTION')
+                cur.executemany(query, chunk)
 
-                for (data, digest) in chunk:
-                    cur.execute(query, (data, digest))
-
-                cur.execute('END TRANSACTION')
-
-        return cur.lastrowid
+        return self._get_size()

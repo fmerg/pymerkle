@@ -1,15 +1,13 @@
-from itertools import product
 import pytest
 
-from pymerkle.utils import decompose
-from tests.conftest import option, tree_and_index, tree_and_range
+from pymerkle import InmemoryTree
+from pymerkle.utils import binary_exponents
 
 
-@pytest.mark.parametrize('tree, start, limit', tree_and_range())
-def test_get_root(tree, start, limit):
+def test_get_root(tree, start, end):
     offset = start
     subroots = []
-    for p in reversed(decompose(limit - start)):
+    for p in reversed(binary_exponents(end - start)):
         node = tree._get_subroot(offset, 1 << p)
         subroots += [node]
         offset += 1 << p
@@ -18,34 +16,74 @@ def test_get_root(tree, start, limit):
     root = subroots[0]
     index = 0
     while index < len(subroots) - 1:
-        root = tree._hash_nodes(subroots[index + 1], root)
+        root = tree.hash_pair(subroots[index + 1], root)
         index += 1
 
-    assert root == tree._get_root_naive(start, limit)
-    assert root == tree._get_root(start, limit)
+    assert root == tree._get_root_naive(start, end)
+    assert root == tree._get_root(start, end)
 
 
-@pytest.mark.parametrize('tree, size', tree_and_index())
 def test_state(tree, size):
-    state = tree.get_state(size)
+    state = tree.get_root(size)
 
     assert state == tree._get_root_naive(0, size)
     assert state == tree._get_root(0, size)
 
 
-@pytest.mark.parametrize('tree, start, limit', tree_and_range())
-def test_inclusion_path(tree, start, limit):
-    for bit, offset in product([0, 1], range(start, limit)):
-        path1 = tree._inclusion_path(start, offset, limit, bit)
-        path2 = tree._inclusion_path_naive(start, offset, limit, bit)
-
-        assert path1 == path2
+def test_get_state_deprecated(tree, size):
+    with pytest.warns(DeprecationWarning):
+        assert tree.get_state(size) == tree.get_root(size)
 
 
-@pytest.mark.parametrize('tree, size1, size2', tree_and_range())
-def test_consistency_path(tree, size1, size2):
-    for bit1, bit2 in product([0, 1], [0, 1]):
-        path1 = tree._consistency_path(bit1, size1, size2, bit2)
-        path2 = tree._consistency_path_naive(bit1, size1, size2, bit2)
+def test_inclusion_path(tree):
+    for size in range(1, tree.get_size() + 1):
+        for index in range(1, size + 1):
+            path1 = tree._get_inclusion_path(index, size)
+            path2 = tree._get_inclusion_path_naive(index, size)
 
-        assert path1 == path2
+            assert path1 == path2
+
+
+def test_consistency_path(tree):
+    for later_size in range(1, tree.get_size() + 1):
+        for prior_size in range(later_size + 1):
+            path1 = tree._get_consistency_path(prior_size, later_size)
+            path2 = tree._get_consistency_path_naive(prior_size, later_size)
+
+            assert path1 == path2
+
+
+def test_state_bounds(tree):
+    size = tree.get_size()
+
+    if size == 0:
+        assert tree.get_root() == tree.hash_empty()
+        assert tree._get_root(0, 0) == tree._get_root_naive(0, 0)
+
+    for invalid in (-1, size + 1):
+        with pytest.raises(ValueError):
+            tree.get_root(invalid)
+
+
+@pytest.mark.default_config
+def test_get_leaf_bounds(tree):
+    size = tree.get_size()
+
+    for invalid in (-1, 0, size + 1):
+        with pytest.raises(ValueError):
+            tree.get_leaf(invalid)
+
+
+def test_unknown_option():
+    with pytest.raises(TypeError):
+        InmemoryTree(disable_cahce=True)
+
+
+def test_append_entries():
+    entries = [b'%d' % i for i in range(10)]
+    tree = InmemoryTree.init_from_entries(entries[:3])
+
+    assert tree.append_entries(e for e in entries[3:]) == len(entries)
+    assert tree.append_entries([]) == len(entries)
+    assert tree.get_root() == \
+        InmemoryTree.init_from_entries(entries).get_root()

@@ -8,7 +8,7 @@ import argparse
 from random import randint
 
 from pymerkle import SqliteTree as MerkleTree
-from pymerkle import constants
+from pymerkle.hasher import ALGORITHMS
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -28,7 +28,7 @@ def parse_cli_args():
 
     parser.add_argument('--dbfile', type=str, default=DEFAULT_DB,
         help='Database filepath')
-    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+    parser.add_argument('--algorithm', choices=ALGORITHMS,
         default='sha256', help='Hashing algorithm')
     parser.add_argument('--rounds', type=int, default=DEFAULT_ROUNDS,
         help='Nr rounds')
@@ -55,7 +55,7 @@ def parse_cli_args():
         help='Final position')
 
     state = operation.add_parser('state',
-        help='Run `get_state`')
+        help='Run `get_root`')
     state.add_argument('--size', type=int, default=DB_SIZE,
         help='Nr entries to consider')
 
@@ -68,9 +68,9 @@ def parse_cli_args():
 
     consistency = operation.add_parser('consistency',
         help='Run `prove_consistency`')
-    consistency.add_argument('--size1', type=int, required=True,
+    consistency.add_argument('--prior-size', type=int, required=True,
         help='Size of prior state')
-    consistency.add_argument('--size2', type=int, default=DB_SIZE,
+    consistency.add_argument('--later-size', type=int, default=DB_SIZE,
         help='Size of later state')
 
     return parser.parse_args()
@@ -101,7 +101,7 @@ if __name__ == '__main__':
                     return (start, limit)
 
         case 'state':
-            func = tree.get_state
+            func = tree.get_root
 
             def get_args():
                 return (cli.size,)
@@ -129,14 +129,14 @@ if __name__ == '__main__':
             func = tree.prove_consistency
 
             def get_args():
-                return (cli.size1, cli.size2)
+                return (cli.prior_size, cli.later_size)
 
             if cli.randomize:
                 def get_args():
-                    size2 = cli.size2
-                    size1 = randint(1, size2)
+                    later_size = cli.later_size
+                    prior_size = randint(1, later_size)
 
-                    return (size1, size2)
+                    return (prior_size, later_size)
 
     count = 0
     while count < cli.rounds:

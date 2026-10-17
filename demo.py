@@ -5,8 +5,8 @@ pymerkle demo
 import sys
 import argparse
 from math import log10
+from pymerkle.hasher import ALGORITHMS
 from pymerkle import (
-    constants,
     InmemoryTree,
     SqliteTree as _SqliteTree,
     verify_inclusion,
@@ -30,7 +30,7 @@ def parse_cli_args():
 
     parser.add_argument('--backend', choices=['inmemory', 'sqlite'],
             default='inmemory', help='Storage backend')
-    parser.add_argument('--algorithm', choices=constants.ALGORITHMS,
+    parser.add_argument('--algorithm', choices=ALGORITHMS,
             default='sha256', help='Hashing algorithm')
     parser.add_argument('--threshold', type=int, metavar='WIDTH',
             default=128, help='Subroot cache threshold')
@@ -76,6 +76,7 @@ def strtree(tree):
 
 def strproof(proof):
     template = """
+    type        : {type}
     algorithm   : {algorithm}
     security    : {security}
     size        : {size}
@@ -86,12 +87,13 @@ def strproof(proof):
     data = proof.serialize()
     metadata = data['metadata']
     rule = data['rule']
-    subset = data['subset']
+    subset = data.get('subset', '-')
     path = data['path']
 
     path = strpath(rule, path)
 
-    kw = {**metadata, 'rule': rule, 'subset': subset, 'path': path}
+    kw = {**metadata, 'type': data['type'], 'rule': rule, 'subset': subset,
+          'path': path}
     return template.format(**kw)
 
 
@@ -120,13 +122,13 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(2)
     sys.stdout.write(strproof(proof))
 
-    root = tree.get_state()
+    root = tree.get_root()
     base = tree.get_leaf(2)
     verify_inclusion(base, root, proof)
 
     # Save current state and append further entries
-    size1 = tree.get_size()
-    state1 = tree.get_state()
+    prior_size = tree.get_size()
+    prior_state = tree.get_root()
     for data in [b'corge', b'grault', b'garlpy']:
         tree.append_entry(data)
 
@@ -134,11 +136,11 @@ if __name__ == '__main__':
     sys.stdout.write(strtree(tree))
 
     # Prove and verify previous state
-    size2 = tree.get_size()
-    proof = tree.prove_consistency(size1, size2)
+    later_size = tree.get_size()
+    proof = tree.prove_consistency(prior_size, later_size)
     sys.stdout.write(strproof(proof))
 
-    state2 = tree.get_state()
-    verify_consistency(state1, state2, proof)
+    later_state = tree.get_root()
+    verify_consistency(prior_state, later_state, proof)
 
     print(tree.get_cache_info())

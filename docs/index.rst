@@ -2,13 +2,13 @@
 pymerkle
 ########
 
-|Build-Status| |PyPI-version| |Python >= 3.7|
+|Build-Status| |PyPI-version| |Python >= 3.11|
 
 .. |Build-Status| image:: https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg
    :target: https://gitlab.com/fmerg/pymerkle/commits/master
 .. |PyPI-version| image:: https://badge.fury.io/py/pymerkle.svg
    :target: https://pypi.org/project/pymerkle/
-.. |Python >= 3.7| image:: https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg
+.. |Python >= 3.11| image:: https://img.shields.io/badge/python-%3E%3D%203.11-blue.svg
 
 *********************
 Merkle-tree in Python
@@ -22,7 +22,7 @@ Installation
 
 .. code-block:: bash
 
-  pip install pymerkle
+  pip3 install pymerkle
 
 This will also install `cachetools`_ as a dependency.
 
@@ -50,6 +50,9 @@ Append data into the tree and retrieve the corresponding hash value:
   value = tree.get_leaf(index)        # leaf hash
 
 
+The examples below assume that the tree contains at least five entries.
+
+
 Current tree size:
 
 .. code-block:: python
@@ -57,35 +60,35 @@ Current tree size:
   size = tree.get_size()    # number of leaves
 
 
-Current and intermediate state:
+Current and intermediate states:
 
 .. code-block:: python
 
-  state = tree.get_state()    # current root-hash
+  state = tree.get_root()    # current root-hash
 
-  state = tree.get_state(5)   # root-hash of size 5 subtree
+  state = tree.get_root(5)   # root-hash for the first 5 leaves
 
 
 Inclusion proof
 ---------------
 
-Prove inclusion of the 3-rd leaf hash in the subtree of size 5:
+Prove inclusion of the 3-rd leaf hash in the state of size 5:
 
 .. code-block:: python
 
   proof = tree.prove_inclusion(3, 5)
 
 
-Verify the proof against the base hash and the subtree root:
+Verify the proof against the base hash and the corresponding state:
 
 .. code-block:: python
 
   from pymerkle import verify_inclusion
 
   base = tree.get_leaf(3)
-  root = tree.get_state(5)
+  root = tree.get_root(5)
 
-  verify_inclusion(base, root, proof)
+  verify_inclusion(base, root, proof, index=3, size=5)
 
 
 Consistency proof
@@ -105,10 +108,11 @@ Verify the proof against the respective root hashes:
 
   from pymerkle import verify_consistency
 
-  state1 = tree.get_state(3)
-  state2 = tree.get_state(5)
+  prior_state = tree.get_root(3)
+  later_state = tree.get_root(5)
 
-  verify_consistency(state1, state2, proof)
+  verify_consistency(prior_state, later_state, proof, prior_size=3,
+      later_size=5)
 
 
 Security
@@ -124,6 +128,12 @@ This consists in the following standard technique:
 * Upon computing the hash of a leaf node, prepend ``0x00`` to the payload
 * Upon computing the hash of an interior node, prepend ``0x01`` to the payload
 
+.. note:: For, say, testing purposes, this feature can be disabled by passing
+  ``disable_security=True`` when initializing the ``BaseMerkleTree``
+  superclass. Proofs generated this way are rejected upon verification unless
+  ``security=False`` is explicitly passed to ``verify_inclusion`` or
+  ``verify_consistency``.
+
 
 Resistance against CVE-2012-2459 DOS
 ------------------------------------
@@ -138,8 +148,8 @@ should be invulnerable to the `CVE-2012-2459`_ DOS attack
 Topology
 ********
 
-Interior nodes are not assumed to be stored anywhere and no concrete links are
-created between them. The tree structure is determined by the recursive
+Interior nodes are not assumed to be stored anywhere and storage backends need
+not create links between them. The tree structure is determined by the recursive
 function which computes intermediate states on the fly and is essentially the same as
 `RFC 9162`_ (Section 2). It turns out to be that of a binary
 `Sakura tree`_ (Section 5.4).
@@ -151,8 +161,8 @@ Storage
 This library is unopinionated on how leaves are appended to the tree, i.e., how
 data is stored in concrete.  Cryptographic functionality is encapsulated in the
 ``BaseMerkleTree`` abstract class, which admits pluggable storage backends
-through subclassing. It is the the developer's choice to decide how to
-store data by implementing the interior storage interface of this class.
+through subclassing. It is the developer's choice to decide how to
+store data by implementing the internal storage interface of this class.
 Any contiguously indexed dataset should do the job. Conversely, given any such
 dataset, we should be able to trivially implement a Merkle-tree that is
 operable with it.
@@ -166,11 +176,10 @@ for arbitrary leaf ranges. The recursive version of this function is slow (e.g.,
 `RFC 9162`_, Section 2).
 
 This operation can be optimized using iterations on ranges whose size is
-a power of two. This has the effect of making proof generation five times faster,
-while peak memory usage remains reasonably low and sublinear with respect to
-size. Further boost is given by caching. Practically, a pretty
-big tree with sufficiently long uptime will respond instantly with negligible
-penalty in memory usage.
+a power of two. This has the effect of making proof generation several times faster,
+while memory usage remains reasonably low. Further boost is given by caching.
+Practically, a tree with sufficiently long uptime will respond considerably faster
+with little penalty in memory usage.
 
 
 .. toctree::

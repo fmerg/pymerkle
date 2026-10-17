@@ -28,7 +28,7 @@ Initialization of ``BaseMerkleTree`` accepts the options shown below:
 
     class MerkleTree(BaseMerkleTree):
 
-        def __init__(self, *args, **kwargs)
+        def __init__(self, *args, **kwargs):
             ...
 
             super().__init__(
@@ -53,11 +53,12 @@ Initialization of ``BaseMerkleTree`` accepts the options shown below:
   Use it for comparison purposes. Defaults to *False*.
 - ``disable_cache``: if *True*, the results of optimized low-level computations
   will not be cached. Use it for comparison purposes. Defaults to *False*.
-- ``theshold``: specifies which outputs of a low-level computation must be
+- ``threshold``: specifies which outputs of a low-level computation must be
   cached depending on the input of the computation. Refer :ref:`here<Optimizations>`
   for the exact meaning of this parameter. Defaults to *128*.
-- ``capacity``: cache capacity in bytes. Defaults to 1GiB (which should be
-  overabundant for any imaginable use case).
+- ``capacity``: cache capacity in bytes, i.e., approximate memory occupied by
+  cached digests along with their bookkeeping. Defaults to 1GiB, which should
+  be ample for most applications.
 
 See :ref:`here<Storage>` to see how to implement a Merkle-tree in detail.
 
@@ -69,7 +70,14 @@ Supported hash functions
 
 **Support for Keccak beyond SHA3**
 
-Installing `pysha3`_ makes available following hash functions:
+Installing the ``keccak`` extra, which pulls in `safe-pysha3`_ (a maintained
+fork of ``pysha3``),
+
+.. code-block:: bash
+
+  pip3 install pymerkle[keccak]
+
+makes available the following hash functions:
 
 ``keccak_224``, ``keccak_256``, ``keccak_384``, ``keccak_512``
 
@@ -95,7 +103,7 @@ runtime, intended for investigating and visualising the tree structure:
 
 
 ``SqliteTree`` is a persistent implementation using a SQLite database as
-storage, intended for leightweight local applications:
+storage, intended for lightweight local applications:
 
 
 
@@ -132,7 +140,7 @@ The exact type of entries depends on the particular implementation.
       accepts data in binary format and hashes it without further processing.
 
 
-Apending an entry returns the index of the corresponding leaf (counting from one):
+Appending an entry returns the index of the corresponding leaf (counting from one):
 
 
 .. code-block:: python
@@ -143,13 +151,18 @@ Apending an entry returns the index of the corresponding leaf (counting from one
     2
 
 
+.. note:: The examples below refer to a tree with the entries ``b'foo'``,
+      ``b'bar'``, ``b'baz'``, ``b'qux'`` and ``b'quux'`` appended in this
+      order.
+
+
 The index of a leaf can be used to retrieve the corresponding hash value:
 
 
 .. code-block:: python
 
    >>> tree.get_leaf(1)
-   b'\x1d9\xfayq\xf4\xbf\x01\xa1\xc2\x0c\xb2\xa3\xfez\xf4he\xca\x9c\xd9\xb8@\xc2\x06=\xf8\xfe\xc4\xffu'
+   b'\x1d 9\xfayq\xf4\xbf\x01\xa1\xc2\x0c\xb2\xa3\xfez\xf4he\xca\x9c\xd9\xb8@\xc2\x06=\xf8\xfe\xc4\xffu'
    >>>
    >>> tree.get_leaf(2)
    b'HY\x04\x12\x9b\xdd\xa5\xd1\xb5\xfb\xc6\xbcJ\x82\x95\x9e\xcf\xb9\x04-\xb4M\xc0\x8f\xe8~6\x0b\n?%\x01'
@@ -159,7 +172,7 @@ Hash computation
 ----------------
 
 Sometimes it is useful to be able to compute independently the hash value assigned
-to an data entry. For example, in order to verify the inclusion proof for an entry
+to a data entry. For example, in order to verify the inclusion proof for an entry
 (see :ref:`below<Inclusion>`) we need to know its hash value, which can be computed without
 querying the tree directly (provided that its binary format can be inferred
 according to some known contract).
@@ -179,7 +192,7 @@ The commutation between index and entry is
 
 .. code-block:: python
 
-   assert tree.get_leaf(1) == hasher.hash_entry(b'foo')
+   assert tree.get_leaf(1) == hasher.hash_buff(b'foo')
 
 
 Size
@@ -205,7 +218,7 @@ can be retrieved as follows:
 
 .. code-block:: python
 
-   >>> tree.get_state()
+   >>> tree.get_root()
    b'\xdcRj\xc4\x98\x81&}\x10\xf4<\x80\x8e\xc5\x92\xa1r\x08\xefxs<\xfa\x06""\xbeS[\xc7O"'
 
 
@@ -215,7 +228,7 @@ corresponding size:
 
 .. code-block:: python
 
-   >>> tree.get_state(2)
+   >>> tree.get_root(2)
    b"9(jJU1b'Q\xd6\x84[\xb8\xef\xb4\xcf3\xbe\xc2\xc5\xf3\xf8C\ru\x84\x87Cq\xa3[\xda"
 
 
@@ -223,15 +236,16 @@ By convention, the empty tree state is the hash of the empty string:
 
 .. code-block:: python
 
-   >>> tree.get_state(0) == tree.hash_empty(b'')
+   >>> tree.get_root(0) == tree.hash_empty()
    True
 
 
 Proofs
 ======
 
-Pymerke is capable of generating proofs of *inclusion* and proofs of
-*consistency*. Both are modeled by the verifiable ``MerkleProof`` object.
+Pymerkle is capable of generating proofs of *inclusion* and proofs of
+*consistency*, modeled by the verifiable ``InclusionProof`` and
+``ConsistencyProof`` objects respectively.
 
 
 Inclusion
@@ -258,13 +272,18 @@ proceeds as follows:
    from pymerkle import verify_inclusion
 
    base = tree.get_leaf(3)
-   root = tree.get_state(5)
+   root = tree.get_root(5)
 
-   verify_inclusion(base, root, proof)
+   verify_inclusion(base, root, proof, index=3, size=5)
 
 
-This checks that the path of hashes is indeed based on the acclaimed hash and
-that it resolves to the acclaimed state. Trying to verify against a forged base
+This checks that the structure of the proof is the one determined by the leaf
+index and size it refers to, that the path of hashes is indeed based on the
+acclaimed hash and that it resolves to the acclaimed state. Passing *index*
+and *size* ensures that the proof refers to the expected leaf position and
+state. Proofs are resolved with resistance against second-preimage attack
+unless ``security=False`` is passed; pass *algorithm* as well to ensure that
+the expected hash function is used. Trying to verify against a forged base
 or state would raise an ``InvalidProof`` error:
 
 
@@ -308,15 +327,19 @@ proceeds as follows:
 
    from pymerkle import verify_consistency
 
-   state1 = tree.get_state(3)
-   state2 = tree.get_state(5)
+   prior_state = tree.get_root(3)
+   later_state = tree.get_root(5)
 
-   verify_consistency(state1, state2, proof)
+   verify_consistency(prior_state, later_state, proof, prior_size=3,
+       later_size=5)
 
 
-This checks that an appropriate subpath of the included path of hashes resolves
+This checks that the structure of the proof is the one determined by the sizes
+it refers to, that an appropriate subpath of the included path of hashes resolves
 to the acclaimed prior state and the path of hashes as a whole resolves to the
-acclaimed later state. Trying to verify against forged states would raise an
+acclaimed later state. Passing *prior_size* and *later_size* ensures that the
+proof refers to the expected states; *security* and *algorithm* behave as in
+the inclusion case. Trying to verify against forged states would raise an
 ``InvalidProof`` error:
 
 
@@ -327,12 +350,12 @@ acclaimed later state. Trying to verify against forged states would raise an
    >>> hasher = MerkleHasher(tree.algorithm, tree.security)
    >>> forged = hasher.hash_raw(b'random')
    >>>
-   >>> verify_consistency(forged, state2, proof)
+   >>> verify_consistency(forged, later_state, proof)
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Prior state does not match
    >>>
-   >>> verify_consistency(state1, forged, proof)
+   >>> verify_consistency(prior_state, forged, proof)
    Traceback (most recent call last):
    ...
    pymerkle.proof.InvalidProof: Later state does not match
@@ -341,7 +364,8 @@ acclaimed later state. Trying to verify against forged states would raise an
 Serialization
 -------------
 
-A ``MerkleProof`` object can be serialized as follows:
+Proofs are ``InclusionProof`` and ``ConsistencyProof`` objects respectively,
+both deriving from ``MerkleProof``. They can be serialized as follows:
 
 .. code-block:: python
 
@@ -354,10 +378,12 @@ This yields a JSON entity similar to this one:
 .. code-block:: json
 
   {
+    "type": "inclusion",
     "metadata": {
         "algorithm": "sha256",
         "security": true,
-        "size": 5
+        "size": 5,
+        "index": 3
     },
     "rule": [
         0,
@@ -365,22 +391,24 @@ This yields a JSON entity similar to this one:
         0,
         0
     ],
-    "subset": [],
     "path": [
-        "4c79d0d62f7cf5ca8874155f2d3b875f2625da2bb3abc86bbd6833f25ba90e51",
-        "5c7117fb9edb0cec387257891105da6a6616722af247083e2d6eda671529cdc5",
-        "9531b48579f0e741979005d67ba64455a9f68b06630b3c431152d445ecd2716a",
-        "bf36e59f88d0623d36dd3860e24a44fcc6bcd2ad88fdf67249dc1953f3605b51"
+        "b06d695869f105fffa5f68c4b9628d58a1aff469a3c62c8c74ddb2af47b178ef",
+        "5a43bc145b8c045b535615392edfba2bd2c4556dfdb13f968bd0668c042ecb35",
+        "39286a4a5531622751d6845bb8efb4cf33bec2c5f3f8430d7584874371a35bda",
+        "2e219794e81e9bb22e230e7f40906eecb4cfcc289e1af253d88b23634266c5a2"
     ]
   }
 
-The *metadata* section contains the parameters required for configuring the
-verification hasher (*algorithm* and *security*) along with the size of the
-state against which the proof was requested (*size*). The latter can be used
+The *metadata* section contains the hash configuration of the tree
+(*algorithm* and *security*), which verification checks against the one
+expected by the verifier (see above), along with the size of the state
+against which the proof was requested (*size*). The latter can be used
 in order to request the acclaimed state needed for proof verification (if not
-otherwise available). *Rule* determines parenthetization of hashes during
-path resolution and *subset* selects the hashes resolving to the acclaimed
-prior state (makes sense only for consistency proofs).
+otherwise available). Inclusion proofs also contain the index of the leaf in
+question (*index*), whereas consistency proofs contain the size of the prior
+state (*prior_size*). *Rule* determines parenthetization of hashes during
+path resolution. Consistency proofs additionally contain a *subset* entry,
+which selects the hashes resolving to the acclaimed prior state.
 
 The verifiable proof-object can be retrieved as follows:
 
@@ -390,6 +418,15 @@ The verifiable proof-object can be retrieved as follows:
 
   proof = MerkleProof.deserialize(data)
 
+This returns a proof of the serialized type. Use
+``InclusionProof.deserialize`` or ``ConsistencyProof.deserialize`` instead to
+also ensure that the proof is of the expected type. Proofs can also be
+verified by means of their ``verify`` method, e.g.,
+``proof.verify(base, root, index=3, size=5)``.
+
+
+Malformed data raise an ``InvalidProof`` error.
+
 
 .. _RFC 9162: https://datatracker.ietf.org/doc/html/rfc9162
-.. _pysha3: https://pypi.org/project/pysha3/
+.. _safe-pysha3: https://pypi.org/project/safe-pysha3/

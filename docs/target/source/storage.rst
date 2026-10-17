@@ -59,7 +59,7 @@ storage interface, which is to be implemented by any concrete subclass:
 
 - ``_encode_entry``: converts data entry to binary, so that it becomes amenable
   to hashing.
-- ``_store_leaf``: stores the output of hashing alogn with the original entry
+- ``_store_leaf``: stores the output of hashing along with the original entry
   and returns the leaf index.
 - ``_get_leaf``: leaf hash by index (counting from one)
 - ``_get_leaves``: an iterable of the leaf hashes corresponding to the
@@ -86,7 +86,7 @@ Here the exact interface to be implemented:
 
 .. code-block:: python
 
-   # pymerkle/base.py
+   # pymerkle/core.py
 
    class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
       ...
@@ -152,6 +152,28 @@ Here the exact interface to be implemented:
       ...
 
 
+Concurrency
+-----------
+
+Public tree operations are serialized by means of a reentrant lock
+(``self.lock``), so that a tree can be shared between threads. Concrete
+implementations should decorate any additional public method accessing their
+storage with ``pymerkle.core.synchronized``:
+
+.. code-block:: python
+
+  from pymerkle.core import BaseMerkleTree, synchronized
+
+
+  class MerkleTree(BaseMerkleTree):
+
+      ...
+
+      @synchronized
+      def get_entry(self, index):
+          ...
+
+
 Implementations
 ===============
 
@@ -188,16 +210,16 @@ It is hashed without further processing and can be accessed as follows:
 
 .. code-block:: python
 
-  data = tree.leaves[index - 1].entry
+  data = tree.leaves[index - 1].data
   assert data == b'foo'
 
 
-State coincides with the value of the current root-node:
+State coincides with the digest of the current root-node:
 
 
 .. code-block:: python
 
-    assert tree.get_state() == tree.root.value
+    assert tree.get_root() == tree.root.digest
 
 
 Nodes have a ``right``, ``left`` and ``parent`` attribute, pointing to their
@@ -217,6 +239,11 @@ root-node starting from the first leaf of a non-empty tree:
 
     assert curr == tree.root
 
+
+Since interior nodes are stored, ``InmemoryTree`` reads the root-hashes of
+subroots off the corresponding nodes instead of caching them (see
+:ref:`Optimizations<Optimizations>`), so that it does not use the subroot
+cache; disabling the cache makes it recompute them from the leaves instead.
 
 Concrete path traversals are used under the hood for visualizing the tree by
 means of printing:
@@ -247,7 +274,7 @@ Sqlite
 ------
 
 ``SqliteTree`` uses a SQLite database to persistently store entries.
-It is a wrapper of `sqlite3`_, suitable for leightweight applications
+It is a wrapper of `sqlite3`_, suitable for lightweight applications
 that do not require separate server processes for the database.
 
 
@@ -263,8 +290,13 @@ if not already existent.
 
 
 .. note:: The database schema consists of a single table called *leaf*
-    with two columns: *index*, which is the primary key serving as leaf
-    index, and *entry*, which is a blob field storing the appended data.
+    with three columns: *id*, which is the primary key serving as leaf
+    index, *entry*, which stores the appended data, and *hash*, which stores
+    its hash value. The table is append-only, since leaf indices must remain
+    contiguous: deleting or updating rows is rejected, and opening a database
+    whose leaf indices are not contiguous raises a ``ValueError``. Opening a
+    database created by an earlier version adds the triggers enforcing this,
+    which requires write access.
 
 
 Data is expected to be provided in binary:
@@ -293,15 +325,16 @@ following:
   tree.append_entries(entries, chunksize=1024)
 
 
-where ``chunksize`` controls the number of insertions per database transaction
-(defaults to 100,000).
+where ``chunksize`` controls the number of entries hashed and inserted at a
+time (defaults to 100,000). The operation is atomic, i.e., either all or none
+of the entries are appended.
 
 
 It is suggested to close the connection to the database when ready:
 
 .. code-block:: python
 
-  tree.con.close()
+  tree.close()
 
 
 Alternatively, initialize the tree as context-manager to ensure that this will
@@ -321,7 +354,7 @@ Examples
 ========
 
 .. warning::
-   The following exaples are only for the purpose of reference and understanding
+   The following examples are only for the purpose of reference and understanding
 
 Simple list
 -----------
@@ -372,9 +405,9 @@ expects entries to be strings, which it encodes in utf-8 before hashing.
 Unix DBM
 --------
 
-This is a hasty implementing using `dbm`_ to persistently store entries in
+This is a hasty implementation using `dbm`_ to persistently store entries in
 a ``"merkledb"`` file. It expects strings as entries and encodes them in
-utf-8 before hashing.
+utf-8 before hashing. Entries and hashes are stored under separate keys.
 
 
 .. code-block:: python
@@ -401,38 +434,39 @@ utf-8 before hashing.
 
       def _store_leaf(self, data, digest):
           with dbm.open(self.dbfile, 'w', mode=self.mode) as db:
-              index = len(db) + 1
-              db[hex(index)] = b'|'.join(data, digest)
+              index = len(db) // 2 + 1
+              db[f'entry-{index}'] = data
+              db[f'hash-{index}'] = digest
 
           return index
 
 
       def _get_leaf(self, index):
           with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-              value = db[hex(index)].split(b'|')[1]
+              value = db[f'hash-{index}']
 
           return value
 
 
       def _get_leaves(self, offset, width):
-          values = []
           with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-              for index in range(offset + 1, width + 1):
-                  value = db[hex(index)].split(b'|')[index]
-                  values += [value]
+              values = [db[f'hash-{index}'] for index in range(offset + 1,
+                  offset + width + 1)]
 
-          return value
+          return values
 
 
       def _get_size(self):
           with dbm.open(self.dbfile, 'r', mode=self.mode) as db:
-              size = len(db)
+              size = len(db) // 2
 
           return size
 
 
 Django app
 ----------
+
+This example is yet to be documented.
 
 
 .. _dbm: https://docs.python.org/3/library/dbm.html

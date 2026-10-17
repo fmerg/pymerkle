@@ -3,11 +3,14 @@
 **Merkle-tree in Python**
 
 [![Build Status](https://gitlab.com/fmerg/pymerkle/badges/master/pipeline.svg)](https://gitlab.com/fmerg/pymerkle/commits/master)
-[![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](http://pymerkle.readthedocs.org)
+[![Docs Status](https://readthedocs.org/projects/pymerkle/badge/?version=latest)](https://pymerkle.readthedocs.org)
 [![PyPI version](https://badge.fury.io/py/pymerkle.svg)](https://pypi.org/project/pymerkle/)
-![Python >= 3.7](https://img.shields.io/badge/python-%3E%3D%203.7-blue.svg)
+![Python >= 3.11](https://img.shields.io/badge/python-%3E%3D%203.11-blue.svg)
 
-Documentation at **[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
+:warning: **This library requires security audit. Use at youn own risk for
+the moment.**
+
+Documentation at **[pymerkle.readthedocs.org](https://pymerkle.readthedocs.org/)**.
 
 Storage agnostic implementation capable of generating inclusion and consistency proofs.
 
@@ -42,6 +45,8 @@ index = tree.append_entry(b'foo')   # leaf index
 value = tree.get_leaf(index)        # leaf hash
 ```
 
+The examples below assume that the tree contains at least five entries.
+
 
 Current tree size:
 
@@ -53,30 +58,34 @@ size = tree.get_size()    # number of leaves
 Current and intermediate states:
 
 ```python
-state = tree.get_state()    # current root-hash
+state = tree.get_root()    # current root-hash
 
-state = tree.get_state(5)   # root-hash of size 5 subtree
+state = tree.get_root(5)   # root-hash for the first 5 leaves
 ```
 
 
 ### Inclusion proof
 
-Prove inclusion of the 3-rd leaf hash in the subtree of size 5:
+Prove inclusion of the 3-rd leaf hash in the state of size 5:
 
 ```python
 proof = tree.prove_inclusion(3, 5)
 ```
 
-Verify the proof against the base hash and the subtree root:
+Verify the proof against the base hash and the corresponding state:
 
 ```python
 from pymerkle import verify_inclusion
 
 base = tree.get_leaf(3)
-root = tree.get_state(5)
+root = tree.get_root(5)
 
-verify_inclusion(base, root, proof)
+verify_inclusion(base, root, proof, index=3, size=5)
 ```
+
+The proof structure is recomputed from the leaf index and size and must
+match exactly. Passing `index` and `size` additionally ensures that the
+proof refers to the expected leaf position and state.
 
 ### Consistency proof
 
@@ -91,11 +100,17 @@ Verify the proof against the respective root-hashes:
 ```python
 from pymerkle import verify_consistency
 
-state1 = tree.get_state(3)
-state2 = tree.get_state(5)
+prior_state = tree.get_root(3)
+later_state = tree.get_root(5)
 
-verify_consistency(state1, state2, proof)
+verify_consistency(prior_state, later_state, proof, prior_size=3,
+    later_size=5)
 ```
+
+The proof structure is recomputed from the sizes and must match exactly.
+Passing `prior_size` and `later_size` additionally ensures that the proof
+refers to the expected states; omit them only if the states are not bound to
+known sizes.
 
 ## Supported hash functions
 
@@ -103,15 +118,23 @@ verify_consistency(state1, state2, proof)
 
 ### Support for Keccak beyond SHA3
 
-Installing [`pysha3==1.0.2`](https://pypi.org/project/pysha3/) makes available
-the following hash functions:
+Installing the `keccak` extra, which pulls in
+[`safe-pysha3`](https://pypi.org/project/safe-pysha3/) (a maintained fork of
+`pysha3`),
+
+```bash
+pip3 install pymerkle[keccak]
+```
+
+makes available the following hash functions:
 
 `keccak_224`, `keccak_256`, `keccak_384`, `keccak_512`
 
 
 ## Security
 
-*This library requires security review.*
+:warning: **This library requires security audit. Use at youn own risk for
+the moment.**
 
 ### Resistance against second-preimage attack
 
@@ -122,6 +145,10 @@ This consists in the following standard technique:
 
 **Note**: For, say, testing purposes, you can disable this feature by passing
 `disable_security=True` when initializing the `BaseMerkleTree` superclass.
+Proofs generated this way are rejected upon verification unless
+`security=False` is explicitly passed to `verify_inclusion` or
+`verify_consistency`. Pass `algorithm` as well to make sure that proofs are
+resolved with the expected hash function.
 Refer [here](./tests/test_defense.py) to see how to perform second-preimage
 attack against the present implementation.
 
@@ -139,8 +166,8 @@ for insight).
 
 ## Topology
 
-Interior nodes are not assumed to be stored anywhere and no concrete links are
-created between them. The tree structure is determined by the recursive
+Interior nodes are not assumed to be stored anywhere and storage backends need
+not create links between them. The tree structure is determined by the recursive
 function which computes intermediate states on the fly and is essentially the same as
 [RFC 9162](https://datatracker.ietf.org/doc/html/rfc9162) (Section 2).
 It turns out to be that of a binary
@@ -157,9 +184,9 @@ is slow.
 A key remark is that the above operation can be made iterative by combining the root-hashes
 for ranges whose size is a power of two ("subroots") and can as such be computed
 efficiently. Subroot computation has significant impact on performance
-(>500% speedup) while keeping peak memory usage reasonably low
-(e.g., 200 MiB for a tree with several tens of millions of entries) and
-linear with respect to tree size.
+(about six times faster proof generation on a database with 100,000 entries)
+while keeping memory usage reasonably low (e.g., less than 150 MiB for the
+whole process when generating proofs against one million entries).
 
 **Note**: For, say, comparison purposes, you can disable this feature by passing
 `disable_optimizations=True` when initializing the `BaseMerkleTree` superclass.
@@ -169,11 +196,11 @@ linear with respect to tree size.
 
 In view of the above technique, subroot computation is the only massively repeated
 and relatively costly operation. It thus makes sense to apply memoization
-for ranges whose size exceeds a certain threshold (128 leaves by default).
-For example, after sufficiently many cache hits (e.g. 2MiB cache memory), proof generation
-becomes 5 times faster for a tree with several tens of million of entries.
-Practically, a pretty big tree with sufficiently long uptime will respond instantly
-with negligible penalty in memory usage.
+for ranges whose size is at least a certain threshold (128 leaves by default).
+For example, on a database with one million entries, proof generation becomes
+several times faster after a few thousand proofs, with the cache occupying a few MiB.
+Practically, a tree with sufficiently long uptime will respond considerably faster
+with little penalty in memory usage.
 
 
 **Note**: For, say, comparison purposes, you can disable this feature by passing
@@ -185,8 +212,10 @@ with negligible penalty in memory usage.
 This library is unopinionated on how leaves are appended to the tree, i.e., how
 data is stored in concrete.  Cryptographic functionality is encapsulated in the
 `BaseMerkleTree` abstract class, which admits pluggable storage backends
-through subclassing. It is the the developer's choice to decide how to
-store data by implementing the interior storage interface of this class.
+through subclassing.
+
+It is the developer's choice to decide how to
+store data by implementing the internal storage interface of this class.
 Any contiguously indexed dataset should do the job. Conversely, given any such
 dataset, we should be able to trivially implement a Merkle-tree that is
 operable with it.
@@ -195,7 +224,7 @@ operable with it.
 ### Example
 
 This is a simple non-persistent implementation utilizing a list as storage. It
-expects entries to be strings, which it encodes in utf-8 before hashing.
+expects entries to be strings, which are `utf-8`-encoded before hashing.
 
 
 ```python
@@ -254,12 +283,21 @@ class MerkleTree(BaseMerkleTree):
         return len(self.hashes)
 ```
 
+### Concurrency
+
+Public tree operations are serialized by means of a reentrant lock, so that
+a tree can be shared between threads. Concrete implementations should
+decorate any additional public method accessing their storage with
+`pymerkle.core.synchronized`.
+
+
 ## Development
 
-In what follows, you need to have locally installed dev requirements:
+In what follows, you need to have locally installed the package and dev
+requirements:
 
 ```commandline
-pip3 install -r requirements-dev.txt
+pip3 install -r requirements.txt -r requirements-dev.txt
 ```
 
 ### Tests
@@ -278,6 +316,8 @@ python benchmarks/init_db.py [--help]
 ```
 
 #### Benchmarks
+
+Assuming a local leaf database has been created as above, run
 
 ```commandline
 ./benchmark.sh [--help]
@@ -298,7 +338,7 @@ instead of memory allocations.
 
 ## Documentation
 
-**[pymerkle.readthedocs.org](http://pymerkle.readthedocs.org/)**.
+**[pymerkle.readthedocs.org](https://pymerkle.readthedocs.org/)**.
 
 ### Build locally
 

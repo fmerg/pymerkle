@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'pymerkle'
-copyright = '2023, fmerg'
+copyright = '2026, fmerg'
 author = 'fmerg'
-release = '6.1.0'
+release = '7.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -41,4 +41,7 @@ intersphinx_mapping = {
 
 master_doc = 'index'
 pygments_style = 'sphinx'
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../..'))
 extensions += ['sphinx.ext.autosectionlabel']

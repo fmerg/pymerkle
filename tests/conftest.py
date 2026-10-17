@@ -1,6 +1,6 @@
-import itertools
-import pytest
-from pymerkle import constants, InmemoryTree, SqliteTree as _SqliteTree
+from pymerkle.hasher import ALGORITHMS
+from tests.helpers import BACKENDS, make_configs, make_trees, backend_id, \
+    config_id, tree_id
 
 
 DEFAULT_MAXSIZE = 11
@@ -8,31 +8,14 @@ DEFAULT_THRESHOLD = 2
 DEFAULT_CAPACITY = 1024 ** 3
 
 
-class SqliteTree(_SqliteTree):
-    """
-    Make init interface identical to that of InmemoryTree so that it can be
-    used interchangeably
-    """
-
-    def __init__(self, algorithm='sha256', **opts):
-        super().__init__(':memory:', algorithm, **opts)
-
-    @classmethod
-    def init_from_entries(cls, entries, algorithm='sha256', **opts):
-        tree = cls(algorithm, **opts)
-        tree.append_entries(entries, chunksize=2)
-
-        return tree
-
-
 def pytest_addoption(parser):
     parser.addoption('--algorithm', default='sha256',
-        choices=constants.ALGORITHMS,
+        choices=ALGORITHMS,
         help='Hash algorithm to be used')
     parser.addoption('--extended', action='store_true', default=False,
-        help='Test against all supported hash algorothms')
-    parser.addoption('--backend', choices=['inmemory', 'sqlite'], default='inmemory',
-        help='Storage backend')
+        help='Test against all supported hash algorithms')
+    parser.addoption('--backend', choices=list(BACKENDS), default=None,
+        help='Storage backend to restrict to (default: all)')
     parser.addoption('--maxsize', type=int, default=DEFAULT_MAXSIZE,
         help='Maximum size of tree fixtures')
     parser.addoption('--threshold', type=int, metavar='WIDTH',
@@ -42,51 +25,62 @@ def pytest_addoption(parser):
         default=DEFAULT_CAPACITY,
         help='Subroot cache capacity in bytes')
 
-option = None
 
 def pytest_configure(config):
-    global option
-    option = config.option
+    config.addinivalue_line('markers', 'default_config: run only against '
+        'trees with the selected algorithm and security enabled')
 
 
-def all_configs(option):
-    algorithms = constants.ALGORITHMS if option.extended else [option.algorithm]
+def pytest_generate_tests(metafunc):
+    """
+    Parametrizes tests according to their argument names:
 
-    configs = []
-    for (disable_security, algorithm) in itertools.product((True, False), algorithms):
-        config = {'algorithm': option.algorithm,
-                  'disable_security': disable_security,
-                  'threshold': option.threshold,
-                  'capacity': option.capacity}
-        configs += [config]
+    - ``tree_class``: the selected backends
+    - ``config``: the selected tree configurations
+    - ``tree``: trees of every size up to the maximum, combined with
+        ``index``, ``size`` or ``prior_size`` ranging from one to the tree
+        size, or with ``start`` and ``end`` ranging over its leaf ranges
+    """
+    options = metafunc.config.option
+    names = metafunc.fixturenames
+    default_config = metafunc.definition.get_closest_marker(
+        'default_config') is not None
+    configs = make_configs(options, default_config)
+    tree_classes = [BACKENDS[options.backend]] if options.backend else \
+        list(BACKENDS.values())
 
-    return configs
+    if 'tree_class' in names:
+        metafunc.parametrize('tree_class', tree_classes,
+            ids=[backend_id(cls) for cls in tree_classes])
 
+    if 'config' in names:
+        metafunc.parametrize('config', configs,
+            ids=[config_id(config) for config in configs])
 
-def resolve_backend(option):
-    if option.backend == 'sqlite':
-        return SqliteTree
+    if 'tree' not in names:
+        return
 
-    return InmemoryTree
+    trees = [tree for tree_class in tree_classes
+                  for tree in make_trees(tree_class, configs, options.maxsize)]
 
+    # Second parameter name and label used in test ids
+    for (name, label) in (('index', 'index'), ('size', 'state'),
+                          ('prior_size', 'prior')):
+        if name in names:
+            params = [(tree, i) for tree in trees
+                                for i in range(1, tree.get_size() + 1)]
+            metafunc.parametrize(f'tree, {name}', params,
+                ids=[f'{tree_id(tree)}-{label}{i}' for (tree, i) in params])
+            return
 
-def make_trees(default_config=False):
-    configs = all_configs(option) if not default_config else [{'algorithm':
-        option.algorithm, 'disable_security': False}]
-    MerkleTree = resolve_backend(option)
+    if 'start' in names and 'end' in names:
+        params = [(tree, start, end) for tree in trees
+                                     for start in range(tree.get_size())
+                                     for end in range(start + 1,
+                                         tree.get_size() + 1)]
+        metafunc.parametrize('tree, start, end', params,
+            ids=[f'{tree_id(tree)}-start{start}-end{end}'
+                 for (tree, start, end) in params])
+        return
 
-    return [MerkleTree.init_from_entries(
-        [f'entry-{i}'.encode() for i in range(size)], **config)
-                               for size in range(0, option.maxsize + 1)
-                               for config in configs]
-
-
-def tree_and_index(default_config=False):
-    return [(tree, index) for tree in make_trees(default_config)
-                          for index in range(1, tree.get_size() + 1)]
-
-
-def tree_and_range(default_config=False):
-    return [(tree, start, limit) for tree in make_trees(default_config)
-                                 for start in range(0, tree.get_size())
-                                 for limit in range(start + 1, tree.get_size())]
+    metafunc.parametrize('tree', trees, ids=[tree_id(tree) for tree in trees])

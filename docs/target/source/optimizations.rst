@@ -14,9 +14,9 @@ Subroots
 The above operation can be made iterative by accumulatively hashing together
 the root-hashes for ranges whose size is a power of two ("subroots")
 and can as such be computed efficiently. Subroot computation has significant impact
-on performance (>500% speedup) while keeping peak memory usage
-reasonably low (e.g., 200 MiB for a tree with several tens of millions of entries) and
-linear with respect to tree size.
+on performance (about six times faster proof generation on a database with 100,000
+entries) while keeping memory usage reasonably low (e.g., less than 150 MiB for the
+whole process when generating proofs against one million entries).
 
 .. note:: For, say, comparison purposes, you can disable this feature by passing
     ``disable_optimizations=True`` when initializing the ``BaseMerkleTree``
@@ -39,15 +39,16 @@ Caching
 
 In view of the above technique, subroot computation is the only massively repeated
 and relatively costly operation. It thus makes sense to apply memoization
-for ranges whose size exceeds a certain threshold (128 leaves by default).
-For example, after sufficiently many cache hits (e.g. 2MiB cache memory), proof generation
-becomes at least 5 times faster for a tree with several tens of million of entries.
-Practically, a pretty big tree with sufficiently long uptime will respond instantly
-with negligible penalty in memory usage.
+for ranges whose size is at least a certain threshold (128 leaves by default).
+For example, on a database with one million entries, proof generation becomes
+several times faster after a few thousand proofs, with the cache occupying a few MiB.
+Practically, a tree with sufficiently long uptime will respond considerably faster
+with little penalty in memory usage.
 
 Cache capacity is controlled in bytes via the ``capacity`` parameter, which is
-passed to ``BaseMerkleTree`` and defaults to 1GiB (this should be
-overabundant for any imaginable use case). The minimum size of leaf ranges with
+passed to ``BaseMerkleTree`` and defaults to 1GiB (approximate memory occupied by
+cached digests along with their bookkeeping; this should be ample for most
+applications). The minimum size of leaf ranges with
 cacheable root-hash is controlled via the ``threshold`` parameter, which is
 similarly passed to ``BaseMerkleTree`` and defaults to 128.
 
