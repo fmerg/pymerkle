@@ -3,7 +3,7 @@ import pytest
 from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
     InvalidProof, MerkleProof, InclusionProof, ConsistencyProof, \
     InmemoryTree
-from pymerkle.core import inclusion_layout
+from pymerkle.core import _inclusion_path_layout
 
 
 def prove(tree, index):
@@ -130,10 +130,10 @@ def test_inclusion_serialization(tree, index):
     verify_inclusion(tree.get_leaf(index), tree.get_root(), proof)
 
 
-def test_inclusion_layout(tree, index):
+def test_inclusion_path_layout(tree, index):
     for size in range(index, tree.get_size() + 1):
-        rule, path = tree._inclusion_path_naive(index, size)
-        layout_rule, ranges = inclusion_layout(index, size)
+        rule, path = tree._get_inclusion_path_naive(index, size)
+        layout_rule, ranges = _inclusion_path_layout(index, size)
 
         assert layout_rule == rule
         assert [tree._get_root_naive(*r) for r in ranges] == path

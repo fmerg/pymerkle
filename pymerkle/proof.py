@@ -273,9 +273,9 @@ class InclusionProof(MerkleProof):
             raise InvalidProof('Size does not match')
 
         # Imported here, since the core module depends on this one
-        from pymerkle.core import inclusion_layout
+        from pymerkle.core import _inclusion_path_layout
 
-        rule, _ = inclusion_layout(self.index, self.size)
+        rule, _ = _inclusion_path_layout(self.index, self.size)
         self._check_rule(rule)
         self._check_hashing(algorithm, security)
 
@@ -376,9 +376,9 @@ class ConsistencyProof(MerkleProof):
             raise InvalidProof('Later size does not match')
 
         # Imported here, since the core module depends on this one
-        from pymerkle.core import consistency_layout
+        from pymerkle.core import _consistency_path_layout
 
-        rule, subset, _ = consistency_layout(self.prior_size, self.size)
+        rule, subset, _ = _consistency_path_layout(self.prior_size, self.size)
         self._check_rule(rule)
         if self.subset != subset:
             raise InvalidProof('Invalid proof structure')

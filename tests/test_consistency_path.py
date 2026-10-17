@@ -259,6 +259,6 @@ fixtures = [
 @pytest.mark.parametrize('size2, size1, expected', fixtures)
 def test_consistency_path(tree_class, size2, size1, expected):
     tree = tree_class.init_from_entries(entries[:size2])
-    rule, subset, path = tree._consistency_path(size1, size2)
+    rule, subset, path = tree._get_consistency_path(size1, size2)
     path = list(map(lambda _: _.hex(), path))
     assert (rule, subset, path) == expected

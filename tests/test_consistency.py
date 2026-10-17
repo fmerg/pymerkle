@@ -4,7 +4,7 @@ import pytest
 from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
     InvalidProof, MerkleProof, InclusionProof, ConsistencyProof, \
     InmemoryTree
-from pymerkle.core import consistency_layout
+from pymerkle.core import _consistency_path_layout
 from pymerkle.utils import floor_log2
 
 
@@ -150,10 +150,11 @@ def test_consistency_serialization(tree, size1):
     verify_consistency(state1, state2, proof)
 
 
-def test_consistency_layout(tree, size1):
+def test_consistency_path_layout(tree, size1):
     for size2 in range(size1, tree.get_size() + 1):
-        rule, subset, path = tree._consistency_path_naive(size1, size2)
-        layout_rule, layout_subset, ranges = consistency_layout(size1, size2)
+        rule, subset, path = tree._get_consistency_path_naive(size1, size2)
+        layout_rule, layout_subset, ranges = _consistency_path_layout(size1,
+            size2)
 
         assert (layout_rule, layout_subset) == (rule, subset)
         assert [tree._get_root_naive(*r) for r in ranges] == path

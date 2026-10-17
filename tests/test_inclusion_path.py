@@ -174,6 +174,6 @@ fixtures = [
 @pytest.mark.parametrize('size, offset, expected', fixtures)
 def test_inclusion_path(tree_class, size, offset, expected):
     tree = tree_class.init_from_entries(entries[:size])
-    rule, path = tree._inclusion_path(offset + 1, size)
+    rule, path = tree._get_inclusion_path(offset + 1, size)
     path = list(map(lambda _: _.hex(), path))
     assert (rule, path) == expected

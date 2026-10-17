@@ -38,8 +38,8 @@ def test_get_state_deprecated(tree, size):
 def test_inclusion_path(tree):
     for size in range(1, tree.get_size() + 1):
         for index in range(1, size + 1):
-            path1 = tree._inclusion_path(index, size)
-            path2 = tree._inclusion_path_naive(index, size)
+            path1 = tree._get_inclusion_path(index, size)
+            path2 = tree._get_inclusion_path_naive(index, size)
 
             assert path1 == path2
 
@@ -47,8 +47,8 @@ def test_inclusion_path(tree):
 def test_consistency_path(tree):
     for size2 in range(1, tree.get_size() + 1):
         for size1 in range(size2 + 1):
-            path1 = tree._consistency_path(size1, size2)
-            path2 = tree._consistency_path_naive(size1, size2)
+            path1 = tree._get_consistency_path(size1, size2)
+            path2 = tree._get_consistency_path_naive(size1, size2)
 
             assert path1 == path2
 

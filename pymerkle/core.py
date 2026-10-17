@@ -34,22 +34,7 @@ def synchronized(func):
     return wrapper
 
 
-def _split(width):
-    """
-    Returns the number of leaves under the left child of the root of a tree
-    with the provided number of leaves, i.e., the largest power of two which
-    is strictly less than the provided width.
-
-    :param width: number of leaves (greater than one)
-    :type width: int
-    :rtype: int
-    """
-    k = 1 << floor_log2(width)
-
-    return k >> 1 if k == width else k
-
-
-def inclusion_layout(index, size):
+def _inclusion_path_layout(index, size):
     """
     Layout of the inclusion proof for the leaf located at the provided index
     against the state corresponding to the provided size, i.e., the leaf
@@ -73,7 +58,10 @@ def inclusion_layout(index, size):
     start, end, bit = 0, size, 0
     steps = []
     while end - start > 1:
-        k = _split(end - start)
+        # Leaves under left child: largest power of two less than width
+        k = 1 << floor_log2(end - start)
+        if k == end - start:
+            k >>= 1
 
         if offset < start + k:
             steps += [(bit, (start + k, end))]
@@ -91,13 +79,13 @@ def inclusion_layout(index, size):
     return rule, ranges
 
 
-def consistency_layout(size1, size2):
+def _consistency_path_layout(size1, size2):
     """
     Layout of the consistency proof between the states corresponding to the
     provided sizes, i.e., the leaf ranges whose root-hashes make up the path
     of hashes along with the bits specifying how to resolve it.
 
-    .. note:: See ``inclusion_layout`` regarding ranges.
+    .. note:: See ``_inclusion_path_layout`` regarding ranges.
 
     :param size1: number of leaves for prior state
     :type size1: int
@@ -110,7 +98,10 @@ def consistency_layout(size1, size2):
     start, offset, width, bit = 0, size1, size2, 0
     steps = []
     while not (offset == width or (offset == 0 and width == 1)):
-        k = _split(width)
+        # Leaves under left child: largest power of two less than width
+        k = 1 << floor_log2(width)
+        if k == width:
+            k >>= 1
 
         if offset < k:
             steps += [(bit, 0, (start + k, start + width))]
@@ -134,6 +125,93 @@ def consistency_layout(size1, size2):
     ranges = [base] + [r for (_, _, r) in steps]
 
     return rule, subset, ranges
+
+
+def _inclusion_path_naive_layout(index, start, end, bit):
+    """
+    Layout of the inclusion path for the leaf located at the provided index
+    against the provided leaf range, computed recursively.
+
+    Essentially the same as RFC 9162, Section 2.
+
+    .. warning:: This is an unoptimized recursive function intended for
+        reference and testing. Use ``_inclusion_path_layout`` in production.
+
+    .. note:: See ``_inclusion_path_layout`` regarding ranges.
+
+    :param index: leaf index counting from one
+    :type index: int
+    :param start: first leaf position counting from zero
+    :type start: int
+    :param end: position after the last leaf (exclusive)
+    :type end: int
+    :param bit: bit specifying the position of the range relative to its
+        sibling
+    :type bit: int
+    :rtype: (list[int], list[(int, int)])
+    """
+    if end == start + 1:
+        return [bit], [(start, end)]
+
+    # Leaves under left child: largest power of two less than width
+    k = 1 << floor_log2(end - start)
+    if k == end - start:
+        k >>= 1
+
+    if index <= start + k:
+        rule, ranges = _inclusion_path_naive_layout(index, start, start + k, 0)
+        sibling = (start + k, end)
+    else:
+        rule, ranges = _inclusion_path_naive_layout(index, start + k, end, 1)
+        sibling = (start, start + k)
+
+    return rule + [bit], ranges + [sibling]
+
+
+def _consistency_path_naive_layout(start, offset, width, bit):
+    """
+    Layout of the consistency path between the prior state of the provided
+    size and the provided leaf range, computed recursively.
+
+    Essentially the same as RFC 9162, Section 2.
+
+    .. warning:: This is an unoptimized recursive function intended for
+        reference and testing. Use ``_consistency_path_layout`` in production.
+
+    .. note:: See ``_inclusion_path_layout`` regarding ranges.
+
+    :param start: first leaf position counting from zero
+    :type start: int
+    :param offset: number of leaves of the prior state within the range
+    :type offset: int
+    :param width: number of leaves in the range
+    :type width: int
+    :param bit: bit specifying the position of the range relative to its
+        sibling
+    :type bit: int
+    :rtype: (list[int], list[int], list[(int, int)])
+    """
+    if offset == width:
+        return [bit], [1], [(start, start + width)]
+
+    if offset == 0 and width == 1:
+        return [bit], [0], [(start, start + 1)]
+
+    # Leaves under left child: largest power of two less than width
+    k = 1 << floor_log2(width)
+    if k == width:
+        k >>= 1
+
+    if offset < k:
+        rule, subset, ranges = _consistency_path_naive_layout(start, offset,
+            k, 0)
+        sibling, mask = (start + k, start + width), 0
+    else:
+        rule, subset, ranges = _consistency_path_naive_layout(start + k,
+            offset - k, width - k, 1)
+        sibling, mask = (start, start + k), 1
+
+    return rule + [bit], subset + [mask], ranges + [sibling]
 
 
 class InvalidChallenge(Exception):
@@ -207,8 +285,8 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         if disable_optimizations:
             self._get_root = self._get_root_naive
-            self._inclusion_path = self._inclusion_path_naive
-            self._consistency_path = self._consistency_path_naive
+            self._get_inclusion_path = self._get_inclusion_path_naive
+            self._get_consistency_path = self._get_consistency_path_naive
 
         if disable_cache:
             self._get_subroot = self._get_subroot_uncached
@@ -341,7 +419,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if not (0 < index <= size):
             raise InvalidChallenge('Provided index is out of bounds')
 
-        rule, path = self._inclusion_path(index, size)
+        rule, path = self._get_inclusion_path(index, size)
 
         return InclusionProof(self.algorithm, self.security, size, index,
                 rule, path)
@@ -373,7 +451,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if not (0 < size1 <= size2):
             raise InvalidChallenge('Provided prior size out of bounds')
 
-        rule, subset, path = self._consistency_path(size1, size2)
+        rule, subset, path = self._get_consistency_path(size1, size2)
 
         return ConsistencyProof(self.algorithm, self.security, size2, size1,
                 rule, subset, path)
@@ -551,48 +629,6 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _inclusion_path(self, index, size):
-        """
-        Computes the inclusion path for the leaf located at the provided index
-        against the state corresponding to the provided size.
-
-        .. warning:: Do not use this method directly unless you know what you
-            do. Use ``prove_inclusion`` instead.
-
-        :param index: leaf index counting from one
-        :type index: int
-        :param size: number of leaves
-        :type size: int
-        :rtype: (list[int], list[bytes])
-        """
-        rule, ranges = inclusion_layout(index, size)
-        _get_root = self._get_root
-
-        return rule, [_get_root(*r) for r in ranges]
-
-
-    @profile
-    def _consistency_path(self, size1, size2):
-        """
-        Computes the consistency path between the states corresponding to the
-        provided sizes.
-
-        .. warning:: Do not use this method directly unless you know what you
-            do. Use ``prove_consistency`` instead.
-
-        :param size1: number of leaves for prior state
-        :type size1: int
-        :param size2: number of leaves for later state
-        :type size2: int
-        :rtype: (list[int], list[int], list[bytes])
-        """
-        rule, subset, ranges = consistency_layout(size1, size2)
-        _get_root = self._get_root
-
-        return rule, subset, [_get_root(*r) for r in ranges]
-
-
-    @profile
     def _get_root_naive(self, start, end):
         """
         Computes the root-hash for the provided leaf range.
@@ -625,15 +661,13 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @profile
-    def _inclusion_path_naive(self, index, size):
+    def _get_inclusion_path(self, index, size):
         """
         Computes the inclusion path for the leaf located at the provided index
         against the state corresponding to the provided size.
 
-        Essentially the same as RFC 9162, Section 2.
-
-        .. warning:: This is an unoptimized recursive function intended for
-            reference and testing. Use ``_inclusion_path`` in production.
+        .. warning:: Do not use this method directly unless you know what you
+            do. Use ``prove_inclusion`` instead.
 
         :param index: leaf index counting from one
         :type index: int
@@ -641,36 +675,43 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type size: int
         :rtype: (list[int], list[bytes])
         """
-        def path(start, end, bit):
-            if end == start + 1:
-                return [bit], [self._get_leaf(index)]
+        rule, ranges = _inclusion_path_layout(index, size)
+        _get_root = self._get_root
 
-            k = 1 << floor_log2(end - start)
-            if k == end - start:
-                k >>= 1
-
-            if index <= start + k:
-                rule, nodes = path(start, start + k, 0)
-                node = self._get_root(start + k, end)
-            else:
-                rule, nodes = path(start + k, end, 1)
-                node = self._get_root(start, start + k)
-
-            return rule + [bit], nodes + [node]
-
-        return path(0, size, 0)
+        return rule, [_get_root(*r) for r in ranges]
 
 
     @profile
-    def _consistency_path_naive(self, size1, size2):
+    def _get_inclusion_path_naive(self, index, size):
         """
-        Computes the consistency path between the states corresponding to the
-        provided sizes.
+        Computes the inclusion path for the leaf located at the provided index
+        against the state corresponding to the provided size.
 
         Essentially the same as RFC 9162, Section 2.
 
         .. warning:: This is an unoptimized recursive function intended for
-            reference and testing. Use ``_consistency_path`` in production.
+            reference and testing. Use ``_get_inclusion_path`` in production.
+
+        :param index: leaf index counting from one
+        :type index: int
+        :param size: number of leaves
+        :type size: int
+        :rtype: (list[int], list[bytes])
+        """
+        rule, ranges = _inclusion_path_naive_layout(index, 0, size, 0)
+        _get_root = self._get_root
+
+        return rule, [_get_root(*r) for r in ranges]
+
+
+    @profile
+    def _get_consistency_path(self, size1, size2):
+        """
+        Computes the consistency path between the states corresponding to the
+        provided sizes.
+
+        .. warning:: Do not use this method directly unless you know what you
+            do. Use ``prove_consistency`` instead.
 
         :param size1: number of leaves for prior state
         :type size1: int
@@ -678,26 +719,31 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         :type size2: int
         :rtype: (list[int], list[int], list[bytes])
         """
-        def path(start, offset, width, bit):
-            if offset == width:
-                return [bit], [1], [self._get_root(start, start + width)]
+        rule, subset, ranges = _consistency_path_layout(size1, size2)
+        _get_root = self._get_root
 
-            if offset == 0 and width == 1:
-                return [bit], [0], [self._get_leaf(start + 1)]
+        return rule, subset, [_get_root(*r) for r in ranges]
 
-            k = 1 << floor_log2(width)
-            if k == width:
-                k >>= 1
 
-            if offset < k:
-                rule, subset, nodes = path(start, offset, k, 0)
-                node = self._get_root(start + k, start + width)
-                mask = 0
-            else:
-                rule, subset, nodes = path(start + k, offset - k, width - k, 1)
-                node = self._get_root(start, start + k)
-                mask = 1
+    @profile
+    def _get_consistency_path_naive(self, size1, size2):
+        """
+        Computes the consistency path between the states corresponding to the
+        provided sizes.
 
-            return rule + [bit], subset + [mask], nodes + [node]
+        Essentially the same as RFC 9162, Section 2.
 
-        return path(0, size1, size2, 0)
+        .. warning:: This is an unoptimized recursive function intended for
+            reference and testing. Use ``_get_consistency_path`` in production.
+
+        :param size1: number of leaves for prior state
+        :type size1: int
+        :param size2: number of leaves for later state
+        :type size2: int
+        :rtype: (list[int], list[int], list[bytes])
+        """
+        rule, subset, ranges = _consistency_path_naive_layout(0, size1,
+            size2, 0)
+        _get_root = self._get_root
+
+        return rule, subset, [_get_root(*r) for r in ranges]
