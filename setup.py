@@ -35,7 +35,7 @@ def main():
        description='Merkle-tree cryptography in python',
        long_description=long_description,
        long_description_content_type='text/markdown',
-       packages=find_packages(exclude=['tests']),
+       packages=find_packages(include=['pymerkle', 'pymerkle.*']),
        # package_dir={'': 'pymerkle'},
        url=homepage,
        project_urls={

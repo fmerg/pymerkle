@@ -84,6 +84,7 @@ regenerated.
 - Importing pymerkle no longer defines `builtins.profile`
 - Package metadata: `python_requires` aligned with the supported Python
   versions and corrected documentation URL
+- Distributions no longer install the `benchmarks` and `profiler` packages
 
 
 ## 6.1.0 2023-08-30
