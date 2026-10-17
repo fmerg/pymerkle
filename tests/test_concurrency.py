@@ -74,8 +74,8 @@ def test_concurrent_appends(make_tree):
     expected = InmemoryTree.init_from_entries(get_entries(tree))
 
     assert tree.get_size() == 64 + 4 * 300
-    assert tree.get_state() == expected.get_state()
-    assert tree.get_state() == tree._get_root_naive(0, tree.get_size())
+    assert tree.get_root() == expected.get_root()
+    assert tree.get_root() == tree._get_root_naive(0, tree.get_size())
 
 
 @backends
@@ -93,7 +93,7 @@ def test_reads_during_appends(make_tree):
         # Observe at least once, even if the writer is done first
         while True:
             size = tree.get_size()
-            observed.append((size, tree.get_state(size),
+            observed.append((size, tree.get_root(size),
                 tree.prove_inclusion(1, size),
                 tree.prove_consistency(size // 2 or 1, size)))
             if done.is_set():
@@ -107,7 +107,7 @@ def test_reads_during_appends(make_tree):
         assert state == tree._get_root_naive(0, size)
         verify_inclusion(tree.get_leaf(1), state, inclusion, index=1,
             size=size)
-        verify_consistency(tree.get_state(size // 2 or 1), state,
+        verify_consistency(tree.get_root(size // 2 or 1), state,
             consistency, size2=size)
 
 
@@ -124,7 +124,7 @@ def test_sqlite_bulk_append_during_reads():
         while True:
             size = tree.get_size()
             assert tree.get_entry(size) is not None
-            tree.get_state(size)
+            tree.get_root(size)
             if done.is_set():
                 break
 
@@ -132,4 +132,4 @@ def test_sqlite_bulk_append_during_reads():
 
     assert tree.get_size() == 64 + 20 * 50
     expected = InmemoryTree.init_from_entries(get_entries(tree))
-    assert tree.get_state() == expected.get_state()
+    assert tree.get_root() == expected.get_root()

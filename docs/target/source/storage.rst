@@ -219,7 +219,7 @@ State coincides with the digest of the current root-node:
 
 .. code-block:: python
 
-    assert tree.get_state() == tree.root.digest
+    assert tree.get_root() == tree.root.digest
 
 
 Nodes have a ``right``, ``left`` and ``parent`` attribute, pointing to their

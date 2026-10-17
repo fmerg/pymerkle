@@ -8,6 +8,7 @@ from functools import wraps
 from threading import RLock
 import builtins
 import sys
+import warnings
 
 from cachetools import LRUCache
 
@@ -279,7 +280,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
 
     @synchronized
-    def get_state(self, size=None):
+    def get_root(self, size=None):
         """
         Computes the root-hash of the tree corresponding to the provided number
         of leaves.
@@ -299,6 +300,19 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             raise ValueError('Provided size is out of bounds')
 
         return self._get_root(0, size)
+
+
+    def get_state(self, size=None):
+        """
+        Deprecated alias of ``get_root``.
+
+        .. deprecated:: 7.0.0
+            Use ``get_root`` instead.
+        """
+        warnings.warn('get_state is deprecated; use get_root instead',
+            DeprecationWarning, stacklevel=2)
+
+        return self.get_root(size)
 
 
     @synchronized

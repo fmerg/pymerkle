@@ -24,10 +24,15 @@ def test_get_root(tree, start, end):
 
 
 def test_state(tree, size):
-    state = tree.get_state(size)
+    state = tree.get_root(size)
 
     assert state == tree._get_root_naive(0, size)
     assert state == tree._get_root(0, size)
+
+
+def test_get_state_deprecated(tree, size):
+    with pytest.warns(DeprecationWarning):
+        assert tree.get_state(size) == tree.get_root(size)
 
 
 def test_inclusion_path(tree):
@@ -52,12 +57,12 @@ def test_state_bounds(tree):
     size = tree.get_size()
 
     if size == 0:
-        assert tree.get_state() == tree.hash_empty()
+        assert tree.get_root() == tree.hash_empty()
         assert tree._get_root(0, 0) == tree._get_root_naive(0, 0)
 
     for invalid in (-1, size + 1):
         with pytest.raises(ValueError):
-            tree.get_state(invalid)
+            tree.get_root(invalid)
 
 
 @pytest.mark.default_config
@@ -80,5 +85,5 @@ def test_append_entries():
 
     assert tree.append_entries(e for e in entries[3:]) == len(entries)
     assert tree.append_entries([]) == len(entries)
-    assert tree.get_state() == \
-        InmemoryTree.init_from_entries(entries).get_state()
+    assert tree.get_root() == \
+        InmemoryTree.init_from_entries(entries).get_root()

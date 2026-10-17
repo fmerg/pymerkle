@@ -17,22 +17,22 @@ def make_tree(**opts):
 
 def test_append_entries_atomic():
     tree = make_tree()
-    state = tree.get_state()
+    state = tree.get_root()
 
     with pytest.raises(ValueError):
         tree.append_entries(entries[3:6] + ['nonbinary'] + entries[6:],
             chunksize=2)
 
     assert tree.get_size() == 3
-    assert tree.get_state() == state
+    assert tree.get_root() == state
 
 
 def test_append_entries_iterable():
     tree = make_tree()
 
     assert tree.append_entries(e for e in entries[3:]) == len(entries)
-    assert tree.get_state() == \
-        InmemoryTree.init_from_entries(entries).get_state()
+    assert tree.get_root() == \
+        InmemoryTree.init_from_entries(entries).get_root()
 
 
 @pytest.mark.parametrize('chunksize', [1, 3, 100])
@@ -40,8 +40,8 @@ def test_append_entries_chunksize(chunksize):
     tree = make_tree()
 
     assert tree.append_entries(entries[3:], chunksize) == len(entries)
-    assert tree.get_state() == \
-        InmemoryTree.init_from_entries(entries).get_state()
+    assert tree.get_root() == \
+        InmemoryTree.init_from_entries(entries).get_root()
 
 
 def test_append_entries_empty():
@@ -65,7 +65,7 @@ def test_append_entries_encoding():
     tree2.append_entry(b'bar')
 
     assert tree1.get_leaf(1) == tree2.get_leaf(1) == tree1.hash_buff(b'FOO')
-    assert tree1.get_state() == tree2.get_state()
+    assert tree1.get_root() == tree2.get_root()
 
 
 @pytest.mark.parametrize('statement', [
@@ -79,7 +79,7 @@ def test_leaf_table_append_only(statement):
     subsequent operations failed or returned wrong results.
     """
     tree = make_tree()
-    state = tree.get_state()
+    state = tree.get_root()
 
     with pytest.raises(sqlite3.DatabaseError):
         with tree.con:
@@ -87,9 +87,9 @@ def test_leaf_table_append_only(statement):
 
     tree.append_entry(b'new')
     assert tree.get_size() == 4
-    assert tree.get_state(3) == state
-    assert tree.get_state() == \
-        InmemoryTree.init_from_entries(entries[:3] + [b'new']).get_state()
+    assert tree.get_root(3) == state
+    assert tree.get_root() == \
+        InmemoryTree.init_from_entries(entries[:3] + [b'new']).get_root()
 
 
 def test_non_contiguous_database(tmp_path):
@@ -111,8 +111,8 @@ def test_reopen_database(tmp_path):
     dbfile = str(tmp_path / 'merkle.db')
     with SqliteTree(dbfile) as tree:
         tree.append_entries(entries)
-        state = tree.get_state()
+        state = tree.get_root()
 
     with SqliteTree(dbfile) as tree:
         assert tree.get_size() == len(entries)
-        assert tree.get_state() == state
+        assert tree.get_root() == state

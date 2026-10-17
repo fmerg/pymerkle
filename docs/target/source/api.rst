@@ -218,7 +218,7 @@ can be retrieved as follows:
 
 .. code-block:: python
 
-   >>> tree.get_state()
+   >>> tree.get_root()
    b'\xdcRj\xc4\x98\x81&}\x10\xf4<\x80\x8e\xc5\x92\xa1r\x08\xefxs<\xfa\x06""\xbeS[\xc7O"'
 
 
@@ -228,7 +228,7 @@ corresponding size:
 
 .. code-block:: python
 
-   >>> tree.get_state(2)
+   >>> tree.get_root(2)
    b"9(jJU1b'Q\xd6\x84[\xb8\xef\xb4\xcf3\xbe\xc2\xc5\xf3\xf8C\ru\x84\x87Cq\xa3[\xda"
 
 
@@ -236,7 +236,7 @@ By convention, the empty tree state is the hash of the empty string:
 
 .. code-block:: python
 
-   >>> tree.get_state(0) == tree.hash_empty()
+   >>> tree.get_root(0) == tree.hash_empty()
    True
 
 
@@ -272,7 +272,7 @@ proceeds as follows:
    from pymerkle import verify_inclusion
 
    base = tree.get_leaf(3)
-   root = tree.get_state(5)
+   root = tree.get_root(5)
 
    verify_inclusion(base, root, proof, index=3, size=5)
 
@@ -327,8 +327,8 @@ proceeds as follows:
 
    from pymerkle import verify_consistency
 
-   state1 = tree.get_state(3)
-   state2 = tree.get_state(5)
+   state1 = tree.get_root(3)
+   state2 = tree.get_root(5)
 
    verify_consistency(state1, state2, proof, size1=3, size2=5)
 

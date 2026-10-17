@@ -122,13 +122,13 @@ if __name__ == '__main__':
     proof = tree.prove_inclusion(2)
     sys.stdout.write(strproof(proof))
 
-    root = tree.get_state()
+    root = tree.get_root()
     base = tree.get_leaf(2)
     verify_inclusion(base, root, proof)
 
     # Save current state and append further entries
     size1 = tree.get_size()
-    state1 = tree.get_state()
+    state1 = tree.get_root()
     for data in [b'corge', b'grault', b'garlpy']:
         tree.append_entry(data)
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     proof = tree.prove_consistency(size1, size2)
     sys.stdout.write(strproof(proof))
 
-    state2 = tree.get_state()
+    state2 = tree.get_root()
     verify_consistency(state1, state2, proof)
 
     print(tree.get_cache_info())

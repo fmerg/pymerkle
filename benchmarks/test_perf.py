@@ -35,7 +35,7 @@ def test_state(benchmark):
 
         return (size,), {}
 
-    benchmark.pedantic(tree.get_state, setup=setup, **defaults)
+    benchmark.pedantic(tree.get_root, setup=setup, **defaults)
 
 
 def test_inclusion(benchmark):

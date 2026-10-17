@@ -15,7 +15,7 @@ def prove(tree, size1):
     """
     size2 = tree.get_size()
 
-    return tree.get_state(size1), tree.get_state(size2), \
+    return tree.get_root(size1), tree.get_root(size2), \
         tree.prove_consistency(size1, size2)
 
 
@@ -83,8 +83,8 @@ def test_consistency_forged_prior_state(size):
     subtree. Only genuine prior states may pass verification.
     """
     tree = InmemoryTree.init_from_entries([b'%d' % i for i in range(size)])
-    state2 = tree.get_state()
-    genuine = {tree.get_state(k) for k in range(1, size + 1)}
+    state2 = tree.get_root()
+    genuine = {tree.get_root(k) for k in range(1, size + 1)}
 
     nodes = _all_nodes(tree)
     bits = list(product([0, 1], repeat=2))
@@ -114,7 +114,7 @@ def test_consistency_right_subtree_forgery(tree, size1):
     proof = ConsistencyProof(tree.algorithm, tree.security, size2, size1,
             [1, 0], [1, 0], [rnode, lnode])
     with pytest.raises(InvalidProof):
-        verify_consistency(rnode, tree.get_state(), proof)
+        verify_consistency(rnode, tree.get_root(), proof)
 
 
 @pytest.mark.default_config
@@ -172,13 +172,13 @@ def test_consistency_security_downgrade():
     proof = ConsistencyProof('sha256', False, 2, 1, [1, 0], [0, 1],
             [rnode, forged])
     assert proof.retrieve_prior_state() == forged
-    assert proof.resolve() == tree.get_state()
+    assert proof.resolve() == tree.get_root()
 
     with pytest.raises(InvalidProof):
-        verify_consistency(forged, tree.get_state(), proof)
+        verify_consistency(forged, tree.get_root(), proof)
 
     with pytest.raises(InvalidProof):
-        verify_consistency(forged, tree.get_state(), proof, security=False)
+        verify_consistency(forged, tree.get_root(), proof, security=False)
 
 
 @pytest.mark.default_config
@@ -198,7 +198,7 @@ def test_consistency_huge_size():
     proof.size = 10 ** 100000
 
     with pytest.raises(InvalidProof):
-        verify_consistency(tree.get_state(2), tree.get_state(), proof)
+        verify_consistency(tree.get_root(2), tree.get_root(), proof)
 
 
 @pytest.mark.default_config
@@ -214,4 +214,4 @@ def test_consistency_proof_type(tree, size1):
         InclusionProof.deserialize(data)
 
     with pytest.raises(InvalidProof):
-        verify_inclusion(tree.get_leaf(1), tree.get_state(), proof)
+        verify_inclusion(tree.get_leaf(1), tree.get_root(), proof)

@@ -290,7 +290,7 @@ class InmemoryTree(BaseMerkleTree):
 
 
     @synchronized
-    def get_state(self, size=None):
+    def get_root(self, size=None):
         """
         Computes the root-hash of the subtree corresponding to the provided
         size.
@@ -307,7 +307,7 @@ class InmemoryTree(BaseMerkleTree):
         if self.root and size in (None, self._get_size()):
             return self.root.digest
 
-        return super().get_state(size)
+        return super().get_root(size)
 
 
     def _get_subroot(self, offset, width):

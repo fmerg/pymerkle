@@ -30,4 +30,4 @@ def test_second_preimage_attack(tree_class, config):
     attacker = tree_class.init_from_entries([b'foo', b'bar', forged],
         **config)
 
-    assert tree.security ^ (attacker.get_state() == tree.get_state())
+    assert tree.security ^ (attacker.get_root() == tree.get_root())

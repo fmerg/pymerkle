@@ -55,7 +55,7 @@ def parse_cli_args():
         help='Final position')
 
     state = operation.add_parser('state',
-        help='Run `get_state`')
+        help='Run `get_root`')
     state.add_argument('--size', type=int, default=DB_SIZE,
         help='Nr entries to consider')
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
                     return (start, limit)
 
         case 'state':
-            func = tree.get_state
+            func = tree.get_root
 
             def get_args():
                 return (cli.size,)

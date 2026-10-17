@@ -25,7 +25,7 @@ def test_cache_capacity_accounts_memory():
 def test_cache_capacity_respected():
     tree = SqliteTree(':memory:', threshold=2, capacity=2048)
     tree.append_entries([b'%d' % i for i in range(64)])
-    tree.get_state()
+    tree.get_root()
     for size in range(1, tree.get_size() + 1):
         tree.prove_consistency(size)
 

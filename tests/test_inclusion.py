@@ -11,7 +11,7 @@ def prove(tree, index):
     Returns the hash of the provided leaf, the current state and the proof of
     inclusion of the former in the latter.
     """
-    return tree.get_leaf(index), tree.get_state(), tree.prove_inclusion(index)
+    return tree.get_leaf(index), tree.get_root(), tree.prove_inclusion(index)
 
 
 def test_inclusion_success(tree, index):
@@ -69,7 +69,7 @@ def test_inclusion_wrong_type(tree, index):
 @pytest.mark.default_config
 def test_inclusion_empty_path(tree, index):
     base = tree.get_leaf(index)
-    state = tree.get_state()
+    state = tree.get_root()
     proof = InclusionProof(tree.algorithm, tree.security, tree.get_size(),
         index, [], [])
 
@@ -100,7 +100,7 @@ def test_inclusion_tampered_index(tree, index):
     """
     size = tree.get_size()
     base = tree.get_leaf(index)
-    state = tree.get_state()
+    state = tree.get_root()
 
     for claimed in [i for i in range(1, size + 1) if i != index] + \
             [None, 0, size + 1, '1']:
@@ -113,7 +113,7 @@ def test_inclusion_tampered_index(tree, index):
 @pytest.mark.default_config
 def test_inclusion_tampered_rule(tree, index):
     base = tree.get_leaf(index)
-    state = tree.get_state()
+    state = tree.get_root()
 
     for i in range(len(tree.prove_inclusion(index).rule)):
         proof = tree.prove_inclusion(index)
@@ -127,7 +127,7 @@ def test_inclusion_serialization(tree, index):
     proof = MerkleProof.deserialize(tree.prove_inclusion(index).serialize())
 
     assert proof.index == index
-    verify_inclusion(tree.get_leaf(index), tree.get_state(), proof)
+    verify_inclusion(tree.get_leaf(index), tree.get_root(), proof)
 
 
 def test_inclusion_layout(tree, index):
@@ -162,7 +162,7 @@ def test_inclusion_expected_algorithm(tree, index):
 @pytest.mark.default_config
 def test_inclusion_invalid_digest_length(tree, index):
     base = tree.get_leaf(index)
-    state = tree.get_state()
+    state = tree.get_root()
 
     for i in range(len(tree.prove_inclusion(index).path)):
         for alter in (lambda d: d[:-1], lambda d: d + b'\x00', bytes.hex):
@@ -201,7 +201,7 @@ def test_inclusion_invalid_rule_bit():
     data['rule'][0] = 2
 
     with pytest.raises(InvalidProof):
-        verify_inclusion(tree.get_leaf(2), tree.get_state(),
+        verify_inclusion(tree.get_leaf(2), tree.get_root(),
             MerkleProof.deserialize(data))
 
 
@@ -211,7 +211,7 @@ def test_inclusion_huge_size():
     proof.size = 10 ** 100000
 
     with pytest.raises(InvalidProof):
-        verify_inclusion(tree.get_leaf(2), tree.get_state(), proof)
+        verify_inclusion(tree.get_leaf(2), tree.get_root(), proof)
 
 
 @pytest.mark.default_config
@@ -228,4 +228,4 @@ def test_inclusion_proof_type(tree, index):
         ConsistencyProof.deserialize(data)
 
     with pytest.raises(InvalidProof):
-        verify_consistency(tree.get_state(), tree.get_state(), proof)
+        verify_consistency(tree.get_root(), tree.get_root(), proof)

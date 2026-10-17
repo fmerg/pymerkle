@@ -64,9 +64,9 @@ Current and intermediate states:
 
 .. code-block:: python
 
-  state = tree.get_state()    # current root-hash
+  state = tree.get_root()    # current root-hash
 
-  state = tree.get_state(5)   # root-hash for the first 5 leaves
+  state = tree.get_root(5)   # root-hash for the first 5 leaves
 
 
 Inclusion proof
@@ -86,7 +86,7 @@ Verify the proof against the base hash and the corresponding state:
   from pymerkle import verify_inclusion
 
   base = tree.get_leaf(3)
-  root = tree.get_state(5)
+  root = tree.get_root(5)
 
   verify_inclusion(base, root, proof, index=3, size=5)
 
@@ -108,8 +108,8 @@ Verify the proof against the respective root hashes:
 
   from pymerkle import verify_consistency
 
-  state1 = tree.get_state(3)
-  state2 = tree.get_state(5)
+  state1 = tree.get_root(3)
+  state2 = tree.get_root(5)
 
   verify_consistency(state1, state2, proof, size1=3, size2=5)
 

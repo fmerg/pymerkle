@@ -54,15 +54,17 @@ All notable changes to this project will be documented in this file.
 - `BaseMerkleTree` options are keyword-only; unknown options raise `TypeError`
 - `MerkleHasher` no longer accepts arbitrary keyword arguments, so that it
   cannot be initialized from proof metadata as a whole
-- `get_state` and `get_leaf` raise `ValueError` for out-of-bounds arguments
+- `get_root` and `get_leaf` raise `ValueError` for out-of-bounds arguments
 - Subroot cache capacity accounts for the actual memory of cached entries
+- `get_state` is renamed to `get_root`; `get_state` remains as a deprecated
+  alias
 - The `pymerkle.concrete` subpackage is renamed to `pymerkle.backends`
 - The contents of `pymerkle.constants` (supported hash functions) moved to
   `pymerkle.hasher`
 
 ### Fixed
 
-- `get_state` of empty `SqliteTree`
+- `get_root` of empty `SqliteTree`
 - Hash function lookup for non-canonical algorithm names
 - Importing pymerkle no longer defines `builtins.profile`
 - Package metadata: `python_requires` aligned with the supported Python
