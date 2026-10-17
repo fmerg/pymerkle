@@ -341,7 +341,7 @@ class InmemoryTree(BaseMerkleTree):
         .. note:: Returns *None* if no binary subtree exists for the provided
             parameters.
 
-        :param index: position of leftmost leaf node coutning from one
+        :param index: position of leftmost leaf node counting from one
         :type index: int
         :param height: height of requested subtree
         :type height: int

@@ -12,9 +12,9 @@ Options
   --backend [inmemory|sqlite]   Restrict to storage backend (default: all)
   --maxsize MAX                 Maximum size of tree fixtures (default: ${DEFAULT_MAXSIZE})
   --threshold WIDTH             Subroot cache threshold (default: ${DEFAULT_THRESHOLD})
-  --capacity BYTES              Subroout cache capacity in bytes (default: 1GB)
+  --capacity BYTES              Subroot cache capacity in bytes (default: 1GB)
   --extended                    Run tests against all supported hash algorithms. NOTE: This
-                                nullify the effect of the algorithm option
+                                nullifies the effect of the algorithm option
                                 otherwise only against sha256
   -h, --help                    Display help message and exit
 "

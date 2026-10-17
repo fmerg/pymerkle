@@ -16,12 +16,12 @@ usage: ./$(basename "$0") [options]
 
 Run benchmarks against ${DEFAULT_DBFILE}
 
-Results saved in ./.bencmarks/Linux-CPyhton-3.*
+Results saved in ./.benchmarks/Linux-CPython-3.*
 
 Tree configuration
   --algorithm HASH          Hash algorithm used by the tree (default: ${DEFAULT_ALGORITHM})
   --threshold WIDTH         Subroot cache threshold (default: ${DEFAULT_THRESHOLD})
-  --capacity MAXSIZE        Subroout cache capacity in bytes (default: 1GiB)
+  --capacity MAXSIZE        Subroot cache capacity in bytes (default: 1GiB)
   --disable-optimizations   Use unoptimized version of core operations
   --disable-cache           Disable caching
 
