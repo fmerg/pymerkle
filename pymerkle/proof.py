@@ -149,7 +149,7 @@ class MerkleProof:
             raise InvalidProof('Malformed proof') from err
 
 
-    def resolve(self):
+    def compute_root(self):
         """
         Computes the target hash of the included path of hashes.
 
@@ -282,7 +282,7 @@ class InclusionProof(MerkleProof):
         if not _digests_match(self.path[0], base):
             raise InvalidProof('Base hash does not match')
 
-        if not _digests_match(self.resolve(), root):
+        if not _digests_match(self.compute_root(), root):
             raise InvalidProof('State does not match')
 
 
@@ -387,7 +387,7 @@ class ConsistencyProof(MerkleProof):
         if not _digests_match(self.retrieve_prior_state(), state1):
             raise InvalidProof('Prior state does not match')
 
-        if not _digests_match(self.resolve(), state2):
+        if not _digests_match(self.compute_root(), state2):
             raise InvalidProof('Later state does not match')
 
 

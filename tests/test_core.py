@@ -1,13 +1,13 @@
 import pytest
 
 from pymerkle import InmemoryTree
-from pymerkle.utils import decompose
+from pymerkle.utils import binary_exponents
 
 
 def test_get_root(tree, start, end):
     offset = start
     subroots = []
-    for p in reversed(decompose(end - start)):
+    for p in reversed(binary_exponents(end - start)):
         node = tree._get_subroot(offset, 1 << p)
         subroots += [node]
         offset += 1 << p

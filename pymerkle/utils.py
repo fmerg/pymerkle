@@ -1,6 +1,6 @@
-def log2(n):
+def floor_log2(n):
     """
-    Base 2 logarithm
+    Floor of base 2 logarithm
 
     .. note:: This is the exponent of the largest power of two which is less than
         or equal to the provided integer (zero for zero).
@@ -12,7 +12,7 @@ def log2(n):
     return max(n.bit_length() - 1, 0)
 
 
-def decompose(n):
+def binary_exponents(n):
     """
     Returns in ascending order the exponents corresponding to the binary
     decomposition of the provided integer.

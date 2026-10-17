@@ -5,7 +5,7 @@ from pymerkle import verify_inclusion, verify_consistency, InvalidChallenge, \
     InvalidProof, MerkleProof, InclusionProof, ConsistencyProof, \
     InmemoryTree
 from pymerkle.core import consistency_layout
-from pymerkle.utils import log2
+from pymerkle.utils import floor_log2
 
 
 def prove(tree, size1):
@@ -106,7 +106,7 @@ def test_consistency_right_subtree_forgery(tree, size1):
     if size2 < 2:
         return
 
-    k = 1 << log2(size2)
+    k = 1 << floor_log2(size2)
     if k == size2:
         k >>= 1
     lnode, rnode = tree._get_root(0, k), tree._get_root(k, size2)
@@ -172,7 +172,7 @@ def test_consistency_security_downgrade():
     proof = ConsistencyProof('sha256', False, 2, 1, [1, 0], [0, 1],
             [rnode, forged])
     assert proof.retrieve_prior_state() == forged
-    assert proof.resolve() == tree.get_root()
+    assert proof.compute_root() == tree.get_root()
 
     with pytest.raises(InvalidProof):
         verify_consistency(forged, tree.get_root(), proof)

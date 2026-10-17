@@ -58,6 +58,10 @@ All notable changes to this project will be documented in this file.
 - Subroot cache capacity accounts for the actual memory of cached entries
 - `get_state` is renamed to `get_root`; `get_state` remains as a deprecated
   alias
+- `MerkleProof.resolve` is renamed to `compute_root` and `Node.expand` to
+  `render`
+- `pymerkle.utils.log2` and `decompose` are renamed to `floor_log2` and
+  `binary_exponents` respectively
 - The `pymerkle.concrete` subpackage is renamed to `pymerkle.backends`
 - The contents of `pymerkle.constants` (supported hash functions) moved to
   `pymerkle.hasher`

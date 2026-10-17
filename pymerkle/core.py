@@ -14,7 +14,7 @@ from cachetools import LRUCache
 
 from pymerkle.hasher import MerkleHasher
 from pymerkle.proof import InclusionProof, ConsistencyProof
-from pymerkle.utils import log2, decompose
+from pymerkle.utils import floor_log2, binary_exponents
 
 
 # Decorator injected into builtins by line_profiler or memory_profiler when
@@ -44,7 +44,7 @@ def _split(width):
     :type width: int
     :rtype: int
     """
-    k = 1 << log2(width)
+    k = 1 << floor_log2(width)
 
     return k >> 1 if k == width else k
 
@@ -542,7 +542,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
 
         # Roots of maximal perfect subtrees from right to left
         subroots = []
-        for p in decompose(end - start):
+        for p in binary_exponents(end - start):
             width = 1 << p
             end -= width
             subroots += [self._get_subroot(end, width)]
@@ -614,7 +614,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
         if end == start + 1:
             return self._get_leaf(end)
 
-        k = 1 << log2(end - start)
+        k = 1 << floor_log2(end - start)
         if k == end - start:
             k >>= 1
 
@@ -645,7 +645,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             if end == start + 1:
                 return [bit], [self._get_leaf(index)]
 
-            k = 1 << log2(end - start)
+            k = 1 << floor_log2(end - start)
             if k == end - start:
                 k >>= 1
 
@@ -685,7 +685,7 @@ class BaseMerkleTree(MerkleHasher, metaclass=ABCMeta):
             if offset == 0 and width == 1:
                 return [bit], [0], [self._get_leaf(start + 1)]
 
-            k = 1 << log2(width)
+            k = 1 << floor_log2(width)
             if k == width:
                 k >>= 1
 

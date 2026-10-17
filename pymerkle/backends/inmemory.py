@@ -1,4 +1,4 @@
-from pymerkle.utils import log2, decompose
+from pymerkle.utils import floor_log2, binary_exponents
 from pymerkle.core import BaseMerkleTree, synchronized
 
 
@@ -92,7 +92,7 @@ class Node:
         return curr
 
 
-    def expand(self, indent=2, trim=None, level=0, ignored=None):
+    def render(self, indent=2, trim=None, level=0, ignored=None):
         """
         Returns a string representing the subtree rooted at the present node.
 
@@ -135,8 +135,8 @@ class Node:
 
         recursion = (indent, trim, level + 1, ignored[:])
 
-        out += self.left.expand(*recursion)
-        out += self.right.expand(*recursion)
+        out += self.left.render(*recursion)
+        out += self.right.render(*recursion)
 
         return out
 
@@ -184,7 +184,7 @@ class InmemoryTree(BaseMerkleTree):
         if not self.root:
             return '\n └─[None]\n'
 
-        return self.root.expand(indent, trim) + '\n'
+        return self.root.render(indent, trim) + '\n'
 
 
     def _encode_entry(self, data):
@@ -325,7 +325,7 @@ class InmemoryTree(BaseMerkleTree):
         :type width: int
         :rtype: bytes
         """
-        node = self._get_subroot_node(offset + 1, log2(width))
+        node = self._get_subroot_node(offset + 1, floor_log2(width))
 
         if not node:
             return super()._get_subroot(offset, width)
@@ -385,6 +385,6 @@ class InmemoryTree(BaseMerkleTree):
 
         :rtype: Node
         """
-        degree = decompose(len(self.leaves))[0]
+        degree = binary_exponents(len(self.leaves))[0]
 
         return self.leaves[-1].get_ancestor(degree)
