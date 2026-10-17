@@ -1,6 +1,8 @@
 pytest>=9.1
 pytest-cov>=7.1
 pytest-benchmark[histogram]>=5.3
+line_profiler>=5.0
+memory_profiler>=0.61
 # Current documentation tooling requires Python 3.12; fall back to the last
 # releases supporting Python 3.11
 sphinx>=9.1; python_version >= "3.12"
