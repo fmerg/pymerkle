@@ -3,7 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
-## Unreleased
+## 7.0.0 2026-10-17
+
+This version introduces significant security improvements and is not
+backwards compatible; proofs serialized by earlier versions must be
+regenerated.
 
 ### Security
 
